@@ -1,6 +1,6 @@
 Import('env')
 
-SUBS = ['empty', 'pong']
+SUBS = ['empty', 'pong' , 'tor']
 
 for sub in SUBS:
 	SConscript(sub+'/SConscript', exports='env')
