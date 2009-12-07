@@ -1,10 +1,11 @@
 #ifndef PUZZLES_H
 #define PUZZLES_H
 
+#include <system.h>
 #include <utils.h>
 
 typedef struct {
-	const char* name;
+	char* name;
 	TexHandle image;
 	Vector2 tile_size; // single tile size in pixels
 	uint width, height; // puzzle size in tiles
@@ -14,6 +15,7 @@ typedef struct {
 extern uint puzzle_count;
 extern PuzzleDesc* puzzle_descs;
 
+// Must be initialized after video!
 void puzzles_init(void);
 void puzzles_close(void);
 
