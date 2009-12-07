@@ -1,0 +1,28 @@
+import os
+
+BIN_DIR = 'bin'
+BUILD_DIR = 'build_'
+SUBS = ['src', 'apps']
+
+env = Environment(CCFLAGS='-Wall -std=c99', CPPPATH='#/src',
+	LIBPATH='#/bin', DGREED_BIN_DIR=BIN_DIR)
+if str(Platform()) == 'win32':
+	Tool('mingw')(env)
+	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32'])
+else:
+	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal'])
+	
+env_dbg = env.Clone()
+env_dbg.Prepend(CCFLAGS='-D_DEBUG -g ', DGREED_POSTFIX='d',
+	DGREED_LIBS=['dgreedd'])
+env_rel = env.Clone()
+env_rel.Prepend(CCFLAGS='-DNDEBUG -O2 ', DGREED_POSTFIX='',
+	DGREED_LIBS=['dgreed'])
+
+for sub in SUBS:
+	build_postfix = '' if sub=='src' else sub+'_'
+	env = env_dbg
+	env.SConscript(sub + '/SConscript', variant_dir=BUILD_DIR+build_postfix+'dbg', exports='env')
+	env = env_rel
+	env.SConscript(sub + '/SConscript', variant_dir=BUILD_DIR+build_postfix+'rel', exports='env')
+
