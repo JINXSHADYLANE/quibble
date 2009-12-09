@@ -1,5 +1,35 @@
 (puzzles _
-	(puzzle "Test Puzzle"
+	(puzzle "Misty Mountain Hop"
+		(texture puzzle1.png)
+		(tile_size 32,32)
+		(solved_state _
+			(_ "0 0 1 1")
+			(_ "0 0 1 1")
+			(_ "0 0 1 1")
+			(_ "0 0 1 1")
+		)
+	)
+	(puzzle "Celebration Day"
+		(texture puzzle1.png)
+		(tile_size 32,32)
+		(solved_state _
+			(_ "0 0 1 1")
+			(_ "0 0 1 1")
+			(_ "0 0 1 1")
+			(_ "0 0 1 1")
+		)
+	)
+	(puzzle "Gallows Pole"
+		(texture puzzle1.png)
+		(tile_size 32,32)
+		(solved_state _
+			(_ "0 0 1 1")
+			(_ "0 0 1 1")
+			(_ "0 0 1 1")
+			(_ "0 0 1 1")
+		)
+	)
+	(puzzle "Dazed and Confused"
 		(texture puzzle1.png)
 		(tile_size 32,32)
 		(solved_state _
@@ -10,3 +40,4 @@
 		)
 	)
 )	
+

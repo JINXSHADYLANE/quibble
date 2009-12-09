@@ -127,6 +127,7 @@ void puzzles_init(void) {
 		puzzle_descs[i].height = height;
 		
 		puzzle_desc = mml_get_next(&desc, puzzle_desc);
+		i++;
 	}
 }
 

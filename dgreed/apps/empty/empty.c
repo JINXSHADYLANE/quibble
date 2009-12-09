@@ -9,5 +9,6 @@ int main(int argc, const char** argv) {
 	}
 
 	video_close();
+	log_close();
 }
 

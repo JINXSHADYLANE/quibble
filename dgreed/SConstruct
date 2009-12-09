@@ -2,15 +2,18 @@ import os
 
 BIN_DIR = 'bin'
 BUILD_DIR = 'build_'
+TOOL_DIR = 'tools'
 SUBS = ['src', 'apps']
 
 env = Environment(CCFLAGS='-Wall -std=c99', CPPPATH='#/src',
-	LIBPATH='#/bin', DGREED_BIN_DIR=BIN_DIR)
+	LIBPATH='#/bin', DGREED_BIN_DIR=BIN_DIR) 
 if str(Platform()) == 'win32':
 	Tool('mingw')(env)
-	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32'])
+	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32'],
+		DGREED_FONT_TOOL=TOOL_DIR+'\\'+'fnt2bft.py $SOURCE $TARGET')
 else:
-	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal'])
+	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal'],
+		DGREED_FONT_TOOL=TOOL_DIR+'/'+'fnt2bft.py $SOURCE $TARGET')
 	
 env_dbg = env.Clone()
 env_dbg.Prepend(CCFLAGS='-D_DEBUG -g ', DGREED_POSTFIX='d',

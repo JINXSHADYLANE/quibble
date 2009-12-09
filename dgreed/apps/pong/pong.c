@@ -159,5 +159,6 @@ int main(int argc, const char** argv) {
 
 	sound_close();
 	video_close();
+	log_close();
 }
 
