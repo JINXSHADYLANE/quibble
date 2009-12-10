@@ -8,6 +8,7 @@
 // Resources
 TexHandle tex1;
 SoundHandle bump;
+SoundHandle music;
 
 // Tweakables
 RectF paddle_src = {0.0f, 0.0f, 16.0f, 64.0f};
@@ -31,11 +32,13 @@ uint dir = 0; // 0 - ball wil go towards player1
 void resources_load(void) {
 	tex1 = tex_load(ASSETS_DIR "graphics.png");
 	bump = sound_load_sample(ASSETS_DIR "bump.wav");
+	music = sound_load_stream(ASSETS_DIR "ggp.ogg");
 }
 
 void resources_free(void) {
 	tex_free(tex1);
 	sound_free(bump);
+	sound_free(music);
 }
 
 void game_reset(void) {
@@ -148,6 +151,7 @@ int main(int argc, const char** argv) {
 	resources_load();
 	game_reset();
 
+	sound_play(music);
 	while(system_update()) {
 		game_update();
 		game_draw();
