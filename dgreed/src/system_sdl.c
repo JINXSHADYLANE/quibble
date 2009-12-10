@@ -556,7 +556,7 @@ void sound_update(void) {
 				sounds[i].channels==1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
 				sounds[i].buffer, STREAM_BUFFER_SIZE, sounds[i].frequency);
 		}
-		 {
+		else {
 			// Resume playing if there was buffer under-run
 			alGetSourcei(sources[source_id], AL_SOURCE_STATE, &state);
 			if(state == AL_STOPPED)
@@ -694,7 +694,7 @@ void sound_free(SoundHandle handle) {
 		
 		sounds[handle].stream_source_id = -1;
 		alDeleteBuffers(2, sounds[handle].buffers);
-		error = alGetError();
+		ALuint error = alGetError();
 		if(error != AL_NO_ERROR)
 			LOG_ERROR("Unable to delete sound stream buffers");
 		
