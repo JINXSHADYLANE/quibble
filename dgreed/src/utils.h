@@ -204,6 +204,9 @@ uint params_find(const char* param);
 
 typedef size_t FileHandle;
 
+// Returns true if file exists
+bool file_exists(const char* name);
+
 // Open file for reading
 FileHandle file_open(const char* name);
 // Close opened file
@@ -219,6 +222,15 @@ byte file_read_byte(FileHandle f);
 uint16 file_read_uint16(FileHandle f);
 uint32 file_read_uint32(FileHandle f);
 void file_read(FileHandle f, void* dest, uint size);
+
+// Opens/creates new file for writing
+FileHandle file_create(const char* name);
+
+// Writing functions
+void file_write_byte(FileHandle f, byte data);
+void file_write_uint16(FileHandle f, uint16 data);
+void file_write_uint32(FileHandle f, uint32 data);
+void file_write(FileHandle f, void* data, uint size);
 
 // Text file helpers
 
@@ -265,6 +277,16 @@ void* lz_compress(void* input, uint input_size, uint* output_size);
 // Decompresses buffer which was compressed with lz_compress 
 // You have to free memory allocated for output buffer yourself! 
 void* lz_decompress(void* input, uint input_size, uint* output_size);
+
+/*
+---------------
+--- Hashing ---
+---------------
+*/
+
+// Fast and simple hashing algorithm with funny name
+// http://en.wikipedia.org/wiki/MurmurHash
+uint hash_murmur(void* data, uint len, uint seed);
 
 #endif
 

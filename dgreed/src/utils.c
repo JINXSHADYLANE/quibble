@@ -363,6 +363,15 @@ uint params_find(const char* param) {
 ---------------
 */
 
+bool file_exists(const char* name) {
+	FILE* file = fopen(name, "rb");
+	if(file != NULL) {
+		fclose(file);
+		return true;
+	}
+	return false;
+}
+
 FileHandle file_open(const char* name) {
 	FILE* f = fopen(name, "rb");
 
@@ -455,6 +464,54 @@ void file_read(FileHandle f, void* dest, uint size) {
 		LOG_ERROR("File reading error. Unexpected EOF?");
 
 }		
+
+FileHandle file_create(const char* name) {
+	assert(name);
+	
+	FILE* file = fopen(name, "wb");
+	if(file == NULL) {
+		LOG_ERROR("Unable to open file %s for writing", name);
+		return 0;
+	}
+
+	return (FileHandle)file;
+}
+
+void file_write_byte(FileHandle f, byte data) {
+	FILE* file = (FILE*)f;
+
+	assert(file);
+
+	if(fwrite((void*)&data, 1, 1, file) != 1)
+		LOG_ERROR("File writing error");
+}
+
+void file_write_uint16(FileHandle f, uint16 data) {
+	FILE* file = (FILE*)f;
+
+	assert(file);
+
+	if(fwrite((void*)&data, 1, 2, file) != 2)
+		LOG_ERROR("File writing error");
+}		
+
+void file_write_uint32(FileHandle f, uint32 data) {
+	FILE* file = (FILE*)f;
+
+	assert(file);
+
+	if(fwrite((void*)&data, 1, 4, file) != 4)
+		LOG_ERROR("File writing error");
+}
+
+void file_write(FileHandle f, void* data, uint size) {
+	FILE* file = (FILE*)f;
+
+	assert(file);
+
+	if(fwrite(data, 1, size, file) != size)
+		LOG_ERROR("File writing error");
+}
 
 void txtfile_write(const char* name, const char* text) {
 	assert(name);
@@ -633,5 +690,48 @@ void* lz_decompress(void* input, uint input_size, uint* output_size) {
 	}	
 
 	return decompressed;
+}
+
+/*
+---------------
+--- Hashing ---
+---------------
+*/
+
+uint hash_murmur(void* data, uint len, uint seed) {
+	const uint m = 0x5bd1e995;
+	const int r = 24;
+	uint h = seed ^ len;
+	const byte* bdata = (const byte*)data;
+
+	while(len >= 4) {
+		uint k = bdata[0];
+		k |= bdata[1] << 8;
+		k |= bdata[2] << 16;
+		k |= bdata[3] << 24;
+
+		k *= m;
+		k ^= k >> r;
+		k *= m;
+
+		h *= m;
+		h ^= k;
+
+		bdata += 4;
+		len -= 4;
+	}
+
+	switch(len) {
+		case 3: h ^= bdata[2] << 16;
+		case 2: h ^= bdata[1] << 6;
+		case 1: h ^= bdata[0];
+				h *= m;
+	};
+
+	h ^= h >> 13;
+	h *= m;
+	h ^= h >> 15;
+
+	return h;
 }
 
