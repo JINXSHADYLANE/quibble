@@ -9,9 +9,9 @@ int main(int argc, const char** argv) {
 	log_init("tor.log", LOG_LEVEL_INFO);
 	saves_init();
 	video_init(SCREEN_WIDTH, SCREEN_HEIGHT);
+	puzzles_init();
 	background_init();
 	menu_init();
-	puzzles_init();
 
 	while(system_update()) {
 		menu_update();
@@ -19,9 +19,9 @@ int main(int argc, const char** argv) {
 		video_present();
 	}
 
-	puzzles_close();
 	menu_close();
 	background_close();
+	puzzles_close();
 	video_close();
 	saves_close();
 	log_close();

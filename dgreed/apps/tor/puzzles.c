@@ -139,3 +139,29 @@ void puzzles_close(void) {
 	MEM_FREE(puzzle_descs);
 }
 
+RectF puzzle_get_tile_rect(uint puzzle, uint tile) {
+	assert(puzzle < puzzle_count);
+
+	PuzzleDesc* desc = &puzzle_descs[puzzle];
+	
+	// Size in pixels
+	uint width, height;
+	tex_size(desc->image, &width, &height);
+	// Size in tiles
+	uint t_width = width / (uint)desc->tile_size.x; 
+	uint t_height = height / (uint)desc->tile_size.y; 
+
+	assert(tile < t_width * t_height);
+	t_height = 0; // To prevent unused warning in release mode
+
+	uint t_x = tile % t_width;
+	uint t_y = tile / t_width;
+
+	RectF result = {(float)t_x * desc->tile_size.x, 
+		(float)t_y * desc->tile_size.y, 0.0f, 0.0f};	
+	result.right = result.left + desc->tile_size.x;
+	result.bottom = result.top + desc->tile_size.y;
+
+	return result;
+}
+

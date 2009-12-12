@@ -19,5 +19,8 @@ extern PuzzleDesc* puzzle_descs;
 void puzzles_init(void);
 void puzzles_close(void);
 
+// Returns texture source rectangle of tile
+RectF puzzle_get_tile_rect(uint puzzle, uint tile);
+
 #endif
 
