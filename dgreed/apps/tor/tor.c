@@ -4,6 +4,7 @@
 #include "background.h"
 #include "menu.h"
 #include "saves.h"
+#include "game.h"
 
 int main(int argc, const char** argv) {
 	log_init("tor.log", LOG_LEVEL_INFO);
@@ -12,10 +13,12 @@ int main(int argc, const char** argv) {
 	puzzles_init();
 	background_init();
 	menu_init();
+	game_init();
 
 	while(system_update()) {
 		menu_update();
 		menu_render();
+		game_render();
 		video_present();
 	}
 
