@@ -48,13 +48,17 @@ void puzzles_init(void) {
 		if(!texture_node)	
 			LOG_ERROR("Puzzle description is missing texture");	
 		// Check earlier nodes for same texture name, skip loading if found
+		uint earlier_desc_idx = 0;
 		for(NodeIdx node = mml_get_first_child(&desc, root); 
 			node != puzzle_desc; node = mml_get_next(&desc, node)) {
 			NodeIdx earlier_texture_node = mml_get_child(&desc, node, "texture");
 			if(strcmp(mml_getval_str(&desc, texture_node), 
 				mml_getval_str(&desc, earlier_texture_node)) == 0) {
+				assert(earlier_desc_idx < i);
+				puzzle_descs[i].image = puzzle_descs[earlier_desc_idx].image;
 				goto read_state;
 			}
+			earlier_desc_idx++;
 		}
 		char path[64];
 		strcpy(path, ASSETS_DIR);
