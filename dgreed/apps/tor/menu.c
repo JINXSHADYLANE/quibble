@@ -2,6 +2,7 @@
 #include "background.h"
 #include "common.h"
 #include "puzzles.h"
+#include "game.h"
 #include <font.h>
 #include <memory.h>
 
@@ -69,6 +70,10 @@ void menu_update(void) {
 		RectF rect = _puzzle_name_rect(i);	
 		if(rectf_contains_point(&rect, &m_pos)) {
 			puzzle_hotness[i] = puzzle_hotness[i] + dt * select_fadein_speed;
+			if(mouse_up(MBTN_RIGHT)) {
+				game_reset(i);
+				game_state = PUZZLE_STATE;
+			}
 		}	
 		else {
 			puzzle_hotness[i] = 

@@ -15,13 +15,24 @@ int main(int argc, const char** argv) {
 	menu_init();
 	game_init();
 
+	game_state = MENU_STATE;
+
 	while(system_update()) {
-		menu_update();
-		menu_render();
-		game_render();
+		switch(game_state) {
+			case MENU_STATE:
+				menu_update();
+				menu_render();
+				break;
+			case PUZZLE_STATE:
+				game_render();
+				break;
+			default:
+				LOG_ERROR("Unknown state!");
+		}		
 		video_present();
 	}
 
+	game_close();
 	menu_close();
 	background_close();
 	puzzles_close();

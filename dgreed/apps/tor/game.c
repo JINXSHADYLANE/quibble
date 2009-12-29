@@ -1,21 +1,33 @@
 #include "game.h"
 #include "common.h"
+#include <memory.h>
+
+PuzzleDesc game_puzzle;
+uint game_puzzle_num;
+uint* puzzle_state = NULL;
+uint game_tiles_total;
+Vector2 game_corner;
+GameState game_state;
 
 void game_init(void)
 {
-	// Get current puzzle as local game variable
+}
 
-// ToDo: take not the first puzzle
-	game_puzzle_num = 0;
-	game_puzzle = *puzzle_descs;
+void game_reset(uint puzzle_num)
+{
+	assert(puzzle_num < puzzle_count);
 
-	// Fill game_state for game start
+	game_puzzle_num = puzzle_num;
+	game_puzzle = puzzle_descs[game_puzzle_num];
+
+	// Fill puzzle_state for game start
 	game_tiles_total = game_puzzle.width * game_puzzle.height; 
 
-	for (uint i=0; i<game_tiles_total; i++)
-// ToDo: make sure it's alright
-		*(game_state + i) = i;
-	assert(game_state == NULL);
+	if(puzzle_state)
+		MEM_FREE(puzzle_state);
+	puzzle_state = MEM_ALLOC(game_tiles_total * sizeof(uint));
+	puzzle_state = memcpy(puzzle_state, game_puzzle.solved,
+					    game_tiles_total * sizeof(uint));
 
 	// Initial puzzle corner coordinates
 	game_corner.x = SCREEN_WIDTH/2 - (game_puzzle.tile_size.x * 
@@ -33,7 +45,7 @@ void game_render(void)
 	for (uint i=0; i<game_tiles_total; i++)
 	{
 		// Take i-th tile from original picture...
-		src = puzzle_get_tile_rect(game_puzzle_num, i);
+		src = puzzle_get_tile_rect(game_puzzle_num, puzzle_state[i]);
 		
 		// ... And place where it belongs
 		dest.left = (i % game_puzzle.width) * game_puzzle.tile_size.x +
@@ -45,10 +57,10 @@ void game_render(void)
 		dest.bottom = ((i / game_puzzle.width) + 1) * 
 					  game_puzzle.tile_size.y + game_corner.y;
 
-		assert(dest.left < 0 || dest.left > SCREEN_WIDTH);
-		assert(dest.right < 0 || dest.right > SCREEN_WIDTH);
-		assert(dest.top < 0 || dest.top > SCREEN_HEIGHT);
-		assert(dest.bottom < 0 || dest.bottom > SCREEN_HEIGHT);
+		assert(dest.left >= 0 && dest.left < SCREEN_WIDTH);
+		assert(dest.right >= 0 && dest.right < SCREEN_WIDTH);
+		assert(dest.top >= 0 && dest.top < SCREEN_HEIGHT);
+		assert(dest.bottom >= 0 && dest.bottom < SCREEN_HEIGHT);
 		
 		// Draw that piece
 		video_draw_rect(game_puzzle.image, 1, &src, &dest, COLOR_WHITE);
@@ -72,5 +84,8 @@ void game_update(void)
 
 void game_close(void)
 {
+	if(puzzle_state)
+		MEM_FREE(puzzle_state);
+	puzzle_state = NULL;	
 }
 
