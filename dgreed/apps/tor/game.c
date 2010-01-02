@@ -1,5 +1,6 @@
 #include "game.h"
 #include "common.h"
+#include "background.h"
 #include <memory.h>
 
 PuzzleDesc game_puzzle;
@@ -39,6 +40,8 @@ void game_reset(uint puzzle_num)
 
 void game_render(void)
 {
+	background_render();
+
 	RectF src = rectf_null();
 	RectF dest = rectf_null();
 
@@ -63,12 +66,13 @@ void game_render(void)
 		assert(dest.bottom >= 0 && dest.bottom < SCREEN_HEIGHT);
 		
 		// Draw that piece
-		video_draw_rect(game_puzzle.image, 1, &src, &dest, COLOR_WHITE);
+		video_draw_rect(game_puzzle.image, 2, &src, &dest, COLOR_WHITE);
 	}
 }
 
 void game_update(void)
 {
+	background_update();
 	
 	// algorithm to change current puzzle.
 

@@ -73,6 +73,7 @@ void menu_update(void) {
 			if(mouse_up(MBTN_RIGHT)) {
 				game_reset(i);
 				game_state = PUZZLE_STATE;
+				background_switch();
 			}
 		}	
 		else {

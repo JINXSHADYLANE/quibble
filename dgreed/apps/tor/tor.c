@@ -25,6 +25,7 @@ int main(int argc, const char** argv) {
 				break;
 			case PUZZLE_STATE:
 				game_render();
+				game_update();
 				break;
 			default:
 				LOG_ERROR("Unknown state!");

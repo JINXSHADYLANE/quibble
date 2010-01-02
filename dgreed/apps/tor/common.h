@@ -9,6 +9,7 @@
 #define ASSETS_DIR "tor_assets/"
 #define PUZZLE_DESCS ASSETS_DIR "puzzles.mml"
 #define ATLAS1 ASSETS_DIR "atlas1.png"
+#define ATLAS2 ASSETS_DIR "atlas2.png"
 #define FONT_NOVA ASSETS_DIR "nova.bft"
 #define SAVE_FILE "saves"
 
