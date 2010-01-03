@@ -190,6 +190,11 @@ ColorHSV rgb_to_hsv(Color rgb) {
 }	
 
 Color color_lerp(Color c1, Color c2, float t) {
+	if(t <= 0.0f)
+		return c1;
+	if(t >= 1.0f)
+		return c2;
+
 	byte r1, g1, b1, a1;
 	byte r2, g2, b2, a2;
 	byte r, g, b, a;

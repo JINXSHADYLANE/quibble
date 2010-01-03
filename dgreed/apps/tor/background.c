@@ -52,8 +52,8 @@ void background_render(void) {
 	dest.right -= SCREEN_WIDTH;
 	video_draw_rect(atlas1, 0, &background1_src, &dest, COLOR_WHITE);
 	
-	Color c1 = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, transition_factor);
-	Color c2 = color_lerp(COLOR_TRANSPARENT, COLOR_WHITE, transition_factor);
+	Color c1 = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, clamp(0.0f, 1.0f, transition_factor));
+	Color c2 = color_lerp(COLOR_TRANSPARENT, COLOR_WHITE, clamp(0.0f, 1.0f, transition_factor));
 
 	dest = rectf(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
 	if(transition_factor < 1.0f)
