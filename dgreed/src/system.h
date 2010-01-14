@@ -131,6 +131,7 @@ uint time_fps(void);
 */
 
 bool system_update(void);
+uint sdl_to_greed_mbtn(uint mbtn_id);
 
 #endif
 

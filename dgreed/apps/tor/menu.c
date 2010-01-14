@@ -70,7 +70,7 @@ void menu_update(void) {
 		RectF rect = _puzzle_name_rect(i);	
 		if(rectf_contains_point(&rect, &m_pos)) {
 			puzzle_hotness[i] = puzzle_hotness[i] + dt * select_fadein_speed;
-			if(mouse_up(MBTN_RIGHT)) {
+			if(mouse_up(MBTN_LEFT)) {
 				game_reset(i);
 				game_state = PUZZLE_STATE;
 				background_switch();

@@ -884,10 +884,10 @@ bool system_update(void) {
 			mouse_y = evt.motion.y;
 		}	
 		if(evt.type == SDL_MOUSEBUTTONUP) {
-			mousestate[evt.button.button] = 0;
+			mousestate[sdl_to_greed_mbtn(evt.button.button)] = 0;
 		}
 		if(evt.type == SDL_MOUSEBUTTONDOWN) {
-			mousestate[evt.button.button] = 1;
+			mousestate[sdl_to_greed_mbtn(evt.button.button)] = 1;
 		}		
 		if(evt.type == SDL_QUIT)
 			return false;
@@ -909,3 +909,17 @@ bool system_update(void) {
 	return true;
 }	
 		
+uint sdl_to_greed_mbtn(uint mbtn_id) {
+	switch (mbtn_id) {
+		case SDL_BUTTON_LEFT:
+			return 0;
+		case SDL_BUTTON_RIGHT:
+			return 1;
+		case SDL_BUTTON_MIDDLE:
+			return 2;
+		default:
+			break;
+	}
+	return 0;
+}
+

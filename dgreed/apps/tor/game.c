@@ -36,7 +36,6 @@ void game_reset(uint puzzle_num)
 	puzzle_state = memcpy(puzzle_state, game_puzzle.solved,
 					    game_tiles_total * sizeof(uint));
 
-	// Initial puzzle corner coordinates
 	game_corner.x = SCREEN_WIDTH/2 - (game_puzzle.tile_size.x * 
 					game_puzzle.width) / 2;
 	game_corner.y = SCREEN_HEIGHT/2 - (game_puzzle.tile_size.y *
@@ -71,7 +70,6 @@ void game_render(void)
 		assert(dest.top >= 0 && dest.top < SCREEN_HEIGHT);
 		assert(dest.bottom >= 0 && dest.bottom < SCREEN_HEIGHT);
 		
-		// Draw that piece
 		video_draw_rect(game_puzzle.image, 2, &src, &dest, COLOR_WHITE);
 	}
 }
@@ -80,17 +78,12 @@ void game_update(void)
 {
 	background_update();
 	
-	// algorithm to change current puzzle.
-	
-	// Initialize values?
-
-	if (mouse_down(MBTN_RIGHT))
+	if (mouse_down(MBTN_LEFT))
 	{
 		mouse_pos(&mouse_start_x, &mouse_start_y);
-		// get tile number
 		tile_clicked = game_mouse_tile(mouse_start_x, mouse_start_y);
 	}
-	else if (mouse_up(MBTN_RIGHT))
+	else if (mouse_up(MBTN_LEFT))
 	{
 		mouse_pos(&mouse_end_x, &mouse_end_y);
 		dtile_x = game_delta_tile(mouse_start_x, mouse_end_x, game_puzzle.tile_size.x);
@@ -99,14 +92,6 @@ void game_update(void)
 		// ToDo: Animate rotation
 		game_rotate_board(dtile_x, dtile_y, tile_clicked);
 	}
-
-// If puzzle loaded and mouse just pressed:
-	//	 Take mouse coordinates
-	//	 check for mouse position (square number)
-	// If mouse just released:
-	//	 Count_delta_coordinates()
-	//	 rotate_puzzle(row, col, direction)
-
 }
 
 void game_close(void)
