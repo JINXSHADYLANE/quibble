@@ -96,7 +96,8 @@ typedef enum {
 typedef enum {
 	MBTN_LEFT = 0,
 	MBTN_RIGHT,
-	MBTN_MIDDLE
+	MBTN_MIDDLE,
+	MBTN_ELSE
 } MouseButton;	
 
 // Returns true if key is being held down

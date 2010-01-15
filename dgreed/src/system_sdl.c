@@ -793,7 +793,7 @@ uint keybindings[8] = {
 
 // Totaly arbitrary. Only thing known - 256 is not enough.
 #define N_KEYS 400
-#define N_MOUSE_BUTTONS 3
+#define N_MOUSE_BUTTONS 4
 
 byte old_keystate[N_KEYS];
 byte keystate[N_KEYS];
@@ -912,14 +912,14 @@ bool system_update(void) {
 uint sdl_to_greed_mbtn(uint mbtn_id) {
 	switch (mbtn_id) {
 		case SDL_BUTTON_LEFT:
-			return 0;
+			return MBTN_LEFT;
 		case SDL_BUTTON_RIGHT:
-			return 1;
+			return MBTN_RIGHT;
 		case SDL_BUTTON_MIDDLE:
-			return 2;
+			return MBTN_MIDDLE;
 		default:
 			break;
 	}
-	return 0;
+	return MBTN_ELSE;
 }
 
