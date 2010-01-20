@@ -1,4 +1,5 @@
 #include "game.h"
+
 #include "common.h"
 #include "background.h"
 #include <memory.h>
@@ -14,6 +15,10 @@ uint mouse_start_x, mouse_start_y;
 uint mouse_end_x, mouse_end_y;
 int dtile_x, dtile_y;
 uint tile_clicked;
+bool game_animate_plus, game_animate_minus, game_rotate;
+uint alpha_max, alpha_min, alpha;
+float alpha_change, alpha_const;
+bool animate;
 
 void game_init(void)
 {
@@ -32,7 +37,7 @@ void game_reset(uint puzzle_num)
 	if(puzzle_state)
 		MEM_FREE(puzzle_state);
 	puzzle_state = MEM_ALLOC(game_tiles_total * sizeof(uint));
-	// ToDo: randomize puzzle start state
+// ToDo: randomize puzzle start state
 	puzzle_state = memcpy(puzzle_state, game_puzzle.solved,
 					    game_tiles_total * sizeof(uint));
 
@@ -40,12 +45,40 @@ void game_reset(uint puzzle_num)
 					game_puzzle.width) / 2;
 	game_corner.y = SCREEN_HEIGHT/2 - (game_puzzle.tile_size.y *
 					game_puzzle.height) / 2;
-
+	
+	alpha = 255;
+	alpha_min = 0;
+	alpha_max = 255;
+	alpha_change = 0.0;
+	alpha_const = 0.02;
+	
+	animate = false;
+	game_animate_plus = false;
+	game_animate_minus = false;
+	game_rotate = false;
 }
 
 void game_render(void)
 {
 	background_render();
+
+	// Alpha counting part
+
+// ToDo: don't do anything, while animating
+// ToDo: don't animate last line when dtile_y and mouse out of bounds
+
+	if (game_animate_plus) alpha_change += alpha_const;
+	else if (game_animate_minus) alpha_change -= alpha_const;
+	else alpha_change = 1;
+
+	alpha = color_lerp(alpha_min, alpha_max, alpha_change);
+
+	if (alpha == 0 && game_animate_minus) game_rotate = true;
+	if (alpha == 255) game_animate_plus = false;
+
+	assert(alpha >= 0 && alpha < 256);
+
+	// Table drawing part
 
 	RectF src = rectf_null();
 	RectF dest = rectf_null();
@@ -64,13 +97,30 @@ void game_render(void)
 					  game_puzzle.tile_size.x + game_corner.x;
 		dest.bottom = ((i / game_puzzle.width) + 1) * 
 					  game_puzzle.tile_size.y + game_corner.y;
-
+		
 		assert(dest.left >= 0 && dest.left < SCREEN_WIDTH);
 		assert(dest.right >= 0 && dest.right < SCREEN_WIDTH);
 		assert(dest.top >= 0 && dest.top < SCREEN_HEIGHT);
 		assert(dest.bottom >= 0 && dest.bottom < SCREEN_HEIGHT);
 		
-		video_draw_rect(game_puzzle.image, 2, &src, &dest, COLOR_WHITE);
+		animate = false;
+		if (game_animate_plus || game_animate_minus)
+		{
+			if (dtile_x)
+			{
+				uint row = tile_clicked / game_puzzle.width;
+				if (i / game_puzzle.width == row) animate = true;
+			}
+			if (dtile_y)
+			{
+				uint col = tile_clicked % game_puzzle.width;
+				if (i % game_puzzle.width == col) animate = true;
+			}
+		}
+
+		if (animate) 
+			video_draw_rect(game_puzzle.image, 2, &src, &dest, COLOR_RGBA(255, 255, 255, alpha));
+		else video_draw_rect(game_puzzle.image, 2, &src, &dest, COLOR_WHITE);
 	}
 }
 
@@ -89,9 +139,18 @@ void game_update(void)
 		dtile_x = game_delta_tile(mouse_start_x, mouse_end_x, game_puzzle.tile_size.x);
 		dtile_y = game_delta_tile(mouse_start_y, mouse_end_y, game_puzzle.tile_size.y);
 		
+		if (dtile_x || dtile_y) game_animate_minus = true;
 		// ToDo: Animate rotation
-		game_rotate_board(dtile_x, dtile_y, tile_clicked);
 	}
+
+	if (game_rotate) 
+	{
+		game_animate_minus = false;
+		game_rotate_board(dtile_x, dtile_y, tile_clicked);
+		game_animate_plus = true;
+		game_rotate = false;
+	}
+
 }
 
 void game_close(void)
