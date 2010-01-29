@@ -807,15 +807,30 @@ bool key_pressed(Key key) {
 	return keystate[keybindings[key]];
 }	
 
+bool char_pressed(char c) {
+	assert(c >= 'a' && c <= 'z');
+	return keystate[(size_t)c];
+}
+
 bool key_down(Key key) {
 	assert(key < KEY_COUNT);
 	return keystate[keybindings[key]] && !old_keystate[keybindings[key]];
 }	
 
+bool char_down(char c) {
+	assert(c >= 'a' && c <= 'z');
+	return keystate[(size_t)c] && !old_keystate[(size_t)c];
+}
+
 bool key_up(Key key) {
 	assert(key < KEY_COUNT);
 	return !keystate[keybindings[key]] && old_keystate[keybindings[key]];
-}	
+}
+
+bool char_up(char c) {
+	assert(c >= 'a' && c <= 'z');
+	return !keystate[(size_t)c] && old_keystate[(size_t)c];
+}
 
 bool mouse_pressed(MouseButton button) {
 	assert(button < N_MOUSE_BUTTONS);

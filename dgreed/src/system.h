@@ -102,10 +102,15 @@ typedef enum {
 
 // Returns true if key is being held down
 bool key_pressed(Key key);
+bool char_pressed(char c);
+
 // Returns true when key was just pressed down
 bool key_down(Key key);
+bool char_down(char c);
+
 // Returns true when key is released
 bool key_up(Key key);
+bool char_up(char c);
 
 // Same as key_***, just for mouse
 bool mouse_pressed(MouseButton button);
