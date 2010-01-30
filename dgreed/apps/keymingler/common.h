@@ -12,6 +12,8 @@
 #define LAYOUTS_FILE ASSETS_DIR "layouts.mml"
 #define FONT_FILE ASSETS_DIR "appopaint.bft"
 #define BARREL_FILE ASSETS_DIR "barrel2.png"
+#define FIRE_FRAMES 8
+#define FIRE_FILE ASSETS_DIR "flare %d.png"
 
 #endif
 
