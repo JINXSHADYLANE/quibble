@@ -3,6 +3,7 @@
 #include <system.h>
 #include <utils.h>
 #include <font.h>
+#include "sounds.h"
 
 // Types
 typedef struct {
@@ -160,11 +161,15 @@ void _update_barrels(float t, float dt) {
 			barrels[i].fire_start_t = t;
 
 			no_more_checks = true;
+			
+			sound_play(sound_shot);
+			sound_play(sound_burning);
 		}
 
 		barrels[i].pos.y += dt *  barrel_fall_speed;
 		if(barrels[i].pos.y > SCREEN_HEIGHT - 100.0f) {
 			// Destroy barrel
+			sound_play(sound_sinked);
 			_remove_barrel(i);
 			i--;
 		}
@@ -172,6 +177,7 @@ void _update_barrels(float t, float dt) {
 
 	if(char_count > 0) {
 		// TODO: handle wrong keypresses
+
 	}
 }
 
