@@ -13,13 +13,14 @@
 #define FONT_FILE ASSETS_DIR "appopaint.bft"
 #define BARREL_FILE ASSETS_DIR "barrel2.png"
 #define BACKGROUND_FILE ASSETS_DIR "fonas.png"
-#define FIRE_FRAMES 8
-#define FIRE_FILE ASSETS_DIR "flare %d.png"
+#define FIRE_FRAMES 7
+#define FIRE_FILE ASSETS_DIR "ugnis%d.png"
+#define BOTTOM_FILE ASSETS_DIR "dugnas.png"
 #define WATER_FRAMES 6
 #define WATER_FILE ASSETS_DIR "vanduo%d.png"
 
 #define MUSIC_FILE ASSETS_DIR "sea_music.wav"
-#define MUSIC_LENGTH 35.880f
+#define MUSIC_LENGTH 35.870f
 
 #endif
 
