@@ -38,11 +38,14 @@ float bottom_y_high = 450.0f;
 float water_y_low = 600.0f;
 float water_y_high = 300.0f;
 float water_anim_speed = 0.15f;
+float laser_length = 0.1f;
 
 // Globals
 #define MAX_BARRELS 64
 uint barrel_count;
 Barrel barrels[MAX_BARRELS];
+float laser_t;
+Vector2 laser_pos;
 
 uint hit_counter;
 uint miss_counter;
@@ -91,18 +94,18 @@ void _draw_water(float level, float t) {
 	water_line = water1_y + 20.0f;
 
 	RectF dest = rectf(0.0f, bottom_y, 0.0f, 0.0f);
-	video_draw_rect(tex_bottom, 1, NULL, &dest, COLOR_WHITE);
+	video_draw_rect(tex_bottom, 2, NULL, &dest, COLOR_WHITE);
 	
 	dest.top = water1_y;
 	dest.left = 1024.0f;
 	dest.right = 0.0f;
 	dest.bottom = dest.top + 590.0f;
-	video_draw_rect(tex_water[frame], 2, &srcrect_water, &dest, water_color);
+	video_draw_rect(tex_water[frame], 8, &srcrect_water, &dest, water_color);
 
 	dest.top = water2_y;
 
 	water_color |= 0xFF000000;
-	video_draw_rect(tex_water[(frame+16)%WATER_FRAMES], 0, &srcrect_water, &dest,
+	video_draw_rect(tex_water[(frame+16)%WATER_FRAMES], 1, &srcrect_water, &dest,
 		water_color);
 }
 
@@ -123,12 +126,14 @@ void _draw_barrel(Vector2 pos, char letter, int fire_frame, float sink_t) {
 
 	if(sink_t >= 0.0f) {
 		Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, sink_t);
-		video_draw_rect(tex_barrel, 2, NULL, &barrel_pos, c);
-		font_draw(font, str, 3, &letter_pos, c);
+		video_draw_rect(tex_barrel, 4, NULL, &barrel_pos, c);
+		c &= 0xFF000000;
+		font_draw(font, str, 5, &letter_pos, c);
+		return;
 	}
 	else {
-		video_draw_rect(tex_barrel, 2, NULL, &barrel_pos, COLOR_WHITE);
-		font_draw(font, str, 3, &letter_pos, COLOR_BLACK);
+		video_draw_rect(tex_barrel, 4, NULL, &barrel_pos, COLOR_WHITE);
+		font_draw(font, str, 5, &letter_pos, COLOR_BLACK);
 	}
 
 	if(fire_frame != -1) {
@@ -139,7 +144,7 @@ void _draw_barrel(Vector2 pos, char letter, int fire_frame, float sink_t) {
 		RectF fire_pos = rectf(pos.x - fire_hwidth, pos.y - fire_hheight, 
 			0.0f, 0.0f);
 		
-		video_draw_rect(tex_fire[fire_frame], 4, NULL, &fire_pos,
+		video_draw_rect(tex_fire[fire_frame], 7, NULL, &fire_pos,
 			COLOR_WHITE);
 	}
 }
@@ -178,7 +183,7 @@ void _update_barrels(float t, float dt) {
 		}
 
 		// Check for correct keypresses	
-		if(barrels[i].fire_frame == -1 && 
+		if(!barrels[i].sinking && barrels[i].fire_frame == -1 && 
 			!no_more_checks && char_down(barrels[i].letter)) {
 			char_count--;
 			barrels[i].fire_frame = 0;
@@ -187,13 +192,16 @@ void _update_barrels(float t, float dt) {
 			no_more_checks = true;
 
 			hit_counter++;
+
+			laser_t = t;
+			laser_pos = vec2(barrels[i].pos.x, barrels[i].pos.y+15.0f);
 			
 			sound_play(sound_burning);
 		}
 
 		barrels[i].pos.y += dt *  barrel_fall_speed;
 
-		if(barrels[i].pos.y > water_line) {
+		if(!barrels[i].sinking && barrels[i].pos.y > water_line) {
 			if (rand_int(0, 2)) sound_play(sound_bulbul);
 			else sound_play(sound_sinked);
 			barrels[i].sinking = true;
@@ -213,7 +221,7 @@ void _update_barrels(float t, float dt) {
 		miss_counter += char_count;
 	}
 
-	water_t = ((float)sink_counter + 0.06f * (float)hit_counter)/100.0f;
+	water_t = ((float)sink_counter - 0.03f * (float)hit_counter)/100.0f;
 	water_t = MIN(water_t, 1.0f);
 }
 
@@ -246,6 +254,7 @@ void game_init(void) {
 	miss_counter = 0;
 	sink_counter = 0;
 	water_t = 0.0f;
+	laser_t = -100.0f;
 }
 
 void game_close(void) {
@@ -275,5 +284,12 @@ void game_render(void) {
 	for(uint i = 0; i < barrel_count; ++i)
 		_draw_barrel(barrels[i].pos, barrels[i].letter, barrels[i].fire_frame,
 			barrels[i].sinking ? (t - barrels[i].sink_t) / barrel_sinking_length : -1.0f);
+
+	if(t - laser_t < laser_length) {
+		Vector2 pos1 = vec2(laser_pos.x > 512.0f ? 1024.0f : 0.0f,
+			laser_pos.y + 15.0f);
+
+		video_draw_line(6, &pos1, &laser_pos, COLOR_RGBA(196, 16, 20, 196));
+	}
 }
 
