@@ -21,6 +21,7 @@ TexHandle tex_bottom;
 TexHandle tex_water[WATER_FRAMES];
 RectF rect_barrel = {0, 0, 70, 84};
 RectF rect_fire = {0, 0, 119, 144};
+RectF srcrect_water = {0, 3, 1024, 539};
 FontHandle font;
 
 // Tweakables
@@ -39,6 +40,11 @@ float water_anim_speed = 0.15f;
 #define MAX_BARRELS 64
 uint barrel_count;
 Barrel barrels[MAX_BARRELS];
+
+uint hit_counter;
+uint miss_counter;
+uint sink_counter;
+float water_t;
 
 void _load_anim(uint n_frames, const char* path, TexHandle* out) {
 	char filename[256];
@@ -69,24 +75,29 @@ void _draw_water(float level, float t) {
 	uint frame = (uint)(t / water_anim_speed);
 	frame %= WATER_FRAMES;
 
-	Color water_color = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, 0.5f);
+	Color water_clear = COLOR_RGBA(255, 255, 255, 128);	
+	Color water_black = COLOR_RGBA(32, 32, 32, 128);	
+	Color water_color = color_lerp(water_clear, water_black, level);
 
-	float bottom_y = lerp(bottom_y_low, bottom_y_high, level);
-	float water_y = lerp(water_y_low, water_y_high, level);
+
+	float bottom_y = lerp(700.0f, 768.0f - 319.0f, level);
+	float water1_y = lerp(650.0f, 768.0f - 590.0f, level);
+	float water2_y = water1_y - 50.0f;
 
 	RectF dest = rectf(0.0f, bottom_y, 0.0f, 0.0f);
 	video_draw_rect(tex_bottom, 1, NULL, &dest, COLOR_WHITE);
 	
-	dest = rectf(0.0f, bottom_y, 0.0f, 0.0f);
-	dest.top = water_y;
-	video_draw_rect(tex_water[frame], 2, NULL, &dest, water_color);
-
-	dest.top -= 50.0f;
-	dest.bottom = dest.top + 295.0f;
+	dest.top = water1_y;
 	dest.left = 1024.0f;
 	dest.right = 0.0f;
-	video_draw_rect(tex_water[(frame+3)%WATER_FRAMES], 0, NULL, &dest,
-	COLOR_WHITE);
+	dest.bottom = dest.top + 590.0f;
+	video_draw_rect(tex_water[frame], 2, &srcrect_water, &dest, water_color);
+
+	dest.top = water2_y;
+
+	water_color |= 0xFF000000;
+	video_draw_rect(tex_water[(frame+16)%WATER_FRAMES], 0, &srcrect_water, &dest,
+		water_color);
 }
 
 void _draw_barrel(Vector2 pos, char letter, int fire_frame) {
@@ -161,6 +172,8 @@ void _update_barrels(float t, float dt) {
 			barrels[i].fire_start_t = t;
 
 			no_more_checks = true;
+
+			hit_counter++;
 			
 			sound_play(sound_shot);
 			sound_play(sound_burning);
@@ -172,13 +185,17 @@ void _update_barrels(float t, float dt) {
 			sound_play(sound_sinked);
 			_remove_barrel(i);
 			i--;
+			sink_counter++;
 		}
 	}
 
 	if(char_count > 0) {
 		// TODO: handle wrong keypresses
-
+		miss_counter += char_count;
 	}
+
+	water_t = ((float)sink_counter + 0.06f * (float)hit_counter)/100.0f;
+	water_t = MIN(water_t, 1.0f);
 }
 
 void _generate_barrels(float t) {
@@ -206,6 +223,10 @@ void game_init(void) {
 	font = font_load(FONT_FILE);
 
 	barrel_count = 0;
+	hit_counter = 0;
+	miss_counter = 0;
+	sink_counter = 0;
+	water_t = 0.0f;
 }
 
 void game_close(void) {
@@ -230,7 +251,7 @@ void game_render(void) {
 	float t = time_ms() / 1000.0f;
 	RectF dest = rectf_null();
 	video_draw_rect(tex_background, 0, NULL, &dest, COLOR_WHITE);
-	_draw_water(0.0f, t);
+	_draw_water(water_t, t);
 
 	for(uint i = 0; i < barrel_count; ++i)
 		_draw_barrel(barrels[i].pos, barrels[i].letter, barrels[i].fire_frame);

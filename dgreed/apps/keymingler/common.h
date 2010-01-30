@@ -16,7 +16,7 @@
 #define FIRE_FRAMES 7
 #define FIRE_FILE ASSETS_DIR "ugnis%d.png"
 #define BOTTOM_FILE ASSETS_DIR "dugnas.png"
-#define WATER_FRAMES 6
+#define WATER_FRAMES 32
 #define WATER_FILE ASSETS_DIR "vanduo%d.png"
 
 #define MUSIC_FILE ASSETS_DIR "sea_music.wav"
