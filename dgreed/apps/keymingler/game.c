@@ -45,6 +45,7 @@ uint hit_counter;
 uint miss_counter;
 uint sink_counter;
 float water_t;
+float water_line;
 
 void _load_anim(uint n_frames, const char* path, TexHandle* out) {
 	char filename[256];
@@ -83,6 +84,7 @@ void _draw_water(float level, float t) {
 	float bottom_y = lerp(700.0f, 768.0f - 319.0f, level);
 	float water1_y = lerp(650.0f, 768.0f - 590.0f, level);
 	float water2_y = water1_y - 50.0f;
+	water_line = water1_y + 20.0f;
 
 	RectF dest = rectf(0.0f, bottom_y, 0.0f, 0.0f);
 	video_draw_rect(tex_bottom, 1, NULL, &dest, COLOR_WHITE);
@@ -180,7 +182,7 @@ void _update_barrels(float t, float dt) {
 		}
 
 		barrels[i].pos.y += dt *  barrel_fall_speed;
-		if(barrels[i].pos.y > SCREEN_HEIGHT - 100.0f) {
+		if(barrels[i].pos.y > water_line) {
 			// Destroy barrel
 			sound_play(sound_sinked);
 			_remove_barrel(i);
