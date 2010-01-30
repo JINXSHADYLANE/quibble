@@ -13,7 +13,7 @@
 #define FONT_FILE ASSETS_DIR "appopaint.bft"
 #define BARREL_FILE ASSETS_DIR "barrel2.png"
 #define BACKGROUND_FILE ASSETS_DIR "fonas.png"
-#define FIRE_FRAMES 7
+#define FIRE_FRAMES 4
 #define FIRE_FILE ASSETS_DIR "ugnis%d.png"
 #define BOTTOM_FILE ASSETS_DIR "dugnas.png"
 #define WATER_FRAMES 32
