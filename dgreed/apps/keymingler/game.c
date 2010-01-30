@@ -11,6 +11,8 @@ typedef struct {
 	char letter;
 	float fire_start_t;
 	int fire_frame;
+	bool sinking;
+	float sink_t;
 } Barrel;	
 
 // Resources
@@ -30,6 +32,7 @@ float barrel_drop_interval = 2.0f;
 float barrel_drop_variance = 1.5f;
 float barrel_fire_anim_speed = 0.04f;
 float barrel_fire_length = 0.5f;
+float barrel_sinking_length = 1.0f;
 float bottom_y_low = 700.0f;
 float bottom_y_high = 450.0f;
 float water_y_low = 600.0f;
@@ -69,6 +72,7 @@ void _drop_barrel(void) {
 		-40.0f);	
 	barrels[barrel_count].letter = (char)rand_int((int)'a', (int)'z');	
 	barrels[barrel_count].fire_frame = -1;
+	barrels[barrel_count].sinking = false;
 	barrel_count++;
 }
 
@@ -102,7 +106,7 @@ void _draw_water(float level, float t) {
 		water_color);
 }
 
-void _draw_barrel(Vector2 pos, char letter, int fire_frame) {
+void _draw_barrel(Vector2 pos, char letter, int fire_frame, float sink_t) {
 	char str[] = {letter, '\0'};
 
 	float barrel_hwidth = (float)rect_barrel.right - (float)rect_barrel.left;
@@ -117,8 +121,15 @@ void _draw_barrel(Vector2 pos, char letter, int fire_frame) {
 	Vector2 letter_pos = vec2(pos.x - letter_hwidth, pos.y - letter_hheight
 		+ 3.0f);
 
-	video_draw_rect(tex_barrel, 2, NULL, &barrel_pos, COLOR_WHITE);
-	font_draw(font, str, 3, &letter_pos, COLOR_BLACK);
+	if(sink_t >= 0.0f) {
+		Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, sink_t);
+		video_draw_rect(tex_barrel, 2, NULL, &barrel_pos, c);
+		font_draw(font, str, 3, &letter_pos, c);
+	}
+	else {
+		video_draw_rect(tex_barrel, 2, NULL, &barrel_pos, COLOR_WHITE);
+		font_draw(font, str, 3, &letter_pos, COLOR_BLACK);
+	}
 
 	if(fire_frame != -1) {
 		float fire_hwidth = (float)rect_fire.right - (float)rect_fire.left;
@@ -181,14 +192,19 @@ void _update_barrels(float t, float dt) {
 		}
 
 		barrels[i].pos.y += dt *  barrel_fall_speed;
+
 		if(barrels[i].pos.y > water_line) {
-			// Destroy barrel
 			if (rand_int(0, 2)) sound_play(sound_bulbul);
 			else sound_play(sound_sinked);
+			barrels[i].sinking = true;
+			barrels[i].sink_t = t;
 
+			sink_counter++;
+		}
+
+		if(barrels[i].sinking && t - barrels[i].sink_t > barrel_sinking_length) {
 			_remove_barrel(i);
 			i--;
-			sink_counter++;
 		}
 	}
 
@@ -257,6 +273,7 @@ void game_render(void) {
 	_draw_water(water_t, t);
 
 	for(uint i = 0; i < barrel_count; ++i)
-		_draw_barrel(barrels[i].pos, barrels[i].letter, barrels[i].fire_frame);
+		_draw_barrel(barrels[i].pos, barrels[i].letter, barrels[i].fire_frame,
+			barrels[i].sinking ? (t - barrels[i].sink_t) / barrel_sinking_length : -1.0f);
 }
 
