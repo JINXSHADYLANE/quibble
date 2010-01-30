@@ -219,10 +219,15 @@ void _update_barrels(float t, float dt) {
 	if(char_count > 0) {
 		// TODO: handle wrong keypresses
 		miss_counter += char_count;
+
+		laser_t = t;
+		float x = rand_float_range(50.0f, 1024.0f - 50.0f);
+		float y = rand_float_range(10.0f, water_line - 20.0f);
+		laser_pos = vec2(x, y);
 	}
 
 	water_t = ((float)sink_counter - 0.03f * (float)hit_counter)/100.0f;
-	water_t = MIN(water_t, 1.0f);
+	water_t = MIN(MAX(water_t, 0.0f), 1.0f);
 }
 
 void _generate_barrels(float t) {
