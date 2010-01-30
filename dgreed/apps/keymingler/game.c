@@ -177,14 +177,15 @@ void _update_barrels(float t, float dt) {
 
 			hit_counter++;
 			
-			sound_play(sound_shot);
 			sound_play(sound_burning);
 		}
 
 		barrels[i].pos.y += dt *  barrel_fall_speed;
 		if(barrels[i].pos.y > water_line) {
 			// Destroy barrel
-			sound_play(sound_sinked);
+			if (rand_int(0, 2)) sound_play(sound_bulbul);
+			else sound_play(sound_sinked);
+
 			_remove_barrel(i);
 			i--;
 			sink_counter++;

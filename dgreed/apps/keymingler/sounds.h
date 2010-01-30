@@ -3,7 +3,6 @@
 
 #include <system.h>
 
-extern SoundHandle sound_shot;
 extern SoundHandle sound_burning;
 extern SoundHandle sound_bulbul;
 extern SoundHandle sound_sinked;
