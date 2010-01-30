@@ -13,18 +13,23 @@ typedef struct {
 } Barrel;	
 
 // Resources
+TexHandle tex_background;
 TexHandle tex_barrel;
 TexHandle tex_fire[FIRE_FRAMES];
+TexHandle tex_water[WATER_FRAMES];
 RectF rect_barrel = {0, 0, 70, 84};
 RectF rect_fire = {0, 0, 80, 104};
 FontHandle font;
 
 // Tweakables
 float barrel_fall_speed = 100.0f;
-float barrel_drop_interval = 3.0f;
+float barrel_drop_interval = 2.0f;
 float barrel_drop_variance = 1.5f;
 float barrel_fire_anim_speed = 0.07f;
 float barrel_fire_length = 0.6f;
+float water_y_low = 600.0f;
+float water_y_high = 300.0f;
+float water_anim_speed = 0.15f;
 
 // Globals
 #define MAX_BARRELS 64
@@ -33,9 +38,9 @@ Barrel barrels[MAX_BARRELS];
 
 void _load_anim(uint n_frames, const char* path, TexHandle* out) {
 	char filename[256];
-	for(uint i = 1; i <= n_frames; ++i) {
+	for(uint i = 0; i < n_frames; ++i) {
 		sprintf(filename, path, i);
-		out[i-1] = tex_load(filename);
+		out[i] = tex_load(filename);
 	}
 }
 
@@ -56,6 +61,16 @@ void _drop_barrel(void) {
 	barrel_count++;
 }
 
+void _draw_water(float level, float t) {
+	uint frame = (uint)(t / water_anim_speed);
+	frame %= WATER_FRAMES;
+
+	float y = lerp(water_y_low, water_y_high, level);
+	RectF dest = rectf(0.0f, y, 0.0f, 0.0f);
+
+	video_draw_rect(tex_water[frame], 1, NULL, &dest, COLOR_WHITE);
+}
+
 void _draw_barrel(Vector2 pos, char letter, int fire_frame) {
 	char str[] = {letter, '\0'};
 
@@ -71,8 +86,8 @@ void _draw_barrel(Vector2 pos, char letter, int fire_frame) {
 	Vector2 letter_pos = vec2(pos.x - letter_hwidth, pos.y - letter_hheight
 		+ 3.0f);
 
-	video_draw_rect(tex_barrel, 0, NULL, &barrel_pos, COLOR_WHITE);
-	font_draw(font, str, 1, &letter_pos, COLOR_BLACK);
+	video_draw_rect(tex_barrel, 2, NULL, &barrel_pos, COLOR_WHITE);
+	font_draw(font, str, 3, &letter_pos, COLOR_BLACK);
 
 	if(fire_frame != -1) {
 		float fire_hwidth = (float)rect_barrel.right - (float)rect_barrel.left;
@@ -82,7 +97,7 @@ void _draw_barrel(Vector2 pos, char letter, int fire_frame) {
 		RectF fire_pos = rectf(pos.x - fire_hwidth, pos.y - fire_hheight, 
 			0.0f, 0.0f);
 		
-		video_draw_rect(tex_fire[fire_frame], 2, NULL, &fire_pos,
+		video_draw_rect(tex_fire[fire_frame], 4, NULL, &fire_pos,
 			COLOR_WHITE);
 	}
 }
@@ -154,8 +169,10 @@ void _generate_barrels(float t) {
 }
 
 void game_init(void) {
+	tex_background = tex_load(BACKGROUND_FILE);
 	tex_barrel = tex_load(BARREL_FILE);
 	_load_anim(FIRE_FRAMES, FIRE_FILE, tex_fire);
+	_load_anim(WATER_FRAMES, WATER_FILE, tex_water);
 
 	font = font_load(FONT_FILE);
 
@@ -163,8 +180,10 @@ void game_init(void) {
 }
 
 void game_close(void) {
+	tex_free(tex_background);
 	tex_free(tex_barrel);
 	_free_anim(FIRE_FRAMES, tex_fire);
+	_free_anim(WATER_FRAMES, tex_water);
 
 	font_free(font);
 }
@@ -178,6 +197,11 @@ void game_update(void) {
 }
 
 void game_render(void) {
+	float t = time_ms() / 1000.0f;
+	RectF dest = rectf_null();
+	video_draw_rect(tex_background, 0, NULL, &dest, COLOR_WHITE);
+	_draw_water(0.0f, t);
+
 	for(uint i = 0; i < barrel_count; ++i)
 		_draw_barrel(barrels[i].pos, barrels[i].letter, barrels[i].fire_frame);
 }

@@ -14,6 +14,9 @@
 #define BARREL_FILE ASSETS_DIR "barrel2.png"
 #define FIRE_FRAMES 8
 #define FIRE_FILE ASSETS_DIR "flare %d.png"
+#define WATER_FRAMES 6
+#define WATER_FILE ASSETS_DIR "vanduo%d.png"
+#define BACKGROUND_FILE ASSETS_DIR "fonas.png"
 
 #endif
 
