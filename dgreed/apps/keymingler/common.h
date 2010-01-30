@@ -10,6 +10,8 @@
 
 #define ASSETS_DIR "keymingler_assets/"
 #define LAYOUTS_FILE ASSETS_DIR "layouts.mml"
+#define FONT_FILE ASSETS_DIR "appopaint.bft"
+#define BARREL_FILE ASSETS_DIR "barrel2.png"
 
 #endif
 

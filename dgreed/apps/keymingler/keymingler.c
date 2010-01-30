@@ -1,23 +1,21 @@
 #include <system.h>
-#include <font.h>
 #include "common.h"
 #include "layouts.h"
+#include "game.h"
 
 int main(int argc, const char** argv) {
 	log_init("keymingler.log", LOG_LEVEL_INFO);
 	layouts_init();
 	video_init(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	FontHandle f = font_load("keymingler_assets/appopaint.bft");
+	game_init();
 
 	while(system_update()) {
-		Vector2 tl = vec2(10.0f, 10.0f);
-		font_draw(f, "test", 0, &tl, COLOR_WHITE);
+		game_update();
+		game_render();
 		video_present();
 	}
 
-	font_free(f);
-
+	game_close();
 	video_close();
 	layouts_close();
 	log_close();
