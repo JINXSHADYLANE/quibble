@@ -2,7 +2,8 @@
 
 #pragma pack(1)
 typedef struct {
-	byte id, x, y, width, height, xoffset, yoffset, xadvance;
+	//byte id, x, y, width, height, xoffset, yoffset, xadvance;
+	signed short id, x, y, width, height, xoffset, yoffset, xadvance;
 } CharDesc;	
 #pragma pack()
 
@@ -26,7 +27,7 @@ uint font_count = 0;
 
 FontHandle font_load(const char* filename) {
 	assert(filename);
-	assert(sizeof(CharDesc) == 8);
+	assert(sizeof(CharDesc) == 16);
 
 	LOG_INFO("Loading font from file %s", filename);
 
@@ -58,12 +59,12 @@ FontHandle font_load(const char* filename) {
 	}	
 
 	// Read font height
-	fonts[result].height = (float)file_read_byte(font_file);
+	fonts[result].height = (float)file_read_uint16(font_file);
 
 	// Read texture filename
-	byte str_len = file_read_byte(font_file);
-	assert(str_len < 32 && str_len > 0);
-	char tex_filename[32];
+	uint16 str_len = file_read_uint16(font_file);
+	assert(str_len < 64 && str_len > 0);
+	char tex_filename[64];
 	file_read(font_file, tex_filename, str_len);
 	tex_filename[str_len] = '\0';
 
@@ -71,7 +72,7 @@ FontHandle font_load(const char* filename) {
 	fonts[result].tex = tex_load(tex_filename);
 
 	// Read number of chars
-	byte chars = file_read_byte(font_file);
+	uint16 chars = file_read_uint16(font_file);
 	
 	// Null previous chars
 	memset(fonts[result].chars, 0, sizeof(fonts[result].chars));

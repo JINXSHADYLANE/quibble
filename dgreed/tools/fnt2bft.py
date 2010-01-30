@@ -1,15 +1,16 @@
 #!/usr/bin/python
 
 from __future__ import with_statement
-import sys, struct, xml.parsers.expat
+import sys 
+reload(sys)
+sys.setdefaultencoding('latin-1')
+import struct, xml.parsers.expat
 
 output = "FONT"
 
 def put_byte(val):
     global output
-    if val < 0 or val > 255:
-        raise ValueError()
-    output += struct.pack('B', val)
+    output += struct.pack('h', val)
 
 def start(name, attrs):
     global output
