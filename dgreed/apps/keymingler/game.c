@@ -36,6 +36,7 @@ TexHandle tex_barrel;
 TexHandle tex_fire[FIRE_FRAMES];
 TexHandle tex_bottom;
 TexHandle tex_title_screen; 
+TexHandle tex_endgame;
 TexHandle tex_water[WATER_FRAMES];
 TexHandle tex_fish[FISH_FRAMES];
 TexHandle tex_fish_dead[FISH_DEAD_FRAMES];
@@ -46,7 +47,7 @@ RectF srcrect_water = {0, 3, 1024, 539};
 FontHandle font;
 
 // Tweakables
-const float barrel_fall_speed = 100.0f;
+const float barrel_fall_speed = 150.0f;
 float barrel_drop_interval = 2.0f;
 float barrel_drop_variance = 1.5f;
 const float barrel_drop_recalc_interval = 10.0f;
@@ -68,6 +69,7 @@ const float fish_xspeed_variance = 20.0f;
 const float fish_anim_speed = 0.3f;
 const float fish_death_length = 1.0f;
 const float title_screen_fadeout = 1.5f;
+const float endgame_fadein = 1.5f;
 
 // Globals
 #define MAX_BARRELS 64
@@ -94,7 +96,9 @@ float water_t;
 float water_line;
 
 bool title_screen;
+bool endgame;
 float game_start_t;
+float game_end_t;
 float barrel_droprate_recalc_t;
 
 float _quadratic_t(float t) {
@@ -254,7 +258,7 @@ void _draw_water(float level, float t) {
 	frame %= WATER_FRAMES;
 
 	Color water_clear = COLOR_RGBA(255, 255, 255, 128);	
-	Color water_black = COLOR_RGBA(32, 32, 32, 128);	
+	Color water_black = COLOR_RGBA(32, 48, 32, 128);	
 	Color water_color = color_lerp(water_clear, water_black, level);
 
 
@@ -424,7 +428,6 @@ void _update_barrels(float t, float dt) {
 	}
 
 	if(char_count > 0) {
-		// TODO: handle wrong keypresses
 		miss_counter += char_count;
 
 		laser_t = t;
@@ -437,6 +440,10 @@ void _update_barrels(float t, float dt) {
 
 	water_t = ((float)sink_counter - 0.03f * (float)hit_counter)/100.0f;
 	water_t = MIN(MAX(water_t, 0.0f), 1.0f);
+	if(!endgame && water_t >= 1.0f) {
+		endgame = true;
+		game_end_t = t;
+	}	
 }
 
 void _generate_barrels(float t) {
@@ -459,6 +466,7 @@ void game_init(void) {
 	tex_barrel = tex_load(BARREL_FILE);
 	tex_bottom = tex_load(BOTTOM_FILE);
 	tex_title_screen = tex_load(TITLE_SCREEN_FILE);
+	tex_endgame = tex_load(ENDGAME_FILE);
 	_load_anim(FIRE_FRAMES, FIRE_FILE, tex_fire);
 	_load_anim(WATER_FRAMES, WATER_FILE, tex_water);
 	_load_anim(FISH_FRAMES, FISH_FILE, tex_fish);
@@ -478,6 +486,7 @@ void game_reset(void) {
 	sink_counter = 0;
 	water_t = 0.0f;
 	laser_t = -100.0f;
+	endgame = false;
 
 	_gen_fishes();
 }
@@ -487,6 +496,7 @@ void game_close(void) {
 	tex_free(tex_barrel);
 	tex_free(tex_bottom);
 	tex_free(tex_title_screen);
+	tex_free(tex_endgame);
 	_free_anim(FIRE_FRAMES, tex_fire);
 	_free_anim(WATER_FRAMES, tex_water);
 	_free_anim(FISH_FRAMES, tex_fish);
@@ -507,6 +517,10 @@ void game_update(void) {
 		}
 		return;
 	}
+
+	if(endgame)
+		if(char_down(' '))
+			title_screen = true;
 
 	if(t - barrel_droprate_recalc_t > barrel_drop_recalc_interval) {
 		barrel_droprate_recalc_t = t;
@@ -540,6 +554,16 @@ void game_render(void) {
 		video_draw_rect(tex_title_screen, 10, NULL, &dest, c);
 		if(title_screen)
 			return;
+	}
+
+	if(endgame) {
+		float fade = 0.0f;
+		fade = (t - game_end_t) / endgame_fadein;
+		fade = MIN(fade, 1.0f);
+
+		RectF dest = rectf_null();
+		Color c = color_lerp(COLOR_TRANSPARENT, COLOR_WHITE, fade);
+		video_draw_rect(tex_endgame, 10, NULL, &dest, c);
 	}
 
 	RectF dest = rectf_null();
