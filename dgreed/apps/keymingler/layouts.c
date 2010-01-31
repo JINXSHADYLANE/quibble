@@ -8,7 +8,7 @@ uint layouts_count = 0;
 MMLObject layouts;
 
 char interesting_nonletters[] = 
-	{',', '.', '/', ';', '\'', '\\', '[', ']', ']'}; 
+	{',', '.', '/', ';', '\'', '[', ']', ']', '-', '='}; 
 
 bool _is_char_interesting(char c) {
 	if('a' <= c && 'z' >= c)

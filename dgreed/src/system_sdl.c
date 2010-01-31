@@ -90,11 +90,12 @@ void _sort_rect_bucket(uint bucket) {
 }	
 
 
-void video_init(uint width, uint height) {
-	video_init_ex(width, height, width, height);
+void video_init(uint width, uint height, const char* name) {
+	video_init_ex(width, height, width, height, name);
 }	
 
-void video_init_ex(uint width, uint height, uint v_width, uint v_height) {
+void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
+	char* name) {
 	assert(width <= 1600 && width >= 320);
 	assert(height <= 1200 && height >= 240);
 	assert(v_width != 0);
@@ -102,7 +103,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height) {
 
 	if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO) < 0)
 		LOG_ERROR("Unable to initialize SDL");
-	SDL_WM_SetCaption("Greed", NULL);	
+	SDL_WM_SetCaption(name, NULL);	
 
 	uint flags = SDL_OPENGL | SDL_DOUBLEBUF;
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);

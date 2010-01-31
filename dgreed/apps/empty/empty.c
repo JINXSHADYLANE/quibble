@@ -2,7 +2,7 @@
 
 int main(int argc, const char** argv) {
 	log_init("empty.log", LOG_LEVEL_INFO);
-	video_init(480, 272);
+	video_init(480, 272, "Empty");
 
 	while(system_update()) {
 		video_present();

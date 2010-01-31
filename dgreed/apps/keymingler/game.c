@@ -35,7 +35,7 @@ TexHandle tex_background;
 TexHandle tex_barrel;
 TexHandle tex_fire[FIRE_FRAMES];
 TexHandle tex_bottom;
-TexHandle tex_title_screen;
+TexHandle tex_title_screen; 
 TexHandle tex_water[WATER_FRAMES];
 TexHandle tex_fish[FISH_FRAMES];
 TexHandle tex_fish_dead[FISH_DEAD_FRAMES];
@@ -47,8 +47,9 @@ FontHandle font;
 
 // Tweakables
 const float barrel_fall_speed = 100.0f;
-const float barrel_drop_interval = 2.0f;
-const float barrel_drop_variance = 1.5f;
+float barrel_drop_interval = 2.0f;
+float barrel_drop_variance = 1.5f;
+const float barrel_drop_recalc_interval = 10.0f;
 const float barrel_fire_anim_speed = 0.04f;
 const float barrel_fire_length = 0.5f;
 const float barrel_sinking_length = 1.0f;
@@ -58,9 +59,9 @@ const float water_y_low = 600.0f;
 const float water_y_high = 300.0f;
 const float water_anim_speed = 0.15f;
 const float laser_length = 0.1f;
-const float switch_initial_interval = 15.0f;
+const float switch_initial_interval = 20.0f;
 const float switch_interval_multiplier = 0.9f;
-const float hint_length = 0.6f;
+const float hint_length = 0.4f;
 const float fish_xspeed = 50.0f;
 const float fish_rise_speed = 70.0f;
 const float fish_xspeed_variance = 20.0f;
@@ -75,8 +76,8 @@ const float title_screen_fadeout = 1.5f;
 
 char valid_keys[] = 
  {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']',
- 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', '\'', '\\',
- 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'};
+ 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', 
+ 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', '-', '='};
  
 bool is_switched[KEY_COUNT] = {false}; 
 
@@ -94,6 +95,7 @@ float water_line;
 
 bool title_screen;
 float game_start_t;
+float barrel_droprate_recalc_t;
 
 float _quadratic_t(float t) {
 	return -4.0f*t*t + 4.0f*t;
@@ -111,7 +113,7 @@ bool is_char_switched(char c) {
 void _switch_keys(float t) {
 	static float last_switch = 0.0f;
 	// C doesn't do proper constant resolving, just copy value
-	static float switch_interval = /*switch_initial_interval*/ 10.0f;
+	static float switch_interval = /*switch_initial_interval*/ 20.0f;
 
 	if(t - last_switch > switch_interval) {
 		last_switch = t;
@@ -236,7 +238,8 @@ void _drop_barrel(void) {
 	
 	char letter = 0;
 	do {
-		letter = valid_keys[rand_int(0, sizeof(valid_keys))];
+		// Don't generate dash and equal
+		letter = valid_keys[rand_int(0, sizeof(valid_keys)-2)];
 	} while(letter == 0);
 
 	barrels[barrel_count].letter = letter;	
@@ -497,10 +500,23 @@ void game_update(void) {
 	if(title_screen) {
 		if(char_down(' ')) {
 			title_screen = false;
-			game_start_t = t;
+			barrel_droprate_recalc_t = game_start_t = t;
 			game_reset();
 		}
 		return;
+	}
+
+	if(t - barrel_droprate_recalc_t > barrel_drop_recalc_interval) {
+		barrel_droprate_recalc_t = t;
+		
+		float ratio = (float)hit_counter / (float)MAX(miss_counter, 1);
+		ratio /= 300.0f;
+		ratio = MIN(MAX(0.0f, ratio), 10.0f);
+		
+		float inv_droprate = 1.0f / barrel_drop_interval;
+		inv_droprate += ratio;
+		barrel_drop_interval = 1.0f / inv_droprate;
+		barrel_drop_variance = 0.75f * barrel_drop_interval;
 	}
 
 	_generate_barrels(t);

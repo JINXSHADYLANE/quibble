@@ -9,7 +9,7 @@
 int main(int argc, const char** argv) {
 	log_init("tor.log", LOG_LEVEL_INFO);
 	saves_init();
-	video_init(SCREEN_WIDTH, SCREEN_HEIGHT);
+	video_init(SCREEN_WIDTH, SCREEN_HEIGHT, "Tor");
 	puzzles_init();
 	background_init();
 	menu_init();

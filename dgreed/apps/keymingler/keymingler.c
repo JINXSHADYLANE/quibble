@@ -1,5 +1,6 @@
 #include <system.h>
 #include <utils.h>
+#include <time.h>
 #include "common.h"
 #include "layouts.h"
 #include "game.h"
@@ -10,11 +11,11 @@ float play_time;
 
 int main(int argc, const char** argv) {
 	log_init("keymingler.log", LOG_LEVEL_INFO);
-	rand_init(52890);
+	rand_init(time(NULL));
 	layouts_init();
 	layouts_set("dvorak");
 
-	video_init(SCREEN_WIDTH, SCREEN_HEIGHT);
+	video_init(SCREEN_WIDTH, SCREEN_HEIGHT, "KeyMingler");
 	game_init();
 	sounds_init();
 	music = sound_load_sample(MUSIC_FILE);
