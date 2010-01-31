@@ -12,6 +12,8 @@ int main(int argc, const char** argv) {
 	log_init("keymingler.log", LOG_LEVEL_INFO);
 	rand_init(52890);
 	layouts_init();
+	layouts_set("dvorak");
+
 	video_init(SCREEN_WIDTH, SCREEN_HEIGHT);
 	game_init();
 	sounds_init();

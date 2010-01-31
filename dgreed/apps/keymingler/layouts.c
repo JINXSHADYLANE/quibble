@@ -7,6 +7,21 @@ char current_layout[CHAR_COUNT];
 uint layouts_count = 0;
 MMLObject layouts;
 
+char interesting_nonletters[] = 
+	{',', '.', '/', ';', '\'', '\\', '[', ']', ']'}; 
+
+bool _is_char_interesting(char c) {
+	if('a' <= c && 'z' >= c)
+		return true;
+
+	for(uint i = 0; i < sizeof(interesting_nonletters); ++i) {
+		if(c == interesting_nonletters[i])
+			return true;
+	}
+	return false;
+
+}
+
 void layouts_init(void) {
 	char* layouts_text = txtfile_read(LAYOUTS_FILE);
 	if(!layouts_text)
@@ -51,13 +66,10 @@ void layouts_set(const char* name) {
 			char first = *mml_get_name(&layouts, pair);
 			char second = *mml_getval_str(&layouts, pair);
 
-			//assert(first >= 'a' && first <= 'z');
-			//assert(second >= 'a' && second <= 'z');
-			if(first < 'a' || first > 'z' || second < 'a' || second > 'z')
+			if(!_is_char_interesting(first) || !_is_char_interesting(second))
 				pair = mml_get_next(&layouts, pair);
 
-			current_layout[first - 'a'] = second;
-
+			current_layout[(size_t)first] = second;
 			pair = mml_get_next(&layouts, pair);
 		}
 		return;
@@ -67,6 +79,6 @@ void layouts_set(const char* name) {
 }
 
 char layouts_map(char keyb_char) {
-	return current_layout[keyb_char - 'a'];
+	return current_layout[(size_t)keyb_char];
 }
 

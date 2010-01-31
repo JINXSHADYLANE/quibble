@@ -1,9 +1,10 @@
 #include "game.h"
 #include "common.h"
+#include "sounds.h"
+#include "layouts.h"
 #include <system.h>
 #include <utils.h>
 #include <font.h>
-#include "sounds.h"
 
 // Types
 typedef struct {
@@ -13,6 +14,7 @@ typedef struct {
 	int fire_frame;
 	bool sinking;
 	float sink_t;
+	float hint_t;
 } Barrel;	
 
 // Resources
@@ -27,21 +29,33 @@ RectF srcrect_water = {0, 3, 1024, 539};
 FontHandle font;
 
 // Tweakables
-float barrel_fall_speed = 100.0f;
-float barrel_drop_interval = 2.0f;
-float barrel_drop_variance = 1.5f;
-float barrel_fire_anim_speed = 0.04f;
-float barrel_fire_length = 0.5f;
-float barrel_sinking_length = 1.0f;
-float bottom_y_low = 700.0f;
-float bottom_y_high = 450.0f;
-float water_y_low = 600.0f;
-float water_y_high = 300.0f;
-float water_anim_speed = 0.15f;
-float laser_length = 0.1f;
+const float barrel_fall_speed = 100.0f;
+const float barrel_drop_interval = 2.0f;
+const float barrel_drop_variance = 1.5f;
+const float barrel_fire_anim_speed = 0.04f;
+const float barrel_fire_length = 0.5f;
+const float barrel_sinking_length = 1.0f;
+const float bottom_y_low = 700.0f;
+const float bottom_y_high = 450.0f;
+const float water_y_low = 600.0f;
+const float water_y_high = 300.0f;
+const float water_anim_speed = 0.15f;
+const float laser_length = 0.1f;
+const float switch_initial_interval = 15.0f;
+const float switch_interval_multiplier = 0.9f;
+const float hint_length = 0.6f;
 
 // Globals
 #define MAX_BARRELS 64
+#define KEY_COUNT 34
+
+char valid_keys[] = 
+ {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']',
+ 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', '\'', '\\',
+ 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'};
+ 
+bool is_switched[KEY_COUNT] = {false}; 
+
 uint barrel_count;
 Barrel barrels[MAX_BARRELS];
 float laser_t;
@@ -52,6 +66,31 @@ uint miss_counter;
 uint sink_counter;
 float water_t;
 float water_line;
+
+float _quadratic_t(float t) {
+	return -4.0f*t*t + 4.0f*t;
+}	
+
+bool is_char_switched(char c) {
+	for(uint i = 0; i < KEY_COUNT; ++i) {
+		if(valid_keys[i] == c)
+			return is_switched[i];
+	}
+	LOG_ERROR("Unsupported key wants to be pressed!");
+	return false;
+}
+
+void _switch_keys(float t) {
+	static float last_switch = 0.0f;
+	// C doesn't do proper constant resolving, just copy value
+	static float switch_interval = /*switch_initial_interval*/ 10.0f;
+
+	if(t - last_switch > switch_interval) {
+		last_switch = t;
+		is_switched[rand_int(0, KEY_COUNT)] = true;
+		switch_interval *= switch_interval_multiplier;
+	}
+}
 
 void _load_anim(uint n_frames, const char* path, TexHandle* out) {
 	char filename[256];
@@ -73,9 +112,16 @@ void _drop_barrel(void) {
 
 	barrels[barrel_count].pos = vec2(rand_float_range(30.0f, SCREEN_WIDTH - 30.0f),
 		-40.0f);	
-	barrels[barrel_count].letter = (char)rand_int((int)'a', (int)'z');	
+	
+	char letter = 0;
+	do {
+		letter = valid_keys[rand_int(0, sizeof(valid_keys))];
+	} while(letter == 0);
+
+	barrels[barrel_count].letter = letter;	
 	barrels[barrel_count].fire_frame = -1;
 	barrels[barrel_count].sinking = false;
+	barrels[barrel_count].hint_t = -1.0f;
 	barrel_count++;
 }
 
@@ -109,7 +155,7 @@ void _draw_water(float level, float t) {
 		water_color);
 }
 
-void _draw_barrel(Vector2 pos, char letter, int fire_frame, float sink_t) {
+void _draw_barrel(Vector2 pos, char letter, int fire_frame, float sink_t, float hint_t) {
 	char str[] = {letter, '\0'};
 
 	float barrel_hwidth = (float)rect_barrel.right - (float)rect_barrel.left;
@@ -133,7 +179,23 @@ void _draw_barrel(Vector2 pos, char letter, int fire_frame, float sink_t) {
 	}
 	else {
 		video_draw_rect(tex_barrel, 4, NULL, &barrel_pos, COLOR_WHITE);
-		font_draw(font, str, 5, &letter_pos, COLOR_BLACK);
+		if(hint_t < 0.0f) {
+			font_draw(font, str, 5, &letter_pos, COLOR_BLACK);
+		}
+		else {
+			assert(hint_t <= 1.0f);
+
+			float qt = _quadratic_t(hint_t);
+			Color transp_black = COLOR_RGBA(0, 0, 0, 0);
+			Color c1 = color_lerp(transp_black, COLOR_BLACK, qt);
+			Color c2 = color_lerp(COLOR_BLACK, transp_black, qt);
+
+			char nstr[] = {'\0', '\0'};
+			nstr[0] = layouts_map(letter);
+
+			font_draw(font, str, 5, &letter_pos, c2);
+			font_draw(font, nstr, 5, &letter_pos, c1);
+		}
 	}
 
 	if(fire_frame != -1) {
@@ -159,8 +221,8 @@ void _remove_barrel(uint idx) {
 void _update_barrels(float t, float dt) {
 	// Count how many chars were pressed
 	uint char_count = 0;
-	for(char c = 'a'; c <= 'z'; ++c) {
-		if(char_down(c))
+	for(uint i = 0; i < KEY_COUNT; ++i) {
+		if(char_down(valid_keys[i]))
 			char_count++;
 	}
 
@@ -182,9 +244,25 @@ void _update_barrels(float t, float dt) {
 			continue;
 		}
 
+		// Check for correct keypresses when layout is mixed
+		if(!barrels[i].sinking && barrels[i].fire_frame == -1 &&
+			!no_more_checks && is_char_switched((size_t)barrels[i].letter) &&
+			char_down(layouts_map(barrels[i].letter))) {
+			goto shoot;
+		}	
+
 		// Check for correct keypresses	
 		if(!barrels[i].sinking && barrels[i].fire_frame == -1 && 
 			!no_more_checks && char_down(barrels[i].letter)) {
+			// Show hint if letter is switched
+			if(is_char_switched((size_t)barrels[i].letter) && 
+				layouts_map(barrels[i].letter) != barrels[i].letter) {
+				barrels[i].hint_t = t;
+				goto fall;
+			}
+
+		shoot:	
+
 			char_count--;
 			barrels[i].fire_frame = 0;
 			barrels[i].fire_start_t = t;
@@ -198,8 +276,13 @@ void _update_barrels(float t, float dt) {
 			
 			sound_play(sound_burning);
 		}
+	
+	fall:
 
 		barrels[i].pos.y += dt *  barrel_fall_speed;
+		
+		if(barrels[i].hint_t > 0.0f && t - barrels[i].hint_t > hint_length)
+			barrels[i].hint_t = -1.0f;
 
 		if(!barrels[i].sinking && barrels[i].pos.y > water_line) {
 			if (rand_int(0, 2)) sound_play(sound_bulbul);
@@ -253,6 +336,7 @@ void game_init(void) {
 	_load_anim(WATER_FRAMES, WATER_FILE, tex_water);
 
 	font = font_load(FONT_FILE);
+	memset(is_switched, 0, sizeof(is_switched));
 
 	barrel_count = 0;
 	hit_counter = 0;
@@ -278,6 +362,7 @@ void game_update(void) {
 
 	_generate_barrels(t);
 	_update_barrels(t, dt);
+	_switch_keys(t);
 }
 
 void game_render(void) {
@@ -288,7 +373,8 @@ void game_render(void) {
 
 	for(uint i = 0; i < barrel_count; ++i)
 		_draw_barrel(barrels[i].pos, barrels[i].letter, barrels[i].fire_frame,
-			barrels[i].sinking ? (t - barrels[i].sink_t) / barrel_sinking_length : -1.0f);
+			barrels[i].sinking ? (t - barrels[i].sink_t) / barrel_sinking_length : -1.0f,
+			barrels[i].hint_t > 0.0f ? (t - barrels[i].hint_t) / hint_length : -1.0f);
 
 	if(t - laser_t < laser_length) {
 		Vector2 pos1 = vec2(laser_pos.x > 512.0f ? 1024.0f : 0.0f,

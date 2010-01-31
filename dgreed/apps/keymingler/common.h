@@ -6,7 +6,7 @@
 #define SCREEN_WIDTH 1024 
 #define SCREEN_HEIGHT 768 
 
-#define CHAR_COUNT ('z' - 'a' + 1)
+#define CHAR_COUNT 128
 
 #define ASSETS_DIR "keymingler_assets/"
 #define LAYOUTS_FILE ASSETS_DIR "layouts.mml"
