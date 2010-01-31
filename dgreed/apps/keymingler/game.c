@@ -17,14 +17,30 @@ typedef struct {
 	float hint_t;
 } Barrel;	
 
+typedef struct {
+	float swim_in_t;
+	float toughness;
+	Vector2 pos;
+	float avg_y;
+	float avg_x;
+	float speed;
+	bool active;
+	bool dir;
+	bool dead;
+	float death_t;
+} Fish;	
+
 // Resources
 TexHandle tex_background;
 TexHandle tex_barrel;
 TexHandle tex_fire[FIRE_FRAMES];
 TexHandle tex_bottom;
 TexHandle tex_water[WATER_FRAMES];
+TexHandle tex_fish[FISH_FRAMES];
+TexHandle tex_fish_dead[FISH_DEAD_FRAMES];
 RectF rect_barrel = {0, 0, 70, 84};
 RectF rect_fire = {0, 0, 119, 144};
+RectF rect_fish = {0, 0, 121, 83};
 RectF srcrect_water = {0, 3, 1024, 539};
 FontHandle font;
 
@@ -44,9 +60,15 @@ const float laser_length = 0.1f;
 const float switch_initial_interval = 15.0f;
 const float switch_interval_multiplier = 0.9f;
 const float hint_length = 0.6f;
+const float fish_xspeed = 50.0f;
+const float fish_rise_speed = 70.0f;
+const float fish_xspeed_variance = 20.0f;
+const float fish_anim_speed = 0.3f;
+const float fish_death_length = 1.0f;
 
 // Globals
 #define MAX_BARRELS 64
+#define MAX_FISHES 4
 #define KEY_COUNT 34
 
 char valid_keys[] = 
@@ -58,6 +80,7 @@ bool is_switched[KEY_COUNT] = {false};
 
 uint barrel_count;
 Barrel barrels[MAX_BARRELS];
+Fish fishes[MAX_FISHES];
 float laser_t;
 Vector2 laser_pos;
 
@@ -103,6 +126,99 @@ void _load_anim(uint n_frames, const char* path, TexHandle* out) {
 void _free_anim(uint n_frames, TexHandle* anim) {
 	for(uint i = 0; i < n_frames; ++i) {
 		tex_free(anim[i]);
+	}
+}
+
+void _gen_fishes(void) {
+	for(uint i = 0; i < MAX_FISHES; ++i) {
+		fishes[i].swim_in_t = rand_float_range(0.2f, 0.7f);
+		fishes[i].toughness = rand_float_range(fishes[i].swim_in_t, 1.0f);
+		fishes[i].active = false;
+		fishes[i].dead = false;
+		fishes[i].speed = fish_xspeed + 
+			rand_float_range(-fish_xspeed_variance, fish_xspeed_variance);
+	}
+}
+
+void _update_fishes(float t, float dt) {
+	for(uint i = 0; i < MAX_FISHES; ++i) {
+		if(water_t < fishes[i].swim_in_t)
+			continue;
+
+		if(!fishes[i].active) {
+			fishes[i].active = true;
+
+			fishes[i].pos = vec2(rand_int(0, 2) == 0 ? -184.0f : 1024.0f + 52.0f,
+				rand_float_range(768.0f - 150.0f, water_line + 30.0f));
+			fishes[i].avg_y = fishes[i].pos.y;	
+			fishes[i].dir = fishes[i].pos.x < 512.0f ? false : true;	
+		}
+
+		bool visible = fishes[i].pos.x > 70.0f && fishes[i].pos.x < 900.0f;
+
+		if(!fishes[i].dead && water_t > fishes[i].toughness && visible) {
+			fishes[i].dead = true;
+			fishes[i].death_t = t;
+			fishes[i].avg_x = fishes[i].pos.x;
+		}	
+
+		if(!fishes[i].dead) {
+			fishes[i].pos.y = fishes[i].avg_y + 
+				sin(fishes[i].pos.x / 60.0f + fishes[i].speed) * 10.0f;
+			fishes[i].pos.x += fishes[i].dir ? 
+				-dt * fishes[i].speed : dt * fishes[i].speed; 
+
+			if(fishes[i].pos.x > 1024.0f + 53.0f || fishes[i].pos.x < -184.0f) {
+				fishes[i].avg_y = 
+					rand_float_range(768.0f - 150.0f, water_line + 30.0f);
+				fishes[i].pos.x = !fishes[i].dir ? 1024.0f + 52.0f : -182.0f;
+				fishes[i].dir = !fishes[i].dir;	
+			}
+		}
+
+		if(fishes[i].dead) {
+			if(fishes[i].avg_y > water_line - 50.0f) {
+				fishes[i].avg_y -= dt * fish_rise_speed;
+			}
+
+			fishes[i].pos.x = fishes[i].avg_x + sin(t/1.2f + 
+				fishes[i].swim_in_t * 10.0f) * 14.0f;
+			fishes[i].pos.y = fishes[i].avg_y + sin(t*1.4f + 
+				fishes[i].swim_in_t * 10.0f) * 7.0f;
+		}
+	}
+}
+
+void _draw_fishes(float t) {
+	for(uint i = 0; i < MAX_FISHES; ++i) {
+		if(!fishes[i].active)
+			continue;
+
+		float fish_hwidth = rect_fish.right / 2.0f;
+		float fish_hheight = rect_fish.bottom / 2.0f;
+
+		RectF dest = rectf(fishes[i].pos.x + fish_hwidth, 
+			fishes[i].pos.y + fish_hheight, 0.0f, 0.0f);
+
+		if(fishes[i].dir) {
+			dest.right = dest.left + rect_fish.right;
+			float tmp = dest.left;
+			dest.left = dest.right;
+			dest.right = tmp;
+
+			dest.bottom = dest.top + rect_fish.bottom;
+		}
+
+		if(!fishes[i].dead) {	
+			uint frame = ((uint)(t / fish_anim_speed) + i) % FISH_FRAMES; 
+			video_draw_rect(tex_fish[frame], 3, NULL, &dest, COLOR_WHITE);
+		}
+		else {
+			uint frame = (t - fishes[i].death_t) / 
+					(fish_death_length / FISH_DEAD_FRAMES);
+			frame = MIN(frame, FISH_DEAD_FRAMES-1);	
+			video_draw_rect(tex_fish_dead[frame], 3, NULL, &dest, COLOR_WHITE);
+		}	
 	}
 }
 
@@ -183,7 +299,7 @@ void _draw_barrel(Vector2 pos, char letter, int fire_frame, float sink_t, float 
 			font_draw(font, str, 5, &letter_pos, COLOR_BLACK);
 		}
 		else {
-			assert(hint_t <= 1.0f);
+			hint_t = MIN(hint_t, 1.0f);
 
 			float qt = _quadratic_t(hint_t);
 			Color transp_black = COLOR_RGBA(0, 0, 0, 0);
@@ -334,6 +450,8 @@ void game_init(void) {
 	tex_bottom = tex_load(BOTTOM_FILE);
 	_load_anim(FIRE_FRAMES, FIRE_FILE, tex_fire);
 	_load_anim(WATER_FRAMES, WATER_FILE, tex_water);
+	_load_anim(FISH_FRAMES, FISH_FILE, tex_fish);
+	_load_anim(FISH_DEAD_FRAMES, FISH_DEAD_FILE, tex_fish_dead);
 
 	font = font_load(FONT_FILE);
 	memset(is_switched, 0, sizeof(is_switched));
@@ -341,9 +459,11 @@ void game_init(void) {
 	barrel_count = 0;
 	hit_counter = 0;
 	miss_counter = 0;
-	sink_counter = 0;
+	sink_counter = 20;
 	water_t = 0.0f;
 	laser_t = -100.0f;
+
+	_gen_fishes();
 }
 
 void game_close(void) {
@@ -352,6 +472,8 @@ void game_close(void) {
 	tex_free(tex_bottom);
 	_free_anim(FIRE_FRAMES, tex_fire);
 	_free_anim(WATER_FRAMES, tex_water);
+	_free_anim(FISH_FRAMES, tex_fish);
+	_free_anim(FISH_DEAD_FRAMES, tex_fish_dead);
 
 	font_free(font);
 }
@@ -362,6 +484,7 @@ void game_update(void) {
 
 	_generate_barrels(t);
 	_update_barrels(t, dt);
+	_update_fishes(t, dt);
 	_switch_keys(t);
 }
 
@@ -370,6 +493,7 @@ void game_render(void) {
 	RectF dest = rectf_null();
 	video_draw_rect(tex_background, 0, NULL, &dest, COLOR_WHITE);
 	_draw_water(water_t, t);
+	_draw_fishes(t);
 
 	for(uint i = 0; i < barrel_count; ++i)
 		_draw_barrel(barrels[i].pos, barrels[i].letter, barrels[i].fire_frame,
