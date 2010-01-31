@@ -91,11 +91,11 @@ void _sort_rect_bucket(uint bucket) {
 
 
 void video_init(uint width, uint height, const char* name) {
-	video_init_ex(width, height, width, height, name);
+	video_init_ex(width, height, width, height, name, false);
 }	
 
 void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
-	char* name) {
+	char* name, bool fullscreen) {
 	assert(width <= 1600 && width >= 320);
 	assert(height <= 1200 && height >= 240);
 	assert(v_width != 0);
@@ -106,6 +106,8 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 	SDL_WM_SetCaption(name, NULL);	
 
 	uint flags = SDL_OPENGL | SDL_DOUBLEBUF;
+	if(fullscreen)
+		flags |= SDL_FULLSCREEN;
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);

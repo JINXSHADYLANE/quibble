@@ -11,11 +11,17 @@ float play_time;
 
 int main(int argc, const char** argv) {
 	log_init("keymingler.log", LOG_LEVEL_INFO);
+	params_init(argc, argv);
 	rand_init(time(NULL));
 	layouts_init();
 	layouts_set("dvorak");
 
-	video_init(SCREEN_WIDTH, SCREEN_HEIGHT, "KeyMingler");
+	bool fullscreen = false;
+	if(params_find("-fullscreen") != ~0)
+		fullscreen = true;
+
+	video_init_ex(SCREEN_WIDTH, SCREEN_HEIGHT, 
+		SCREEN_WIDTH, SCREEN_HEIGHT, "KeyMingler", fullscreen);
 	game_init();
 	sounds_init();
 	music = sound_load_sample(MUSIC_FILE);
@@ -31,6 +37,9 @@ int main(int argc, const char** argv) {
 		game_render();
 		video_present();
 		sound_update();
+
+		if(char_up((char)27)) // escape
+			break;
 	}
 	
 	sound_free(music);
