@@ -22,6 +22,7 @@
 #define FISH_FILE ASSETS_DIR "zuvyte%d.png"
 #define FISH_DEAD_FRAMES 5
 #define FISH_DEAD_FILE ASSETS_DIR "virsta%d.png"
+#define TITLE_SCREEN_FILE ASSETS_DIR "pradinis.png"
 
 #define MUSIC_FILE ASSETS_DIR "sea_music.wav"
 #define MUSIC_LENGTH 35.870f

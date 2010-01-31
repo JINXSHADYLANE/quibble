@@ -35,6 +35,7 @@ TexHandle tex_background;
 TexHandle tex_barrel;
 TexHandle tex_fire[FIRE_FRAMES];
 TexHandle tex_bottom;
+TexHandle tex_title_screen;
 TexHandle tex_water[WATER_FRAMES];
 TexHandle tex_fish[FISH_FRAMES];
 TexHandle tex_fish_dead[FISH_DEAD_FRAMES];
@@ -65,6 +66,7 @@ const float fish_rise_speed = 70.0f;
 const float fish_xspeed_variance = 20.0f;
 const float fish_anim_speed = 0.3f;
 const float fish_death_length = 1.0f;
+const float title_screen_fadeout = 1.5f;
 
 // Globals
 #define MAX_BARRELS 64
@@ -89,6 +91,9 @@ uint miss_counter;
 uint sink_counter;
 float water_t;
 float water_line;
+
+bool title_screen;
+float game_start_t;
 
 float _quadratic_t(float t) {
 	return -4.0f*t*t + 4.0f*t;
@@ -448,18 +453,24 @@ void game_init(void) {
 	tex_background = tex_load(BACKGROUND_FILE);
 	tex_barrel = tex_load(BARREL_FILE);
 	tex_bottom = tex_load(BOTTOM_FILE);
+	tex_title_screen = tex_load(TITLE_SCREEN_FILE);
 	_load_anim(FIRE_FRAMES, FIRE_FILE, tex_fire);
 	_load_anim(WATER_FRAMES, WATER_FILE, tex_water);
 	_load_anim(FISH_FRAMES, FISH_FILE, tex_fish);
 	_load_anim(FISH_DEAD_FRAMES, FISH_DEAD_FILE, tex_fish_dead);
 
 	font = font_load(FONT_FILE);
+
+	title_screen = true;
+}
+
+void game_reset(void) {
 	memset(is_switched, 0, sizeof(is_switched));
 
 	barrel_count = 0;
 	hit_counter = 0;
 	miss_counter = 0;
-	sink_counter = 20;
+	sink_counter = 0;
 	water_t = 0.0f;
 	laser_t = -100.0f;
 
@@ -470,6 +481,7 @@ void game_close(void) {
 	tex_free(tex_background);
 	tex_free(tex_barrel);
 	tex_free(tex_bottom);
+	tex_free(tex_title_screen);
 	_free_anim(FIRE_FRAMES, tex_fire);
 	_free_anim(WATER_FRAMES, tex_water);
 	_free_anim(FISH_FRAMES, tex_fish);
@@ -482,6 +494,15 @@ void game_update(void) {
 	float t = time_ms() / 1000.0f;
 	float dt = time_delta() / 1000.0f;
 
+	if(title_screen) {
+		if(char_down(' ')) {
+			title_screen = false;
+			game_start_t = t;
+			game_reset();
+		}
+		return;
+	}
+
 	_generate_barrels(t);
 	_update_barrels(t, dt);
 	_update_fishes(t, dt);
@@ -490,6 +511,19 @@ void game_update(void) {
 
 void game_render(void) {
 	float t = time_ms() / 1000.0f;
+
+	if(title_screen || t - game_start_t < title_screen_fadeout) {
+		float fade = 0.0f;
+		if(!title_screen)
+			fade = (t - game_start_t) / title_screen_fadeout;
+
+		RectF dest = rectf_null();
+		Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fade);
+		video_draw_rect(tex_title_screen, 10, NULL, &dest, c);
+		if(title_screen)
+			return;
+	}
+
 	RectF dest = rectf_null();
 	video_draw_rect(tex_background, 0, NULL, &dest, COLOR_WHITE);
 	_draw_water(water_t, t);
