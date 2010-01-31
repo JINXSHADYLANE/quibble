@@ -431,6 +431,8 @@ void _update_barrels(float t, float dt) {
 		float x = rand_float_range(50.0f, 1024.0f - 50.0f);
 		float y = rand_float_range(10.0f, water_line - 20.0f);
 		laser_pos = vec2(x, y);
+
+		sound_play(sound_missed);
 	}
 
 	water_t = ((float)sink_counter - 0.03f * (float)hit_counter)/100.0f;

@@ -5,7 +5,7 @@
 #define BURN_FILE ASSETS_DIR "sudega.wav"
 #define BULBUL_FILE ASSETS_DIR "bulbul.wav"
 #define SINKED_FILE ASSETS_DIR "issilieja.wav"
-#define MISSED_FILE ASSETS_DIR "juokas.wav"
+#define MISSED_FILE ASSETS_DIR "pykst.wav"
 
 SoundHandle sound_burning;
 SoundHandle sound_bulbul;
