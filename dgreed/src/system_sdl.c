@@ -24,7 +24,7 @@
 #define LINE_BUCKET_SIZE 256
 #define RECT_BUCKET_SIZE 256
 #define MAX_TEXTURES 64
-#define FPS_LIMIT 85
+#define FPS_LIMIT 60
 #define MS_PER_FRAME (1000 / FPS_LIMIT)
 
 typedef struct {
@@ -62,6 +62,9 @@ extern int dgreed_main(int, const char**);
 #ifdef __APPLE__
 int SDL_main(int argc, char** argv) {
 #else
+#ifdef main
+#undef main
+#endif
 int main(int argc, const char** argv) {
 #endif
 	return dgreed_main(argc, argv);
@@ -805,7 +808,7 @@ uint keybindings[8] = {
 	SDLK_z,
 	SDLK_x,
 	SDLK_p,
-	SDLK_RETURN
+	SDLK_ESCAPE
 };
 
 // Totaly arbitrary. Only thing known - 256 is not enough.

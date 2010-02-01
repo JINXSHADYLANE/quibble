@@ -66,10 +66,9 @@ void layouts_set(const char* name) {
 			char first = *mml_get_name(&layouts, pair);
 			char second = *mml_getval_str(&layouts, pair);
 
-			if(!_is_char_interesting(first) || !_is_char_interesting(second))
-				pair = mml_get_next(&layouts, pair);
+			if(_is_char_interesting(first) && _is_char_interesting(second))
+				current_layout[(size_t)first] = second;
 
-			current_layout[(size_t)first] = second;
 			pair = mml_get_next(&layouts, pair);
 		}
 		return;

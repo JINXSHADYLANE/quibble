@@ -43,7 +43,7 @@ TexHandle tex_fish_dead[FISH_DEAD_FRAMES];
 RectF rect_barrel = {0, 0, 70, 84};
 RectF rect_fire = {0, 0, 119, 144};
 RectF rect_fish = {0, 0, 121, 83};
-RectF srcrect_water = {0, 3, 1024, 539};
+RectF srcrect_water = {0, 3, 1024, 593};
 FontHandle font;
 
 // Tweakables
@@ -101,6 +101,11 @@ float game_start_t;
 float game_end_t;
 float barrel_droprate_recalc_t;
 
+float last_switch;
+float switch_interval;
+float last_drop;
+float next_in;
+
 float _quadratic_t(float t) {
 	return -4.0f*t*t + 4.0f*t;
 }	
@@ -115,10 +120,6 @@ bool is_char_switched(char c) {
 }
 
 void _switch_keys(float t) {
-	static float last_switch = 0.0f;
-	// C doesn't do proper constant resolving, just copy value
-	static float switch_interval = /*switch_initial_interval*/ 20.0f;
-
 	if(t - last_switch > switch_interval) {
 		last_switch = t;
 		is_switched[rand_int(0, KEY_COUNT)] = true;
@@ -143,12 +144,13 @@ void _free_anim(uint n_frames, TexHandle* anim) {
 void _gen_fishes(void) {
 	for(uint i = 0; i < MAX_FISHES; ++i) {
 		fishes[i].swim_in_t = rand_float_range(0.2f, 0.7f);
-		fishes[i].toughness = rand_float_range(fishes[i].swim_in_t, 1.0f);
+		fishes[i].toughness = rand_float_range(MAX(fishes[i].swim_in_t, 0.5f), 1.0f);
 		fishes[i].active = false;
 		fishes[i].dead = false;
 		fishes[i].speed = fish_xspeed + 
 			rand_float_range(-fish_xspeed_variance, fish_xspeed_variance);
 	}
+	fishes[0].toughness = 0.98f;
 }
 
 void _update_fishes(float t, float dt) {
@@ -165,9 +167,9 @@ void _update_fishes(float t, float dt) {
 			fishes[i].dir = fishes[i].pos.x < 512.0f ? false : true;	
 		}
 
-		bool visible = fishes[i].pos.x > 70.0f && fishes[i].pos.x < 900.0f;
+		bool visible = fishes[i].pos.x > 50.0f && fishes[i].pos.x < 850.0f;
 
-		if(!fishes[i].dead && water_t > fishes[i].toughness && visible) {
+		if(!fishes[i].dead && water_t >= fishes[i].toughness && visible) {
 			fishes[i].dead = true;
 			fishes[i].death_t = t;
 			fishes[i].avg_x = fishes[i].pos.x;
@@ -254,6 +256,7 @@ void _drop_barrel(void) {
 }
 
 void _draw_water(float level, float t) {
+	level = MIN(level, 1.0f);
 	uint frame = (uint)(t / water_anim_speed);
 	frame %= WATER_FRAMES;
 
@@ -263,7 +266,7 @@ void _draw_water(float level, float t) {
 
 
 	float bottom_y = lerp(700.0f, 768.0f - 319.0f, level);
-	float water1_y = lerp(650.0f, 768.0f - 590.0f, level);
+	float water1_y = lerp(650.0f, 768.0f - 580.0f, level);
 	float water2_y = water1_y - 50.0f;
 	water_line = water1_y + 20.0f;
 
@@ -447,9 +450,6 @@ void _update_barrels(float t, float dt) {
 }
 
 void _generate_barrels(float t) {
-	static float last_drop = 0.0f;
-	static float next_in = 0.0f;
-
 	if(t - last_drop > next_in) {
 		_drop_barrel();
 		next_in = 0.0f;
@@ -487,6 +487,10 @@ void game_reset(void) {
 	water_t = 0.0f;
 	laser_t = -100.0f;
 	endgame = false;
+	last_switch = time_ms() / 1000.f;
+	switch_interval = switch_initial_interval;
+	last_drop = 0.0f;
+	next_in = 0.0f;
 
 	_gen_fishes();
 }

@@ -10,5 +10,7 @@ int dgreed_main(int argc, const char** argv) {
 
 	video_close();
 	log_close();
+
+	return 0;
 }
 

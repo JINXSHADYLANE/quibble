@@ -38,7 +38,7 @@ int dgreed_main(int argc, const char** argv) {
 		video_present();
 		sound_update();
 
-		if(char_up((char)27)) // escape
+		if(key_up(KEY_QUIT))
 			break;
 	}
 	
@@ -48,5 +48,7 @@ int dgreed_main(int argc, const char** argv) {
 	video_close();
 	layouts_close();
 	log_close();
+
+	return 0;
 }
 
