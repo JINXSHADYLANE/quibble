@@ -6,11 +6,16 @@ TOOL_DIR = 'tools'
 SUBS = ['src', 'apps']
 
 env = Environment(CCFLAGS='-Wall -std=c99', CPPPATH='#/src',
-	LIBPATH='#/bin', DGREED_BIN_DIR=BIN_DIR) 
+	LIBPATH='#/bin', DGREED_BIN_DIR=BIN_DIR)
+
+default_font_tool = TOOL_DIR + '/' + 'fnt2bft.py $SOURCE $TARGET' 	
 if str(Platform()) == 'win32':
 	Tool('mingw')(env)
 	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32'],
-		DGREED_FONT_TOOL=TOOL_DIR+'\\'+'fnt2bft.py $SOURCE $TARGET')
+		DGREED_FONT_TOOL=default_font_tool.replace('/', '\\'))
+elif str(Platform()) == 'darwin':
+	env.Append(DGREED_LIBS=[], DGREED_FONT_TOOL=default_font_tool,
+		FRAMEWORKS=['SDL', 'OpenGL', 'OpenAL', 'Cocoa'])
 else:
 	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal'],
 		DGREED_FONT_TOOL=TOOL_DIR+'/'+'fnt2bft.py $SOURCE $TARGET')

@@ -1,6 +1,10 @@
 Import('env')
 
 sources = Glob('*.c', strings=True)
+
+if str(Platform()) == 'darwin':
+	sources += ['SDLMain.m']
+
 dgreed = env.Library('dgreed' + env['DGREED_POSTFIX'], sources)
 env.Install('#'+env['DGREED_BIN_DIR'], dgreed)
 

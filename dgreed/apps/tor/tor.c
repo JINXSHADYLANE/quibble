@@ -6,7 +6,7 @@
 #include "saves.h"
 #include "game.h"
 
-int main(int argc, const char** argv) {
+int dgreed_main(int argc, const char** argv) {
 	log_init("tor.log", LOG_LEVEL_INFO);
 	saves_init();
 	video_init(SCREEN_WIDTH, SCREEN_HEIGHT, "Tor");

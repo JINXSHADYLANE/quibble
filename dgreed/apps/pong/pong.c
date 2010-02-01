@@ -143,7 +143,7 @@ void game_draw(void) {
 }
 	
 
-int main(int argc, const char** argv) {
+int dgreed_main(int argc, const char** argv) {
 	log_init("pong.log", LOG_LEVEL_INFO);
 	video_init(SCREEN_WIDTH, SCREEN_HEIGHT, "Pong");
 	sound_init();

@@ -3,8 +3,13 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else
 #include <AL/al.h>
 #include <AL/alc.h>
+#endif
 
 #include "memory.h"
 #include "wav.h"
@@ -52,6 +57,15 @@ Texture textures[MAX_TEXTURES];
 uint texture_count;
 
 uint frame;
+
+extern int dgreed_main(int, const char**);
+#ifdef __APPLE__
+int SDL_main(int argc, char** argv) {
+#else
+int main(int argc, const char** argv) {
+#endif
+	return dgreed_main(argc, argv);
+}
 
 void _radix_pass_rect(TexturedRectDesc* in, TexturedRectDesc* out, uint count,
 	uint radix) {

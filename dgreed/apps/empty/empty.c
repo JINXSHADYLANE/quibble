@@ -1,6 +1,6 @@
 #include <system.h>
 
-int main(int argc, const char** argv) {
+int dgreed_main(int argc, const char** argv) {
 	log_init("empty.log", LOG_LEVEL_INFO);
 	video_init(480, 272, "Empty");
 

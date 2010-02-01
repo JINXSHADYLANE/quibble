@@ -9,7 +9,7 @@
 SoundHandle music;
 float play_time;
 
-int main(int argc, const char** argv) {
+int dgreed_main(int argc, const char** argv) {
 	log_init("keymingler.log", LOG_LEVEL_INFO);
 	params_init(argc, argv);
 	rand_init(time(NULL));
