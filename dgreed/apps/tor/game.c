@@ -14,11 +14,12 @@ GameState game_state;
 uint mouse_start_x, mouse_start_y;
 uint mouse_end_x, mouse_end_y;
 int dtile_x, dtile_y;
-uint tile_clicked;
+uint tile_clicked_row, tile_clicked_col;
 bool game_animate_plus, game_animate_minus, game_rotate;
 uint alpha_max, alpha_min, alpha;
 float alpha_change, alpha_const;
 bool animate;
+int shift;
 
 void game_init(void)
 {
@@ -106,16 +107,17 @@ void game_render(void)
 		animate = false;
 		if (game_animate_plus || game_animate_minus)
 		{
+		/*
 			if (dtile_x)
 			{
-				uint row = tile_clicked / game_puzzle.width;
-				if (i / game_puzzle.width == row) animate = true;
+				if (i / game_puzzle.width == tile_clicked_row) animate = true;
 			}
 			if (dtile_y)
 			{
-				uint col = tile_clicked % game_puzzle.width;
-				if (i % game_puzzle.width == col) animate = true;
+				if (i % game_puzzle.width == tile_clicked_col) animate = true;
 			}
+		*/
+		animate = shift;
 		}
 
 		if (animate) 
@@ -126,31 +128,48 @@ void game_render(void)
 
 void game_update(void)
 {
+
+	// 0 if x axis,
+	// 1 if y axis
+	bool axis;
+
 	background_update();
 	
 	if (mouse_down(MBTN_LEFT))
 	{
 		mouse_pos(&mouse_start_x, &mouse_start_y);
-		tile_clicked = game_mouse_tile(mouse_start_x, mouse_start_y);
+		game_mouse_tile(mouse_start_x, mouse_start_y, &tile_clicked_row,
+						&tile_clicked_col);
+		if (tile_clicked_row < 0 || tile_clicked_row > game_puzzle.height)
+			tile_clicked_row = -1;
+		if (tile_clicked_col < 0 || tile_clicked_col > game_puzzle.width)
+			tile_clicked_col = -1;
+		
 	}
 	else if (mouse_up(MBTN_LEFT))
 	{
+		uint tile_rel_row, tile_rel_col;
+	
 		mouse_pos(&mouse_end_x, &mouse_end_y);
-		dtile_x = game_delta_tile(mouse_start_x, mouse_end_x, game_puzzle.tile_size.x);
-		dtile_y = game_delta_tile(mouse_start_y, mouse_end_y, game_puzzle.tile_size.y);
-		
-		if (dtile_x || dtile_y) game_animate_minus = true;
+		game_mouse_tile(mouse_end_x, mouse_end_y, &tile_rel_row, &tile_rel_col);
+
+		//dtile_x = game_delta_tile(mouse_start_x, mouse_end_x, game_puzzle.tile_size.x);
+		//dtile_y = game_delta_tile(mouse_start_y, mouse_end_y, game_puzzle.tile_size.y);
+		game_delta_tile(tile_clicked_row, tile_clicked_col, tile_rel_row,
+						tile_rel_col, &shift, &axis);
+	
+		game_animate_minus = shift;
+		//if (dtile_x || dtile_y) game_animate_minus = true;
 		// ToDo: Animate rotation
 	}
 
 	if (game_rotate) 
 	{
 		game_animate_minus = false;
-		game_rotate_board(dtile_x, dtile_y, tile_clicked);
+		game_rotate_board(shift, axis);
 		game_animate_plus = true;
 		game_rotate = false;
 	}
-
 }
 
 void game_close(void)
@@ -160,50 +179,39 @@ void game_close(void)
 	puzzle_state = NULL;	
 }
 
-uint game_mouse_tile(uint mpos_x, uint mpos_y)
+void game_mouse_tile(uint mpos_x, uint mpos_y, uint* row, uint* col)
 {
-	mpos_x = mpos_x - game_corner.x;
-	mpos_y = mpos_y - game_corner.y;
+	*row = (mpos_y - game_corner.y) / game_puzzle.tile_size.y;
+	*col = (mpos_x - game_corner.x) / game_puzzle.tile_size.x;
+}
+
+void game_delta_tile(uint clicked_row, uint clicked_col, uint rel_row, uint
+	rel_col, int* shift, bool* axis)
+{
+	int dy = rel_row - clicked_row;
+	int dx = rel_col - clicked_col;
 	
-	// Check if mouse position is out of board.
-	if (mpos_x >= (game_puzzle.tile_size.x * game_puzzle.width))
-		return -1;
-	if (mpos_y >= (game_puzzle.tile_size.y * game_puzzle.height))
-		return -1;
-	if (mpos_x < 0 || mpos_y < 0)
-		return -1;
-
-	uint row = mpos_y / game_puzzle.tile_size.y;
-	uint col = mpos_x / game_puzzle.tile_size.x;
-
-	return (row * game_puzzle.width + col);
+	if (dx)
+	{
+		*axis = 0;
+		// equals 0 if dx and dy are not zero
+		*shift = dx && !dy;
+	}
+	else
+	{
+		*axis = 1;
+		*shift = dy;
+	}
 }
 
-int game_delta_tile(uint mpos0, uint mpos1, int tile_size)
+void game_rotate_board(int shift, bool axis)
 {
-	if (mpos1 > mpos0)
-	{
-		if (mpos1 - mpos0 >= tile_size) return 1;
-		else return 0;
-	}
-	else if (mpos1 < mpos0)
-	{
-		if (mpos0 - mpos1 >= tile_size) return -1;
-		else return 0;
-	}
-	return 0;
-}
+	if (tile_clicked_row == -1 || tile_clicked_col == -1) return;
 
-void game_rotate_board(int dtile_x, int dtile_y, uint tile_clicked)
-{
-	if (tile_clicked == -1) return;
-
-	uint row = tile_clicked / game_puzzle.width;
-	uint col = tile_clicked % game_puzzle.width;
-	uint row_first = game_puzzle.width * row;
-	uint row_last = game_puzzle.width * (row+1) - 1;
-	uint col_first = col;
-	uint col_last = (game_puzzle.height - 1) * game_puzzle.width + col;
+	uint row_first = game_puzzle.width * tile_clicked_row;
+	uint row_last = game_puzzle.width * (tile_clicked_row+1) - 1;
+	uint col_first = tile_clicked_col;
+	uint col_last = (game_puzzle.height - 1) * game_puzzle.width + tile_clicked_col;
 
 	assert(row_first < game_tiles_total);
 	assert(row_last < game_tiles_total);
@@ -211,7 +219,7 @@ void game_rotate_board(int dtile_x, int dtile_y, uint tile_clicked)
 	assert(col_last < game_tiles_total);
 
 	// Rotates right
-	if (dtile_x == 1)
+	if (shift > 0 && axis == 0)
 	{
 		uint temp = puzzle_state[row_last]; 
 		for (uint i=row_last; i>row_first; i--)
@@ -220,7 +228,7 @@ void game_rotate_board(int dtile_x, int dtile_y, uint tile_clicked)
 		return;
 	}
 	// Rotates left
-	if (dtile_x == -1)
+	if (shift < 0 && axis == 0)
 	{
 		uint temp = puzzle_state[row_first];
 		for (uint i=row_first; i<row_last; i++)
@@ -229,7 +237,7 @@ void game_rotate_board(int dtile_x, int dtile_y, uint tile_clicked)
 		return;
 	}
 	// Rotates down
-	if (dtile_y == 1)
+	if (shift > 0 && axis == 1)
 	{
 		uint temp = puzzle_state[col_last];
 		for (uint i=col_last; i>col_first; i-=game_puzzle.width)
@@ -238,7 +246,7 @@ void game_rotate_board(int dtile_x, int dtile_y, uint tile_clicked)
 		return;
 	}
 	// Rotates up
-	if (dtile_y == -1)
+	if (shift < 0 && axis == 1)
 	{
 		uint temp = puzzle_state[col_first];
 		for (uint i=col_first; i<col_last; i+=game_puzzle.width)

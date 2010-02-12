@@ -22,12 +22,13 @@ void game_update(void);
 // Close game.
 void game_close(void);
 
-// Get mouse position in tiles number
-uint game_mouse_tile(uint mpos_x, uint mpos_y);
-// Returns number showing delta direction from mouse start point
-int game_delta_tile(uint mpos0, uint mpos1, int tile_size);
+// Get mouse position in tile coordinates
+void game_mouse_tile(uint mpos_x, uint mpos_y, uint* row, uint* col);
+// Return tile shift and axis
+void game_delta_tile(uint clicked_row, uint clicked_col, uint rel_row, 
+	uint rel_col, int* shift, bool* axis);
 // Change puzzle state (do tiles rotation)
-void game_rotate_board(int dtile_x, int dtile_y, uint tile_clicked);
+void game_rotate_board(int shift, bool axis);
 
 #endif // GAME_H
 
