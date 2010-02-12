@@ -58,14 +58,14 @@ uint texture_count;
 
 uint frame;
 
-extern int dgreed_main(int, const char**);
+extern int dgreed_main(int, char**);
 #ifdef __APPLE__
 int SDL_main(int argc, char** argv) {
 #else
 #ifdef main
 #undef main
 #endif
-int main(int argc, const char** argv) {
+int main(int argc, char** argv) {
 #endif
 	return dgreed_main(argc, argv);
 }
@@ -460,6 +460,7 @@ typedef struct {
 	ALuint buffers[2]; // Only first buffer is used for samples
 	float volume;
 	bool active;
+	bool loop;
 } Sound;
 
 Sound sounds[MAX_SOUNDS];
@@ -537,12 +538,12 @@ void sound_update(void) {
 
 			// Reached end of stream
 			if(decoded_samples < expected_samples) {
-				//if(sounds[i].loop) {
-				//	stb_vorbis_seek_start(sounds[i].stream);
-				//}	
-				//else {
+				if(sounds[i].loop) {
+					stb_vorbis_seek_start(sounds[i].stream);
+				}
+				else {
 					restart_stream = true;	
-				//}
+				}
 				size_t end_ptr = decoded_samples * sizeof(short);
 				if(sounds[i].channels == 2)
 					end_ptr *= 2; 
@@ -627,6 +628,7 @@ SoundHandle sound_load_sample(const char* filename) {
 	sounds[result].buffers[1] = 0;
 	sounds[result].volume = 1.0f;
 	sounds[result].active = true;
+	sounds[result].loop = false;
 
 	return result;
 }	
@@ -687,6 +689,7 @@ SoundHandle sound_load_stream(const char* filename) {
 	sounds[result].frequency = info.sample_rate;
 	sounds[result].volume = 1.0f;
 	sounds[result].active = true;
+	sounds[result].loop = true;
 
 	return result;
 }
