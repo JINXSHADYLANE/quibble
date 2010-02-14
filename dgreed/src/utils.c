@@ -107,6 +107,36 @@ bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r) {
 }
 
 /*
+--------------------
+--- Line segment ---
+--------------------
+*/
+
+float segment_length(Segment s) {
+	return vec2_length(vec2_sub(s.p1, s.p2));
+}
+
+float segment_point_dist(Segment s, Vector2 p) {
+	float dx = s.p2.x - s.p1.x;
+	float dy = s.p2.y - s.p1.y;
+	float r = 
+		((p.x - s.p1.x)*dx + (p.y - s.p1.y)*dx) / ((dx*dx) + (dy*dy));
+
+	float a = dy;
+	float b = -dx;
+	float c = a * s.p1.x + b * s.p2.y;
+
+	float d = a*p.x + b*p.y - c;
+	float d_sgn = d / abs(d);
+
+	if(r < 0.0f)
+		return vec2_length(vec2_sub(s.p1, p)) * d_sgn;
+	if(r > 1.0f)
+		return vec2_length(vec2_sub(s.p2, p)) * d_sgn;
+	return d / sqrt(a*a + b*b);	
+}
+
+/*
 --------------
 --- Colors ---
 --------------

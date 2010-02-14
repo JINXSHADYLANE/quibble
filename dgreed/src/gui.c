@@ -98,8 +98,8 @@ WidgetState* _alloc_widget(uint hash) {
 #define GUI_LAYER2 2
 #define GUI_LAYER_TEXT 3
 
-#define GUI_TEXTURE "assets/gui.png"
-#define GUI_FONT "assets/nova.bft"
+#define GUI_TEXTURE "greed_assets/gui.png"
+#define GUI_FONT "greed_assets/nova.bft"
 
 const RectF src_button_down = {1.0f, 1.0f, 129.0f, 25.0f};
 const RectF src_button_up = {1.0f, 26.0f, 129.0f, 50.0f};
@@ -178,7 +178,7 @@ bool gui_button(const Vector2* pos, const char* text) {
 	Vector2 text_dest = vec2(pos->x + text_offset_x, pos->y + text_offset_y);
 	font_draw(gui_font, text, GUI_LAYER_TEXT, &text_dest, COLOR_WHITE);
 
-	return mouse_over && mouse_pressed(MBTN_RIGHT);
+	return mouse_over && mouse_pressed(MBTN_LEFT);
 }	
 
 bool gui_switch(const Vector2* pos, const char* text) {
@@ -233,7 +233,7 @@ bool gui_switch(const Vector2* pos, const char* text) {
 	Vector2 text_dest = vec2(pos->x + text_offset_x, pos->y + text_offset_y);
 	font_draw(gui_font, text, GUI_LAYER_TEXT, &text_dest, COLOR_WHITE);
 
-	if(mouse_over && mouse_down(MBTN_RIGHT))
+	if(mouse_over && mouse_down(MBTN_LEFT))
 		state->state._switch.state = !state->state._switch.state;
 	return state->state._switch.state;
 }	
@@ -270,7 +270,7 @@ float gui_slider(const Vector2* pos) {
 		if(state->state.slider.blend < 0.0f)
 			state->state.slider.blend = 0.0f;
 	}		
-	if(mouse_over && mouse_pressed(MBTN_RIGHT)) 
+	if(mouse_over && mouse_pressed(MBTN_LEFT)) 
 		state->state.slider.state = (mouse_pos.x - pos->x) / width;
 
 	// Draw
