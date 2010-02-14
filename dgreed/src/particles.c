@@ -2,9 +2,9 @@
 #include "mml.h"
 #include "memory.h"
 
-#define PARTICLES_TEXTURE "assets/particles.png"
+#define PARTICLES_TEXTURE "greed_assets/particles.png"
 #define PARTICLE_LAYER 3
-#define PARTICLES_FILENAME "assets/particles.mml"
+#define PARTICLES_FILENAME "greed_assets/particles.mml"
 #define APPEND_NODE(parent, name, value, type) { \
 	prop = mml_node(&mml, name, ""); \
 	mml_setval_##type(&mml, prop, value); \
@@ -62,7 +62,7 @@ void particles_init(void) {
 		
 		// Must be rewriten to allow any texture to be used
 		if(strcmp(PARTICLES_TEXTURE, mml_getval_str(&desc, prop)) != 0)
-			LOG_ERROR("Particle system texture must be assets/particles.png");
+			LOG_ERROR("Particle system texture must be greed_assets/particles.png");
 		psystem_descs[i].texture = particles_texture;	
 
 		const char* tex_source;

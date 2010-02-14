@@ -103,6 +103,24 @@ typedef struct {
 } Triangle;	
 
 /*
+--------------------
+--- Line segment ---
+--------------------
+*/
+
+typedef struct {
+	Vector2 p1, p2;
+} Segment;	
+
+// Returns length of segment
+float segment_length(Segment s);
+
+// Returns signed distance from line segment to a point.
+// Distance is negative if point is to the right of segment 
+// (assuming segment goes up from p1 to p2)
+float segment_point_dist(Segment s, Vector2 p); 
+
+/*
 --------------
 --- Colors ---
 --------------

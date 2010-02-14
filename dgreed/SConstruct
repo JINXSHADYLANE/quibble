@@ -1,24 +1,29 @@
 import os
+import tools.mml
 
 BIN_DIR = 'bin'
 BUILD_DIR = 'build_'
 TOOL_DIR = 'tools'
 SUBS = ['src', 'apps']
 
-env = Environment(CCFLAGS='-Wall -std=c99', CPPPATH='#/src',
+env = Environment(CCFLAGS='-DTRACK_MEMORY -Wall -std=c99', CPPPATH=['#/src', '#/bin'],
 	LIBPATH='#/bin', DGREED_BIN_DIR=BIN_DIR)
 
 default_font_tool = TOOL_DIR + '/' + 'fnt2bft.py $SOURCE $TARGET' 	
+default_test_tool = TOOL_DIR + '/' + 'gen_tests.py -o $TARGET $SOURCES'
 if str(Platform()) == 'win32':
 	Tool('mingw')(env)
 	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32'],
-		DGREED_FONT_TOOL=default_font_tool.replace('/', '\\'))
+		DGREED_FONT_TOOL=default_font_tool.replace('/', '\\'),
+		DGREED_TEST_TOOL=default_test_tool.replace('/', '\\'))
 elif str(Platform()) == 'darwin':
 	env.Append(DGREED_LIBS=[], DGREED_FONT_TOOL=default_font_tool,
+		DGREED_TEST_TOOL=default_test_tool,
 		FRAMEWORKS=['SDL', 'OpenGL', 'OpenAL', 'Cocoa'])
 else:
 	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal'],
-		DGREED_FONT_TOOL=TOOL_DIR+'/'+'fnt2bft.py $SOURCE $TARGET')
+		DGREED_FONT_TOOL=default_font_tool, 
+		DGREED_TEST_TOOL=default_test_tool)
 	
 env_dbg = env.Clone()
 env_dbg.Prepend(CCFLAGS='-D_DEBUG -g ', DGREED_POSTFIX='d',
@@ -30,7 +35,9 @@ env_rel.Prepend(CCFLAGS='-DNDEBUG -O2 ', DGREED_POSTFIX='',
 for sub in SUBS:
 	build_postfix = '' if sub=='src' else sub+'_'
 	env = env_dbg
-	env.SConscript(sub + '/SConscript', variant_dir=BUILD_DIR+build_postfix+'dbg', exports='env')
+	env.SConscript(sub + '/SConscript', variant_dir=BUILD_DIR+build_postfix+'dbg',
+		duplicate=0, exports='env')
 	env = env_rel
-	env.SConscript(sub + '/SConscript', variant_dir=BUILD_DIR+build_postfix+'rel', exports='env')
+	env.SConscript(sub + '/SConscript', variant_dir=BUILD_DIR+build_postfix+'rel',
+		duplicate=0, exports='env')
 

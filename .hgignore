@@ -3,4 +3,7 @@ syntax: glob
 dgreed/bin/*
 dgreed/build*
 .*
+*.pyc
+*.log
+test_data*
 
