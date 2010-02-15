@@ -41,6 +41,8 @@ static char  **gArgv;
 static BOOL   gFinderLaunch;
 static BOOL   gCalledAppMainline = FALSE;
 
+const char* g_home_dir;
+
 static NSString *getApplicationName(void)
 {
     const NSDictionary *dict;
@@ -199,6 +201,11 @@ static void CustomApplicationMain (int argc, char **argv)
 {
     NSAutoreleasePool	*pool = [[NSAutoreleasePool alloc] init];
     SDLMain				*sdlMain;
+	
+	/* Get home directory for utils.c */
+	NSString* home = NSHomeDirectory();
+	g_home_dir = [home UTF8String];
+	[home release];
 
     /* Ensure the application object is initialised */
     [NSApplication sharedApplication];
@@ -370,7 +377,7 @@ int main (int argc, char **argv)
             gArgv[i] = argv[i];
         gFinderLaunch = NO;
     }
-
+	
 #if SDL_USE_NIB_FILE
     NSApplicationMain (argc, argv);
 #else

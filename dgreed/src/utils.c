@@ -1,6 +1,75 @@
 #include "utils.h"
 #include "memory.h"
 
+#ifdef MACOSX_BUNDLE
+#include <CoreFoundation/CFBundle.h>
+
+CFBundleRef main_bundle;
+extern const char* g_home_dir;
+
+char* get_resource_path(const char* _file) {
+	static bool main_bundle_initialized = false;
+	if(!main_bundle_initialized) {
+		main_bundle_initialized = true;
+		main_bundle = CFBundleGetMainBundle();
+		if(!main_bundle) { 
+			LOG_ERROR("Unable to get reference to Mac OS bundle");
+			return 0;
+		}	
+	}
+
+	char* file = strclone(_file);
+	uint length = strlen(file);
+
+	// Separate file and extension by replacing last '.' to 0
+	char* extension;
+	int cursor = length-1;
+	while(cursor >= 0 && file[cursor] != '.') {
+		cursor--;
+	}
+	if(cursor > -1) {
+		file[cursor] = '\0';
+		extension = &(file[cursor+1]);
+	}	
+	else {
+		extension = NULL;
+	}	
+
+	// Separate file and path by replacing last '/' to 0
+	char* filename;
+	cursor = length-1;
+	while(cursor >= 0 && file[cursor] != '/') {
+		cursor--;
+	}	
+	if(cursor > -1) {
+		file[cursor] = '\0';
+		filename = &(file[cursor+1]);
+	}
+	else {
+		filename = file;
+		file = NULL;
+	}
+
+	CFURLRef resource_url = CFBundleCopyResourceURL(main_bundle,
+		CFStringCreateWithCString(NULL, filename, kCFStringEncodingASCII),
+		CFStringCreateWithCString(NULL, extension, kCFStringEncodingASCII),
+		CFStringCreateWithCString(NULL, file, kCFStringEncodingASCII));
+
+	if(!resource_url) {
+		LOG_WARNING("Unable to get url to file %s in a bundle", file);
+		MEM_FREE(file);
+		return NULL;
+	}	
+
+	char* path = MEM_ALLOC(sizeof(char) * 512);
+	if(!CFURLGetFileSystemRepresentation(resource_url, true, (UInt8*)path, 512))
+		LOG_ERROR("Unable to turn url into path");
+
+	MEM_FREE(file);
+	return path;	
+}
+#endif
+
 /*
 -------------------
 --- Vector math ---
@@ -324,7 +393,13 @@ static const char* log_level_to_cstr(uint log_level) {
 }
 
 bool log_init(const char* log_path, uint log_level) {
+#ifdef MACOSX_BUNDLE
+	char bundle_log_path[512];
+	sprintf(bundle_log_path, "%s/Library/Logs/%s", g_home_dir, log_path);
+	log_file = fopen(bundle_log_path, "w");
+#else
 	log_file = fopen(log_path, "w");
+#endif	
 	if(log_file == NULL)
 			return false;
 
@@ -399,7 +474,18 @@ uint params_find(const char* param) {
 */
 
 bool file_exists(const char* name) {
+	assert(name);
+
+#ifdef MACOSX_BUNDLE
+	char* path = get_resource_path(name);
+	if(path == NULL)
+		return false;
+	FILE* file = fopen(path, "rb");
+	MEM_FREE(path);
+#else	
 	FILE* file = fopen(name, "rb");
+#endif
+
 	if(file != NULL) {
 		fclose(file);
 		return true;
@@ -408,7 +494,19 @@ bool file_exists(const char* name) {
 }
 
 FileHandle file_open(const char* name) {
+	assert(name);
+
+#ifdef MACOSX_BUNDLE
+	char* path = get_resource_path(name);
+	if(path == NULL) {
+		LOG_ERROR("Unable to get path to file %s", name);
+		return 0;
+	}	
+	FILE* f = fopen(path, "rb");
+	MEM_FREE(path);
+#else
 	FILE* f = fopen(name, "rb");
+#endif
 
 	if(f == NULL) {
 		LOG_ERROR("Unable to open file %s", name);
@@ -502,7 +600,7 @@ void file_read(FileHandle f, void* dest, uint size) {
 
 FileHandle file_create(const char* name) {
 	assert(name);
-	
+
 	FILE* file = fopen(name, "wb");
 	if(file == NULL) {
 		LOG_ERROR("Unable to open file %s for writing", name);
@@ -553,6 +651,7 @@ void txtfile_write(const char* name, const char* text) {
 	assert(text);
 
 	FILE* file = fopen(name, "w");
+
 	if(!file)
 		LOG_ERROR("Unable to open file %s for writing", name);
 
