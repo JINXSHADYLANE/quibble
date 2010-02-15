@@ -22,6 +22,11 @@ elif str(Platform()) == 'darwin':
 		DGREED_TEST_TOOL=default_test_tool,
 		DGREED_DIR_SEPARATOR='/',
 		FRAMEWORKS=['SDL', 'OpenGL', 'OpenAL', 'Cocoa'])
+	
+	AddOption('--bundle', dest='bundle', action='store_true', 
+		help='compile apps to be placed in Mac OS X bundles')
+	if GetOption('bundle'):
+		env.Append(CCFLAGS=' -DMACOSX_BUNDLE')
 else:
 	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal'],
 		DGREED_FONT_TOOL=default_font_tool, 
