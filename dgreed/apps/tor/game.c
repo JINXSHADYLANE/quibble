@@ -4,6 +4,7 @@
 #include "background.h"
 #include <memory.h>
 
+// Globals
 PuzzleDesc game_puzzle;
 uint game_puzzle_num;
 uint* puzzle_state = NULL;
@@ -13,13 +14,22 @@ GameState game_state;
 
 uint mouse_start_x, mouse_start_y;
 uint mouse_end_x, mouse_end_y;
-int dtile_x, dtile_y;
 uint tile_clicked_row, tile_clicked_col;
-bool game_animate_plus, game_animate_minus, game_rotate;
-uint alpha_max, alpha_min, alpha;
-float alpha_change, alpha_const;
-bool animate;
 int shift;
+
+// Tweakables
+uint alpha = 255;
+uint alpha_min = 0;
+uint alpha_max = 255;
+float alpha_change = 0.0f;
+float alpha_const = 0.25f;
+bool animate = false;
+bool animate_plus = false;
+bool animate_minus = false;
+bool game_rotate = false;
+// 0 if x axis
+// 1 if y axis.
+bool axis = 0;
 
 void game_init(void)
 {
@@ -46,16 +56,12 @@ void game_reset(uint puzzle_num)
 					game_puzzle.width) / 2;
 	game_corner.y = SCREEN_HEIGHT/2 - (game_puzzle.tile_size.y *
 					game_puzzle.height) / 2;
-	
-	alpha = 255;
-	alpha_min = 0;
-	alpha_max = 255;
-	alpha_change = 0.0;
-	alpha_const = 0.02;
-	
+
+
+// ToDo: Is it needed?
 	animate = false;
-	game_animate_plus = false;
-	game_animate_minus = false;
+	animate_plus = false;
+	animate_minus = false;
 	game_rotate = false;
 }
 
@@ -65,17 +71,14 @@ void game_render(void)
 
 	// Alpha counting part
 
-// ToDo: don't do anything, while animating
-// ToDo: don't animate last line when dtile_y and mouse out of bounds
-
-	if (game_animate_plus) alpha_change += alpha_const;
-	else if (game_animate_minus) alpha_change -= alpha_const;
+	if (animate_plus) alpha_change += alpha_const;
+	else if (animate_minus) alpha_change -= alpha_const;
 	else alpha_change = 1;
 
 	alpha = color_lerp(alpha_min, alpha_max, alpha_change);
 
-	if (alpha == 0 && game_animate_minus) game_rotate = true;
-	if (alpha == 255) game_animate_plus = false;
+	if (alpha == 0 && animate_minus) game_rotate = true;
+	if (alpha == 255) animate_plus = false;
 
 	assert(alpha >= 0 && alpha < 256);
 
@@ -91,13 +94,13 @@ void game_render(void)
 	
 		// ... And place where it belongs
 		dest.left = (i % game_puzzle.width) * game_puzzle.tile_size.x +
-					 game_corner.x;
+			game_corner.x;
 		dest.top = (i / game_puzzle.width) * game_puzzle.tile_size.y + 
-				    game_corner.y;
+			game_corner.y;
 		dest.right = ((i % game_puzzle.width) + 1)  * 
-					  game_puzzle.tile_size.x + game_corner.x;
+			game_puzzle.tile_size.x + game_corner.x;
 		dest.bottom = ((i / game_puzzle.width) + 1) * 
-					  game_puzzle.tile_size.y + game_corner.y;
+			game_puzzle.tile_size.y + game_corner.y;
 		
 		assert(dest.left >= 0 && dest.left < SCREEN_WIDTH);
 		assert(dest.right >= 0 && dest.right < SCREEN_WIDTH);
@@ -105,21 +108,9 @@ void game_render(void)
 		assert(dest.bottom >= 0 && dest.bottom < SCREEN_HEIGHT);
 		
 		animate = false;
-		if (game_animate_plus || game_animate_minus)
-		{
-		/*
-			if (dtile_x)
-			{
-				if (i / game_puzzle.width == tile_clicked_row) animate = true;
-			}
-			if (dtile_y)
-			{
-				if (i % game_puzzle.width == tile_clicked_col) animate = true;
-			}
-		*/
-		animate = shift;
-		}
-
+		if (animate_plus || animate_minus)
+			animate = shift;
+		
 		if (animate) 
 			video_draw_rect(game_puzzle.image, 2, &src, &dest, COLOR_RGBA(255, 255, 255, alpha));
 		else video_draw_rect(game_puzzle.image, 2, &src, &dest, COLOR_WHITE);
@@ -128,11 +119,6 @@ void game_render(void)
 
 void game_update(void)
 {
-
-	// 0 if x axis,
-	// 1 if y axis
-	bool axis;
-
 	background_update();
 	
 	if (mouse_down(MBTN_LEFT))
@@ -140,9 +126,9 @@ void game_update(void)
 		mouse_pos(&mouse_start_x, &mouse_start_y);
 		game_mouse_tile(mouse_start_x, mouse_start_y, &tile_clicked_row,
 						&tile_clicked_col);
-		if (tile_clicked_row < 0 || tile_clicked_row > game_puzzle.height)
+		if (tile_clicked_row < 0 || tile_clicked_row >= game_puzzle.height)
 			tile_clicked_row = -1;
-		if (tile_clicked_col < 0 || tile_clicked_col > game_puzzle.width)
+		if (tile_clicked_col < 0 || tile_clicked_col >= game_puzzle.width)
 			tile_clicked_col = -1;
 		
 	}
@@ -153,21 +139,17 @@ void game_update(void)
 		mouse_pos(&mouse_end_x, &mouse_end_y);
 		game_mouse_tile(mouse_end_x, mouse_end_y, &tile_rel_row, &tile_rel_col);
 
-		//dtile_x = game_delta_tile(mouse_start_x, mouse_end_x, game_puzzle.tile_size.x);
-		//dtile_y = game_delta_tile(mouse_start_y, mouse_end_y, game_puzzle.tile_size.y);
 		game_delta_tile(tile_clicked_row, tile_clicked_col, tile_rel_row,
 						tile_rel_col, &shift, &axis);
 	
-		game_animate_minus = shift;
-		//if (dtile_x || dtile_y) game_animate_minus = true;
-		// ToDo: Animate rotation
+		animate_minus = shift;
 	}
 
 	if (game_rotate) 
 	{
-		game_animate_minus = false;
+		animate_minus = false;
 		game_rotate_board(shift, axis);
-		game_animate_plus = true;
+		animate_plus = true;
 		game_rotate = false;
 	}
 }
@@ -194,14 +176,15 @@ void game_delta_tile(uint clicked_row, uint clicked_col, uint rel_row, uint
 	if (dx)
 	{
 		*axis = 0;
-		// equals 0 if dx and dy are not zero
-		*shift = dx && !dy;
+		*shift = dx;
 	}
 	else
 	{
 		*axis = 1;
 		*shift = dy;
 	}
+	if (dx && dy) *shift = 0;
+
 }
 
 void game_rotate_board(int shift, bool axis)
@@ -212,7 +195,7 @@ void game_rotate_board(int shift, bool axis)
 	uint row_last = game_puzzle.width * (tile_clicked_row+1) - 1;
 	uint col_first = tile_clicked_col;
 	uint col_last = (game_puzzle.height - 1) * game_puzzle.width + tile_clicked_col;
-
+	
 	assert(row_first < game_tiles_total);
 	assert(row_last < game_tiles_total);
 	assert(col_first < game_tiles_total);
@@ -236,6 +219,7 @@ void game_rotate_board(int shift, bool axis)
 		puzzle_state[row_last] = temp;
 		return;
 	}
+
 	// Rotates down
 	if (shift > 0 && axis == 1)
 	{
