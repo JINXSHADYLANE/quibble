@@ -27,6 +27,12 @@ elif str(Platform()) == 'darwin':
 		help='compile apps to be placed in Mac OS X bundles')
 	if GetOption('bundle'):
 		env.Append(CCFLAGS=' -DMACOSX_BUNDLE')
+
+	AddOption('--universal', dest='universal', action='store_true',
+		help='build universal (i386 and ppc) Mac OS X binaries')
+	if GetOption('universal'):
+		env.Append(CCFLAGS=' -arch ppc -arch i386', 
+			LINKFLAGS=' -arch ppc -arch i386')
 else:
 	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal'],
 		DGREED_FONT_TOOL=default_font_tool, 

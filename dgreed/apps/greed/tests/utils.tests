@@ -111,3 +111,22 @@ TEST_(rgb_hsv) {
 	ASSERT_(_close(hsv_to_rgb(rgb_to_hsv(c5)), c5));
 	ASSERT_(_close(hsv_to_rgb(rgb_to_hsv(c6)), c6));
 }	
+
+TEST_(endianess) {
+	uint16 a = 0x0011;
+	uint32 b = 0x00112233;
+
+	a = endian_swap2(a);
+	b = endian_swap4(b);
+
+	byte* ba = (byte*)&a;
+	ASSERT_(ba[0] == 0x11);
+	ASSERT_(ba[1] == 0x00);
+
+	byte* bb = (byte*)&b;
+	ASSERT_(bb[0] == 0x33);
+	ASSERT_(bb[1] == 0x22);
+	ASSERT_(bb[2] == 0x11);
+	ASSERT_(bb[3] == 0x00);
+}	
+
