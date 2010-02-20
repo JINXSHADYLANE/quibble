@@ -159,12 +159,15 @@ void gfx_blur(Color* img, uint w, uint h) {
 }
 
 Color gfx_blend(Color ca, Color cb) {
+	Color rca = endian_swap4(ca);
+	Color rcb = endian_swap4(cb);
+
 	uint ar, ag, ab, aa;
 	uint br, bg, bb, ba;
 	uint r, g, b, a;
 
-	COLOR_DECONSTRUCT(ca, ar, ag, ab, aa);
-	COLOR_DECONSTRUCT(cb, br, bg, bb, ba);
+	COLOR_DECONSTRUCT(rca, ar, ag, ab, aa);
+	COLOR_DECONSTRUCT(rcb, br, bg, bb, ba);
 
 	r = (ar * (255-ba) + br * ba) / 255;
 	g = (ag * (255-ba) + bg * ba) / 255;
@@ -174,6 +177,8 @@ Color gfx_blend(Color ca, Color cb) {
 	assert(r < 256); assert(g < 256);
 	assert(b < 256); assert(a < 256);
 
+	if(rca != ca)
+		return COLOR_RGBA(a, b, g, r);
 	return COLOR_RGBA(r, g, b, a);
 }
 

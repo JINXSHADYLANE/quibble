@@ -10,7 +10,7 @@ output = "FONT"
 
 def put_byte(val):
     global output
-    output += struct.pack('h', val)
+    output += struct.pack('<h', val)
 
 def start(name, attrs):
     global output

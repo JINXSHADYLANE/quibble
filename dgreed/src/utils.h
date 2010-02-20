@@ -269,6 +269,10 @@ char* txtfile_read(const char* name);
 // Converts 2d array index to 1d index
 #define IDX_2D(x, y, width) ((y)*(width) + (x))
 
+// Reorders bytes to little-endian format
+uint16 endian_swap2(uint16 in);
+uint32 endian_swap4(uint32 in);
+
 // Copies string to some new place in memory and returns pointer to it.
 // You must free this pointer!
 char* strclone(const char* str);

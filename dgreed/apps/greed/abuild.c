@@ -117,7 +117,7 @@ void make_collision_mask(void) {
 		for(uint x = 0; x < width; ++x) {
 			size_t idx = IDX_2D(x, y, width);
 
-			byte a = (walls[idx] & 0xFF000000) >> 24;
+			byte a = (endian_swap4(walls[idx]) & 0xFF000000) >> 24;
 			if(a > 128)
 				collision_mask[idx] = RASTER_SOLID;
 		}
