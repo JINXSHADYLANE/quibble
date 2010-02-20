@@ -81,6 +81,16 @@ FontHandle font_load(const char* filename) {
 	CharDesc char_desc;
 	for(i = 0; i < chars; ++i) {
 		file_read(font_file, &char_desc, sizeof(char_desc));
+
+		char_desc.id = endian_swap2(char_desc.id);
+		char_desc.x = endian_swap2(char_desc.x);
+		char_desc.y = endian_swap2(char_desc.y);
+		char_desc.width = endian_swap2(char_desc.width);
+		char_desc.height = endian_swap2(char_desc.height);
+		char_desc.xoffset = endian_swap2(char_desc.xoffset);
+		char_desc.yoffset = endian_swap2(char_desc.yoffset);
+		char_desc.xadvance = endian_swap2(char_desc.xadvance);
+		
 		fonts[result].chars[char_desc.id].source = 
 			rectf((float)char_desc.x, (float)char_desc.y,
 				(float)(char_desc.x + char_desc.width),

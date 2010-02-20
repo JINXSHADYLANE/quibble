@@ -569,6 +569,7 @@ uint16 file_read_uint16(FileHandle f) {
 	if(read != 2)
 		LOG_ERROR("File reading error. Unexpected EOF?");
 
+	result = endian_swap2(result);
 	return result;
 }
 
@@ -583,6 +584,7 @@ uint32 file_read_uint32(FileHandle f) {
 	if(read != 4)
 		LOG_ERROR("File reading error. Unexpected EOF?");
 
+	result = endian_swap4(result);
 	return result;
 }
 
@@ -624,6 +626,7 @@ void file_write_uint16(FileHandle f, uint16 data) {
 
 	assert(file);
 
+	data = endian_swap2(data);
 	if(fwrite((void*)&data, 1, 2, file) != 2)
 		LOG_ERROR("File writing error");
 }		
@@ -633,6 +636,7 @@ void file_write_uint32(FileHandle f, uint32 data) {
 
 	assert(file);
 
+	data = endian_swap4(data);
 	if(fwrite((void*)&data, 1, 4, file) != 4)
 		LOG_ERROR("File writing error");
 }
@@ -676,6 +680,29 @@ char* txtfile_read(const char* name) {
 --- Misc ---
 ------------
 */
+
+int endianess_helper = 0xdeadcafe;
+
+uint16 endian_swap2(uint16 in) {
+	uint16 helper = 0x0011;
+	byte first_byte = *(byte*)&helper;
+	if(first_byte == 0x00) // Big endian
+		return ((in << 8) & 0xFF00) | ((in >> 8) & 0xFF);
+	else	
+		return in;
+}
+
+uint32 endian_swap4(uint32 in) {
+	uint32 helper = 0x00112233;
+	byte first_byte = *(byte*)&helper;
+	if(first_byte == 0x00) // Big endian
+		return ((in << 24) & 0xFF000000) | ((in << 8) & 0x00FF0000) | \
+			((in >> 8) & 0x0000FF00) | ((in >> 24) & 0x000000FF);
+	if(first_byte == 0x33) // Little endian
+		return in;
+	assert(0 && "Unable to determine cpu endianess");	
+	return 0;	
+}
 
 char* strclone(const char* str) {
 	assert(str);

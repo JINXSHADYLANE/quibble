@@ -48,6 +48,15 @@ RawSound* wav_load(const char* filename) {
 	result->size = data_size;
 	result->data = data;
 
+	// If 16 bits per sample and we're on big-endian cpu, swap bytes
+	uint16 endian_test = 0x0011;
+	if(bits_per_sample == 16 && endian_test != endian_swap2(endian_test)) {
+		for(size_t i = 0; i < data_size; i += 2) {
+			uint16* sample = (uint16*)(result->data + i);
+			*sample = endian_swap2(*sample);
+		}
+	}
+
 	return result;
 }	
 
