@@ -11,6 +11,7 @@ uint* puzzle_state = NULL;
 uint game_tiles_total;
 Vector2 game_corner;
 GameState game_state;
+uint puzzle_width_pix, puzzle_height_pix;
 
 uint mouse_start_x, mouse_start_y;
 uint mouse_end_x, mouse_end_y;
@@ -44,6 +45,9 @@ void game_reset(uint puzzle_num)
 
 	// Fill puzzle_state for game start
 	game_tiles_total = game_puzzle.width * game_puzzle.height; 
+	
+	puzzle_width_pix = game_puzzle.tile_size.x * game_puzzle.width;
+	puzzle_height_pix = game_puzzle.tile_size.y * game_puzzle.height;
 
 	if(puzzle_state)
 		MEM_FREE(puzzle_state);
@@ -52,10 +56,8 @@ void game_reset(uint puzzle_num)
 	puzzle_state = memcpy(puzzle_state, game_puzzle.solved,
 					    game_tiles_total * sizeof(uint));
 
-	game_corner.x = SCREEN_WIDTH/2 - (game_puzzle.tile_size.x * 
-					game_puzzle.width) / 2;
-	game_corner.y = SCREEN_HEIGHT/2 - (game_puzzle.tile_size.y *
-					game_puzzle.height) / 2;
+	game_corner.x = SCREEN_WIDTH/2 - puzzle_width_pix / 2;
+	game_corner.y = SCREEN_HEIGHT/2 - puzzle_height_pix / 2;
 
 
 // ToDo: Is it needed?
@@ -163,8 +165,19 @@ void game_close(void)
 
 void game_mouse_tile(uint mpos_x, uint mpos_y, uint* row, uint* col)
 {
-	*row = (mpos_y - game_corner.y) / game_puzzle.tile_size.y;
-	*col = (mpos_x - game_corner.x) / game_puzzle.tile_size.x;
+	int x_pos = mpos_x - game_corner.x;
+	int y_pos = mpos_y - game_corner.y;
+
+// ToDo: Fix this bad solution to stop animating when clicked out of board.
+/*	if (x_pos < 0 || y_pos < 0)
+	{
+		*row = game_puzzle.height + 1;
+		*col = game_puzzle.width + 1;
+		return;
+	}
+*/
+	*row = y_pos / game_puzzle.tile_size.y;
+	*col = x_pos / game_puzzle.tile_size.x;
 }
 
 void game_delta_tile(uint clicked_row, uint clicked_col, uint rel_row, uint
@@ -204,38 +217,49 @@ void game_rotate_board(int shift, bool axis)
 	// Rotates right
 	if (shift > 0 && axis == 0)
 	{
-		uint temp = puzzle_state[row_last]; 
-		for (uint i=row_last; i>row_first; i--)
-			puzzle_state[i] = puzzle_state[i-1];
-		puzzle_state[row_first] = temp;
-		return;
+		for (int x=0; x<shift; x++)
+		{
+			uint temp = puzzle_state[row_last]; 
+			for (uint i=row_last; i>row_first; i--)
+				puzzle_state[i] = puzzle_state[i-1];
+			puzzle_state[row_first] = temp;
+		}
 	}
 	// Rotates left
 	if (shift < 0 && axis == 0)
 	{
-		uint temp = puzzle_state[row_first];
-		for (uint i=row_first; i<row_last; i++)
-			puzzle_state[i] = puzzle_state[i+1];
-		puzzle_state[row_last] = temp;
+		for (int x=0; x>shift; x--)
+		{
+			uint temp = puzzle_state[row_first];
+			for (int i=row_first; i<row_last; i++)
+				puzzle_state[i] = puzzle_state[i+1];
+			puzzle_state[row_last] = temp;
+		}
 		return;
 	}
 
 	// Rotates down
 	if (shift > 0 && axis == 1)
 	{
-		uint temp = puzzle_state[col_last];
-		for (uint i=col_last; i>col_first; i-=game_puzzle.width)
-			puzzle_state[i] = puzzle_state[i - game_puzzle.width];
-		puzzle_state[col_first] = temp;
+		for (int x=0; x<shift; x++)
+		{
+			uint temp = puzzle_state[col_last];
+			for (uint i=col_last; i>col_first; i-=game_puzzle.width)
+				puzzle_state[i] = puzzle_state[i - game_puzzle.width];
+			puzzle_state[col_first] = temp;
+		}
 		return;
 	}
 	// Rotates up
 	if (shift < 0 && axis == 1)
 	{
-		uint temp = puzzle_state[col_first];
-		for (uint i=col_first; i<col_last; i+=game_puzzle.width)
-			puzzle_state[i] = puzzle_state[i + game_puzzle.width];
-		puzzle_state[col_last] = temp;
+		for (int x=0; x>shift; x--)
+		{
+			uint temp = puzzle_state[col_first];
+			for (uint i=col_first; i<col_last; i+=game_puzzle.width)
+				puzzle_state[i] = puzzle_state[i + game_puzzle.width];
+			puzzle_state[col_last] = temp;
+		}
 		return;
 	}
 	
