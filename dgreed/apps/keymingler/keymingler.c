@@ -1,5 +1,6 @@
 #include <system.h>
 #include <utils.h>
+#include <font.h>
 #include <time.h>
 #include "common.h"
 #include "layouts.h"
@@ -7,7 +8,10 @@
 #include "sounds.h"
 
 SoundHandle music;
+FontHandle font;
 float play_time;
+
+#define LOADING_TEXT "PATIENCE"
 
 int dgreed_main(int argc, const char** argv) {
 	log_init("keymingler.log", LOG_LEVEL_INFO);
@@ -16,12 +20,21 @@ int dgreed_main(int argc, const char** argv) {
 	layouts_init();
 	layouts_set("dvorak");
 
-	bool fullscreen = false;
-	if(params_find("-fullscreen") != ~0)
-		fullscreen = true;
+	bool fullscreen = true;
+	if(params_find("-windowed") != ~0)
+		fullscreen = false;
 
 	video_init_ex(SCREEN_WIDTH, SCREEN_HEIGHT, 
 		SCREEN_WIDTH, SCREEN_HEIGHT, "KeyMingler", fullscreen);
+	font = font_load(FONT_FILE);	
+	float text_width = font_width(font, LOADING_TEXT);
+	float text_height = font_height(font);
+	Vector2 pos = vec2((SCREEN_WIDTH - text_width) / 2.0f,
+		(SCREEN_HEIGHT - text_height) / 2.0f);
+	font_draw(font, LOADING_TEXT, 0, &pos, COLOR_WHITE);	
+	video_present();
+	system_update();
+
 	game_init();
 	sounds_init();
 	music = sound_load_sample(MUSIC_FILE);
@@ -42,6 +55,7 @@ int dgreed_main(int argc, const char** argv) {
 			break;
 	}
 	
+	font_free(font);
 	sound_free(music);
 	sounds_close();
 	game_close();

@@ -45,13 +45,13 @@ RectF rect_fire = {5, 56, 5+119, 56+144};
 RectF rect_fish = {4, 22, 4+121, 22+83};
 RectF srcrect_water = {0, 3, 1024, 593};
 RectF srcrect_bottom = {0, 0, 1024, 319};
-FontHandle font;
+extern FontHandle font;
 
 // Tweakables
-const float barrel_fall_speed = 150.0f;
-float barrel_drop_interval = 2.0f;
-float barrel_drop_variance = 1.5f;
-const float barrel_drop_recalc_interval = 10.0f;
+const float barrel_fall_speed = 190.0f;
+float barrel_drop_interval = 1.2f;
+float barrel_drop_variance = 1.2f * 0.75f;
+const float barrel_drop_recalc_interval = 8.0f;
 const float barrel_fire_anim_speed = 0.04f;
 const float barrel_fire_length = 0.5f;
 const float barrel_sinking_length = 1.0f;
@@ -472,8 +472,6 @@ void game_init(void) {
 	_load_anim(FISH_FRAMES, FISH_FILE, tex_fish);
 	_load_anim(FISH_DEAD_FRAMES, FISH_DEAD_FILE, tex_fish_dead);
 
-	font = font_load(FONT_FILE);
-
 	title_screen = true;
 }
 
@@ -505,8 +503,6 @@ void game_close(void) {
 	_free_anim(WATER_FRAMES, tex_water);
 	_free_anim(FISH_FRAMES, tex_fish);
 	_free_anim(FISH_DEAD_FRAMES, tex_fish_dead);
-
-	font_free(font);
 }
 
 void game_update(void) {
