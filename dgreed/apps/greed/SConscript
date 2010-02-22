@@ -1,0 +1,97 @@
+Import('env')
+
+chipmunk = SConscript('chipmunk/SConscript', exports='env')
+
+NAME='greed'
+ARENA_BUILDER_NAME='abuild'
+PARTICLE_VIEWER_NAME='pview'
+TEST_RUNNER_NAME='test'
+DEST_ASSETS_DIR = NAME + '_assets'
+ASSETS_DIR = 'assets'
+ARENAS_DIR = 'arenas'
+TESTS_DIR = 'tests'
+
+greed_sources = Split("""
+	greed.c
+	game.c
+	arena.c
+	physics.c
+	sounds.c
+""")
+greed_objects = env.Object(greed_sources)
+
+arena_builder_sources = Split("""
+	abuild.c
+	polygonize.c
+	ai_precalc.c
+""")
+arena_builder_objects = env.Object(arena_builder_sources)
+
+particle_viewer_sources = Split("""
+	pview.c
+""")	
+particle_viewer_objects = env.Object(particle_viewer_sources)
+
+test_sources = Split("""
+	test_runner.c
+""")	
+# Include polygonize.o too
+test_objects = env.Object(test_sources) + \
+	['polygonize.o']
+
+# Greed
+postfix = env['DGREED_POSTFIX']
+separator = env['DGREED_DIR_SEPARATOR']
+greed = env.Program(NAME + postfix, greed_objects,
+	LIBS=env['DGREED_LIBS']+['chipmunk' + postfix])
+env.Depends(greed, chipmunk)
+env.Install('#'+env['DGREED_BIN_DIR'], greed)
+
+# Arena builder
+arena_builder = env.Program(ARENA_BUILDER_NAME + postfix,
+	arena_builder_objects, LIBS=env['DGREED_LIBS'])
+env.Install('#'+env['DGREED_BIN_DIR'], arena_builder)
+arena_builder_tool = env['DGREED_BIN_DIR'] + separator + \
+	str(arena_builder[0]) + ' $SOURCE $TARGET'
+
+# Particle viewer
+particle_viewer = env.Program(PARTICLE_VIEWER_NAME + postfix,
+	particle_viewer_objects, LIBS=env['DGREED_LIBS'])
+env.Install('#'+env['DGREED_BIN_DIR'], particle_viewer)	
+
+# Test runner
+test_data = env.Command('test_data' + postfix + '.h', Glob(TESTS_DIR + '/*.tests'),
+	env['DGREED_TEST_TOOL'])
+test_data = env.Install('#apps/greed', test_data)
+test_runner = env.Program(TEST_RUNNER_NAME + postfix,
+	test_objects, LIBS=env['DGREED_LIBS'])
+env.Depends(test_objects[0], test_data)	
+env.Install('#'+env['DGREED_BIN_DIR'], test_runner)
+
+# Process assets and arenas only in debug build
+if env['DGREED_POSTFIX'] == 'd':
+	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + DEST_ASSETS_DIR
+	# Process assets
+	for asset in Glob(ASSETS_DIR + '/*', strings=True):
+		if asset.endswith('.fnt'):
+			env.Command(dest_dir + '/' + \
+				asset.replace(ASSETS_DIR+separator, '').replace('.fnt', '.bft'), 
+				asset, env['DGREED_FONT_TOOL'])
+		if asset.endswith('.png') or asset.endswith('.mml') or \
+			asset.endswith('.wav'):		
+			env.Install(dest_dir, asset)
+
+	# Process arenas
+	for arena in Glob(ARENAS_DIR + '/*', strings=True):
+		if arena.endswith('.mml'):
+			#arena_file = open(arena, 'r')
+			#arena_desc = tools.mml.deserialize(arena_file.read())
+			#if arena_desc.name != 'arena':
+			#	raise Exception('Wrong mml file type in arenas dir!')
+			#arena_file.close()	
+
+			processed_arena = arena.replace(ARENAS_DIR+separator, '')
+			env.Command(dest_dir + '/' + \
+				processed_arena, arena, arena_builder_tool)
+			env.Depends(processed_arena, arena_builder)
+

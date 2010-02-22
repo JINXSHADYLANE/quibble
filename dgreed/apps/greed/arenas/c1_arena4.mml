@@ -1,0 +1,15 @@
+(arena c1_arena4
+	(background "back_chapter_1.png")
+	(walls "c1_wall_4.png")
+	(shadow_shift -4,-4)
+	(max_players 2)
+	(spawnpoints _
+		(p 388,100)
+		(p 85,263)
+	)
+	(platforms _
+		(p 120,40)
+		(p 415,200)
+	)
+)	
+
