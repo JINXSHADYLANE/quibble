@@ -40,10 +40,11 @@ TexHandle tex_endgame;
 TexHandle tex_water[WATER_FRAMES];
 TexHandle tex_fish[FISH_FRAMES];
 TexHandle tex_fish_dead[FISH_DEAD_FRAMES];
-RectF rect_barrel = {0, 0, 70, 84};
-RectF rect_fire = {0, 0, 119, 144};
-RectF rect_fish = {0, 0, 121, 83};
+RectF rect_barrel = {29, 22, 29+70, 22+84};
+RectF rect_fire = {5, 56, 5+119, 56+144};
+RectF rect_fish = {4, 22, 4+121, 22+83};
 RectF srcrect_water = {0, 3, 1024, 593};
+RectF srcrect_bottom = {0, 0, 1024, 319};
 FontHandle font;
 
 // Tweakables
@@ -207,30 +208,30 @@ void _draw_fishes(float t) {
 		if(!fishes[i].active)
 			continue;
 
-		float fish_hwidth = rect_fish.right / 2.0f;
-		float fish_hheight = rect_fish.bottom / 2.0f;
+		float fish_hwidth = (rect_fish.right - rect_fish.left) / 2.0f;
+		float fish_hheight = (rect_fish.bottom - rect_fish.top) / 2.0f;
 
 		RectF dest = rectf(fishes[i].pos.x + fish_hwidth, 
 			fishes[i].pos.y + fish_hheight, 0.0f, 0.0f);
 
 		if(fishes[i].dir) {
-			dest.right = dest.left + rect_fish.right;
+			dest.right = dest.left + fish_hwidth * 2.0f;
 			float tmp = dest.left;
 			dest.left = dest.right;
 			dest.right = tmp;
 
-			dest.bottom = dest.top + rect_fish.bottom;
+			dest.bottom = dest.top + fish_hheight * 2.0f;
 		}
 
 		if(!fishes[i].dead) {	
 			uint frame = ((uint)(t / fish_anim_speed) + i) % FISH_FRAMES; 
-			video_draw_rect(tex_fish[frame], 3, NULL, &dest, COLOR_WHITE);
+			video_draw_rect(tex_fish[frame], 3, &rect_fish, &dest, COLOR_WHITE);
 		}
 		else {
 			uint frame = (t - fishes[i].death_t) / 
 					(fish_death_length / FISH_DEAD_FRAMES);
 			frame = MIN(frame, FISH_DEAD_FRAMES-1);	
-			video_draw_rect(tex_fish_dead[frame], 3, NULL, &dest, COLOR_WHITE);
+			video_draw_rect(tex_fish_dead[frame], 3, &rect_fish, &dest, COLOR_WHITE);
 		}	
 	}
 }
@@ -264,14 +265,13 @@ void _draw_water(float level, float t) {
 	Color water_black = COLOR_RGBA(32, 48, 32, 128);	
 	Color water_color = color_lerp(water_clear, water_black, level);
 
-
 	float bottom_y = lerp(700.0f, 768.0f - 319.0f, level);
 	float water1_y = lerp(650.0f, 768.0f - 580.0f, level);
 	float water2_y = water1_y - 50.0f;
 	water_line = water1_y + 20.0f;
 
 	RectF dest = rectf(0.0f, bottom_y, 0.0f, 0.0f);
-	video_draw_rect(tex_bottom, 2, NULL, &dest, COLOR_WHITE);
+	video_draw_rect(tex_bottom, 2, &srcrect_bottom, &dest, COLOR_WHITE);
 	
 	dest.top = water1_y;
 	dest.left = 1024.0f;
@@ -303,13 +303,13 @@ void _draw_barrel(Vector2 pos, char letter, int fire_frame, float sink_t, float 
 
 	if(sink_t >= 0.0f) {
 		Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, sink_t);
-		video_draw_rect(tex_barrel, 4, NULL, &barrel_pos, c);
-		c &= 0xFF000000;
+		video_draw_rect(tex_barrel, 4, &rect_barrel, &barrel_pos, c);
+		c &= 0xff000000;
 		font_draw(font, str, 5, &letter_pos, c);
 		return;
 	}
 	else {
-		video_draw_rect(tex_barrel, 4, NULL, &barrel_pos, COLOR_WHITE);
+		video_draw_rect(tex_barrel, 4, &rect_barrel, &barrel_pos, COLOR_WHITE);
 		if(hint_t < 0.0f) {
 			font_draw(font, str, 5, &letter_pos, COLOR_BLACK);
 		}
@@ -337,7 +337,7 @@ void _draw_barrel(Vector2 pos, char letter, int fire_frame, float sink_t, float 
 		RectF fire_pos = rectf(pos.x - fire_hwidth, pos.y - fire_hheight, 
 			0.0f, 0.0f);
 		
-		video_draw_rect(tex_fire[fire_frame], 7, NULL, &fire_pos,
+		video_draw_rect(tex_fire[fire_frame], 7, &rect_fire, &fire_pos,
 			COLOR_WHITE);
 	}
 }

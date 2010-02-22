@@ -11,7 +11,6 @@ def next_pow2(n):
 	return res
 
 def make_new_img(old_img, center):
-	print old_img.size
 	new_size = (next_pow2(old_img.size[0]), next_pow2(old_img.size[1]))
 	new_img = Image.new('RGBA', new_size, (0, 0, 0, 0))
 	if not center:
