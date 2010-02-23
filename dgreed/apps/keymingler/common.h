@@ -25,7 +25,7 @@
 #define TITLE_SCREEN_FILE ASSETS_DIR "pradinis.png"
 #define ENDGAME_FILE ASSETS_DIR "pabaiga.png"
 
-#define MUSIC_FILE ASSETS_DIR "sea_music.wav"
+#define MUSIC_FILE ASSETS_DIR "sea_music.ogg"
 #define MUSIC_LENGTH 35.870f
 
 #endif
