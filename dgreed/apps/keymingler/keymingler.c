@@ -37,15 +37,10 @@ int dgreed_main(int argc, const char** argv) {
 
 	game_init();
 	sounds_init();
-	music = sound_load_sample(MUSIC_FILE);
-	play_time = -1000.0f;
+	music = sound_load_stream(MUSIC_FILE);
+	sound_play(music);
 
 	while(system_update()) {
-		if (time_ms() / 1000.0f - play_time > MUSIC_LENGTH) {
-			sound_play(music);
-			play_time = time_ms() / 1000.0f;
-		}
-
 		game_update();
 		game_render();
 		video_present();

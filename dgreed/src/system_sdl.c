@@ -450,7 +450,7 @@ void video_draw_line(uint layer, const Vector2* start,
 
 #define MAX_SOURCES 8 
 #define MAX_SOUNDS 64
-#define STREAM_BUFFER_SIZE 4096
+#define STREAM_BUFFER_SIZE 8192 
 
 typedef struct {
 	bool is_stream;
