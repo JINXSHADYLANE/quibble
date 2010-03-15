@@ -111,8 +111,11 @@ void arena_reset(const char* filename, uint n_ships) {
 	if(!collision_node)
 		LOG_ERROR("No collision propierty found in arena description");
 	uint tri_count = mml_count_children(&desc, collision_node);
-	current_arena_desc.collision_tris = 
-		(Triangle*)MEM_ALLOC(sizeof(Triangle) * tri_count);
+	if(tri_count > 0)
+		current_arena_desc.collision_tris = 
+			(Triangle*)MEM_ALLOC(sizeof(Triangle) * tri_count);
+	else
+		current_arena_desc.collision_tris = NULL;
 	current_arena_desc.n_tris = tri_count;
 	NodeIdx triangle = mml_get_first_child(&desc, collision_node);
 	uint tri_idx = 0;

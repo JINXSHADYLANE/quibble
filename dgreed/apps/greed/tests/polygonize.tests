@@ -197,6 +197,17 @@ TEST_(simplify) {
 	darray_free(&poly);
 }	
 
+TEST_(empty) {
+	uint collision_mask[60*60];
+	memset(collision_mask, RASTER_EMPTY, 60 * 60 * sizeof(uint));
+	
+	DArray triangles = poly_triangulate_raster(collision_mask, 60, 60, NULL);
+	ASSERT_(triangles.size == 0);
+
+	darray_free(&triangles);
+}
+	
+
 TEST_(simplify_and_triangulate) {
 	Vector2 v;
 	DArray poly = darray_create(sizeof(Vector2), 4);

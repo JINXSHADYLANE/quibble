@@ -131,9 +131,9 @@ void make_shadow(void) {
 		for(uint x = 0; x < width; ++x) {
 			size_t idx = IDX_2D(x, y, width);
 			if(collision_mask[idx] == RASTER_SOLID)
-				shadow[idx] = COLOR_SHADOW;
+				shadow[idx] = endian_swap4(COLOR_SHADOW);
 			else
-				shadow[idx] = COLOR_EMPTY;
+				shadow[idx] = endian_swap4(COLOR_EMPTY);
 		}
 	}
 
@@ -164,7 +164,10 @@ void blend_images(void) {
 void gen_collision_data(void) {
 	DArray triangles = 
 		poly_triangulate_raster(collision_mask, width, height, NULL);
-	Triangle* tris = DARRAY_DATA_PTR(triangles, Triangle);
+
+	Triangle* tris = NULL;
+	if(triangles.size != 0)
+		tris = DARRAY_DATA_PTR(triangles, Triangle);
 
 	NodeIdx collision_node = mml_node(&arena_mml, "collision" , "_");
 
@@ -179,6 +182,7 @@ void gen_collision_data(void) {
 	}
 
 	mml_append(&arena_mml, mml_root(&arena_mml), collision_node);
+	darray_free(&triangles);
 }	
 
 // Returns new string with removed file name from path
