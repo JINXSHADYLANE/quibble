@@ -262,7 +262,6 @@ void physics_reset(uint n_ships) {
 	}	
 
 	// Add arena geometry
-	assert(current_arena_desc.collision_tris);
 	if(static_body)
 		cpBodyFree(static_body);
 	cpVect verts[3];	
