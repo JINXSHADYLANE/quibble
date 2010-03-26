@@ -441,7 +441,7 @@ void physics_debug_draw(void) {
 		gfx_draw_point(DEBUG_DRAW_LAYER, &(physics_state.bullets[i].pos), COLOR_WHITE);
 
 	// Draw walls
-	assert(current_arena_desc.collision_tris);
+	//assert(current_arena_desc.collision_tris);
 	for(i = 0; i < current_arena_desc.n_tris/2; ++i) {
 		gfx_draw_tri(DEBUG_DRAW_LAYER, &(current_arena_desc.collision_tris[i]),
 			COLOR_WHITE);
