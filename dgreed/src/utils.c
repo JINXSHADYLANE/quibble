@@ -68,6 +68,10 @@ char* get_resource_path(const char* _file) {
 	MEM_FREE(file);
 	return path;	
 }
+#else
+char* get_resource_path(const char* _file) {
+	return strclone(_file);
+}
 #endif
 
 /*

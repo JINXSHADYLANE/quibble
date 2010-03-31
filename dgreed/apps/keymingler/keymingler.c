@@ -6,6 +6,7 @@
 #include "layouts.h"
 #include "game.h"
 #include "sounds.h"
+#include "memory.h"
 
 SoundHandle music;
 FontHandle font;
@@ -37,7 +38,9 @@ int dgreed_main(int argc, const char** argv) {
 
 	game_init();
 	sounds_init();
-	music = sound_load_stream(MUSIC_FILE);
+	char* music_path = get_resource_path(MUSIC_FILE);
+	music = sound_load_stream(music_path);
+	MEM_FREE(music_path);
 	sound_play(music);
 
 	while(system_update()) {

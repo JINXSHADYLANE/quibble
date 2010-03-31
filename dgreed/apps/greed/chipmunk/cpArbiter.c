@@ -75,7 +75,7 @@ cpContactsSumImpulsesWithFriction(cpContact *contacts, int numContacts)
 cpArbiter*
 cpArbiterAlloc(void)
 {
-	return (cpArbiter *)calloc(1, sizeof(cpArbiter));
+	return (cpArbiter *)cpcalloc(1, sizeof(cpArbiter));
 }
 
 cpArbiter*
@@ -101,14 +101,14 @@ cpArbiterNew(cpShape *a, cpShape *b, int stamp)
 void
 cpArbiterDestroy(cpArbiter *arb)
 {
-	free(arb->contacts);
+	cpfree(arb->contacts);
 }
 
 void
 cpArbiterFree(cpArbiter *arb)
 {
 	if(arb) cpArbiterDestroy(arb);
-	free(arb);
+	cpfree(arb);
 }
 
 void
@@ -130,7 +130,8 @@ cpArbiterInject(cpArbiter *arb, cpContact *contacts, int numContacts)
 		}
 	}
 
-	free(arb->contacts);
+	if(arb->contacts)
+		cpfree(arb->contacts);
 	
 	arb->contacts = contacts;
 	arb->numContacts = numContacts;

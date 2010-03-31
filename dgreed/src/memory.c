@@ -44,6 +44,15 @@ void* mem_alloc(size_t size, const char* file, int line) {
 	return ptr;
 }
 
+void* mem_calloc(size_t num, size_t size, const char* file, int line) {
+	assert(num);
+	assert(size);
+
+	void* ptr = mem_alloc(num * size, file, line);
+	memset(ptr, 0, num * size);
+	return ptr;
+}
+
 void* mem_realloc(void* p, size_t size, const char* file, int line) {
 	void* ptr;
 	unsigned int i;

@@ -28,7 +28,7 @@
 cpPolyShape *
 cpPolyShapeAlloc(void)
 {
-	return (cpPolyShape *)calloc(1, sizeof(cpPolyShape));
+	return (cpPolyShape *)cpcalloc(1, sizeof(cpPolyShape));
 }
 
 static void
@@ -87,11 +87,11 @@ cpPolyShapeDestroy(cpShape *shape)
 {
 	cpPolyShape *poly = (cpPolyShape *)shape;
 	
-	free(poly->verts);
-	free(poly->tVerts);
+	cpfree(poly->verts);
+	cpfree(poly->tVerts);
 	
-	free(poly->axes);
-	free(poly->tAxes);
+	cpfree(poly->axes);
+	cpfree(poly->tAxes);
 }
 
 static int
@@ -112,10 +112,10 @@ cpPolyShapeInit(cpPolyShape *poly, cpBody *body, int numVerts, cpVect *verts, cp
 {	
 	poly->numVerts = numVerts;
 
-	poly->verts = (cpVect *)calloc(numVerts, sizeof(cpVect));
-	poly->tVerts = (cpVect *)calloc(numVerts, sizeof(cpVect));
-	poly->axes = (cpPolyShapeAxis *)calloc(numVerts, sizeof(cpPolyShapeAxis));
-	poly->tAxes = (cpPolyShapeAxis *)calloc(numVerts, sizeof(cpPolyShapeAxis));
+	poly->verts = (cpVect *)cpcalloc(numVerts, sizeof(cpVect));
+	poly->tVerts = (cpVect *)cpcalloc(numVerts, sizeof(cpVect));
+	poly->axes = (cpPolyShapeAxis *)cpcalloc(numVerts, sizeof(cpPolyShapeAxis));
+	poly->tAxes = (cpPolyShapeAxis *)cpcalloc(numVerts, sizeof(cpPolyShapeAxis));
 	poly->scale = 1.0f;
 	
 	for(int i=0; i<numVerts; i++){

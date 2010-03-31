@@ -63,6 +63,29 @@ cpfclamp(cpFloat f, cpFloat min, cpFloat max){
 #define M_PI 3.14159265f
 #endif
 
+#ifdef _DEBUG
+
+#include <stdlib.h>
+
+extern void* mem_alloc(size_t size, const char* file, int line);
+extern void* mem_calloc(size_t num, size_t size, const char* file, int line);
+extern void* mem_realloc(void* p, size_t size, const char* file, int line);
+extern void mem_free(void* ptr);
+
+#define cpmalloc(size) mem_alloc((size), "chipmunk", 0) 
+#define cpcalloc(num, size) mem_calloc((num), (size), "chipmunk", 0)
+#define cprealloc(p, size) mem_realloc((p), (size), "chipmunk", 0)
+#define cpfree(p) mem_free((p))
+
+#else
+
+#define cpmalloc malloc
+#define cpcalloc calloc
+#define cprealloc realloc
+#define cpfree free
+
+#endif
+
 #include "cpVect.h"
 #include "cpBB.h"
 #include "cpBody.h"

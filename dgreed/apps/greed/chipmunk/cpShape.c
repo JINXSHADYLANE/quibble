@@ -71,7 +71,7 @@ void
 cpShapeFree(cpShape *shape)
 {
 	if(shape) cpShapeDestroy(shape);
-	free(shape);
+	cpfree(shape);
 }
 
 cpBB
@@ -93,7 +93,7 @@ cpShapePointQuery(cpShape *shape, cpVect p){
 cpCircleShape *
 cpCircleShapeAlloc(void)
 {
-	return (cpCircleShape *)calloc(1, sizeof(cpCircleShape));
+	return (cpCircleShape *)cpcalloc(1, sizeof(cpCircleShape));
 }
 
 static inline cpBB
@@ -146,7 +146,7 @@ cpCircleShapeNew(cpBody *body, cpFloat radius, cpVect offset)
 cpSegmentShape *
 cpSegmentShapeAlloc(void)
 {
-	return (cpSegmentShape *)calloc(1, sizeof(cpSegmentShape));
+	return (cpSegmentShape *)cpcalloc(1, sizeof(cpSegmentShape));
 }
 
 static cpBB

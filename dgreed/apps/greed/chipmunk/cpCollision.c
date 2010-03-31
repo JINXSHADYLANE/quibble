@@ -45,7 +45,7 @@ circle2circleQuery(cpVect p1, cpVect p2, cpFloat r1, cpFloat r2, cpContact **con
 	cpFloat non_zero_dist = (dist ? dist : INFINITY);
 
 	// Allocate and initialize the contact.
-	(*con) = (cpContact *)malloc(sizeof(cpContact));
+	(*con) = (cpContact *)cpmalloc(sizeof(cpContact));
 	cpContactInit(
 		(*con),
 		cpvadd(p1, cpvmult(delta, 0.5 + (r1 - 0.5*mindist)/non_zero_dist)),
@@ -97,7 +97,7 @@ circle2segment(cpShape *circleShape, cpShape *segmentShape, cpContact **con)
 	} else {
 		if(dt < dtMax){
 			cpVect n = (dn < 0.0f) ? seg->tn : cpvneg(seg->tn);
-			(*con) = (cpContact *)malloc(sizeof(cpContact));
+			(*con) = (cpContact *)cpmalloc(sizeof(cpContact));
 			cpContactInit(
 				(*con),
 				cpvadd(circ->tc, cpvmult(n, circ->r + dist*0.5f)),
@@ -126,11 +126,11 @@ addContactPoint(cpContact **arr, int *max, int *num)
 		// Allocate the array if it hasn't been done.
 		(*max) = 2;
 		(*num) = 0;
-		(*arr) = (cpContact *)malloc((*max)*sizeof(cpContact));
+		(*arr) = (cpContact *)cpmalloc((*max)*sizeof(cpContact));
 	} else if(*num == *max){
 		// Extend it if necessary.
 		(*max) *= 2;
-		(*arr) = (cpContact *)realloc(*arr, (*max)*sizeof(cpContact));
+		(*arr) = (cpContact *)cprealloc(*arr, (*max)*sizeof(cpContact));
 	}
 	
 	cpContact *con = &(*arr)[*num];
@@ -337,7 +337,7 @@ circle2poly(cpShape *shape1, cpShape *shape2, cpContact **con)
 	if(dt < dtb){
 		return circle2circleQuery(circ->tc, b, circ->r, 0.0f, con);
 	} else if(dt < dta) {
-		(*con) = (cpContact *)malloc(sizeof(cpContact));
+		(*con) = (cpContact *)cpmalloc(sizeof(cpContact));
 		cpContactInit(
 			(*con),
 			cpvsub(circ->tc, cpvmult(n, circ->r + min/2.0f)),
@@ -367,7 +367,7 @@ extern "C" {
 	cpInitCollisionFuncs(void)
 	{
 		if(!colfuncs)
-			colfuncs = (collisionFunc *)calloc(CP_NUM_SHAPES*CP_NUM_SHAPES, sizeof(collisionFunc));
+			colfuncs = (collisionFunc *)cpcalloc(CP_NUM_SHAPES*CP_NUM_SHAPES, sizeof(collisionFunc));
 		
 		addColFunc(CP_CIRCLE_SHAPE,  CP_CIRCLE_SHAPE,  circle2circle);
 		addColFunc(CP_CIRCLE_SHAPE,  CP_SEGMENT_SHAPE, circle2segment);

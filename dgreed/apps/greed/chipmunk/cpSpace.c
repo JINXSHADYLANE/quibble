@@ -80,7 +80,7 @@ collFuncSetTrans(void *ptr, void *data)
 	unsigned int *ids = (unsigned int *)ptr;
 	collFuncData *funcData = (collFuncData *)data;
 
-	cpCollPairFunc *pair = (cpCollPairFunc *)malloc(sizeof(cpCollPairFunc));
+	cpCollPairFunc *pair = (cpCollPairFunc *)cpmalloc(sizeof(cpCollPairFunc));
 	pair->a = ids[0];
 	pair->b = ids[1];
 	pair->func = funcData->func;
@@ -105,7 +105,7 @@ bbfunc(void *ptr)
 }
 
 // Iterator functions for destructors.
-static void        freeWrap(void *ptr, void *unused){          free(             ptr);}
+static void        freeWrap(void *ptr, void *unused){          cpfree(             ptr);}
 static void   shapeFreeWrap(void *ptr, void *unused){   cpShapeFree((cpShape *)  ptr);}
 static void arbiterFreeWrap(void *ptr, void *unused){ cpArbiterFree((cpArbiter *)ptr);}
 static void    bodyFreeWrap(void *ptr, void *unused){    cpBodyFree((cpBody *)   ptr);}
@@ -114,7 +114,7 @@ static void   jointFreeWrap(void *ptr, void *unused){   cpJointFree((cpJoint *) 
 cpSpace*
 cpSpaceAlloc(void)
 {
-	return (cpSpace *)calloc(1, sizeof(cpSpace));
+	return (cpSpace *)cpcalloc(1, sizeof(cpSpace));
 }
 
 #define DEFAULT_DIM_SIZE 100.0f
@@ -181,7 +181,7 @@ void
 cpSpaceFree(cpSpace *space)
 {
 	if(space) cpSpaceDestroy(space);
-	free(space);
+	cpfree(space);
 }
 
 void
@@ -212,7 +212,8 @@ cpSpaceRemoveCollisionPairFunc(cpSpace *space, unsigned int a, unsigned int b)
 	unsigned int ids[] = {a, b};
 	unsigned int hash = CP_HASH_PAIR(a, b);
 	cpCollPairFunc *old_pair = (cpCollPairFunc *)cpHashSetRemove(space->collFuncSet, hash, ids);
-	free(old_pair);
+	if(old_pair)
+		cpfree(old_pair);
 }
 
 void
@@ -423,7 +424,7 @@ queryFunc(void *p1, void *p2, void *data)
 	} else {
 		// The collision pair function rejected the collision.
 		
-		free(contacts);
+		cpfree(contacts);
 		return 0;
 	}
 }

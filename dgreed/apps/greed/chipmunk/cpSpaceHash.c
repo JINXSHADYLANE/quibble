@@ -30,7 +30,7 @@
 static cpHandle*
 cpHandleAlloc(void)
 {
-	return (cpHandle *)malloc(sizeof(cpHandle));
+	return (cpHandle *)cpmalloc(sizeof(cpHandle));
 }
 
 static cpHandle*
@@ -58,7 +58,7 @@ cpHandleRetain(cpHandle *hand)
 static inline void
 cpHandleFree(cpHandle *hand)
 {
-	free(hand);
+	cpfree(hand);
 }
 
 static inline void
@@ -73,17 +73,18 @@ cpHandleRelease(cpHandle *hand)
 cpSpaceHash*
 cpSpaceHashAlloc(void)
 {
-	return (cpSpaceHash *)calloc(1, sizeof(cpSpaceHash));
+	return (cpSpaceHash *)cpcalloc(1, sizeof(cpSpaceHash));
 }
 
 // Frees the old table, and allocates a new one.
 static void
 cpSpaceHashAllocTable(cpSpaceHash *hash, int numcells)
 {
-	free(hash->table);
+	if(hash->table)
+		cpfree(hash->table);
 	
 	hash->numcells = numcells;
-	hash->table = (cpSpaceHashBin **)calloc(numcells, sizeof(cpSpaceHashBin *));
+	hash->table = (cpSpaceHashBin **)cpcalloc(numcells, sizeof(cpSpaceHashBin *));
 }
 
 // Equality function for the handleset.
@@ -159,7 +160,7 @@ freeBins(cpSpaceHash *hash)
 	cpSpaceHashBin *bin = hash->bins;
 	while(bin){
 		cpSpaceHashBin *next = bin->next;
-		free(bin);
+		cpfree(bin);
 		bin = next;
 	}
 }
@@ -182,7 +183,7 @@ cpSpaceHashDestroy(cpSpaceHash *hash)
 	cpHashSetEach(hash->handleSet, &handleFreeWrap, NULL);
 	cpHashSetFree(hash->handleSet);
 	
-	free(hash->table);
+	cpfree(hash->table);
 }
 
 void
@@ -190,7 +191,7 @@ cpSpaceHashFree(cpSpaceHash *hash)
 {
 	if(!hash) return;
 	cpSpaceHashDestroy(hash);
-	free(hash);
+	cpfree(hash);
 }
 
 void
@@ -222,7 +223,7 @@ getEmptyBin(cpSpaceHash *hash)
 	cpSpaceHashBin *bin = hash->bins;
 	
 	// Make a new one if necessary.
-	if(bin == NULL) return (cpSpaceHashBin *)malloc(sizeof(cpSpaceHashBin));
+	if(bin == NULL) return (cpSpaceHashBin *)cpmalloc(sizeof(cpSpaceHashBin));
 
 	hash->bins = bin->next;
 	return bin;

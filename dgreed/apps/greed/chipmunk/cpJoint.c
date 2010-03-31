@@ -34,7 +34,7 @@ void
 cpJointFree(cpJoint *joint)
 {
 	if(joint) cpJointDestroy(joint);
-	free(joint);
+	cpfree(joint);
 }
 
 static void
@@ -148,7 +148,7 @@ static const cpJointClass pinJointClass = {
 cpPinJoint *
 cpPinJointAlloc(void)
 {
-	return (cpPinJoint *)malloc(sizeof(cpPinJoint));
+	return (cpPinJoint *)cpmalloc(sizeof(cpPinJoint));
 }
 
 cpPinJoint *
@@ -264,7 +264,7 @@ static const cpJointClass slideJointClass = {
 cpSlideJoint *
 cpSlideJointAlloc(void)
 {
-	return (cpSlideJoint *)malloc(sizeof(cpSlideJoint));
+	return (cpSlideJoint *)cpmalloc(sizeof(cpSlideJoint));
 }
 
 cpSlideJoint *
@@ -376,7 +376,7 @@ static const cpJointClass pivotJointClass = {
 cpPivotJoint *
 cpPivotJointAlloc(void)
 {
-	return (cpPivotJoint *)malloc(sizeof(cpPivotJoint));
+	return (cpPivotJoint *)cpmalloc(sizeof(cpPivotJoint));
 }
 
 cpPivotJoint *
@@ -527,7 +527,7 @@ static const cpJointClass grooveJointClass = {
 cpGrooveJoint *
 cpGrooveJointAlloc(void)
 {
-	return (cpGrooveJoint *)malloc(sizeof(cpGrooveJoint));
+	return (cpGrooveJoint *)cpmalloc(sizeof(cpGrooveJoint));
 }
 
 cpGrooveJoint *

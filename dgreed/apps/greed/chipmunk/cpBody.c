@@ -28,7 +28,7 @@
 cpBody*
 cpBodyAlloc(void)
 {
-	return (cpBody *)malloc(sizeof(cpBody));
+	return (cpBody *)cpmalloc(sizeof(cpBody));
 }
 
 cpBody*
@@ -69,7 +69,7 @@ void
 cpBodyFree(cpBody *body)
 {
 	if(body) cpBodyDestroy(body);
-	free(body);
+	cpfree(body);
 }
 
 void

@@ -257,6 +257,11 @@ void txtfile_write(const char* name, const char* text);
 // Loads file to a text string. You must free allocated buffer yourself!
 char* txtfile_read(const char* name);
 
+
+// Returns real path to resource, use it when operating on files with 
+// classic IO procedures.
+char* get_resource_path(const char* file);
+
 /*
 ------------
 --- Misc ---
