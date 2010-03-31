@@ -27,6 +27,7 @@
 extern "C" {
 #endif
 	void cpInitCollisionFuncs(void);
+	void cpCloseCollisionFuncs(void);
 #ifdef __cplusplus
 }
 #endif
@@ -36,6 +37,12 @@ void
 cpInitChipmunk(void)
 {
 	cpInitCollisionFuncs();
+}
+
+void
+cpCloseChipmunk(void)
+{
+	cpCloseCollisionFuncs();
 }
 
 cpFloat

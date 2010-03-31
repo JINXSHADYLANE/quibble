@@ -221,6 +221,7 @@ void physics_close(void) {
 		cpBodyFree(static_body);
 	cpSpaceFreeChildren(space);
 	cpSpaceFree(space);
+	cpCloseChipmunk();
 	space = NULL;
 }	
 
@@ -378,6 +379,9 @@ void physics_update(float dt) {
 
 			cpSpaceRemoveShape(space, shape);
 			cpSpaceRemoveBody(space, body);
+
+			cpShapeFree(shape);
+			cpBodyFree(body);
 
 			bullets[i] = bullets[physics_state.n_bullets-1];
 			i--;

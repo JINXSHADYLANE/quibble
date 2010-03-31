@@ -375,6 +375,12 @@ extern "C" {
 		addColFunc(CP_CIRCLE_SHAPE,  CP_POLY_SHAPE,    circle2poly);
 		addColFunc(CP_POLY_SHAPE,    CP_POLY_SHAPE,    poly2poly);
 	}	
+
+	void
+	cpCloseCollisionFuncs(void)
+	{
+		cpfree(colfuncs);
+	}
 #ifdef __cplusplus
 }
 #endif

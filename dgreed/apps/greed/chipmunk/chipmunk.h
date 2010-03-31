@@ -72,9 +72,9 @@ extern void* mem_calloc(size_t num, size_t size, const char* file, int line);
 extern void* mem_realloc(void* p, size_t size, const char* file, int line);
 extern void mem_free(void* ptr);
 
-#define cpmalloc(size) mem_alloc((size), "chipmunk", 0) 
-#define cpcalloc(num, size) mem_calloc((num), (size), "chipmunk", 0)
-#define cprealloc(p, size) mem_realloc((p), (size), "chipmunk", 0)
+#define cpmalloc(size) mem_alloc((size), __FILE__, __LINE__) 
+#define cpcalloc(num, size) mem_calloc((num), (size), __FILE__, __LINE__)
+#define cprealloc(p, size) mem_realloc((p), (size), __FILE__, __LINE__)
 #define cpfree(p) mem_free((p))
 
 #else
@@ -107,6 +107,7 @@ extern void mem_free(void* ptr);
 #define CP_HASH_PAIR(A, B) ((size_t)(A)*CP_HASH_COEF ^ (size_t)(B)*CP_HASH_COEF)
 
 void cpInitChipmunk(void);
+void cpCloseChipmunk(void);
 
 cpFloat cpMomentForCircle(cpFloat m, cpFloat r1, cpFloat r2, cpVect offset);
 cpFloat cpMomentForPoly(cpFloat m, int numVerts, cpVect *verts, cpVect offset);
