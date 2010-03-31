@@ -48,6 +48,8 @@ float ship_turn_damping = 0.9f;
 float ship_zrot_min_speed = 720.0f;
 float ship_zrot_acceleration = 100.0f;
 float ship_zrot_damping = 0.98f;
+float ship_velocity_limit = 1000.0f;
+float ship_damping = 0.997f;
 float wall_elasticity = 0.8f;
 float wall_friction = 0.1f;
 float bullet_speed = 400.0f;
@@ -325,10 +327,12 @@ void physics_spawn_bullet(uint ship) {
 void physics_control_ship(uint ship, bool rot_left, bool rot_right, bool acc) {
 	assert(ship < physics_state.n_ships);
 
+	float vel = vec2_length_sq(physics_state.ships[ship].vel);
+
 	cpVect world_force = cpBodyLocal2World(ships[ship].body, 
 		cpv(0.0f, -ship_acceleration));
 	world_force = cpvsub(world_force, ships[ship].body->p);
-	if(acc) {
+	if(acc && vel < ship_velocity_limit*ship_velocity_limit) {
 		cpBodyApplyForce(ships[ship].body, world_force, cpvzero);
 		physics_state.ships[ship].zrot_vel += ship_zrot_acceleration;
 	}	
@@ -401,6 +405,10 @@ void physics_update(float dt) {
 		if(out_of_screen) 
 			ships[i].body->p = _wrap_around(ships[i].body->p, &screen_bounds);
 
+		// Simulate friction by decreasing speed
+		ships[i].body->v.x *= ship_damping;
+		ships[i].body->v.y *= ship_damping;
+
 		physics_state.ships[i].pos = cpv_to_gv(ships[i].body->p);
 		physics_state.ships[i].vel = cpv_to_gv(ships[i].body->v);
 		physics_state.ships[i].rot = ships[i].body->a * RAD_TO_DEG;
@@ -445,7 +453,7 @@ void physics_debug_draw(void) {
 		gfx_draw_point(DEBUG_DRAW_LAYER, &(physics_state.bullets[i].pos), COLOR_WHITE);
 
 	// Draw walls
-	assert(current_arena_desc.collision_tris);
+	//assert(current_arena_desc.collision_tris);
 	for(i = 0; i < current_arena_desc.n_tris/2; ++i) {
 		gfx_draw_tri(DEBUG_DRAW_LAYER, &(current_arena_desc.collision_tris[i]),
 			COLOR_WHITE);

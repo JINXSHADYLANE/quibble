@@ -22,6 +22,28 @@ TEST_(segment_point_dist) {
 	ASSERT_(d3 == abs(d4));
 }
 
+TEST_(segment_intersect) {
+	Segment s1 = {{1.0f, 5.0f}, {4.0f, 5.0f}};
+	Segment s2 = {{4.0f, 5.0f}, {4.0f, 3.0f}};
+	Segment s3 = {{4.0f, 2.0f}, {4.0f, 1.0f}};
+	Segment s4 = {{2.0f, 2.0f}, {5.0f, 4.0f}};
+	Segment s5 = {{3.0f, 2.0f}, {5.0f, 1.0f}};
+
+	Vector2 p;
+	ASSERT_(segment_intersect(s1, s2, &p) == true);
+	ASSERT_(p.x == 4.0f && p.y == 5.0f);
+	ASSERT_(segment_intersect(s2, s3, NULL) == false);
+	ASSERT_(segment_intersect(s3, s2, NULL) == false);
+	ASSERT_(segment_intersect(s2, s4, NULL) == true);
+	ASSERT_(segment_intersect(s4, s2, NULL) == true);
+	ASSERT_(segment_intersect(s3, s4, NULL) == false);
+	ASSERT_(segment_intersect(s4, s3, NULL) == false);
+	ASSERT_(segment_intersect(s3, s5, NULL) == true);
+	ASSERT_(segment_intersect(s5, s3, NULL) == true);
+	ASSERT_(segment_intersect(s4, s5, NULL) == false);
+	ASSERT_(segment_intersect(s5, s4, NULL) == false);
+}
+
 TEST_(rand_int)
 {
 	int i;
