@@ -48,6 +48,7 @@ float ship_turn_damping = 0.9f;
 float ship_zrot_min_speed = 720.0f;
 float ship_zrot_acceleration = 100.0f;
 float ship_zrot_damping = 0.98f;
+float ship_velocity_limit = 10000.0f;
 float wall_elasticity = 0.8f;
 float wall_friction = 0.1f;
 float bullet_speed = 400.0f;
@@ -324,10 +325,12 @@ void physics_spawn_bullet(uint ship) {
 void physics_control_ship(uint ship, bool rot_left, bool rot_right, bool acc) {
 	assert(ship < physics_state.n_ships);
 
+	float vel = vec2_length_sq(physics_state.ships[ship].vel);
+
 	cpVect world_force = cpBodyLocal2World(ships[ship].body, 
 		cpv(0.0f, -ship_acceleration));
 	world_force = cpvsub(world_force, ships[ship].body->p);
-	if(acc) {
+	if(acc && vel < ship_velocity_limit*ship_velocity_limit) {
 		cpBodyApplyForce(ships[ship].body, world_force, cpvzero);
 		physics_state.ships[ship].zrot_vel += ship_zrot_acceleration;
 	}	
