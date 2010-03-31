@@ -5,6 +5,8 @@
 #include "memory.h"
 #include "sounds.h"
 
+#define ARENA_FILE "greed_assets/arena.txt"
+
 int dgreed_main(int argc, const char** argv) {
 	log_init("greed.log", LOG_LEVEL_INFO);
 	rand_init(47891);
@@ -14,7 +16,9 @@ int dgreed_main(int argc, const char** argv) {
 	gui_init();
 
 	game_init();
-	game_reset("greed_assets/c2_arena3.mml", 2);
+	char* arena_file = txtfile_read(ARENA_FILE);
+	game_reset(arena_file, 2);
+	MEM_FREE(arena_file);
 
 	while(system_update()) {
 		game_update();

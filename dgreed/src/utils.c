@@ -525,8 +525,18 @@ bool file_exists(const char* name) {
 	return false;
 }
 
-FileHandle file_open(const char* name) {
-	assert(name);
+FileHandle file_open(const char* _name) {
+	assert(_name);
+
+	char* name = strclone(_name);
+
+	// Filter out newlines
+	uint i = 0;
+	while(name[i]) {
+		if(name[i] == '\n')
+			name[i] = '\0';
+		++i;
+	}
 
 #ifdef MACOSX_BUNDLE
 	char* path = get_resource_path(name);
@@ -539,6 +549,8 @@ FileHandle file_open(const char* name) {
 #else
 	FILE* f = fopen(name, "rb");
 #endif
+
+	MEM_FREE(name);
 
 	if(f == NULL) {
 		LOG_ERROR("Unable to open file %s", name);
@@ -700,7 +712,7 @@ char* txtfile_read(const char* name) {
 	FileHandle file = file_open(name);
 	uint size = file_size(file);
 
-	char* out = MEM_ALLOC(file_size(file)+1);
+	char* out = MEM_ALLOC(size+1);
 	out[size] = '\0';
 	file_read(file, out, size); 
 	file_close(file);

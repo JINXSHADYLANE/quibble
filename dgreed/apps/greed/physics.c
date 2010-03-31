@@ -48,7 +48,8 @@ float ship_turn_damping = 0.9f;
 float ship_zrot_min_speed = 720.0f;
 float ship_zrot_acceleration = 100.0f;
 float ship_zrot_damping = 0.98f;
-float ship_velocity_limit = 10000.0f;
+float ship_velocity_limit = 1000.0f;
+float ship_damping = 0.997f;
 float wall_elasticity = 0.8f;
 float wall_friction = 0.1f;
 float bullet_speed = 400.0f;
@@ -399,6 +400,10 @@ void physics_update(float dt) {
 		bool out_of_screen = !rectf_contains_point(&screen_bounds, &ship_pos);
 		if(out_of_screen) 
 			ships[i].body->p = _wrap_around(ships[i].body->p, &screen_bounds);
+
+		// Simulate friction by decreasing speed
+		ships[i].body->v.x *= ship_damping;
+		ships[i].body->v.y *= ship_damping;
 
 		physics_state.ships[i].pos = cpv_to_gv(ships[i].body->p);
 		physics_state.ships[i].vel = cpv_to_gv(ships[i].body->v);
