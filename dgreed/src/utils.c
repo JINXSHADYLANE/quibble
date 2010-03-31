@@ -209,6 +209,38 @@ float segment_point_dist(Segment s, Vector2 p) {
 	return d / sqrt(a*a + b*b);	
 }
 
+bool segment_intersect(Segment s1, Segment s2, Vector2* p) {
+	const float epsilon = 0.001f;
+
+	float a1 = s1.p2.y - s1.p1.y;
+	float b1 = s1.p1.x - s1.p2.x;
+	float c1 = a1*s1.p1.x + b1*s1.p1.y;
+	float a2 = s2.p2.y - s2.p1.y;
+	float b2 = s2.p1.x - s2.p2.x;
+	float c2 = a2*s2.p1.x + b2*s2.p1.y;
+
+	float det = a1*b2 - a2*b1;
+	if(abs(det) < epsilon)
+		return false;
+
+	float x = (b2*c1 - b1*c2) / det;
+	float y = (a1*c2 - a2*c1) / det;
+	if(MIN(s1.p1.x, s1.p2.x) <= (x+epsilon) &&
+		MAX(s1.p1.x, s1.p2.x) >= (x-epsilon) &&
+		MIN(s2.p1.x, s2.p2.x) <= (x+epsilon) &&
+		MAX(s2.p1.x, s2.p2.x) >= (x-epsilon)) {
+			if(MIN(s1.p1.y, s1.p2.y) <= (y+epsilon) &&
+				MAX(s1.p1.y, s1.p2.y) >= (y-epsilon) &&
+				MIN(s2.p1.y, s2.p2.y) <= (y+epsilon) &&
+				MAX(s2.p1.y, s2.p2.y) >= (y-epsilon)) {
+					if(p)
+						*p = vec2(x, y);
+					return true;		
+			}	
+	}	
+	return false;
+}
+
 /*
 --------------
 --- Colors ---
@@ -497,8 +529,18 @@ bool file_exists(const char* name) {
 	return false;
 }
 
-FileHandle file_open(const char* name) {
-	assert(name);
+FileHandle file_open(const char* _name) {
+	assert(_name);
+
+	char* name = strclone(_name);
+
+	// Filter out newlines
+	uint i = 0;
+	while(name[i]) {
+		if(name[i] == '\n')
+			name[i] = '\0';
+		++i;
+	}
 
 #ifdef MACOSX_BUNDLE
 	char* path = get_resource_path(name);
@@ -511,6 +553,8 @@ FileHandle file_open(const char* name) {
 #else
 	FILE* f = fopen(name, "rb");
 #endif
+
+	MEM_FREE(name);
 
 	if(f == NULL) {
 		LOG_ERROR("Unable to open file %s", name);
@@ -672,7 +716,7 @@ char* txtfile_read(const char* name) {
 	FileHandle file = file_open(name);
 	uint size = file_size(file);
 
-	char* out = MEM_ALLOC(file_size(file)+1);
+	char* out = MEM_ALLOC(size+1);
 	out[size] = '\0';
 	file_read(file, out, size); 
 	file_close(file);

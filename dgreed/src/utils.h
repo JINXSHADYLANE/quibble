@@ -120,6 +120,10 @@ float segment_length(Segment s);
 // (assuming segment goes up from p1 to p2)
 float segment_point_dist(Segment s, Vector2 p); 
 
+// Returns true if segments intersect,
+// optionally sets intersection point if p is not null.
+bool segment_intersect(Segment s1, Segment s2, Vector2* p);
+
 /*
 --------------
 --- Colors ---
