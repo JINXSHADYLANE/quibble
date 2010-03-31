@@ -733,13 +733,15 @@ void sound_free(SoundHandle handle) {
 	for(uint i = 0; i < MAX_SOURCES; ++i) {
 		ALint buffer;
 		alGetSourcei(sources[i], AL_BUFFER, &buffer);
-		if((ALuint)buffer == al_buffer_id) {
+		// Mac OS X returns 0 buffer ids for sources which stopped playing,
+		// even if some other buffer is attached.
+		if((ALuint)buffer == al_buffer_id || buffer == 0) {
 			// Stop, if it's still playing
 			ALint state;
 			alGetSourcei(sources[i], AL_SOURCE_STATE, &state);
 			if(state == AL_PLAYING)
 				alSourceStop(sources[i]);
-			alSourcei(sources[i], AL_BUFFER, 0);
+			alSourcei(sources[i], AL_BUFFER, AL_NONE);
 		}	
 	}		
 
