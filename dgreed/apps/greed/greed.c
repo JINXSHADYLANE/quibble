@@ -14,7 +14,7 @@ int dgreed_main(int argc, const char** argv) {
 	gui_init();
 
 	game_init();
-	game_reset("greed_assets/c2_arena5.mml", 2);
+	game_reset("greed_assets/c2_arena3.mml", 2);
 
 	while(system_update()) {
 		game_update();

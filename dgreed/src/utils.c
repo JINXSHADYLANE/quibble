@@ -205,6 +205,38 @@ float segment_point_dist(Segment s, Vector2 p) {
 	return d / sqrt(a*a + b*b);	
 }
 
+bool segment_intersect(Segment s1, Segment s2, Vector2* p) {
+	const float epsilon = 0.001f;
+
+	float a1 = s1.p2.y - s1.p1.y;
+	float b1 = s1.p1.x - s1.p2.x;
+	float c1 = a1*s1.p1.x + b1*s1.p1.y;
+	float a2 = s2.p2.y - s2.p1.y;
+	float b2 = s2.p1.x - s2.p2.x;
+	float c2 = a2*s2.p1.x + b2*s2.p1.y;
+
+	float det = a1*b2 - a2*b1;
+	if(abs(det) < epsilon)
+		return false;
+
+	float x = (b2*c1 - b1*c2) / det;
+	float y = (a1*c2 - a2*c1) / det;
+	if(MIN(s1.p1.x, s1.p2.x) <= (x+epsilon) &&
+		MAX(s1.p1.x, s1.p2.x) >= (x-epsilon) &&
+		MIN(s2.p1.x, s2.p2.x) <= (x+epsilon) &&
+		MAX(s2.p1.x, s2.p2.x) >= (x-epsilon)) {
+			if(MIN(s1.p1.y, s1.p2.y) <= (y+epsilon) &&
+				MAX(s1.p1.y, s1.p2.y) >= (y-epsilon) &&
+				MIN(s2.p1.y, s2.p2.y) <= (y+epsilon) &&
+				MAX(s2.p1.y, s2.p2.y) >= (y-epsilon)) {
+					if(p)
+						*p = vec2(x, y);
+					return true;		
+			}	
+	}	
+	return false;
+}
+
 /*
 --------------
 --- Colors ---
