@@ -6,4 +6,5 @@ dgreed/build*
 *.pyc
 *.log
 test_data*
+Thumbs.db
 

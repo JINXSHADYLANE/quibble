@@ -45,6 +45,7 @@ float ship_friction = 0.1f;
 float ship_acceleration = 800.0f;
 float ship_turn_speed = 1.0f;
 float ship_turn_damping = 0.9f;
+float ship_turn_friction = 0.99f; 
 float ship_zrot_min_speed = 720.0f;
 float ship_zrot_acceleration = 100.0f;
 float ship_zrot_damping = 0.98f;
@@ -408,6 +409,8 @@ void physics_update(float dt) {
 		// Simulate friction by decreasing speed
 		ships[i].body->v.x *= ship_damping;
 		ships[i].body->v.y *= ship_damping;
+
+		ships[i].body->w *= ship_turn_friction;
 
 		physics_state.ships[i].pos = cpv_to_gv(ships[i].body->p);
 		physics_state.ships[i].vel = cpv_to_gv(ships[i].body->v);
