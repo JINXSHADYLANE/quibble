@@ -24,7 +24,13 @@ possible with minimum amount of keystrokes. Pleease save the fishies.
 
 Installation instructions:
 ---------------------------------
-Unzip, run oalinst.exe and enjoy the game. ;)
+Windows - unzip, run oalinst.exe and enjoy the game. ;)
+
+OS X - mount dmg, drag KeyMingler icon anywhere you like (or leave it there),
+double-click and play.
+
+Linux - checkout https://quibble.googlecode.com/hg/ mercurial repo, build 
+using scons.
 
 
 Developers:
