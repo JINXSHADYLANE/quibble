@@ -1,13 +1,15 @@
 #include "utils.h"
 #include "memory.h"
 
+#include <ctype.h>
+
 #ifdef MACOSX_BUNDLE
 #include <CoreFoundation/CFBundle.h>
 
 CFBundleRef main_bundle;
 extern const char* g_home_dir;
 
-char* get_resource_path(const char* _file) {
+char* path_to_resource(const char* _file) {
 	static bool main_bundle_initialized = false;
 	if(!main_bundle_initialized) {
 		main_bundle_initialized = true;
@@ -69,7 +71,7 @@ char* get_resource_path(const char* _file) {
 	return path;	
 }
 #else
-char* get_resource_path(const char* _file) {
+char* path_to_resource(const char* _file) {
 	return strclone(_file);
 }
 #endif
@@ -722,6 +724,102 @@ char* txtfile_read(const char* name) {
 	file_close(file);
 	return out;
 }	
+
+bool _is_delim(char c) {
+	return c == '/' || c == '\\';
+}	
+
+char* path_get_folder(const char* path) {
+	assert(path);
+	size_t len = strlen(path);
+	if(len == 0)
+		return NULL;
+
+	char last = path[len-1];
+
+	// If path ends with delimiter or path is a dot - 
+	// filename is already removed, complain
+	if(_is_delim(last) || (len == 1 && last == '.'))
+		return NULL;
+	
+	// Calculate stripped path length
+	int idx = len-1;
+	while(idx >= 0 && !_is_delim(path[idx])) {
+		idx--;
+	}	
+	size_t new_len = idx+2;
+	
+	// If all path was just filename, return current dir
+	if(new_len < 3)
+		return strclone("./");
+
+	char* result = (char*)MEM_ALLOC(new_len);
+	strncpy(result, path, new_len-1);
+	result[new_len-1] = '\0';
+	return result;
+}
+
+bool _validate_extension(const char* ext) {
+	assert(ext);
+	size_t len = strlen(ext);
+
+	if(len == 0)
+		return true;
+
+	if(ext[0] == '.')
+		return false;
+
+	for(uint i = 0; i < len; ++i) {
+		if(!isalnum(ext[i]))
+			return false;
+	}
+	return true;
+}	
+
+char* path_change_ext(const char* path, const char* ext) {
+	assert(path);
+	assert(ext);
+
+	size_t path_len = strlen(path);
+	if(path_len == 0)
+		return NULL;
+	char path_last = path[path_len-1];
+
+	// Avoid invalid path
+	if(_is_delim(path_last) || (path_len == 1 && path_last == '.'))
+		return NULL;
+
+	// Avoid invalid extension
+	if(_validate_extension(ext) == false)
+		return NULL;
+
+	// Find where current extension begins (end of string if no extension)
+	int ext_start = path_len-1;
+	while(ext_start >= 0 && !_is_delim(path[ext_start]) 
+			&& path[ext_start] != '.') {
+		ext_start--;
+	}	
+	assert(ext_start >= 0);
+	if(ext_start == 0 || path[ext_start] != '.' || 
+			(path[ext_start] == '.' && _is_delim(path[ext_start-1])))
+		// No extension found
+		ext_start = path_len-1;
+	else
+		ext_start--;
+
+	size_t ext_len = strlen(ext);
+	size_t new_len = ext_start+1 + (ext_len > 0 ? ext_len + 1 : 0);
+	char* result = (char*)MEM_ALLOC(new_len+1);
+	strncpy(result, path, ext_start+2);
+	if(ext_len == 0) {
+		result[ext_start+1] = '\0';
+		return result;
+	}
+	result[ext_start+1] = '.';
+	strncpy(&result[ext_start+2], ext, ext_len);
+	result[new_len] = '\0';
+	return result;
+}
 
 /*
 ------------

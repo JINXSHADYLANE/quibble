@@ -7,4 +7,5 @@ dgreed/build*
 *.log
 test_data*
 Thumbs.db
+*~
 

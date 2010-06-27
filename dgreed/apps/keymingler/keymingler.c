@@ -38,7 +38,7 @@ int dgreed_main(int argc, const char** argv) {
 
 	game_init();
 	sounds_init();
-	char* music_path = get_resource_path(MUSIC_FILE);
+	char* music_path = path_to_resource(MUSIC_FILE);
 	music = sound_load_stream(music_path);
 	MEM_FREE(music_path);
 	sound_play(music);
