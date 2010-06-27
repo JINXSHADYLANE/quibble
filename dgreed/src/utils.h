@@ -261,10 +261,19 @@ void txtfile_write(const char* name, const char* text);
 // Loads file to a text string. You must free allocated buffer yourself!
 char* txtfile_read(const char* name);
 
+// File path manipulation
 
 // Returns real path to resource, use it when operating on files with 
 // classic IO procedures.
-char* get_resource_path(const char* file);
+char* path_to_resource(const char* file);
+
+// Returns new string with removed file name from path. Result is NULL
+// if path is invalid (eg. with already removed filename).
+char* path_get_folder(const char* path);
+
+// Returns same path, with changed file extension. If path does
+// not end with file or extension is invalid returns NULL. 
+char* path_change_ext(const char* path, const char* ext);
 
 /*
 ------------

@@ -185,17 +185,6 @@ void gen_collision_data(void) {
 	darray_free(&triangles);
 }	
 
-// Returns new string with removed file name from path
-char* _get_folder(const char* path) {
-	char* result = strclone(path);
-	int idx = strlen(result)-1;
-	while(idx >= 0 && (result[idx] != '\\' && result[idx] != '/')) {
-		result[idx] = '\0';
-		idx--;
-	}
-	return result;
-}	
-
 int dgreed_main(int argc, const char** argv) {
 	params_init(argc, argv);
 	log_init("abuild.log", LOG_LEVEL_INFO);
@@ -207,7 +196,7 @@ int dgreed_main(int argc, const char** argv) {
 
 	init(params_get(0));
 
-	char* folder = _get_folder(params_get(0));	
+	char* folder = path_get_folder(params_get(0));	
 	load_images(folder);
 	MEM_FREE(folder);
 
@@ -217,7 +206,7 @@ int dgreed_main(int argc, const char** argv) {
 	gen_collision_data();
 
 	// Figure out where to save final img:
-	char* mml_path = _get_folder(params_get(1)); 
+	char* mml_path = path_get_folder(params_get(1)); 
 	// Get arena name
 	const char* arena_name = mml_getval_str(&arena_mml, mml_root(&arena_mml));
 	// Glue everything together

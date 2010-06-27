@@ -152,3 +152,71 @@ TEST_(endianess) {
 	ASSERT_(bb[3] == 0x00);
 }	
 
+TEST_(path_get_folder) {
+	ASSERT_(path_get_folder("") == NULL);
+	ASSERT_(path_get_folder("long/path/to/") == NULL);
+
+	char* p1 = path_get_folder("long/path/to/file.ext");
+	ASSERT_(strcmp(p1, "long/path/to/") == 0);
+	MEM_FREE(p1);
+
+	char* p2 = path_get_folder("long/path/to/file");
+	ASSERT_(strcmp(p2, "long/path/to/") == 0);
+	MEM_FREE(p2);
+
+	char* p4 = path_get_folder("file.extension");
+	ASSERT_(strcmp(p4, "./") == 0);
+	MEM_FREE(p4);
+
+	char* p5 = path_get_folder("file");
+	ASSERT_(strcmp(p5, "./") == 0);
+	MEM_FREE(p5);
+
+	char* p6 = path_get_folder("./weird/.path/.file");
+	ASSERT_(strcmp(p6, "./weird/.path/") == 0);
+	MEM_FREE(p6);
+
+	char* p7 = path_get_folder("windows\\style\\path\\file");
+	ASSERT_(strcmp(p7, "windows\\style\\path\\") == 0);
+	MEM_FREE(p7);
+
+}	
+
+TEST_(path_change_ext) {
+	ASSERT_(path_change_ext("", "ext") == NULL);	
+	ASSERT_(path_change_ext("./", "ext") == NULL);	
+	ASSERT_(path_change_ext("path/", "ext") == NULL);	
+	ASSERT_(path_change_ext("path\\", "ext") == NULL);	
+	ASSERT_(path_change_ext("file.txt", ".") == NULL);	
+	ASSERT_(path_change_ext("file.txt", ".ext") == NULL);	
+	ASSERT_(path_change_ext("file.txt", " ") == NULL);	
+
+	char* p1 = path_change_ext("file.txt", "ext");
+	ASSERT_(strcmp(p1, "file.ext") == 0);
+	MEM_FREE(p1);
+
+	char* p2 = path_change_ext("file.longext", "");
+	ASSERT_(strcmp(p2, "file") == 0);
+	MEM_FREE(p2);
+
+	char* p3 = path_change_ext(".file", "ext");
+	ASSERT_(strcmp(p3, ".file.ext") == 0);
+	MEM_FREE(p3);
+
+	char* p4 = path_change_ext("path/.file", "ext");
+	ASSERT_(strcmp(p4, "path/.file.ext") == 0);
+	MEM_FREE(p4);
+	
+	char* p5 = path_change_ext("path/.file", "");
+	ASSERT_(strcmp(p5, "path/.file") == 0);
+	MEM_FREE(p5);
+
+	char* p6 = path_change_ext("path/.to/file", "longext");
+	ASSERT_(strcmp(p6, "path/.to/file.longext") == 0);
+	MEM_FREE(p6);
+
+	char* p7 = path_change_ext("path/to/file.tar.gz", "bz");
+	ASSERT_(strcmp(p7, "path/to/file.tar.bz") == 0)
+	MEM_FREE(p7);
+}
+
