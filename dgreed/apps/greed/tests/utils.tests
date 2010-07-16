@@ -18,6 +18,9 @@ TEST_(segment_point_dist) {
 	float d3 = segment_point_dist(s, p3);
 	float d4 = segment_point_dist(s, p4);
 
+	ASSERT_(d2 < 0.0f);
+	ASSERT_(d4 < 0.0f);
+
 	ASSERT_(d1 == abs(d2));
 	ASSERT_(d3 == abs(d4));
 }

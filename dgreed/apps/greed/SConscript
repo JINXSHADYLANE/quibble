@@ -18,6 +18,7 @@ greed_sources = Split("""
 	physics.c
 	sounds.c
 	ai_precalc.c
+	ai.c
 """)
 greed_objects = env.Object(greed_sources)
 
