@@ -3,6 +3,7 @@
 #include "polygonize.h"
 #include "memory.h"
 #include "gfx_utils.h"
+#include "ai_precalc.h"
 
 #define STBI_HEADER_FILE_ONLY
 #include "stb_image.c"
@@ -20,6 +21,8 @@ Color* walls = NULL;
 Color* shadow = NULL;
 Color* final_img = NULL;
 uint* collision_mask = NULL;
+
+FileHandle precalc_file = (FileHandle)NULL;
 
 void init(const char* mml_file) {
 	char* mml_text = txtfile_read(mml_file);
@@ -58,6 +61,11 @@ void save(const char* mml_file, const char* img_file) {
 	MEM_FREE(filename);
 
 	mml_insert_after(&arena_mml, mml_root(&arena_mml), img_node, "walls");
+
+	char* precalc_filename = path_change_ext(img_path, "precalc");
+	NodeIdx precalc_node = mml_node(&arena_mml, "precalc", precalc_filename);
+	mml_insert_after(&arena_mml, mml_root(&arena_mml), precalc_node, "walls");
+	MEM_FREE(precalc_filename);
 	
 	// Save mml
 	char* mml_text = mml_serialize(&arena_mml);
@@ -161,28 +169,32 @@ void blend_images(void) {
 	}
 }	
 
-void gen_collision_data(void) {
+void gen_precalc_data(void) {
+	DArray segments = darray_create(sizeof(Segment), 0);
 	DArray triangles = 
 		poly_triangulate_raster(collision_mask, width, height, NULL);
+
+	NavMesh	nav_mesh = ai_precalc_navmesh(segments);
 
 	Triangle* tris = NULL;
 	if(triangles.size != 0)
 		tris = DARRAY_DATA_PTR(triangles, Triangle);
-
-	NodeIdx collision_node = mml_node(&arena_mml, "collision" , "_");
+	
+	file_write_uint32(precalc_file, triangles.size);	
 
 	for(uint i = 0; i < triangles.size; ++i) {
-		char tri_desc[1024];
-		sprintf(tri_desc, "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f",
-			tris[i].p1.x, tris[i].p1.y,
-			tris[i].p2.x, tris[i].p2.y,
-			tris[i].p3.x, tris[i].p3.y);
-		NodeIdx tri_node = mml_node(&arena_mml, "t", tri_desc);
-		mml_append(&arena_mml, collision_node, tri_node);
+		file_write_float(precalc_file, tris[i].p1.x);
+		file_write_float(precalc_file, tris[i].p1.y);
+		file_write_float(precalc_file, tris[i].p2.x);
+		file_write_float(precalc_file, tris[i].p2.y);
+		file_write_float(precalc_file, tris[i].p3.x);
+		file_write_float(precalc_file, tris[i].p3.y);
 	}
 
-	mml_append(&arena_mml, mml_root(&arena_mml), collision_node);
+	ai_save_navmesh(precalc_file, &nav_mesh);
+
 	darray_free(&triangles);
+	darray_free(&segments);
 }	
 
 int dgreed_main(int argc, const char** argv) {
@@ -203,8 +215,7 @@ int dgreed_main(int argc, const char** argv) {
 	make_collision_mask();
 	make_shadow();
 	blend_images();
-	gen_collision_data();
-
+	
 	// Figure out where to save final img:
 	char* mml_path = path_get_folder(params_get(1)); 
 	// Get arena name
@@ -212,7 +223,16 @@ int dgreed_main(int argc, const char** argv) {
 	// Glue everything together
 	char final_img_name[256];
 	sprintf(final_img_name, "%s%s.tga", mml_path, arena_name);
+	
+	// Save collision and ai precalc data in binary file
+	char* precalc_filename = path_change_ext(final_img_name, "precalc");
+	precalc_file = file_create(precalc_filename);
+
+	gen_precalc_data();
+
+	file_close(precalc_file);
 	MEM_FREE(mml_path);
+	MEM_FREE(precalc_filename);
 
 	save(params_get(1), final_img_name);
 	deinit();

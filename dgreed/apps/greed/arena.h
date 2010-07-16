@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "system.h"
 #include "game.h"
+#include "ai_precalc.h"
 
 typedef struct {
 	TexHandle img;
@@ -14,6 +15,7 @@ typedef struct {
 
 	uint n_tris;
 	Triangle* collision_tris;
+	NavMesh nav_mesh;
 } ArenaDesc;
 
 extern ArenaDesc current_arena_desc;

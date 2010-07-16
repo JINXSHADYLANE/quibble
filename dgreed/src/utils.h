@@ -243,6 +243,7 @@ void file_seek(FileHandle f, uint pos);
 byte file_read_byte(FileHandle f);
 uint16 file_read_uint16(FileHandle f);
 uint32 file_read_uint32(FileHandle f);
+float file_read_float(FileHandle f);
 void file_read(FileHandle f, void* dest, uint size);
 
 // Opens/creates new file for writing
@@ -252,6 +253,7 @@ FileHandle file_create(const char* name);
 void file_write_byte(FileHandle f, byte data);
 void file_write_uint16(FileHandle f, uint16 data);
 void file_write_uint32(FileHandle f, uint32 data);
+void file_write_float(FileHandle f, float data);
 void file_write(FileHandle f, void* data, uint size);
 
 // Text file helpers
