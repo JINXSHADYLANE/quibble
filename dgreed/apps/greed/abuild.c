@@ -172,7 +172,7 @@ void blend_images(void) {
 void gen_precalc_data(void) {
 	DArray segments = darray_create(sizeof(Segment), 0);
 	DArray triangles = 
-		poly_triangulate_raster(collision_mask, width, height, NULL);
+		poly_triangulate_raster(collision_mask, width, height, &segments);
 
 	NavMesh	nav_mesh = ai_precalc_navmesh(segments);
 

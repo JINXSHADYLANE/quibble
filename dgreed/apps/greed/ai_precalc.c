@@ -3,9 +3,9 @@
 #include "game.h"
 
 // Tweakables
-float min_wall_distance = 10.0f;
+float min_wall_distance = 1.0f;
 float min_point_distance = 30.0f;
-float max_edge_distance = 50.0f;
+float max_edge_distance = 55.0f;
 
 float _wall_distance(Vector2 p, DArray geometry) {
 	Segment* segments = DARRAY_DATA_PTR(geometry, Segment);
@@ -13,7 +13,7 @@ float _wall_distance(Vector2 p, DArray geometry) {
 	for(uint i = 0; i < geometry.size; ++i) {
 		float d = segment_point_dist(segments[i], p);
 		if(abs(d) < abs(distance))
-			distance = d;
+			distance = -d;
 	}
 	return distance > 0.0f ? distance : 0.0f;
 }
@@ -58,7 +58,7 @@ DArray _gen_edges(DArray points, DArray geometry) {
 			float sqr_dist = vec2_length_sq(vec2_sub(points_vec2[i], 
 				points_vec2[j]));
 
-			if(sqr_dist >= max_edge_distance*max_edge_distance) {
+			if(sqr_dist <= max_edge_distance*max_edge_distance) {
 				Edge n = {i, j};
 
 				// TODO: check distance to walls, not intersection

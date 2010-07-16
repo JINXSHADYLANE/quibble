@@ -5,6 +5,7 @@
 #include "physics.h"
 #include "gfx_utils.h"
 #include "sounds.h"
+#include "ai.h"
 
 #define ENERGYBAR_LAYER 7
 #define FOREGROUND_LAYER 6
@@ -71,6 +72,7 @@ const float energybar_y_pos[] = {
 
 // Devmode switches
 bool draw_physics_debug = false;
+bool draw_ai_debug = true;
 
 void game_init(void) {
 	arena_init();
@@ -325,6 +327,9 @@ float _calc_core_shrink_ratio(uint platform) {
 void game_render(void) {
 	if(draw_physics_debug)
 		physics_debug_draw();
+
+	if(draw_ai_debug)
+		ai_debug_draw();
 	
 	arena_draw();
 
