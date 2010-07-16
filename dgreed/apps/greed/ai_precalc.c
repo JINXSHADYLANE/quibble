@@ -139,3 +139,59 @@ void ai_free_navmesh(NavMesh mesh) {
 	MEM_FREE(mesh.radius);
 }
 
+void ai_save_navmesh(FileHandle file, const NavMesh* navmesh) {
+	assert(file);
+	assert(navmesh);
+	assert(navmesh->n_nodes > 3);
+
+	file_write_uint32(file, navmesh->n_nodes);
+
+	size_t n = navmesh->n_nodes;
+
+	for(uint i = 0; i < n; ++i) {
+		file_write_float(file, navmesh->navpoints[i].x);
+		file_write_float(file, navmesh->navpoints[i].y);
+	}
+
+	for(uint i = 0; i < n*n; ++i)
+		file_write_float(file, navmesh->adjacency[i]);
+
+	for(uint i = 0; i < n*n; ++i)
+		file_write_float(file, navmesh->distance[i]);
+
+	for(uint i = 0; i < n; ++i)
+		file_write_float(file, navmesh->radius[i]);
+}
+
+NavMesh ai_load_navmesh(FileHandle file) {
+	assert(file);
+
+	NavMesh r;
+
+	r.n_nodes = file_read_uint32(file);
+	assert(r.n_nodes > 3 && r.n_nodes < 1024);
+
+	size_t n = r.n_nodes;
+
+	r.navpoints = (Vector2*)MEM_ALLOC(sizeof(Vector2)*n);
+	r.adjacency = (float*)MEM_ALLOC(sizeof(float)*n*n);
+	r.distance = (float*)MEM_ALLOC(sizeof(float)*n*n);
+	r.radius = (float*)MEM_ALLOC(sizeof(float)*n);
+
+	for(uint i = 0; i < n; ++i) {
+		r.navpoints[i].x = file_read_float(file);
+		r.navpoints[i].y = file_read_float(file);
+	}
+
+	for(uint i = 0; i < n*n; ++i)
+		r.adjacency[i] = file_read_float(file);
+
+	for(uint i = 0; i < n*n; ++i)
+		r.distance[i] = file_read_float(file);
+
+	for(uint i = 0; i < n; ++i)
+		r.radius[i] = file_read_float(file);
+
+	return r;	
+}
+

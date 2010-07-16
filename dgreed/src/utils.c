@@ -638,6 +638,11 @@ uint32 file_read_uint32(FileHandle f) {
 	return result;
 }
 
+float file_read_float(FileHandle f) {
+	uint32 r = file_read_uint32(f);
+	return *((float*)&r);
+}
+
 void file_read(FileHandle f, void* dest, uint size) {
 	FILE* file = (FILE*)f;
 	uint read;
@@ -690,6 +695,10 @@ void file_write_uint32(FileHandle f, uint32 data) {
 	if(fwrite((void*)&data, 1, 4, file) != 4)
 		LOG_ERROR("File writing error");
 }
+
+void file_write_float(FileHandle f, float data) {
+	file_write_uint32(f, *((uint32*)&data));
+}	
 
 void file_write(FileHandle f, void* data, uint size) {
 	FILE* file = (FILE*)f;

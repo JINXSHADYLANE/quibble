@@ -18,6 +18,8 @@ typedef struct {
 
 NavMesh ai_precalc_navmesh(DArray geometry);
 void ai_free_navmesh(NavMesh mesh);
+void ai_save_navmesh(FileHandle file, const NavMesh* navmesh);
+NavMesh ai_load_navmesh(FileHandle file);
 
 #endif
 

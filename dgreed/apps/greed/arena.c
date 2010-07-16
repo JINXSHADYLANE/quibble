@@ -26,6 +26,10 @@ void arena_close(void) {
 		tex_free(current_arena_desc.img);
 		current_arena_desc.img = MAX_UINT32;
 	}	
+	if(current_arena_desc.nav_mesh.n_nodes != 0) {
+		ai_free_navmesh(current_arena_desc.nav_mesh);
+		current_arena_desc.nav_mesh.n_nodes = 0;
+	}	
 }
 
 Vector2 _deserialize_vec2(const char* serialized) {
@@ -33,15 +37,6 @@ Vector2 _deserialize_vec2(const char* serialized) {
 	sscanf(serialized, "%f,%f", &(result.x), &(result.y));
 	return result;
 }
-
-Triangle _deserialize_tri(const char* serialized) {
-	Triangle result;
-	sscanf(serialized, "%f,%f,%f,%f,%f,%f", 
-		&(result.p1.x), &(result.p1.y),
-		&(result.p2.x), &(result.p2.y),
-		&(result.p3.x), &(result.p3.y));
-	return result;
-}	
 
 void arena_reset(const char* filename, uint n_ships) {
 	arena_close();
@@ -68,6 +63,33 @@ void arena_reset(const char* filename, uint n_ships) {
 		LOG_ERROR("No img propierty found in arena description");
 	current_arena_desc.img = tex_load(mml_getval_str(&desc, img_node));
 
+	// Read precalculated data filename
+	NodeIdx precalc_node = mml_get_child(&desc, root, "precalc");
+	if(!img_node)
+		LOG_ERROR("No precalc propierty found in arena description");
+	FileHandle precalc_file = file_open(mml_getval_str(&desc, precalc_node));	
+
+	// Load collision data
+	uint32 n = file_read_uint32(precalc_file);
+	current_arena_desc.n_tris = n;
+	if(n > 0) {
+		current_arena_desc.collision_tris = 
+			(Triangle*)MEM_ALLOC(sizeof(Triangle)*n);
+		Triangle* tris = current_arena_desc.collision_tris;	
+		for(uint i = 0; i < n; ++i) {
+			tris[i].p1.x = file_read_float(precalc_file);	
+			tris[i].p1.y = file_read_float(precalc_file);	
+			tris[i].p2.x = file_read_float(precalc_file);	
+			tris[i].p2.y = file_read_float(precalc_file);	
+			tris[i].p3.x = file_read_float(precalc_file);	
+			tris[i].p3.y = file_read_float(precalc_file);	
+		}
+	}
+
+	// Load navmesh
+	current_arena_desc.nav_mesh = ai_load_navmesh(precalc_file);
+	file_close(precalc_file);
+	
 	// Read shadow shift
 	NodeIdx shadow_node = mml_get_sibling(&desc, img_node, "shadow_shift");
 	if(!shadow_node)
@@ -104,25 +126,6 @@ void arena_reset(const char* filename, uint n_ships) {
 		current_arena_desc.platforms[platform_idx++] = 
 			_deserialize_vec2(mml_getval_str(&desc, platform));
 		platform = mml_get_next(&desc, platform);
-	}
-
-	// Read collision data
-	NodeIdx collision_node = mml_get_sibling(&desc, platforms_node, "collision");
-	if(!collision_node)
-		LOG_ERROR("No collision propierty found in arena description");
-	uint tri_count = mml_count_children(&desc, collision_node);
-	if(tri_count > 0)
-		current_arena_desc.collision_tris = 
-			(Triangle*)MEM_ALLOC(sizeof(Triangle) * tri_count);
-	else
-		current_arena_desc.collision_tris = NULL;
-	current_arena_desc.n_tris = tri_count;
-	NodeIdx triangle = mml_get_first_child(&desc, collision_node);
-	uint tri_idx = 0;
-	while(triangle) {
-		current_arena_desc.collision_tris[tri_idx++] =
-			_deserialize_tri(mml_getval_str(&desc, triangle));
-		triangle = mml_get_next(&desc, triangle);
 	}
 
 	mml_free(&desc);

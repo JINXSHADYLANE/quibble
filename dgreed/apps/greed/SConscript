@@ -17,15 +17,16 @@ greed_sources = Split("""
 	arena.c
 	physics.c
 	sounds.c
+	ai_precalc.c
 """)
 greed_objects = env.Object(greed_sources)
 
 arena_builder_sources = Split("""
 	abuild.c
 	polygonize.c
-	ai_precalc.c
 """)
-arena_builder_objects = env.Object(arena_builder_sources)
+arena_builder_objects = env.Object(arena_builder_sources) + \
+	['ai_precalc.o']
 
 particle_viewer_sources = Split("""
 	pview.c
