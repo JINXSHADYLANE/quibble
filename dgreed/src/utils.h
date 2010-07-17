@@ -306,6 +306,9 @@ float smoothstep(float a, float b, float t);
 // Clamp value in specified interval
 float clamp(float min, float max, float val);
 
+// Returns true if floats are within epsilon range
+bool feql(float a, float b); 
+
 /*
 -------------------
 --- Compression ---

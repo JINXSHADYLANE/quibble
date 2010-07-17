@@ -194,21 +194,19 @@ float segment_length(Segment s) {
 float segment_point_dist(Segment s, Vector2 p) {
 	float dx = s.p2.x - s.p1.x;
 	float dy = s.p2.y - s.p1.y;
-	float r = 
-		((p.x - s.p1.x)*dx + (p.y - s.p1.y)*dx) / ((dx*dx) + (dy*dy));
+	float px = p.x - s.p1.x;
+	float py = p.y - s.p1.y;
+	float d = dx*py - dy*px;
+	float d_sgn = d < 0.0f ? 1.0f : -1.0f;
 
-	float a = dy;
-	float b = -dx;
-	float c = a * s.p1.x + b * s.p2.y;
+	float dot1 = vec2_dot(vec2_sub(s.p2, s.p1), vec2_sub(p, s.p2));
+	float dot2 = vec2_dot(vec2_sub(s.p1, s.p2), vec2_sub(p, s.p1));
 
-	float d = a*p.x + b*p.y - c;
-	float d_sgn = d / abs(d);
-
-	if(r < 0.0f)
+	if(dot2 > 0.0f)
 		return vec2_length(vec2_sub(s.p1, p)) * d_sgn;
-	if(r > 1.0f)
+	if(dot1 > 0.0f)
 		return vec2_length(vec2_sub(s.p2, p)) * d_sgn;
-	return d / sqrt(a*a + b*b);	
+	return -d / sqrt(dx*dx + dy*dy);	
 }
 
 bool segment_intersect(Segment s1, Segment s2, Vector2* p) {
@@ -880,6 +878,10 @@ float clamp(float min, float max, float val) {
 	assert(min < max);
 	return MAX(min, MIN(max, val));
 }	
+
+bool feql(float a, float b) {
+	return abs(a - b) < 0.00001f;
+}
 
 /*
 -------------------

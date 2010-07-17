@@ -21,5 +21,8 @@ void ai_free_navmesh(NavMesh mesh);
 void ai_save_navmesh(FileHandle file, const NavMesh* navmesh);
 NavMesh ai_load_navmesh(FileHandle file);
 
+// Visible for testing:
+float ai_wall_distance(Vector2 p, DArray geometry);
+
 #endif
 

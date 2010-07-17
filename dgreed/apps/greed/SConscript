@@ -37,9 +37,9 @@ particle_viewer_objects = env.Object(particle_viewer_sources)
 test_sources = Split("""
 	test_runner.c
 """)	
-# Include polygonize.o too
+# Include polygonize.o and ai_precalc.o too
 test_objects = env.Object(test_sources) + \
-	['polygonize.o']
+	['polygonize.o', 'ai_precalc.o']
 
 # Greed
 postfix = env['DGREED_POSTFIX']
