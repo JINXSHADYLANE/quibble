@@ -3,17 +3,21 @@
 #include "game.h"
 
 // Tweakables
-float min_wall_distance = 1.0f;
-float min_point_distance = 30.0f;
-float max_edge_distance = 55.0f;
+float min_wall_distance = 17.0f;
+float min_point_distance = 35.0f;
+float max_edge_distance = 60.0f;
 
-float _wall_distance(Vector2 p, DArray geometry) {
+float ai_wall_distance(Vector2 p, DArray geometry) {
 	Segment* segments = DARRAY_DATA_PTR(geometry, Segment);
 	float distance = 10000.0f;
 	for(uint i = 0; i < geometry.size; ++i) {
-		float d = segment_point_dist(segments[i], p);
+		Segment seg = {segments[i].p2, segments[i].p1};
+		float d = segment_point_dist(seg, p);
 		if(abs(d) < abs(distance))
-			distance = -d;
+			distance = d;
+		else 
+			if(distance < 0.0f && d > 0.0f && feql((abs(distance)), d))
+				distance = d;
 	}
 	return distance > 0.0f ? distance : 0.0f;
 }
@@ -32,12 +36,12 @@ float _point_distance(Vector2 p, DArray points) {
 
 DArray _gen_navpoints(DArray geometry) {
 	DArray points = darray_create(sizeof(Vector2), 0);
-	uint count = 100000;
+	uint count = 150000;
 	do {
 		Vector2 navpoint = vec2(rand_float_range(0.0f, SCREEN_WIDTH),
 			rand_float_range(0.0f, SCREEN_HEIGHT));
 
-		float wdist = _wall_distance(navpoint, geometry);
+		float wdist = ai_wall_distance(navpoint, geometry);
 		float pdist = _point_distance(navpoint, points);
 
 		if(wdist >= min_wall_distance && pdist >= min_point_distance) {
@@ -102,7 +106,7 @@ NavMesh ai_precalc_navmesh(DArray geometry) {
 		
 	for(uint i = 0; i < navpoints.size; ++i) {
 		res.navpoints[i] = 	navpoints_v[i];
-		res.radius[i] = _wall_distance(navpoints_v[i], geometry);
+		res.radius[i] = ai_wall_distance(navpoints_v[i], geometry);
 	}
 
 	for(uint i = 0; i < edges.size; ++i) {
