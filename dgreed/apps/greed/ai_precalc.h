@@ -7,7 +7,9 @@
 typedef struct {
 	uint n_nodes;
 	Vector2* navpoints; // Navpoints positions
-	float* adjacency; // Graph adjacency matrix
+	uint* neighbour_count;	// Amount of neighbours for each node
+	uint* neighbours_start; // Where neighbour list starts
+	uint* neighbours; // Neighbour lists
 	float* distance; // Shortest path between each pair of nodes
 	float* radius; // Distance to wall
 } NavMesh;	

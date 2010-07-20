@@ -119,7 +119,7 @@ DArray _gen_edges(DArray points, DArray geometry) {
 	Vector2* points_vec2 = DARRAY_DATA_PTR(points, Vector2);
 	for(uint i = 0; i < points.size; ++i) {
 		for(uint j = 0; j < points.size; ++j) {
-			if(i == j)
+			if(i >= j)
 				continue;
 
 			float sqr_dist = _node_distance_sq(points_vec2[i], points_vec2[j]);
@@ -180,11 +180,14 @@ NavMesh ai_precalc_navmesh(DArray geometry, float width, float height) {
 
 	res.n_nodes = n;
 	res.navpoints = MEM_ALLOC(sizeof(Vector2) * n);
-	res.adjacency = MEM_ALLOC(sizeof(float) * n*n);
+	res.neighbour_count = MEM_ALLOC(sizeof(uint) * n);
+	res.neighbours_start = MEM_ALLOC(sizeof(uint) * n);
+	float* adjacency = MEM_ALLOC(sizeof(float) * n*n);
 	res.distance = MEM_ALLOC(sizeof(float) * n*n);
 	res.radius = MEM_ALLOC(sizeof(float) * n);
 
-	memset(res.adjacency, 0, sizeof(float) * n*n);
+	memset(res.neighbour_count, 0, sizeof(uint) * n);
+	memset(adjacency, 0, sizeof(float) * n*n);
 	memset(res.distance, 0, sizeof(float) * n*n);
 		
 	for(uint i = 0; i < navpoints.size; ++i) {
@@ -195,12 +198,37 @@ NavMesh ai_precalc_navmesh(DArray geometry, float width, float height) {
 	for(uint i = 0; i < edges.size; ++i) {
 		float dist = vec2_length(vec2_sub(
 			navpoints_v[edges_e[i].v1], navpoints_v[edges_e[i].v2]));
-		res.adjacency[IDX_2D(edges_e[i].v1, edges_e[i].v2, n)] = dist;
-		res.adjacency[IDX_2D(edges_e[i].v2, edges_e[i].v1, n)] = dist;
+		adjacency[IDX_2D(edges_e[i].v1, edges_e[i].v2, n)] = dist;
+		adjacency[IDX_2D(edges_e[i].v2, edges_e[i].v1, n)] = dist;
+		res.neighbour_count[edges_e[i].v1]++;
+		res.neighbour_count[edges_e[i].v2]++;
 	}
 
+	// Pracalc node neighbour lists
+	uint total_neighbours = res.neighbour_count[0];
+	res.neighbours_start[0] = 0;
+	for(uint i = 1; i < n; ++i) {
+		res.neighbours_start[i] = 
+			res.neighbours_start[i-1] + res.neighbour_count[i-1];
+		total_neighbours +=	res.neighbour_count[i];
+	}		
+	res.neighbours = MEM_ALLOC(sizeof(uint) * total_neighbours);
+	for(uint i = 0; i < n; ++i) {
+		uint idx = res.neighbours_start[i];
+		for(uint j = 0; j < n; ++j) {
+			if(adjacency[IDX_2D(i, j, n)] > 0.0f)
+				res.neighbours[idx++] = j;
+		}
+		assert(idx == res.neighbours_start[i] + res.neighbour_count[i]);
+	}
+
+	memcpy(res.distance, adjacency, sizeof(float) * n*n);
+	// Change zero distances to infinities
+	for(uint i = 0; i < n*n; ++i)
+		if(res.distance[i] == 0.0f)
+			res.distance[i] = 10000000.0f;
+
 	// Floyd-Warshall
-	memcpy(res.distance, res.adjacency, sizeof(float) * n*n);
 	for(uint i = 0; i < n; ++i)
 		for(uint j = 0; j < n; ++j)
 			for(uint k = 0; k < n; ++k)
@@ -209,6 +237,7 @@ NavMesh ai_precalc_navmesh(DArray geometry, float width, float height) {
 
 	darray_free(&navpoints);
 	darray_free(&edges);
+	MEM_FREE(adjacency);
 
 	return res;
 }
@@ -216,12 +245,16 @@ NavMesh ai_precalc_navmesh(DArray geometry, float width, float height) {
 void ai_free_navmesh(NavMesh mesh) {
 	assert(mesh.n_nodes);
 	assert(mesh.navpoints);
-	assert(mesh.adjacency);
+	assert(mesh.neighbour_count);
+	assert(mesh.neighbours_start);
+	assert(mesh.neighbours);
 	assert(mesh.distance);
 	assert(mesh.radius);
 
 	MEM_FREE(mesh.navpoints);
-	MEM_FREE(mesh.adjacency);
+	MEM_FREE(mesh.neighbour_count);
+	MEM_FREE(mesh.neighbours_start);
+	MEM_FREE(mesh.neighbours);
 	MEM_FREE(mesh.distance);
 	MEM_FREE(mesh.radius);
 }
@@ -240,8 +273,14 @@ void ai_save_navmesh(FileHandle file, const NavMesh* navmesh) {
 		file_write_float(file, navmesh->navpoints[i].y);
 	}
 
-	for(uint i = 0; i < n*n; ++i)
-		file_write_float(file, navmesh->adjacency[i]);
+	uint n_neighbours = 0;
+	for(uint i = 0; i < n; ++i) {
+		file_write_uint32(file, navmesh->neighbour_count[i]);
+		n_neighbours += navmesh->neighbour_count[i];
+	}	
+
+	for(uint i = 0; i < n_neighbours; ++i)
+		file_write_uint32(file, navmesh->neighbours[i]);
 
 	for(uint i = 0; i < n*n; ++i)
 		file_write_float(file, navmesh->distance[i]);
@@ -261,7 +300,8 @@ NavMesh ai_load_navmesh(FileHandle file) {
 	size_t n = r.n_nodes;
 
 	r.navpoints = (Vector2*)MEM_ALLOC(sizeof(Vector2)*n);
-	r.adjacency = (float*)MEM_ALLOC(sizeof(float)*n*n);
+	r.neighbour_count = (uint*)MEM_ALLOC(sizeof(uint)*n);
+	r.neighbours_start = (uint*)MEM_ALLOC(sizeof(uint)*n);
 	r.distance = (float*)MEM_ALLOC(sizeof(float)*n*n);
 	r.radius = (float*)MEM_ALLOC(sizeof(float)*n);
 
@@ -270,8 +310,20 @@ NavMesh ai_load_navmesh(FileHandle file) {
 		r.navpoints[i].y = file_read_float(file);
 	}
 
-	for(uint i = 0; i < n*n; ++i)
-		r.adjacency[i] = file_read_float(file);
+	uint n_neighbours = 0;
+	for(uint i = 0; i < n; ++i) {
+		r.neighbour_count[i] = file_read_uint32(file);
+		n_neighbours += r.neighbour_count[i];
+	}
+
+	r.neighbours_start[0] = 0;
+	for(uint i = 1; i < n; ++i)
+		r.neighbours_start[i] = 
+			r.neighbours_start[i-1] + r.neighbour_count[i-1];
+
+	r.neighbours = (uint*)MEM_ALLOC(sizeof(uint)*n_neighbours);
+	for(uint i = 0; i < n_neighbours; ++i)
+		r.neighbours[i] = file_read_uint32(file);
 
 	for(uint i = 0; i < n*n; ++i)
 		r.distance[i] = file_read_float(file);
