@@ -174,7 +174,8 @@ void gen_precalc_data(void) {
 	DArray triangles = 
 		poly_triangulate_raster(collision_mask, width, height, &segments);
 
-	NavMesh	nav_mesh = ai_precalc_navmesh(segments);
+	NavMesh	nav_mesh = ai_precalc_navmesh(segments,
+		(float)width, (float)height);
 
 	Triangle* tris = NULL;
 	if(triangles.size != 0)

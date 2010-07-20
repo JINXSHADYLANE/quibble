@@ -7,11 +7,28 @@ float min_wall_distance = 17.0f;
 float min_point_distance = 35.0f;
 float max_edge_distance = 60.0f;
 
+Vector2 wraparound_offsets[5] =
+	{{10000.0f, 0.0f}, {0.0f, -10000.0f},
+	 {-10000.0f, 0.0f}, {0.0f, 10000.0f}, {0.0f, 0.0f}};
+
+Segment bounds[4];	 
+
 float ai_wall_distance(Vector2 p, DArray geometry) {
 	Segment* segments = DARRAY_DATA_PTR(geometry, Segment);
 	float distance = 10000.0f;
 	for(uint i = 0; i < geometry.size; ++i) {
 		Segment seg = {segments[i].p2, segments[i].p1};
+
+		for(uint j = 0; j < 4; ++j) {
+			float wraparound_d;
+			Segment wraparound_seg = segment(
+				vec2_add(seg.p1, wraparound_offsets[j]),
+				vec2_add(seg.p2, wraparound_offsets[j]));
+			wraparound_d = segment_point_dist(wraparound_seg, p);
+			if(wraparound_d > 0.0f && wraparound_d < abs(distance))
+				distance = wraparound_d;
+		}		
+
 		float d = segment_point_dist(seg, p);
 		if(abs(d) < abs(distance))
 			distance = d;
@@ -22,15 +39,61 @@ float ai_wall_distance(Vector2 p, DArray geometry) {
 	return distance > 0.0f ? distance : 0.0f;
 }
 
+float _node_distance_sq(Vector2 p1, Vector2 p2) {
+	float result = 10000000.0f;
+	float d_sqr;
+
+	for(uint i = 0; i < 5; ++i) {
+		Vector2 wrap_p = vec2_add(p2, wraparound_offsets[i]);
+		d_sqr = vec2_length_sq(vec2_sub(p1, wrap_p));
+		result = MIN(result, d_sqr);
+	}
+	return result;
+}
+
+Segment ai_shortest_path(Vector2 p1, Vector2 p2) {
+	uint id = 5;
+	float min_d = 10000000.0f;
+	float d_sqr;
+
+	for(uint i = 0; i < 5; ++i) {
+		Vector2 wrap_p = vec2_add(p2, wraparound_offsets[i]);
+		d_sqr = vec2_length_sq(vec2_sub(p1, wrap_p));
+		if(d_sqr < min_d) {
+			min_d = d_sqr;
+			id = i;
+		}	
+	}
+
+	return segment(p1, vec2_add(p2, wraparound_offsets[id])); 
+}
+
+bool ai_split_path(Segment path, Segment* out_p1, Segment* out_p2) {
+	assert(out_p1);
+	assert(out_p2);
+
+	for(uint i = 0; i < 4; ++i) {
+		Vector2 middle;
+		if(segment_intersect(path, bounds[i], &middle)) {
+			*out_p1 = segment(path.p1, middle); 
+			Vector2 off = wraparound_offsets[i];
+			*out_p2 = segment(vec2_add(middle, off), vec2_add(path.p2, off));
+			return true;
+		}	
+	}
+	
+	*out_p1 = path;
+	return false;
+}
+
 float _point_distance(Vector2 p, DArray points) {
 	Vector2* points_vec2 = DARRAY_DATA_PTR(points, Vector2);
 	float distance_sqr = 10000000.0f;
 	for(uint i = 0; i < points.size; ++i) {
-		float dx = points_vec2[i].x - p.x;
-		float dy = points_vec2[i].y - p.y;
-		float d_sqr = dx*dx + dy*dy;
-		distance_sqr = MIN(distance_sqr, d_sqr); 
-	}
+		float d = _node_distance_sq(p, points_vec2[i]);
+		distance_sqr = MIN(distance_sqr, d);
+	}	
+
 	return sqrtf(distance_sqr);
 }
 
@@ -59,21 +122,27 @@ DArray _gen_edges(DArray points, DArray geometry) {
 			if(i == j)
 				continue;
 
-			float sqr_dist = vec2_length_sq(vec2_sub(points_vec2[i], 
-				points_vec2[j]));
+			float sqr_dist = _node_distance_sq(points_vec2[i], points_vec2[j]);
 
 			if(sqr_dist <= max_edge_distance*max_edge_distance) {
 				Edge n = {i, j};
 
 				// TODO: check distance to walls, not intersection
-				Segment s = {points_vec2[i], points_vec2[j]};
+				Segment s = ai_shortest_path(points_vec2[i], points_vec2[j]);
+				Segment s1, s2;
+				bool split = ai_split_path(s, &s1, &s2);
+
 				Segment* geometry_s = DARRAY_DATA_PTR(geometry, Segment);
 				bool intersects_arena = false;
 				for(uint k = 0; k < geometry.size; ++k) {
-					if(segment_intersect(s, geometry_s[k], NULL)) {
+					if(segment_intersect(s1, geometry_s[k], NULL)) {
 						intersects_arena = true;
 						break;
 					}
+					if(split && segment_intersect(s2, geometry_s[k], NULL)) {
+						intersects_arena = true;
+						break;
+					}	
 				}
 
 				if(!intersects_arena)
@@ -84,8 +153,22 @@ DArray _gen_edges(DArray points, DArray geometry) {
 	return edges;
 }	
 
-NavMesh ai_precalc_navmesh(DArray geometry) {
+void ai_precalc_bounds(float width, float height) {
+	wraparound_offsets[0] = vec2(width, 0.0f);
+	wraparound_offsets[1] = vec2(0.0f, -height);
+	wraparound_offsets[2] = vec2(-width, 0.0f);
+	wraparound_offsets[3] = vec2(0.0f, height);
+
+	bounds[0] = segment(vec2(0.0f, 0.0f), vec2(0.0f, height));
+	bounds[1] = segment(vec2(0.0f, height), vec2(width, height));
+	bounds[2] = segment(vec2(width, height), vec2(width, 0.0f));
+	bounds[3] = segment(vec2(width, 0.0f), vec2(0.0f, 0.0f));
+}	
+
+NavMesh ai_precalc_navmesh(DArray geometry, float width, float height) {
 	NavMesh res;
+
+	ai_precalc_bounds(width, height);
 
 	DArray navpoints = _gen_navpoints(geometry);
 	DArray edges = _gen_edges(navpoints, geometry);
