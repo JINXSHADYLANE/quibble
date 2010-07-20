@@ -112,6 +112,9 @@ typedef struct {
 	Vector2 p1, p2;
 } Segment;	
 
+// Constructor
+Segment segment(Vector2 p1, Vector2 p2);
+
 // Returns length of segment
 float segment_length(Segment s);
 

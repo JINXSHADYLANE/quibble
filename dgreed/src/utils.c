@@ -187,6 +187,11 @@ bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r) {
 --------------------
 */
 
+Segment segment(Vector2 p1, Vector2 p2) {
+	Segment new = {p1, p2};
+	return new; 
+}
+
 float segment_length(Segment s) {
 	return vec2_length(vec2_sub(s.p1, s.p2));
 }

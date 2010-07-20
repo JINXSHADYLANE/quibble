@@ -121,6 +121,7 @@ void game_close(void) {
 void game_reset(const char* arena, uint n_players) {
 	arena_reset(arena, n_players);
 	physics_reset(n_players);
+	ai_reset(480.0f, 320.0f);
 
 	n_ships = n_players;
 	n_platforms = current_arena_desc.n_platforms;
