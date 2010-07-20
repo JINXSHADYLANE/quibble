@@ -70,8 +70,8 @@ test_runner = env.Program(TEST_RUNNER_NAME + postfix,
 env.Depends(test_objects[0], test_data)	
 env.Install('#'+env['DGREED_BIN_DIR'], test_runner)
 
-# Process assets and arenas only in debug build
-if env['DGREED_POSTFIX'] == 'd':
+# Process assets and arenas only in release build
+if env['DGREED_POSTFIX'] == '':
 	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + DEST_ASSETS_DIR
 	# Process assets
 	for asset in Glob(ASSETS_DIR + '/*', strings=True):

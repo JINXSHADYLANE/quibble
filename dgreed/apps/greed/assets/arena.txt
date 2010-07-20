@@ -1,1 +1,1 @@
-greed_assets/c1_arena1.mml
+greed_assets/c1_arena2.mml
