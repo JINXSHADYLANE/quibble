@@ -7,11 +7,45 @@ float min_wall_distance = 17.0f;
 float min_point_distance = 35.0f;
 float max_edge_distance = 60.0f;
 
+const uint nn_grid_width = 15;
+const uint nn_grid_height = 10;
+const uint nn_grid_cells = 15 * 10; // No constant propagation in C99..
+const uint nn_samples = 10;
+
 Vector2 wraparound_offsets[5] =
 	{{10000.0f, 0.0f}, {0.0f, -10000.0f},
 	 {-10000.0f, 0.0f}, {0.0f, 10000.0f}, {0.0f, 0.0f}};
 
+float nn_cell_width = -1.0f;
+float nn_cell_height = -1.0f;
+
 Segment bounds[4];	 
+
+uint ai_nn_grid_cell(Vector2 p) {
+	assert(nn_cell_width > 0.0f && nn_cell_height > 0.0f);
+	assert(p.x >= 0.0f && p.x < nn_grid_width * nn_cell_width);
+	assert(p.y >= 0.0f && p.y < nn_grid_height * nn_cell_height);
+
+	uint x = (uint)floorf(p.x / nn_cell_width);
+	uint y = (uint)floorf(p.y / nn_cell_height);
+
+	return y * nn_grid_width + x; 
+}
+
+Vector2 _rand_point_in_nn_grid_cell(uint cell) {
+	assert(nn_cell_width > 0.0f && nn_cell_height > 0.0f);
+	assert(cell < nn_grid_cells);
+
+	uint x = cell % nn_grid_width;
+	uint y = cell / nn_grid_width;
+	
+	float x_min = (float)x * nn_cell_width;
+	float y_min = (float)y * nn_cell_height;
+	
+	return vec2(
+		rand_float_range(x_min, x_min + nn_cell_width),
+		rand_float_range(y_min, y_min + nn_cell_height));
+}
 
 float ai_wall_distance(Vector2 p, DArray geometry) {
 	Segment* segments = DARRAY_DATA_PTR(geometry, Segment);
@@ -49,6 +83,27 @@ float _node_distance_sq(Vector2 p1, Vector2 p2) {
 		result = MIN(result, d_sqr);
 	}
 	return result;
+}
+
+uint _nearest_navpoint(Vector2 p, DArray geometry, DArray navpoints) {
+	if(ai_wall_distance(p, geometry) == 0.0f)
+		return ~0;
+	
+	float min_sq_d = 100000.0f;
+	uint min_id = ~0;
+
+	Vector2* vec2_navpoints = DARRAY_DATA_PTR(navpoints, Vector2);
+	for(uint i = 0; i < navpoints.size; ++i) {
+		float sq_d = _node_distance_sq(p, vec2_navpoints[i]);
+		if(sq_d < min_sq_d) {
+			min_sq_d = sq_d;
+			min_id = i;
+		}	
+	}
+
+	assert(min_id != ~0);
+
+	return min_id;
 }
 
 Segment ai_shortest_path(Vector2 p1, Vector2 p2) {
@@ -163,6 +218,9 @@ void ai_precalc_bounds(float width, float height) {
 	bounds[1] = segment(vec2(0.0f, height), vec2(width, height));
 	bounds[2] = segment(vec2(width, height), vec2(width, 0.0f));
 	bounds[3] = segment(vec2(width, 0.0f), vec2(0.0f, 0.0f));
+
+	nn_cell_width = width / (float)nn_grid_width;
+	nn_cell_height = height / (float)nn_grid_height;
 }	
 
 NavMesh ai_precalc_navmesh(DArray geometry, float width, float height) {
@@ -185,10 +243,14 @@ NavMesh ai_precalc_navmesh(DArray geometry, float width, float height) {
 	float* adjacency = MEM_ALLOC(sizeof(float) * n*n);
 	res.distance = MEM_ALLOC(sizeof(float) * n*n);
 	res.radius = MEM_ALLOC(sizeof(float) * n);
+	res.nn_grid_count = MEM_ALLOC(sizeof(uint) * nn_grid_cells);
+	res.nn_grid_start = MEM_ALLOC(sizeof(uint) * nn_grid_cells);
 
 	memset(res.neighbour_count, 0, sizeof(uint) * n);
 	memset(adjacency, 0, sizeof(float) * n*n);
 	memset(res.distance, 0, sizeof(float) * n*n);
+	memset(res.nn_grid_count, 0, sizeof(uint) * nn_grid_cells);
+	memset(res.nn_grid_start, 0, sizeof(uint) * nn_grid_cells);
 		
 	for(uint i = 0; i < navpoints.size; ++i) {
 		res.navpoints[i] = 	navpoints_v[i];
@@ -235,6 +297,47 @@ NavMesh ai_precalc_navmesh(DArray geometry, float width, float height) {
 				res.distance[IDX_2D(j, k, n)] = MIN(res.distance[IDX_2D(j, k, n)],
 					res.distance[IDX_2D(j, i, n)]+res.distance[IDX_2D(i, k, n)]);
 
+	// Precalc nearest-navpoint grid
+	DArray grid_cell;
+	DArray nn_grid;
+
+	res.nn_grid_start[0] = 0;
+
+	nn_grid = darray_create(sizeof(uint), 0);
+	for(uint i = 0; i < nn_grid_cells; ++i) {
+		grid_cell = darray_create(sizeof(uint), 0);
+		
+		for(uint j = 0; j < nn_samples; ++j) {
+			Vector2 p = _rand_point_in_nn_grid_cell(i);
+			uint nearest_navpoint = _nearest_navpoint(p, geometry, navpoints);
+			if(nearest_navpoint >= n) // Point was inside wall, skip
+				continue;
+
+			bool unique = true;
+
+			uint* existing_navpoints = DARRAY_DATA_PTR(grid_cell, uint);
+			for(uint k = 0; k < grid_cell.size; ++k)
+				if(existing_navpoints[k] == nearest_navpoint)
+					unique = false;
+			
+			if(unique)
+				darray_append(&grid_cell, &nearest_navpoint);
+		}
+
+		res.nn_grid_count[i] = grid_cell.size;
+		if(i > 0)
+			res.nn_grid_start[i] = 
+				res.nn_grid_start[i-1] + res.nn_grid_count[i-1];
+		
+		uint* cell_navpoints = DARRAY_DATA_PTR(grid_cell, uint);
+		darray_append_multi(&nn_grid, cell_navpoints, grid_cell.size);
+		darray_free(&grid_cell);
+	}	
+
+	// Hack, works properly as long as darray_free only does
+	// MEM_FREE(darray.data);
+	res.nn_grid = (uint*)nn_grid.data;
+
 	darray_free(&navpoints);
 	darray_free(&edges);
 	MEM_FREE(adjacency);
@@ -250,6 +353,9 @@ void ai_free_navmesh(NavMesh mesh) {
 	assert(mesh.neighbours);
 	assert(mesh.distance);
 	assert(mesh.radius);
+	assert(mesh.nn_grid_count);
+	assert(mesh.nn_grid_start);
+	assert(mesh.nn_grid);
 
 	MEM_FREE(mesh.navpoints);
 	MEM_FREE(mesh.neighbour_count);
@@ -257,6 +363,9 @@ void ai_free_navmesh(NavMesh mesh) {
 	MEM_FREE(mesh.neighbours);
 	MEM_FREE(mesh.distance);
 	MEM_FREE(mesh.radius);
+	MEM_FREE(mesh.nn_grid_count);
+	MEM_FREE(mesh.nn_grid_start);
+	MEM_FREE(mesh.nn_grid);
 }
 
 void ai_save_navmesh(FileHandle file, const NavMesh* navmesh) {
@@ -287,6 +396,15 @@ void ai_save_navmesh(FileHandle file, const NavMesh* navmesh) {
 
 	for(uint i = 0; i < n; ++i)
 		file_write_float(file, navmesh->radius[i]);
+
+	uint n_nn_grid_nodes = 0;
+	for(uint i = 0; i < nn_grid_cells; ++i) {
+		file_write_uint32(file, navmesh->nn_grid_count[i]);
+		n_nn_grid_nodes += navmesh->nn_grid_count[i];
+	}
+
+	for(uint i = 0; i < n_nn_grid_nodes; ++i)
+		file_write_uint32(file, navmesh->nn_grid[i]);
 }
 
 NavMesh ai_load_navmesh(FileHandle file) {
@@ -304,6 +422,8 @@ NavMesh ai_load_navmesh(FileHandle file) {
 	r.neighbours_start = (uint*)MEM_ALLOC(sizeof(uint)*n);
 	r.distance = (float*)MEM_ALLOC(sizeof(float)*n*n);
 	r.radius = (float*)MEM_ALLOC(sizeof(float)*n);
+	r.nn_grid_start = (uint*)MEM_ALLOC(sizeof(uint)*nn_grid_cells);
+	r.nn_grid_count = (uint*)MEM_ALLOC(sizeof(uint)*nn_grid_cells);
 
 	for(uint i = 0; i < n; ++i) {
 		r.navpoints[i].x = file_read_float(file);
@@ -330,6 +450,20 @@ NavMesh ai_load_navmesh(FileHandle file) {
 
 	for(uint i = 0; i < n; ++i)
 		r.radius[i] = file_read_float(file);
+
+	uint n_nn_grid_nodes = 0;
+	for(uint i = 0; i <	nn_grid_cells; ++i) {
+		r.nn_grid_count[i] = file_read_uint32(file);
+		n_nn_grid_nodes += r.nn_grid_count[i];
+	}
+
+	r.nn_grid = (uint*)MEM_ALLOC(sizeof(uint)*n_nn_grid_nodes);
+	r.nn_grid_start[0] = 0;
+	for(uint i = 1; i < n; ++i)
+		r.nn_grid_start[i] = r.nn_grid_start[i-1] + r.nn_grid_count[i-1];
+
+	for(uint i = 0; i < n_nn_grid_nodes; ++i)
+		r.nn_grid[i] = file_read_uint32(file);
 
 	return r;	
 }

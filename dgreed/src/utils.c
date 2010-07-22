@@ -643,7 +643,8 @@ uint32 file_read_uint32(FileHandle f) {
 
 float file_read_float(FileHandle f) {
 	uint32 r = file_read_uint32(f);
-	return *((float*)&r);
+	void* rp = &r;
+	return *((float*)rp);
 }
 
 void file_read(FileHandle f, void* dest, uint size) {
@@ -700,7 +701,8 @@ void file_write_uint32(FileHandle f, uint32 data) {
 }
 
 void file_write_float(FileHandle f, float data) {
-	file_write_uint32(f, *((uint32*)&data));
+	void* pd = &data;
+	file_write_uint32(f, *((uint32*)pd));
 }	
 
 void file_write(FileHandle f, void* data, uint size) {

@@ -7,11 +7,18 @@
 typedef struct {
 	uint n_nodes;
 	Vector2* navpoints; // Navpoints positions
+	
 	uint* neighbour_count;	// Amount of neighbours for each node
 	uint* neighbours_start; // Where neighbour list starts
 	uint* neighbours; // Neighbour lists
+	
 	float* distance; // Shortest path between each pair of nodes
 	float* radius; // Distance to wall
+
+	// Spatial hash grid for quick nearest-navpoint query
+	uint* nn_grid_count;
+	uint* nn_grid_start;
+	uint* nn_grid;
 } NavMesh;	
 
 typedef struct {
