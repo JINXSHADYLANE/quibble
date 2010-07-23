@@ -92,6 +92,11 @@ void particles_init(void) {
 		GET_NODEVAL(prop, "min_end_size", psystem_descs[i].min_end_size, float);
 		GET_NODEVAL(prop, "max_end_size", psystem_descs[i].max_end_size, float);
 
+		psystem_descs[i].min_start_dir *= DEG_TO_RAD;
+		psystem_descs[i].max_start_dir *= DEG_TO_RAD;
+		psystem_descs[i].min_end_dir *= DEG_TO_RAD;
+		psystem_descs[i].max_end_dir *= DEG_TO_RAD;
+
 		const char* color;
 		uint r, g, b, a;
 
@@ -288,8 +293,8 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 		particles[i].start_size = lerp(psystem->desc->min_start_size,
 			psystem->desc->max_start_size, rand_float());
 
-		if(psystem->desc->min_end_dir < -100.0f && 
-			psystem->desc->max_end_dir < -100.0f) {
+		if(psystem->desc->min_end_dir * RAD_TO_DEG < -100.0f && 
+			psystem->desc->max_end_dir * RAD_TO_DEG < -100.0f) {
 			particles[i].end_dir = particles[i].start_dir;
 		}
 		else {

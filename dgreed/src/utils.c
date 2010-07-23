@@ -106,8 +106,8 @@ Vector2 vec2_normalize(Vector2 a) {
 
 Vector2 vec2_rotate(Vector2 a, float angle) {
 	Vector2 result;
-	float s = sin(angle * DEG_TO_RAD);
-	float c = cos(angle * DEG_TO_RAD);
+	float s = sin(angle);
+	float c = cos(angle);
 	result.x = c * a.x - s * a.y;
 	result.y = s * a.x + c * a.y;
 	return result;

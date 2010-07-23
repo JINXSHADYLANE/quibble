@@ -427,7 +427,7 @@ void physics_update(float dt) {
 
 		physics_state.ships[i].pos = cpv_to_gv(ships[i].body->p);
 		physics_state.ships[i].vel = cpv_to_gv(ships[i].body->v);
-		physics_state.ships[i].rot = ships[i].body->a * RAD_TO_DEG;
+		physics_state.ships[i].rot = ships[i].body->a;
 		physics_state.ships[i].mass = ships[i].body->m;
 		physics_state.ships[i].zrot += physics_state.ships[i].zrot_vel * dt;
 		if(physics_state.ships[i].zrot > 360.0f)

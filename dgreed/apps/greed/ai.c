@@ -153,6 +153,8 @@ void _agent_steer(uint id) {
 
 		agent->steer_tg_pos = physics_wraparound(agent->steer_tg_pos);	
 	}
+
+	// Steer
 }
 
 void ai_update(void) {
