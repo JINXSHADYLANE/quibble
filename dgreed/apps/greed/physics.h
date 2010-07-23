@@ -8,6 +8,7 @@ typedef struct {
 	Vector2 pos;
 	Vector2 vel;
 	float rot;
+	float ang_vel;
 	float scale;
 	float mass;
 	float zrot;

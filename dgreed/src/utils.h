@@ -72,6 +72,7 @@ float vec2_dot(Vector2 a, Vector2 b);
 float vec2_length(Vector2 a);
 float vec2_length_sq(Vector2 b);
 float vec2_dir(Vector2 a);
+float vec2_angle(Vector2 a, Vector2 b);
 
 /*
 -----------------

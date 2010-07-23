@@ -11,12 +11,14 @@
 // Tweakables
 float steer_tg_advance_dist = 4.0f;
 float steer_tg_speed = 200.0f;
+float steer_tg_ship_speed_dist = 60.0f;
+float steer_tg_speed_increase_factor = 3.0f;
 float agent_think_interval = 1000.0f / 5.0f;
 float agent_steer_interval = 1000.0f / 30.0f;
 
 Agent agents[MAX_AGENTS];
 
-AgentPersonality default_personality = {0.6f};
+AgentPersonality default_personality = {0.6f, 0.20f, 100.0f, 40.0f, 15.0f, 0.3f};
 
 void ai_reset(float width, float height) {
 	ai_precalc_bounds(width, height);
@@ -79,9 +81,15 @@ void _agent_set_state(uint id, AgentState new_state, uint prey_id) {
 		// TODO: Determine which platform is close / easy to capture
 
 		uint target_platform = game_random_free_platform();
-		agent->dest_node = arena_platform_navpoint(target_platform);
-		agent->steer_tg_pos = physics_state.ships[agent->ship_id].pos;
-		agent->steer_tg_next_node = arena_closest_navpoint(agent->steer_tg_pos);
+		// Go to attack if no free platforms
+		if(target_platform == MAX_UINT32) {
+			new_state = AI_ATTACK;
+		}
+		else {
+			agent->dest_node = arena_platform_navpoint(target_platform);
+			agent->steer_tg_pos = physics_state.ships[agent->ship_id].pos;
+			agent->steer_tg_next_node = arena_closest_navpoint(agent->steer_tg_pos);
+		}
 	}
 
 	if(new_state == AI_DEFEND) {
@@ -137,6 +145,8 @@ void _agent_steer(uint id) {
 	ArenaDesc* arena = &current_arena_desc;
 		
 	// Update steer target
+	ShipPhysicalState* phys_state = &physics_state.ships[agent->ship_id];
+
 	Vector2 next_pos = arena->nav_mesh.navpoints[agent->steer_tg_next_node];
 	float distance = ai_distance_sq(agent->steer_tg_pos, next_pos);
 	if(distance < steer_tg_advance_dist * steer_tg_advance_dist) {
@@ -145,9 +155,14 @@ void _agent_steer(uint id) {
 	}
 	else {
 		Segment path = ai_shortest_path(agent->steer_tg_pos, next_pos);
-		Segment p1, p2;
-		ai_split_path(path, &p1, &p2);
-		Vector2 dir = vec2_normalize(vec2_sub(p1.p2, p1.p1));
+		Vector2 dir = vec2_normalize(vec2_sub(path.p2, path.p1));
+
+		Vector2 ship_to_steer_tg = vec2_sub(agent->steer_tg_pos, phys_state->pos);
+		float ship_distance = vec2_length(ship_to_steer_tg);
+		float speed = steer_tg_speed * agent_steer_interval / 1000.0f;
+		if(ship_distance < steer_tg_ship_speed_dist)
+			speed *= steer_tg_speed_increase_factor;
+
 		agent->steer_tg_pos = vec2_add(agent->steer_tg_pos, 
 			vec2_scale(dir, steer_tg_speed * agent_steer_interval/1000.0f));
 
@@ -155,6 +170,54 @@ void _agent_steer(uint id) {
 	}
 
 	// Steer
+	bool steer_left = false;
+	bool steer_right = false;
+	bool can_accelerate = false;
+	bool accelerate = false;
+
+	Vector2 ship_dir = vec2(sinf(phys_state->rot), -cosf(phys_state->rot));
+	Segment path = ai_shortest_path(phys_state->pos, agent->steer_tg_pos);
+	Vector2 ship_to_steer_tg = vec2_sub(path.p2, path.p1);
+
+	// Distance between ship and steer target
+	distance = vec2_length(ship_to_steer_tg);
+
+	if(distance > agent->personality->steer_tg_no_steer_dist) {
+		// Angle between ship direction ant steer target
+		float angle = vec2_angle(ship_dir, ship_to_steer_tg); 
+			
+		if(fabs(angle) > agent->personality->steer_tg_angle_tolerance) {
+			// Steer towards target
+			if(angle > 0.0f)
+				steer_right = true;
+			else
+				steer_left = true;
+		}
+		else {
+			// Angle is OK, now just stabilize
+			can_accelerate = true;
+			if(fabs(phys_state->ang_vel) > 
+				agent->personality->acceptable_angular_velocity) {
+				if(phys_state->ang_vel > 0.0f)
+					steer_left = true;
+				else
+					steer_right = true;
+			}
+		}
+	}	
+
+	if(distance > agent->personality->steer_tg_max_distance) {
+		// "Recalc" path, steer tg is too far
+		agent->steer_tg_pos = physics_state.ships[agent->ship_id].pos;
+		agent->steer_tg_next_node = arena_closest_navpoint(agent->steer_tg_pos);
+	}
+	else {
+		if(distance > agent->personality->steer_tg_coast_distance) 
+			accelerate = can_accelerate;
+	}
+
+	physics_control_ship(agent->ship_id, steer_left, steer_right, accelerate);
+	
 }
 
 void ai_update(void) {
