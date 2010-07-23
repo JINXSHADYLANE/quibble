@@ -141,3 +141,13 @@ void arena_draw(void) {
 		COLOR_WHITE);
 }		
 
+uint arena_closest_navpoint(Vector2 pos) {
+	return ai_nearest_navpoint(&current_arena_desc.nav_mesh, pos);
+}
+
+uint arena_platform_navpoint(uint platform) {
+	assert(platform < n_platforms);
+	Vector2 pos = current_arena_desc.platforms[platform];
+	return ai_nearest_navpoint(&current_arena_desc.nav_mesh, pos);
+}	
+

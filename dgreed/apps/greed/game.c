@@ -247,6 +247,8 @@ void game_update(void) {
 			}
 		}	
 	}	
+
+	ai_update();
 }	
 
 void game_platform_taken(uint ship_id, uint platform_id) {
@@ -517,3 +519,31 @@ void game_render(void) {
 	}	
 }	
 
+float game_taken_platforms_frac(uint color) {
+	uint count = 0;
+	for(uint i = 0; i < n_platforms; ++i) {
+		if(platform_states[i].color == color)
+			count++;
+	}
+	return (float)count / (float)n_platforms;
+}
+
+uint game_random_free_platform(void) {
+	return game_random_taken_platform(MAX_UINT32);
+}	
+
+uint game_random_taken_platform(uint color) {
+	uint count = 0;
+	for(uint i = 0; i < n_platforms; ++i) {
+		if(platform_states[i].color == color)
+			count++;
+	}
+	if(count) {
+		uint id;
+		do {
+			id = rand_int(0, n_platforms);
+		} while(platform_states[id].color != color);	
+		return id;
+	}
+	return MAX_UINT32;
+}

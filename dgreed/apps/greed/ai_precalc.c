@@ -85,6 +85,10 @@ float _node_distance_sq(Vector2 p1, Vector2 p2) {
 	return result;
 }
 
+float ai_distance_sq(Vector2 p1, Vector2 p2) {
+	return _node_distance_sq(p1, p2);
+}
+
 uint _nearest_navpoint(Vector2 p, DArray geometry, DArray navpoints) {
 	if(ai_wall_distance(p, geometry) == 0.0f)
 		return ~0;
@@ -459,12 +463,63 @@ NavMesh ai_load_navmesh(FileHandle file) {
 
 	r.nn_grid = (uint*)MEM_ALLOC(sizeof(uint)*n_nn_grid_nodes);
 	r.nn_grid_start[0] = 0;
-	for(uint i = 1; i < n; ++i)
+	for(uint i = 1; i < nn_grid_cells; ++i)
 		r.nn_grid_start[i] = r.nn_grid_start[i-1] + r.nn_grid_count[i-1];
 
 	for(uint i = 0; i < n_nn_grid_nodes; ++i)
 		r.nn_grid[i] = file_read_uint32(file);
 
 	return r;	
+}
+
+uint ai_nearest_navpoint(NavMesh* navmesh, Vector2 pos) {
+	assert(navmesh);
+
+	uint cell = ai_nn_grid_cell(pos);
+
+	float min_sqr_d = 10000000.0f;
+	uint min_id = ~0;
+	for(uint i = 0; i < navmesh->nn_grid_count[cell]; ++i) {
+		uint idx = i + navmesh->nn_grid_start[cell];
+		uint navpoint = navmesh->nn_grid[idx];
+		Vector2 navpoint_pos = navmesh->navpoints[navpoint];
+		float sqr_d = _node_distance_sq(pos, navpoint_pos);
+		if(sqr_d < min_sqr_d) {
+			min_sqr_d = sqr_d;
+			min_id = navpoint;
+		}	
+	}
+	assert(min_id != ~0);
+	return min_id;
+}
+
+uint ai_find_next_path_node(NavMesh* navmesh, uint current, uint dest) {
+	assert(navmesh);
+	assert(current < navmesh->n_nodes);
+	assert(dest < navmesh->n_nodes);
+
+	if(current == dest)
+		return dest;
+
+	uint current_dist_idx = IDX_2D(current, dest, navmesh->n_nodes);
+	float current_dist = navmesh->distance[current_dist_idx];
+
+	float best_dist = current_dist;
+	uint next_node = ~0;
+	for(uint i = 0; i < navmesh->neighbour_count[current]; ++i) {
+		uint idx = i + navmesh->neighbours_start[current];
+		uint node_id = navmesh->neighbours[idx];
+		if(node_id == dest)
+			return dest;
+
+		uint new_dist_idx = IDX_2D(node_id, dest, navmesh->n_nodes);
+		float new_dist = navmesh->distance[new_dist_idx];
+		if(new_dist < best_dist) {
+			best_dist = new_dist;
+			next_node = node_id;
+		}
+	}
+	assert(next_node != ~0);
+	return next_node;
 }
 

@@ -18,6 +18,7 @@ int dgreed_main(int argc, const char** argv) {
 	game_init();
 	char* arena_file = txtfile_read(ARENA_FILE);
 	game_reset(arena_file, 2);
+	ai_init_agent(1);
 	MEM_FREE(arena_file);
 
 	while(system_update()) {

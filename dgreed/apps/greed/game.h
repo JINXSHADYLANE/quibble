@@ -32,6 +32,7 @@ extern uint n_ships;
 extern uint n_platforms;
 extern ShipState ship_states[MAX_SHIPS];
 extern PlatformState platform_states[MAX_PLATFORMS];
+extern const Color ship_colors[MAX_SHIPS];
 
 void game_init(void);
 void game_close(void);
@@ -40,6 +41,12 @@ void game_reset(const char* arena, uint n_players);
 void game_update(void);
 void game_platform_taken(uint ship, uint platform);
 void game_render(void);
+
+// Helpers for ai code:
+float game_taken_platforms_frac(uint color);
+
+uint game_random_free_platform(void);
+uint game_random_taken_platform(uint color);
 
 #endif
 
