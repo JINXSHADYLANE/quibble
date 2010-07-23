@@ -247,6 +247,7 @@ void physics_reset(uint n_ships) {
 		physics_state.ships[i].pos = current_arena_desc.spawnpoints[i]; 
 		physics_state.ships[i].vel = vec2(0.0f, 0.0f);
 		physics_state.ships[i].rot = 0.0f;
+		physics_state.ships[i].ang_vel = 0.0f;
 		physics_state.ships[i].scale = ship_min_size;
 		physics_state.ships[i].mass = ship_min_mass;
 		physics_state.ships[i].zrot = 0.0f;
@@ -307,7 +308,7 @@ void physics_spawn_bullet(uint ship) {
 
 	cpVect scaled_gun_pos = cpvmult(ship_gun_pos, physics_state.ships[ship].scale);
 	cpVect bullet_pos = cpBodyLocal2World(ships[ship].body, scaled_gun_pos); 	
-	cpVect bullet_dir = cpv(sin(ships[ship].body->a), -cos(ships[ship].body->a));
+	cpVect bullet_dir = cpv(sinf(ships[ship].body->a), -cosf(ships[ship].body->a));
 	float ship_speed = cpvdot(ships[ship].body->v, bullet_dir);
 	bullet_dir = cpvmult(bullet_dir, ship_speed + bullet_speed);
 
@@ -428,6 +429,7 @@ void physics_update(float dt) {
 		physics_state.ships[i].pos = cpv_to_gv(ships[i].body->p);
 		physics_state.ships[i].vel = cpv_to_gv(ships[i].body->v);
 		physics_state.ships[i].rot = ships[i].body->a;
+		physics_state.ships[i].ang_vel = ships[i].body->w;
 		physics_state.ships[i].mass = ships[i].body->m;
 		physics_state.ships[i].zrot += physics_state.ships[i].zrot_vel * dt;
 		if(physics_state.ships[i].zrot > 360.0f)

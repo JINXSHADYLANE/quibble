@@ -106,8 +106,8 @@ Vector2 vec2_normalize(Vector2 a) {
 
 Vector2 vec2_rotate(Vector2 a, float angle) {
 	Vector2 result;
-	float s = sin(angle);
-	float c = cos(angle);
+	float s = sinf(angle);
+	float c = cosf(angle);
 	result.x = c * a.x - s * a.y;
 	result.y = s * a.x + c * a.y;
 	return result;
@@ -118,7 +118,7 @@ float vec2_dot(Vector2 a, Vector2 b) {
 }
 
 float vec2_length(Vector2 a) {
-	return sqrt(a.x*a.x + a.y*a.y);
+	return sqrtf(a.x*a.x + a.y*a.y);
 }	
 
 float vec2_length_sq(Vector2 a) {
@@ -126,9 +126,12 @@ float vec2_length_sq(Vector2 a) {
 }	
 
 float vec2_dir(Vector2 a) {
-	Vector2 norm_a = vec2_normalize(a);
-	return acos(norm_a.x) * RAD_TO_DEG;
+	return atan2f(a.x, a.y);
 }	
+
+float vec2_angle(Vector2 a, Vector2 b) {
+	return atan2f(a.x, a.y) - atan2f(b.x, b.y);
+}
 
 /*
 -----------------
