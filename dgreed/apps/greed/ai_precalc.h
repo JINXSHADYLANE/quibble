@@ -40,5 +40,18 @@ bool ai_split_path(Segment path, Segment* out_p1, Segment* out_p2);
 // Visible for testing:
 float ai_wall_distance(Vector2 p, DArray geometry);
 
+// Returns nearest-navpoint grid cell id
+uint ai_nn_grid_cell(Vector2 p);
+
+// Returns squared distance between two points
+// in torus-shaped space
+float ai_distance_sq(Vector2 p1, Vector2 p2);
+
+// Returns nearest navpoint
+uint ai_nearest_navpoint(NavMesh* navmesh, Vector2 pos);
+
+// Returns next node in a path towards dest
+uint ai_find_next_path_node(NavMesh* navmesh, uint current, uint dest);
+
 #endif
 

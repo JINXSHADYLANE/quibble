@@ -86,6 +86,8 @@ cpVect ship_shape_points[] = {
 
 cpVect ship_gun_pos = {0.0f, -36.0f};	
 
+const RectF screen_bounds = {0.0f, 0.0f, 480.0f, 320.0f};
+
 // Collision callbacks	
 
 int ship2ship_callback(cpShape* a, cpShape* b, cpContact* contacts,
@@ -371,8 +373,19 @@ cpVect _wrap_around(cpVect p, const RectF* rect) {
 	return p;	
 }		
 
+Vector2 _wrap_around_gv(Vector2 p, const RectF* rect) {
+	if(p.x > rect->right) 
+		p.x -= rect->right - rect->left;
+	if(p.x < rect->left)
+		p.x += rect->right - rect->left;
+	if(p.y > rect->bottom)
+		p.y -= rect->bottom - rect->top;
+	if(p.y < rect->top)
+		p.y += rect->bottom - rect->top;
+	return p;	
+}		
+
 void physics_update(float dt) {
-	const RectF screen_bounds = rectf(0.0f, 0.0f, 480.0f, 320.0f);
 
 	// Remove destroyed bullets
 	uint i;
@@ -466,4 +479,11 @@ void physics_debug_draw(void) {
 			COLOR_WHITE);
 	}
 }	
+
+Vector2 physics_wraparound(Vector2 in) {
+	if(!rectf_contains_point(&screen_bounds, &in)) 
+		return _wrap_around_gv(in, &screen_bounds);	
+	else
+		return in;
+}
 	

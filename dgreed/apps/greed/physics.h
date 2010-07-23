@@ -41,5 +41,7 @@ void physics_control_ship(uint ship, bool rot_left, bool rot_right, bool acc);
 void physics_update(float dt);
 void physics_debug_draw(void);
 
+Vector2 physics_wraparound(Vector2 in);
+
 #endif
 
