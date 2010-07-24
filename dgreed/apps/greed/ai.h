@@ -15,6 +15,10 @@ typedef struct {
 	float platforms_frac; 
 	// Try to keep angle to steer target smaller than this
 	float steer_tg_angle_tolerance;
+	// If angle to target is bigger than this, use more aggressive steering
+	float steer_tg_aggressive_angle;
+	// If target is far enough, accelerate aggresively
+	float steer_tg_aggressive_distance;
 	// If distance between ship ant steer target is more than this, recalc path
 	float steer_tg_max_distance;
 	// If distance less than this, move steer tg
@@ -42,6 +46,11 @@ typedef struct {
 	// Shoot target
 	Vector2 shoot_tg_pos;
 	bool shoot;
+
+	// Steering
+	int steer_left;
+	int steer_right;
+	int accelerate;
 } Agent;	
 	
 void ai_reset(float width, float height);
