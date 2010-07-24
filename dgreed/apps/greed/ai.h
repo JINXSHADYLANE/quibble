@@ -17,6 +17,8 @@ typedef struct {
 	float steer_tg_angle_tolerance;
 	// If distance between ship ant steer target is more than this, recalc path
 	float steer_tg_max_distance;
+	// If distance less than this, move steer tg
+	float steer_tg_min_distance;
 	// If distance to steer target is smaller than this, do not accelerate
 	float steer_tg_coast_distance;
 	// If target is closer than this, do not steer
@@ -35,8 +37,7 @@ typedef struct {
 	uint dest_node;
 
 	// Steer target
-	Vector2 steer_tg_pos;
-	uint steer_tg_next_node; 
+	uint steer_tg_node; 
 
 	// Shoot target
 	Vector2 shoot_tg_pos;
