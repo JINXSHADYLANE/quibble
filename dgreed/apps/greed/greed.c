@@ -2,6 +2,7 @@
 #include "font.h"
 #include "gui.h"
 #include "game.h"
+#include "ai.h"
 #include "memory.h"
 #include "sounds.h"
 

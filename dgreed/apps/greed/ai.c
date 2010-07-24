@@ -15,7 +15,7 @@ float agent_steer_interval = 1000.0f / 30.0f;
 Agent agents[MAX_AGENTS];
 
 AgentPersonality default_personality = 
-	{0.6f, 0.20f, 0.5f, 70.0f, 120.0f, 45.0f, 30.0f, 15.0f, 0.3f};
+	{0.6f, 0.20f, 0.5f, 70.0f, 120.0f, 45.0f, 30.0f, 15.0f, 0.3f, 0.6f, 80.0f};
 
 void ai_reset(float width, float height) {
 	ai_precalc_bounds(width, height);
@@ -214,6 +214,23 @@ void _agent_steer(uint id) {
 		}	
 	}
 
+	// Look for ships to shoot
+	agent->shoot = false;
+	for(uint i = 0; i < n_ships; ++i) {
+		if(i == agent->ship_id)
+			continue;
+
+		Vector2 pos = physics_state.ships[i].pos;	
+		Vector2 ship_to_ship = vec2_sub(pos, phys_state->pos);
+		float distance_sq = vec2_length_sq(ship_to_ship);
+		float req_distance_sq = agent->personality->shoot_distance;
+		req_distance_sq *= req_distance_sq;
+		if(distance_sq < req_distance_sq) {
+			float angle = vec2_angle(ship_dir, ship_to_ship);
+			if(fabs(angle) < agent->personality->shoot_angle)
+				agent->shoot = true;
+		}
+	}
 }
 
 void ai_update(void) {
@@ -241,6 +258,9 @@ void ai_update(void) {
 		agents[i].steer_left = MAX(agents[i].steer_left, 0);
 		agents[i].steer_right = MAX(agents[i].steer_right, 0);
 		agents[i].accelerate = MAX(agents[i].accelerate, 0);
+
+		if(agents[i].shoot)
+			game_shoot(agents[i].ship_id);
 	}
 }
 
