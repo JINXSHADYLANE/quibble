@@ -9,16 +9,13 @@
 #define DEBUG_DRAW_LAYER 12
 
 // Tweakables
-float steer_tg_advance_dist = 4.0f;
-float steer_tg_speed = 200.0f;
-float steer_tg_ship_speed_dist = 60.0f;
-float steer_tg_speed_increase_factor = 3.0f;
 float agent_think_interval = 1000.0f / 5.0f;
 float agent_steer_interval = 1000.0f / 30.0f;
 
 Agent agents[MAX_AGENTS];
 
-AgentPersonality default_personality = {0.6f, 0.20f, 100.0f, 40.0f, 15.0f, 0.3f};
+AgentPersonality default_personality = 
+	{0.6f, 0.20f, 100.0f, 40.0f, 30.0f, 15.0f, 0.3f};
 
 void ai_reset(float width, float height) {
 	ai_precalc_bounds(width, height);
@@ -56,11 +53,16 @@ void ai_debug_draw() {
 		}
 	}
 
-	// Draw steer targets
+	// Draw steer targets & destinations
 	for(uint i = 0; i < MAX_AGENTS; ++i) {
 		if(agents[i].ship_id != ~0) {
 			Color c = ship_colors[agents[i].ship_id];
-			gfx_draw_point(DEBUG_DRAW_LAYER, &(agents[i].steer_tg_pos), c);
+			
+			Vector2 steer_tg_pos = nav_mesh->navpoints[agents[i].steer_tg_node];
+			gfx_draw_point(DEBUG_DRAW_LAYER, &steer_tg_pos, c);
+
+			Vector2 dest_pos = nav_mesh->navpoints[agents[i].dest_node];
+			gfx_draw_point(DEBUG_DRAW_LAYER, &dest_pos, c);
 		}
 	}
 
@@ -69,6 +71,7 @@ void ai_debug_draw() {
 void _agent_set_state(uint id, AgentState new_state, uint prey_id) {
 	assert(id < MAX_AGENTS);
 
+	Vector2 steer_tg_pos;
 	Agent* agent = &agents[id];
 	//ArenaDesc* arena = &current_arena_desc;
 
@@ -87,8 +90,8 @@ void _agent_set_state(uint id, AgentState new_state, uint prey_id) {
 		}
 		else {
 			agent->dest_node = arena_platform_navpoint(target_platform);
-			agent->steer_tg_pos = physics_state.ships[agent->ship_id].pos;
-			agent->steer_tg_next_node = arena_closest_navpoint(agent->steer_tg_pos);
+			steer_tg_pos = physics_state.ships[agent->ship_id].pos;
+			agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
 		}
 	}
 
@@ -97,15 +100,15 @@ void _agent_set_state(uint id, AgentState new_state, uint prey_id) {
 
 		uint target_platform = game_random_taken_platform(agent->ship_id);
 		agent->dest_node = arena_platform_navpoint(target_platform);
-		agent->steer_tg_pos = physics_state.ships[agent->ship_id].pos;
-		agent->steer_tg_next_node = arena_closest_navpoint(agent->steer_tg_pos);
+		steer_tg_pos = physics_state.ships[agent->ship_id].pos;
+		agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
 	}
 
 	if(new_state == AI_ATTACK) {
 		uint target_platform = game_random_taken_platform(prey_id);
 		agent->dest_node = arena_platform_navpoint(target_platform);
-		agent->steer_tg_pos = physics_state.ships[agent->ship_id].pos;
-		agent->steer_tg_next_node = arena_closest_navpoint(agent->steer_tg_pos);
+		steer_tg_pos = physics_state.ships[agent->ship_id].pos;
+		agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
 	}
 }
 
@@ -146,27 +149,16 @@ void _agent_steer(uint id) {
 		
 	// Update steer target
 	ShipPhysicalState* phys_state = &physics_state.ships[agent->ship_id];
+	Vector2 steer_tg_pos = arena->nav_mesh.navpoints[agent->steer_tg_node];
 
-	Vector2 next_pos = arena->nav_mesh.navpoints[agent->steer_tg_next_node];
-	float distance = ai_distance_sq(agent->steer_tg_pos, next_pos);
-	if(distance < steer_tg_advance_dist * steer_tg_advance_dist) {
-		agent->steer_tg_next_node = ai_find_next_path_node(&arena->nav_mesh, 
-			agent->steer_tg_next_node, agent->dest_node);
-	}
-	else {
-		Segment path = ai_shortest_path(agent->steer_tg_pos, next_pos);
-		Vector2 dir = vec2_normalize(vec2_sub(path.p2, path.p1));
+	float distance = ai_distance_sq(steer_tg_pos, phys_state->pos);
 
-		Vector2 ship_to_steer_tg = vec2_sub(agent->steer_tg_pos, phys_state->pos);
-		float ship_distance = vec2_length(ship_to_steer_tg);
-		float speed = steer_tg_speed * agent_steer_interval / 1000.0f;
-		if(ship_distance < steer_tg_ship_speed_dist)
-			speed *= steer_tg_speed_increase_factor;
+	float tg_advance_sq = agent->personality->steer_tg_min_distance;
+	tg_advance_sq *= tg_advance_sq;
 
-		agent->steer_tg_pos = vec2_add(agent->steer_tg_pos, 
-			vec2_scale(dir, steer_tg_speed * agent_steer_interval/1000.0f));
-
-		agent->steer_tg_pos = physics_wraparound(agent->steer_tg_pos);	
+	if(distance < tg_advance_sq) {
+		agent->steer_tg_node = ai_find_next_path_node(&arena->nav_mesh, 
+			agent->steer_tg_node, agent->dest_node);
 	}
 
 	// Steer
@@ -175,8 +167,9 @@ void _agent_steer(uint id) {
 	bool can_accelerate = false;
 	bool accelerate = false;
 
+	steer_tg_pos = arena->nav_mesh.navpoints[agent->steer_tg_node];
 	Vector2 ship_dir = vec2(sinf(phys_state->rot), -cosf(phys_state->rot));
-	Segment path = ai_shortest_path(phys_state->pos, agent->steer_tg_pos);
+	Segment path = ai_shortest_path(phys_state->pos, steer_tg_pos);
 	Vector2 ship_to_steer_tg = vec2_sub(path.p2, path.p1);
 
 	// Distance between ship and steer target
@@ -208,8 +201,8 @@ void _agent_steer(uint id) {
 
 	if(distance > agent->personality->steer_tg_max_distance) {
 		// "Recalc" path, steer tg is too far
-		agent->steer_tg_pos = physics_state.ships[agent->ship_id].pos;
-		agent->steer_tg_next_node = arena_closest_navpoint(agent->steer_tg_pos);
+		steer_tg_pos = physics_state.ships[agent->ship_id].pos;
+		agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
 	}
 	else {
 		if(distance > agent->personality->steer_tg_coast_distance) 
