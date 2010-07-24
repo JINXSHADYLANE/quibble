@@ -156,6 +156,9 @@ cpArbiterPreStep(cpArbiter *arb, cpFloat dt_inv)
 		// Calculate the offsets.
 		con->r1 = cpvsub(con->p, a->p);
 		con->r2 = cpvsub(con->p, b->p);
+
+		con->r1.x -= arb->offsetX;
+		con->r1.y -= arb->offsetY;
 		
 		// Calculate the mass normal.
 		cpFloat mass_sum = a->m_inv + b->m_inv;
