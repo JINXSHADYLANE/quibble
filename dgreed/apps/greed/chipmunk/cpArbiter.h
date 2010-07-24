@@ -65,6 +65,9 @@ typedef struct cpArbiter{
 	
 	// Time stamp of the arbiter. (from cpSpace)
 	int stamp;
+
+	// Wrap-around world stuff
+	float offsetX, offsetY;
 } cpArbiter;
 
 // Basic allocation/destruction functions.

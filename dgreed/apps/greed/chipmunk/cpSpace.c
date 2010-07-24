@@ -147,6 +147,10 @@ cpSpaceInit(cpSpace *space)
 	space->defaultPairFunc = pairFunc;
 	space->collFuncSet = cpHashSetNew(0, collFuncSetEql, collFuncSetTrans);
 	space->collFuncSet->default_value = &space->defaultPairFunc;
+
+	space->offsetX = space->offsetY = 0.0f;
+	space->worldWidth = space->worldHeight = 0.0f;
+	space->wrappedShapes = cpArrayNew(0);
 	
 	return space;
 }
@@ -175,6 +179,8 @@ cpSpaceDestroy(cpSpace *space)
 	if(space->collFuncSet)
 		cpHashSetEach(space->collFuncSet, &freeWrap, NULL);
 	cpHashSetFree(space->collFuncSet);
+
+	cpArrayFree(space->wrappedShapes);
 }
 
 void
@@ -414,6 +420,10 @@ queryFunc(void *p1, void *p2, void *data)
 		// Timestamp the arbiter.
 		arb->stamp = space->stamp;
 		arb->a = a; arb->b = b; // TODO: Investigate why this is still necessary?
+
+		arb->offsetX = space->offsetX;
+		arb->offsetY = space->offsetY;
+
 		// Inject the new contact points into the arbiter.
 		cpArbiterInject(arb, contacts, numContacts);
 		
@@ -436,6 +446,29 @@ active2staticIter(void *ptr, void *data)
 	cpShape *shape = (cpShape *)ptr;
 	cpSpace *space = (cpSpace *)data;
 	cpSpaceHashQuery(space->staticShapes, shape, shape->bb, &queryFunc, space);
+
+	if(shape->klass->type != CP_POLY_SHAPE)
+		return;
+
+	assert(space->worldWidth > 0.0f && space->worldHeight > 0.0f);
+
+	if(space->offsetX == 0.0f && space->offsetY == 0.0f) {
+		int wrapHoriz = shape->bb.l < 0.0f || shape->bb.r > space->worldWidth;
+		int wrapVert = shape->bb.b < 0.0f || shape->bb.t > space->worldHeight;
+
+		if(wrapHoriz) {
+			cpArrayPush(space->wrappedShapes, (void*)shape);
+			cpArrayPush(space->wrappedShapes, (void*)1);
+		}	
+		if(wrapVert) {
+			cpArrayPush(space->wrappedShapes, (void*)shape);
+			cpArrayPush(space->wrappedShapes, (void*)2);
+		}
+		if(wrapHoriz && wrapVert) {
+			cpArrayPush(space->wrappedShapes, (void*)shape);
+			cpArrayPush(space->wrappedShapes, (void*)3);
+		}
+	}
 }
 
 // Hashset reject func to throw away old arbiters.
@@ -479,6 +512,42 @@ cpSpaceStep(cpSpace *space, cpFloat dt)
 	// Collide!
 	cpSpaceHashEach(space->activeShapes, &active2staticIter, space);
 	cpSpaceHashQueryRehash(space->activeShapes, &queryFunc, space);
+
+	// Perform additional tests for wrapped around shapes
+	for(int i = space->wrappedShapes->num - 1; i >= 0; i-=2) {
+		size_t type = (size_t)space->wrappedShapes->arr[i];
+		cpShape* shape = (cpShape*)space->wrappedShapes->arr[i-1];
+
+		if(type & 1) {
+			if(shape->bb.l < 0.0f)
+				space->offsetX = space->worldWidth;
+			else
+				space->offsetX = -space->worldWidth;
+		}
+
+		if(type & 2) {
+			if(shape->bb.b < 0.0f)
+				space->offsetY = space->worldHeight;
+			else
+				space->offsetY = -space->worldHeight;
+		}
+
+		shape->body->p.x += space->offsetX;
+		shape->body->p.y += space->offsetY;
+		updateBBCache(shape, NULL);
+
+		//cpSpaceHashQuery(space->staticShapes, shape, shape->bb, &queryFunc, space);
+		cpSpaceHashQuery(space->activeShapes, shape, shape->bb, &queryFunc, space);
+		//cpSpaceHashObject(space->activeShapes, shape, &queryFunc, space, shape->id);
+
+		shape->body->p.x -= space->offsetX;
+		shape->body->p.y -= space->offsetY;
+		space->offsetX = space->offsetY = 0.0f;
+		updateBBCache(shape, NULL);
+
+		cpArrayDeleteIndex(space->wrappedShapes, i);
+		cpArrayDeleteIndex(space->wrappedShapes, i-1);
+	}
 
 	// Prestep the arbiters.
 	for(int i=0; i<arbiters->num; i++)

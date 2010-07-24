@@ -72,6 +72,11 @@ typedef struct cpSpace{
 	cpHashSet *collFuncSet;
 	// Default collision pair function.
 	cpCollPairFunc defaultPairFunc;
+
+	// Wrap-around world staff
+	float worldWidth, worldHeight;
+	float offsetX, offsetY;
+	cpArray *wrappedShapes;
 } cpSpace;
 
 // Basic allocation/destruction functions.

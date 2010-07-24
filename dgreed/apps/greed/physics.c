@@ -195,8 +195,11 @@ void physics_init(void) {
 	cpInitChipmunk();
 	cpResetShapeIdCounter();
 	space = cpSpaceNew();
+	space->worldWidth = screen_bounds.right;
+	space->worldHeight = screen_bounds.bottom;
 	space->iterations = 4;
 	space->elasticIterations = 4;
+
 
 	// TODO: Tweak these numbers
 	cpSpaceResizeStaticHash(space, 64.0f, 100);

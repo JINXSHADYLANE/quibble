@@ -80,8 +80,8 @@ void gfx_transform(Vector2* v, uint n_v, const Vector2* translate, float rotate,
 		v[i] = vec2_scale(v[i], scale);	
 
 	// Rotate
-	float s = sin(rotate * DEG_TO_RAD);
-	float c = cos(rotate * DEG_TO_RAD);
+	float s = sin(rotate);
+	float c = cos(rotate);
 	for(i = 0; i < n_v; ++i) {
 		float nx, ny;
 		nx = c * v[i].x - s * v[i].y;
