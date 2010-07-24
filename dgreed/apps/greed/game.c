@@ -144,6 +144,17 @@ void game_reset(const char* arena, uint n_players) {
 	}	
 }	
 
+void game_shoot(uint ship) {
+	assert(ship < n_ships);
+
+	float t = time_ms();
+	if(ship_states[ship].last_bullet_t + (1000.0f/ship_firing_speed) < t) {
+		ship_states[ship].last_bullet_t = t;
+		physics_spawn_bullet(ship);
+		sounds_event(SHOT);
+	}
+}
+
 void _control_keyboard1(uint ship) {
 	assert(ship < n_ships);
 
@@ -154,14 +165,8 @@ void _control_keyboard1(uint ship) {
 		key_pressed(KEY_RIGHT),
 		key_pressed(KEY_UP));
 	
-	float time = time_ms();
-	if(key_pressed(KEY_A)) {
-		if(ship_states[ship].last_bullet_t + (1000.0f/ship_firing_speed) < time) {
-			ship_states[ship].last_bullet_t = time;
-			physics_spawn_bullet(ship);
-			sounds_event(SHOT);
-		}
-	}
+	if(key_pressed(KEY_A))
+		game_shoot(ship);
 }	
 
 void game_update(void) {

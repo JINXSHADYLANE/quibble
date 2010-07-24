@@ -42,6 +42,8 @@ void game_update(void);
 void game_platform_taken(uint ship, uint platform);
 void game_render(void);
 
+void game_shoot(uint ship);
+
 // Helpers for ai code:
 float game_taken_platforms_frac(uint color);
 

@@ -29,6 +29,10 @@ typedef struct {
 	float steer_tg_no_steer_dist;
 	// Do not try to stabilize if angular velocity is less than this
 	float acceptable_angular_velocity;
+
+	// If there is a ship in front within this distance and angle, shoot
+	float shoot_angle;
+	float shoot_distance;
 } AgentPersonality;	
 
 typedef struct {
