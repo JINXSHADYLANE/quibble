@@ -15,7 +15,7 @@ float agent_steer_interval = 1000.0f / 30.0f;
 Agent agents[MAX_AGENTS];
 
 AgentPersonality default_personality = 
-	{0.6f, 0.20f, 100.0f, 40.0f, 30.0f, 15.0f, 0.3f};
+	{0.6f, 0.20f, 0.5f, 70.0f, 120.0f, 45.0f, 30.0f, 15.0f, 0.3f};
 
 void ai_reset(float width, float height) {
 	ai_precalc_bounds(width, height);
@@ -162,10 +162,7 @@ void _agent_steer(uint id) {
 	}
 
 	// Steer
-	bool steer_left = false;
-	bool steer_right = false;
 	bool can_accelerate = false;
-	bool accelerate = false;
 
 	steer_tg_pos = arena->nav_mesh.navpoints[agent->steer_tg_node];
 	Vector2 ship_dir = vec2(sinf(phys_state->rot), -cosf(phys_state->rot));
@@ -180,11 +177,14 @@ void _agent_steer(uint id) {
 		float angle = vec2_angle(ship_dir, ship_to_steer_tg); 
 			
 		if(fabs(angle) > agent->personality->steer_tg_angle_tolerance) {
+			bool aggressive = 
+				fabs(angle) > agent->personality->steer_tg_aggressive_angle;
+
 			// Steer towards target
 			if(angle > 0.0f)
-				steer_right = true;
+				agent->steer_right = aggressive ? 3 : 1;
 			else
-				steer_left = true;
+				agent->steer_left = aggressive ? 3 : 1;
 		}
 		else {
 			// Angle is OK, now just stabilize
@@ -192,9 +192,9 @@ void _agent_steer(uint id) {
 			if(fabs(phys_state->ang_vel) > 
 				agent->personality->acceptable_angular_velocity) {
 				if(phys_state->ang_vel > 0.0f)
-					steer_left = true;
+					agent->steer_left = 1;
 				else
-					steer_right = true;
+					agent->steer_right = 1;
 			}
 		}
 	}	
@@ -205,12 +205,15 @@ void _agent_steer(uint id) {
 		agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
 	}
 	else {
-		if(distance > agent->personality->steer_tg_coast_distance) 
-			accelerate = can_accelerate;
+		if(distance > agent->personality->steer_tg_coast_distance &&
+			can_accelerate) {
+
+			bool aggressive = 
+				distance > agent->personality->steer_tg_aggressive_distance;
+			agent->accelerate = aggressive ? 3 : 1;
+		}	
 	}
 
-	physics_control_ship(agent->ship_id, steer_left, steer_right, accelerate);
-	
 }
 
 void ai_update(void) {
@@ -229,6 +232,15 @@ void ai_update(void) {
 			_agent_steer(i);
 			agents[i].last_steer_t = t;
 		}	
+
+		physics_control_ship(agents[i].ship_id,
+			agents[i].steer_left-- > 0,
+			agents[i].steer_right-- > 0,
+			agents[i].accelerate-- > 0);
+
+		agents[i].steer_left = MAX(agents[i].steer_left, 0);
+		agents[i].steer_right = MAX(agents[i].steer_right, 0);
+		agents[i].accelerate = MAX(agents[i].accelerate, 0);
 	}
 }
 
@@ -247,6 +259,10 @@ void ai_init_agent(uint player_id) {
 	agent->personality = &default_personality;
 	agent->last_think_t = time_ms();
 	agent->last_steer_t = time_ms();
+
+	agent->steer_left = 0;
+	agent->steer_right = 0;
+	agent->accelerate = 0;
 
 	_agent_think(agent_id);
 }
