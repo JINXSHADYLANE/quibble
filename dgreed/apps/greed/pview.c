@@ -1,6 +1,7 @@
-#include "particles.h"
-#include "gui.h"
-#include "memory.h"
+#include <particles.h>
+#include <gui.h>
+#include <memory.h>
+#include "gui_style.h"
 
 #define EDITOR_WIDTH 800
 #define EDITOR_HEIGHT 600
@@ -50,7 +51,10 @@ int dgreed_main(int argc, const char** argv) {
 	log_init("pview.log", LOG_LEVEL_INFO);
 	video_init(800, 600, "PView");
 
-	GuiDesc style = gui_default_style("greed_assets/");
+	GuiDesc style = greed_gui_style();
+	font_free(style.font);
+	style.font = font_load("greed_assets/lucida_grande_28px.bft");
+
 	gui_init(&style);
 	particles_init();
 
@@ -60,10 +64,10 @@ int dgreed_main(int argc, const char** argv) {
 	int active_desc = 0;
 	const char* active_desc_name = psystem_descs[active_desc].name;
 
-	RectF gui_area = rectf(0.0f, 0.0f, 280.0f, 60.0f);		
+	RectF gui_area = rectf(0.0f, 0.0f, 520.0f, 80.0f);		
 	Vector2 button_prev_pos = vec2(10.0f, 10.0f);
-	Vector2 button_next_pos = vec2(140.0f, 10.0f);
-	Vector2 label_name_pos = vec2(20.0f, 30.0f);
+	Vector2 button_next_pos = vec2(280.0f, 10.0f);
+	Vector2 label_name_pos = vec2(20.0f, 60.0f);
 	char label_text[256];
 	
 	while(system_update()) {

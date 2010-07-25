@@ -213,8 +213,10 @@ void gui_label(const Vector2* pos, const char* text) {
 	assert(pos);
 	assert(text);
 
-	font_draw(gui_style.font, text, gui_style.text_layer, 
-		pos, gui_style.text_color);		
+	// Fonts look nicer at integer coordinates
+	Vector2 p = vec2(floorf(pos->x), floorf(pos->y));
+	font_draw(gui_style.font, text, gui_style.text_layer, &p, 
+		gui_style.text_color);		
 }	
 
 bool gui_button(const Vector2* pos, const char* text) {
@@ -263,7 +265,8 @@ bool gui_button(const Vector2* pos, const char* text) {
 	float text_width = font_width(gui_style.font, text);
 	float text_offset_x = (width - text_width) / 2.0f;		
 	float text_offset_y = (height - font_height(gui_style.font)) / 2.0f;
-	Vector2 text_dest = vec2(pos->x + text_offset_x, pos->y + text_offset_y);
+	Vector2 text_dest = vec2(floorf(pos->x + text_offset_x), 
+		floorf(pos->y + text_offset_y));
 	font_draw(gui_style.font, text, gui_style.text_layer, &text_dest, 
 		gui_style.text_color);
 
@@ -291,7 +294,14 @@ bool gui_switch(const Vector2* pos, const char* text) {
 	Vector2 mouse_pos = vec2((float)mouse_x, (float)mouse_y);
 	float width = rectf_width(&gui_style.src_switch_on_up);
 	float height = rectf_height(&gui_style.src_switch_on_up);
+	
+	bool text_inside = width > 64.0f;
+	float text_width = font_width(gui_style.font, text);
+
 	RectF widget_rect = rectf(pos->x, pos->y, pos->x + width, pos->y + height);
+	if(!text_inside)
+		widget_rect.right += text_width;
+
 	bool mouse_over = rectf_contains_point(&widget_rect, &mouse_pos);
 	if(mouse_over) {
 		state->state._switch.blend += time_delta() * gui_widget_fadein_speed/1000.0f;
@@ -321,20 +331,15 @@ bool gui_switch(const Vector2* pos, const char* text) {
 		video_draw_rect(gui_style.texture, gui_style.second_layer, source, 
 			&dest, upper_color);
 	}		
-
-	bool text_inside = width > 64.0f;
-
 	Vector2 text_offset;
 	text_offset.y = (height - font_height(gui_style.font)) / 2.0f;
-	if(text_inside) {
-		float text_width = font_width(gui_style.font, text);
+	if(text_inside) 
 		text_offset.x = (width - text_width) / 2.0f;		
-	}
-	else {
-		text_offset.x = 16.0f;		
-	}
+	else 
+		text_offset.x = width - 2.0f;		
 
 	Vector2 text_dest = vec2_add(*pos, text_offset);
+	text_dest = vec2(floorf(text_dest.x), floorf(text_dest.y));
 	font_draw(gui_style.font, text, gui_style.text_layer, &text_dest, 
 		gui_style.text_color);
 

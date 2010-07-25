@@ -1,9 +1,10 @@
-#include "system.h"
-#include "font.h"
-#include "gui.h"
+#include <system.h>
+#include <font.h>
+#include <gui.h>
+#include <memory.h>
+#include "gui_style.h"
 #include "game.h"
 #include "ai.h"
-#include "memory.h"
 #include "sounds.h"
 
 #define ARENA_FILE "greed_assets/arena.txt"
@@ -15,7 +16,7 @@ int dgreed_main(int argc, const char** argv) {
 	video_init_ex(960, 640,	480, 320, "Greed", false);
 	sounds_init();
 
-	GuiDesc style = gui_default_style("greed_assets/");
+	GuiDesc style = greed_gui_style();
 	gui_init(&style);
 
 	game_init();

@@ -1,9 +1,9 @@
 #include "game.h"
-#include "system.h"
+#include <system.h>
+#include <gfx_utils.h>
 
 #include "arena.h"
 #include "physics.h"
-#include "gfx_utils.h"
 #include "sounds.h"
 #include "ai.h"
 
