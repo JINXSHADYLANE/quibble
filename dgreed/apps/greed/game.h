@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "utils.h"
+#include "gui.h"
 
 #define SCREEN_WIDTH 480
 #define SCREEN_HEIGHT 320
@@ -33,6 +34,8 @@ extern uint n_platforms;
 extern ShipState ship_states[MAX_SHIPS];
 extern PlatformState platform_states[MAX_PLATFORMS];
 extern const Color ship_colors[MAX_SHIPS];
+
+GuiDesc game_gui_style(void);
 
 void game_init(void);
 void game_close(void);

@@ -19,6 +19,7 @@ greed_sources = Split("""
 	sounds.c
 	ai_precalc.c
 	ai.c
+	gui_style.c
 """)
 greed_objects = env.Object(greed_sources)
 
@@ -32,7 +33,8 @@ arena_builder_objects = env.Object(arena_builder_sources) + \
 particle_viewer_sources = Split("""
 	pview.c
 """)	
-particle_viewer_objects = env.Object(particle_viewer_sources)
+particle_viewer_objects = env.Object(particle_viewer_sources) + \
+	['gui_style.o']
 
 test_sources = Split("""
 	test_runner.c
