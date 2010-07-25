@@ -6,6 +6,7 @@
 #include "physics.h"
 #include "sounds.h"
 #include "ai.h"
+#include "devmode.h"
 
 #define ENERGYBAR_LAYER 7
 #define FOREGROUND_LAYER 6
@@ -75,6 +76,10 @@ bool draw_physics_debug = false;
 bool draw_ai_debug = false;
 
 void game_init(void) {
+	#ifndef NO_DEVMODE
+	devmode_init();
+	#endif
+
 	arena_init();
 	physics_init();
 
@@ -116,6 +121,10 @@ void game_init(void) {
 void game_close(void) {
 	physics_close();
 	arena_close();
+	
+	#ifndef NO_DEVMODE
+	devmode_close();
+	#endif
 }
 
 void game_reset(const char* arena, uint n_players) {
@@ -170,6 +179,10 @@ void _control_keyboard1(uint ship) {
 }	
 
 void game_update(void) {
+	#ifndef NO_DEVMODE
+	devmode_update();
+	#endif
+
 	_control_keyboard1(0);
 
 	float dt = time_delta() / 1000.0f;
@@ -333,6 +346,12 @@ float _calc_core_shrink_ratio(uint platform) {
 
 
 void game_render(void) {
+	#ifndef NO_DEVMODE
+	Vector2 p = vec2(400.0f, 1.0f);
+	if(gui_switch(&p, "devmode"))
+		devmode_render();
+	#endif
+
 	if(draw_physics_debug)
 		physics_debug_draw();
 

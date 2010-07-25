@@ -58,8 +58,10 @@ uint _hash(uint key)
 uint _hash_widget(WidgetType type, const Vector2* pos) {
 	uint result = 0x4A55F113;
 	result ^= _hash(type);
-	result ^= _hash((uint)(size_t)&(pos->x));
-	result ^= _hash((uint)(size_t)&(pos->y));
+	uint* p = (uint*)&pos->x;
+	result ^= _hash(*p);
+	p = (uint*)&pos->y;
+	result ^= _hash(*p);
 	assert(result);
 	return result;
 }	

@@ -9,6 +9,29 @@
 ----------------
 */
 
+#ifndef NO_DEVMODE
+// This is quite implementation-specific,
+// put somewhere else in future
+typedef struct {
+	uint frame;
+	uint active_textures;
+
+	// Per-frame stats
+	uint frame_layer_sorts;
+	uint frame_batches;
+	uint frame_rects;
+	uint frame_lines;
+	uint frame_texture_switches;
+
+	// Per-layer stats
+	uint n_layers;
+	uint* layer_rects;
+	uint* layer_lines;
+} VideoStats;
+
+const VideoStats* video_stats(void);
+#endif
+
 // Initializes video
 void video_init(uint width, uint height, const char* name); 
 // Initializes video, sets virtual resolution
@@ -48,6 +71,17 @@ void video_draw_line(uint layer,
 --- Sound ---
 -------------
 */
+
+#ifndef NO_DEVMODE
+typedef struct {
+	uint sample_count;
+	uint stream_count;
+	uint playing_samples;
+	uint playing_streams;
+} SoundStats;	
+
+const SoundStats* sound_stats(void);
+#endif
 
 // Initializes sound
 void sound_init(void);
