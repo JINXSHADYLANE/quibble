@@ -147,8 +147,9 @@ void font_draw(FontHandle font, const char* string, uint layer,
 		dest.left += fonts[font].chars[(size_t)string[i]].x_offset;
 		dest.top += fonts[font].chars[(size_t)string[i]].y_offset;
 
-		video_draw_rect(fonts[font].tex, layer,
-		&(fonts[font].chars[(size_t)string[i]].source), &dest, tint);
+		if(string[i] != ' ')
+			video_draw_rect(fonts[font].tex, layer,
+				&(fonts[font].chars[(size_t)string[i]].source), &dest, tint);
 
 		cursor_x += fonts[font].chars[(size_t)string[i]].x_advance;
 		i++;

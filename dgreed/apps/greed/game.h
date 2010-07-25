@@ -35,6 +35,9 @@ extern ShipState ship_states[MAX_SHIPS];
 extern PlatformState platform_states[MAX_PLATFORMS];
 extern const Color ship_colors[MAX_SHIPS];
 
+extern bool draw_physics_debug;
+extern bool draw_ai_debug;
+
 void game_init(void);
 void game_close(void);
 

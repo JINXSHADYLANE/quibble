@@ -21,8 +21,8 @@
 #include "stb_vorbis.c"
 
 #define BUCKET_COUNT 16
-#define LINE_BUCKET_SIZE 256
-#define RECT_BUCKET_SIZE 256
+#define LINE_BUCKET_SIZE 512 
+#define RECT_BUCKET_SIZE 512
 #define MAX_TEXTURES 64
 #define FPS_LIMIT 60
 #define MS_PER_FRAME (1000 / FPS_LIMIT)
@@ -57,6 +57,16 @@ Texture textures[MAX_TEXTURES];
 uint texture_count;
 
 uint frame;
+
+float x_size_factor, y_size_factor;
+
+#ifndef NO_DEVMODE
+VideoStats v_stats;
+
+const VideoStats* video_stats(void) {
+	return &v_stats;
+}
+#endif
 
 extern int dgreed_main(int, char**);
 #ifdef __APPLE__
@@ -155,6 +165,16 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 	for(i = 0; i < MAX_TEXTURES; ++i)
 		textures[i].active = false;
 
+	x_size_factor = (float)v_width / (float)width;
+	y_size_factor = (float)v_height / (float)height;
+
+	#ifndef NO_DEVMODE
+	memset(&v_stats, 0, sizeof(v_stats));	
+	v_stats.n_layers = BUCKET_COUNT;
+	v_stats.layer_rects = (uint*)MEM_ALLOC(sizeof(uint) * BUCKET_COUNT);
+	v_stats.layer_lines = (uint*)MEM_ALLOC(sizeof(uint) * BUCKET_COUNT);
+	#endif
+
 	LOG_INFO("Video initialized");
 }	
 
@@ -182,11 +202,24 @@ uint _get_gl_id(TexHandle tex);
 void video_present(void) {
 	uint i, j;
 
+	#ifndef NO_DEVMODE
+	v_stats.frame = frame+1;
+	v_stats.active_textures = texture_count;
+	v_stats.frame_layer_sorts = v_stats.frame_batches = v_stats.frame_rects = 0;
+	v_stats.frame_lines = v_stats.frame_texture_switches = 0;
+	memcpy(v_stats.layer_rects, rect_buckets_sizes, sizeof(rect_buckets_sizes));
+	memcpy(v_stats.layer_lines, line_buckets_sizes, sizeof(line_buckets_sizes));
+	#endif
+
 	// Sort texture rects to minimize texture binding 
 	for(i = 0; i < BUCKET_COUNT; ++i) {
 		if(rect_buckets_sizes[i] <= 1)
 			continue;
 		_sort_rect_bucket(i);	
+		
+		#ifndef NO_DEVMODE
+		v_stats.frame_layer_sorts++;
+		#endif
 	}	
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -203,9 +236,17 @@ void video_present(void) {
 				if(drawing) {
 					glEnd();
 					drawing = false;
+
+					#ifndef NO_DEVMODE
+					v_stats.frame_batches++;
+					#endif
 				}	
 				glBindTexture(GL_TEXTURE_2D, _get_gl_id(rect.tex));
 				active_tex = rect.tex;
+
+				#ifndef NO_DEVMODE
+				v_stats.frame_texture_switches++;
+				#endif
 			}	
 			if(!drawing) {
 				glBegin(GL_QUADS);
@@ -258,6 +299,10 @@ void video_present(void) {
 		if(drawing) {
 			glEnd();
 			drawing = false;
+
+			#ifndef NO_DEVMODE
+			v_stats.frame_batches++;
+			#endif
 		}	
 
 		// Draw lines
@@ -272,8 +317,15 @@ void video_present(void) {
 			glVertex2f(line.start.x, line.start.y);
 			glVertex2f(line.end.x, line.end.y);
 		}
+
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
+
+		#ifndef NO_DEVMODE
+		v_stats.frame_batches++;
+		v_stats.frame_rects += rect_buckets_sizes[i];
+		v_stats.frame_lines += line_buckets_sizes[i];
+		#endif
 	}	
 
 	SDL_GL_SwapBuffers();
@@ -470,6 +522,14 @@ ALCdevice* audio_device = NULL;
 ALCcontext* audio_context = NULL;
 ALuint sources[MAX_SOURCES];
 
+#ifndef NO_DEVMODE
+SoundStats s_stats;
+
+const SoundStats* sound_stats(void) {
+	return &s_stats;
+}
+#endif
+
 void sound_init(void) {
 	audio_device = alcOpenDevice(NULL);
 	if(!audio_device)
@@ -507,6 +567,12 @@ void sound_init(void) {
 
 	if(alGetError() != AL_NO_ERROR)
 		LOG_ERROR("Unable to set sources params");
+
+	#ifndef NO_DEVMODE
+	memset(&s_stats, 0, sizeof(s_stats));
+	#endif
+
+	LOG_INFO("Sound initialized");	
 }
 
 void sound_close(void) {
@@ -516,10 +582,41 @@ void sound_close(void) {
 		alcDestroyContext(audio_context);
 	if(audio_device)
 		alcCloseDevice(audio_device);
+	
+	LOG_INFO("Sound closed");
 }
 
 void sound_update(void) {
+	#ifndef NO_DEVMODE
+	memset(&s_stats, 0, sizeof(s_stats));
+	#endif
+
 	for(uint i = 0; i < MAX_SOUNDS; ++i) {
+		
+		#ifndef NO_DEVMODE
+		if(sounds[i].active) {
+			if(sounds[i].is_stream) {
+				s_stats.stream_count++;
+				if(sounds[i].stream_source_id != -1)
+					s_stats.playing_streams++;
+			}	
+			else {
+				s_stats.sample_count++;
+
+				for(uint j = 0; j < MAX_SOURCES; ++j) {
+					ALint state;
+					alGetSourcei(sources[j], AL_SOURCE_STATE, &state);
+					if(state == AL_PLAYING) {
+						ALint buffer;
+						alGetSourcei(sources[j], AL_BUFFER, &buffer);
+						if(buffer == sounds[i].buffers[0])
+							s_stats.playing_samples++;
+					}
+				}
+			}	
+		}
+		#endif
+
 		int source_id = sounds[i].stream_source_id;
 		if(!sounds[i].active || !sounds[i].is_stream || source_id == -1)
 			continue;
@@ -873,8 +970,8 @@ void mouse_pos(uint* x, uint* y) {
 	assert(x);
 	assert(y);
 
-	*x = mouse_x;
-	*y = mouse_y;
+	*x = (uint)((float)mouse_x * x_size_factor);
+	*y = (uint)((float)mouse_y * y_size_factor);
 }	
 
 float t_ms = 0.0f, t_d = 0.0f;
