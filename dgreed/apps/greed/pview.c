@@ -49,7 +49,9 @@ void draw_grid(uint layer, float spacing) {
 int dgreed_main(int argc, const char** argv) {
 	log_init("pview.log", LOG_LEVEL_INFO);
 	video_init(800, 600, "PView");
-	gui_init();
+
+	GuiDesc style = gui_default_style("greed_assets/");
+	gui_init(&style);
 	particles_init();
 
 	if(psystem_descs_count < 1) 

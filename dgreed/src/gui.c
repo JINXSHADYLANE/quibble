@@ -35,7 +35,12 @@ typedef struct {
 // Works better when prime
 #define HASH_MAP_SIZE 131
 
+// Tweakables
+float gui_widget_fadein_speed = 5.0f;
+float gui_widget_fadeout_speed = 2.0f;
+
 WidgetState gui_state[HASH_MAP_SIZE];
+GuiDesc gui_style;
 uint unique_widgets = 0;
 
 // Hash function from http://www.concentric.net/~Ttwang/tech/inthash.htm
@@ -94,40 +99,122 @@ WidgetState* _alloc_widget(uint hash) {
 	return NULL;
 }	
 
-#define GUI_LAYER1 1
-#define GUI_LAYER2 2
-#define GUI_LAYER_TEXT 3
+GuiDesc gui_default_style(const char* assets_prefix) {
+	const char* default_texture = "gui.png";
+	const char* default_font = "nova.bft";
 
-#define GUI_TEXTURE "greed_assets/gui.png"
-#define GUI_FONT "greed_assets/nova.bft"
+	GuiDesc style;
 
-const RectF src_button_down = {1.0f, 1.0f, 129.0f, 25.0f};
-const RectF src_button_up = {1.0f, 26.0f, 129.0f, 50.0f};
-const RectF src_slider = {1.0f, 51.0f, 197.0f, 67.0f};
-const RectF src_knob_down = {1.0f, 68.0f, 33.0f, 84.0f};
-const RectF src_knob_up = {34.0f, 68.0f, 66.0f, 84.0f};
-TexHandle gui_texture;
-FontHandle gui_font;
+	// Construct paths
+	char texture_path[256];
+	char font_path[256];
+	if(assets_prefix) {
+		strcpy(texture_path, assets_prefix);
+		strcpy(font_path, assets_prefix);
+	}	
+	else {
+		texture_path[0] = font_path[0] = '\0';
+	}
+	strcat(texture_path, default_texture);
+	strcat(font_path, default_font);
 
-void gui_init(void) {
+	// Load resources, fill in data
+	style.texture = tex_load(texture_path);
+	style.font = font_load(font_path);
+
+	style.text_color = COLOR_WHITE;
+
+	style.first_layer = 1;
+	style.second_layer = 2;
+	style.text_layer = 3;
+
+	style.src_button_up = rectf(1.0f, 1.0f, 129.0f, 25.0f);
+	style.src_button_down = rectf(1.0f, 26.0f, 129.0f, 50.0f);
+	style.src_switch_off_up = rectf(1.0f, 1.0f, 129.0f, 25.0f);
+	style.src_switch_off_down = rectf(1.0f, 139.0f, 129.0f, 163.0f);
+	style.src_switch_on_up = rectf(1.0f, 26.0f, 129.0f, 50.0f);
+	style.src_switch_on_down = rectf(1.0f, 164.0f, 129.0f, 188.0f);
+	style.src_slider = rectf(1.0f, 51.0f, 197.0f, 67.0f);
+	style.src_slider_knob_up = rectf(1.0f, 68.0f, 33.0f, 84.0f);
+	style.src_slider_knob_down = rectf(34.0f, 68.0f, 66.0f, 84.0f);
+
+	return style;
+}
+
+bool gui_validate_desc(const GuiDesc* desc) {
+	assert(desc);
+
+	// TODO: No way to validate texture/font handles yet, fix that
+
+	if(desc->first_layer >= 16 || desc->second_layer >= 16 
+		|| desc->text_layer >= 16)
+		return false;
+	if(!(desc->first_layer < desc->second_layer && 
+		desc->second_layer < desc->text_layer))
+		return false;
+
+	// Assure button up&down sizes are same
+	if(!feql(rectf_width(&desc->src_button_down), rectf_width(&desc->src_button_up)))
+		return false;
+	if(!feql(rectf_height(&desc->src_button_down), rectf_height(&desc->src_button_up)))
+		return false;
+	
+	// Assure all switch img sizes are same
+	float switch_on_up_w = rectf_width(&desc->src_switch_on_up);
+	float switch_on_down_w = rectf_width(&desc->src_switch_on_down);
+	float switch_off_up_w = rectf_width(&desc->src_switch_off_up);
+	float switch_off_down_w = rectf_width(&desc->src_switch_off_down);
+	float switch_on_up_h = rectf_height(&desc->src_switch_on_up);
+	float switch_on_down_h = rectf_height(&desc->src_switch_on_down);
+	float switch_off_up_h = rectf_height(&desc->src_switch_off_up);
+	float switch_off_down_h = rectf_height(&desc->src_switch_off_down);
+	if(!feql(switch_on_up_w, switch_on_down_w)
+		|| !feql(switch_on_up_w, switch_off_up_w)
+		|| !feql(switch_on_up_w, switch_off_down_w)
+		|| !feql(switch_on_up_h, switch_on_down_h)
+		|| !feql(switch_on_up_h, switch_off_up_h)
+		|| !feql(switch_on_up_h, switch_off_down_h))
+		return false;
+
+	// Assure slider knob sizes are same
+	float knob_up_w = rectf_width(&desc->src_slider_knob_up);
+	float knob_down_w = rectf_width(&desc->src_slider_knob_down);
+	float knob_up_h = rectf_height(&desc->src_slider_knob_up);
+	float knob_down_h = rectf_height(&desc->src_slider_knob_down);
+	if(!feql(knob_up_w, knob_down_w) || !feql(knob_up_h, knob_down_h))
+		return false;
+	
+	// Assure slider & knob heights are same
+	if(!feql(rectf_height(&desc->src_slider), knob_up_h))
+		return false;
+	
+	return true;
+}
+
+void gui_init(const GuiDesc* desc) {
+	assert(desc);
+	assert(gui_validate_desc(desc));
+
+	memcpy(&gui_style, desc, sizeof(GuiDesc));
+
 	uint i;
 	for(i = 0; i < HASH_MAP_SIZE; ++i)
 		gui_state[i].hash = 0;
-
-	gui_texture = tex_load(GUI_TEXTURE);
-	gui_font = font_load(GUI_FONT);
 }	
 
 void gui_close(void) {
-	tex_free(gui_texture);
-	font_free(gui_font);
+	// Should resources be freed here, 
+	// or creator of GuiDesc should be responsible ?
+	tex_free(gui_style.texture);
+	font_free(gui_style.font);
 }	
 
 void gui_label(const Vector2* pos, const char* text) {
 	assert(pos);
 	assert(text);
 
-	font_draw(gui_font, text, GUI_LAYER_TEXT, pos, COLOR_WHITE);		
+	font_draw(gui_style.font, text, gui_style.text_layer, 
+		pos, gui_style.text_color);		
 }	
 
 bool gui_button(const Vector2* pos, const char* text) {
@@ -148,35 +235,37 @@ bool gui_button(const Vector2* pos, const char* text) {
 	uint mouse_x, mouse_y;
 	mouse_pos(&mouse_x, &mouse_y);
 	Vector2 mouse_pos = vec2((float)mouse_x, (float)mouse_y);
-	float width = src_button_up.right - src_button_up.left;
-	float height = src_button_up.bottom - src_button_up.top;
+	float width = rectf_width(&gui_style.src_button_up);
+	float height = rectf_height(&gui_style.src_button_up);
 	RectF widget_rect = rectf(pos->x, pos->y, pos->x + width, pos->y + height);
 	bool mouse_over = rectf_contains_point(&widget_rect, &mouse_pos);
 	if(mouse_over) {
-		state->state.button.blend += time_delta() * 0.005f;
+		state->state.button.blend += time_delta() * gui_widget_fadein_speed/1000.0f;
 		if(state->state.button.blend > 1.0f)
 			state->state.button.blend = 1.0f;
 	}
 	else {
-		state->state.button.blend -= time_delta() * 0.002f;
+		state->state.button.blend -= time_delta() * gui_widget_fadeout_speed/1000.0f;
 		if(state->state.button.blend < 0.0f)
 			state->state.button.blend = 0.0f;
 	}		
 
 	// Draw
-	byte alpha = 255 - (byte)(state->state.button.blend * 255.0f);
+	byte alpha = (byte)(state->state.button.blend * 255.0f);
 	Color upper_color = COLOR_RGBA(255, 255, 255, alpha); 
 	RectF dest = rectf(pos->x, pos->y, 0.0f, 0.0f);
-	video_draw_rect(gui_texture, GUI_LAYER1, &src_button_up, &dest,
-		COLOR_WHITE); 
+	if(alpha < 255)
+		video_draw_rect(gui_style.texture, gui_style.first_layer, 
+			&gui_style.src_button_up, &dest, COLOR_WHITE); 
 	if(alpha > 0)
-		video_draw_rect(gui_texture, GUI_LAYER2, &src_button_down, &dest,
-			upper_color);
-	float text_width = font_width(gui_font, text);
+		video_draw_rect(gui_style.texture, gui_style.second_layer, 
+			&gui_style.src_button_down, &dest, upper_color);
+	float text_width = font_width(gui_style.font, text);
 	float text_offset_x = (width - text_width) / 2.0f;		
-	float text_offset_y = (height - font_height(gui_font)) / 2.0f;
+	float text_offset_y = (height - font_height(gui_style.font)) / 2.0f;
 	Vector2 text_dest = vec2(pos->x + text_offset_x, pos->y + text_offset_y);
-	font_draw(gui_font, text, GUI_LAYER_TEXT, &text_dest, COLOR_WHITE);
+	font_draw(gui_style.font, text, gui_style.text_layer, &text_dest, 
+		gui_style.text_color);
 
 	return mouse_over && mouse_pressed(MBTN_LEFT);
 }	
@@ -200,38 +289,54 @@ bool gui_switch(const Vector2* pos, const char* text) {
 	uint mouse_x, mouse_y;
 	mouse_pos(&mouse_x, &mouse_y);
 	Vector2 mouse_pos = vec2((float)mouse_x, (float)mouse_y);
-	float width = src_button_up.right - src_button_up.left;
-	float height = src_button_up.bottom - src_button_up.top;
+	float width = rectf_width(&gui_style.src_switch_on_up);
+	float height = rectf_height(&gui_style.src_switch_on_up);
 	RectF widget_rect = rectf(pos->x, pos->y, pos->x + width, pos->y + height);
 	bool mouse_over = rectf_contains_point(&widget_rect, &mouse_pos);
 	if(mouse_over) {
-		state->state._switch.blend += time_delta() * 0.005f;
+		state->state._switch.blend += time_delta() * gui_widget_fadein_speed/1000.0f;
 		if(state->state._switch.blend > 1.0f)
 			state->state._switch.blend = 1.0f;
 	}
 	else {
-		state->state._switch.blend -= time_delta() * 0.002f;
+		state->state._switch.blend -= time_delta() * gui_widget_fadeout_speed/1000.0f;
 		if(state->state._switch.blend < 0.0f)
 			state->state._switch.blend = 0.0f;
 	}		
 
 	// Draw
 	float t = state->state._switch.blend;
-	t = state->state._switch.state ? 1.0f - t / 4.0f : t / 4.0f;
-	byte alpha = 255 - (byte)(t * 255.0f);
+	byte alpha = (byte)(t * 255.0f);
 	Color upper_color = COLOR_RGBA(255, 255, 255, alpha); 
 	RectF dest = rectf(pos->x, pos->y, 0.0f, 0.0f);
-	if(alpha < 255)
-		video_draw_rect(gui_texture, GUI_LAYER1, &src_button_up, &dest,
-			COLOR_WHITE); 
-	if(alpha > 0)
-		video_draw_rect(gui_texture, GUI_LAYER2, &src_button_down, &dest,
-			upper_color);
-	float text_width = font_width(gui_font, text);
-	float text_offset_x = (width - text_width) / 2.0f;		
-	float text_offset_y = (height - font_height(gui_font)) / 2.0f;
-	Vector2 text_dest = vec2(pos->x + text_offset_x, pos->y + text_offset_y);
-	font_draw(gui_font, text, GUI_LAYER_TEXT, &text_dest, COLOR_WHITE);
+	if(alpha < 255) {
+		RectF* source = state->state._switch.state ?
+			&gui_style.src_switch_on_up : &gui_style.src_switch_off_up;
+		video_draw_rect(gui_style.texture, gui_style.first_layer, source, 
+			&dest, COLOR_WHITE); 
+	}
+	if(alpha > 0) {
+		RectF* source = state->state._switch.state ?
+			&gui_style.src_switch_on_down : &gui_style.src_switch_off_down;
+		video_draw_rect(gui_style.texture, gui_style.second_layer, source, 
+			&dest, upper_color);
+	}		
+
+	bool text_inside = width > 64.0f;
+
+	Vector2 text_offset;
+	text_offset.y = (height - font_height(gui_style.font)) / 2.0f;
+	if(text_inside) {
+		float text_width = font_width(gui_style.font, text);
+		text_offset.x = (width - text_width) / 2.0f;		
+	}
+	else {
+		text_offset.x = 16.0f;		
+	}
+
+	Vector2 text_dest = vec2_add(*pos, text_offset);
+	font_draw(gui_style.font, text, gui_style.text_layer, &text_dest, 
+		gui_style.text_color);
 
 	if(mouse_over && mouse_down(MBTN_LEFT))
 		state->state._switch.state = !state->state._switch.state;
@@ -256,17 +361,17 @@ float gui_slider(const Vector2* pos) {
 	uint mouse_x, mouse_y;
 	mouse_pos(&mouse_x, &mouse_y);
 	Vector2 mouse_pos = vec2((float)mouse_x, (float)mouse_y);
-	float width = src_slider.right - src_slider.left;
-	float height = src_slider.bottom - src_slider.top;
+	float width = rectf_width(&gui_style.src_slider);
+	float height = rectf_height(&gui_style.src_slider);
 	RectF widget_rect = rectf(pos->x, pos->y, pos->x + width, pos->y + height);
 	bool mouse_over = rectf_contains_point(&widget_rect, &mouse_pos);
 	if(mouse_over) {
-		state->state.slider.blend += time_delta() * 0.005f;
+		state->state.slider.blend += time_delta() * gui_widget_fadein_speed/1000.0f;
 		if(state->state.slider.blend > 1.0f)
 			state->state.slider.blend = 1.0f;
 	}
 	else {
-		state->state.slider.blend -= time_delta() * 0.002f;
+		state->state.slider.blend -= time_delta() * gui_widget_fadeout_speed/1000.0f;
 		if(state->state.slider.blend < 0.0f)
 			state->state.slider.blend = 0.0f;
 	}		
@@ -275,22 +380,23 @@ float gui_slider(const Vector2* pos) {
 
 	// Draw
 	float t = state->state.slider.blend;
-	byte alpha = 255 - (byte)(t * 255.0f);
+	byte alpha = (byte)(t * 255.0f);
 	Color upper_color = COLOR_RGBA(255, 255, 255, alpha); 
 	RectF dest = rectf(pos->x, pos->y, 0.0f, 0.0f);
-	video_draw_rect(gui_texture, GUI_LAYER1, &src_slider, &dest, COLOR_WHITE);
-	float knob_width = src_knob_up.right - src_knob_up.left;
-	float knob_height = src_knob_up.bottom - src_knob_up.top;
+	video_draw_rect(gui_style.texture, gui_style.first_layer, 
+		&gui_style.src_slider, &dest, COLOR_WHITE);
+	float knob_width = rectf_width(&gui_style.src_slider_knob_up);
+	float knob_height = rectf_height(&gui_style.src_slider_knob_up);
 	float knob_offset_x = (width - knob_width) * state->state.slider.state;
 	dest.left += knob_offset_x;
 	dest.right = dest.left + knob_width;
 	dest.bottom = dest.top + knob_height;
 	if(alpha < 255)
-		video_draw_rect(gui_texture, GUI_LAYER1, &src_knob_up, &dest,
-			COLOR_WHITE); 
+		video_draw_rect(gui_style.texture, gui_style.first_layer, 
+			&gui_style.src_slider_knob_up, &dest, COLOR_WHITE); 
 	if(alpha > 0)
-		video_draw_rect(gui_texture, GUI_LAYER2, &src_knob_down, &dest,
-			upper_color);
+		video_draw_rect(gui_style.texture, gui_style.second_layer, 
+			&gui_style.src_slider_knob_down, &dest, upper_color);
 
 	return state->state.slider.state;
 }

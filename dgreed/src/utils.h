@@ -92,6 +92,9 @@ RectF rectf(float left, float top, float right, float bottom);
 bool rectf_contains_point(const RectF* r, const Vector2* p);
 // Returns true if rectangle and circle collide
 bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r);
+// Returns signed width/height
+float rectf_width(const RectF* r);
+float rectf_height(const RectF* r);
 
 /*
 ----------------

@@ -1,9 +1,36 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include "utils.h"
+#include "system.h"
+#include "font.h"
 
-void gui_init(void);
+typedef struct {
+	TexHandle texture;
+	FontHandle font;
+
+	Color text_color;
+
+	uint first_layer;
+	uint second_layer;
+	uint text_layer;
+
+	RectF src_button_down;
+	RectF src_button_up;
+
+	RectF src_switch_on_up;
+	RectF src_switch_on_down;
+	RectF src_switch_off_up;
+	RectF src_switch_off_down;
+
+	RectF src_slider;
+	RectF src_slider_knob_down;
+	RectF src_slider_knob_up;
+} GuiDesc;
+
+GuiDesc gui_default_style(const char* assets_prefix);
+bool gui_validate_desc(const GuiDesc* desc);
+
+void gui_init(const GuiDesc* desc);
 void gui_close(void);
 
 void gui_label(const Vector2* pos, const char* text);
