@@ -321,13 +321,16 @@ DArray poly_simplify_island(uint* raster, uint width, uint height,
 				Vector2 v_end = complex_outline[end];
 				
 				if(path_len < 5)
-					direction = vec2_dir(vec2_sub(v_end, v_start));
+					direction = vec2_dir(vec2_sub(v_end, v_start)) * RAD_TO_DEG;
 
 				Vector2 v_pre_end = complex_outline[end-1];
 				Vector2 v_post_end = complex_outline[end+1];
 				float pre_end_dir = vec2_dir(vec2_sub(v_end, v_pre_end));
 				float post_end_dir = vec2_dir(vec2_sub(v_post_end, v_end));
 				float new_direction = vec2_dir(vec2_sub(v_post_end, v_start));
+				pre_end_dir *= RAD_TO_DEG;
+				post_end_dir *= RAD_TO_DEG;
+				new_direction *= RAD_TO_DEG;
 
 				uint min_delta_dir_idx = ARRAY_SIZE(delta_dir_tolerance)-1;
 				float dir_change_tolerance = 

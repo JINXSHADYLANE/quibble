@@ -35,8 +35,6 @@ extern ShipState ship_states[MAX_SHIPS];
 extern PlatformState platform_states[MAX_PLATFORMS];
 extern const Color ship_colors[MAX_SHIPS];
 
-GuiDesc game_gui_style(void);
-
 void game_init(void);
 void game_close(void);
 

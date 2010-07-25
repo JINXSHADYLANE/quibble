@@ -72,7 +72,7 @@ const float energybar_y_pos[] = {
 
 // Devmode switches
 bool draw_physics_debug = false;
-bool draw_ai_debug = true;
+bool draw_ai_debug = false;
 
 void game_init(void) {
 	arena_init();
