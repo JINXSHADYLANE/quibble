@@ -184,6 +184,19 @@ bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r) {
 	return false;	
 }
 
+float rectf_width(const RectF* r) {
+	assert(r);
+
+	return r->right - r->left;
+}
+
+float rectf_height(const RectF* r) {
+	assert(r);
+	
+	// CG coordinate system
+	return r->bottom - r->top;
+}
+
 /*
 --------------------
 --- Line segment ---
