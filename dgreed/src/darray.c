@@ -40,6 +40,16 @@ void darray_free(DArray* array) {
 	assert(array->data == NULL);
 }		
 
+void _expand_by_one(DArray* array) {
+	unsigned int expand_amount = EXPAND_AMOUNT / array->item_size;
+	if(expand_amount == 0)
+		expand_amount = 1;
+
+	unsigned int new_reservation = array->reserved * array->item_size > DOUBLING_BOUND ?	
+		array->reserved + expand_amount : array->reserved * 2;
+	darray_reserve(array, new_reservation);	
+}
+
 void darray_append(DArray* array, void* item_ptr) {
 	assert(array);
 	assert(array->data);
@@ -47,23 +57,42 @@ void darray_append(DArray* array, void* item_ptr) {
 
 	assert(array->size <= array->reserved);
 
-	if(array->size == array->reserved) {
-		// Not enough space allocated, expand
-
-		unsigned int expand_amount = EXPAND_AMOUNT / array->item_size;
-		if(expand_amount == 0)
-			expand_amount = 1;
-
-		unsigned int new_reservation = array->reserved * array->item_size > DOUBLING_BOUND ?	
-			array->reserved + expand_amount : array->reserved * 2;
-		darray_reserve(array, new_reservation);	
-	}	
+	if(array->size == array->reserved) 
+		_expand_by_one(array);
 
 	assert(array->size < array->reserved);
 
 	memcpy(array->data + array->item_size * array->size, 
 		item_ptr, array->item_size);
 	array->size++;	
+}
+
+void darray_insert(DArray* array, unsigned int index, void* item_ptr) {
+	assert(array);
+	assert(array->data);
+	assert(index <= array->size);
+	assert(item_ptr);
+	assert(array->size <= array->reserved);
+
+	if(index == array->size) {
+		darray_append(array, item_ptr);
+		return;
+	}	
+
+	if(array->size == array->reserved)
+		_expand_by_one(array);
+
+	assert(array->size < array->reserved);	
+
+	// Move all items starting from index forward
+	void* addr = array->data + index * array->item_size;
+	memmove(addr + array->item_size, addr, 
+		array->item_size * (array->size - index));
+
+	// Copy new item
+	memcpy(addr, item_ptr, array->item_size);
+
+	array->size++;
 }
 
 void darray_append_multi(DArray* array, void* item_ptr, unsigned int count) {
