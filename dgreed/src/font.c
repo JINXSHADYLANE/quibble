@@ -19,6 +19,7 @@ typedef struct {
 	float height;
 	Char chars[256];
 	bool active;
+	float scale;
 } FontDesc;
 
 #define MAX_FONTS 4
@@ -26,6 +27,10 @@ FontDesc fonts[MAX_FONTS];
 uint font_count = 0;
 
 FontHandle font_load(const char* filename) {
+	return font_load_ex(filename, 1.0f);
+}
+
+FontHandle font_load_ex(const char* filename, float scale) {
 	assert(filename);
 	assert(sizeof(CharDesc) == 16);
 
@@ -102,6 +107,8 @@ FontHandle font_load(const char* filename) {
 	}
 
 	file_close(font_file);
+	
+	fonts[result].scale = scale;
 
 	return result;
 }
@@ -121,18 +128,19 @@ float font_width(FontHandle font, const char* string) {
 
 	float width = 0.0f;
 	uint i = 0;
+	float s = fonts[font].scale;
 	while(string[i]) {
 		width += fonts[font].chars[(size_t)string[i]].x_advance;
 		i++;
 	}
-	return width;
+	return width * s;
 }	
 
 float font_height(FontHandle font) {
 	assert(font < MAX_FONTS);
 	assert(fonts[font].active);
 
-	return fonts[font].height;
+	return fonts[font].height * fonts[font].scale;
 }
 
 void font_draw(FontHandle font, const char* string, uint layer,
@@ -142,16 +150,21 @@ void font_draw(FontHandle font, const char* string, uint layer,
 
 	float cursor_x = 0.0f;
 	uint i = 0;
+	float s = fonts[font].scale;
 	while(string[i]) {
+		const Char* chr = &fonts[font].chars[(size_t)string[i]];
+
 		RectF dest = rectf(topleft->x + cursor_x, topleft->y, 0.0f, 0.0f);
-		dest.left += fonts[font].chars[(size_t)string[i]].x_offset;
-		dest.top += fonts[font].chars[(size_t)string[i]].y_offset;
+		dest.left += chr->x_offset * s;
+		dest.top += chr->y_offset * s;
+		dest.right = dest.left + rectf_width(&chr->source) * s;
+		dest.bottom = dest.top + rectf_height(&chr->source) * s;
 
 		if(string[i] != ' ')
 			video_draw_rect(fonts[font].tex, layer,
 				&(fonts[font].chars[(size_t)string[i]].source), &dest, tint);
 
-		cursor_x += fonts[font].chars[(size_t)string[i]].x_advance;
+		cursor_x += chr->x_advance * s;
 		i++;
 	}	
 }	

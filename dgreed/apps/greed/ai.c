@@ -28,6 +28,8 @@ void ai_debug_draw() {
 	NavMesh* nav_mesh = &current_arena_desc.nav_mesh;
 	uint n = nav_mesh->n_nodes;
 
+	Color c = COLOR_RGBA(196, 196, 212, 128);
+
 	// Draw grid
 	for(uint i = 0; i < n; ++i) {
 		Vector2 v1 = nav_mesh->navpoints[i];
@@ -42,13 +44,13 @@ void ai_debug_draw() {
 			Segment s1, s2;
 			if(ai_split_path(s, &s1, &s2)) {
 				video_draw_line(DEBUG_DRAW_LAYER + i%2, 
-					&s1.p1, &s1.p2, COLOR_WHITE);
+					&s1.p1, &s1.p2, c);
 				video_draw_line(DEBUG_DRAW_LAYER + i%2, 
-					&s2.p1, &s2.p2, COLOR_WHITE);
+					&s2.p1, &s2.p2, c);
 			}
 			else {
 				video_draw_line(DEBUG_DRAW_LAYER + i%2,
-					&s1.p1, &s1.p2, COLOR_WHITE);
+					&s1.p1, &s1.p2, c);
 			}		
 		}
 	}

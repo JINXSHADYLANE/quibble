@@ -2,11 +2,14 @@
 #include <system.h>
 #include <font.h>
 
-GuiDesc greed_gui_style(void) {
+GuiDesc greed_gui_style(bool highres) {
 	GuiDesc style;
 
 	style.texture = tex_load("greed_assets/gui_new.png");
-	style.font = font_load("greed_assets/lucida_grande_14px.bft");
+	if(highres)
+		style.font = font_load_ex("greed_assets/lucida_grande_28px.bft", 0.5f);
+	else
+		style.font = font_load("greed_assets/lucida_grande_14px.bft");
 
 	style.text_color = COLOR_WHITE;
 
