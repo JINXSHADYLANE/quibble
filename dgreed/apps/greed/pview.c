@@ -52,8 +52,6 @@ int dgreed_main(int argc, const char** argv) {
 	video_init(800, 600, "PView");
 
 	GuiDesc style = greed_gui_style(false);
-	font_free(style.font);
-	style.font = font_load("greed_assets/lucida_grande_28px.bft");
 
 	gui_init(&style);
 	particles_init();
@@ -97,6 +95,7 @@ int dgreed_main(int argc, const char** argv) {
 
 	particles_close();
 	gui_close();
+	greed_gui_free();
 	video_close();
 	
 	#ifdef TRACK_MEMORY

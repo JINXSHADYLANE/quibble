@@ -1,7 +1,8 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
-#include "utils.h"
+#include <utils.h>
+#include <tweakables.h>
 #include "game.h"
 
 typedef struct {
@@ -30,6 +31,7 @@ typedef struct {
 
 extern PhysicsState physics_state;
 
+void physics_register_tweaks(Tweaks* tweaks);
 void physics_init(void);
 void physics_close(void);
 

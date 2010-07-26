@@ -75,6 +75,32 @@ const float energybar_y_pos[] = {
 bool draw_physics_debug = false;
 bool draw_ai_debug = false;
 
+#define GAME_TWEAK(name, min, max) \
+	tweaks_float(tweaks, #name, &name, min, max)
+
+void game_register_tweaks(Tweaks* tweaks) {
+	tweaks_group(tweaks, "game");
+	GAME_TWEAK(ship_circle_radius, 1.0f, 50.0f);
+	GAME_TWEAK(ship_firing_speed, 1.0f, 32.0f);
+	GAME_TWEAK(vortex_fade_in_length, 0.1f, 2.0f);
+	GAME_TWEAK(vortex_fade_out_length, 0.1f, 0.4f);
+	GAME_TWEAK(vortex_animation_speed, 500.0f, 4000.0f);
+	GAME_TWEAK(platform_ring_rotation_speed, -PI*4.0f, PI*4.0f);
+	GAME_TWEAK(platform_transition_length, 0.1f, 4.0f);
+	GAME_TWEAK(platform_holding_time, 2.0f, 30.0f);
+	GAME_TWEAK(platform_warning1_time, 1.0f, 10.0f);
+	GAME_TWEAK(platform_warning2_time, 0.5f, 9.0f);
+	GAME_TWEAK(platform_core_size, 0.1f, 2.0f);
+	GAME_TWEAK(platform_active_core_size, 0.1f, 2.0f);
+	GAME_TWEAK(ship_min_size, 0.1f, 1.5f);
+	GAME_TWEAK(ship_max_size, 0.2f, 2.0f);
+	GAME_TWEAK(energy_max, 10.0f, 100.0f);
+	GAME_TWEAK(energy_decrease_speed, 0.1f, 10.0f);
+	GAME_TWEAK(energy_holding, 0.1f, 10.0f);
+	GAME_TWEAK(energy_neutralization, 1.0f, 100.0f);
+	GAME_TWEAK(energybar_length, 50.0f, 400.0f);
+}
+
 void game_init(void) {
 	#ifndef NO_DEVMODE
 	devmode_init();

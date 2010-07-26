@@ -207,8 +207,8 @@ void gui_init(const GuiDesc* desc) {
 void gui_close(void) {
 	// Should resources be freed here, 
 	// or creator of GuiDesc should be responsible ?
-	tex_free(gui_style.texture);
-	font_free(gui_style.font);
+	//tex_free(gui_style.texture);
+	//font_free(gui_style.font);
 }	
 
 void gui_label(const Vector2* pos, const char* text) {

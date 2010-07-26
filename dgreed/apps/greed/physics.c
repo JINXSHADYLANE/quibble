@@ -59,6 +59,31 @@ float bullet_inertia = 0.1f;
 float bullet_radius = 5.0f;
 float platform_radius = 20.0f;
 
+#define GAME_TWEAK(name, min, max) \
+	tweaks_float(tweaks, #name, &name, min, max)
+	
+void physics_register_tweaks(Tweaks* tweaks) {
+	tweaks_group(tweaks, "physics");
+	GAME_TWEAK(ship_min_mass, 0.1f, 10.0f);
+	GAME_TWEAK(ship_max_mass, 0.1f, 10.0f);
+	GAME_TWEAK(ship_elasticity, 0.01f, 0.99f);
+	GAME_TWEAK(ship_friction, 0.01f, 0.99f);
+	GAME_TWEAK(ship_acceleration, 100.0f, 4000.0f);
+	GAME_TWEAK(ship_turn_speed, 0.1f, PI);
+	GAME_TWEAK(ship_turn_damping, 0.8f, 0.99f);
+	GAME_TWEAK(ship_turn_friction, 0.95f, 0.999f);
+	GAME_TWEAK(ship_zrot_min_speed, 100.0f, 2000.0f);
+	GAME_TWEAK(ship_zrot_damping, 0.9f, 0.99f);
+	GAME_TWEAK(ship_velocity_limit, 100.0f, 2000.0f);
+	GAME_TWEAK(ship_damping, 0.98f, 0.999f);
+	GAME_TWEAK(wall_elasticity, 0.01f, 0.99f);
+	GAME_TWEAK(bullet_speed, 50.0f, 1000.0f);
+	GAME_TWEAK(bullet_mass, 0.1f, 5.0f);
+	GAME_TWEAK(bullet_inertia, 0.05f, 0.4f);
+	GAME_TWEAK(bullet_radius, 1.0f, 10.0f);
+	GAME_TWEAK(platform_radius, 5.0f, 32.0f);
+}
+
 extern float ship_min_size;
 extern float ship_max_size;
 

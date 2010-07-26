@@ -44,6 +44,7 @@ int dgreed_main(int argc, const char** argv) {
 
 	game_close();
 	gui_close();
+	greed_gui_free();
 	sounds_close();
 	video_close();
 
