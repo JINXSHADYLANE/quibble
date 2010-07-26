@@ -51,7 +51,7 @@ int dgreed_main(int argc, const char** argv) {
 	log_init("pview.log", LOG_LEVEL_INFO);
 	video_init(800, 600, "PView");
 
-	GuiDesc style = greed_gui_style();
+	GuiDesc style = greed_gui_style(false);
 	font_free(style.font);
 	style.font = font_load("greed_assets/lucida_grande_28px.bft");
 

@@ -3,6 +3,6 @@
 
 #include "gui.h"
 
-GuiDesc greed_gui_style(void);
+GuiDesc greed_gui_style(bool highres);
 
 #endif

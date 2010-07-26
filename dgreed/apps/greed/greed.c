@@ -9,14 +9,20 @@
 
 #define ARENA_FILE "greed_assets/arena.txt"
 
+const bool highres = true;
+
 int dgreed_main(int argc, const char** argv) {
 	log_init("greed.log", LOG_LEVEL_INFO);
 	rand_init(47891);
-	//video_init(480, 320, "Greed");
-	video_init_ex(960, 640,	480, 320, "Greed", false);
+
+	if(highres)
+		video_init_ex(960, 640,	480, 320, "Greed", false);
+	else
+		video_init(480, 320, "Greed");
+
 	sounds_init();
 
-	GuiDesc style = greed_gui_style();
+	GuiDesc style = greed_gui_style(highres);
 	gui_init(&style);
 
 	game_init();
