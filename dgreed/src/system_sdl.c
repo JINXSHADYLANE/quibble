@@ -181,6 +181,12 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 // TODO: Fix this
 void video_close(void) {
 	SDL_Quit();
+
+	#ifndef NO_DEVMODE
+	MEM_FREE(v_stats.layer_rects);
+	MEM_FREE(v_stats.layer_lines);
+	#endif
+
 	// ...
 	LOG_INFO("Video closed");
 }	

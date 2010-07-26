@@ -3,11 +3,28 @@
 #include <system.h>
 #include <memory.h>
 #include <gui.h>
+#include <font.h>
+#include <tweakables.h>
+
+FontHandle small_font;
+
+extern FontHandle small_font;
+extern FontHandle big_font;
+extern void game_register_tweaks(Tweaks* tweaks);
+extern void physics_register_tweaks(Tweaks* tweaks);
+
+Tweaks* tweaks;
 
 void devmode_init(void) {
+	tweaks = tweaks_init("greed_assets/vars.mml", 
+		rectf(10.0f, 60.0f, 410.0f, 310.0f), 15, big_font);
+
+	game_register_tweaks(tweaks);	
+	physics_register_tweaks(tweaks);
 }
 
 void devmode_close(void) {
+	tweaks_close(tweaks);
 }
 
 void devmode_update(void) {
@@ -17,26 +34,32 @@ extern bool draw_physics_debug;
 extern bool draw_ai_debug;
 
 #define DISPLAY_TEXT(t) \
-	gui_label(&stats_cursor, t); \
+	font_draw(small_font, t, 13, &stats_cursor, COLOR_WHITE); \
 	stats_cursor.y += y_adv
 
 #define DISPLAY_TEXT2(t, param) \
 	sprintf(text, t, param); \
-	gui_label(&stats_cursor, text); \
+	font_draw(small_font, text, 13, &stats_cursor, COLOR_WHITE); \
 	stats_cursor.y += y_adv
 
 void devmode_render(void) {
 	char text[256];
 
-	Vector2 cursor = vec2(400.0f, 200.0f);
+	Vector2 cursor = vec2(400.0f, 31.0f);
+	bool show_tweaks = gui_switch(&cursor, "tweaks");
+	if(show_tweaks) {
+		tweaks_render(tweaks);
+		return;
+	}	
+	cursor.y += 30.0f;
 	draw_physics_debug = gui_switch(&cursor, "phys. dbg");
 	cursor.y += 20.0f;
 	draw_ai_debug = gui_switch(&cursor, "ai dbg");
 	cursor.y += 30.0f;
 
 	Vector2 stats_cursor = vec2(10.0f, 24.0f);
-	float y_adv = 11.0f;
-	float x_adv = 90.0f;
+	float y_adv = 8.0f;
+	float x_adv = 60.0f;
 
 	if(gui_switch(&cursor, "gfx")) {
 		const VideoStats* v_stats = video_stats();
@@ -66,7 +89,7 @@ void devmode_render(void) {
 		DISPLAY_TEXT2("  streams: %u", s_stats->stream_count);
 		DISPLAY_TEXT2("  pl. samples: %u", s_stats->playing_samples);
 		DISPLAY_TEXT2("  pl. streams: %u", s_stats->playing_streams);
-		stats_cursor.y += 24.0f;
+		stats_cursor.y += 8.0f;
 	}
 	cursor.y += 20.0f;
 

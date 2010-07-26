@@ -7,7 +7,7 @@
 
 // TODO: Store groups/names in big DArrays ?
 
-bool _parse_vars(const char* filename, DArray dest) {
+bool _parse_vars(const char* filename, DArray* dest) {
 	assert(filename);
 	
 	char* unparsed = txtfile_read(filename);
@@ -77,7 +77,7 @@ bool _parse_vars(const char* filename, DArray dest) {
 			else
 				return false;
 
-			darray_append(&dest, (void*)&new_var);	
+			darray_append(dest, (void*)&new_var);	
 		}	
 	}
 
@@ -180,11 +180,11 @@ Tweaks* tweaks_init(const char* filename, RectF dest, uint layer,
 	result->color = COLOR_WHITE;
 	result->group = "ungrouped";
 	result->vars = darray_create(sizeof(TwVar), 0);
-	result->y_spacing = 18.0f;
+	result->y_spacing = 22.0f;
 	result->items_per_page = 
 		(uint)floorf(rectf_height(&dest) / result->y_spacing) - 1;
 
-	if(file_exists(filename) && !_parse_vars(filename, result->vars))
+	if(file_exists(filename) && !_parse_vars(filename, &result->vars))
 		LOG_ERROR("Unable to parse tweakable vars from %s", filename);
 
 	result->widest_name = 0.0f;
@@ -229,45 +229,45 @@ void tweaks_group(Tweaks* tweaks, const char* name) {
 	tweaks->group = name;
 }
 
-TwVar* _get_var(DArray vars, const char* group, const char* name) {
+TwVar* _get_var(DArray* vars, const char* group, const char* name) {
 	assert(group);
 	assert(name);
 
-	TwVar* v = DARRAY_DATA_PTR(vars, TwVar);
+	TwVar* v = DARRAY_DATA_PTR(*vars, TwVar);
 	size_t idx = 0;
 
 	// Skip straight to var's group
-	while(idx < vars.size && strcmp(v[idx].group, group) != 0) {
+	while(idx < vars->size && strcmp(v[idx].group, group) != 0) {
 		idx++;
 	}
-	if(idx == vars.size) {
+	if(idx == vars->size) {
 		// Even the group does not exist, add new var at the end
 		TwVar new_var;
 		memset(&new_var, 0, sizeof(new_var));
 		new_var.group = strclone(group);
 		new_var.name = strclone(name);
 
-		darray_append(&vars, (void*)&new_var);
-		v = DARRAY_DATA_PTR(vars, TwVar);
-		return &v[vars.size-1];
+		darray_append(vars, (void*)&new_var);
+		v = DARRAY_DATA_PTR(*vars, TwVar);
+		return &v[vars->size-1];
 	}
 
-	// Try all vars in group
-	while(idx < vars.size 
+	// Try all vars->in group
+	while(idx < vars->size 
 		&& strcmp(v[idx].group, group) == 0 
 		&& strcmp(v[idx].name, name) != 0) {
 
 		idx++;
 	}
-	if(idx == vars.size || strcmp(v[idx].group, group) != 0) {
+	if(idx == vars->size || strcmp(v[idx].group, group) != 0) {
 		// Add new var at the end of group
 		TwVar new_var;
 		memset(&new_var, 0, sizeof(new_var));
-		new_var.group = strclone(group);
+		new_var.group = idx < vars->size ? v[idx].group : v[idx-1].group;
 		new_var.name = strclone(name);
 
-		darray_insert(&vars, idx, (void*)&new_var);
-		v = DARRAY_DATA_PTR(vars, TwVar);
+		darray_insert(vars, idx, (void*)&new_var);
+		v = DARRAY_DATA_PTR(*vars, TwVar);
 	}
 
 	return &v[idx];
@@ -281,7 +281,7 @@ void tweaks_float(Tweaks* tweaks, const char* name, float* addr,
 	assert(min < max);
 	assert(min <= *addr && *addr <= max);
 
-	TwVar* var = _get_var(tweaks->vars, tweaks->group, name);
+	TwVar* var = _get_var(&tweaks->vars, tweaks->group, name);
 	if(var->t._float.min == 0.0f 
 		&& var->t._float.max == 0.0f
 		&& var->t._float.value == 0.0f) {
@@ -310,7 +310,7 @@ void tweaks_int(Tweaks* tweaks, const char* name, int* addr,
 	assert(min < max);
 	assert(min <= *addr && *addr <= max);
 
-	TwVar* var = _get_var(tweaks->vars, tweaks->group, name);
+	TwVar* var = _get_var(&tweaks->vars, tweaks->group, name);
 	if(var->t._int.min == 0.0f 
 		&& var->t._int.max == 0.0f
 		&& var->t._int.value == 0.0f) {
@@ -336,7 +336,7 @@ void tweaks_bool(Tweaks* tweaks, const char* name, bool* addr) {
 	assert(name);
 	assert(addr);
 
-	TwVar* var = _get_var(tweaks->vars, tweaks->group, name);
+	TwVar* var = _get_var(&tweaks->vars, tweaks->group, name);
 	if(var->t._float.min == 0.0f		// We can still check _float union field 
 		&& var->t._float.max == 0.0f
 		&& var->t._float.value == 0.0f) {
@@ -399,11 +399,11 @@ const char* _page_name(Tweaks* tweaks, uint page, uint* first_var) {
 			items_in_group = 0;
 			same_group_pages++;
 			if(first_var)
-				*first_var = i;
+				*first_var = i+1;
 		}
 
 		if(page == curr_page-1) {
-			sprintf(result, "%s %u", last_group, same_group_pages);	
+			sprintf(result, "page: %s %u", last_group, same_group_pages);	
 			return result;
 		}
 	}
@@ -417,7 +417,7 @@ float _pack_var(TwVar* var) {
 	bool bval;
 	switch(var->type) {
 		case TWEAK_FLOAT:
-			fval = var->t._float.addr ?  *var->t._float.addr : var->t._float.value;
+			fval = var->t._float.addr ? *var->t._float.addr : var->t._float.value;
 			result = normalize(fval, var->t._float.min, var->t._float.max);
 			break;
 		case TWEAK_INT:
@@ -442,12 +442,12 @@ void _unpack_var(TwVar* var, float packed) {
 	switch(var->type) {
 		case TWEAK_FLOAT:
 			fval = var->t._float.addr ? var->t._float.addr : &var->t._float.value;
-			*fval = lerp(packed, var->t._float.min, var->t._float.max);
+			*fval = lerp(var->t._float.min, var->t._float.max, packed);
 			break;
 		case TWEAK_INT:
 			ival = var->t._int.addr ? var->t._int.addr : &var->t._int.value;
-			*ival = (int)lerp(packed, 
-				(float)var->t._float.min, (float)var->t._float.max);	
+			*ival = (int)lerp((float)var->t._float.min, 
+				(float)var->t._float.max, packed);	
 			break;	
 		case TWEAK_BOOL:
 			bval = var->t._bool.addr ?  var->t._bool.addr : &var->t._bool.value;
@@ -458,6 +458,29 @@ void _unpack_var(TwVar* var, float packed) {
 	}
 }		
 
+char* _var_strval(TwVar* var) {
+	static char result[128];
+	float fval;
+	int ival;
+	bool bval;
+	switch(var->type) {
+		case TWEAK_FLOAT:
+			fval = var->t._float.addr ? *var->t._float.addr : var->t._float.value;
+			sprintf(result, "%f", fval);
+			break;
+		case TWEAK_INT:
+			ival = var->t._int.addr ?  *var->t._int.addr : var->t._int.value;
+			sprintf(result, "%i", ival);
+			break;	
+		case TWEAK_BOOL:
+			bval = var->t._bool.addr ?  *var->t._bool.addr : var->t._bool.value;
+			sprintf(result, "%s", bval ? "true" : "false");
+			break;
+		default:
+			LOG_ERROR("Unexpected TwVar type");
+	}
+	return result;
+}	
 void tweaks_render(Tweaks* tweaks) {
 	assert(tweaks);
 
@@ -468,7 +491,13 @@ void tweaks_render(Tweaks* tweaks) {
 
 	// Draw page selection slider
 	cursor.x += tweaks->widest_name + 8.0f;
+	static bool first_time = true;
+	if(first_time) {
+		gui_setstate_slider(&cursor, 0.0f);
+		first_time = false;
+	}
 	uint page = (uint)(gui_slider(&cursor) * (float)page_count);
+	page = MIN(page, page_count-1);
 
 	if(page != tweaks->last_drawn_page) {
 		// Fill in new page
@@ -488,6 +517,12 @@ void tweaks_render(Tweaks* tweaks) {
 	TwVar* vars = DARRAY_DATA_PTR(tweaks->vars, TwVar);
 	for(uint i = 0; i < tweaks->items_per_page; ++i) {
 		uint idx = tweaks->last_page_first_var + i;
+
+		if(idx >= tweaks->vars.size)
+			return;
+		if(i > 0 && strcmp(vars[idx-1].group, vars[idx].group) != 0)
+			return;
+
 		TwVar* var = &vars[idx];
 
 		// Name
@@ -503,6 +538,14 @@ void tweaks_render(Tweaks* tweaks) {
 		slider_val = gui_slider(&cursor);
 		_unpack_var(var, slider_val);
 
+		// Draw value
+		char* strval = _var_strval(var);
+		float width = font_width(tweaks->font, strval);
+		cursor.x = tweaks->dest.right - width;
+		font_draw(tweaks->font, strval, tweaks->layer,
+			&cursor, tweaks->color);
+
+		cursor.x = tweaks->dest.left;
 		cursor.y += tweaks->y_spacing;
 	}
 }

@@ -2,14 +2,25 @@
 #include <system.h>
 #include <font.h>
 
+FontHandle small_font;
+FontHandle big_font;
+TexHandle gui_tex;
+
 GuiDesc greed_gui_style(bool highres) {
 	GuiDesc style;
 
-	style.texture = tex_load("greed_assets/gui_new.png");
-	if(highres)
-		style.font = font_load_ex("greed_assets/lucida_grande_28px.bft", 0.5f);
-	else
-		style.font = font_load("greed_assets/lucida_grande_14px.bft");
+	gui_tex = tex_load("greed_assets/gui_new.png");
+	if(highres) {
+		big_font = font_load_ex("greed_assets/lucida_grande_28px.bft", 0.5f);
+		small_font = font_load_ex("greed_assets/lucida_grande_20px.bft", 0.5f);
+	}	
+	else {
+		big_font = font_load("greed_assets/lucida_grande_14px.bft");
+		small_font = font_load("greed_assets/lucida_grande_10px.bft");
+	}	
+
+	style.texture = gui_tex;
+	style.font = big_font;
 
 	style.text_color = COLOR_WHITE;
 
@@ -29,4 +40,10 @@ GuiDesc greed_gui_style(bool highres) {
 
 	return style;
 }
+
+void greed_gui_free(void) {
+	tex_free(gui_tex);
+	font_free(big_font);
+	font_free(small_font);
+}	
 

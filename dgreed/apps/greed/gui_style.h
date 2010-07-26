@@ -4,5 +4,6 @@
 #include "gui.h"
 
 GuiDesc greed_gui_style(bool highres);
+void greed_gui_free(void);
 
 #endif

@@ -1,8 +1,9 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "utils.h"
-#include "gui.h"
+#include <utils.h>
+#include <gui.h>
+#include <tweakables.h>
 
 #define SCREEN_WIDTH 480
 #define SCREEN_HEIGHT 320
@@ -38,6 +39,7 @@ extern const Color ship_colors[MAX_SHIPS];
 extern bool draw_physics_debug;
 extern bool draw_ai_debug;
 
+void game_register_tweaks(Tweaks* tweaks);
 void game_init(void);
 void game_close(void);
 
