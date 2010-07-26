@@ -310,6 +310,9 @@ float lerp(float a, float b, float t);
 // Smoothstep
 float smoothstep(float a, float b, float t);
 
+// Normalizes value to 0 - 1 range
+float normalize(float val, float min, float max);
+
 // Clamp value in specified interval
 float clamp(float min, float max, float val);
 

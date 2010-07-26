@@ -176,4 +176,30 @@ TEST_(reserving_and_shrinking) {
 	darray_free(&a);
 	ASSERT_(a.data == NULL);
 }	
+
+TEST_(inserting) {
+	int data[] = {1, 2, 3, 4, 5, 6, 8, 9};
+
+	DArray a = darray_create(sizeof(int), 0);
+	darray_append_multi(&a, data, 8);
+
+	ASSERT_(a.size == 8);
+
+	int n = 0;
+	darray_insert(&a, 0, &n);
+	int* a_ptr = DARRAY_DATA_PTR(a, int);
+	ASSERT_(a.size == 9);
+	ASSERT_(a_ptr[0] == 0);
+	ASSERT_(a_ptr[8] == 9);
+
+	n = 7;
+	darray_insert(&a, 7, &n);
+	a_ptr = DARRAY_DATA_PTR(a, int);
+	ASSERT_(a.size == 10);
+	for(uint i = 0; i < a.size; ++i) {
+		ASSERT_(a_ptr[i] == i);
+	}	
+
+	darray_free(&a);
+}
 		
