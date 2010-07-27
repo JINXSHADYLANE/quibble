@@ -528,33 +528,18 @@ uint ai_find_next_path_node(NavMesh* navmesh, uint current, uint dest) {
 	return next_node;
 }
 
-float ai_navpoints_distance(NavMesh* navmesh, uint p1, uint p2) {
-	assert(navmesh);
-	assert(p1 < navmesh->n_nodes);
-	assert(p2 < navmesh->n_nodes);
-
-	float distance = 0.0f;
-	uint current = p1;
-
-	while(current != p2) {
-		uint next = ai_find_next_path_node(navmesh, current, p2);
-
-		Segment s = ai_shortest_path(navmesh->navpoints[current],
-			navmesh->navpoints[next]);
-		distance += vec2_length(vec2_sub(s.p1, s.p2));	
-
-		current = next;	
-	}
-
-	return distance;
-}
-
 float ai_navmesh_distance(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
 	assert(navmesh);
 
 	uint navpoint1 = ai_nearest_navpoint(navmesh, p1);
 	uint navpoint2 = ai_nearest_navpoint(navmesh, p2);
 
-	return ai_navpoints_distance(navmesh, navpoint1, navpoint2);
+	float distance = vec2_length(vec2_sub(p1, navmesh->navpoints[navpoint1]));
+	distance += vec2_length(vec2_sub(p2, navmesh->navpoints[navpoint2]));
+
+	uint idx = IDX_2D(navpoint1, navpoint2, navmesh->n_nodes);
+	distance += navmesh->distance[idx];
+
+	return distance;
 }
 
