@@ -209,6 +209,8 @@ void gen_precalc_data(void) {
 	NavMesh	nav_mesh = ai_precalc_navmesh(segments, platforms,
 		(float)width, (float)height);
 
+	darray_free(&platforms);	
+
 	Triangle* tris = NULL;
 	if(triangles.size != 0)
 		tris = DARRAY_DATA_PTR(triangles, Triangle);

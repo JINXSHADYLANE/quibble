@@ -72,7 +72,7 @@ void _agent_set_state(uint id, AgentState new_state, uint prey_id) {
 
 	Vector2 steer_tg_pos;
 	Agent* agent = &agents[id];
-	//ArenaDesc* arena = &current_arena_desc;
+	ArenaDesc* arena = &current_arena_desc;
 
 	// No change, keep on doing same stuff
 	if(new_state == agent->state)
@@ -80,15 +80,30 @@ void _agent_set_state(uint id, AgentState new_state, uint prey_id) {
 
 	agent->state = new_state;
 	if(new_state == AI_CAPTURE) {
-		// TODO: Determine which platform is close / easy to capture
 
-		uint target_platform = game_random_free_platform();
+		// Find closest platform
+		float closest_dist = 10000.0f;
+		uint closest_id = MAX_UINT32;
+
+		for(uint i = 0; i < arena->n_platforms; ++i) {
+			if(platform_states[i].color != MAX_UINT32)
+				continue;
+			
+			float dist = ai_navmesh_distance(&arena->nav_mesh,
+				physics_state.ships[agent->ship_id].pos, arena->platforms[i]);
+
+			if(dist < closest_dist) {
+				closest_dist = dist;
+				closest_id = i;
+			}
+		}
+
 		// Go to attack if no free platforms
-		if(target_platform == MAX_UINT32) {
+		if(closest_id == MAX_UINT32) {
 			new_state = AI_ATTACK;
 		}
 		else {
-			agent->dest_node = arena_platform_navpoint(target_platform);
+			agent->dest_node = arena_platform_navpoint(closest_id);
 			steer_tg_pos = physics_state.ships[agent->ship_id].pos;
 			agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
 		}
@@ -181,9 +196,9 @@ void _agent_steer(uint id) {
 
 			// Steer towards target
 			if(angle > 0.0f)
-				agent->steer_right = aggressive ? 3 : 1;
+				agent->steer_right = aggressive ? 3 : 2;
 			else
-				agent->steer_left = aggressive ? 3 : 1;
+				agent->steer_left = aggressive ? 3 : 2;
 		}
 		else {
 			// Angle is OK, now just stabilize

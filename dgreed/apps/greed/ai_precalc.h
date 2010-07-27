@@ -54,5 +54,12 @@ uint ai_nearest_navpoint(NavMesh* navmesh, Vector2 pos);
 // Returns next node in a path towards dest
 uint ai_find_next_path_node(NavMesh* navmesh, uint current, uint dest);
 
+// Returns distance between two navpoints
+float ai_navpoints_distance(NavMesh* navmesh, uint p1, uint p2);
+
+// Returns rough distance between two points, 
+// when traveling along navmesh edges
+float ai_navmesh_distance(NavMesh* navmesh, Vector2 p1, Vector2 p2);
+
 #endif
 
