@@ -44,6 +44,29 @@ void gfx_draw_tri(uint layer, const Triangle* tri, Color color) {
 	gfx_draw_poly(layer, points, 3, color);
 }	
 
+void gfx_draw_circle(uint layer, const Vector2* c, float r, Color color) {
+	// TODO: Cleverly choose segs by r
+	gfx_draw_circle_ex(layer, c, r, color, 13);
+}
+
+void gfx_draw_circle_ex(uint layer, const Vector2* c, float r, Color color,
+	uint segs) {
+	assert(c);
+
+	for(uint i = 0; i < segs; ++i) {
+		float phi1 = ((float)i / (float)segs) * PI * 2.0f;
+		float phi2 = phi1 + (PI * 2.0f / (float)segs);
+
+		Vector2 p1 = vec2(cosf(phi1) * r, sinf(phi1) * r);
+		Vector2 p2 = vec2(cosf(phi2) * r, sinf(phi2) * r);
+		
+		p1 = vec2_add(p1, *c);
+		p2 = vec2_add(p2, *c);
+
+		video_draw_line(layer, &p1, &p2, color);
+	}
+}
+
 void gfx_draw_textured_rect(TexHandle tex, uint layer, const RectF* source,
 	const Vector2* dest, float rotation, float scale, Color tint) {
 	assert(dest);
@@ -172,7 +195,7 @@ Color gfx_blend(Color ca, Color cb) {
 	r = (ar * (255-ba) + br * ba) / 255;
 	g = (ag * (255-ba) + bg * ba) / 255;
 	b = (ab * (255-ba) + bb * ba) / 255;
-	a = aa;
+	a = ba;
 
 	assert(r < 256); assert(g < 256);
 	assert(b < 256); assert(a < 256);
@@ -182,4 +205,96 @@ Color gfx_blend(Color ca, Color cb) {
 	return COLOR_RGBA(r, g, b, a);
 }
 
+Color* gfx_downscale(const Color* img, uint w, uint h) {
+	assert(img);
+	assert(w && h);
+	assert(w % 2 == 0 && h % 2 == 0);
+
+	Color* new_img = (Color*)MEM_ALLOC(sizeof(Color) * w/2 * h/2);
+
+	for(uint y = 0; y < h/2; ++y) {
+		for(uint x = 0; x < w/2; ++x) {
+			uint r = 0, g = 0, b = 0, a = 0;
+
+			Color samples[4];
+			samples[0] = img[IDX_2D(x*2, y*2, w)];
+			samples[1] = img[IDX_2D(x*2+1, y*2, w)];
+			samples[2] = img[IDX_2D(x*2, y*2+1, w)];
+			samples[3] = img[IDX_2D(x*2+1, y*2+1, w)];
+
+			for(uint i = 0; i < 4; ++i) {
+				uint sr, sg, sb, sa;
+				COLOR_DECONSTRUCT(samples[i], sr, sg, sb, sa);
+				r += sr; g += sg; b += sb; a += sa;
+			}
+			r /= 4; g /= 4; b /= 4; a /= 4;
+
+			new_img[IDX_2D(x, y, w/2)] = COLOR_RGBA(r, g, b, a);
+		}
+	}
+
+	return new_img;
+}
+
+void gfx_blit(Color* dest, uint dest_w, uint dest_h,
+	const Color* src, uint src_w, uint src_h, int x, int y) {
+	assert(dest);
+	assert(src);
+	assert(dest_w && dest_h);
+	assert(src_w && src_h);
+
+	// Perform clipping on src & dest rectangles 
+
+	int dest_l = x;
+	int dest_t = y;
+	int dest_r = x + src_w;
+	int dest_b = y + src_h;
+	
+	int src_l = 0;
+	int src_t = 0;
+	int src_r = src_w;
+	int src_b = src_h;
+
+	if(dest_l < 0) {
+		src_l += -dest_l;
+		dest_l += -dest_l;
+	}
+	if(dest_r > dest_w) {
+		src_r -= dest_r - dest_w;
+		dest_r -= dest_r - dest_w;
+	}
+	if(dest_t < 0) {
+		src_t += -dest_t;
+		dest_t += -dest_t;
+	}
+	if(dest_b > dest_h) {
+		src_b -= dest_b - dest_h;
+		dest_b -= dest_b - dest_h;
+	}
+
+	assert(dest_l >= 0 && dest_l <= dest_w);
+	assert(dest_r >= 0 && dest_r <= dest_w);
+	assert(dest_t >= 0 && dest_t <= dest_h);
+	assert(dest_b >= 0 && dest_b <= dest_h);
+	assert(src_l >= 0 && src_l <= src_w);
+	assert(src_r >= 0 && src_r <= src_w);
+	assert(src_t >= 0 && src_t <= src_h);
+	assert(src_b >= 0 && src_b <= src_h);
+	assert(dest_r - dest_l == src_r - src_l);
+	assert(dest_b - dest_t == src_b - src_t);
+	
+	// Blit
+
+	int w = dest_r - dest_l;
+	int h = dest_b - dest_t;
+
+	for(uint dy = 0; dy < h; ++dy) {
+		for(uint dx = 0; dx < w; ++dx) {
+			size_t d_idx = IDX_2D(dest_l + dx, dest_t + dy, dest_w);
+			size_t s_idx = IDX_2D(src_l + dx, src_t + dy, src_w);
+
+			dest[d_idx] = gfx_blend(dest[d_idx], src[s_idx]);
+		}
+	}
+}
 

@@ -6,6 +6,8 @@
 #include <font.h>
 #include <tweakables.h>
 
+#define TEXT_LAYER 12
+
 FontHandle small_font;
 
 extern FontHandle small_font;
@@ -17,7 +19,7 @@ Tweaks* tweaks;
 
 void devmode_init(void) {
 	tweaks = tweaks_init("greed_assets/vars.mml", 
-		rectf(10.0f, 60.0f, 410.0f, 310.0f), 15, big_font);
+		rectf(10.0f, 60.0f, 410.0f, 310.0f), TEXT_LAYER, big_font);
 
 	game_register_tweaks(tweaks);	
 	physics_register_tweaks(tweaks);
@@ -34,12 +36,12 @@ extern bool draw_physics_debug;
 extern bool draw_ai_debug;
 
 #define DISPLAY_TEXT(t) \
-	font_draw(small_font, t, 13, &stats_cursor, COLOR_WHITE); \
+	font_draw(small_font, t, TEXT_LAYER, &stats_cursor, COLOR_WHITE); \
 	stats_cursor.y += y_adv
 
 #define DISPLAY_TEXT2(t, param) \
 	sprintf(text, t, param); \
-	font_draw(small_font, text, 13, &stats_cursor, COLOR_WHITE); \
+	font_draw(small_font, text, TEXT_LAYER, &stats_cursor, COLOR_WHITE); \
 	stats_cursor.y += y_adv
 
 void devmode_render(void) {

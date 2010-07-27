@@ -4,13 +4,20 @@
 #include "darray.h"
 
 #define ARENA_LAYER 1
+#define SHADOWS_LAYER 2
+#define WALLS_LAYER 4
 
 ArenaDesc current_arena_desc;
+
+RectF walls_source = {0.0f, 0.0f, 480.0f, 320.0f};
+RectF background_source = {0.0f, 0.0f, 480.0f, 320.0f};
+RectF shadow_source = {0.0f, 321.0f, 240.0f, 321.0f + 160.0f};
 
 void arena_init(void) {
 	current_arena_desc.platforms = NULL;
 	current_arena_desc.collision_tris = NULL;
-	current_arena_desc.img = MAX_UINT32;
+	current_arena_desc.background_img = MAX_UINT32;
+	current_arena_desc.walls_img = MAX_UINT32;
 }
 
 void arena_close(void) {
@@ -22,9 +29,13 @@ void arena_close(void) {
 		MEM_FREE(current_arena_desc.collision_tris);
 		current_arena_desc.collision_tris = NULL;
 	}
-	if(current_arena_desc.img != MAX_UINT32) {
-		tex_free(current_arena_desc.img);
-		current_arena_desc.img = MAX_UINT32;
+	if(current_arena_desc.background_img != MAX_UINT32) {
+		tex_free(current_arena_desc.background_img);
+		current_arena_desc.background_img = MAX_UINT32;
+	}	
+	if(current_arena_desc.walls_img != MAX_UINT32) {
+		tex_free(current_arena_desc.walls_img);
+		current_arena_desc.walls_img = MAX_UINT32;
 	}	
 	if(current_arena_desc.nav_mesh.n_nodes != 0) {
 		ai_free_navmesh(current_arena_desc.nav_mesh);
@@ -57,11 +68,19 @@ void arena_reset(const char* filename, uint n_ships) {
 	if(strcmp(mml_get_name(&desc, root), "arena") != 0)
 		LOG_ERROR("Invalid arena description file");
 
-	// Load arena image
-	NodeIdx img_node = mml_get_child(&desc, root, "img");
+	// Load background image
+	// TODO: Skip this if last arena background is the same
+	NodeIdx img_node = mml_get_child(&desc, root, "background");
 	if(!img_node)
-		LOG_ERROR("No img propierty found in arena description");
-	current_arena_desc.img = tex_load(mml_getval_str(&desc, img_node));
+		LOG_ERROR("No background propierty found in arena description");
+	current_arena_desc.background_img = tex_load(mml_getval_str(&desc, img_node));
+
+	// Load walls & shadow image
+	NodeIdx walls_node = mml_get_child(&desc, root, "walls");
+	if(!img_node)
+		LOG_ERROR("No walls propierty found in arena description");
+	current_arena_desc.walls_img = 
+		tex_load(mml_getval_str(&desc, walls_node));
 
 	// Read precalculated data filename
 	NodeIdx precalc_node = mml_get_child(&desc, root, "precalc");
@@ -137,8 +156,18 @@ void arena_update(float dt) {
 
 void arena_draw(void) {
 	RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
-	video_draw_rect(current_arena_desc.img, ARENA_LAYER, NULL, &dest, 
-		COLOR_WHITE);
+	video_draw_rect(current_arena_desc.background_img, ARENA_LAYER, 
+		&background_source, &dest, COLOR_WHITE);
+	video_draw_rect(current_arena_desc.walls_img, WALLS_LAYER,
+		&walls_source, &dest, COLOR_WHITE);
+
+	dest.left = current_arena_desc.shadow_shift.x;
+	dest.top = current_arena_desc.shadow_shift.y;
+	dest.right = dest.left + rectf_width(&background_source);
+	dest.bottom = dest.top + rectf_height(&background_source);
+
+	video_draw_rect(current_arena_desc.walls_img, SHADOWS_LAYER,
+		&shadow_source, &dest, COLOR_WHITE);
 }		
 
 uint arena_closest_navpoint(Vector2 pos) {

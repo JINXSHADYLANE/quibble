@@ -6,7 +6,7 @@
 #include "arena.h"
 
 #define MAX_AGENTS MAX_SHIPS
-#define DEBUG_DRAW_LAYER 12
+#define DEBUG_DRAW_LAYER 8 
 
 // Tweakables
 float agent_think_interval = 1000.0f / 5.0f;
@@ -43,14 +43,11 @@ void ai_debug_draw() {
 			Segment s = ai_shortest_path(v1, v2);
 			Segment s1, s2;
 			if(ai_split_path(s, &s1, &s2)) {
-				video_draw_line(DEBUG_DRAW_LAYER + i%2, 
-					&s1.p1, &s1.p2, c);
-				video_draw_line(DEBUG_DRAW_LAYER + i%2, 
-					&s2.p1, &s2.p2, c);
+				video_draw_line(DEBUG_DRAW_LAYER, &s1.p1, &s1.p2, c);
+				video_draw_line(DEBUG_DRAW_LAYER, &s2.p1, &s2.p2, c);
 			}
 			else {
-				video_draw_line(DEBUG_DRAW_LAYER + i%2,
-					&s1.p1, &s1.p2, c);
+				video_draw_line(DEBUG_DRAW_LAYER, &s1.p1, &s1.p2, c);
 			}		
 		}
 	}

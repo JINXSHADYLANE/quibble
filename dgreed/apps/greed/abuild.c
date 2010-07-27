@@ -14,12 +14,16 @@ const uint height = 320;
 #define COLOR_SHADOW COLOR_RGBA(0, 0, 0, 196)
 #define COLOR_EMPTY COLOR_RGBA(0, 0, 0, 0)
 
+const char* backg_img_filename = NULL;
+const char* walls_img_filename = NULL;
+
 MMLObject arena_mml;
 int shadow_shift_x, shadow_shift_y;
 Color* background = NULL;
 Color* walls = NULL;
 Color* shadow = NULL;
-Color* final_img = NULL;
+Color* final_background = NULL;
+Color* final_arena = NULL;
 uint* collision_mask = NULL;
 
 FileHandle precalc_file = (FileHandle)NULL;
@@ -52,20 +56,30 @@ char* _get_file(const char* path) {
 	return strclone(&(path[idx+1]));
 }	
 
-void save(const char* mml_file, const char* img_file) {
+void save(const char* mml_file, const char* walls_img_file, const char*
+	backg_img_file) {
+
+	NodeIdx root = mml_root(&arena_mml);
+
 	// Update mml
-	char* filename = _get_file(img_file);
+	char* walls_filename = _get_file(walls_img_file);
+	char* backg_filename = _get_file(backg_img_file);
 	char img_path[256];
-	sprintf(img_path, "greed_assets/%s", filename);
-	NodeIdx img_node = mml_node(&arena_mml, "img", img_path);
-	MEM_FREE(filename);
+	sprintf(img_path, "greed_assets/%s", walls_filename);
+	NodeIdx walls_img_node = mml_get_child(&arena_mml, root, "walls");
+	mml_setval_str(&arena_mml, walls_img_node, img_path);
+	sprintf(img_path, "greed_assets/%s", backg_filename);
+	NodeIdx backg_img_node = mml_get_child(&arena_mml, root, "background");
+	mml_setval_str(&arena_mml, backg_img_node, img_path);
 
-	mml_insert_after(&arena_mml, mml_root(&arena_mml), img_node, "walls");
+	MEM_FREE(walls_filename);
+	MEM_FREE(backg_filename);
 
-	char* precalc_filename = path_change_ext(img_path, "precalc");
+	const char* arena_name = mml_getval_str(&arena_mml, root);
+	char precalc_filename[256];
+	sprintf(precalc_filename, "greed_assets/%s.precalc", arena_name);
 	NodeIdx precalc_node = mml_node(&arena_mml, "precalc", precalc_filename);
 	mml_insert_after(&arena_mml, mml_root(&arena_mml), precalc_node, "walls");
-	MEM_FREE(precalc_filename);
 	
 	// Save mml
 	char* mml_text = mml_serialize(&arena_mml);
@@ -74,8 +88,9 @@ void save(const char* mml_file, const char* img_file) {
 	txtfile_write(mml_file, mml_text);
 	MEM_FREE(mml_text);
 
-	// Save image
-	stbi_write_tga(img_file, 512, 512, 4, (void*)final_img);
+	// Save images
+	stbi_write_tga(backg_img_file, 512, 512, 4, (void*)final_background);
+	stbi_write_tga(walls_img_file, 512, 512, 4, (void*)final_arena);
 }	
 
 void deinit(void) {
@@ -88,8 +103,11 @@ void deinit(void) {
 		MEM_FREE(collision_mask);
 	if(shadow)
 		MEM_FREE(shadow);
-	if(final_img)
-		MEM_FREE(final_img);
+	if(final_background)
+		MEM_FREE(final_background);
+	if(final_arena)
+		MEM_FREE(final_arena);
+		
 }
 
 void load_images(const char* folder) {
@@ -100,14 +118,16 @@ void load_images(const char* folder) {
 	char path[256];
 
 	int w, h, n;
-	sprintf(path, "%s%s", folder, mml_getval_str(&arena_mml, background_node));
+	backg_img_filename = mml_getval_str(&arena_mml, background_node);
+	sprintf(path, "%s%s", folder, backg_img_filename);
 	background = (Color*)stbi_load(path, &w, &h, &n, 4);
 	if(background == NULL)
 		LOG_ERROR("Unable to load background image");
 	if(w != width || h != height)
 		LOG_ERROR("Bad background image size");
 
-	sprintf(path, "%s%s", folder, mml_getval_str(&arena_mml, walls_node));
+	walls_img_filename = mml_getval_str(&arena_mml, walls_node);
+	sprintf(path, "%s%s", folder, walls_img_filename);
 	walls = (Color*)stbi_load(path, &w, &h, &n, 4);
 	if(background == NULL)
 		LOG_ERROR("Unable to load walls image");
@@ -148,25 +168,23 @@ void make_shadow(void) {
 	gfx_blur(shadow, width, height);
 	gfx_blur(shadow, width, height);
 	gfx_blur(shadow, width, height);
+
+	Color* big_shadow = shadow;
+	shadow = gfx_downscale(big_shadow, width, height);
+	MEM_FREE(big_shadow);
 }
 
 void blend_images(void) {
-	final_img = (Color*)MEM_ALLOC(sizeof(Color) * 512 * 512);
-	memset(final_img, 0, sizeof(Color) * 512 * 512);
+	final_background = (Color*)MEM_ALLOC(sizeof(Color) * 512 * 512);
+	memset(final_background, 0, sizeof(Color) * 512 * 512);
 
-	for(int y = 0; y < height; ++y) {
-		for(int x = 0; x < width; ++x) {
-			size_t idx = IDX_2D(x, y, 512);
+	final_arena = (Color*)MEM_ALLOC(sizeof(Color) * 512 * 512);
+	memset(final_arena, 0, sizeof(Color) * 512 * 512);
 
-			Color backg = gfx_sample_img(background, width, height, x, y);
-			Color shadw = gfx_sample_img(shadow, width, height,
-				x - shadow_shift_x, y - shadow_shift_y);
-			Color wall	= gfx_sample_img(walls, width, height, x, y);
+	gfx_blit(final_background, 512, 512, background, width, height, 0, 0);
 
-			Color blended = gfx_blend(gfx_blend(backg, shadw), wall);
-			final_img[idx] = blended;
-		}
-	}
+	gfx_blit(final_arena, 512, 512, walls, width, height, 0, 0);
+	gfx_blit(final_arena, 512, 512, shadow, width/2, height/2, 0, height+1);
 }	
 
 void gen_precalc_data(void) {
@@ -219,14 +237,20 @@ int dgreed_main(int argc, const char** argv) {
 	
 	// Figure out where to save final img:
 	char* mml_path = path_get_folder(params_get(1)); 
-	// Get arena name
-	const char* arena_name = mml_getval_str(&arena_mml, mml_root(&arena_mml));
 	// Glue everything together
-	char final_img_name[256];
-	sprintf(final_img_name, "%s%s.tga", mml_path, arena_name);
+	char final_walls_name[256];
+	char final_backg_name[256];
+	
+	char* file = path_change_ext(walls_img_filename, "tga");
+	sprintf(final_walls_name, "%s%s", mml_path, file);
+	MEM_FREE(file);
+
+	file = path_change_ext(backg_img_filename, "tga");
+	sprintf(final_backg_name, "%s%s", mml_path, file);
+	MEM_FREE(file);
 	
 	// Save collision and ai precalc data in binary file
-	char* precalc_filename = path_change_ext(final_img_name, "precalc");
+	char* precalc_filename = path_change_ext(params_get(1), "precalc");
 	precalc_file = file_create(precalc_filename);
 
 	gen_precalc_data();
@@ -235,7 +259,7 @@ int dgreed_main(int argc, const char** argv) {
 	MEM_FREE(mml_path);
 	MEM_FREE(precalc_filename);
 
-	save(params_get(1), final_img_name);
+	save(params_get(1), final_walls_name, final_backg_name);
 	deinit();
 	log_close();
 

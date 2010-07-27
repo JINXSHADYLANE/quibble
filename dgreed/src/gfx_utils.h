@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "system.h"
 
-// Draws little cross whera a point should be
+// Draws little cross where a point should be
 void gfx_draw_point(uint layer, const Vector2* pos, Color color);
 // Draws a wireframe rectangle
 void gfx_draw_rect(uint layer, const RectF* rect, Color color);
@@ -12,6 +12,11 @@ void gfx_draw_rect(uint layer, const RectF* rect, Color color);
 void gfx_draw_poly(uint layer, const Vector2* points, uint n_points, Color color);
 // Draws triangle
 void gfx_draw_tri(uint layer, const Triangle* tri, Color color);
+// Draws circle
+void gfx_draw_circle(uint layer, const Vector2* c, float r, Color color); 
+// Draws circle, allows to specify number of line segments used
+void gfx_draw_circle_ex(uint layer, const Vector2* c, float r, 
+	Color color, uint segs);
 // Draws rotated, scaled, textured rect
 // source can be NULL, full texture is used in that case
 void gfx_draw_textured_rect(TexHandle tex, uint layer, const RectF* source, 
@@ -30,6 +35,13 @@ void gfx_blur(Color* img, uint w, uint h);
 
 // Blends two colors with the usual inv-src-alpha blending
 Color gfx_blend(Color a, Color b);
+
+// Resizes image to one half its linear dimensions
+Color* gfx_downscale(const Color* img, uint w, uint h);
+
+// Blits source image to destination, using alpha blending
+void gfx_blit(Color* dest, uint dest_w, uint dest_h,
+	const Color* src, uint src_w, uint src_h, int x, int y);
 
 #endif
 

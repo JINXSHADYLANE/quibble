@@ -8,11 +8,11 @@
 #include "ai.h"
 #include "devmode.h"
 
-#define ENERGYBAR_LAYER 7
-#define FOREGROUND_LAYER 6
-#define OBJECTS_LAYER 5
-#define BACKGROUND_LAYER 4
-#define SHADOWS_LAYER 3
+#define ENERGYBAR_LAYER 6
+#define FOREGROUND_LAYER 5
+#define OBJECTS_LAYER 4
+#define BACKGROUND_LAYER 3
+#define SHADOWS_LAYER 2
 
 #define SHIP_COLORS 4
 #define SHIP_FRAMES 8
@@ -393,19 +393,20 @@ void game_render(void) {
 		_draw_ship(&pos, ship);
 
 		// Virtual ships on screen boundries
-		if(pos.x < ship_circle_radius * 1.0f) {
+		float scale = physics_state.ships[ship].scale;
+		if(pos.x < ship_circle_radius * scale) {
 			Vector2 npos = vec2(pos.x + (float)SCREEN_WIDTH, pos.y);
 			_draw_ship(&npos, ship);
 		}
-		if(pos.x > (float)SCREEN_WIDTH - ship_circle_radius * 1.0f) {
+		if(pos.x > (float)SCREEN_WIDTH - ship_circle_radius * scale) {
 			Vector2 npos = vec2(pos.x - (float)SCREEN_WIDTH, pos.y);
 			_draw_ship(&npos, ship);
 		}
-		if(pos.y < ship_circle_radius * 1.0f) {
+		if(pos.y < ship_circle_radius * scale) {
 			Vector2 npos = vec2(pos.x, pos.y + (float)SCREEN_HEIGHT);
 			_draw_ship(&npos, ship);
 		}
-		if(pos.y > (float)SCREEN_HEIGHT - ship_circle_radius * 1.0f) {
+		if(pos.y > (float)SCREEN_HEIGHT - ship_circle_radius * scale) {
 			Vector2 npos = vec2(pos.x, pos.y - (float)SCREEN_HEIGHT);
 			_draw_ship(&npos, ship);
 		}	
@@ -597,3 +598,4 @@ uint game_random_taken_platform(uint color) {
 	}
 	return MAX_UINT32;
 }
+

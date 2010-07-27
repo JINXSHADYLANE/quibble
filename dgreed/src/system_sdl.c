@@ -21,7 +21,7 @@
 #include "stb_vorbis.c"
 
 #define BUCKET_COUNT 16
-#define LINE_BUCKET_SIZE 512 
+#define LINE_BUCKET_SIZE 1024 
 #define RECT_BUCKET_SIZE 512
 #define MAX_TEXTURES 64
 #define FPS_LIMIT 60

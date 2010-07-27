@@ -90,9 +90,6 @@ float ai_distance_sq(Vector2 p1, Vector2 p2) {
 }
 
 uint _nearest_navpoint(Vector2 p, DArray geometry, DArray navpoints) {
-	if(ai_wall_distance(p, geometry) == 0.0f)
-		return ~0;
-	
 	float min_sq_d = 100000.0f;
 	uint min_id = ~0;
 
