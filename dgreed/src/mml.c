@@ -418,6 +418,12 @@ float mml_getval_float(MMLObject* mml, NodeIdx node) {
 	return result;
 }	
 
+Vector2 mml_getval_vec2(MMLObject* mml, NodeIdx node) {
+	Vector2 result;
+	sscanf(mml_getval_str(mml, node), "%f,%f", &result.x, &result.y);
+	return result;
+}
+
 void mml_setval_str(MMLObject* mml, NodeIdx node, const char* val) {
 	assert(mml);
 	assert(node < mml->node_pool.size);
@@ -451,6 +457,12 @@ void mml_setval_float(MMLObject* mml, NodeIdx node, float val) {
 	sprintf(str_val, "%f", val);
 	mml_setval_str(mml, node, str_val);
 }	
+
+void mml_setval_vec2(MMLObject* mml, NodeIdx node, Vector2 val) {
+	char str_val[64];
+	sprintf(str_val, "%f,%f", val.x, val.y);
+	mml_setval_str(mml, node, str_val);
+}
 		
 const char* mml_last_error(MMLObject* mml) {
 	assert(mml);

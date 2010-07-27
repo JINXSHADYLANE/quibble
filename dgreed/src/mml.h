@@ -104,6 +104,7 @@ uint mml_getval_uint(MMLObject* mml, NodeIdx node);
 int mml_getval_int(MMLObject* mml, NodeIdx node);
 bool mml_getval_bool(MMLObject* mml, NodeIdx node);
 float mml_getval_float(MMLObject* mml, NodeIdx node);
+Vector2 mml_getval_vec2(MMLObject* mml, NodeIdx node);
 
 // Sets node values from some common types
 void mml_setval_str(MMLObject* mml, NodeIdx node, const char* val);
@@ -111,6 +112,7 @@ void mml_setval_uint(MMLObject* mml, NodeIdx node, uint val);
 void mml_setval_int(MMLObject* mml, NodeIdx node, int val);
 void mml_setval_bool(MMLObject* mml, NodeIdx node, bool val);
 void mml_setval_float(MMLObject* mml, NodeIdx node, float val);
+void mml_setval_vec2(MMLObject* mml, NodeIdx node, Vector2 val);
 
 // Returns reason why last failure happened. 
 const char* mml_last_error(MMLObject* mml);

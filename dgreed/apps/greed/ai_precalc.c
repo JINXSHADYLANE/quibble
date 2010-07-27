@@ -5,7 +5,7 @@
 // Tweakables
 float min_wall_distance = 17.0f;
 float min_point_distance = 35.0f;
-float max_edge_distance = 60.0f;
+float max_edge_distance = 65.0f;
 
 const uint nn_grid_width = 15;
 const uint nn_grid_height = 10;
@@ -153,9 +153,11 @@ float _point_distance(Vector2 p, DArray points) {
 	return sqrtf(distance_sqr);
 }
 
-DArray _gen_navpoints(DArray geometry) {
+DArray _gen_navpoints(DArray geometry, DArray platforms) {
 	DArray points = darray_create(sizeof(Vector2), 0);
-	uint count = 150000;
+	darray_append_multi(&points, platforms.data, platforms.size);
+
+	uint count = 100000;
 	do {
 		Vector2 navpoint = vec2(rand_float_range(0.0f, SCREEN_WIDTH),
 			rand_float_range(0.0f, SCREEN_HEIGHT));
@@ -183,11 +185,11 @@ DArray _gen_edges(DArray points, DArray geometry) {
 			if(sqr_dist <= max_edge_distance*max_edge_distance) {
 				Edge n = {i, j};
 
-				// TODO: check distance to walls, not intersection
 				Segment s = ai_shortest_path(points_vec2[i], points_vec2[j]);
 				Segment s1, s2;
 				bool split = ai_split_path(s, &s1, &s2);
 
+				// Check for wall intersection
 				Segment* geometry_s = DARRAY_DATA_PTR(geometry, Segment);
 				bool intersects_arena = false;
 				for(uint k = 0; k < geometry.size; ++k) {
@@ -200,6 +202,11 @@ DArray _gen_edges(DArray points, DArray geometry) {
 						break;
 					}	
 				}
+
+				// Check distance to walls at midpoint
+				Vector2 midpoint = vec2_scale(vec2_add(s1.p1, s1.p2), 0.5f);
+				if(ai_wall_distance(midpoint, geometry) < min_wall_distance)
+					intersects_arena = true;
 
 				if(!intersects_arena)
 					darray_append(&edges, (void*)&n);
@@ -224,12 +231,13 @@ void ai_precalc_bounds(float width, float height) {
 	nn_cell_height = height / (float)nn_grid_height;
 }	
 
-NavMesh ai_precalc_navmesh(DArray geometry, float width, float height) {
+NavMesh ai_precalc_navmesh(DArray geometry, DArray platforms,
+	float width, float height) {
 	NavMesh res;
 
 	ai_precalc_bounds(width, height);
 
-	DArray navpoints = _gen_navpoints(geometry);
+	DArray navpoints = _gen_navpoints(geometry, platforms);
 	DArray edges = _gen_edges(navpoints, geometry);
 
 	Vector2* navpoints_v = DARRAY_DATA_PTR(navpoints, Vector2);
