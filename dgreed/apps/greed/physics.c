@@ -9,8 +9,7 @@
 #define BULLET_COLLISION 3
 #define PLATFORM_COLLISION 4
 
-#define DEBUG_DRAW_LAYER 10
-#define DEBUG_DRAW_LAYER2 11
+#define DEBUG_DRAW_LAYER 7
 
 PhysicsState physics_state;
 
@@ -86,6 +85,7 @@ void physics_register_tweaks(Tweaks* tweaks) {
 
 extern float ship_min_size;
 extern float ship_max_size;
+extern float ship_circle_radius;
 
 // Helpers to convert between chipmunk and greed vectors
 Vector2 cpv_to_gv(cpVect v) {
@@ -492,22 +492,24 @@ void physics_debug_draw(void) {
 			physics_state.ships[i].rot, physics_state.ships[i].scale);
 		// Draw	
 		gfx_draw_poly(DEBUG_DRAW_LAYER, ship_vertices, ARRAY_SIZE(ship_vertices), COLOR_WHITE);
+		
+		// Enclosing circle
+		gfx_draw_circle(DEBUG_DRAW_LAYER, &physics_state.ships[i].pos, 
+			physics_state.ships[i].scale * ship_circle_radius, COLOR_WHITE);
 	}	
 
 	// Draw bullets
-	for(i = 0; i < physics_state.n_bullets; ++i) 
-		gfx_draw_point(DEBUG_DRAW_LAYER, &(physics_state.bullets[i].pos), COLOR_WHITE);
+	for(i = 0; i < physics_state.n_bullets; ++i) { 
+		gfx_draw_circle_ex(DEBUG_DRAW_LAYER, &physics_state.bullets[i].pos,
+			bullet_radius, COLOR_WHITE, 5);
+	}	
 
 	// Draw walls
 	//assert(current_arena_desc.collision_tris);
-	for(i = 0; i < current_arena_desc.n_tris/2; ++i) {
+	for(i = 0; i < current_arena_desc.n_tris; ++i) {
 		gfx_draw_tri(DEBUG_DRAW_LAYER, &(current_arena_desc.collision_tris[i]),
 			COLOR_WHITE);
 	}		
-	for(;i < current_arena_desc.n_tris; ++i) {
-		gfx_draw_tri(DEBUG_DRAW_LAYER2, &(current_arena_desc.collision_tris[i]),
-			COLOR_WHITE);
-	}
 }	
 
 Vector2 physics_wraparound(Vector2 in) {

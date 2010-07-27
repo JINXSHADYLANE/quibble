@@ -7,7 +7,9 @@
 #include "ai_precalc.h"
 
 typedef struct {
-	TexHandle img;
+	TexHandle background_img;
+	TexHandle walls_img;
+
 	Vector2 shadow_shift;
 	Vector2 spawnpoints[MAX_SHIPS];
 	uint n_platforms;
