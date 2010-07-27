@@ -510,6 +510,12 @@ void physics_debug_draw(void) {
 		gfx_draw_tri(DEBUG_DRAW_LAYER, &(current_arena_desc.collision_tris[i]),
 			COLOR_WHITE);
 	}		
+
+	// Draw platfoms
+	for(i = 0; i < current_arena_desc.n_platforms; ++i) {
+		gfx_draw_circle(DEBUG_DRAW_LAYER, &current_arena_desc.platforms[i],
+			platform_radius, COLOR_WHITE);
+	}
 }	
 
 Vector2 physics_wraparound(Vector2 in) {

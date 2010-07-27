@@ -34,6 +34,7 @@ void devmode_update(void) {
 
 extern bool draw_physics_debug;
 extern bool draw_ai_debug;
+extern bool draw_gfx_debug;
 
 #define DISPLAY_TEXT(t) \
 	font_draw(small_font, t, TEXT_LAYER, &stats_cursor, COLOR_WHITE); \
@@ -54,6 +55,8 @@ void devmode_render(void) {
 		return;
 	}	
 	cursor.y += 30.0f;
+	draw_gfx_debug = gui_switch(&cursor, "gfx dbg");
+	cursor.y += 20.0f;
 	draw_physics_debug = gui_switch(&cursor, "phys. dbg");
 	cursor.y += 20.0f;
 	draw_ai_debug = gui_switch(&cursor, "ai dbg");
