@@ -43,12 +43,6 @@ void arena_close(void) {
 	}	
 }
 
-Vector2 _deserialize_vec2(const char* serialized) {
-	Vector2 result;
-	sscanf(serialized, "%f,%f", &(result.x), &(result.y));
-	return result;
-}
-
 void arena_reset(const char* filename, uint n_ships) {
 	arena_close();
 
@@ -113,8 +107,7 @@ void arena_reset(const char* filename, uint n_ships) {
 	NodeIdx shadow_node = mml_get_sibling(&desc, img_node, "shadow_shift");
 	if(!shadow_node)
 		LOG_ERROR("No shadow_shift propierty found in arena description");
-	current_arena_desc.shadow_shift = 
-		_deserialize_vec2(mml_getval_str(&desc, shadow_node));
+	current_arena_desc.shadow_shift = mml_getval_vec2(&desc, shadow_node);
 
 	// Read spawnpoints
 	NodeIdx spawns_node = mml_get_sibling(&desc, shadow_node, "spawnpoints");	
@@ -124,8 +117,8 @@ void arena_reset(const char* filename, uint n_ships) {
 	NodeIdx spawnpoint = mml_get_first_child(&desc, spawns_node);
 	uint n_spawnpoints = 0;
 	while(spawnpoint) {
-		current_arena_desc.spawnpoints[n_spawnpoints++] =
-			_deserialize_vec2(mml_getval_str(&desc, spawnpoint));
+		current_arena_desc.spawnpoints[n_spawnpoints++] = 
+			mml_getval_vec2(&desc, spawnpoint);
 		if(n_spawnpoints > MAX_SHIPS)
 			LOG_ERROR("Too many spawnpoints. Only %d are needed", MAX_SHIPS);
 		spawnpoint = mml_get_next(&desc, spawnpoint);
@@ -143,7 +136,7 @@ void arena_reset(const char* filename, uint n_ships) {
 	uint platform_idx = 0;
 	while(platform) {
 		current_arena_desc.platforms[platform_idx++] = 
-			_deserialize_vec2(mml_getval_str(&desc, platform));
+			mml_getval_vec2(&desc, platform);
 		platform = mml_get_next(&desc, platform);
 	}
 

@@ -192,7 +192,21 @@ void gen_precalc_data(void) {
 	DArray triangles = 
 		poly_triangulate_raster(collision_mask, width, height, &segments);
 
-	NavMesh	nav_mesh = ai_precalc_navmesh(segments,
+	DArray platforms = darray_create(sizeof(Vector2), 0);	
+	NodeIdx root = mml_root(&arena_mml);
+	NodeIdx platforms_node = mml_get_child(&arena_mml, root, "platforms");
+	for(NodeIdx platform = mml_get_first_child(&arena_mml, platforms_node);
+		platform != 0;
+		platform = mml_get_next(&arena_mml, platform)) {
+
+		assert(strcmp(mml_get_name(&arena_mml, platform), "p") == 0);
+		
+		Vector2	p = mml_getval_vec2(&arena_mml, platform);
+
+		darray_append(&platforms, (void*)&p);
+	}	
+
+	NavMesh	nav_mesh = ai_precalc_navmesh(segments, platforms,
 		(float)width, (float)height);
 
 	Triangle* tris = NULL;
