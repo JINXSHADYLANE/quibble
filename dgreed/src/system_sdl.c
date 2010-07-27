@@ -47,6 +47,8 @@ typedef struct {
 	Color color;
 } LineDesc;	
 
+bool draw_gfx_debug = false;
+
 TexturedRectDesc rect_buckets[BUCKET_COUNT][RECT_BUCKET_SIZE];
 uint rect_buckets_sizes[BUCKET_COUNT] = {0};
 
@@ -311,9 +313,41 @@ void video_present(void) {
 			#endif
 		}	
 
-		// Draw lines
 		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_LINES);
+		glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
+		if(draw_gfx_debug) {
+			for(j = 0; j < rect_buckets_sizes[i]; ++j) {
+				TexturedRectDesc rect = rect_buckets[i][j];
+
+				float rot = rect.rotation;
+				Vector2 tl = vec2(rect.dest.left, rect.dest.top);
+				Vector2 tr = vec2(rect.dest.right, rect.dest.top);
+				Vector2 br = vec2(rect.dest.right, rect.dest.bottom);
+				Vector2 bl = vec2(rect.dest.left, rect.dest.bottom);
+				Vector2 cnt = vec2((rect.dest.left + rect.dest.right) / 2.0f,
+					(rect.dest.top + rect.dest.bottom) / 2.0f);
+
+				tl = vec2_add(vec2_rotate(vec2_sub(tl, cnt), rot), cnt);
+				tr = vec2_add(vec2_rotate(vec2_sub(tr, cnt), rot), cnt);
+				br = vec2_add(vec2_rotate(vec2_sub(br, cnt), rot), cnt);
+				bl = vec2_add(vec2_rotate(vec2_sub(bl, cnt), rot), cnt);
+
+				glVertex2f(tl.x, tl.y);
+				glVertex2f(tr.x, tr.y);
+
+				glVertex2f(tr.x, tr.y);
+				glVertex2f(br.x, br.y);
+
+				glVertex2f(br.x, br.y);
+				glVertex2f(bl.x, bl.y);
+
+				glVertex2f(bl.x, bl.y);
+				glVertex2f(tl.x, tl.y);
+			}
+		}
+
+		// Draw lines
 		for(j = 0; j < line_buckets_sizes[i]; ++j) {
 			LineDesc line = line_buckets[i][j];
 			_color_to_4f(line.color, &r, &g, &b, &a);
