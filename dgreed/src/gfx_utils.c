@@ -182,15 +182,12 @@ void gfx_blur(Color* img, uint w, uint h) {
 }
 
 Color gfx_blend(Color ca, Color cb) {
-	Color rca = endian_swap4(ca);
-	Color rcb = endian_swap4(cb);
-
 	uint ar, ag, ab, aa;
 	uint br, bg, bb, ba;
 	uint r, g, b, a;
 
-	COLOR_DECONSTRUCT(rca, ar, ag, ab, aa);
-	COLOR_DECONSTRUCT(rcb, br, bg, bb, ba);
+	COLOR_DECONSTRUCT(ca, ar, ag, ab, aa);
+	COLOR_DECONSTRUCT(cb, br, bg, bb, ba);
 
 	r = (ar * (255-ba) + br * ba) / 255;
 	g = (ag * (255-ba) + bg * ba) / 255;
@@ -200,8 +197,6 @@ Color gfx_blend(Color ca, Color cb) {
 	assert(r < 256); assert(g < 256);
 	assert(b < 256); assert(a < 256);
 
-	if(rca != ca)
-		return COLOR_RGBA(a, b, g, r);
 	return COLOR_RGBA(r, g, b, a);
 }
 
@@ -293,7 +288,8 @@ void gfx_blit(Color* dest, uint dest_w, uint dest_h,
 			size_t d_idx = IDX_2D(dest_l + dx, dest_t + dy, dest_w);
 			size_t s_idx = IDX_2D(src_l + dx, src_t + dy, src_w);
 
-			dest[d_idx] = gfx_blend(dest[d_idx], src[s_idx]);
+			dest[d_idx] = endian_swap4(gfx_blend(endian_swap4(dest[d_idx]), 
+				endian_swap4(src[s_idx])));
 		}
 	}
 }
