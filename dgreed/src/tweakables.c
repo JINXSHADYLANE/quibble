@@ -373,7 +373,7 @@ uint _count_pages(Tweaks* tweaks) {
 			items_in_group = 0;
 		}
 	}
-	return pages;
+	return items_in_group > 0 ? pages : pages - 1;
 }
 
 const char* _page_name(Tweaks* tweaks, uint page, uint* first_var) {
