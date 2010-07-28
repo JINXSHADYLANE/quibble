@@ -1,5 +1,6 @@
 #include "physics.h"
-#include "gfx_utils.h"
+#include <gfx_utils.h>
+#include <particles.h>
 #include "arena.h"
 #include "sounds.h"
 #include "chipmunk/chipmunk.h"
@@ -87,6 +88,8 @@ extern float ship_min_size;
 extern float ship_max_size;
 extern float ship_circle_radius;
 
+Vector2 _wrap_around_gv(Vector2 p, const RectF* rect); 
+
 // Helpers to convert between chipmunk and greed vectors
 Vector2 cpv_to_gv(cpVect v) {
 	return vec2(v.x, v.y);
@@ -146,6 +149,12 @@ int ship2bullet_callback(cpShape* a, cpShape* b, cpContact* contacts,
 	assert(i != n);
 	bullets[i].remove = true;
 
+	// Spawn particles
+	Vector2 pos = cpv_to_gv(contacts[0].p);
+	float dir = vec2_dir(cpv_to_gv(contacts[0].n));
+	particles_spawn("sparks1", &pos, dir); 
+	particles_spawn("sparks2", &pos, dir);
+
 	sounds_event(COLLISION_BULLET_SHIP);
 
 	return 1;
@@ -165,6 +174,12 @@ int bullet2wall_callback(cpShape* a, cpShape* b, cpContact* contacts,
 	}		
 	assert(i != n);
 	bullets[i].remove = true;
+
+	// Spawn particles
+	Vector2 pos = cpv_to_gv(contacts[0].p);
+	float dir = physics_state.bullets[i].rot + PI * 0.5f;
+	particles_spawn("sparks1", &pos, dir); 
+	particles_spawn("sparks2", &pos, dir);
 
 	sounds_event(COLLISION_BULLET_WALL);
 
@@ -352,6 +367,10 @@ void physics_spawn_bullet(uint ship) {
 	cpSpaceAddShape(space, bullets[i].shape);
 
 	physics_state.bullets[i].rot = ships[ship].body->a;
+
+	Vector2 pos = _wrap_around_gv(cpv_to_gv(bullet_pos), &screen_bounds);
+	float dir = physics_state.bullets[i].rot - PI * 0.5f;
+	particles_spawn("shot", &pos, dir); 
 
 	physics_state.n_bullets++;
 }	

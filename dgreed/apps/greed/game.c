@@ -7,6 +7,7 @@
 #include "sounds.h"
 #include "ai.h"
 #include "devmode.h"
+#include "particles.h"
 
 #define ENERGYBAR_LAYER 6
 #define FOREGROUND_LAYER 5
@@ -106,6 +107,7 @@ void game_init(void) {
 	devmode_init();
 	#endif
 
+	particles_init();
 	arena_init();
 	physics_init();
 
@@ -147,6 +149,7 @@ void game_init(void) {
 void game_close(void) {
 	physics_close();
 	arena_close();
+	particles_close();
 	
 	#ifndef NO_DEVMODE
 	devmode_close();
@@ -215,6 +218,7 @@ void game_update(void) {
 	float time = time_ms() / 1000.0f;
 
 	physics_update(dt);
+	particles_update(time);
 
 	// Update ships
 	for(uint ship = 0; ship < n_ships; ++ship) {
@@ -384,6 +388,7 @@ void game_render(void) {
 	if(draw_ai_debug)
 		ai_debug_draw();
 	
+	particles_draw();
 	arena_draw();
 
 	// Draw ships & energy bars
