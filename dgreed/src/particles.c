@@ -17,12 +17,22 @@
 	dest = mml_getval_##type(&desc, node); \
 }	
 
+#ifndef NO_DEVMODE
+ParticleStats p_stats;
+#endif
+
 ParticleSystemDesc psystem_descs[MAX_PSYSTEM_DESCS];
 ParticleSystem psystems[MAX_PSYSTEMS];
 uint psystem_descs_count = 0;
 TexHandle particles_texture;
 
 static float last_time = 0.0f;
+
+#ifndef NO_DEVMODE
+const ParticleStats* particle_stats(void) {
+	return &p_stats;
+}
+#endif
 
 void particles_init(void) {
 	particles_texture = tex_load(PARTICLES_TEXTURE);
@@ -125,6 +135,11 @@ void particles_init(void) {
 	for(i = 0; i < MAX_PSYSTEMS; ++i) {
 		psystems[i].active = false;
 	}	
+
+	#ifndef NO_DEVMODE
+	memset(&p_stats, 0, sizeof(p_stats));
+	p_stats.psystems = psystem_descs_count;
+	#endif
 }	
 
 void particles_save(void) {
@@ -248,6 +263,11 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 		Particle* p = &(psystem->particles[i]);
 		if(psystem->age >= p->death_time) {
 			// Particle is dead, copy last one to its place
+
+			#ifndef NO_DEVMODE
+			p_stats.dead_count++;
+			#endif
+
 			*p = psystem->particles[psystem->particle_count-1];
 			psystem->particle_count--;
 			i--;
@@ -265,9 +285,18 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 		p->pos = vec2_add(p->pos, shift); 
 	}	
 
+	#ifndef NO_DEVMODE
+	p_stats.total_particles += psystem->particle_count;
+	#endif
+
 	// Spawn new particles
 	float inv_emission_rate = 1.0f / psystem->desc->emission_rate;
 	while(psystem->emission_acc - inv_emission_rate > 0.0f) {
+
+		#ifndef NO_DEVMODE
+		p_stats.born_count++;
+		#endif
+
 		psystem->emission_acc -= inv_emission_rate;
 
 		if(psystem->particle_count == psystem->desc->max_particles) {
@@ -347,14 +376,31 @@ void particles_update(float time) {
 		return;
 	}	
 
+	#ifndef NO_DEVMODE
+	p_stats.total_particles = 0;
+	p_stats.active_psystems = 0;
+	static float count_update_t = 0.0f;
+	if(time - count_update_t > 1.0f) {
+		p_stats.born_in_last_second = p_stats.born_count;
+		p_stats.dead_in_last_second = p_stats.dead_count;
+		p_stats.born_count = p_stats.dead_count = 0;
+		count_update_t = time;
+	}
+	#endif
+
 	assert(time > last_time);
 	float dt = time - last_time;
 	last_time = time;
 
 	uint i;
 	for(i = 0; i < MAX_PSYSTEMS; ++i) {
-		if(psystems[i].active)
+		if(psystems[i].active) {
 			_psystem_update(&(psystems[i]), dt);
+
+			#ifndef NO_DEVMODE
+			p_stats.active_psystems++;
+			#endif
+		}	
 	}		
 }	
 

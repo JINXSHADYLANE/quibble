@@ -61,6 +61,20 @@ typedef struct {
 	bool active;
 } ParticleSystem;	
 
+#ifndef NO_DEVMODE
+typedef struct {
+	uint psystems;
+	uint active_psystems;
+	uint total_particles;
+	uint born_count;
+	uint born_in_last_second;
+	uint dead_count;
+	uint dead_in_last_second;
+} ParticleStats;	
+
+const ParticleStats* particle_stats(void);
+#endif
+
 #define MAX_PSYSTEM_DESCS 16
 #define MAX_PSYSTEMS 48
 

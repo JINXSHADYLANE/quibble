@@ -5,6 +5,7 @@
 #include <gui.h>
 #include <font.h>
 #include <tweakables.h>
+#include <particles.h>
 
 #define TEXT_LAYER 12
 
@@ -108,8 +109,20 @@ void devmode_render(void) {
 			m_stats.n_deallocations);
 		DISPLAY_TEXT2("  used: %zuK", m_stats.bytes_allocated / 1024);
 		DISPLAY_TEXT2("  peak used: %zuK", m_stats.peak_bytes_allocated / 1024);
+		stats_cursor.y += 8.0f;
 	}
+	cursor.y += 20.0f;
 	#endif
+
+	if(gui_switch(&cursor, "particles")) {
+		const ParticleStats* p_stats = particle_stats();
+		DISPLAY_TEXT("particle stats:");
+		DISPLAY_TEXT2("  psystem descs: %u", p_stats->psystems);
+		DISPLAY_TEXT2("  psystems: %u", p_stats->active_psystems);
+		DISPLAY_TEXT2("  particles: %u", p_stats->total_particles);
+		DISPLAY_TEXT2("  born/s: %u", p_stats->born_in_last_second);
+		DISPLAY_TEXT2("  died/s: %u", p_stats->dead_in_last_second);
+	}
 
 }
 
