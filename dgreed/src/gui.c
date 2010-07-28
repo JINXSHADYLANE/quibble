@@ -272,7 +272,7 @@ bool gui_button(const Vector2* pos, const char* text) {
 	font_draw(gui_style.font, text, gui_style.text_layer, &text_dest, 
 		gui_style.text_color);
 
-	return mouse_over && mouse_pressed(MBTN_LEFT);
+	return mouse_over && mouse_down(MBTN_LEFT);
 }	
 
 bool gui_switch(const Vector2* pos, const char* text) {

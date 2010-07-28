@@ -62,7 +62,7 @@ typedef struct {
 } ParticleSystem;	
 
 #define MAX_PSYSTEM_DESCS 16
-#define MAX_PSYSTEMS 8
+#define MAX_PSYSTEMS 48
 
 extern ParticleSystemDesc psystem_descs[MAX_PSYSTEM_DESCS];
 extern ParticleSystem psystems[MAX_PSYSTEMS];

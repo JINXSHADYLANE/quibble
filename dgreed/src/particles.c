@@ -3,7 +3,7 @@
 #include "memory.h"
 
 #define PARTICLES_TEXTURE "greed_assets/particles.png"
-#define PARTICLE_LAYER 3
+#define PARTICLE_LAYER 5
 #define PARTICLES_FILENAME "greed_assets/particles.mml"
 #define APPEND_NODE(parent, name, value, type) { \
 	prop = mml_node(&mml, name, ""); \
@@ -214,8 +214,10 @@ ParticleSystem* particles_spawn(const char* name, const Vector2* pos,
 	while(psystems[psystem_idx].active) {
 		psystem_idx++;
 	}	
-	if(psystem_idx == MAX_PSYSTEMS)
-		LOG_ERROR("psystems pool overflow");
+	if(psystem_idx == MAX_PSYSTEMS) {
+		LOG_INFO("too many psystems, skipping spawn");
+		return NULL;
+	}	
 		
 	// Fill struct
 	ParticleSystem* psystem = &(psystems[psystem_idx]);
