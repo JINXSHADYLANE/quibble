@@ -58,6 +58,8 @@ float bullet_mass = 1.0f;
 float bullet_inertia = 0.1f;
 float bullet_radius = 5.0f;
 float platform_radius = 20.0f;
+float platform_neutral_force = -500.0f;
+float platform_active_force = 500.0f;
 
 #define GAME_TWEAK(name, min, max) \
 	tweaks_float(tweaks, #name, &name, min, max)
@@ -82,6 +84,8 @@ void physics_register_tweaks(Tweaks* tweaks) {
 	GAME_TWEAK(bullet_inertia, 0.05f, 0.4f);
 	GAME_TWEAK(bullet_radius, 1.0f, 10.0f);
 	GAME_TWEAK(platform_radius, 5.0f, 32.0f);
+	GAME_TWEAK(platform_neutral_force, -1000.0f, 1000.0f);
+	GAME_TWEAK(platform_active_force, -1000.0f, 1000.0f);
 }
 
 extern float ship_min_size;
@@ -227,6 +231,21 @@ int platform2ship_callback(cpShape* a, cpShape* b, cpContact* contacts,
 
 		game_platform_taken(ship_id, platform_id);
 	}	
+
+	cpVect platform_to_ship = 
+		cpvsub(ships[ship_id].body->p, platforms[platform_id].body->p);
+	float distance = cpvlength(platform_to_ship);	
+	float max_distance = platform_radius + ship_circle_radius;
+	platform_to_ship = cpvnormalize(platform_to_ship);	
+
+	float t = 1.0f - normalize(distance, 0.0f, max_distance);
+	float force = t*t * 
+		(platform_states[platform_id].last_color == MAX_UINT32 ?
+		platform_neutral_force : platform_active_force);
+
+	cpVect force_vec = cpvmult(platform_to_ship, force);
+
+	cpBodyApplyForce(ships[ship_id].body, force_vec, cpvzero);	
 
 	return 0;
 } 
