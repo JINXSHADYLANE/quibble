@@ -7,15 +7,17 @@
 #include <tweakables.h>
 #include <particles.h>
 
+#include "physics.h"
+#include "game.h"
+#include "arena.h"
+#include "ai.h"
+
 #define TEXT_LAYER 12
 
 FontHandle small_font;
 
 extern FontHandle small_font;
 extern FontHandle big_font;
-extern void game_register_tweaks(Tweaks* tweaks);
-extern void physics_register_tweaks(Tweaks* tweaks);
-extern void ai_register_tweaks(Tweaks* tweaks);
 
 Tweaks* tweaks;
 
@@ -48,6 +50,73 @@ extern bool draw_gfx_debug;
 	font_draw(small_font, text, TEXT_LAYER, &stats_cursor, COLOR_WHITE); \
 	stats_cursor.y += y_adv
 
+void _arena_select(void) {
+	Vector2 cursor = vec2(10.0f, 76.0f);
+
+	cursor.x += 200.0f;
+	uint arena = (uint)(gui_slider(&cursor) * (float)total_arenas);
+	arena = MIN(arena, total_arenas-1);
+
+	const char* name = NULL;
+	uint max_players = 0;
+
+	uint curr_arena = 0;
+	uint curr_chapter = 0;
+	for(;curr_chapter < MAX_CHAPTERS; ++curr_chapter) {
+		for(uint i = 0; 
+			i < chapters[curr_chapter].n_arenas; 
+			++i, ++curr_arena) {
+			
+			if(arena == curr_arena) {
+				name = chapters[curr_chapter].arena_file[i];
+				max_players = chapters[curr_chapter].arena_players[i];
+			}
+		}
+	}
+
+	char label[256];
+	sprintf(label, "Arena: %s", name);
+	cursor.x -= 200.0f;
+	gui_label(&cursor, label);
+	cursor.y += 22.0f;
+	
+
+	// Number of players
+	cursor.x += 200.0f;
+	uint n_players = 2 + (uint)(gui_slider(&cursor) * (float)(max_players-1));
+	n_players = MIN(n_players, max_players);
+	cursor.x -= 200.0f;
+	sprintf(label, "Players: %u", n_players);
+	gui_label(&cursor, label);
+	cursor.y += 22.0f;
+
+	// AI Personalities
+	uint ai[3];
+	for(uint i = 0; i < n_players-1; ++i) {
+		cursor.x += 200.0f;
+		uint ai_personality = 
+			(uint)(gui_slider(&cursor) * (float)ai_personality_count);
+		ai_personality = MIN(ai_personality, ai_personality_count-1);	
+
+		ai[i] = ai_personality;	
+		
+		cursor.x -= 200.0f;
+		sprintf(label, "A.I. %u: %s", i, ai_personality_names[ai_personality]);
+		gui_label(&cursor, label);
+		cursor.y += 22.0f;
+	}
+
+	cursor.y = 76.0f + 22.0f * 6.0f;
+	cursor.x = 114.0f;
+	if(gui_button(&cursor, "Go")) {
+		game_reset(name, n_players);
+
+		for(uint i = 0; i < n_players-1; ++i)
+			ai_init_agent(1+i, ai[i]);	
+	}
+
+}
+
 void devmode_render(void) {
 	char text[256];
 
@@ -57,7 +126,15 @@ void devmode_render(void) {
 		tweaks_render(tweaks);
 		return;
 	}	
+	cursor.y += 20.0f;
+
+	bool show_arenasel = gui_switch(&cursor, "arena sel.");
+	if(show_arenasel) {
+		_arena_select();
+		return;
+	}
 	cursor.y += 30.0f;
+
 	draw_gfx_debug = gui_switch(&cursor, "gfx dbg");
 	cursor.y += 20.0f;
 	draw_physics_debug = gui_switch(&cursor, "phys. dbg");

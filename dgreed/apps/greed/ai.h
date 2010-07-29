@@ -62,7 +62,10 @@ typedef struct {
 	int accelerate;
 } Agent;	
 
-extern uint ai_personality_count;
+#define MAX_AI_PERSONALITIES 8
+
+extern const uint ai_personality_count;
+extern const char* ai_personality_names[MAX_AI_PERSONALITIES];
 	
 void ai_register_tweaks(Tweaks* tweaks);
 

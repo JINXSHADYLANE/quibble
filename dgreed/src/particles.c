@@ -208,6 +208,11 @@ void particles_save(void) {
 }
 
 void particles_close(void) {
+	for(uint i = 0; i < MAX_PSYSTEMS; ++i) {
+		if(psystems[i].active) {
+			MEM_FREE(psystems[i].particles);
+		}
+	}
 	tex_free(particles_texture);
 }	
 
@@ -242,9 +247,8 @@ ParticleSystem* particles_spawn(const char* name, const Vector2* pos,
 	psystem->age = 0.0f;
 	psystem->emission_acc = 0.0f;
 	psystem->particle_count = 0;
-	psystem->particles_data = darray_create(sizeof(Particle),
-		psystem->desc->max_particles);
-	psystem->particles = DARRAY_DATA_PTR(psystem->particles_data, Particle);	
+	psystem->particles = (Particle*)MEM_ALLOC(sizeof(Particle) *
+		psystem->desc->max_particles);	
 	psystem->active = true;
 
 	return psystem;
@@ -364,7 +368,7 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 
 	// Self-destruct if age is reached and all particles are dead
 	if(psystem->age > psystem->desc->duration && psystem->particle_count == 0) {
-		darray_free(&(psystem->particles_data));
+		MEM_FREE(psystem->particles);
 		psystem->active = false;
 	}		
 }		
