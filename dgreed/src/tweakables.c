@@ -368,7 +368,9 @@ uint _count_pages(Tweaks* tweaks) {
 			last_group = vars[i].group;
 		}
 
-		if(++items_in_group == tweaks->items_per_page) {
+		if(i < tweaks->vars.size &&
+			++items_in_group == tweaks->items_per_page &&
+			strcmp(last_group, vars[i+1].group) == 0) {
 			pages++;
 			items_in_group = 0;
 		}
@@ -394,7 +396,9 @@ const char* _page_name(Tweaks* tweaks, uint page, uint* first_var) {
 				*first_var = i;
 		}
 
-		if(++items_in_group == tweaks->items_per_page) {
+		if(i < tweaks->vars.size-1 &&
+			++items_in_group == tweaks->items_per_page &&
+			strcmp(last_group, vars[i+1].group) == 0) {
 			curr_page++;
 			items_in_group = 0;
 			same_group_pages++;

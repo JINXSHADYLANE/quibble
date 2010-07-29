@@ -15,6 +15,7 @@ extern FontHandle small_font;
 extern FontHandle big_font;
 extern void game_register_tweaks(Tweaks* tweaks);
 extern void physics_register_tweaks(Tweaks* tweaks);
+extern void ai_register_tweaks(Tweaks* tweaks);
 
 Tweaks* tweaks;
 
@@ -24,6 +25,7 @@ void devmode_init(void) {
 
 	game_register_tweaks(tweaks);	
 	physics_register_tweaks(tweaks);
+	ai_register_tweaks(tweaks);
 }
 
 void devmode_close(void) {

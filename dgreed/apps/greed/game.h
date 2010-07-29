@@ -56,5 +56,7 @@ float game_taken_platforms_frac(uint color);
 uint game_random_free_platform(void);
 uint game_random_taken_platform(uint color);
 
+float game_time_till_neutralization(uint platform);
+
 #endif
 
