@@ -604,3 +604,13 @@ uint game_random_taken_platform(uint color) {
 	return MAX_UINT32;
 }
 
+float game_time_till_neutralization(uint platform) {
+	if(platform_states[platform].color == MAX_UINT32)
+		return 0.0f;
+
+	float time = time_ms() / 1000.0f;	
+
+	return (time + platform_holding_time) - 
+		platform_states[platform].activation_t;	
+}
+

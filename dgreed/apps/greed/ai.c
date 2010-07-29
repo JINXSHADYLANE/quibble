@@ -14,8 +14,70 @@ float agent_steer_interval = 1000.0f / 30.0f;
 
 Agent agents[MAX_AGENTS];
 
-AgentPersonality default_personality = 
-	{0.6f, 0.20f, 0.5f, 70.0f, 120.0f, 45.0f, 30.0f, 15.0f, 0.3f, 0.6f, 80.0f};
+uint ai_personality_count = 4;
+const char* ai_personality_names[] = {
+	"multivac",
+	"microvac",
+	"galactic_ac",
+	"universal_ac",
+	"cosmic_ac",
+	"ac"
+};	
+
+AgentPersonality ai_personalities[] = {
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.3f,0.6f,80.0f,100.0f},
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.3f,0.6f,80.0f,100.0f},
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.3f,0.6f,80.0f,100.0f},
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.3f,0.6f,80.0f,100.0f}
+};	
+
+#define AI_TWEAK(name, min, max) \
+	tweaks_float(tweaks, #name, name, min, max)
+
+void ai_register_tweaks(Tweaks* tweaks) {
+	for(uint i = 0; i < ai_personality_count; ++i) {
+		char group_name[128];
+		sprintf(group_name, "ai/%s", ai_personality_names[i]);
+		tweaks_group(tweaks, group_name);
+
+		float* platforms_frac = &ai_personalities[i].platforms_frac;
+		float* steer_tg_angle_tolerance = 
+			&ai_personalities[i].steer_tg_angle_tolerance;
+		float* steer_tg_aggressive_angle = 
+			&ai_personalities[i].steer_tg_aggressive_angle;
+		float* steer_tg_aggressive_dist = 
+			&ai_personalities[i].steer_tg_aggressive_distance;
+		float* steer_tg_max_dist = 
+			&ai_personalities[i].steer_tg_max_distance;
+		float* steer_tg_min_dist = 
+			&ai_personalities[i].steer_tg_min_distance;
+		float* steer_tg_coast_dist =
+			&ai_personalities[i].steer_tg_coast_distance;
+		float* steer_tg_no_steer_dist =
+			&ai_personalities[i].steer_tg_no_steer_dist;
+		float* acceptable_angular_vel =
+			&ai_personalities[i].acceptable_angular_velocity;
+		float* shoot_angle =
+			&ai_personalities[i].shoot_angle;
+		float* shoot_dist =
+			&ai_personalities[i].shoot_distance;
+		float* estimated_speed = 
+			&ai_personalities[i].estimated_speed;
+
+		AI_TWEAK(platforms_frac, 0.0f, 1.0f);
+		AI_TWEAK(steer_tg_angle_tolerance, 0.0f, PI);
+		AI_TWEAK(steer_tg_aggressive_angle, 0.0f, PI);
+		AI_TWEAK(steer_tg_aggressive_dist, 0.0f, 300.0f);
+		AI_TWEAK(steer_tg_max_dist, 0.0f, 300.0f);
+		AI_TWEAK(steer_tg_min_dist, 0.0f, 300.0f);
+		AI_TWEAK(steer_tg_coast_dist, 0.0f, 300.0f);
+		AI_TWEAK(steer_tg_no_steer_dist, 0.0f, 100.0f);
+		AI_TWEAK(acceptable_angular_vel, 0.0f, PI);
+		AI_TWEAK(shoot_angle, 0.0f, PI);
+		AI_TWEAK(shoot_dist, 0.0f, 300.0f);
+		AI_TWEAK(estimated_speed, 0.0f, 300.0f);
+	}
+}
 
 void ai_reset(float width, float height) {
 	ai_precalc_bounds(width, height);
@@ -110,17 +172,56 @@ void _agent_set_state(uint id, AgentState new_state, uint prey_id) {
 	}
 
 	if(new_state == AI_DEFEND) {
-		// TODO: Determine which platform is most insecure
 
-		uint target_platform = game_random_taken_platform(agent->ship_id);
-		agent->dest_node = arena_platform_navpoint(target_platform);
+		// Choose platform which will neutralize first
+		float quickest_t = 100000.0f;
+		uint quickest_id = MAX_UINT32;
+		for(uint i = 0; i < arena->n_platforms; ++i) {
+			if(platform_states[i].color != agent->ship_id) 
+				continue;
+			
+			float t = game_time_till_neutralization(i);
+			if(t < quickest_t) {
+				float distance = ai_navmesh_distance(&arena->nav_mesh,
+					physics_state.ships[agent->ship_id].pos,
+					arena->platforms[i]);
+				if(distance / agent->personality->estimated_speed > t) {	
+					quickest_t = t;
+					quickest_id = i;
+				}
+			}
+		}	
+
+		if(quickest_id == MAX_UINT32)
+			quickest_id = game_random_taken_platform(agent->ship_id);
+		if(quickest_id == MAX_UINT32)
+			new_state = AI_ATTACK;
+
+		agent->dest_node = arena_platform_navpoint(quickest_id);
 		steer_tg_pos = physics_state.ships[agent->ship_id].pos;
 		agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
 	}
 
 	if(new_state == AI_ATTACK) {
-		uint target_platform = game_random_taken_platform(prey_id);
-		agent->dest_node = arena_platform_navpoint(target_platform);
+
+		// Choose platform which will neutralize first
+		float quickest_t = 100000.0f;
+		uint quickest_id = MAX_UINT32;
+		for(uint i = 0; i < arena->n_platforms; ++i) {
+			if(platform_states[i].color != prey_id) 
+				continue;
+			
+			float t = game_time_till_neutralization(i);
+			if(t < quickest_t) {
+				quickest_t = t;
+				quickest_id = i;
+			}
+		}	
+
+		if(quickest_id == MAX_UINT32)
+			quickest_id = rand_int(0, arena->n_platforms);
+
+		agent->dest_node = arena_platform_navpoint(quickest_id);
 		steer_tg_pos = physics_state.ships[agent->ship_id].pos;
 		agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
 	}
@@ -278,7 +379,7 @@ void ai_update(void) {
 	}
 }
 
-void ai_init_agent(uint player_id) {
+void ai_init_agent(uint player_id, uint personality) {
 	uint agent_id = 0;
 	while(agent_id < MAX_AGENTS && agents[agent_id].ship_id != ~0) {
 		agent_id++;
@@ -290,7 +391,7 @@ void ai_init_agent(uint player_id) {
 	Agent* agent = &agents[agent_id];
 
 	agent->ship_id = player_id;
-	agent->personality = &default_personality;
+	agent->personality = &ai_personalities[personality];
 	agent->last_think_t = time_ms();
 	agent->last_steer_t = time_ms();
 

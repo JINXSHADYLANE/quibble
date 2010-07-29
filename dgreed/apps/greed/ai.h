@@ -3,6 +3,7 @@
 
 #include "ai_precalc.h"
 #include "arena.h"
+#include <tweakables.h>
 
 typedef enum {
 	AI_DEFEND,
@@ -33,6 +34,10 @@ typedef struct {
 	// If there is a ship in front within this distance and angle, shoot
 	float shoot_angle;
 	float shoot_distance;
+
+	// When calculating if agent can get somewhere quickly enough,
+	// use this average speed
+	float estimated_speed;
 } AgentPersonality;	
 
 typedef struct {
@@ -56,14 +61,18 @@ typedef struct {
 	int steer_right;
 	int accelerate;
 } Agent;	
+
+extern uint ai_personality_count;
 	
+void ai_register_tweaks(Tweaks* tweaks);
+
 void ai_reset(float width, float height);
 
 void ai_debug_draw(void);
 
 void ai_update(void);
 
-void ai_init_agent(uint player_id);
+void ai_init_agent(uint player_id, uint personality);
 void ai_close_agent(uint player_id);
 
 #endif
