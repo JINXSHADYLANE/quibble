@@ -9,7 +9,7 @@
 
 #define ARENA_FILE "greed_assets/arena.txt"
 
-const bool highres = true;
+const bool highres = false;
 
 int dgreed_main(int argc, const char** argv) {
 	log_init("greed.log", LOG_LEVEL_INFO);
