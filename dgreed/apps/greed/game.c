@@ -108,6 +108,7 @@ void game_init(void) {
 	#endif
 
 	particles_init();
+	arenas_init();
 	arena_init();
 	physics_init();
 
@@ -149,6 +150,7 @@ void game_init(void) {
 void game_close(void) {
 	physics_close();
 	arena_close();
+	arenas_close();
 	particles_close();
 	
 	#ifndef NO_DEVMODE

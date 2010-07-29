@@ -252,6 +252,9 @@ int platform2ship_callback(cpShape* a, cpShape* b, cpContact* contacts,
 
 void physics_init(void) {
 	cpInitChipmunk();
+}
+
+void _space_init(void) {
 	cpResetShapeIdCounter();
 	space = cpSpaceNew();
 	space->worldWidth = screen_bounds.right;
@@ -282,22 +285,26 @@ void physics_init(void) {
 		PLATFORM_COLLISION, SHIP_COLLISION, platform2ship_callback, NULL);
 }	
 
-void physics_close(void) {
-	assert(space);
+void _space_close(void) {
+	if(!space)
+		return;
 	if(static_body)
 		cpBodyFree(static_body);
 	cpSpaceFreeChildren(space);
 	cpSpaceFree(space);
-	cpCloseChipmunk();
 	space = NULL;
 }	
 
+void physics_close(void) {
+	_space_close();
+	cpCloseChipmunk();
+}
 void physics_reset(uint n_ships) {
 	assert(n_ships);
 	assert(n_ships <= MAX_SHIPS);
 
-	cpSpaceFreeChildren(space);
-
+	_space_close();
+	_space_init();
 	physics_state.n_ships = n_ships;
 
 	// TODO: Make moment change when mass changes
@@ -331,8 +338,6 @@ void physics_reset(uint n_ships) {
 	}	
 
 	// Add arena geometry
-	if(static_body)
-		cpBodyFree(static_body);
 	cpVect verts[3];	
 	static_body = cpBodyNew(INFINITY, INFINITY);
 	for(i = 0; i < current_arena_desc.n_tris; ++i) {
@@ -360,6 +365,7 @@ void physics_reset(uint n_ships) {
 		cpSpaceAddBody(space, platforms[i].body);
 		cpSpaceAddShape(space, platforms[i].shape);
 	}	
+	
 }	
 
 void physics_spawn_bullet(uint ship) {

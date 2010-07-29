@@ -6,6 +6,17 @@
 #include "game.h"
 #include "ai_precalc.h"
 
+#define MAX_ARENAS_IN_CHAPTER 5
+#define MAX_CHAPTERS 5
+
+typedef struct {
+	char* name;
+	uint n_arenas;
+	char* arena_file[MAX_ARENAS_IN_CHAPTER];
+	uint arena_players[MAX_ARENAS_IN_CHAPTER];
+} ChapterDesc;	
+
+
 typedef struct {
 	TexHandle background_img;
 	TexHandle walls_img;
@@ -20,7 +31,12 @@ typedef struct {
 	NavMesh nav_mesh;
 } ArenaDesc;
 
+extern uint total_arenas;
+extern ChapterDesc chapters[MAX_CHAPTERS];
 extern ArenaDesc current_arena_desc;
+
+void arenas_init(void);
+void arenas_close(void);
 
 void arena_init(void);
 void arena_close(void);

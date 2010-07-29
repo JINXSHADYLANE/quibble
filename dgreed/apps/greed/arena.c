@@ -6,12 +6,77 @@
 #define ARENA_LAYER 1
 #define SHADOWS_LAYER 2
 #define WALLS_LAYER 4
+#define CHAPTERS_FILE "greed_assets/arenas.mml"
 
+uint total_arenas;
+ChapterDesc chapters[MAX_CHAPTERS];
 ArenaDesc current_arena_desc;
 
 RectF walls_source = {0.0f, 0.0f, 480.0f, 320.0f};
 RectF background_source = {0.0f, 0.0f, 480.0f, 320.0f};
 RectF shadow_source = {0.0f, 321.0f, 240.0f, 321.0f + 160.0f};
+
+void _parse_chapters(const char* filename) {
+	assert(filename);
+
+	memset(chapters, 0, sizeof(chapters));
+	total_arenas = 0;
+	
+	char* desc_text = txtfile_read(filename);
+
+	MMLObject desc;
+	if(!mml_deserialize(&desc, desc_text))
+		LOG_ERROR("Unable to deserialize arena list file");
+
+	NodeIdx root = mml_root(&desc);
+	if(strcmp(mml_get_name(&desc, root), "arenas") != 0)
+		LOG_ERROR("Invalid arena list file");
+
+	MEM_FREE(desc_text);	
+
+	uint chapter_idx = 0;
+	for(NodeIdx chapter = mml_get_first_child(&desc, root);
+		chapter != 0;
+		chapter = mml_get_next(&desc, chapter), chapter_idx++) {
+
+		ChapterDesc* c = &chapters[chapter_idx];
+		c->name = strclone(mml_getval_str(&desc, chapter));
+		
+		uint arena_idx = 0;
+		for(NodeIdx arena = mml_get_first_child(&desc, chapter);
+			arena != 0;
+			arena = mml_get_next(&desc, arena), arena_idx++) {
+
+			total_arenas++;
+			
+			c->arena_file[arena_idx] = 
+				strclone(mml_get_name(&desc, arena));
+			c->arena_players[arena_idx] = (uint)mml_getval_int(&desc, arena);	
+		}	
+		c->n_arenas = arena_idx;
+	}
+
+	mml_free(&desc);	
+}
+
+void _free_chapters(void) {
+	for(uint i = 0; i < MAX_CHAPTERS; ++i) {
+		if(chapters[i].name == NULL)
+			continue;
+
+		MEM_FREE(chapters[i].name);
+		for(uint j = 0; j < chapters[i].n_arenas; ++j) 
+			MEM_FREE(chapters[i].arena_file[j]);
+	}
+}
+
+void arenas_init(void) {
+	_parse_chapters(CHAPTERS_FILE);
+}
+
+void arenas_close(void) {
+	_free_chapters();
+}
 
 void arena_init(void) {
 	current_arena_desc.platforms = NULL;

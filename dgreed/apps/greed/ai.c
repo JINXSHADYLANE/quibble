@@ -14,8 +14,8 @@ float agent_steer_interval = 1000.0f / 30.0f;
 
 Agent agents[MAX_AGENTS];
 
-uint ai_personality_count = 4;
-const char* ai_personality_names[] = {
+const uint ai_personality_count = 4;
+const char* ai_personality_names[MAX_AI_PERSONALITIES] = {
 	"multivac",
 	"microvac",
 	"galactic_ac",
