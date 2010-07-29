@@ -12,7 +12,7 @@ else:
 def scan():
 	tests_list = []
 	file_expr = re.compile('\S+\.(tests|tg)\Z')
-	for root, dirs, files in os.walk(''):
+	for root, dirs, files in os.walk('.'):
 		if root == '':
 			path = '.' + separator
 		else:

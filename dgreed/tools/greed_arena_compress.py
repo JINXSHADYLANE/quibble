@@ -28,12 +28,12 @@ def compress(arena_mml, mml_path, out_path):
 	arena_file.close()
 
 if __name__ == '__main__':
-	usage = 'usage %prog SOURCE DEST'
+	usage = '%prog SOURCE DEST'
 	parser = OptionParser(usage=usage)
 	
 	(opt, args) = parser.parse_args(sys.argv)
 	if len(args) != 3:
-		parser.error('You must provide processed arena description file')
+		parser.error('You must provide processed arena description file and output file')
 
 	arena_file = open(args[1], 'r')
 	arena_mml = mml.deserialize(arena_file.read())
