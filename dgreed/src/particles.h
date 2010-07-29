@@ -56,7 +56,6 @@ typedef struct {
 	float age;
 	float emission_acc;
 	uint particle_count;
-	DArray particles_data;
 	Particle* particles;
 	bool active;
 } ParticleSystem;	
