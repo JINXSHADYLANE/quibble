@@ -52,6 +52,11 @@ void _parse_chapters(const char* filename) {
 			c->arena_file[arena_idx] = 
 				strclone(mml_get_name(&desc, arena));
 			c->arena_players[arena_idx] = (uint)mml_getval_int(&desc, arena);	
+
+			NodeIdx name_node = mml_get_child(&desc, arena, "name");
+			assert(name_node);
+			c->arena_name[arena_idx] = 
+				strclone(mml_getval_str(&desc, name_node));
 		}	
 		c->n_arenas = arena_idx;
 	}
@@ -65,8 +70,10 @@ void _free_chapters(void) {
 			continue;
 
 		MEM_FREE(chapters[i].name);
-		for(uint j = 0; j < chapters[i].n_arenas; ++j) 
+		for(uint j = 0; j < chapters[i].n_arenas; ++j) { 
 			MEM_FREE(chapters[i].arena_file[j]);
+			MEM_FREE(chapters[i].arena_name[j]);
+		}	
 	}
 }
 
@@ -85,7 +92,7 @@ void arena_init(void) {
 	current_arena_desc.walls_img = MAX_UINT32;
 }
 
-void arena_close(void) {
+void _arena_prep_reset(void) {
 	if(current_arena_desc.platforms) {
 		MEM_FREE(current_arena_desc.platforms);
 		current_arena_desc.platforms = NULL;
@@ -94,10 +101,13 @@ void arena_close(void) {
 		MEM_FREE(current_arena_desc.collision_tris);
 		current_arena_desc.collision_tris = NULL;
 	}
+	// Free background later, in case new arena has same one
+	/*
 	if(current_arena_desc.background_img != MAX_UINT32) {
 		tex_free(current_arena_desc.background_img);
 		current_arena_desc.background_img = MAX_UINT32;
 	}	
+	*/
 	if(current_arena_desc.walls_img != MAX_UINT32) {
 		tex_free(current_arena_desc.walls_img);
 		current_arena_desc.walls_img = MAX_UINT32;
@@ -108,8 +118,16 @@ void arena_close(void) {
 	}	
 }
 
+void arena_close(void) {
+	_arena_prep_reset();
+	if(current_arena_desc.background_img != MAX_UINT32) {
+		tex_free(current_arena_desc.background_img);
+		current_arena_desc.background_img = MAX_UINT32;
+	}
+}
+
 void arena_reset(const char* filename, uint n_ships) {
-	arena_close();
+	_arena_prep_reset();
 
 	LOG_INFO("Loading arena from file %s", filename);
 
@@ -128,11 +146,13 @@ void arena_reset(const char* filename, uint n_ships) {
 		LOG_ERROR("Invalid arena description file");
 
 	// Load background image
-	// TODO: Skip this if last arena background is the same
 	NodeIdx img_node = mml_get_child(&desc, root, "background");
 	if(!img_node)
 		LOG_ERROR("No background propierty found in arena description");
-	current_arena_desc.background_img = tex_load(mml_getval_str(&desc, img_node));
+	TexHandle background_img = tex_load(mml_getval_str(&desc, img_node));
+	if(current_arena_desc.background_img != MAX_UINT32)
+		tex_free(current_arena_desc.background_img);
+	current_arena_desc.background_img = background_img;
 
 	// Load walls & shadow image
 	NodeIdx walls_node = mml_get_child(&desc, root, "walls");

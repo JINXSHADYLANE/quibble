@@ -11,6 +11,7 @@
 #include "game.h"
 #include "arena.h"
 #include "ai.h"
+#include "menus.h"
 
 #define TEXT_LAYER 12
 
@@ -109,6 +110,8 @@ void _arena_select(void) {
 	cursor.y = 76.0f + 22.0f * 6.0f;
 	cursor.x = 114.0f;
 	if(gui_button(&cursor, "Go")) {
+		menu_state = menu_transition = MENU_GAME;
+		
 		game_reset(name, n_players);
 
 		for(uint i = 0; i < n_players-1; ++i)

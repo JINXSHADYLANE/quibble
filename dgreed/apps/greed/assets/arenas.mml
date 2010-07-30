@@ -1,16 +1,36 @@
 ( arenas _
     ( chapter c1
-        ( greed_assets/c1_arena1.mml 3 )
-        ( greed_assets/c1_arena2.mml 2 )
-        ( greed_assets/c1_arena3.mml 2 )
-        ( greed_assets/c1_arena4.mml 2 )
-        ( greed_assets/c1_arena5.mml 2 )
+        ( greed_assets/c1_arena1.mml 3
+            ( name c1_arena1 )
+        )
+        ( greed_assets/c1_arena2.mml 2
+            ( name c1_arena2 )
+        )
+        ( greed_assets/c1_arena3.mml 2
+            ( name c1_arena3 )
+        )
+        ( greed_assets/c1_arena4.mml 2
+            ( name c1_arena4 )
+        )
+        ( greed_assets/c1_arena5.mml 2
+            ( name c1_arena5 )
+        )
     )
     ( chapter c2
-        ( greed_assets/c2_arena1.mml 2 )
-        ( greed_assets/c2_arena2.mml 2 )
-        ( greed_assets/c2_arena3.mml 4 )
-        ( greed_assets/c2_arena4.mml 2 )
-        ( greed_assets/c2_arena5.mml 2 )
+        ( greed_assets/c2_arena1.mml 2
+            ( name c2_arena1 )
+        )
+        ( greed_assets/c2_arena2.mml 2
+            ( name c2_arena2 )
+        )
+        ( greed_assets/c2_arena3.mml 4
+            ( name c2_arena3 )
+        )
+        ( greed_assets/c2_arena4.mml 2
+            ( name c2_arena4 )
+        )
+        ( greed_assets/c2_arena5.mml 2
+            ( name c2_arena5 )
+        )
     )
 )

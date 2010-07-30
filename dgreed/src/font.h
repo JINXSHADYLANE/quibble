@@ -21,4 +21,12 @@ float font_height(FontHandle font);
 void font_draw(FontHandle font, const char* string, uint layer,
 	const Vector2* topleft, Color tint);
 
+// Returns rectangle bounding drawn text.
+RectF font_rect_ex(FontHandle font, const char* string,
+	const Vector2* center, float scale);
+
+// Draws centered, scaled, string with specified font.
+void font_draw_ex(FontHandle font, const char* string, uint layer,
+	const Vector2* center, float scale, Color tint);
+
 #endif
