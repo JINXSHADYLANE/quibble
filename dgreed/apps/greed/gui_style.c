@@ -4,6 +4,7 @@
 
 FontHandle small_font;
 FontHandle big_font;
+FontHandle huge_font;
 TexHandle gui_tex;
 
 GuiDesc greed_gui_style(bool highres) {
@@ -11,10 +12,12 @@ GuiDesc greed_gui_style(bool highres) {
 
 	gui_tex = tex_load("greed_assets/gui_new.png");
 	if(highres) {
+		huge_font = font_load_ex("greed_assets/lucida_grande_48px.bft", 1.0f);
 		big_font = font_load_ex("greed_assets/lucida_grande_28px.bft", 0.5f);
 		small_font = font_load_ex("greed_assets/lucida_grande_20px.bft", 0.5f);
 	}	
 	else {
+		huge_font = font_load("greed_assets/lucida_grande_48px.bft");
 		big_font = font_load("greed_assets/lucida_grande_14px.bft");
 		small_font = font_load("greed_assets/lucida_grande_10px.bft");
 	}	
@@ -43,6 +46,7 @@ GuiDesc greed_gui_style(bool highres) {
 
 void greed_gui_free(void) {
 	tex_free(gui_tex);
+	font_free(huge_font);
 	font_free(big_font);
 	font_free(small_font);
 }	
