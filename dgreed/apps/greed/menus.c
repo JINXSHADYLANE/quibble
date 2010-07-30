@@ -6,6 +6,8 @@
 #include <gfx_utils.h>
 
 #include "arena.h"
+#include "game.h"
+#include "ai.h"
 
 MenuState menu_state;
 MenuState menu_transition;
@@ -106,14 +108,12 @@ void _menu_text(const Vector2* topleft, const char* text,
 		fabs(t));
 
 	float scale = _t_to_scale(t);
-	Vector2 adj_vdest = *topleft;
+	Vector2 adj_vdest = _adjust_scale_pos(*topleft, *ref, scale);
 	RectF rect = font_rect_ex(huge_font, text,
 		&adj_vdest, scale);
 
-	adj_vdest.x = rect.left + rectf_width(&rect) / 2.0f;
-	adj_vdest.y = rect.top + rectf_height(&rect) / 2.0f;
-
-	adj_vdest = _adjust_scale_pos(adj_vdest, *ref, scale);
+	adj_vdest.x += rectf_width(&rect) / 2.0f;
+	adj_vdest.y += rectf_height(&rect) / 2.0f;
 
 	font_draw_ex(huge_font, text, MENU_TEXT_LAYER, 
 		&adj_vdest, scale, text_col);
@@ -244,6 +244,8 @@ bool _mouse_acrobatics(float* camera_lookat_x, float* old_camera_lookat_x,
 	return false;
 }	
 
+static int selected_chapter = 0;
+
 void _render_chapters(float t) {
 	const uint chapter_count = 5;
 	const float y_coord = 160.0f;
@@ -266,6 +268,10 @@ void _render_chapters(float t) {
 	if(_mouse_acrobatics(&camera_lookat_x, &old_camera_lookat_x, 
 		chapter_count, x_spacing, center, sliding_area, width, height) &&
 		t==0.0f) {
+
+		selected_chapter = (int)(camera_lookat_x / -x_spacing + 0.5f);
+		selected_chapter = MIN(selected_chapter, chapter_count-1);
+		selected_chapter = MAX(selected_chapter, 0);
 	
 		menu_transition = MENU_ARENA;
 		menu_transition_t = time_ms() / 1000.0f;
@@ -282,8 +288,8 @@ void _render_chapters(float t) {
 				&panel_source, &vdest, 0.0f, scale, c);
 			
 			vdest =	
-				vec2(x_start + camera_lookat_x + (float)i * x_spacing - 150.0f,
-				y_coord + 90.0f);
+				vec2(x_start + camera_lookat_x + (float)i * x_spacing - 165.0f,
+				y_coord + 70.0f);
 
 			_menu_text(&vdest, chapters[i].name, &center, t);
 		}	
@@ -296,7 +302,6 @@ void _render_chapters(float t) {
 	}
 }
 
-//static uint selected_chapter = 0;
 
 // This is embarrasingly similar to _render_chapters...
 void _render_arenas(float t) {
@@ -318,8 +323,23 @@ void _render_arenas(float t) {
 	static float camera_lookat_x = 0.0f;
 	static float old_camera_lookat_x = 0.0f;
 
-	_mouse_acrobatics(&camera_lookat_x, &old_camera_lookat_x, 
-		arena_count, x_spacing, center, sliding_area, width, height);
+	if(_mouse_acrobatics(&camera_lookat_x, &old_camera_lookat_x, 
+		arena_count, x_spacing, center, sliding_area, width, height) && t==0.0f) {
+
+		uint selected_arena = (int)(camera_lookat_x / -x_spacing + 0.5f);
+		selected_arena = MIN(selected_chapter, arena_count-1);
+		selected_arena = MAX(selected_chapter, 0);
+
+		const char* arena_name =
+			chapters[selected_chapter].arena_file[selected_arena];
+		if(arena_name != NULL) {
+			menu_transition = MENU_GAME;
+			menu_transition_t = time_ms() / 1000.0f;
+
+			game_reset(arena_name, 2);
+			ai_init_agent(1, 0);
+		}	
+	}
 
 	// Render arena images & text
 	for(uint i = 0; i < arena_count; ++i) {
@@ -331,15 +351,12 @@ void _render_arenas(float t) {
 			gfx_draw_textured_rect(menu_atlas, MENU_PANEL_LAYER,
 				&panel_source, &vdest, 0.0f, scale, c);
 			
-			// No text for arenas yet
-			/*
 			vdest =	
-				vec2(x_start + camera_lookat_x + (float)i * x_spacing - 150.0f,
-				y_coord + 90.0f);
+				vec2(x_start + camera_lookat_x + (float)i * x_spacing - 165.0f,
+				y_coord + 70.0f);
 
 			const char* text = chapters[selected_chapter].arena_name[i];
 			_menu_text(&vdest, text, &center, t);
-			*/
 		}	
 	}
 
@@ -357,16 +374,20 @@ void _menus_switch(MenuState state, float t) {
 		_render_chapters(t);
 	if(state == MENU_ARENA)
 		_render_arenas(t);
+	if(state == MENU_GAME)
+		game_render_transition(t);
 }
 
 void menus_render(void) {	
-	if(menu_state == MENU_GAME)
+	if(menu_transition == MENU_GAME && menu_state == MENU_GAME)
 		return;
 
 	// Background
-	RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
-	video_draw_rect(background, MENU_BACKGROUND_LAYER, &background_source,
-		&dest, COLOR_WHITE);
+	if(menu_transition != MENU_GAME) {
+		RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
+		video_draw_rect(background, MENU_BACKGROUND_LAYER, &background_source,
+			&dest, COLOR_WHITE);
+	}	
 
 	if(menu_state == menu_transition) {
 		_menus_switch(menu_state, 0.0f);
