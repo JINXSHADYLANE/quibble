@@ -143,11 +143,9 @@ void arena_reset(const char* filename, uint n_ships) {
 	if(!img_node)
 		LOG_ERROR("No background propierty found in arena description");
 	TexHandle background_img = tex_load(mml_getval_str(&desc, img_node));
-	if(background_img != current_arena_desc.background_img) {
-		if(current_arena_desc.background_img != MAX_UINT32)
-			tex_free(current_arena_desc.background_img);
-		current_arena_desc.background_img = background_img;
-	}
+	if(current_arena_desc.background_img != MAX_UINT32)
+		tex_free(current_arena_desc.background_img);
+	current_arena_desc.background_img = background_img;
 
 	// Load walls & shadow image
 	NodeIdx walls_node = mml_get_child(&desc, root, "walls");

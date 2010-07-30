@@ -29,6 +29,7 @@
 
 typedef struct {
 	char* file;
+	uint retain_count;
 	uint width, height;
 	uint gl_id;
 	bool active;
@@ -402,8 +403,10 @@ TexHandle tex_load(const char* filename) {
 	// Look if texture is already loaded
 	for(uint i = 0; i < MAX_TEXTURES; ++i) {
 		if(textures[i].active) {
-			if(strcmp(textures[i].file, filename) == 0) 
+			if(strcmp(textures[i].file, filename) == 0) {
+				textures[i].retain_count++;
 				return i;
+			}	
 		}	
 		else {
 			if(!inactive_found) {
@@ -456,6 +459,7 @@ TexHandle tex_load(const char* filename) {
 	textures[result].height = height;
 	textures[result].gl_id = gl_id;
 	textures[result].file = strclone(filename);
+	textures[result].retain_count = 1;
 	textures[result].active = true;
 
 	stbi_image_free(decompr_data);
@@ -477,12 +481,14 @@ void tex_size(TexHandle tex, uint* width, uint* height) {
 void tex_free(TexHandle tex) {
 	assert(tex < MAX_TEXTURES);
 	assert(textures[tex].active);
+	assert(textures[tex].retain_count > 0);
 
-	glDeleteTextures(1, &textures[tex].gl_id);
-
-	MEM_FREE(textures[tex].file);
-
-	textures[tex].active = false;
+	textures[tex].retain_count--;
+	if(textures[tex].retain_count == 0) {
+		glDeleteTextures(1, &textures[tex].gl_id);
+		MEM_FREE(textures[tex].file);
+		textures[tex].active = false;
+	}
 }	
 
 uint _get_gl_id(TexHandle tex) {
