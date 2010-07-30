@@ -13,6 +13,7 @@ typedef struct {
 	char* name;
 	uint n_arenas;
 	char* arena_file[MAX_ARENAS_IN_CHAPTER];
+	char* arena_name[MAX_ARENAS_IN_CHAPTER];
 	uint arena_players[MAX_ARENAS_IN_CHAPTER];
 } ChapterDesc;	
 

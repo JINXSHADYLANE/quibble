@@ -52,6 +52,11 @@ void _parse_chapters(const char* filename) {
 			c->arena_file[arena_idx] = 
 				strclone(mml_get_name(&desc, arena));
 			c->arena_players[arena_idx] = (uint)mml_getval_int(&desc, arena);	
+
+			NodeIdx name_node = mml_get_child(&desc, arena, "name");
+			assert(name_node);
+			c->arena_name[arena_idx] = 
+				strclone(mml_getval_str(&desc, name_node));
 		}	
 		c->n_arenas = arena_idx;
 	}
@@ -65,8 +70,10 @@ void _free_chapters(void) {
 			continue;
 
 		MEM_FREE(chapters[i].name);
-		for(uint j = 0; j < chapters[i].n_arenas; ++j) 
+		for(uint j = 0; j < chapters[i].n_arenas; ++j) { 
 			MEM_FREE(chapters[i].arena_file[j]);
+			MEM_FREE(chapters[i].arena_name[j]);
+		}	
 	}
 }
 

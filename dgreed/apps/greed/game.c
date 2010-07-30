@@ -594,6 +594,10 @@ void game_render(void) {
 	}	
 }	
 
+void game_render_transition(float t) {
+	arena_draw();
+}
+
 float game_taken_platforms_frac(uint color) {
 	uint count = 0;
 	for(uint i = 0; i < n_platforms; ++i) {
