@@ -168,6 +168,18 @@ void font_draw(FontHandle font, const char* string, uint layer,
 		i++;
 	}	
 }	
+
+RectF font_rect_ex(FontHandle font, const char* string, 
+	const Vector2* center, float scale) {
+	assert(font < MAX_FONTS);
+	assert(fonts[font].active);
+
+	float width = font_width(font, string) * scale;
+	float height = font_height(font) * scale;
+	Vector2 topleft = vec2(center->x - width/2.0f, center->y - height/2.0f);
+
+	return rectf(topleft.x, topleft.y, topleft.x + width, topleft.y + height);
+}
 	
 void font_draw_ex(FontHandle font, const char* string, uint layer,
 	const Vector2* center, float scale, Color tint) {

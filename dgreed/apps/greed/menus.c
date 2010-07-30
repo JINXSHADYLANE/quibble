@@ -5,6 +5,8 @@
 #include <gui.h>
 #include <gfx_utils.h>
 
+#include "arena.h"
+
 MenuState menu_state;
 MenuState menu_transition;
 float menu_transition_t;
@@ -26,8 +28,13 @@ static RectF title_source = {362.0f, 0.0f, 362.0f + 70.0f, 256.0f};
 static RectF separator_source = {0.0f, 246.0f, 322.0f, 246.0f + 8.0f};
 
 static Color menu_text_color = COLOR_RGBA(214, 214, 215, 255);
+static Color menu_sel_text_color = COLOR_RGBA(166, 166, 168, 255);
 
 extern FontHandle huge_font;
+
+// Tweakables
+float menu_transition_length = 0.5f;
+float menu_animation_depth = 0.5f;
 
 void menus_init(void) {
 	background = tex_load(BACKGROUND_IMG);
@@ -50,6 +57,68 @@ Vector2 _adjust_scale_pos(Vector2 p, Vector2 center, float scale) {
 	return vec2_add(center, c_to_p);
 }
 
+float _t_to_scale(float t) {
+	float max = 1.0f + menu_animation_depth;
+	float min = 1.0f - menu_animation_depth;
+	t = smoothstep(0.0f, 1.0f, (t + 1.0f) / 2.0f);
+	return 1.0f / lerp(max, min, t);
+}
+
+bool _menu_button(const Vector2* center, const char* text,
+	const Vector2* ref, float t) {
+
+	uint mx, my;
+	mouse_pos(&mx, &my);
+	Vector2 vmouse = vec2((float)mx, (float)my);
+
+	Color text_col = color_lerp(menu_text_color, menu_text_color && 0xFFFFFF, 
+		fabs(t));
+	Color selected_text_col = color_lerp(menu_sel_text_color, 
+		menu_sel_text_color && 0xFFFFFF, fabs(t));	
+
+	float scale = _t_to_scale(t);
+	Vector2 adj_vdest = _adjust_scale_pos(*center, *ref, scale);
+
+	RectF rect = font_rect_ex(huge_font, text,
+		&adj_vdest, scale);
+
+	// Make rect smaller in y direction to prevent multiple
+	// items being selected at once
+	rect.top += 8.0f;
+	rect.bottom -= 8.0f;
+
+	bool mouse_inside = rectf_contains_point(&rect, &vmouse);
+	Color curr_text_col = mouse_inside ? selected_text_col : text_col;
+
+	font_draw_ex(huge_font, text, MENU_TEXT_LAYER, 
+		&adj_vdest, scale, curr_text_col);
+
+	return mouse_inside && mouse_down(MBTN_LEFT); 	
+}
+
+void _menu_text(const Vector2* topleft, const char* text,
+	const Vector2* ref, float t) {
+
+	if(!text)
+		return;
+
+	Color text_col = color_lerp(menu_text_color, menu_text_color && 0xFFFFFF, 
+		fabs(t));
+
+	float scale = _t_to_scale(t);
+	Vector2 adj_vdest = *topleft;
+	RectF rect = font_rect_ex(huge_font, text,
+		&adj_vdest, scale);
+
+	adj_vdest.x = rect.left + rectf_width(&rect) / 2.0f;
+	adj_vdest.y = rect.top + rectf_height(&rect) / 2.0f;
+
+	adj_vdest = _adjust_scale_pos(adj_vdest, *ref, scale);
+
+	font_draw_ex(huge_font, text, MENU_TEXT_LAYER, 
+		&adj_vdest, scale, text_col);
+}
+
 void _render_main(float t) {
 	const char* items[] = {
 		"Play",
@@ -57,16 +126,9 @@ void _render_main(float t) {
 		"Info"
 	};
 
-	float scale = 1.0f / lerp(1.5f, 0.5f, (t + 1.0f) / 2.0f);
+	float scale = _t_to_scale(t);
 
 	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
-	Color text = color_lerp(menu_text_color, menu_text_color && 0xFFFFFF, 
-		fabs(t));
-
-	// Background
-	RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
-	video_draw_rect(background, MENU_BACKGROUND_LAYER, &background_source,
-		&dest, COLOR_WHITE);
 
 	// Panel
 	Vector2 center = vec2(240.0f, 168.0f);
@@ -81,13 +143,16 @@ void _render_main(float t) {
 	// Text
 	vdest = vec2(240.0f, 139.0f);
 	for(uint i = 0; i < ARRAY_SIZE(items); ++i) {
-		Vector2 adj_vdest = _adjust_scale_pos(vdest, center, scale);
-		font_draw_ex(huge_font, items[i], MENU_TEXT_LAYER, 
-			&adj_vdest, scale, text);
+		if(_menu_button(&vdest, items[i], &center, t) && t==0.0f) {
+			if(i == 0)
+				menu_transition = MENU_CHAPTER;
+			
+			menu_transition_t = time_ms() / 1000.0f;
+		}
 
 		if(i < ARRAY_SIZE(items)-1) {
 			vdest.y += 19.0f;
-			adj_vdest = _adjust_scale_pos(vdest, center, scale);
+			Vector2 adj_vdest = _adjust_scale_pos(vdest, center, scale);
 			gfx_draw_textured_rect(menu_atlas, MENU_SHADOW_LAYER,
 				&separator_source, &adj_vdest, 0.0f, scale, c);	
 		}
@@ -96,8 +161,231 @@ void _render_main(float t) {
 	}
 }
 
-void menus_render(void) {
-	if(menu_state == MENU_MAIN)
-		_render_main(0.0f);
+// Sliding menu handling
+bool _mouse_acrobatics(float* camera_lookat_x, float* old_camera_lookat_x,
+	uint item_count, float x_spacing, Vector2 center, RectF sliding_area,
+	float width, float height) {
+	uint mx, my;
+	mouse_pos(&mx, &my);
+	Vector2 vmouse = vec2((float)mx, (float)my);
+
+	static Vector2 down_vmouse = {0.0f, 0.0f};
+	static bool sliding_action = false;
+
+	if(rectf_contains_point(&sliding_area, &vmouse)) {
+		if(mouse_down(MBTN_LEFT)) {
+			down_vmouse = vmouse;
+			sliding_action = false;
+		}
+
+		if(mouse_pressed(MBTN_LEFT)) {
+			float dist_sq = vec2_length_sq(vec2_sub(vmouse, down_vmouse));
+			if(dist_sq > 1000.0f) {
+				sliding_action = true;
+				*old_camera_lookat_x = *camera_lookat_x;
+			}	
+			
+			if(sliding_action) {
+				float dx = vmouse.x - down_vmouse.x;
+				*camera_lookat_x = lerp(*camera_lookat_x,
+					*old_camera_lookat_x + dx, 0.1f);
+			}
+		}
+	}
+	else {
+		if(sliding_action)
+			goto end_sliding;
+	}
+
+	if(mouse_up(MBTN_LEFT)) {
+		end_sliding:
+		if(sliding_action) {
+			float frac, intgr;
+			frac = modff(-*camera_lookat_x/x_spacing, &intgr);
+			if(frac > 0.5f)
+				*old_camera_lookat_x = intgr + 1.0f;
+			else
+				*old_camera_lookat_x = intgr;
+
+			if(*old_camera_lookat_x < 0.0f)
+				*old_camera_lookat_x = 0.0f;
+			if(*old_camera_lookat_x > (float)(item_count-1))
+				*old_camera_lookat_x = (float)(item_count-1);
+
+			*old_camera_lookat_x *= -x_spacing;	
+			
+			sliding_action = false;
+		}
+		else {
+			if(vmouse.y > center.y - height/2.0f &&
+				vmouse.y < center.y + height/2.0f) {
+				
+				if(vmouse.x > center.x + width/2.0f) {
+					*old_camera_lookat_x /= -x_spacing;
+					*old_camera_lookat_x += 1.0f;
+					*old_camera_lookat_x = 
+						MIN(*old_camera_lookat_x, (float)(item_count-1));
+					*old_camera_lookat_x *= -x_spacing;	
+				}
+				else if(vmouse.x < center.x - width/2.0f) {
+					*old_camera_lookat_x /= -x_spacing;
+					*old_camera_lookat_x -= 1.0f;
+					*old_camera_lookat_x = MAX(*old_camera_lookat_x, 0.0f);
+					*old_camera_lookat_x *= -x_spacing;	
+				}	
+				else
+					return true;
+			}	
+		}
+	}
+
+	*camera_lookat_x = lerp(*camera_lookat_x, *old_camera_lookat_x, 0.2f);
+
+	return false;
+}	
+
+void _render_chapters(float t) {
+	const uint chapter_count = 5;
+	const float y_coord = 160.0f;
+	const float x_spacing = 380.0f;
+	const float x_start = 240.0f;
+	const Vector2 center = {240.0f, 160.0f};
+
+	float scale = _t_to_scale(t);
+
+	float width = rectf_width(&panel_source) * scale;
+	float height = rectf_height(&panel_source) * scale;
+	RectF sliding_area = rectf(0.0f, y_coord - height/2.0f, 
+		480.0f, y_coord + height/2.0f);
+
+	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
+
+	static float camera_lookat_x = 0.0f;
+	static float old_camera_lookat_x = 0.0f;
+
+	if(_mouse_acrobatics(&camera_lookat_x, &old_camera_lookat_x, 
+		chapter_count, x_spacing, center, sliding_area, width, height) &&
+		t==0.0f) {
+	
+		menu_transition = MENU_ARENA;
+		menu_transition_t = time_ms() / 1000.0f;
+	}
+
+	// Render chapter images & text
+	for(uint i = 0; i < chapter_count; ++i) {
+		Vector2 vdest = _adjust_scale_pos(
+			vec2(x_start + camera_lookat_x + (float)i * x_spacing, y_coord), 
+			center, scale);
+
+		if(vdest.x > -width/2.0f && vdest.x < 480.0f + width/2.0f) {
+			gfx_draw_textured_rect(menu_atlas, MENU_PANEL_LAYER,
+				&panel_source, &vdest, 0.0f, scale, c);
+			
+			vdest =	
+				vec2(x_start + camera_lookat_x + (float)i * x_spacing - 150.0f,
+				y_coord + 90.0f);
+
+			_menu_text(&vdest, chapters[i].name, &center, t);
+		}	
+	}
+
+	Vector2 vdest = vec2(center.x, 295.0f);
+	if(_menu_button(&vdest, "Back", &center, t) && t==0.0f) {
+		menu_transition = MENU_MAIN;
+		menu_transition_t = -time_ms() / 1000.0f;
+	}
+}
+
+//static uint selected_chapter = 0;
+
+// This is embarrasingly similar to _render_chapters...
+void _render_arenas(float t) {
+	const uint arena_count = 5;
+	const float y_coord = 160.0f;
+	const float x_spacing = 380.0f;
+	const float x_start = 240.0f;
+	const Vector2 center = {240.0f, 160.0f};
+
+	float scale = _t_to_scale(t);
+
+	float width = rectf_width(&panel_source) * scale;
+	float height = rectf_height(&panel_source) * scale;
+	RectF sliding_area = rectf(0.0f, y_coord - height/2.0f, 
+		480.0f, y_coord + height/2.0f);
+
+	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
+
+	static float camera_lookat_x = 0.0f;
+	static float old_camera_lookat_x = 0.0f;
+
+	_mouse_acrobatics(&camera_lookat_x, &old_camera_lookat_x, 
+		arena_count, x_spacing, center, sliding_area, width, height);
+
+	// Render arena images & text
+	for(uint i = 0; i < arena_count; ++i) {
+		Vector2 vdest = _adjust_scale_pos(
+			vec2(x_start + camera_lookat_x + (float)i * x_spacing, y_coord), 
+			center, scale);
+
+		if(vdest.x > -width/2.0f && vdest.x < 480.0f + width/2.0f) {
+			gfx_draw_textured_rect(menu_atlas, MENU_PANEL_LAYER,
+				&panel_source, &vdest, 0.0f, scale, c);
+			
+			// No text for arenas yet
+			/*
+			vdest =	
+				vec2(x_start + camera_lookat_x + (float)i * x_spacing - 150.0f,
+				y_coord + 90.0f);
+
+			const char* text = chapters[selected_chapter].arena_name[i];
+			_menu_text(&vdest, text, &center, t);
+			*/
+		}	
+	}
+
+	Vector2 vdest = vec2(center.x, 295.0f);
+	if(_menu_button(&vdest, "Back", &center, t) && t==0.0f) {
+		menu_transition = MENU_CHAPTER;
+		menu_transition_t = -time_ms() / 1000.0f;
+	}
+}
+
+void _menus_switch(MenuState state, float t) {
+	if(state == MENU_MAIN)
+		_render_main(t);
+	if(state == MENU_CHAPTER)
+		_render_chapters(t);
+	if(state == MENU_ARENA)
+		_render_arenas(t);
+}
+
+void menus_render(void) {	
+	if(menu_state == MENU_GAME)
+		return;
+
+	// Background
+	RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
+	video_draw_rect(background, MENU_BACKGROUND_LAYER, &background_source,
+		&dest, COLOR_WHITE);
+
+	if(menu_state == menu_transition) {
+		_menus_switch(menu_state, 0.0f);
+	}	
+	else {
+		float time = time_ms() / 1000.0f;
+		float t = (time - fabs(menu_transition_t)) / menu_transition_length;
+
+		if(menu_transition_t > 0.0f) {
+			_menus_switch(menu_state, 0.0f + t);
+			_menus_switch(menu_transition, -1.0f + t);
+		}
+		else {
+			_menus_switch(menu_state, 0.0f - t);
+			_menus_switch(menu_transition, 1.0f - t);
+		}
+
+		if(t >= 1.0f)
+			menu_state = menu_transition;
+	}
 }
 
