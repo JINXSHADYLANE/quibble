@@ -7,9 +7,7 @@
 #include "ai.h"
 #include "sounds.h"
 
-#define ARENA_FILE "greed_assets/arena.txt"
-
-const bool highres = false;
+const bool highres = true;
 
 int dgreed_main(int argc, const char** argv) {
 	log_init("greed.log", LOG_LEVEL_INFO);
@@ -26,10 +24,6 @@ int dgreed_main(int argc, const char** argv) {
 	gui_init(&style);
 
 	game_init();
-	char* arena_file = txtfile_read(ARENA_FILE);
-	game_reset(arena_file, 2);
-	ai_init_agent(1, 0);
-	MEM_FREE(arena_file);
 
 	while(system_update()) {
 		game_update();

@@ -283,6 +283,8 @@ void _space_init(void) {
 		PLATFORM_COLLISION, BULLET_COLLISION, platform2bullet_callback, NULL);
 	cpSpaceAddCollisionPairFunc(space,
 		PLATFORM_COLLISION, SHIP_COLLISION, platform2ship_callback, NULL);
+	
+	physics_state.n_bullets = 0;
 }	
 
 void _space_close(void) {

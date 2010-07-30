@@ -168,4 +168,46 @@ void font_draw(FontHandle font, const char* string, uint layer,
 		i++;
 	}	
 }	
+
+RectF font_rect_ex(FontHandle font, const char* string, 
+	const Vector2* center, float scale) {
+	assert(font < MAX_FONTS);
+	assert(fonts[font].active);
+
+	float width = font_width(font, string) * scale;
+	float height = font_height(font) * scale;
+	Vector2 topleft = vec2(center->x - width/2.0f, center->y - height/2.0f);
+
+	return rectf(topleft.x, topleft.y, topleft.x + width, topleft.y + height);
+}
+	
+void font_draw_ex(FontHandle font, const char* string, uint layer,
+	const Vector2* center, float scale, Color tint) {
+	assert(font < MAX_FONTS);
+	assert(fonts[font].active);
+
+	float s = fonts[font].scale * scale;
+	float width = font_width(font, string) * scale;
+	float height = font_height(font) * scale;
+
+	Vector2 topleft = vec2(center->x - width/2.0f, center->y - height/2.0f);
+	float cursor_x = 0.0f;
+	uint i = 0;
+	while(string[i]) {
+		const Char* chr = &fonts[font].chars[(size_t)string[i]];
+
+		RectF dest = rectf(topleft.x + cursor_x, topleft.y, 0.0f, 0.0f);
+		dest.left += chr->x_offset * s;
+		dest.top += chr->y_offset * s;
+		dest.right = dest.left + rectf_width(&chr->source) * s;
+		dest.bottom = dest.top + rectf_height(&chr->source) * s;
+
+		if(string[i] != ' ')
+			video_draw_rect(fonts[font].tex, layer,
+				&(fonts[font].chars[(size_t)string[i]].source), &dest, tint);
+
+		cursor_x += chr->x_advance * s;
+		i++;
+	}	
+}	
 	

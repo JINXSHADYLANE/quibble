@@ -47,6 +47,7 @@ void game_reset(const char* arena, uint n_players);
 void game_update(void);
 void game_platform_taken(uint ship, uint platform);
 void game_render(void);
+void game_render_transition(float t);
 
 void game_shoot(uint ship);
 

@@ -63,6 +63,8 @@ def build_arena_list(chapters_list, outfile):
 					max_players = child.value
 			
 			arena_node = mml.Node('greed_assets/' + filename(arena), max_players)
+			name_node = mml.Node('name', tree.value)
+			arena_node.children.append(name_node)
 			chapter_node.children.append(arena_node) 
 		root.children.append(chapter_node)	
 	
