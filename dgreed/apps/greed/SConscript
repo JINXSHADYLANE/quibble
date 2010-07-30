@@ -21,6 +21,7 @@ greed_sources = Split("""
 	ai.c
 	gui_style.c
 	devmode.c
+	menus.c
 """)
 greed_objects = env.Object(greed_sources)
 

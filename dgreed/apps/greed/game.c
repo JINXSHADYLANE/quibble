@@ -8,6 +8,7 @@
 #include "ai.h"
 #include "devmode.h"
 #include "particles.h"
+#include "menus.h"
 
 #define ENERGYBAR_LAYER 6
 #define FOREGROUND_LAYER 5
@@ -107,6 +108,7 @@ void game_init(void) {
 	devmode_init();
 	#endif
 
+	menus_init();
 	particles_init();
 	arenas_init();
 	arena_init();
@@ -145,6 +147,9 @@ void game_init(void) {
 
 	bullet_rect = rectf(217.0f, 432.0f, 217.0f + 12.0f, 432.0f + 12.0f);
 	bullet_shadow_rect = rectf(288.0f, 432.0f, 288.0f + 16.0f, 432.0f + 16.0f);
+
+	n_ships = 0;
+	n_platforms = 0;
 }	
 
 void game_close(void) {
@@ -154,6 +159,7 @@ void game_close(void) {
 	arena_close();
 	arenas_close();
 	particles_close();
+	menus_close();
 	
 	#ifndef NO_DEVMODE
 	devmode_close();
@@ -215,6 +221,11 @@ void game_update(void) {
 	#ifndef NO_DEVMODE
 	devmode_update();
 	#endif
+
+	menus_update();
+
+	if(menu_state != MENU_GAME)
+		return;
 
 	_control_keyboard1(0);
 
@@ -385,6 +396,10 @@ void game_render(void) {
 	if(gui_switch(&p, "devmode"))
 		devmode_render();
 	#endif
+
+	menus_render();
+	if(menu_state != MENU_GAME)
+		return;
 
 	if(draw_physics_debug)
 		physics_debug_draw();

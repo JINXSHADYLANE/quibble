@@ -5,7 +5,7 @@
   <pages>
     <page id="0" file="greed_assets/lucida_grande_24px_0.png" />
   </pages>
-  <chars count="97">
+  <chars count="95">
     <char id="32" x="249" y="20" width="5" height="5" xoffset="-2" yoffset="16" xadvance="5" page="0" chnl="15" />
     <char id="33" x="195" y="60" width="7" height="17" xoffset="-1" yoffset="4" xadvance="5" page="0" chnl="15" />
     <char id="34" x="13" y="98" width="11" height="10" xoffset="-2" yoffset="3" xadvance="7" page="0" chnl="15" />
