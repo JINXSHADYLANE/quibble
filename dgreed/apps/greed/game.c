@@ -148,6 +148,8 @@ void game_init(void) {
 }	
 
 void game_close(void) {
+	tex_free(atlas1);
+
 	physics_close();
 	arena_close();
 	arenas_close();
