@@ -28,6 +28,7 @@
 #define MS_PER_FRAME (1000 / FPS_LIMIT)
 
 typedef struct {
+	char* file;
 	uint width, height;
 	uint gl_id;
 	bool active;
@@ -394,15 +395,30 @@ bool _is_pow2(uint n) {
 }	
 
 TexHandle tex_load(const char* filename) {
+
+	bool inactive_found = false;
+	uint first_inactive = 0;
+
+	// Look if texture is already loaded
+	for(uint i = 0; i < MAX_TEXTURES; ++i) {
+		if(textures[i].active) {
+			if(strcmp(textures[i].file, filename) == 0) 
+				return i;
+		}	
+		else {
+			if(!inactive_found) {
+				first_inactive = i;
+				inactive_found = true;
+			}
+		}
+	}
+
 	LOG_INFO("Loading texture from file %s", filename);
 
-	// Find free space in texture pool
-	TexHandle result = 0;
-	while(textures[result].active && result < MAX_TEXTURES) {
-		result++;
-	}	
+	TexHandle result = first_inactive;
 	texture_count++;
-	if(texture_count > MAX_TEXTURES || result == MAX_TEXTURES)
+
+	if(texture_count > MAX_TEXTURES || !inactive_found)
 		LOG_ERROR("Texture pool overflow");
 	
 	// Read file to memory
@@ -416,11 +432,11 @@ TexHandle tex_load(const char* filename) {
 	int width, height, components;
 	byte* decompr_data = (byte*)stbi_load_from_memory(buffer, size, &width, &height, 
 		&components, 4);
-	//if(!(_is_pow2(width) && _is_pow2(height))) {
-	//	stbi_image_free(decompr_data);
-	//	MEM_FREE(buffer);
-	//	LOG_ERROR("Texture dimensions is not power of 2");
-	//}	
+	if(!(_is_pow2(width) && _is_pow2(height))) {
+		stbi_image_free(decompr_data);
+		MEM_FREE(buffer);
+		LOG_ERROR("Texture dimensions is not power of 2");
+	}	
 
 	// Make gl texture
 	uint gl_id;
@@ -439,6 +455,7 @@ TexHandle tex_load(const char* filename) {
 	textures[result].width = width;
 	textures[result].height = height;
 	textures[result].gl_id = gl_id;
+	textures[result].file = strclone(filename);
 	textures[result].active = true;
 
 	stbi_image_free(decompr_data);
@@ -462,6 +479,8 @@ void tex_free(TexHandle tex) {
 	assert(textures[tex].active);
 
 	glDeleteTextures(1, &textures[tex].gl_id);
+
+	MEM_FREE(textures[tex].file);
 
 	textures[tex].active = false;
 }	
