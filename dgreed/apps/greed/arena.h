@@ -45,6 +45,7 @@ void arena_reset(const char* filename, uint n_ships);
 
 void arena_update(float dt);
 void arena_draw(void);
+void arena_draw_transition(float t);
 
 // AI helpers:
 uint arena_closest_navpoint(Vector2 pos);

@@ -248,6 +248,25 @@ void arena_draw(void) {
 		&shadow_source, &dest, COLOR_WHITE);
 }		
 
+void arena_draw_transition(float t) {
+	Color c = color_lerp(COLOR_WHITE, COLOR_WHITE&0xFFFFFF, t);
+
+	RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
+	video_draw_rect(current_arena_desc.background_img, ARENA_LAYER, 
+		&background_source, &dest, c);
+	video_draw_rect(current_arena_desc.walls_img, WALLS_LAYER,
+		&walls_source, &dest, c);
+
+	dest.left = current_arena_desc.shadow_shift.x;
+	dest.top = current_arena_desc.shadow_shift.y;
+	dest.right = dest.left + rectf_width(&background_source);
+	dest.bottom = dest.top + rectf_height(&background_source);
+
+	video_draw_rect(current_arena_desc.walls_img, SHADOWS_LAYER,
+		&shadow_source, &dest, c);
+
+}
+
 uint arena_closest_navpoint(Vector2 pos) {
 	return ai_nearest_navpoint(&current_arena_desc.nav_mesh, pos);
 }

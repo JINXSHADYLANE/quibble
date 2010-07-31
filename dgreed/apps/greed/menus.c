@@ -13,10 +13,10 @@ MenuState menu_state;
 MenuState menu_transition;
 float menu_transition_t;
 
-#define MENU_BACKGROUND_LAYER 1
+#define MENU_BACKGROUND_LAYER 0
 #define MENU_PANEL_LAYER  2
 #define MENU_SHADOW_LAYER 3
-#define MENU_TEXT_LAYER 12
+#define MENU_TEXT_LAYER 9
 
 #define BACKGROUND_IMG "greed_assets/back_chapter_1.png"
 #define MENU_ATLAS_IMG "greed_assets/menu_atlas.png"
@@ -364,7 +364,7 @@ void menus_render(void) {
 		return;
 
 	// Background
-	if(menu_transition != MENU_GAME) {
+	if(menu_state != MENU_GAME) {
 		RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
 		video_draw_rect(background, MENU_BACKGROUND_LAYER, &background_source,
 			&dest, COLOR_WHITE);
