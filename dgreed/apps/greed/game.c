@@ -40,6 +40,7 @@ uint n_ships;
 uint n_platforms;
 ShipState ship_states[MAX_SHIPS];
 PlatformState platform_states[MAX_PLATFORMS];
+float start_anim_t = 0.0f;
 
 // Tweakables
 float ship_circle_radius = 35.0f;
@@ -61,6 +62,9 @@ float energy_decrease_speed = 2.0f;
 float energy_holding = 0.3f;
 float energy_neutralization = 10.0f;
 float energybar_length = 400.0f;
+float start_anim_length = 1.0f;
+float start_anim_obj_fadein = 0.3f;
+float start_anim_obj_size = 2.0f;
 
 const Color ship_colors[] = {
 	COLOR_RGBA(33, 48, 189, 255),
@@ -101,6 +105,9 @@ void game_register_tweaks(Tweaks* tweaks) {
 	GAME_TWEAK(energy_holding, 0.1f, 10.0f);
 	GAME_TWEAK(energy_neutralization, 1.0f, 100.0f);
 	GAME_TWEAK(energybar_length, 50.0f, 400.0f);
+	GAME_TWEAK(start_anim_length, 0.5f, 5.0f);
+	GAME_TWEAK(start_anim_obj_fadein, 0.1f, 1.0f);
+	GAME_TWEAK(start_anim_obj_size, 0.1f, 10.0f);
 }
 
 void game_init(void) {
@@ -217,6 +224,11 @@ void _control_keyboard1(uint ship) {
 		game_shoot(ship);
 }	
 
+bool _in_start_anim(void) {
+	float t = time_ms() / 1000.0f;
+	return start_anim_t + start_anim_length >= t;
+}
+
 void game_update(void) {
 	#ifndef NO_DEVMODE
 	devmode_update();
@@ -225,6 +237,9 @@ void game_update(void) {
 	menus_update();
 
 	if(menu_state != MENU_GAME)
+		return;
+
+	if(_in_start_anim())
 		return;
 
 	_control_keyboard1(0);
@@ -406,6 +421,13 @@ void game_render(void) {
 
 	if(draw_ai_debug)
 		ai_debug_draw();
+
+	if(_in_start_anim()) {
+		float time = time_ms() / 1000.0f;
+		float t = (time - start_anim_t) / start_anim_length;
+		game_render_startanim(t);
+		return;
+	}	
 	
 	particles_draw();
 	arena_draw();
@@ -595,7 +617,87 @@ void game_render(void) {
 }	
 
 void game_render_transition(float t) {
+	arena_draw_transition(fabs(t));
+	start_anim_t = time_ms() / 1000.0f;
+}
+
+void _startanim_platform(uint platform, float t) {
+	PlatformState* state = &platform_states[platform];
+	Vector2 pos = current_arena_desc.platforms[platform];
+	Vector2 shadow_pos = vec2_add(pos, current_arena_desc.shadow_shift);
+
+	Color c = color_lerp(COLOR_WHITE&0xFFFFFF, COLOR_WHITE, t);
+	float size = smoothstep(start_anim_obj_size, 1.0f, t);
+
+	// Core
+	gfx_draw_textured_rect(atlas1, BACKGROUND_LAYER, 
+		&(platform_rects[0]), &pos, 0.0f, platform_core_size * size, c); 
+
+	// Core shadow
+	gfx_draw_textured_rect(atlas1, SHADOWS_LAYER,
+		&platform_shadow_rect, &shadow_pos, 0.0f, 
+		platform_core_size * size, c);
+	
+	// Ring
+	gfx_draw_textured_rect(atlas1, BACKGROUND_LAYER,
+		&(platform_ring_rects[PLATFORM_RING_NEUTRAL]), &pos,
+		state->ring_angle, size, c);
+
+	// Ring shadow	
+	gfx_draw_textured_rect(atlas1, SHADOWS_LAYER,
+		&(platform_ring_rects[PLATFORM_RING_NEUTRAL_SHADOW]),
+		&shadow_pos, state->ring_angle, size, c);
+}					
+
+void _startanim_ship(uint ship, float t) {
+	Vector2 pos = physics_state.ships[ship].pos;
+	float zrot = physics_state.ships[ship].zrot;
+	float rot = physics_state.ships[ship].rot;
+	float scale = physics_state.ships[ship].scale;
+
+	uint frame = (uint)(zrot / (360.0f / (float)SHIP_FRAMES));
+	assert(frame < SHIP_FRAMES);
+
+	Color c = color_lerp(COLOR_WHITE&0xFFFFFF, COLOR_WHITE, t);
+	float size = smoothstep(start_anim_obj_size, 1.0f, t);
+
+	// Ship
+	gfx_draw_textured_rect(atlas1, OBJECTS_LAYER,
+		&(ship_rects[ship][frame]),	&pos, rot, scale * size, c);
+
+	// Shadow
+	Vector2 shadow_pos = vec2_add(pos, current_arena_desc.shadow_shift);
+	gfx_draw_textured_rect(atlas1, SHADOWS_LAYER,
+		&ship_shadow_rect, &shadow_pos, rot, scale * size, c);
+}
+
+void game_render_startanim(float t) {
 	arena_draw();
+
+	uint n_objs = n_ships + n_platforms;
+	float norm_fadein = start_anim_obj_fadein / start_anim_length;
+
+	float obj_interval = (1.0f - norm_fadein) / (float)n_objs;
+
+	float curr_obj_start = 0.0f;
+
+	// Platforms
+	for(uint i = 0; i < n_platforms; ++i) {
+		float obj_t = normalize(t, curr_obj_start, 
+			curr_obj_start + norm_fadein);
+		obj_t = clamp(0.0f, 1.0f, obj_t);	
+		_startanim_platform(i, obj_t);
+		curr_obj_start += obj_interval;
+	}
+
+	// Ships
+	for(uint i = 0; i < n_ships; ++i) {
+		float obj_t = normalize(t, curr_obj_start, 
+			curr_obj_start + norm_fadein);
+		obj_t = clamp(0.0f, 1.0f, obj_t);	
+		_startanim_ship(i, obj_t);
+		curr_obj_start += obj_interval;
+	}
 }
 
 float game_taken_platforms_frac(uint color) {
