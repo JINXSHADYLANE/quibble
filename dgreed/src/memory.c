@@ -89,7 +89,7 @@ void* mem_realloc(void* p, size_t size, const char* file, int line) {
 	return ptr;
 }
 
-void mem_free(void* ptr) {
+void mem_free(const void* ptr) {
 	unsigned int i;
 
 	assert(ptr);
@@ -109,7 +109,8 @@ void mem_free(void* ptr) {
 	allocations_count--;
 
 	// Free memory
-	free(ptr);
+	void* p = (void*)ptr;
+	free(p);
 
 	// Update stats
 	stats.bytes_allocated -= alloc_size;
