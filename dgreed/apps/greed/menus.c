@@ -164,7 +164,11 @@ void _render_main(float t) {
 // Sliding menu handling
 bool _mouse_acrobatics(float* camera_lookat_x, float* old_camera_lookat_x,
 	uint item_count, float x_spacing, Vector2 center, RectF sliding_area,
-	float width, float height) {
+	float width, float height, float t) {
+
+	if(t != 0.0f)
+		return false;
+
 	uint mx, my;
 	mouse_pos(&mx, &my);
 	Vector2 vmouse = vec2((float)mx, (float)my);
@@ -180,7 +184,7 @@ bool _mouse_acrobatics(float* camera_lookat_x, float* old_camera_lookat_x,
 
 		if(mouse_pressed(MBTN_LEFT)) {
 			float dist_sq = vec2_length_sq(vec2_sub(vmouse, down_vmouse));
-			if(dist_sq > 1000.0f) {
+			if(!sliding_action && dist_sq > 100.0f) {
 				sliding_action = true;
 				*old_camera_lookat_x = *camera_lookat_x;
 			}	
@@ -188,7 +192,7 @@ bool _mouse_acrobatics(float* camera_lookat_x, float* old_camera_lookat_x,
 			if(sliding_action) {
 				float dx = vmouse.x - down_vmouse.x;
 				*camera_lookat_x = lerp(*camera_lookat_x,
-					*old_camera_lookat_x + dx, 0.1f);
+					*old_camera_lookat_x + dx*2.0f, 0.3f);
 			}
 		}
 	}
@@ -245,11 +249,18 @@ bool _mouse_acrobatics(float* camera_lookat_x, float* old_camera_lookat_x,
 }	
 
 static int selected_chapter = 0;
+static float chp_camera_lookat_x = 0.0f;
+static float chp_old_camera_lookat_x = 0.0f;
+static float arn_camera_lookat_x = 0.0f;
+static float arn_old_camera_lookat_x = 0.0f;
+static const float x_spacing = 380.0f;
 
-void _render_chapters(float t) {
-	const uint chapter_count = 5;
+bool _render_slidemenu(float t, float* camera_lookat_x, 
+	float* old_camera_lookat_x, MenuState back, const char** text,
+	uint n_items) {
+
+	const uint item_count = n_items;
 	const float y_coord = 160.0f;
-	const float x_spacing = 380.0f;
 	const float x_start = 240.0f;
 	const Vector2 center = {240.0f, 160.0f};
 
@@ -262,25 +273,17 @@ void _render_chapters(float t) {
 
 	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
 
-	static float camera_lookat_x = 0.0f;
-	static float old_camera_lookat_x = 0.0f;
+	bool result = false;
 
-	if(_mouse_acrobatics(&camera_lookat_x, &old_camera_lookat_x, 
-		chapter_count, x_spacing, center, sliding_area, width, height) &&
-		t==0.0f) {
+	if(_mouse_acrobatics(camera_lookat_x, old_camera_lookat_x, 
+		item_count, x_spacing, center, sliding_area, width, height, t)) {
 
-		selected_chapter = (int)(camera_lookat_x / -x_spacing + 0.5f);
-		selected_chapter = MIN(selected_chapter, chapter_count-1);
-		selected_chapter = MAX(selected_chapter, 0);
-	
-		menu_transition = MENU_ARENA;
-		menu_transition_t = time_ms() / 1000.0f;
+		result = true;
 	}
 
-	// Render chapter images & text
-	for(uint i = 0; i < chapter_count; ++i) {
+	for(uint i = 0; i < item_count; ++i) {
 		Vector2 vdest = _adjust_scale_pos(
-			vec2(x_start + camera_lookat_x + (float)i * x_spacing, y_coord), 
+			vec2(x_start + *camera_lookat_x + (float)i * x_spacing, y_coord), 
 			center, scale);
 
 		if(vdest.x > -width/2.0f && vdest.x < 480.0f + width/2.0f) {
@@ -288,47 +291,48 @@ void _render_chapters(float t) {
 				&panel_source, &vdest, 0.0f, scale, c);
 			
 			vdest =	
-				vec2(x_start + camera_lookat_x + (float)i * x_spacing - 165.0f,
+				vec2(x_start + *camera_lookat_x + (float)i * x_spacing - 165.0f,
 				y_coord + 70.0f);
 
-			_menu_text(&vdest, chapters[i].name, &center, t);
+			_menu_text(&vdest, text[i], &center, t);
 		}	
 	}
 
 	Vector2 vdest = vec2(center.x, 295.0f);
 	if(_menu_button(&vdest, "Back", &center, t) && t==0.0f) {
-		menu_transition = MENU_MAIN;
+		menu_transition = back;
 		menu_transition_t = -time_ms() / 1000.0f;
 	}
+
+	return result;
 }
 
+void _render_chapters(float t) {	
+	const char* text[5];
+	for(uint i = 0; i < 5; ++i) {
+		text[i] = chapters[i].name;
+	}
 
-// This is embarrasingly similar to _render_chapters...
+	if(_render_slidemenu(t, &chp_camera_lookat_x, &chp_old_camera_lookat_x,
+		MENU_MAIN, text, 5)) {
+
+		selected_chapter = (int)(chp_camera_lookat_x / -x_spacing + 0.5f);
+		selected_chapter = MIN(selected_chapter, 4);
+		selected_chapter = MAX(selected_chapter, 0);
+	
+		menu_transition = MENU_ARENA;
+		menu_transition_t = time_ms() / 1000.0f;
+		arn_camera_lookat_x = arn_old_camera_lookat_x = 0.0f;
+	}	
+}		
+
 void _render_arenas(float t) {
-	const uint arena_count = 5;
-	const float y_coord = 160.0f;
-	const float x_spacing = 380.0f;
-	const float x_start = 240.0f;
-	const Vector2 center = {240.0f, 160.0f};
+	if(_render_slidemenu(t, &arn_camera_lookat_x, &arn_old_camera_lookat_x,
+		MENU_CHAPTER, chapters[selected_chapter].arena_name, 5)) {
 
-	float scale = _t_to_scale(t);
-
-	float width = rectf_width(&panel_source) * scale;
-	float height = rectf_height(&panel_source) * scale;
-	RectF sliding_area = rectf(0.0f, y_coord - height/2.0f, 
-		480.0f, y_coord + height/2.0f);
-
-	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
-
-	static float camera_lookat_x = 0.0f;
-	static float old_camera_lookat_x = 0.0f;
-
-	if(_mouse_acrobatics(&camera_lookat_x, &old_camera_lookat_x, 
-		arena_count, x_spacing, center, sliding_area, width, height) && t==0.0f) {
-
-		uint selected_arena = (int)(camera_lookat_x / -x_spacing + 0.5f);
-		selected_arena = MIN(selected_chapter, arena_count-1);
-		selected_arena = MAX(selected_chapter, 0);
+		uint selected_arena = (int)(arn_camera_lookat_x / -x_spacing + 0.5f);
+		selected_arena = MIN(selected_arena, 4);
+		selected_arena = MAX(selected_arena, 0);
 
 		const char* arena_name =
 			chapters[selected_chapter].arena_file[selected_arena];
@@ -336,34 +340,11 @@ void _render_arenas(float t) {
 			menu_transition = MENU_GAME;
 			menu_transition_t = time_ms() / 1000.0f;
 
+			// TODO: Draw loading text here
+
 			game_reset(arena_name, 2);
 			ai_init_agent(1, 0);
 		}	
-	}
-
-	// Render arena images & text
-	for(uint i = 0; i < arena_count; ++i) {
-		Vector2 vdest = _adjust_scale_pos(
-			vec2(x_start + camera_lookat_x + (float)i * x_spacing, y_coord), 
-			center, scale);
-
-		if(vdest.x > -width/2.0f && vdest.x < 480.0f + width/2.0f) {
-			gfx_draw_textured_rect(menu_atlas, MENU_PANEL_LAYER,
-				&panel_source, &vdest, 0.0f, scale, c);
-			
-			vdest =	
-				vec2(x_start + camera_lookat_x + (float)i * x_spacing - 165.0f,
-				y_coord + 70.0f);
-
-			const char* text = chapters[selected_chapter].arena_name[i];
-			_menu_text(&vdest, text, &center, t);
-		}	
-	}
-
-	Vector2 vdest = vec2(center.x, 295.0f);
-	if(_menu_button(&vdest, "Back", &center, t) && t==0.0f) {
-		menu_transition = MENU_CHAPTER;
-		menu_transition_t = -time_ms() / 1000.0f;
 	}
 }
 

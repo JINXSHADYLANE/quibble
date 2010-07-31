@@ -10,10 +10,10 @@
 #define MAX_CHAPTERS 5
 
 typedef struct {
-	char* name;
+	const char* name;
 	uint n_arenas;
-	char* arena_file[MAX_ARENAS_IN_CHAPTER];
-	char* arena_name[MAX_ARENAS_IN_CHAPTER];
+	const char* arena_file[MAX_ARENAS_IN_CHAPTER];
+	const char* arena_name[MAX_ARENAS_IN_CHAPTER];
 	uint arena_players[MAX_ARENAS_IN_CHAPTER];
 } ChapterDesc;	
 

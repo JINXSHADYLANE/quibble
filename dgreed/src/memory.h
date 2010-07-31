@@ -29,7 +29,7 @@ typedef struct {
 void* mem_alloc(size_t size, const char* file, int line);
 void* mem_calloc(size_t num, size_t size, const char* file, int line);
 void* mem_realloc(void* p, size_t size, const char* file, int line);
-void mem_free(void* ptr);
+void mem_free(const void* ptr);
 void mem_stats(MemoryStats* mstats);
 void mem_dump(const char* path);
  
