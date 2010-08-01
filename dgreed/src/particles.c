@@ -339,7 +339,7 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 		particles[i].start_size = lerp(psystem->desc->min_start_size,
 			psystem->desc->max_start_size, rand_float());
 		particles[i].start_angle = lerp(psystem->desc->min_start_angle,
-			psystem->desc->max_start_size, rand_float());
+			psystem->desc->max_start_angle, rand_float());
 
 		if(psystem->desc->min_end_dir * RAD_TO_DEG < -100.0f && 
 			psystem->desc->max_end_dir * RAD_TO_DEG < -100.0f) {

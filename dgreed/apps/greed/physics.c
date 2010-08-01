@@ -51,6 +51,7 @@ float ship_zrot_acceleration = 100.0f;
 float ship_zrot_damping = 0.98f;
 float ship_velocity_limit = 1000.0f;
 float ship_damping = 0.997f;
+float ship_walldmg_velocity = 250.0f;
 float wall_elasticity = 0.8f;
 float wall_friction = 0.1f;
 float bullet_speed = 400.0f;
@@ -78,6 +79,7 @@ void physics_register_tweaks(Tweaks* tweaks) {
 	GAME_TWEAK(ship_zrot_damping, 0.9f, 0.99f);
 	GAME_TWEAK(ship_velocity_limit, 100.0f, 2000.0f);
 	GAME_TWEAK(ship_damping, 0.98f, 0.999f);
+	GAME_TWEAK(ship_walldmg_velocity, 10.0f, 1000.0f);
 	GAME_TWEAK(wall_elasticity, 0.01f, 0.99f);
 	GAME_TWEAK(bullet_speed, 50.0f, 1000.0f);
 	GAME_TWEAK(bullet_mass, 0.1f, 5.0f);
@@ -132,6 +134,29 @@ int ship2ship_callback(cpShape* a, cpShape* b, cpContact* contacts,
 
 int ship2wall_callback(cpShape* a, cpShape* b, cpContact* contacts,
 	int num_contacts, cpFloat normal_coeff, void* data) {
+
+	cpShape* ship_shape = a->collision_type == SHIP_COLLISION ?
+		a : b;
+	cpBody* ship = ship_shape->body;
+
+	// TODO: Optimize this
+	uint ship_id;
+	for(ship_id = 0; ship_id < n_ships; ++ship_id) {
+		if(ships[ship_id].body == ship)
+			break;
+	}
+	assert(ship_id != n_ships);
+
+	float ship_speed_sq = vec2_length_sq(physics_state.ships[ship_id].vel);
+
+	if(ship_speed_sq >= ship_walldmg_velocity * ship_walldmg_velocity) {
+		Vector2 pos = cpv_to_gv(contacts[0].p);
+		Vector2 ship_pos = physics_state.ships[ship_id].vel;
+
+		float dir = vec2_dir(vec2_sub(ship_pos, pos)) + PI/2.0f;
+
+		particles_spawn("wall1", &pos, dir);
+	}	
 
 	sounds_event(COLLISION_SHIP_WALL);
 
