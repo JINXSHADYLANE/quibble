@@ -225,13 +225,18 @@ int platform2ship_callback(cpShape* a, cpShape* b, cpContact* contacts,
 	}
 	assert(platform_id != n_platforms);
 
-	if(platform_states[platform_id].color != ship_id) {
-		platform_states[platform_id].color = ship_id;
-		platform_states[platform_id].activation_t = time_ms() / 1000.0f;
+	PlatformState* pstate = &platform_states[platform_id];
+	if(pstate->color != ship_id) {
+		// Do nothing is platform is already in transition
+		if(pstate->color == pstate->last_color) {
+			platform_states[platform_id].color = ship_id;
+			platform_states[platform_id].activation_t = time_ms() / 1000.0f;
 
-		game_platform_taken(ship_id, platform_id);
+			game_platform_taken(ship_id, platform_id);
+		}	
 	}	
 
+	// Push/pull force
 	cpVect platform_to_ship = 
 		cpvsub(ships[ship_id].body->p, platforms[platform_id].body->p);
 	float distance = cpvlength(platform_to_ship);	

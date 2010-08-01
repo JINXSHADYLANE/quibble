@@ -298,7 +298,7 @@ void game_update(void) {
 
 	// Update platforms
 	for(uint platform = 0; platform < n_platforms; ++platform) {
-		PlatformState* state = &(platform_states[platform]);
+		PlatformState* state = &platform_states[platform];
 
 		// Rotate ring
 		state->ring_angle += dt * platform_ring_rotation_speed;	
@@ -321,6 +321,8 @@ void game_update(void) {
 				ship_states[state->color].energy += energy_neutralization;
 				state->color = PLATFORM_NEUTRAL;
 
+				Vector2 pos = current_arena_desc.platforms[platform];
+				particles_spawn("ptransition_out", &pos, 0.0f);
 				sounds_event(PLATFORM_NEUTRALIZED);
 			}
 		}	
@@ -333,6 +335,8 @@ void game_platform_taken(uint ship_id, uint platform_id) {
 	assert(ship_id < n_ships);
 	assert(platform_id < n_platforms);
 	
+	Vector2 pos = current_arena_desc.platforms[platform_id];
+	particles_spawn("ptransition_in", &pos, 0.0f);
 	sounds_event(PLATFORM_TAKEN);
 }	
 
@@ -344,6 +348,7 @@ void _draw_ship(const Vector2* pos, uint ship) {
 	float scale = physics_state.ships[ship].scale;
 
 	uint frame = (uint)(zrot / (360.0f / (float)SHIP_FRAMES));
+	frame = frame % SHIP_FRAMES;
 	assert(frame < SHIP_FRAMES);
 
 	// Ship
