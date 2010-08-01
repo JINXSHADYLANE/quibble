@@ -101,11 +101,19 @@ void particles_init(void) {
 		GET_NODEVAL(prop, "max_start_size", psystem_descs[i].max_start_size, float);
 		GET_NODEVAL(prop, "min_end_size", psystem_descs[i].min_end_size, float);
 		GET_NODEVAL(prop, "max_end_size", psystem_descs[i].max_end_size, float);
+		GET_NODEVAL(prop, "min_start_angle", psystem_descs[i].min_start_angle, float);
+		GET_NODEVAL(prop, "max_start_angle", psystem_descs[i].max_start_angle, float);
+		GET_NODEVAL(prop, "min_end_angle", psystem_descs[i].min_end_angle, float);
+		GET_NODEVAL(prop, "max_end_angle", psystem_descs[i].max_end_angle, float);
 
 		psystem_descs[i].min_start_dir *= DEG_TO_RAD;
 		psystem_descs[i].max_start_dir *= DEG_TO_RAD;
 		psystem_descs[i].min_end_dir *= DEG_TO_RAD;
 		psystem_descs[i].max_end_dir *= DEG_TO_RAD;
+		psystem_descs[i].min_start_angle *= DEG_TO_RAD;
+		psystem_descs[i].max_start_angle *= DEG_TO_RAD;
+		psystem_descs[i].min_end_angle *= DEG_TO_RAD;
+		psystem_descs[i].max_end_angle *= DEG_TO_RAD;
 
 		const char* color;
 		uint r, g, b, a;
@@ -142,6 +150,8 @@ void particles_init(void) {
 	#endif
 }	
 
+// This is not used anywhere
+/*
 void particles_save(void) {
 	MMLObject mml;
 	mml_empty(&mml);
@@ -206,6 +216,7 @@ void particles_save(void) {
 	txtfile_write(PARTICLES_FILENAME, serialized_desc); 
 	MEM_FREE(serialized_desc);
 }
+*/
 
 void particles_close(void) {
 	for(uint i = 0; i < MAX_PSYSTEMS; ++i) {
@@ -327,6 +338,8 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 			psystem->desc->max_start_color, rand_float());
 		particles[i].start_size = lerp(psystem->desc->min_start_size,
 			psystem->desc->max_start_size, rand_float());
+		particles[i].start_angle = lerp(psystem->desc->min_start_angle,
+			psystem->desc->max_start_size, rand_float());
 
 		if(psystem->desc->min_end_dir * RAD_TO_DEG < -100.0f && 
 			psystem->desc->max_end_dir * RAD_TO_DEG < -100.0f) {
@@ -364,6 +377,15 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 		 	particles[i].end_size = lerp(psystem->desc->min_end_size,
 				psystem->desc->max_end_size, rand_float());
 		}		
+
+		if(psystem->desc->min_end_angle * RAD_TO_DEG < -100.0f &&
+			psystem->desc->max_end_angle * RAD_TO_DEG < -100.0f) {
+			particles[i].end_angle = particles[i].start_angle;
+		}
+		else {
+		 	particles[i].end_angle = lerp(psystem->desc->min_end_angle,
+				psystem->desc->max_end_angle, rand_float());
+		}	
 	}	
 
 	// Self-destruct if age is reached and all particles are dead
@@ -420,6 +442,7 @@ void _psystem_draw(ParticleSystem* psystem) {
 
 		float size = lerp(p->start_size, p->end_size, t);
 		Color color = color_lerp(p->start_color, p->end_color, t);
+		float angle = lerp(p->start_angle, p->end_angle, t);
 
 		RectF source = psystem->desc->tex_source;
 		float width = (source.right - source.left) * size;
@@ -427,8 +450,8 @@ void _psystem_draw(ParticleSystem* psystem) {
 		RectF dest = rectf(p->pos.x - width/2.0f, p->pos.y - height/2.0f,
 			p->pos.x + width/2.0f, p->pos.y + height/2.0f);
 
-		video_draw_rect(psystem->desc->texture, PARTICLE_LAYER, 
-			&source, &dest, color); 
+		video_draw_rect_rotated(psystem->desc->texture, PARTICLE_LAYER, 
+			&source, &dest, angle, color); 
 	}		
 }	
 

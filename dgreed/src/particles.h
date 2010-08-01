@@ -17,6 +17,8 @@ typedef struct {
 	Color end_color;
 	float start_size;
 	float end_size;
+	float start_angle;
+	float end_angle;
 } Particle;	
 
 #define PSYSTEM_DESC_NAME_LENGTH 16 
@@ -43,6 +45,10 @@ typedef struct {
 	float max_start_size;
 	float min_end_size;
 	float max_end_size;
+	float min_start_angle;
+	float max_start_angle;
+	float min_end_angle;
+	float max_end_angle;
 	Color min_start_color;
 	Color max_start_color;
 	Color min_end_color;
