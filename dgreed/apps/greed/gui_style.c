@@ -12,12 +12,12 @@ GuiDesc greed_gui_style(bool highres) {
 
 	gui_tex = tex_load("greed_assets/gui_new.png");
 	if(highres) {
-		huge_font = font_load_ex("greed_assets/lucida_grande_48px.bft", 1.0f);
+		huge_font = font_load_ex("greed_assets/lucida_grande_60px.bft", 0.5f);
 		big_font = font_load_ex("greed_assets/lucida_grande_28px.bft", 0.5f);
 		small_font = font_load_ex("greed_assets/lucida_grande_20px.bft", 0.5f);
 	}	
 	else {
-		huge_font = font_load("greed_assets/lucida_grande_48px.bft");
+		huge_font = font_load("greed_assets/lucida_grande_30px.bft");
 		big_font = font_load("greed_assets/lucida_grande_14px.bft");
 		small_font = font_load("greed_assets/lucida_grande_10px.bft");
 	}	
