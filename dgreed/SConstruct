@@ -6,8 +6,13 @@ BUILD_DIR = 'build_'
 TOOL_DIR = 'tools'
 SUBS = ['src', 'apps']
 
-env = Environment(CCFLAGS='-DTRACK_MEMORY -Wall -std=c99', CPPPATH='#/src',
-	LIBPATH='#/bin', DGREED_BIN_DIR=BIN_DIR)
+common_flags = '-DTRACK_MEMORY -Wall '
+env = Environment(CCFLAGS=common_flags + '-std=c99 ',
+	CPPPATH='#/src', LIBPATH='#/bin', DGREED_BIN_DIR=BIN_DIR)
+
+env['CXXFLAGS'] = common_flags	
+# Prevent CCFLAGS being used when compiling C++
+env['CXXCOM'] = '$CXX -o $TARGET -c $CXXFLAGS $_CCCOMCOM $SOURCES'
 
 default_font_tool = TOOL_DIR + '/' + 'fnt2bft.py $SOURCE $TARGET' 	
 default_test_tool = TOOL_DIR + '/' + 'gen_tests.py -o $TARGET $SOURCES'
@@ -43,11 +48,14 @@ else:
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool,
 		DGREED_DIR_SEPARATOR='/')
 	
+dbg_flags = '-D_DEBUG -g '
+rel_flags = '-DNDEBUG -O2 '
+
 env_dbg = env.Clone()
-env_dbg.Prepend(CCFLAGS='-D_DEBUG -g ', DGREED_POSTFIX='d',
+env_dbg.Prepend(CCFLAGS=dbg_flags, CXXFLAGS=dbg_flags, DGREED_POSTFIX='d',
 	DGREED_LIBS=['dgreedd'])
 env_rel = env.Clone()
-env_rel.Prepend(CCFLAGS='-DNDEBUG -O2 ', DGREED_POSTFIX='',
+env_rel.Prepend(CCFLAGS=rel_flags, CXXFLAGS=rel_flags, DGREED_POSTFIX='',
 	DGREED_LIBS=['dgreed'])
 
 for sub in SUBS:

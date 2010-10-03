@@ -4,6 +4,10 @@
 #include "utils.h"
 #include "system.h"
 
+#ifdef __cplusplus
+namespace c {
+#endif
+
 typedef uint FontHandle;
 
 // Loads a new font file
@@ -28,5 +32,9 @@ RectF font_rect_ex(FontHandle font, const char* string,
 // Draws centered, scaled, string with specified font.
 void font_draw_ex(FontHandle font, const char* string, uint layer,
 	const Vector2* center, float scale, Color tint);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

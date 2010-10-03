@@ -9,6 +9,10 @@
 #include <stdbool.h>
 #include <math.h>
 
+#ifdef __cplusplus
+namespace c {
+#endif
+
 /*
 --------------------
 --- Common types ---
@@ -342,6 +346,10 @@ void* lz_decompress(void* input, uint input_size, uint* output_size);
 // Fast and simple hashing algorithm with funny name
 // http://en.wikipedia.org/wiki/MurmurHash
 uint hash_murmur(void* data, uint len, uint seed);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
