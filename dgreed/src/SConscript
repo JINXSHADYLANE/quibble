@@ -8,3 +8,7 @@ if str(Platform()) == 'darwin':
 dgreed = env.Library('dgreed' + env['DGREED_POSTFIX'], sources)
 env.Install('#'+env['DGREED_BIN_DIR'], dgreed)
 
+ego_sources = Glob('*.cpp', strings=True)
+ego = env.Library('ego' + env['DGREED_POSTFIX'], ego_sources)
+env.Install('#'+env['DGREED_BIN_DIR'], ego)
+

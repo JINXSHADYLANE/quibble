@@ -4,6 +4,10 @@
 #include "system.h"
 #include "font.h"
 
+#ifdef __cplusplus
+namespace c {
+#endif
+
 typedef struct {
 	TexHandle texture;
 	FontHandle font;
@@ -43,5 +47,9 @@ float gui_getstate_slider(const Vector2* pos);
 
 void gui_setstate_switch(const Vector2* pos, bool val);
 void gui_setstate_slider(const Vector2* pos, float val);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
