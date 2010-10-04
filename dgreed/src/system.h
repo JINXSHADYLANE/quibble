@@ -3,10 +3,6 @@
 
 #include "utils.h"
 
-#ifdef __cplusplus
-namespace c {
-#endif
-
 /*
 ----------------
 --- Graphics ---
@@ -176,10 +172,6 @@ uint time_fps(void);
 */
 
 bool system_update(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
 

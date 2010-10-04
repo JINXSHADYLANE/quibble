@@ -10,6 +10,7 @@ A few curious things about ego should be noticed:
 
 0)  Your main function should have following signature: 
     int dgreed_main(int argc, const char** argv)
+	Also, it must be inside 'extern "C" { ... } '
 1)  You must poll Input::process in your main loop and stop it when return value
     is false.
 2)  You must call Log::init with sensible arguments before anything else in your
@@ -48,8 +49,21 @@ A few curious things about ego should be noticed:
 #include <cstdarg>
 
 namespace ego {
+	const float pi = 3.14159265f;
 	typedef unsigned int uint;
 	typedef std::string string;
+
+	// Two most important functions ever
+
+	template <typename T>
+	T lerp(const T& a, const T& b, float t) {
+		return a + (b-a) * t;
+	}
+
+	template <typename T>
+	T smoothstep(const T& a, const T& b, float t) {
+		return lerp(a, b, t * t * (3.0f - 2.0f * t)); 
+	}
 
 	// Easy logging to a text file
 	class Log {
@@ -181,10 +195,15 @@ namespace ego {
 		Color(float r, float g, float b, float a = 1.0f);
 		static Color hsv(float h, float s, float v, float a = 1.0f);
 
+		static Color lerp(Color a, Color b, float t);
+
 		void toRgba(float& r, float& g, float& b, float& a);
 		void toHsva(float& h, float& s, float& v, float& a);
 
 		uint value;
+
+		static const Color white;
+		static const Color black;
 	};
 
 	// Image, in a gpu-friendly form
@@ -282,15 +301,18 @@ namespace ego {
 
 		// Various ways to draw a rectangle. Layer must be in range [0, 15],
 		// things with smaller layer value are always drawn in front of things
-		// with higher layer. All coordinates are in pixels and in 
-		// CG (positive y goes down) coordinate space.
+		// with higher layer. All coordinates are in pixels and in CG 
+		// (positive y goes down) coordinate space. Rotation angle is in radians.
 		void drawRect(Texture* tex, uint layer, const Vector2& dest);
 		void drawRect(Texture* tex, uint layer, const RectF& source,
-				const Vector2& dest, float rotation, Color tint);
+				const Vector2& dest, float rotation = 0.0f, 
+				Color tint = Color::white);
 		void drawRect(Texture* tex, uint layer, const RectF& source,
-				const RectF& dest, float rotation, Color tint);
+				const RectF& dest, float rotation = 0.0f, 
+				Color tint = Color::white);
 		void drawCenteredRect(Texture* tex, uint layer, const RectF& source,
-				const Vector2& dest, float rotation, float scale, Color tint);
+				const Vector2& dest, float rotation = 0.0f, float scale = 1.0f,
+				Color tint = Color::white);
 
 		// Draw a pixel-wide line segment.		
 		void drawLine(uint layer, const Vector2& start, const Vector2& end,
@@ -402,6 +424,17 @@ namespace ego {
 		// Current frames per second
 		static uint fps();
 	};	
+
+	// Random numbers. You must seed randomizer by calling init!
+	class Random {
+	public:
+		static void init(uint seed);
+
+		static uint _uint();
+		static int _int(int min, int max);
+		static float _float();
+		static float _float(float min, float max);
+	};
 }	
 
 #endif

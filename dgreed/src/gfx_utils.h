@@ -4,10 +4,6 @@
 #include "utils.h"
 #include "system.h"
 
-#ifdef __cplusplus
-namespace c {
-#endif
-
 // Draws little cross where a point should be
 void gfx_draw_point(uint layer, const Vector2* pos, Color color);
 // Draws a wireframe rectangle
@@ -46,10 +42,6 @@ Color* gfx_downscale(const Color* img, uint w, uint h);
 // Blits source image to destination, using alpha blending
 void gfx_blit(Color* dest, uint dest_w, uint dest_h,
 	const Color* src, uint src_w, uint src_h, int x, int y);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
 
