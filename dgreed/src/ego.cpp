@@ -12,17 +12,17 @@ extern "C" {
 // --- Log ---
 
 void ego::Log::init(const ego::string& filename) {
-	c::log_init(filename.c_str(), LOG_LEVEL_INFO);		
+	log_init(filename.c_str(), LOG_LEVEL_INFO);		
 }
 
 void ego::Log::close() {
-	c::log_close();
+	log_close();
 }
 
 void ego::Log::info(const char* format, ...) {
 	va_list args;
 	va_start(args, format);
-	c::log_send(LOG_LEVEL_INFO, format, args);
+	log_send(LOG_LEVEL_INFO, format, args);
 	va_end(args);
 }
 
@@ -33,7 +33,7 @@ void ego::Log::info(const ego::string& msg) {
 void ego::Log::warning(const char* format, ...) {
 	va_list args;
 	va_start(args, format);
-	c::log_send(LOG_LEVEL_WARNING, format, args);
+	log_send(LOG_LEVEL_WARNING, format, args);
 	va_end(args);
 }
 
@@ -44,7 +44,7 @@ void ego::Log::warning(const ego::string& msg) {
 void ego::Log::error(const char* format, ...) {
 	va_list args;
 	va_start(args, format);
-	c::log_send(LOG_LEVEL_WARNING, format, args);
+	log_send(LOG_LEVEL_WARNING, format, args);
 	va_end(args);
 
 	close();
@@ -58,35 +58,35 @@ void ego::Log::error(const ego::string& msg) {
 // --- IFile ---
 
 ego::IFile::~IFile() {
-	c::file_close((c::FileHandle)handle);
+	file_close((FileHandle)handle);
 }
 
 ego::uint ego::IFile::size() {
-	return c::file_size((c::FileHandle)handle);
+	return file_size((FileHandle)handle);
 }
 
 void ego::IFile::seek(ego::uint pos) {
-	c::file_seek((c::FileHandle)handle, pos);
+	file_seek((FileHandle)handle, pos);
 }
 
 unsigned char ego::IFile::readByte() {
-	return c::file_read_byte((c::FileHandle)handle);
+	return file_read_byte((FileHandle)handle);
 }
 
 unsigned short ego::IFile::readUint16() {
-	return c::file_read_uint16((c::FileHandle)handle);
+	return file_read_uint16((FileHandle)handle);
 }
 
 unsigned int ego::IFile::readUint32() {
-	return c::file_read_uint32((c::FileHandle)handle);
+	return file_read_uint32((FileHandle)handle);
 }
 
 float ego::IFile::readFloat() {
-	return c::file_read_float((c::FileHandle)handle);
+	return file_read_float((FileHandle)handle);
 }
 
 void ego::IFile::read(void* dest, ego::uint size) {
-	c::file_read((c::FileHandle)handle, dest, size);
+	file_read((FileHandle)handle, dest, size);
 }
 
 ego::IFile::IFile()
@@ -96,27 +96,27 @@ ego::IFile::IFile()
 // --- OFile ---
 
 ego::OFile::~OFile() {
-	c::file_close((c::FileHandle)handle);
+	file_close((FileHandle)handle);
 }
 
 void ego::OFile::writeByte(unsigned char data) {
-	c::file_write_byte((c::FileHandle)handle, data);
+	file_write_byte((FileHandle)handle, data);
 }
 
 void ego::OFile::writeUint16(unsigned short data) {
-	c::file_write_uint16((c::FileHandle)handle, data);
+	file_write_uint16((FileHandle)handle, data);
 }
 
 void ego::OFile::writeUint32(unsigned int data) {
-	c::file_write_uint32((c::FileHandle)handle, data);
+	file_write_uint32((FileHandle)handle, data);
 }
 
 void ego::OFile::writeFloat(float data) {
-	c::file_write_float((c::FileHandle)handle, data);
+	file_write_float((FileHandle)handle, data);
 }
 
 void ego::OFile::write(void* data, uint size) {
-	c::file_write((c::FileHandle)handle, data, size);
+	file_write((FileHandle)handle, data, size);
 }
 
 ego::OFile::OFile()
@@ -126,23 +126,23 @@ ego::OFile::OFile()
 // --- Filesystem ---
 
 bool ego::Filesystem::exists(const ego::string& name) {
-	return c::file_exists(name.c_str());
+	return file_exists(name.c_str());
 }
 
 ego::IFile* ego::Filesystem::open(const ego::string& name) {
 	ego::IFile* result = new ego::IFile();	
-	result->handle = (size_t)c::file_open(name.c_str());
+	result->handle = (size_t)file_open(name.c_str());
 	return result;
 }
 
 ego::OFile* ego::Filesystem::create(const ego::string& name) {
 	ego::OFile* result = new ego::OFile();
-	result->handle = (size_t)c::file_create(name.c_str());
+	result->handle = (size_t)file_create(name.c_str());
 	return result;
 }
 
 ego::string ego::Filesystem::readText(const ego::string& name) {
-	char* c_str = c::txtfile_read(name.c_str());
+	char* c_str = txtfile_read(name.c_str());
 	ego::string result(c_str);
 	MEM_FREE(c_str);
 	return result;
@@ -150,7 +150,7 @@ ego::string ego::Filesystem::readText(const ego::string& name) {
 
 void ego::Filesystem::writeText(const ego::string& name, 
 	const ego::string& text) {
-	c::txtfile_write(name.c_str(), text.c_str());
+	txtfile_write(name.c_str(), text.c_str());
 }
 
 // --- Vector2 ---
@@ -289,18 +289,21 @@ float ego::RectF::height() {
 }
 
 bool ego::RectF::collidePoint(const ego::Vector2& point) {
-	c::RectF c_rectf = c::rectf(left, top, right, bottom);
-	c::Vector2 c_vector2 = c::vec2(point.x, point.y);
-	return c::rectf_contains_point(&c_rectf, &c_vector2);
+	::RectF c_rectf = rectf(left, top, right, bottom);
+	::Vector2 c_vector2 = vec2(point.x, point.y);
+	return rectf_contains_point(&c_rectf, &c_vector2);
 }
 
 bool ego::RectF::collideCircle(const ego::Vector2& center, float radius) {
-	c::RectF c_rectf = c::rectf(left, top, right, bottom);
-	c::Vector2 c_vector2 = c::vec2(center.x, center.y);
+	::RectF c_rectf = rectf(left, top, right, bottom);
+	::Vector2 c_vector2 = vec2(center.x, center.y);
 	return rectf_circle_collision(&c_rectf, &c_vector2, radius);
 }
 
 // --- Color ---
+
+const ego::Color ego::Color::white(1.0f, 1.0f, 1.0f, 1.0f);
+const ego::Color ego::Color::black(0.0f, 0.0f, 0.0f, 1.0f);
 
 ego::Color::Color() 
 	: value(0) {
@@ -311,17 +314,23 @@ ego::Color::Color(const ego::Color& c)
 }	
 
 ego::Color::Color(float r, float g, float b, float a) {
-	int br = int(c::clamp(0.0f, 1.0f, r) * 255.0f);
-	int bg = int(c::clamp(0.0f, 1.0f, g) * 255.0f);
-	int bb = int(c::clamp(0.0f, 1.0f, b) * 255.0f);
-	int ba = int(c::clamp(0.0f, 1.0f, a) * 255.0f);
+	int br = int(clamp(0.0f, 1.0f, r) * 255.0f);
+	int bg = int(clamp(0.0f, 1.0f, g) * 255.0f);
+	int bb = int(clamp(0.0f, 1.0f, b) * 255.0f);
+	int ba = int(clamp(0.0f, 1.0f, a) * 255.0f);
 	value = COLOR_RGBA(br, bg, bb, ba);
 }
 
 ego::Color ego::Color::hsv(float h, float s, float v, float a) {
-	c::ColorHSV chsv = {h, s, v, a};
+	ColorHSV chsv = {h, s, v, a};
 	ego::Color result;
-	result.value = c::hsv_to_rgb(chsv);
+	result.value = hsv_to_rgb(chsv);
+	return result;
+}
+
+ego::Color ego::Color::lerp(ego::Color a, ego::Color b, float t) {
+	ego::Color result;
+	result.value = color_lerp(a.value, b.value, t);
 	return result;
 }
 
@@ -335,7 +344,7 @@ void ego::Color::toRgba(float& r, float& g, float& b, float& a) {
 }
 
 void ego::Color::toHsva(float& h, float& s, float& v, float& a) {
-	c::ColorHSV chsv = c::rgb_to_hsv(value);
+	ColorHSV chsv = rgb_to_hsv(value);
 	h = chsv.h;
 	s = chsv.s;
 	v = chsv.v;
@@ -345,7 +354,7 @@ void ego::Color::toHsva(float& h, float& s, float& v, float& a) {
 // --- Texture ---
 
 ego::Texture::~Texture() {
-	c::tex_free((c::TexHandle)handle);
+	tex_free((TexHandle)handle);
 }
 
 ego::uint ego::Texture::width() {
@@ -363,21 +372,21 @@ ego::Texture::Texture()
 // --- Font ---
 
 ego::Font::~Font() {
-	c::font_free((c::FontHandle)handle);
+	font_free((FontHandle)handle);
 }
 
 float ego::Font::width(const ego::string& text) {
-	return c::font_width((c::FontHandle)handle, text.c_str());
+	return font_width((FontHandle)handle, text.c_str());
 }
 
 float ego::Font::height() {
-	return c::font_height((c::FontHandle)handle);
+	return font_height((FontHandle)handle);
 }
 
 ego::RectF ego::Font::bbox(const ego::string& text, const ego::Vector2& center,
 	float scale) {
-	c::Vector2 c_vec2 = c::vec2(center.x, center.y);
-	c::RectF c_rectf = c::font_rect_ex((c::FontHandle)handle, 
+	::Vector2 c_vec2 = vec2(center.x, center.y);
+	::RectF c_rectf = font_rect_ex((FontHandle)handle, 
 		text.c_str(), &c_vec2, scale);
 	return ego::RectF(c_rectf.left, c_rectf.top, c_rectf.right,
 		c_rectf.bottom);
@@ -385,13 +394,13 @@ ego::RectF ego::Font::bbox(const ego::string& text, const ego::Vector2& center,
 
 void ego::Font::draw(const ego::string& text, ego::uint layer,
 	const ego::Vector2& topleft, ego::Color tint, float scale) {
-	c::Vector2 c_vec2 = c::vec2(topleft.x, topleft.y);
+	::Vector2 c_vec2 = vec2(topleft.x, topleft.y);
 
 	c_vec2.x += width(text) * scale / 2.0f;
 	c_vec2.y += height() * scale / 2.0f;
 
-	c::font_draw_ex((c::FontHandle)handle, text.c_str(), layer,
-		&c_vec2, scale, (c::Color)tint.value);
+	font_draw_ex((FontHandle)handle, text.c_str(), layer,
+		&c_vec2, scale, (::Color)tint.value);
 }	
 
 ego::Font::Font() 
@@ -401,54 +410,54 @@ ego::Font::Font()
 // --- GUI ---
 
 ego::GUI::~GUI() {
-	c::gui_close();
+	gui_close();
 }	
 
 ego::GUI* ego::GUI::init(const ego::string& assets_prefix) {
-	c::GuiDesc gui_desc = c::gui_default_style(assets_prefix.c_str());
-	c::gui_init(&gui_desc);
+	GuiDesc gui_desc = gui_default_style(assets_prefix.c_str());
+	gui_init(&gui_desc);
 
 	return new GUI();
 }
 
 void ego::GUI::label(const ego::Vector2& pos, const ego::string& text) {
-	c::Vector2 v = c::vec2(pos.x, pos.y);
-	c::gui_label(&v, text.c_str());
+	::Vector2 v = vec2(pos.x, pos.y);
+	gui_label(&v, text.c_str());
 }
 
 bool ego::GUI::button(const ego::Vector2& pos, const ego::string& text) {
-	c::Vector2 v = c::vec2(pos.x, pos.y);
-	return c::gui_button(&v, text.c_str());
+	::Vector2 v = vec2(pos.x, pos.y);
+	return gui_button(&v, text.c_str());
 }
 
 bool ego::GUI::_switch(const ego::Vector2& pos, const ego::string& text) {
-	c::Vector2 v = c::vec2(pos.x, pos.y);
-	return c::gui_switch(&v, text.c_str());
+	::Vector2 v = vec2(pos.x, pos.y);
+	return gui_switch(&v, text.c_str());
 }
 
 float ego::GUI::slider(const ego::Vector2& pos) {
-	c::Vector2 v = c::vec2(pos.x, pos.y);
-	return c::gui_slider(&v);
+	::Vector2 v = vec2(pos.x, pos.y);
+	return gui_slider(&v);
 }
 
 bool ego::GUI::getSwitchState(const ego::Vector2& pos) {
-	c::Vector2 v = c::vec2(pos.x, pos.y);
-	return c::gui_getstate_switch(&v);
+	::Vector2 v = vec2(pos.x, pos.y);
+	return gui_getstate_switch(&v);
 }
 
 float ego::GUI::getSliderState(const ego::Vector2& pos) {
-	c::Vector2 v = c::vec2(pos.x, pos.y);
-	return c::gui_getstate_slider(&v);
+	::Vector2 v = vec2(pos.x, pos.y);
+	return gui_getstate_slider(&v);
 }	
 
 void ego::GUI::setSwitchState(const ego::Vector2& pos, bool state) {
-	c::Vector2 v = c::vec2(pos.x, pos.y);
-	c::gui_setstate_switch(&v, state);
+	::Vector2 v = vec2(pos.x, pos.y);
+	gui_setstate_switch(&v, state);
 }
 
 void ego::GUI::setSliderState(const ego::Vector2& pos, float state) {
-	c::Vector2 v = c::vec2(pos.x, pos.y);
-	c::gui_setstate_slider(&v, state);
+	::Vector2 v = vec2(pos.x, pos.y);
+	gui_setstate_slider(&v, state);
 }
 
 ego::GUI::GUI() {
@@ -457,79 +466,88 @@ ego::GUI::GUI() {
 // --- Video ---
 
 ego::Video::~Video() {
-	c::video_close();
+	video_close();
 }
 
 ego::Video* ego::Video::init(ego::uint width, ego::uint height,
 	const ego::string& title, ego::uint v_width, 
 	ego::uint v_height, bool fullscreen){
 
-	c::video_init_ex(width, height, v_width, v_height, 
+	if(v_width == 0 && v_height == 0) {
+		v_width = width;
+		v_height = height;
+	}	
+
+	video_init_ex(width, height, v_width, v_height, 
 		title.c_str(), fullscreen);
 
 	return new Video();	
 }	
 
 void ego::Video::present() {
-	c::video_present();
+	video_present();
 }
 
 ego::uint ego::Video::getFrame() {
-	return c::video_get_frame();
+	return video_get_frame();
 }
 
 ego::Texture* ego::Video::loadTexture(const ego::string& filename) {
 	ego::Texture* result = new ego::Texture();
-	result->handle = c::tex_load(filename.c_str());
+	result->handle = tex_load(filename.c_str());
+	uint width, height;
+	tex_size((TexHandle)result->handle, &width, &height);
+	result->mwidth = width;
+	result->mheight = height;
 	return result;
 }
 
 ego::Font* ego::Video::loadFont(const ego::string& filename, float scale) {
 	ego::Font* result = new ego::Font();
-	result->handle = c::font_load_ex(filename.c_str(), scale);
+	result->handle = font_load_ex(filename.c_str(), scale);
 	return result;
 }
 
 void ego::Video::drawRect(ego::Texture* tex, ego::uint layer, 
 	const ego::Vector2& dest) {
-	c::RectF d = c::rectf(dest.x, dest.y, 0.0f, 0.0f);
-	c::TexHandle t = tex ? (c::TexHandle)tex->handle : 0;
-	c::video_draw_rect(t, layer, NULL, &d, COLOR_WHITE);
+	::RectF d = rectf(dest.x, dest.y, 0.0f, 0.0f);
+	TexHandle t = tex ? (TexHandle)tex->handle : 0;
+	video_draw_rect(t, layer, NULL, &d, COLOR_WHITE);
 }
 
 void ego::Video::drawRect(ego::Texture* tex, ego::uint layer,
 	const ego::RectF& source, const ego::Vector2& dest,
 	float rotation, Color tint) {
-	c::RectF d = c::rectf(dest.x, dest.y, 0.0f, 0.0f);
-	c::RectF s = c::rectf(source.left, source.top, source.right, source.bottom);
-	c::TexHandle t = tex ? (c::TexHandle)tex->handle : 0;
-	c::video_draw_rect_rotated(t, layer, &s, &d, rotation, tint.value);
+	::RectF d = rectf(dest.x, dest.y, 0.0f, 0.0f);
+	::RectF s = rectf(source.left, source.top, source.right, source.bottom);
+	TexHandle t = tex ? (TexHandle)tex->handle : 0;
+	video_draw_rect_rotated(t, layer, &s, &d, rotation, tint.value);
 }	
 
 void ego::Video::drawRect(ego::Texture* tex, ego::uint layer,
 	const ego::RectF& source, const ego::RectF& dest,
 	float rotation, ego::Color tint) {
-	c::RectF d = c::rectf(dest.left, dest.top, dest.right, dest.bottom);
-	c::RectF s = c::rectf(source.left, source.top, source.right, source.bottom);
-	c::TexHandle t = tex ? (c::TexHandle)tex->handle : 0; 
-	c::video_draw_rect_rotated(t, layer, &s, &d, rotation, tint.value);
+	::RectF d = rectf(dest.left, dest.top, dest.right, dest.bottom);
+	::RectF s = rectf(source.left, source.top, source.right, source.bottom);
+	TexHandle t = tex ? (TexHandle)tex->handle : 0; 
+	video_draw_rect_rotated(t, layer, &s, &d, rotation, tint.value);
 }
 
 void ego::Video::drawLine(ego::uint layer, const ego::Vector2& start,
 	const ego::Vector2& end, ego::Color color) {
-	c::Vector2 s = c::vec2(start.x, start.y);
-	c::Vector2 e = c::vec2(end.x, end.y);
-	c::video_draw_line(layer, &s, &e, color.value);
+	::Vector2 s = vec2(start.x, start.y);
+	::Vector2 e = vec2(end.x, end.y);
+	video_draw_line(layer, &s, &e, color.value);
 }	
 
 void ego::Video::drawCenteredRect(ego::Texture* tex, ego::uint layer,
 	const ego::RectF& source, const ego::Vector2& dest, float rotation,
 	float scale, ego::Color tint) {
-	c::RectF s = c::rectf(source.left, source.top, 
+	::RectF s = rectf(source.left, source.top, 
 		source.right, source.bottom);
-	c::Vector2 d = c::vec2(dest.x, dest.y);
-	c::TexHandle t = tex ? (c::TexHandle)tex->handle : 0;
-	c::gfx_draw_textured_rect(t, layer, &s, &d, rotation, scale, tint.value);
+	::Vector2 d = vec2(dest.x, dest.y);
+	TexHandle t = tex ? (TexHandle)tex->handle : 0;
+	gfx_draw_textured_rect(t, layer, &s, &d, rotation, scale, tint.value);
 }	
 
 ego::Video::Video() {
@@ -538,23 +556,24 @@ ego::Video::Video() {
 // --- Sound ---
 
 ego::Sound::~Sound() {
-	c::sound_free((c::SoundHandle)handle);
+	sound_free((SoundHandle)handle);
 }
 
 void ego::Sound::play() {
-	c::sound_play((c::SoundHandle)handle);
+	sound_play((SoundHandle)handle);
 }
 
 void ego::Sound::stop() {
-	c::sound_stop((c::SoundHandle)handle);
+	//sound_stop((SoundHandle)handle);
 }
 
 float ego::Sound::getVolume() {
-	return c::sound_get_volume((c::SoundHandle)handle);
+	return 1.0f;
+	//return sound_get_volume((SoundHandle)handle);
 }
 
 void ego::Sound::setVolume(float value) {
-	c::sound_set_volume((c::SoundHandle)handle, value);
+	//sound_set_volume((SoundHandle)handle, value);
 }
 
 ego::Sound::Sound() {
@@ -563,27 +582,27 @@ ego::Sound::Sound() {
 // --- Audio ---
 
 ego::Audio::~Audio() {
-	c::sound_close();
+	sound_close();
 }
 
 ego::Audio* ego::Audio::init() {
-	c::sound_init();
+	sound_init();
 	return new ego::Audio();
 }
 
 void ego::Audio::update() {
-	c::sound_update();
+	sound_update();
 }
 
 ego::Sound* ego::Audio::loadStream(const ego::string& filename) {
 	ego::Sound* result = new ego::Sound();
-	result->handle = c::sound_load_stream(filename.c_str());
+	result->handle = sound_load_stream(filename.c_str());
 	return result;
 }
 
 ego::Sound* ego::Audio::loadSample(const ego::string& filename) {
 	ego::Sound* result = new ego::Sound();
-	result->handle = c::sound_load_sample(filename.c_str());
+	result->handle = sound_load_sample(filename.c_str());
 	return result;
 }
 
@@ -600,43 +619,43 @@ ego::Input* ego::Input::init() {
 }
 
 bool ego::Input::process() {
-	return c::system_update();
+	return system_update();
 }
 
 bool ego::Input::keyPressed(ego::Input::Key key) {
-	return c::key_pressed((c::Key)key);
+	return key_pressed((::Key)key);
 }
 
 bool ego::Input::keyDown(ego::Input::Key key) {
-	return c::key_down((c::Key)key);
+	return key_down((::Key)key);
 }
 
 bool ego::Input::keyUp(ego::Input::Key key) {
-	return c::key_up((c::Key)key);
+	return key_up((::Key)key);
 }
 
 bool ego::Input::mousePressed(ego::Input::MouseButton button) {
-	return c::mouse_pressed((c::MouseButton)button);
+	return mouse_pressed((::MouseButton)button);
 }
 
 bool ego::Input::mouseDown(ego::Input::MouseButton button) {
-	return c::mouse_down((c::MouseButton)button);
+	return mouse_down((::MouseButton)button);
 }
 
 bool ego::Input::mouseUp(ego::Input::MouseButton button) {
-	return c::mouse_up((c::MouseButton)button);
+	return mouse_up((::MouseButton)button);
 }
 
 void ego::Input::mousePos(int& x, int& y) {
 	uint mx, my;
-	c::mouse_pos(&mx, &my);
+	mouse_pos(&mx, &my);
 	x = mx;
 	y = my;
 }
 
 ego::Vector2 ego::Input::mousePos() {
 	uint mx, my;
-	c::mouse_pos(&mx, &my);
+	mouse_pos(&mx, &my);
 	return ego::Vector2((float)mx, (float)my);
 }
 
@@ -646,14 +665,36 @@ ego::Input::Input() {
 // --- Time ---
 
 float ego::Time::ms() {
-	return c::time_ms();
+	return time_ms();
 }
 
 float ego::Time::delta() {
-	return c::time_delta();
+	return time_delta();
 }
 
 ego::uint ego::Time::fps() {
-	return c::time_fps();
+	return time_fps();
+}
+
+// --- Random ---
+
+void ego::Random::init(ego::uint seed) {
+	rand_init(seed);
+}
+
+ego::uint ego::Random::_uint() {
+	return rand_uint();
+}
+
+int ego::Random::_int(int min, int max) {
+	return rand_int(min, max);
+}
+
+float ego::Random::_float() {
+	return rand_float();
+}
+
+float ego::Random::_float(float min, float max) {
+	return rand_float_range(min, max);
 }
 
