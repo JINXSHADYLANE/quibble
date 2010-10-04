@@ -18,10 +18,10 @@ A few curious things about ego should be noticed:
     Read logs, use debugger, and don't cause serious errors.
 4)  Memory manager only tracks internal memory usage of the library and won't 
     show your own memory leaks. Use C if you need real memory manager!
-5)  Getting std::strings from MMLNode object is expensive. Internal C
-    implementation is very efficient because it exploits some propierties of C
-    strings. Stepping to the C++ land demands sacrifices and each getName and
-    getValue call allocates memory for a new std::string.
+5) 	MML is great! However, it exploits some propierties of C strings (like
+	keeping lots of null-terminated strings in a single memory buffer) and C++
+	wrapper would lose efficiency. You can use C version in C++ without any
+	problems.
 6)  Textures must have power-of-2 dimensions. Width and height can differ tough, 
     as long as it's pow2.
 7)  There are 3 officially supported asset formats - png for images, wav for 
@@ -39,7 +39,7 @@ A few curious things about ego should be noticed:
 
 */
 
-// TODO: File IO, MML, GUI Descs, particles
+// TODO: GUI Descs, particles
 
 #ifndef EGO_HPP
 #define EGO_HPP
@@ -65,6 +65,58 @@ namespace ego {
 		void warning(const string& msg);
 		void error(const char* format, ...);
 		void error(const string& msg);
+	};
+
+	// Read-only file
+	class IFile {
+	public:
+		~IFile();
+
+		uint size();
+		// Seek position is relative to beginning
+		void seek(uint pos);
+
+		unsigned char readByte();
+		unsigned short readUint16();
+		unsigned int readUint32();
+		float readFloat();
+		void read(void* dest, uint size);
+	private:	
+		friend class Filesystem;
+		IFile();
+		size_t handle;	
+	};
+	
+	// Write-only file
+	class OFile {
+	public:
+		~OFile();
+
+		void writeByte(unsigned char data);
+		void writeUint16(unsigned short data);
+		void writeUint32(unsigned int data);
+		void writeFloat(float data);
+		void write(void* data, uint size);
+	private:
+		friend class Filesystem;
+		OFile();
+		size_t handle;
+	};	
+
+	// Collection of FS-related stuff
+	class Filesystem {
+		// Returns true if such file exists
+		static bool exists(const string& name);
+
+		// Files are either readable or writable
+		static IFile* open(const string& name);
+		static OFile* create(const string& name);
+
+		// If you're reading/writing text files, there is no need to use
+		// IFile/OFile objects. Following functions simply read/write all text
+		// in a file to/from a string.
+		static string readText(const string& name);
+		static void writeText(const string& name, const string& text);
 	};
 
 	#pragma pack(push, 1)
