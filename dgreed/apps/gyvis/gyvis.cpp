@@ -323,7 +323,7 @@ public:
 		audio->update();
 
 		if(!game_over) {
-			float move_t;
+			float move_t = 0.0f;
 			if(input->keyDown(Input::KEY_UP))
 				move_t = snake->setDir(dir_up);
 			if(input->keyDown(Input::KEY_DOWN))
