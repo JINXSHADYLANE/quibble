@@ -6,6 +6,7 @@ extern "C" {
 		#include "font.h"
 		#include "gui.h"
 		#include "gfx_utils.h"
+		#include "memory.h"
 }
 
 // --- Log ---
@@ -52,6 +53,104 @@ void ego::Log::error(const char* format, ...) {
 
 void ego::Log::error(const ego::string& msg) {
 	error("%s", msg.c_str());
+}
+
+// --- IFile ---
+
+ego::IFile::~IFile() {
+	c::file_close((c::FileHandle)handle);
+}
+
+ego::uint ego::IFile::size() {
+	return c::file_size((c::FileHandle)handle);
+}
+
+void ego::IFile::seek(ego::uint pos) {
+	c::file_seek((c::FileHandle)handle, pos);
+}
+
+unsigned char ego::IFile::readByte() {
+	return c::file_read_byte((c::FileHandle)handle);
+}
+
+unsigned short ego::IFile::readUint16() {
+	return c::file_read_uint16((c::FileHandle)handle);
+}
+
+unsigned int ego::IFile::readUint32() {
+	return c::file_read_uint32((c::FileHandle)handle);
+}
+
+float ego::IFile::readFloat() {
+	return c::file_read_float((c::FileHandle)handle);
+}
+
+void ego::IFile::read(void* dest, ego::uint size) {
+	c::file_read((c::FileHandle)handle, dest, size);
+}
+
+ego::IFile::IFile()
+	: handle(0) {
+}
+
+// --- OFile ---
+
+ego::OFile::~OFile() {
+	c::file_close((c::FileHandle)handle);
+}
+
+void ego::OFile::writeByte(unsigned char data) {
+	c::file_write_byte((c::FileHandle)handle, data);
+}
+
+void ego::OFile::writeUint16(unsigned short data) {
+	c::file_write_uint16((c::FileHandle)handle, data);
+}
+
+void ego::OFile::writeUint32(unsigned int data) {
+	c::file_write_uint32((c::FileHandle)handle, data);
+}
+
+void ego::OFile::writeFloat(float data) {
+	c::file_write_float((c::FileHandle)handle, data);
+}
+
+void ego::OFile::write(void* data, uint size) {
+	c::file_write((c::FileHandle)handle, data, size);
+}
+
+ego::OFile::OFile()
+	: handle(0) {
+}
+
+// --- Filesystem ---
+
+bool ego::Filesystem::exists(const ego::string& name) {
+	return c::file_exists(name.c_str());
+}
+
+ego::IFile* ego::Filesystem::open(const ego::string& name) {
+	ego::IFile* result = new ego::IFile();	
+	result->handle = (size_t)c::file_open(name.c_str());
+	return result;
+}
+
+ego::OFile* ego::Filesystem::create(const ego::string& name) {
+	ego::OFile* result = new ego::OFile();
+	result->handle = (size_t)c::file_create(name.c_str());
+	return result;
+}
+
+ego::string ego::Filesystem::readText(const ego::string& name) {
+	char* c_str = c::txtfile_read(name.c_str());
+	ego::string result(c_str);
+	MEM_FREE(c_str);
+	return result;
+}
+
+void ego::Filesystem::writeText(const ego::string& name, 
+	const ego::string& text) {
+	c::txtfile_write(name.c_str(), text.c_str());
 }
 
 // --- Vector2 ---
