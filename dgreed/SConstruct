@@ -23,7 +23,7 @@ if str(Platform()) == 'win32':
 		DGREED_FONT_TOOL=default_font_tool.replace('/', '\\'),
 		DGREED_TEST_TOOL=default_test_tool.replace('/', '\\'),
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool.replace('/', '\\'),
-		DGREED_DIR_SEPARATOR='\\')
+		DGREED_DIR_SEPARATOR='\\', LINKFLAGS=' -mwindows')
 elif str(Platform()) == 'darwin':
 	env.Append(DGREED_LIBS=[], DGREED_FONT_TOOL=default_font_tool,
 		DGREED_TEST_TOOL=default_test_tool,

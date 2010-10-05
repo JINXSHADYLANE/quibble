@@ -6,6 +6,7 @@ using namespace ego;
 #include <list>
 #include <cmath>
 #include <ctime>
+#include <cstdlib>
 
 namespace globals {
 	const float title_length = 5500.0f;
