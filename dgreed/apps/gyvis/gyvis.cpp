@@ -1,12 +1,29 @@
 // Gyvis - existential snake
 
 #include "ego.hpp"
-using namespace ego;
 
 #include <list>
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
+
+using namespace ego;
+
+struct Pos {
+	int x, y;
+
+	bool operator ==(const Pos& p) {
+		return x == p.x && y == p.y;
+	}	
+};	
+
+enum Dir {
+	dir_right = 0,
+	dir_down,
+	dir_left,
+	dir_up,
+	dir_invalid
+};
 
 namespace globals {
 	const float title_length = 5500.0f;
@@ -26,25 +43,11 @@ namespace globals {
 	Video* video;
 	Audio* audio;
 	Input* input;
+
+	Pos dir_delta[] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
 }
 
 using namespace globals;
-
-struct Pos {
-	int x, y;
-
-	bool operator ==(const Pos& p) {
-		return x == p.x && y == p.y;
-	}	
-};	
-
-enum Dir {
-	dir_right = 0,
-	dir_down,
-	dir_left,
-	dir_up,
-	dir_invalid
-};
 
 class Arena {
 public:
@@ -142,7 +145,11 @@ public:
 	void reset() {
 		if(!body.empty())
 			body.clear();
+
+		// Initial direction
 		dir = new_dir = dir_right;
+
+		// Make body parts
 		Pos p;
 		p.x = arena->getWidth() / 2;
 		p.y = arena->getHeight() / 2;
@@ -151,6 +158,8 @@ public:
 			body.push_back(p);
 			p.x++;
 		}
+
+		// Drop some food
 		while(isOccupied(arena->dropFood()));
 	}
 
@@ -179,23 +188,14 @@ public:
 	}	
 
 	bool move() {
+		// Head is last body part
 		Pos head = *(--body.end());
-		switch(dir) {
-			case dir_right:
-				head.x++;
-				break;
-			case dir_down:
-				head.y++;
-				break;
-			case dir_left:
-				head.x--;
-				break;
-			case dir_up:
-				head.y--;
-				break;
-			default:
-				break;
-		}
+
+		// Calculate new head according to current direction
+		head.x += dir_delta[dir].x;
+		head.y += dir_delta[dir].y;
+
+		// Wrap-around if new head is outside arena
 		int arena_w = arena->getWidth();
 		int arena_h = arena->getHeight();
 		head.x = (head.x + arena_w) % arena_w;
@@ -211,9 +211,11 @@ public:
 			while(isOccupied(arena->dropFood()));
 		}	
 
+		// Did head hit something?
 		if(isOccupied(head))
 			return false;
 
+		// Attach head
 		body.push_back(head);
 
 		dir = new_dir;
@@ -224,6 +226,7 @@ public:
 		Dir last_dir = dir_invalid;
 		std::list<Pos>::iterator itr, next_itr;
 		for(itr = body.begin(); itr != body.end(); ++itr) {
+			// Positions of current and next body pieces
 			Pos cur = *itr;
 			Pos next = ++(next_itr = itr) != body.end() ? *next_itr : cur;
 
@@ -279,9 +282,10 @@ private:
 class Game {
 public:
 	Game(int w, int h)
-		: last_move(0.0f), game_over(false) {
-		Random::init(time(NULL));
+		: last_move(0.0f), start_t(0.0f), game_over(false) {
+
 		Log::init("gyvis.log");
+
 		video = Video::init(w, h, "gyvis");	
 		audio = Audio::init();
 		input = Input::init();
@@ -314,11 +318,8 @@ public:
 	}
 
 	bool update() {
-		static bool first_time = true;
-		if(first_time) {
-			first_time = false;
+		if(start_t == 0.0f) 
 			start_t = Time::ms();
-		}
 
 		bool cont = input->process();
 		audio->update();
@@ -362,9 +363,9 @@ public:
 		arena->draw();
 		snake->draw();
 
-		if(game_over) {
+		// Game over fadeout
+		if(game_over)
 			arena->drawFadeout((Time::ms() - last_move) / fadeout_length);
-		}
 
 		// Show title text with nice animation
 		if(Time::ms() < start_t + title_length) {
@@ -394,6 +395,8 @@ private:
 
 extern "C" {
 	int dgreed_main(int argc, const char** argv) {
+		Random::init(time(NULL));
+
 		Game game(480, 264);
 		while(game.update()) {
 			game.draw();
