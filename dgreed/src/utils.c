@@ -534,7 +534,7 @@ bool file_exists(const char* name) {
 	assert(name);
 
 #ifdef MACOSX_BUNDLE
-	char* path = get_resource_path(name);
+	char* path = path_to_resource(name);
 	if(path == NULL)
 		return false;
 	FILE* file = fopen(path, "rb");
@@ -564,7 +564,7 @@ FileHandle file_open(const char* _name) {
 	}
 
 #ifdef MACOSX_BUNDLE
-	char* path = get_resource_path(name);
+	char* path = path_to_resource(name);
 	if(path == NULL) {
 		LOG_ERROR("Unable to get path to file %s", name);
 		return 0;

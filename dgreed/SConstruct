@@ -39,8 +39,9 @@ elif str(Platform()) == 'darwin':
 	AddOption('--universal', dest='universal', action='store_true',
 		help='build universal (i386 and ppc) Mac OS X binaries')
 	if GetOption('universal'):
-		env.Append(CCFLAGS=' -arch ppc -arch i386', 
-			LINKFLAGS=' -arch ppc -arch i386')
+		newflags = ' -arch ppc -arch i386'
+		env.Append(CCFLAGS=newflags, CXXFLAGS=newflags, 
+			LINKFLAGS=newflags)
 else:
 	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal'],
 		DGREED_FONT_TOOL=default_font_tool, 
