@@ -811,7 +811,8 @@ SoundHandle sound_load_stream(const char* filename) {
 	LOG_INFO("Loading sound stream %s", filename);
 	int error;
 	// stb_vorbis does not accept const string as file, make copy
-	char* filename_clone = strclone(filename);
+	//char* filename_clone = strclone(filename);
+	char* filename_clone = path_to_resource(filename);
 	stb_vorbis* stream = stb_vorbis_open_filename(filename_clone, &error, NULL);
 	MEM_FREE(filename_clone);
 	if(stream == NULL)
