@@ -61,6 +61,8 @@ float bullet_radius = 5.0f;
 float platform_radius = 20.0f;
 float platform_neutral_force = -500.0f;
 float platform_active_force = 500.0f;
+float dmap_linear_factor = 0.95f;
+float dmap_angular_factor = 0.95f;
 
 #define GAME_TWEAK(name, min, max) \
 	tweaks_float(tweaks, #name, &name, min, max)
@@ -88,6 +90,8 @@ void physics_register_tweaks(Tweaks* tweaks) {
 	GAME_TWEAK(platform_radius, 5.0f, 32.0f);
 	GAME_TWEAK(platform_neutral_force, -1000.0f, 1000.0f);
 	GAME_TWEAK(platform_active_force, -1000.0f, 1000.0f);
+	GAME_TWEAK(dmap_linear_factor, 0.8f, 1.0f);
+	GAME_TWEAK(dmap_angular_factor, 0.8f, 1.0f);
 }
 
 extern float ship_min_size;
@@ -490,6 +494,20 @@ Vector2 _wrap_around_gv(Vector2 p, const RectF* rect) {
 	return p;	
 }		
 
+uint _dmap_grid_cell(Vector2 p) {
+	assert(p.x >= 0.0f && p.x <= SCREEN_WIDTH);
+	assert(p.y >= 0.0f && p.y <= SCREEN_HEIGHT);
+
+	float dmap_cell_width = (float)SCREEN_WIDTH / (float)DENSITY_MAP_WIDTH;
+	float dmap_cell_height = (float)SCREEN_HEIGHT / (float)DENSITY_MAP_HEIGHT;
+	uint x = (uint)floorf(p.x / dmap_cell_width);
+	assert(x < DENSITY_MAP_WIDTH);
+	uint y = (uint)floorf(p.y / dmap_cell_height);
+	assert(y < DENSITY_MAP_HEIGHT);
+
+	return y * DENSITY_MAP_WIDTH + x;
+}
+
 void physics_update(float dt) {
 
 	// Remove destroyed bullets
@@ -527,8 +545,19 @@ void physics_update(float dt) {
 		// Simulate friction by decreasing speed
 		ships[i].body->v.x *= ship_damping;
 		ships[i].body->v.y *= ship_damping;
-
 		ships[i].body->w *= ship_turn_friction;
+
+		// More friction depending on density map
+		float* dmap = current_arena_desc.density_map;
+		if(dmap) {
+			uint idx = _dmap_grid_cell(vec2(ships[i].body->p.x, ships[i].body->p.y));
+			float dmap_linear_damping = lerp(dmap_linear_factor, 1.0f, dmap[idx]); 
+			float dmap_angular_damping = lerp(dmap_angular_factor, 1.0f, dmap[idx]);
+
+			ships[i].body->v.x *= dmap_linear_damping;
+			ships[i].body->v.y *= dmap_linear_damping;
+			ships[i].body->w *= dmap_angular_damping;
+		}
 
 		physics_state.ships[i].pos = cpv_to_gv(ships[i].body->p);
 		physics_state.ships[i].vel = cpv_to_gv(ships[i].body->v);
@@ -592,6 +621,25 @@ void physics_debug_draw(void) {
 		gfx_draw_circle(DEBUG_DRAW_LAYER, &current_arena_desc.platforms[i],
 			platform_radius, COLOR_WHITE);
 	}
+
+	// Density map
+	float* dmap = current_arena_desc.density_map;
+	if(dmap) {
+		for(uint y = 0; y < DENSITY_MAP_HEIGHT; ++y) {
+			for(uint x = 0; x < DENSITY_MAP_WIDTH; ++x) {
+				float s = (float)SCREEN_WIDTH / (float)DENSITY_MAP_WIDTH;
+				Vector2 pos = vec2((float)x+0.5f, (float)y+0.5f);
+				pos = vec2_scale(pos, s);
+
+				uint idx = _dmap_grid_cell(pos);
+				if(dmap[idx] < 0.8f) {
+					float r = lerp(10.0f, 0.5f, dmap[idx]); 	
+					gfx_draw_circle_ex(DEBUG_DRAW_LAYER+1, &pos, r,
+							COLOR_RGBA(128, 128, 128, 255), 3);
+				}		
+			}
+		}
+	}	
 }	
 
 Vector2 physics_wraparound(Vector2 in) {

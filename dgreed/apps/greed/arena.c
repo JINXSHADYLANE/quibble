@@ -90,6 +90,7 @@ void arena_init(void) {
 	current_arena_desc.collision_tris = NULL;
 	current_arena_desc.background_img = MAX_UINT32;
 	current_arena_desc.walls_img = MAX_UINT32;
+	current_arena_desc.density_map = NULL;
 }
 
 void _arena_prep_reset(void) {
@@ -112,6 +113,10 @@ void _arena_prep_reset(void) {
 		tex_free(current_arena_desc.walls_img);
 		current_arena_desc.walls_img = MAX_UINT32;
 	}	
+	if(current_arena_desc.density_map != NULL) {
+		MEM_FREE(current_arena_desc.density_map);
+		current_arena_desc.density_map = NULL;
+	}
 	if(current_arena_desc.nav_mesh.n_nodes != 0) {
 		ai_free_navmesh(current_arena_desc.nav_mesh);
 		current_arena_desc.nav_mesh.n_nodes = 0;
@@ -182,6 +187,15 @@ void arena_reset(const char* filename, uint n_ships) {
 			tris[i].p3.x = file_read_float(precalc_file);	
 			tris[i].p3.y = file_read_float(precalc_file);	
 		}
+	}
+
+	// Load density map
+	n = file_read_uint32(precalc_file);
+	if(n > 0) {
+		assert(n == DENSITY_MAP_WIDTH * DENSITY_MAP_HEIGHT);	
+		current_arena_desc.density_map = MEM_ALLOC(n * sizeof(float));
+		for(uint i = 0; i < n; ++i)
+			current_arena_desc.density_map[i] = file_read_float(precalc_file);
 	}
 
 	// Load navmesh

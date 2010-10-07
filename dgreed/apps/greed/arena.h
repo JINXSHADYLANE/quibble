@@ -9,6 +9,9 @@
 #define MAX_ARENAS_IN_CHAPTER 5
 #define MAX_CHAPTERS 5
 
+#define DENSITY_MAP_WIDTH 30
+#define DENSITY_MAP_HEIGHT 20
+
 typedef struct {
 	const char* name;
 	uint n_arenas;
@@ -30,7 +33,9 @@ typedef struct {
 
 	uint n_tris;
 	Triangle* collision_tris;
+	float* density_map;
 	NavMesh nav_mesh;
+
 } ArenaDesc;
 
 extern uint total_arenas;
