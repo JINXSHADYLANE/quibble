@@ -10,12 +10,15 @@
 
 const uint width = 480;
 const uint height = 320;
+const uint density_width = 30;
+const uint density_height = 20;
 
 #define COLOR_SHADOW COLOR_RGBA(0, 0, 0, 196)
 #define COLOR_EMPTY COLOR_RGBA(0, 0, 0, 0)
 
 const char* backg_img_filename = NULL;
 const char* walls_img_filename = NULL;
+const char* density_filename = NULL;
 
 MMLObject arena_mml;
 int shadow_shift_x, shadow_shift_y;
@@ -23,10 +26,12 @@ bool no_rigid_walls = false;
 bool no_wall_shadows = false;
 Color* background = NULL;
 Color* walls = NULL;
+Color* density = NULL;
 Color* shadow = NULL;
 Color* final_background = NULL;
 Color* final_arena = NULL;
 uint* collision_mask = NULL;
+float* density_map = NULL;
 
 FileHandle precalc_file = (FileHandle)NULL;
 
@@ -120,11 +125,22 @@ void deinit(void) {
 		
 }
 
+void gen_density_map(void) {
+	density_map = (float*)MEM_ALLOC(density_width * density_height * sizeof(float));
+	for(uint i = 0; i < density_width*density_height; ++i) {
+		int r, g, b, a;
+		COLOR_DECONSTRUCT(density[i], r, g, b, a);
+		float d = (float)((g+b)/2) / 255.0f;
+		assert(d >= 0.0f && d <= 1.0f);
+		density_map[i] = d;
+	}
+}
+
 void load_images(const char* folder) {
 	NodeIdx root = mml_root(&arena_mml);
 	NodeIdx background_node = mml_get_child(&arena_mml, root, "background");
 	NodeIdx walls_node = mml_get_child(&arena_mml, root, "walls");
-	//NodeIdx density_node = mml_get_child(&arena_mml, root, "density");
+	NodeIdx density_node = mml_get_child(&arena_mml, root, "density");
 
 	char path[256];
 
@@ -144,6 +160,34 @@ void load_images(const char* folder) {
 		LOG_ERROR("Unable to load walls image");
 	if(w != width || h != height)
 		LOG_ERROR("Bad walls image size");
+
+	if(density_node) {
+		density_filename = mml_getval_str(&arena_mml, density_node);
+		sprintf(path, "%s%s", folder, density_filename);
+		density = (Color*)stbi_load(path, &w, &h, &n, 4);
+	
+		// Rescale density map to correct size
+		int	scale = 1;
+		while(w/scale > density_width && h/scale > density_height)
+			scale++;
+		if(w/scale != density_width || h/scale != density_height)
+			LOG_ERROR("Unable to downscale density map to 30x20");
+		
+		Color* img = MEM_ALLOC(w * h * 4);
+		memcpy(img, density, w * h * 4);
+		stbi_image_free(density);
+		density = img;
+		while(scale/=2) {
+			Color* new_density = gfx_downscale(density, w, h);
+			w /= 2; h /= 2;
+			MEM_FREE(density);
+			density = new_density;
+		}
+
+		assert(w == density_width && h == density_height);
+
+		gen_density_map();
+	}
 }
 
 void make_collision_mask(void) {
@@ -229,6 +273,7 @@ void gen_precalc_data(void) {
 
 	darray_free(&platforms);	
 
+	// Collision tris
 	Triangle* tris = NULL;
 	if(triangles.size != 0)
 		tris = DARRAY_DATA_PTR(triangles, Triangle);
@@ -244,6 +289,19 @@ void gen_precalc_data(void) {
 		file_write_float(precalc_file, tris[i].p3.y);
 	}
 
+	// Density map
+	if(density_map != NULL) {
+		size_t density_size = density_width * density_height;
+		file_write_uint32(precalc_file, (uint32)density_size);
+		for(uint i = 0; i < density_width*density_height; ++i) 
+			file_write_float(precalc_file, density_map[i]);	
+
+		MEM_FREE(density_map);
+	}
+	else
+		file_write_uint32(precalc_file, 0);
+
+	// Navmesh
 	ai_save_navmesh(precalc_file, &nav_mesh);
 
 	darray_free(&triangles);
