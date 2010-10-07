@@ -19,6 +19,8 @@ const char* walls_img_filename = NULL;
 
 MMLObject arena_mml;
 int shadow_shift_x, shadow_shift_y;
+bool no_rigid_walls = false;
+bool no_wall_shadows = false;
 Color* background = NULL;
 Color* walls = NULL;
 Color* shadow = NULL;
@@ -41,10 +43,18 @@ void init(const char* mml_file) {
 	NodeIdx shadow_node = mml_get_child(&arena_mml, root, "shadow_shift");
 	if(!shadow_node)
 		LOG_ERROR("Unable to find shadow_shift propierty");
-	float shift_x, shift_y;	
-	sscanf(mml_getval_str(&arena_mml, shadow_node), "%f,%f", &shift_x, &shift_y);	
-	shadow_shift_x = (int)shift_x;
-	shadow_shift_y = (int)shift_y;
+
+	Vector2 shift = mml_getval_vec2(&arena_mml, shadow_node);
+	shadow_shift_x = (int)shift.x;
+	shadow_shift_y = (int)shift.y;
+
+	NodeIdx no_rigid_walls_node = mml_get_child(&arena_mml, root, "no_rigid_walls");
+	if(no_rigid_walls_node != 0) 
+		no_rigid_walls = mml_getval_bool(&arena_mml, no_rigid_walls_node);
+	
+	NodeIdx no_wall_shadows_node = mml_get_child(&arena_mml, root, "no_wall_shadows");
+	if(no_wall_shadows_node != 0)
+		no_wall_shadows = mml_getval_bool(&arena_mml, no_wall_shadows_node);
 }	
 
 // Strips folders from path, returns only filename
@@ -114,6 +124,7 @@ void load_images(const char* folder) {
 	NodeIdx root = mml_root(&arena_mml);
 	NodeIdx background_node = mml_get_child(&arena_mml, root, "background");
 	NodeIdx walls_node = mml_get_child(&arena_mml, root, "walls");
+	//NodeIdx density_node = mml_get_child(&arena_mml, root, "density");
 
 	char path[256];
 
@@ -154,6 +165,10 @@ void make_collision_mask(void) {
 
 void make_shadow(void) {
 	shadow = (Color*)MEM_ALLOC(sizeof(Color) * width * height);
+	if(no_wall_shadows) {
+		memset(shadow, 0, sizeof(Color) * width * height);
+		return;
+	}
 
 	for(uint y = 0; y < height; ++y) {
 		for(uint x = 0; x < width; ++x) {
@@ -189,8 +204,11 @@ void blend_images(void) {
 
 void gen_precalc_data(void) {
 	DArray segments = darray_create(sizeof(Segment), 0);
-	DArray triangles = 
-		poly_triangulate_raster(collision_mask, width, height, &segments);
+	DArray triangles; 
+	if(!no_rigid_walls)	
+		triangles = poly_triangulate_raster(collision_mask, width, height, &segments);
+	else
+		triangles = darray_create(sizeof(Triangle), 0);
 
 	DArray platforms = darray_create(sizeof(Vector2), 0);	
 	NodeIdx root = mml_root(&arena_mml);
