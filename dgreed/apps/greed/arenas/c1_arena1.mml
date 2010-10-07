@@ -1,6 +1,7 @@
 (arena c1_arena1
 	(background "back_chapter_1.png")
 	(walls "c1_wall_1.png")
+	(no_wall_shadows true)
 	(shadow_shift -4,-4)
 	(max_players 3)
 	(spawnpoints _

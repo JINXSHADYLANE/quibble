@@ -33,4 +33,9 @@
             ( name c2_arena5 )
         )
     )
+    ( chapter c5
+        ( greed_assets/c5_arena1.mml 4
+            ( name c5_arena1 )
+        )
+    )
 )

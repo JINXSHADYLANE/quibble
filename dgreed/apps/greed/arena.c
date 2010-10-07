@@ -188,8 +188,17 @@ void arena_reset(const char* filename, uint n_ships) {
 	current_arena_desc.nav_mesh = ai_load_navmesh(precalc_file);
 	file_close(precalc_file);
 	
+	// Read no shadow flag
+	current_arena_desc.no_wall_shadows = false;
+	NodeIdx no_wall_shadows_node = mml_get_sibling(&desc, precalc_node, 
+			"no_wall_shadows");
+	if(no_wall_shadows_node)
+		current_arena_desc.no_wall_shadows = mml_getval_bool(&desc, 
+				no_wall_shadows_node);
+
 	// Read shadow shift
-	NodeIdx shadow_node = mml_get_sibling(&desc, img_node, "shadow_shift");
+	NodeIdx shadow_node = mml_get_sibling(&desc, precalc_node, 
+			"shadow_shift");
 	if(!shadow_node)
 		LOG_ERROR("No shadow_shift propierty found in arena description");
 	current_arena_desc.shadow_shift = mml_getval_vec2(&desc, shadow_node);
@@ -244,8 +253,9 @@ void arena_draw(void) {
 	dest.right = dest.left + rectf_width(&background_source);
 	dest.bottom = dest.top + rectf_height(&background_source);
 
-	video_draw_rect(current_arena_desc.walls_img, SHADOWS_LAYER,
-		&shadow_source, &dest, COLOR_WHITE);
+	if(!current_arena_desc.no_wall_shadows)
+		video_draw_rect(current_arena_desc.walls_img, SHADOWS_LAYER,
+			&shadow_source, &dest, COLOR_WHITE);
 }		
 
 void arena_draw_transition(float t) {
@@ -262,8 +272,9 @@ void arena_draw_transition(float t) {
 	dest.right = dest.left + rectf_width(&background_source);
 	dest.bottom = dest.top + rectf_height(&background_source);
 
-	video_draw_rect(current_arena_desc.walls_img, SHADOWS_LAYER,
-		&shadow_source, &dest, c);
+	if(!current_arena_desc.no_wall_shadows)
+		video_draw_rect(current_arena_desc.walls_img, SHADOWS_LAYER,
+			&shadow_source, &dest, c);
 
 }
 

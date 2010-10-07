@@ -21,6 +21,7 @@ typedef struct {
 typedef struct {
 	TexHandle background_img;
 	TexHandle walls_img;
+	bool no_wall_shadows;
 
 	Vector2 shadow_shift;
 	Vector2 spawnpoints[MAX_SHIPS];
