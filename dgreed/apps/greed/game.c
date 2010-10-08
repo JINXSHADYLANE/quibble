@@ -443,21 +443,42 @@ void game_render(void) {
 		Vector2 pos = physics_state.ships[ship].pos;
 		_draw_ship(&pos, ship);
 
-		// Virtual ships on screen boundries
 		float scale = physics_state.ships[ship].scale;
-		if(pos.x < ship_circle_radius * scale) {
+		float x_min = ship_circle_radius * scale;
+		float x_max = (float)SCREEN_WIDTH - x_min;
+		float y_min = x_min;
+		float y_max = (float)SCREEN_HEIGHT - y_min;
+
+		// Virtual ships on screen boundries
+		if(pos.x < x_min) {
 			Vector2 npos = vec2(pos.x + (float)SCREEN_WIDTH, pos.y);
 			_draw_ship(&npos, ship);
+			if(pos.y < y_min) {
+				npos.y += (float)SCREEN_HEIGHT;
+				_draw_ship(&npos, ship);
+			}
+			if(pos.y > y_max) {
+				npos.y -= (float)SCREEN_HEIGHT;
+				_draw_ship(&npos, ship);
+			}	
 		}
-		if(pos.x > (float)SCREEN_WIDTH - ship_circle_radius * scale) {
+		if(pos.x > x_max) {
 			Vector2 npos = vec2(pos.x - (float)SCREEN_WIDTH, pos.y);
 			_draw_ship(&npos, ship);
+			if(pos.y < y_min) {
+				npos.y += (float)SCREEN_HEIGHT;
+				_draw_ship(&npos, ship);
+			}
+			if(pos.y > y_max) {
+				npos.y -= (float)SCREEN_HEIGHT;
+				_draw_ship(&npos, ship);
+			}	
 		}
-		if(pos.y < ship_circle_radius * scale) {
+		if(pos.y < y_min) {
 			Vector2 npos = vec2(pos.x, pos.y + (float)SCREEN_HEIGHT);
 			_draw_ship(&npos, ship);
 		}
-		if(pos.y > (float)SCREEN_HEIGHT - ship_circle_radius * scale) {
+		if(pos.y > y_max) {
 			Vector2 npos = vec2(pos.x, pos.y - (float)SCREEN_HEIGHT);
 			_draw_ship(&npos, ship);
 		}	
