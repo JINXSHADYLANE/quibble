@@ -33,6 +33,7 @@ static Color menu_text_color = COLOR_RGBA(214, 214, 215, 255);
 static Color menu_sel_text_color = COLOR_RGBA(166, 166, 168, 255);
 
 extern FontHandle huge_font;
+extern FontHandle big_font;
 
 // Tweakables
 float menu_transition_length = 0.5f;
@@ -99,7 +100,7 @@ bool _menu_button(const Vector2* center, const char* text,
 }
 
 void _menu_text(const Vector2* topleft, const char* text,
-	const Vector2* ref, float t) {
+	const Vector2* ref, float t, bool centered, bool small) {
 
 	if(!text)
 		return;
@@ -107,16 +108,23 @@ void _menu_text(const Vector2* topleft, const char* text,
 	Color text_col = color_lerp(menu_text_color, menu_text_color && 0xFFFFFF, 
 		fabs(t));
 
+
+	FontHandle font = huge_font;
+	if(small)
+		font = big_font;
+
 	float scale = _t_to_scale(t);
 	Vector2 adj_vdest = _adjust_scale_pos(*topleft, *ref, scale);
-	RectF rect = font_rect_ex(huge_font, text,
+	RectF rect = font_rect_ex(font, text,
 		&adj_vdest, scale);
 
-	adj_vdest.x += rectf_width(&rect) / 2.0f;
-	adj_vdest.y += rectf_height(&rect) / 2.0f;
-
-	font_draw_ex(huge_font, text, MENU_TEXT_LAYER, 
+	if(!centered) {
+		adj_vdest.x += rectf_width(&rect) / 2.0f;
+		adj_vdest.y += rectf_height(&rect) / 2.0f;
+	}	
+	font_draw_ex(font, text, MENU_TEXT_LAYER, 
 		&adj_vdest, scale, text_col);
+		
 }
 
 void _render_main(float t) {
@@ -146,6 +154,8 @@ void _render_main(float t) {
 		if(_menu_button(&vdest, items[i], &center, t) && t==0.0f) {
 			if(i == 0)
 				menu_transition = MENU_CHAPTER;
+			if(i == 1)
+				menu_transition = MENU_SETTINGS;
 			
 			menu_transition_t = time_ms() / 1000.0f;
 		}
@@ -158,6 +168,47 @@ void _render_main(float t) {
 		}
 
 		vdest.y += 17.0f;	
+	}
+}
+
+void _render_settings(float t) {
+	float scale = _t_to_scale(t);
+
+	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
+
+	// Panel
+	Vector2 center = vec2(240.0f, 168.0f);
+	gfx_draw_textured_rect(menu_atlas, MENU_PANEL_LAYER, &panel_source,
+		&center, 0.0f, scale, c);
+
+	// Title text
+	Vector2 dest = center;
+	dest.y = 74.0f;
+	_menu_text(&dest, "Settings", &center, t, true, false);
+
+	// Volume sliders
+	dest = vec2(75.0f, 105.0f);
+	_menu_text(&dest, "SFX volume:", &center, t, false, true);
+	dest.x += 80.0f;
+	if(t == 0.0f)
+		gui_slider(&dest);	
+
+	dest.x = 75.0f;	
+	dest.y += 20.0f; 
+	_menu_text(&dest, "Music volume:", &center, t, false, true);
+	dest.x += 80.0f;
+	if(t == 0.0f)
+		gui_slider(&dest);
+
+	// TODO: Controls	
+	dest = vec2(75.0f, 155.0f);
+	_menu_text(&dest, "Controls:", &center, t, false, true);
+
+	// Back button	
+	Vector2 vdest = vec2(center.x, 295.0f);
+	if(_menu_button(&vdest, "Back", &center, t) && t==0.0f) {
+		menu_transition = MENU_MAIN;
+		menu_transition_t = -time_ms() / 1000.0f;
 	}
 }
 
@@ -294,7 +345,7 @@ bool _render_slidemenu(float t, float* camera_lookat_x,
 				vec2(x_start + *camera_lookat_x + (float)i * x_spacing - 165.0f,
 				y_coord + 70.0f);
 
-			_menu_text(&vdest, text[i], &center, t);
+			_menu_text(&vdest, text[i], &center, t, false, false);
 		}	
 	}
 
@@ -351,6 +402,8 @@ void _render_arenas(float t) {
 void _menus_switch(MenuState state, float t) {
 	if(state == MENU_MAIN)
 		_render_main(t);
+	if(state == MENU_SETTINGS)
+		_render_settings(t);
 	if(state == MENU_CHAPTER)
 		_render_chapters(t);
 	if(state == MENU_ARENA)
