@@ -1,0 +1,19 @@
+<project>
+	<name>lietus</name>
+	<settings>
+		<defaultWidth>3360</defaultWidth>
+		<defaultHeight>4960</defaultHeight>
+		<workingDirectory>./</workingDirectory>
+	</settings>
+	<tilesets>
+		<tileset name="tiles0" image="atlas.png" tileWidth="16" tileHeight="16" />
+	</tilesets>	
+	<layers>
+		<tiles name="background0" gridSize="16" />
+		<tiles name="background1" gridSize="16" />
+		<grid name="col" gridSize="16" />
+		<tiles name="foreground0" gridSize="16" />
+		<tiles name="foreground1" gridSize="16" />
+	</layers>	
+</project>
+
