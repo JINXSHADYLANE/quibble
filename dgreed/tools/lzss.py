@@ -21,21 +21,15 @@ def compress(input):
 		while bit < 7 and read_ptr < len(input):
 			bit += 1
 			window_ptr = max(0, read_ptr - WINDOW_SIZE)
-			best_match, best_match_ptr = 0, 0
-			for i in xrange(WINDOW_SIZE):
-				if window_ptr + i == read_ptr:
-					break
-				match_len = 0
-				while read_ptr + match_len < len(input):
-					if input[read_ptr + match_len] != input[window_ptr + i + match_len]:
-						break
-					elif match_len == MAX_MATCH:
-						break
-					else:
-						match_len += 1
-				if match_len > best_match:
-					best_match = match_len
-					best_match_ptr = i
+			best_match, best_match_ptr = 0, 0 
+			window_str = input[window_ptr:read_ptr]
+			match = input[read_ptr:read_ptr + MIN_MATCH]
+			i = window_str.find(match)
+			while i != -1 and best_match < MAX_MATCH and len(match) > best_match:
+				best_match = len(match)
+				best_match_ptr = i
+				match = input[read_ptr : read_ptr + len(match) + 1]
+				i = window_str.find(match)
 			if best_match >= MIN_MATCH:
 				flag |= 1 << bit
 				pair = best_match_ptr 

@@ -34,6 +34,9 @@ from optparse import OptionParser
 import struct
 import xml.parsers.expat
 import lzss
+import sys
+reload(sys)
+sys.setdefaultencoding('latin-1')
 
 TILESET_WIDTH = 32
 TILESET_HEIGHT = 32
@@ -47,6 +50,49 @@ raw_col = ''
 
 def _2dlist(e, w, h): 
 	return [[e] * h for _ in xrange(w)]
+
+def write_btm(filename):
+	out = ['BTM0']
+	out += [struct.pack('<HH', tile_width, tile_height)]
+	out += [struct.pack('<I', len(tilesets))]
+	
+	for tileset in tilesets:
+		out += [struct.pack('<I', len(tileset[1])), tileset[1]]
+		# TODO: Animated tile defs
+		out += [struct.pack('<I', 0)]
+	
+	out += [struct.pack('<III', width, height, len(objects))]
+	# TODO: Objects
+	
+	out += [struct.pack('<I', len(layers))]
+	for layer in layers:
+		out += [struct.pack('<I', len(layer[0])), layer[0]]
+		raw_tiles = []
+		for y in xrange(height):
+			for x in xrange(width):
+				raw_tiles += [struct.pack('H', layer[1][x][y])]
+		compr_tiles = lzss.compress(''.join(raw_tiles))
+		out += [struct.pack('<I', len(compr_tiles)), compr_tiles]
+	
+	ser_col, raw_col = [], []
+	for y in xrange(height):
+		for x in xrange(width):
+			ser_col.append(col[x][y])
+	for i in xrange(0, len(ser_col), 8):
+		mask = 0
+		for b in xrange(8):
+			if i + b == len(ser_col):
+				break
+			if ser_col[i + b] == 1:
+				mask |= 1 << (7-b)
+		raw_col += [struct.pack('B', mask)]		
+
+	compr_col = lzss.compress(''.join(raw_col))
+	out += [struct.pack('<I', len(compr_col)), compr_tiles]
+	
+	with open(filename, 'wb') as outfile:
+		data = ''.join(out)
+		outfile.write(data)		
 
 def read_ogmo(level_filename, project_filename):
 
@@ -122,7 +168,8 @@ def read_ogmo(level_filename, project_filename):
 				layer_state = i
 				if width == 0 or height == 0:
 					raise RuntimeError('no width/height data found in level')
-				layer[1] = _2dlist(0, width, height)
+				if layer[1] == []:
+					layer[1] = _2dlist(0, width, height)
 				for i, tileset in enumerate(tilesets):
 					if attrs['set'] == tileset[0]:
 						tileset_state = i
@@ -160,6 +207,10 @@ def read_ogmo(level_filename, project_filename):
 				col[x][y] = 1
 			i += 1	
 
+	for layer in layers:
+		if layer[1] == []:
+			layer[1] = _2dlist(0, width, height)
+
 if __name__ == '__main__':
 	parser = OptionParser()
 	parser.add_option('-o', '--output', dest='output', action='store',
@@ -167,9 +218,10 @@ if __name__ == '__main__':
 	parser.add_option('-p', '--prefix', dest='prefix', action='store',
 			type='string', help='tileset texture filename prefix', default='')
 
-	(option, args) = parser.parse_args()
+	(options, args) = parser.parse_args()
 	if len(args) != 2:
-		parser.error('please level and project filenames')
+		parser.error('please provide level and project filenames')
 
-	tilemap = read_ogmo(args[0], args[1])
+	read_ogmo(args[0], args[1])
+	write_btm(options.output)
 
