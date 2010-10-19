@@ -6,6 +6,8 @@
 # 4 - 'BTM0'  
 # 2 - tile width
 # 2 - tile height
+# 4 - tilemap width
+# 4 - tilemap height
 # 4 - number of tileset defs
 # for each tileset def:
 #   4 + len - texture filename
@@ -14,8 +16,6 @@
 #     4 - fps
 #     4 - start tile idx
 #     4 - end tile idx (inclusive)
-# 4 - tilemap width
-# 4 - tilemap height
 # 4 - number of objects
 # for each object:
 #   4 - object id
@@ -55,14 +55,14 @@ def write_btm(filename):
 	out = ['BTM0']
 	out += [struct.pack('<HH', tile_width, tile_height)]
 	out += [struct.pack('<I', len(tilesets))]
-	
+	out += [struct.pack('<II', width, height)]
 	for tileset in tilesets:
 		out += [struct.pack('<I', len(tileset[1])), tileset[1]]
 		# TODO: Animated tile defs
 		out += [struct.pack('<I', 0)]
 	
-	out += [struct.pack('<III', width, height, len(objects))]
 	# TODO: Objects
+	out += [struct.pack('<I', len(objects))]
 	
 	out += [struct.pack('<I', len(layers))]
 	for layer in layers:
