@@ -10,6 +10,8 @@
 Tilemap* tilemap_load(const char* filename) {
 	assert(filename);
 
+	LOG_INFO("Loading tilemap from file %s", filename);
+
 	FileHandle f = file_open(filename);
 	if(file_read_uint32(f) != FOURCC('B', 'T', 'M', '0')) 
 		LOG_ERROR("Invalid btm file");
@@ -79,6 +81,8 @@ Tilemap* tilemap_load(const char* filename) {
 	// Layers
 	t->n_layers = file_read_uint32(f);
 	assert(t->n_layers <= 16 && t->n_layers > 0);
+	s = t->n_layers * sizeof(TilemapLayer);
+	t->layers = (TilemapLayer*)MEM_ALLOC(s);
 	for(uint i = 0; i < t->n_layers; ++i) {
 		TilemapLayer* layer = &t->layers[i];
 
@@ -215,10 +219,10 @@ void tilemap_render(Tilemap* t, RectF viewport, float time) {
 	}
 
 	// Clamp bounding box to world boundries
-	bbox.left = clamp(bbox.left, 0.0f, fwidth);
-	bbox.top = clamp(bbox.top, 0.0f, fheight);
-	bbox.right = clamp(bbox.right, 0.0f, fwidth);
-	bbox.bottom = clamp(bbox.bottom, 0.0f, fheight);
+	bbox.left = clamp(0.0f, fwidth, bbox.left);
+	bbox.top = clamp(0.0f, fheight, bbox.top);
+	bbox.right = clamp(0.0f, fwidth, bbox.right);
+	bbox.bottom = clamp(0.0f, fheight, bbox.bottom);
 
 	// Convert viewport bbox to to tile x and y ranges
 	uint min_tile_x = (uint)bbox.left / t->tile_width;
@@ -277,7 +281,7 @@ void tilemap_render(Tilemap* t, RectF viewport, float time) {
 				}	
 
 				video_draw_rect_rotated(last_tileid_tex, t->layers[l].render_layer,
-						&last_tileid_src, &dest, -t->camera.rot, COLOR_WHITE);
+						&last_tileid_src, &dest, t->camera.rot, COLOR_WHITE);
 			}
 		}
 	}
