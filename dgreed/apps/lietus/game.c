@@ -1,6 +1,7 @@
 #include "game.h"
 
 #include <system.h>
+#include <tilemap.h>
 
 const int atlas_width = 256;
 const int atlas_height = 256;
@@ -16,6 +17,7 @@ float apelsinas_jump_acc = 8.0f;
 float apelsinas_gravity = 0.5f;
 
 TexHandle char_atlas;
+Tilemap* world;
 
 struct {
 	Vector2 p, v;
@@ -113,18 +115,34 @@ void _apelsinas_render(void) {
 
 void game_init(void) {
 	char_atlas = tex_load("lietus_assets/apelsinas.png");
+	world = tilemap_load("lietus_assets/world.btm");
 	_apelsinas_reset();
 }
 
 void game_close(void) {
 	tex_free(char_atlas);
+	tilemap_free(world);
 }
 
 void game_update(void) {
+
+	if(key_pressed(KEY_DOWN))
+		world->camera.center.y += 1.0f;
+	if(key_pressed(KEY_UP))
+		world->camera.center.y -= 1.0f;
+	if(key_pressed(KEY_LEFT))
+		world->camera.center.x -= 1.0f;
+	if(key_pressed(KEY_RIGHT))
+		world->camera.center.x += 1.0f;
+
+	if(key_pressed(KEY_A))
+		world->camera.rot += 0.02f;
+
 	_apelsinas_update();
 }
 
 void game_render(void) {
+	tilemap_render(world, rectf(0.0f, 0.0f, 480.0f, 320.0f), 0.0f);
 	_apelsinas_render();
 }
 

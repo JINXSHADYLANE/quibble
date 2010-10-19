@@ -42,6 +42,7 @@ TILESET_WIDTH = 32
 TILESET_HEIGHT = 32
 TILES_IN_TILESET = TILESET_WIDTH * TILESET_HEIGHT
 
+prefix = ''
 tile_width, tile_height = 0, 0
 width, height = 0, 0
 col, layers, tilesets, objects = [], [], [], []
@@ -54,10 +55,10 @@ def _2dlist(e, w, h):
 def write_btm(filename):
 	out = ['BTM0']
 	out += [struct.pack('<HH', tile_width, tile_height)]
-	out += [struct.pack('<I', len(tilesets))]
 	out += [struct.pack('<II', width, height)]
+	out += [struct.pack('<I', len(tilesets))]
 	for tileset in tilesets:
-		out += [struct.pack('<I', len(tileset[1])), tileset[1]]
+		out += [struct.pack('<I', len(prefix+tileset[1])), prefix+tileset[1]]
 		# TODO: Animated tile defs
 		out += [struct.pack('<I', 0)]
 	
@@ -88,7 +89,7 @@ def write_btm(filename):
 		raw_col += [struct.pack('B', mask)]		
 
 	compr_col = lzss.compress(''.join(raw_col))
-	out += [struct.pack('<I', len(compr_col)), compr_tiles]
+	out += [struct.pack('<I', len(compr_col)), compr_col]
 	
 	with open(filename, 'wb') as outfile:
 		data = ''.join(out)
@@ -221,6 +222,8 @@ if __name__ == '__main__':
 	(options, args) = parser.parse_args()
 	if len(args) != 2:
 		parser.error('please provide level and project filenames')
+
+	prefix = options.prefix	
 
 	read_ogmo(args[0], args[1])
 	write_btm(options.output)
