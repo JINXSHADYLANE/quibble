@@ -160,7 +160,7 @@ void tilemap_free(Tilemap* t) {
 	MEM_FREE(t->collission);
 }
 
-void _tileid_source(Tilemap* t, float time, uint16 tileid, 
+static void _tileid_source(Tilemap* t, float time, uint16 tileid, 
 		RectF* src, TexHandle* tex) {
 	assert(t);
 	assert(src);
@@ -285,6 +285,212 @@ void tilemap_render(Tilemap* t, RectF viewport, float time) {
 			}
 		}
 	}
+}
+
+static uint _pos_to_tile(Tilemap* t, Vector2 pos) {
+	assert(t);
+	assert(pos.x >= 0.0f && pos.x <= (float)t->width * t->tile_width);
+	assert(pos.y >= 0.0f && pos.y <= (float)t->height * t->tile_height);
+
+	uint x = pos.x / t->tile_width;
+	uint y = pos.y / t->tile_height;
+
+	return IDX_2D(x, y, t->width);
+}
+
+static bool _is_solid(Tilemap* t, int x, int y) {
+	assert(t);
+	if(x < 0 || x >= t->width || y < 0 || y >= t->height)
+		return true;
+	
+	uint tile = IDX_2D(x, y, t->width);
+	return (t->collission[tile/8] & (1 << (tile % 8))) != 0;
+}
+
+bool tilemap_collide(Tilemap* t, RectF rect) {
+	assert(t);
+
+	float rw = rectf_width(&rect);
+	float rh = rectf_height(&rect);
+
+	// Cover rect with a grid of points, if distances dx between point rows and
+	// and dy between columns are not greater than tile width / height, it is 
+	// sufficient to only check this grid and nothing more.
+
+	float fcols = ceilf((rw+0.001f) / (float)t->tile_width);
+	float frows = ceilf((rh+0.001f) / (float)t->tile_height);
+	float dx = rw / fcols; 	
+	float dy = rh / frows;
+
+	assert(dx < (float)t->tile_width);
+	assert(dy < (float)t->tile_height);
+
+	// Check grid points
+	Vector2 p = vec2(0.0f, rect.top);
+	for(uint i = 0; (float)i < frows; ++i) { 
+		p.x = rect.left;
+		for(uint j = 0; (float)j < fcols; ++j) {
+			if(tilemap_collide_point(t, p))
+				return true;
+			p.x += dx;
+		}
+		p.y += dy;
+	}	
+	return false;
+
+}
+
+bool tilemap_collide_point(Tilemap* t, Vector2 point) {
+	assert(t);
+
+	return _is_solid(t, 
+		point.x / (float)t->tile_width,
+		point.y / (float)t->tile_height
+	);
+}
+
+Vector2 tilemap_raycast(Tilemap* t, Vector2 start, Vector2 end) {
+	assert(t);
+
+	// Wolf3d style DDA raycast
+
+	uint tile = _pos_to_tile(t, start);
+
+	int step_x, step_y, map_x, map_y;
+	map_x = tile % t->width;
+	map_y = tile % t->height;
+	
+	Vector2 dir = vec2_sub(end, start);
+	dir = vec2_normalize(dir);
+	float k = dir.x / dir.y;
+
+	Vector2 delta_dist = vec2 (
+		sqrtf(1.0f + dir.y * dir.y / (dir.x * dir.x)) * (float)t->tile_width,
+		sqrtf(1.0f + dir.x * dir.x / (dir.y * dir.y)) * (float)t->tile_height
+	);	
+
+	Vector2 side_dist;
+
+	if(dir.x > 0.0f) {
+		step_x = 1;
+		side_dist.x = (float)((map_x+1) * t->tile_width) - start.x;
+		side_dist.x *= delta_dist.x / t->tile_width;
+	}
+	else {
+		step_x = -1;
+		side_dist.x = start.x - (float)(map_x * t->tile_width);
+		side_dist.x *= delta_dist.x / t->tile_width;
+	}
+	if(dir.y > 0.0f) {
+		step_y = 1;
+		side_dist.y = (float)((map_y+1) * t->tile_height) - start.y;
+		side_dist.y *= delta_dist.y / t->tile_width;
+	}
+	else {
+		step_y = -1;
+		side_dist.y = start.y - (float)(map_y * t->tile_height);
+		side_dist.y *= delta_dist.y / t->tile_width;
+	}
+
+	float dx, dy;
+	
+	// Actual DDA
+	Vector2 pos = start;
+	while(!_is_solid(t, map_x, map_y)) {
+		if(side_dist.x < side_dist.y) {
+			side_dist.x += delta_dist.x;
+			map_x += step_x;
+
+			if(step_x) 
+				dx = (float)(map_x+1 * t->tile_width) - pos.x;
+			else
+				dx = pos.x - (float)(map_x * t->tile_width);
+			pos.x += dx;
+			pos.y += dx / k;
+		}
+		else {
+			side_dist.y += delta_dist.y;
+			map_y += step_y;
+
+			if(step_x) 
+				dy = (float)(map_y+1 * t->tile_height) - pos.y;
+			else
+				dx = pos.x - (float)(map_x * t->tile_width);
+			pos.x += dy * k;
+			pos.y += dy;
+		}
+
+		if(pos.x > end.x || pos.y > end.y)
+			return end;
+	}
+
+	return pos;
+}
+
+Vector2 tilemap_collide_swept_rectf(Tilemap* t, RectF rect, Vector2 offset) {
+	assert(t);
+
+	// Cover rect with a grid of points, like in collide_rect.
+
+	float rw = rectf_width(&rect);
+	float rh = rectf_height(&rect);
+	float fcols = ceilf((rw+0.001f) / (float)t->tile_width);
+	float frows = ceilf((rh+0.001f) / (float)t->tile_height);
+	float dx = rw / fcols; 	
+	float dy = rh / frows;
+
+	assert(dx < (float)t->tile_width);
+	assert(dy < (float)t->tile_height);
+
+	// If we assume, that initially rect is not colliding with anything,
+	// it is not neccessary to cast rays from each point in the grid.
+	// Only points lying on an edge, which is moving face-forward towards
+	// destination, must be checked.
+
+	float res_len_sq = vec2_length_sq(offset);
+	Vector2 res = offset, p;
+
+	// Vertical edges
+	if(offset.x != 0.0f) {
+		p = vec2(offset.x > 0.0f ? rect.right : rect.left, rect.top);
+		for(uint i = 0; (float)i < frows; ++i) {
+			Vector2 intersection = tilemap_raycast(t, p, vec2_add(p, offset));
+			Vector2 new_offset = vec2_sub(intersection, p);
+			float new_offset_len_sq = vec2_length_sq(new_offset);
+			if(new_offset_len_sq < res_len_sq) {
+				res_len_sq = new_offset_len_sq;
+				res = new_offset;
+			}
+			p.y += dy;
+		}
+	}
+
+	// Horizontal edges
+	if(offset.y != 0.0f) {
+
+		// Skip points, which were checked during vertical phase
+		if(offset.x > 0.0f) {
+			rect.left += dx;
+			fcols -= 1.0f;
+		}
+		if(offset.x < 0.0f) {
+			fcols -= 1.0f;
+		}	
+			
+		p = vec2(rect.left, offset.y > 0.0f ? rect.top : rect.bottom);
+		for(uint i = 0; (float)i < fcols; ++i) {
+			Vector2 intersection = tilemap_raycast(t, p, vec2_add(p, offset));
+			Vector2 new_offset = vec2_sub(intersection, p);
+			float new_offset_len_sq = vec2_length_sq(new_offset);
+			if(new_offset_len_sq < res_len_sq) {
+				res_len_sq = new_offset_len_sq;
+				res = new_offset;
+			}
+			p.x += dx;
+		}
+	}
+
+	return res;
 }
 
 Vector2 tilemap_world2screen_point(Tilemap* t, const RectF* viewport, Vector2 point) {
