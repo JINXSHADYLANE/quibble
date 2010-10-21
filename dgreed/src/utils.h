@@ -290,6 +290,9 @@ char* path_change_ext(const char* path, const char* ext);
 ------------
 */
 
+// Constructs FourCC code
+#define FOURCC(a, b, c, d) ((a)|((b)<<8)|((c)<<16)|((d)<<24))
+
 // Returns amount of items in static array
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
