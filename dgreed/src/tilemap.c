@@ -71,8 +71,8 @@ Tilemap* tilemap_load(const char* filename) {
 		for(uint i = 0; i < t->n_objects; ++i) {
 			TilemapObject* object = &t->objects[i];
 			object->id = file_read_uint32(f);
-			object->p.x = (float)file_read_uint32(f);
-			object->p.y = (float)file_read_uint32(f);
+			object->p.x = (float)file_read_uint32(f) * t->tile_width;
+			object->p.y = (float)file_read_uint32(f) * t->tile_height;
 		}
 	}
 	else
@@ -304,7 +304,7 @@ static bool _is_solid(Tilemap* t, int x, int y) {
 		return true;
 	
 	uint tile = IDX_2D(x, y, t->width);
-	return (t->collission[tile/8] & (1 << (tile % 8))) != 0;
+	return (t->collission[tile/8] & (1 << (7-(tile % 8)))) != 0;
 }
 
 bool tilemap_collide(Tilemap* t, RectF rect) {
@@ -358,7 +358,7 @@ Vector2 tilemap_raycast(Tilemap* t, Vector2 start, Vector2 end) {
 
 	int step_x, step_y, map_x, map_y;
 	map_x = tile % t->width;
-	map_y = tile % t->height;
+	map_y = tile / t->width;
 	
 	Vector2 dir = vec2_sub(end, start);
 	dir = vec2_normalize(dir);
@@ -398,26 +398,26 @@ Vector2 tilemap_raycast(Tilemap* t, Vector2 start, Vector2 end) {
 	Vector2 pos = start;
 	while(!_is_solid(t, map_x, map_y)) {
 		if(side_dist.x < side_dist.y) {
-			side_dist.x += delta_dist.x;
-			map_x += step_x;
-
-			if(step_x) 
+			if(step_x > 0) 
 				dx = (float)(map_x+1 * t->tile_width) - pos.x;
 			else
 				dx = pos.x - (float)(map_x * t->tile_width);
 			pos.x += dx;
 			pos.y += dx / k;
+
+			side_dist.x += delta_dist.x;
+			map_x += step_x;
 		}
 		else {
-			side_dist.y += delta_dist.y;
-			map_y += step_y;
-
-			if(step_x) 
+			if(step_y > 0) 
 				dy = (float)(map_y+1 * t->tile_height) - pos.y;
 			else
-				dy = pos.x - (float)(map_x * t->tile_width);
+				dy = pos.y - (float)(map_y * t->tile_width);
 			pos.x += dy * k;
 			pos.y += dy;
+		
+			side_dist.y += delta_dist.y;
+			map_y += step_y;
 		}
 
 		if(pos.x > end.x || pos.y > end.y)
@@ -477,7 +477,7 @@ Vector2 tilemap_collide_swept_rectf(Tilemap* t, RectF rect, Vector2 offset) {
 			fcols -= 1.0f;
 		}	
 			
-		p = vec2(rect.left, offset.y > 0.0f ? rect.top : rect.bottom);
+		p = vec2(rect.left, offset.y > 0.0f ? rect.bottom : rect.top);
 		for(uint i = 0; (float)i < fcols; ++i) {
 			Vector2 intersection = tilemap_raycast(t, p, vec2_add(p, offset));
 			Vector2 new_offset = vec2_sub(intersection, p);
@@ -493,8 +493,22 @@ Vector2 tilemap_collide_swept_rectf(Tilemap* t, RectF rect, Vector2 offset) {
 	return res;
 }
 
+RectF tilemap_world2screen(Tilemap* t, const RectF* viewport, RectF rect) {
+	assert(t);
+	assert(viewport);
+
+	Vector2 center = vec2((rect.left + rect.right) / 2.0f, (rect.top + rect.bottom) / 2.0f);	
+	center = tilemap_world2screen_point(t, viewport, center);
+
+	float rw = rectf_width(&rect) / (2.0f * t->camera.z);
+	float rh = rectf_height(&rect) / (2.0f * t->camera.z);
+
+	return rectf(center.x - rw, center.y - rh, center.x + rw, center.y + rh);
+}
+
 Vector2 tilemap_world2screen_point(Tilemap* t, const RectF* viewport, Vector2 point) {
 	assert(t);
+	assert(viewport);
 
 	Vector2 half_viewport_size = vec2 (
 		rectf_width(viewport)/2.0f,
@@ -512,6 +526,7 @@ Vector2 tilemap_world2screen_point(Tilemap* t, const RectF* viewport, Vector2 po
 
 Vector2 tilemap_screen2world_point(Tilemap* t, const RectF* viewport, Vector2 point) {
 	assert(t);
+	assert(viewport);
 
 	Vector2 half_viewport_size = vec2 (
 		rectf_width(viewport)/2.0f,
