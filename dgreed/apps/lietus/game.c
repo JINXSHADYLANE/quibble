@@ -15,9 +15,13 @@ float apelsinas_move_acc = 0.8f;
 float apelsinas_move_damp = 0.85f;
 float apelsinas_jump_acc = 8.0f;
 float apelsinas_gravity = 0.5f;
+float apelsinas_height = 26.0f;
+float apelsinas_width = 24.0f;
 
 TexHandle char_atlas;
 Tilemap* world;
+
+RectF viewport = {0.0f, 0.0f, 480.0f, 320.0f};
 
 struct {
 	Vector2 p, v;
@@ -48,6 +52,13 @@ void _apelsinas_reset(void) {
 	memset(&apelsinas, 0, sizeof(apelsinas));
 	apelsinas.touching_ground = true;
 	apelsinas.last_frame_t = time_ms() / 1000.0f;
+
+	for(uint i = 0; i < world->n_objects; ++i) {
+		if(world->objects[i].id == 0) 
+			apelsinas.p = world->objects[i].p;
+	}
+
+	apelsinas.p.y -= 50.0f;
 };	
 
 void _apelsinas_update(void) {
@@ -84,16 +95,31 @@ void _apelsinas_update(void) {
 	
 	apelsinas.v.y += apelsinas_gravity;
 	apelsinas.v.x *= apelsinas_move_damp;
-	apelsinas.p = vec2_add(apelsinas.p, apelsinas.v);
 
-	if(apelsinas.p.y >= 0.0f) {
-		apelsinas.p.y = 0.0f;
+	RectF bbox = rectf ( 
+		apelsinas.p.x + ((float)tile_width - apelsinas_width)/2.0f,
+		apelsinas.p.y + ((float)tile_height - apelsinas_height),
+		0.0f, 0.0f
+	);		
+	bbox.right = bbox.left + apelsinas_width;
+	bbox.bottom = bbox.top + apelsinas_height;
+
+	Vector2 dx = tilemap_collide_swept_rectf(world, bbox, vec2(apelsinas.v.x, 0.0f));
+	apelsinas.p = vec2_add(apelsinas.p, dx);
+	bbox.left += dx.x; bbox.right += dx.x;
+	apelsinas.v.x = dx.x;
+
+	Vector2 dy = tilemap_collide_swept_rectf(world, bbox, vec2(0.0f, apelsinas.v.y));
+	apelsinas.p = vec2_add(apelsinas.p, dy);
+	apelsinas.v.y = dy.y;
+	if(dy.y == 0.0f)
 		apelsinas.touching_ground = true;
-	}	
 }
 
 void _apelsinas_render(void) {
-	RectF dest = rectf(apelsinas.p.x, apelsinas.p.y + 280.0f, 0.0f, 0.0f);
+	RectF dest = rectf(apelsinas.p.x, apelsinas.p.y, 
+			apelsinas.p.x + (float)tile_width, apelsinas.p.y + (float)tile_height);
+	dest = tilemap_world2screen(world, &viewport, dest);
 	if(apelsinas.dir) {
 		dest.right = dest.left;
 		dest.left = dest.right + (float)tile_width;
@@ -126,23 +152,13 @@ void game_close(void) {
 
 void game_update(void) {
 
-	if(key_pressed(KEY_DOWN))
-		world->camera.center.y += 1.0f;
-	if(key_pressed(KEY_UP))
-		world->camera.center.y -= 1.0f;
-	if(key_pressed(KEY_LEFT))
-		world->camera.center.x -= 1.0f;
-	if(key_pressed(KEY_RIGHT))
-		world->camera.center.x += 1.0f;
-
-	if(key_pressed(KEY_A))
-		world->camera.rot += 0.02f;
+	world->camera.center = vec2_add(apelsinas.p, vec2(16.0f, 16.0f));
 
 	_apelsinas_update();
 }
 
 void game_render(void) {
-	tilemap_render(world, rectf(0.0f, 0.0f, 480.0f, 320.0f), 0.0f);
+	tilemap_render(world, viewport, 0.0f);
 	_apelsinas_render();
 }
 
