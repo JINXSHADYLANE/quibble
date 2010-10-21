@@ -71,8 +71,8 @@ Tilemap* tilemap_load(const char* filename) {
 		for(uint i = 0; i < t->n_objects; ++i) {
 			TilemapObject* object = &t->objects[i];
 			object->id = file_read_uint32(f);
-			object->p.x = file_read_float(f);
-			object->p.y = file_read_float(f);
+			object->p.x = (float)file_read_uint32(f);
+			object->p.y = (float)file_read_uint32(f);
 		}
 	}
 	else
@@ -415,7 +415,7 @@ Vector2 tilemap_raycast(Tilemap* t, Vector2 start, Vector2 end) {
 			if(step_x) 
 				dy = (float)(map_y+1 * t->tile_height) - pos.y;
 			else
-				dx = pos.x - (float)(map_x * t->tile_width);
+				dy = pos.x - (float)(map_x * t->tile_width);
 			pos.x += dy * k;
 			pos.y += dy;
 		}
