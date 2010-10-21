@@ -8,10 +8,14 @@
 	<tilesets>
 		<tileset name="tiles0" image="atlas.png" tileWidth="16" tileHeight="16" />
 	</tilesets>	
+	<objects>
+		<object name="start" image="apelsinas.png" width="32" height="32" />
+	</objects>
 	<layers>
 		<tiles name="background0" gridSize="16" />
 		<tiles name="background1" gridSize="16" />
 		<grid name="col" gridSize="16" />
+		<objects name="objs" gridSize="16" />
 		<tiles name="foreground0" gridSize="16" />
 		<tiles name="foreground1" gridSize="16" />
 	</layers>	

@@ -45,8 +45,9 @@ TILES_IN_TILESET = TILESET_WIDTH * TILESET_HEIGHT
 prefix = ''
 tile_width, tile_height = 0, 0
 width, height = 0, 0
+object_ids = {}
 col, layers, tilesets, objects = [], [], [], []
-state, col_name, layer_state, tileset_state = '', '', -1, -1	
+state, col_name, obj_name, layer_state, tileset_state = '', '', '', -1, -1	
 raw_col = ''
 
 def _2dlist(e, w, h): 
@@ -62,8 +63,9 @@ def write_btm(filename):
 		# TODO: Animated tile defs
 		out += [struct.pack('<I', 0)]
 	
-	# TODO: Objects
 	out += [struct.pack('<I', len(objects))]
+	for object in objects:
+		out += [struct.pack('<III', object[0], object[1], object[2])]
 	
 	out += [struct.pack('<I', len(layers))]
 	for layer in layers:
@@ -114,6 +116,15 @@ def read_ogmo(level_filename, project_filename):
 			col_name = attrs['name']
 			if int(attrs['gridSize']) != tile_height:
 				raise RuntimeError('bad collission grid size')
+		if name == 'object':
+			if attrs['name'] not in object_ids:
+				object_ids[attrs['name']] = len(object_ids)
+		if name == 'objects':
+			if 'name' not in attrs:
+				return
+			objs_name = attrs['name']
+			if int(attrs['gridSize']) != tile_height:
+				raise RuntimeError('bad object grid size')
 
 	def proj_end(name):
 		pass
@@ -162,6 +173,13 @@ def read_ogmo(level_filename, project_filename):
 				raise RuntimeError('no width/height data found in level')
 			col = _2dlist(0, width, height)
 			return
+
+		if name == obj_name:
+			state = 'obj'
+
+		if name in object_ids:
+			objects.append([object_ids[str(name)], 
+				int(attrs['x']) / tile_width, int(attrs['y']) / tile_height])
 
 		for i, layer in enumerate(layers):
 			if name == layer[0]:
