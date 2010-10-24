@@ -15,6 +15,7 @@
 #define OBJECTS_LAYER 4
 #define BACKGROUND_LAYER 3
 #define SHADOWS_LAYER 2
+#define PARTICLES_LAYER 5
 
 #define SHIP_COLORS 4
 #define SHIP_FRAMES 8
@@ -116,7 +117,7 @@ void game_init(void) {
 	#endif
 
 	menus_init();
-	particles_init();
+	particles_init("greed_assets/", PARTICLES_LAYER);
 	arenas_init();
 	arena_init();
 	physics_init();

@@ -54,7 +54,7 @@ int dgreed_main(int argc, const char** argv) {
 	GuiDesc style = greed_gui_style(false);
 
 	gui_init(&style);
-	particles_init();
+	particles_init("greed_assets/", 5);
 
 	if(psystem_descs_count < 1) 
 		LOG_ERROR("No particle systems described!");

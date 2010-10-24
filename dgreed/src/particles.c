@@ -2,9 +2,9 @@
 #include "mml.h"
 #include "memory.h"
 
-#define PARTICLES_TEXTURE "greed_assets/particles.png"
-#define PARTICLE_LAYER 5
-#define PARTICLES_FILENAME "greed_assets/particles.mml"
+static uint particles_layer;
+static const char* particles_file = "particles.mml";
+
 #define APPEND_NODE(parent, name, value, type) { \
 	prop = mml_node(&mml, name, ""); \
 	mml_setval_##type(&mml, prop, value); \
@@ -34,10 +34,20 @@ const ParticleStats* particle_stats(void) {
 }
 #endif
 
-void particles_init(void) {
-	particles_texture = tex_load(PARTICLES_TEXTURE);
+void particles_init(const char* assets_prefix, uint layer) {
+	particles_layer = layer;
 
-	char* desc_text = txtfile_read(PARTICLES_FILENAME);
+	// Construct paths
+	char desc_path[256];
+	if(assets_prefix) {
+		strcpy(desc_path, assets_prefix);
+	}
+	else {
+		desc_path[0] = '\0';
+	}
+	strcat(desc_path, particles_file);
+
+	char* desc_text = txtfile_read(desc_path);
 	if(!desc_text)
 		LOG_ERROR("Unable to read particle description file");
 
@@ -70,9 +80,8 @@ void particles_init(void) {
 		if(!prop)
 			LOG_ERROR("Propierty texture is missing or in wrong place");
 		
-		// Must be rewriten to allow any texture to be used
-		if(strcmp(PARTICLES_TEXTURE, mml_getval_str(&desc, prop)) != 0)
-			LOG_ERROR("Particle system texture must be greed_assets/particles.png");
+		// Load texture
+		particles_texture = tex_load(mml_getval_str(&desc, prop));
 		psystem_descs[i].texture = particles_texture;	
 
 		const char* tex_source;
@@ -450,7 +459,7 @@ void _psystem_draw(ParticleSystem* psystem) {
 		RectF dest = rectf(p->pos.x - width/2.0f, p->pos.y - height/2.0f,
 			p->pos.x + width/2.0f, p->pos.y + height/2.0f);
 
-		video_draw_rect_rotated(psystem->desc->texture, PARTICLE_LAYER, 
+		video_draw_rect_rotated(psystem->desc->texture, particles_layer, 
 			&source, &dest, angle, color); 
 	}		
 }	
