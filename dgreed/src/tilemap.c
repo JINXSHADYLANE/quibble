@@ -310,15 +310,15 @@ static bool _is_solid(Tilemap* t, int x, int y) {
 bool tilemap_collide(Tilemap* t, RectF rect) {
 	assert(t);
 
-	float rw = rectf_width(&rect);
-	float rh = rectf_height(&rect);
+	float rw = rectf_width(&rect) - 1.0f;
+	float rh = rectf_height(&rect) - 1.0f;
 
 	// Cover rect with a grid of points, if distances dx between point rows and
 	// and dy between columns are not greater than tile width / height, it is 
 	// sufficient to only check this grid and nothing more.
 
-	float fcols = ceilf((rw+0.001f) / (float)t->tile_width);
-	float frows = ceilf((rh+0.001f) / (float)t->tile_height);
+	float fcols = ceilf(rw / (float)t->tile_width);
+	float frows = ceilf(rh / (float)t->tile_height);
 	float dx = rw / fcols; 	
 	float dy = rh / frows;
 
@@ -327,9 +327,9 @@ bool tilemap_collide(Tilemap* t, RectF rect) {
 
 	// Check grid points
 	Vector2 p = vec2(0.0f, rect.top);
-	for(uint i = 0; (float)i < frows; ++i) { 
+	for(uint i = 0; (float)i < frows+1.0f; ++i) { 
 		p.x = rect.left;
-		for(uint j = 0; (float)j < fcols; ++j) {
+		for(uint j = 0; (float)j < fcols+1.0f; ++j) {
 			if(tilemap_collide_point(t, p))
 				return true;
 			p.x += dx;
@@ -399,9 +399,9 @@ Vector2 tilemap_raycast(Tilemap* t, Vector2 start, Vector2 end) {
 	while(!_is_solid(t, map_x, map_y)) {
 		if(side_dist.x < side_dist.y) {
 			if(step_x > 0) 
-				dx = (float)(map_x+1 * t->tile_width) - pos.x;
+				dx = (float)((map_x+1) * t->tile_width) - pos.x;
 			else
-				dx = pos.x - (float)(map_x * t->tile_width);
+				dx = (float)(map_x * t->tile_width) - pos.x;
 			pos.x += dx;
 			pos.y += dx / k;
 
@@ -410,9 +410,9 @@ Vector2 tilemap_raycast(Tilemap* t, Vector2 start, Vector2 end) {
 		}
 		else {
 			if(step_y > 0) 
-				dy = (float)(map_y+1 * t->tile_height) - pos.y;
+				dy = (float)((map_y+1) * t->tile_height) - pos.y;
 			else
-				dy = pos.y - (float)(map_y * t->tile_width);
+				dy = (float)(map_y * t->tile_width) - pos.y;
 			pos.x += dy * k;
 			pos.y += dy;
 		
@@ -420,8 +420,24 @@ Vector2 tilemap_raycast(Tilemap* t, Vector2 start, Vector2 end) {
 			map_y += step_y;
 		}
 
-		if(pos.x > end.x || pos.y > end.y)
-			return end;
+		if(step_x > 0) {
+			if(pos.x > end.x)
+				return end;
+		}		
+		else {
+			if(pos.x < end.x)
+				return end;
+		}		
+
+		if(step_y > 0) {
+			if(pos.y > end.y)
+				return end;
+		}		
+		else {
+			if(pos.y < end.y)
+				return end;
+		}
+
 	}
 
 	return pos;
@@ -432,10 +448,10 @@ Vector2 tilemap_collide_swept_rectf(Tilemap* t, RectF rect, Vector2 offset) {
 
 	// Cover rect with a grid of points, like in collide_rect.
 
-	float rw = rectf_width(&rect);
-	float rh = rectf_height(&rect);
-	float fcols = ceilf((rw+0.001f) / (float)t->tile_width);
-	float frows = ceilf((rh+0.001f) / (float)t->tile_height);
+	float rw = rectf_width(&rect) - 1.0f;
+	float rh = rectf_height(&rect) - 1.0f;
+	float fcols = ceilf(rw / (float)t->tile_width);
+	float frows = ceilf(rh / (float)t->tile_height);
 	float dx = rw / fcols; 	
 	float dy = rh / frows;
 
@@ -453,7 +469,7 @@ Vector2 tilemap_collide_swept_rectf(Tilemap* t, RectF rect, Vector2 offset) {
 	// Vertical edges
 	if(offset.x != 0.0f) {
 		p = vec2(offset.x > 0.0f ? rect.right : rect.left, rect.top);
-		for(uint i = 0; (float)i < frows; ++i) {
+		for(uint i = 0; (float)i < frows+1.0f; ++i) {
 			Vector2 intersection = tilemap_raycast(t, p, vec2_add(p, offset));
 			Vector2 new_offset = vec2_sub(intersection, p);
 			float new_offset_len_sq = vec2_length_sq(new_offset);
@@ -478,7 +494,7 @@ Vector2 tilemap_collide_swept_rectf(Tilemap* t, RectF rect, Vector2 offset) {
 		}	
 			
 		p = vec2(rect.left, offset.y > 0.0f ? rect.bottom : rect.top);
-		for(uint i = 0; (float)i < fcols; ++i) {
+		for(uint i = 0; (float)i < fcols+1.0f; ++i) {
 			Vector2 intersection = tilemap_raycast(t, p, vec2_add(p, offset));
 			Vector2 new_offset = vec2_sub(intersection, p);
 			float new_offset_len_sq = vec2_length_sq(new_offset);
