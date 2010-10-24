@@ -2,6 +2,7 @@
 
 #include <system.h>
 #include <tilemap.h>
+#include <gfx_utils.h>
 
 const int atlas_width = 256;
 const int atlas_height = 256;
@@ -16,7 +17,7 @@ float apelsinas_move_damp = 0.85f;
 float apelsinas_jump_acc = 8.0f;
 float apelsinas_gravity = 0.5f;
 float apelsinas_height = 26.0f;
-float apelsinas_width = 24.0f;
+float apelsinas_width = 20.0f;
 
 TexHandle char_atlas;
 Tilemap* world;
@@ -57,8 +58,6 @@ void _apelsinas_reset(void) {
 		if(world->objects[i].id == 0) 
 			apelsinas.p = world->objects[i].p;
 	}
-
-	apelsinas.p.y -= 50.0f;
 };	
 
 void _apelsinas_update(void) {
@@ -111,6 +110,7 @@ void _apelsinas_update(void) {
 
 	Vector2 dy = tilemap_collide_swept_rectf(world, bbox, vec2(0.0f, apelsinas.v.y));
 	apelsinas.p = vec2_add(apelsinas.p, dy);
+	bbox.top += dy.y; bbox.bottom += dy.y;
 	apelsinas.v.y = dy.y;
 	if(dy.y == 0.0f)
 		apelsinas.touching_ground = true;
