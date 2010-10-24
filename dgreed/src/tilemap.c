@@ -202,8 +202,8 @@ void tilemap_render(Tilemap* t, RectF viewport, float time) {
 	float fheight = (float)(t->height * t->tile_height);
 
 	// World space viewport half-width and half-height
-	float vw = rectf_width(&viewport)/2.0f * t->camera.z;
-	float vh = rectf_height(&viewport)/2.0f * t->camera.z;
+	float vw = rectf_width(&viewport)/(2.0f * t->camera.z);
+	float vh = rectf_height(&viewport)/(2.0f * t->camera.z);
 
 	// World space viewport corners
 	Vector2 corners[] = {{-vw, -vh}, {vw, -vh}, {-vw, vh}, {vw, vh}};
@@ -516,8 +516,8 @@ RectF tilemap_world2screen(Tilemap* t, const RectF* viewport, RectF rect) {
 	Vector2 center = vec2((rect.left + rect.right) / 2.0f, (rect.top + rect.bottom) / 2.0f);	
 	center = tilemap_world2screen_point(t, viewport, center);
 
-	float rw = rectf_width(&rect) / (2.0f * t->camera.z);
-	float rh = rectf_height(&rect) / (2.0f * t->camera.z);
+	float rw = rectf_width(&rect) / 2.0f * t->camera.z;
+	float rh = rectf_height(&rect) / 2.0f * t->camera.z;
 
 	return rectf(center.x - rw, center.y - rh, center.x + rw, center.y + rh);
 }
@@ -535,7 +535,7 @@ Vector2 tilemap_world2screen_point(Tilemap* t, const RectF* viewport, Vector2 po
 	point = vec2_sub(point, t->camera.center);
 
 	// Screen space, relative to viewport center
-	point = vec2_scale(vec2_rotate(point, t->camera.rot), 1.0f / t->camera.z);
+	point = vec2_scale(vec2_rotate(point, t->camera.rot), t->camera.z);
 
 	return vec2_add(point, half_viewport_size);
 }

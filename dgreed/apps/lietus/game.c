@@ -109,11 +109,11 @@ void _apelsinas_update(void) {
 	apelsinas.v.x = dx.x;
 
 	Vector2 dy = tilemap_collide_swept_rectf(world, bbox, vec2(0.0f, apelsinas.v.y));
+	if(apelsinas.v.y != 0.0f && dy.y == 0.0f)
+		apelsinas.touching_ground = true;
 	apelsinas.p = vec2_add(apelsinas.p, dy);
 	bbox.top += dy.y; bbox.bottom += dy.y;
 	apelsinas.v.y = dy.y;
-	if(dy.y == 0.0f)
-		apelsinas.touching_ground = true;
 }
 
 void _apelsinas_render(void) {
@@ -121,10 +121,11 @@ void _apelsinas_render(void) {
 			apelsinas.p.x + (float)tile_width, apelsinas.p.y + (float)tile_height);
 	dest = tilemap_world2screen(world, &viewport, dest);
 	if(apelsinas.dir) {
+		float w = rectf_width(&dest);
 		dest.right = dest.left;
-		dest.left = dest.right + (float)tile_width;
-		dest.bottom = dest.top + (float)tile_height;
+		dest.left = dest.right + w;
 	}
+
 	int frame = apelsinas.frame;
 	if(apelsinas.state == standing || apelsinas.state == running)
 		frame = fabs(apelsinas.v.x) > 0.1f ? apelsinas.frame : 0;
@@ -136,7 +137,8 @@ void _apelsinas_render(void) {
 		frame += 24;
 	
 	RectF src = _frame_src(frame);
-	video_draw_rect(char_atlas, 0, &src, &dest, COLOR_WHITE); 
+	video_draw_rect_rotated(char_atlas, 0, &src, &dest,
+		world->camera.rot, COLOR_WHITE); 
 }
 
 void game_init(void) {
