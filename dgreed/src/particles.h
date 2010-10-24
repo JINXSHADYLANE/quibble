@@ -88,7 +88,7 @@ extern ParticleSystem psystems[MAX_PSYSTEMS];
 
 extern uint psystem_descs_count;
 
-void particles_init(void);
+void particles_init(const char* assets_prefix, uint layer);
 void particles_save(void);
 void particles_close(void);
 
