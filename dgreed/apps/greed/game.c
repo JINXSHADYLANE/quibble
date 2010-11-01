@@ -132,7 +132,7 @@ void game_init(void) {
 			ship_rects[y][x] = rectf(px, py, px + 50.0f, py + 72.0f);
 		}
 	}	
-	ship_shadow_rect = rectf(433.0f, 0.0f, 433.0f + 50.0f, 72.0f);
+	ship_shadow_rect = rectf(429.0f, 0.0f, 429.0f + 58.0f, 4.0f + 76.0f);
 
 	for(uint x = 0; x < VORTEX_FRAMES; ++x) {
 		float px = (float)x * 50.0f;
