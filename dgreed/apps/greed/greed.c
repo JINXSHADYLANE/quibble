@@ -7,9 +7,14 @@
 #include "ai.h"
 #include "sounds.h"
 
-const bool highres = true;
+bool highres = true;
 
 int dgreed_main(int argc, const char** argv) {
+	params_init(argc, argv);
+
+	if(params_find("-s") != ~0)
+		highres = false;
+
 	log_init("greed.log", LOG_LEVEL_INFO);
 	rand_init(47891);
 
