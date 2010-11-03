@@ -1,3 +1,7 @@
-* Make gui configurable
-* Provide easy access to tools in build system
-
+* fix encoding issues in fnt2bft.py and ogmo2btm.py
+* scaled/tinted gui widget rendering without interaction, for nice transitions
+* proper sound looping, volume, seeking
+* finish tilemap.c
+* memory tracking in stb_image and stb_vorbis
+* nicer endianess-related stuff (POSH, stb sophist?)
+* mml string/node pool alloc optimization
