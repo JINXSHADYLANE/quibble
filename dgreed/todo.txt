@@ -5,3 +5,4 @@
 * memory tracking in stb_image and stb_vorbis
 * nicer endianess-related stuff (POSH, stb sophist?)
 * mml string/node pool alloc optimization
+* mt19937 prng 

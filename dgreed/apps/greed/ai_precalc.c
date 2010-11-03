@@ -157,7 +157,7 @@ DArray _gen_navpoints(DArray geometry, DArray platforms) {
 	DArray points = darray_create(sizeof(Vector2), 0);
 	darray_append_multi(&points, platforms.data, platforms.size);
 
-	uint count = 100000;
+	uint fail_count = 0;
 	do {
 		Vector2 navpoint = vec2(rand_float_range(0.0f, SCREEN_WIDTH),
 			rand_float_range(0.0f, SCREEN_HEIGHT));
@@ -167,8 +167,12 @@ DArray _gen_navpoints(DArray geometry, DArray platforms) {
 
 		if(wdist >= min_wall_distance && pdist >= min_point_distance) {
 			darray_append(&points, (void*)&navpoint);
+			fail_count = 0;
 		}
-	} while(count--);	
+		else {
+			fail_count++;
+		}	
+	} while(fail_count < 1200);	
 	return points;
 }	
 
