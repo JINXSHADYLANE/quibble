@@ -35,6 +35,7 @@ RectF platform_rects[PLATFORM_FRAMES];
 RectF platform_shadow_rect;
 RectF bullet_rect;
 RectF bullet_shadow_rect;
+RectF energybar_rects[3]; // start, end, middle
 
 // Game state
 uint n_ships;
@@ -62,7 +63,10 @@ float energy_max = 100.0f;
 float energy_decrease_speed = 2.0f;
 float energy_holding = 0.3f;
 float energy_neutralization = 10.0f;
-float energybar_length = 400.0f;
+float energybar_alpha = 0.5f;
+float energybar_spacing = 24.0f;
+float energybar_y = 20.0f;
+float energybar_warn_length = 0.2f;
 float start_anim_length = 1.0f;
 float start_anim_obj_fadein = 0.3f;
 float start_anim_obj_size = 2.0f;
@@ -72,10 +76,6 @@ const Color ship_colors[] = {
 	COLOR_RGBA(74, 185, 46, 255),
 	COLOR_RGBA(240, 214, 53, 255),
 	COLOR_RGBA(143, 51, 140, 255)
-};	
-
-const float energybar_y_pos[] = {
-	10.0f, 20.0f, 30.0f, 40.0f
 };	
 
 // Devmode switches
@@ -105,7 +105,10 @@ void game_register_tweaks(Tweaks* tweaks) {
 	GAME_TWEAK(energy_decrease_speed, 0.1f, 10.0f);
 	GAME_TWEAK(energy_holding, 0.1f, 10.0f);
 	GAME_TWEAK(energy_neutralization, 1.0f, 100.0f);
-	GAME_TWEAK(energybar_length, 50.0f, 400.0f);
+	GAME_TWEAK(energybar_alpha, 0.0f, 1.0f);
+	GAME_TWEAK(energybar_y, 0.0f, 320.0f);
+	GAME_TWEAK(energybar_warn_length, 0.0f, 1.0f);
+	GAME_TWEAK(energybar_spacing, 0.0f, 100.0f);
 	GAME_TWEAK(start_anim_length, 0.5f, 5.0f);
 	GAME_TWEAK(start_anim_obj_fadein, 0.1f, 1.0f);
 	GAME_TWEAK(start_anim_obj_size, 0.1f, 10.0f);
@@ -155,6 +158,10 @@ void game_init(void) {
 
 	bullet_rect = rectf(217.0f, 432.0f, 217.0f + 12.0f, 432.0f + 12.0f);
 	bullet_shadow_rect = rectf(288.0f, 432.0f, 288.0f + 16.0f, 432.0f + 16.0f);
+
+	energybar_rects[0] = rectf(0.0f, 480.0f, 11.0f, 480.0f + 21.0f);
+	energybar_rects[1] = rectf(11.0f, 480.0f, 21.0f, 480.0f + 21.0f);
+	energybar_rects[2] = rectf(21.0f, 480.0f, 32.0f, 480.0f + 21.0f);
 
 	n_ships = 0;
 	n_platforms = 0;
@@ -379,6 +386,24 @@ void _draw_ship(const Vector2* pos, uint ship) {
 		&ship_shadow_rect, &shadow_pos, rot, scale, COLOR_WHITE);
 }		
 
+void _draw_energybar(const Vector2* pos, float length, Color color) {
+	assert(pos);
+	assert(length >= 0.0f);
+
+	float w = rectf_width(&energybar_rects[0]);
+	float h = rectf_height(&energybar_rects[0]);
+
+	RectF dest = rectf(pos->x - length/2.0f - w, pos->y - h/2.0f, 0.0f, 0.0f);
+	video_draw_rect(atlas1, ENERGYBAR_LAYER, &energybar_rects[0], &dest, color);  
+	dest.left += length + w;
+	video_draw_rect(atlas1, ENERGYBAR_LAYER, &energybar_rects[2], &dest, color);  
+
+	dest.bottom = dest.top + h;
+	dest.left = pos->x - length/2.0f;
+	dest.right = dest.left + length;
+	video_draw_rect(atlas1, ENERGYBAR_LAYER, &energybar_rects[1], &dest, color);
+}
+
 float _calc_core_shrink_ratio(uint platform) {
 	assert(platform < n_platforms);
 
@@ -428,8 +453,8 @@ void game_render(void) {
 	if(draw_ai_debug)
 		ai_debug_draw();
 
+	float time = time_ms() / 1000.0f;
 	if(_in_start_anim()) {
-		float time = time_ms() / 1000.0f;
 		float t = (time - start_anim_t) / start_anim_length;
 		game_render_startanim(t);
 		return;
@@ -485,12 +510,23 @@ void game_render(void) {
 		}	
 
 		// Energy bar
+		float max_len = (float)(SCREEN_WIDTH/n_ships) - energybar_spacing;
 		float normalized_energy = ship_states[ship].energy / energy_max;
-		float length = normalized_energy * energybar_length;
-		float x_pos = ((float)SCREEN_WIDTH - energybar_length) / 2.0f;
-		Vector2 v1 = vec2(x_pos, energybar_y_pos[ship]);
-		Vector2 v2 = vec2(x_pos + length, v1.y);
-		video_draw_line(ENERGYBAR_LAYER, &v1, &v2, ship_colors[ship]);
+		float length = normalized_energy * max_len;
+		pos = vec2(
+				(float)(SCREEN_WIDTH/n_ships) * ((float)ship + 0.5f),
+				energybar_y
+		);
+		float warn_t = MIN(1.0f, normalized_energy / energybar_warn_length);
+		Color c = ship_colors[ship];
+		Color ca = c & 0x00FFFFFF;
+		float ct = lerp(
+				energybar_alpha + (1.0f - energybar_alpha) * sin(time * PI * 6.0f),
+				energybar_alpha, 
+				warn_t
+		);		
+		c = color_lerp(c, ca, ct);
+		_draw_energybar(&pos, length, c);
 	}		
 
 	// Draw bullets
@@ -698,6 +734,19 @@ void _startanim_ship(uint ship, float t) {
 		&ship_shadow_rect, &shadow_pos, rot, scale * size, c);
 }
 
+void _startanim_energybar(uint ship, float t) {
+	float max_len = (float)(SCREEN_WIDTH/n_ships) - energybar_spacing;
+	float length = sqrtf(t) * max_len;
+	Vector2 pos = vec2(
+			(float)(SCREEN_WIDTH/n_ships) * ((float)ship + 0.5f),
+			energybar_y
+	);
+	Color c = ship_colors[ship];
+	Color ca = c & 0x00FFFFFF;
+	_draw_energybar(&pos, length, 
+			color_lerp(ca, c, t * (1.0f - energybar_alpha)));
+}
+
 void game_render_startanim(float t) {
 	arena_draw();
 
@@ -723,6 +772,7 @@ void game_render_startanim(float t) {
 			curr_obj_start + norm_fadein);
 		obj_t = clamp(0.0f, 1.0f, obj_t);	
 		_startanim_ship(i, obj_t);
+		_startanim_energybar(i, obj_t);
 		curr_obj_start += obj_interval;
 	}
 }
