@@ -5,12 +5,21 @@
 #include "darray.h"
 #include "memory.h"
 
-// Try not to allocate less than 1k
-#define MINIMAL_CHUNK 1024 
-// Do not double array size when expanding if it's bigger than 1 meg
-#define DOUBLING_BOUND 1024 * 1024
-// Instead, expand by this amount every time we run out of space
-#define EXPAND_AMOUNT 1024 * 512
+#ifdef TARGET_IOS
+	// Try not to allocate less than 1/4 k
+	#define MINIMAL_CHUNK 256 
+	// Do not double array size when expanding if it's bigger than 1/2 meg
+	#define DOUBLING_BOUND 1024 * 512
+	// Instead, expand by this amount every time we run out of space
+	#define EXPAND_AMOUNT 1024 * 256
+#else
+	// Try not to allocate less than 1k
+	#define MINIMAL_CHUNK 1024 
+	// Do not double array size when expanding if it's bigger than 1 meg
+	#define DOUBLING_BOUND 1024 * 1024
+	// Instead, expand by this amount every time we run out of space
+	#define EXPAND_AMOUNT 1024 * 512
+#endif
 
 // TODO: remove this
 #define MAX(a, b) ((a) > (b) ? (a) : (b))

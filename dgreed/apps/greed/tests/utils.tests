@@ -232,3 +232,15 @@ TEST_(path_change_ext) {
 	MEM_FREE(p7);
 }
 
+TEST_(is_pow2) {
+	uint positive[] = {1, 2, 4, 8, 1024, 64, 262144, 2147483648};
+	uint negative[] = {0, 3, 7, 255, 4097, 458290, 9851754, 4294967295};
+	
+	for(uint i = 0; i < ARRAY_SIZE(positive); ++i) {
+		ASSERT_(is_pow2(positive[i]) == true);
+	}	
+
+	for(uint i = 0; i < ARRAY_SIZE(negative); ++i) {
+		ASSERT_(is_pow2(negative[i]) == false);
+	}	
+}
