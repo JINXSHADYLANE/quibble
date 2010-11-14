@@ -383,18 +383,6 @@ uint video_get_frame(void) {
 	return frame;
 }	
 
-// Returns true if n is a power of 2
-bool _is_pow2(uint n) {
-	// Count '1' bits
-	uint ones = 0;
-	uint i = 32;
-	while(i--) {
-		ones += n & 1;
-		n >>= 1;
-	}
-	return ones == 1;
-}	
-
 TexHandle tex_load(const char* filename) {
 
 	bool inactive_found = false;
@@ -435,7 +423,7 @@ TexHandle tex_load(const char* filename) {
 	int width, height, components;
 	byte* decompr_data = (byte*)stbi_load_from_memory(buffer, size, &width, &height, 
 		&components, 4);
-	if(!(_is_pow2(width) && _is_pow2(height))) {
+	if(!(is_pow2(width) && is_pow2(height))) {
 		stbi_image_free(decompr_data);
 		MEM_FREE(buffer);
 		LOG_ERROR("Texture dimensions is not power of 2");

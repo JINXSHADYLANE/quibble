@@ -125,8 +125,14 @@ void mem_stats(MemoryStats* mstats) {
 
 void mem_dump(const char* path) {
 	unsigned int i;
+	
+	// Dump to stderr on iOS
+#ifdef TARGET_IOS
+	output = stderr;
+#else	
 	FILE* output = fopen(path, "w");
-
+#endif
+	
 	fprintf(output, "Memory allocations dump:\n");
 	for(i = 0; i < allocations_count; ++i) {
 		fprintf(output, " %u: %s:%u:\t%zu\t%p08\n", 

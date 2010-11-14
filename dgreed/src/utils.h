@@ -322,6 +322,9 @@ float clamp(float min, float max, float val);
 // Returns true if floats are within epsilon range
 bool feql(float a, float b); 
 
+// Returns true if integer is a power of two
+bool is_pow2(uint n);
+
 /*
 -------------------
 --- Compression ---

@@ -450,13 +450,19 @@ static const char* log_level_to_cstr(uint log_level) {
 }
 
 bool log_init(const char* log_path, uint log_level) {
-#ifdef MACOSX_BUNDLE
-	char bundle_log_path[512];
-	sprintf(bundle_log_path, "%s/Library/Logs/%s", g_home_dir, log_path);
-	log_file = fopen(bundle_log_path, "w");
-#else
-	log_file = fopen(log_path, "w");
-#endif	
+	// Log to stderr on iOS
+#ifdef TARGET_IOS
+	log_file = stderr;
+#else	
+	#ifdef MACOSX_BUNDLE
+		char bundle_log_path[512];
+		sprintf(bundle_log_path, "%s/Library/Logs/%s", g_home_dir, log_path);
+		log_file = fopen(bundle_log_path, "w");
+	#else
+		log_file = fopen(log_path, "w");
+	#endif
+#endif
+	
 	if(log_file == NULL)
 			return false;
 
@@ -470,7 +476,8 @@ void log_close(void) {
 	assert(log_file);
 
 	LOG_INFO("Log closed");
-	fclose(log_file);
+	if(log_file != stderr)
+		fclose(log_file);
 }
 
 /* TODO: Display time */
@@ -910,6 +917,11 @@ float clamp(float min, float max, float val) {
 
 bool feql(float a, float b) {
 	return abs(a - b) < 0.00001f;
+}
+
+bool is_pow2(uint n) {
+	while(n && !(n & 1)) n >>= 1;
+	return n == 1;
 }
 
 /*
