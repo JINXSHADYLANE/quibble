@@ -33,10 +33,47 @@
 		glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, renderbuffer);
 		glViewport(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame));
 		
-		[self drawView];
+		// See if CADisplayLink is supported
+		NSString *reqSysVer = @"3.1";
+		NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
+		if ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedAscending)
+			display_link_supported = TRUE;
+		
     }
     return self;
 }
+
+- (void) startAnimation {
+	if(!running) {
+		if(display_link_supported) {
+			display_link = [NSClassFromString(@"CADisplayLink") 
+							displayLinkWithTarget:self selector:@selector(drawView)];
+			[display_link addToRunLoop:[NSRunLoop currentRunLoop] 
+							   forMode:NSDefaultRunLoopMode];
+		}
+		else {
+			animation_timer = [NSTimer 
+							   scheduledTimerWithTimeInterval:(NSTimeInterval)(1.0f / 60.0f)
+							   target:self selector:@selector(drawView)
+							   userInfo:nil repeats:YES];
+		}
+		running = YES;
+	}
+}
+
+- (void) stopAnimation {
+	if(running) {
+		if(display_link_supported) {
+			[display_link invalidate];
+			display_link = nil;
+		}
+		else {
+			[animation_timer invalidate];
+			animation_timer = nil;
+		}
+	}
+	running = NO;
+}	
 
 - (void) drawView {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
