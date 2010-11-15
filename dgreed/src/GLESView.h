@@ -6,8 +6,14 @@
 
 @interface GLESView : UIView {
 	EAGLContext* context;
+	NSTimer* animation_timer;
+	BOOL running;
+	BOOL display_link_supported;
+	id display_link;
 }
 
+- (void) startAnimation;
+- (void) stopAnimation;
 - (void) drawView;
 
 @end
