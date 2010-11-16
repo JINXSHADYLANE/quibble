@@ -3,6 +3,8 @@
 
 @implementation GLESView
 
+static GLESView* global_gles_view = NULL;
+
 + (Class) layerClass {
 	return [CAEAGLLayer class];
 }	
@@ -39,7 +41,8 @@
 		if ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedAscending)
 			display_link_supported = TRUE;
 		
-    }
+		global_gles_view = self;
+	}
     return self;
 }
 
@@ -75,11 +78,28 @@
 	running = NO;
 }	
 
+extern bool dgreed_update(void);
+extern bool dgreed_render(void);
+extern void system_update(void);
+
 - (void) drawView {
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	system_update();
 	
+	bool res = dgreed_update();
+	res = res && dgreed_render();
+	
+	if(!res) {
+		// Quit, somehow..
+	}
+}
+
+- (void) present {
 	[context presentRenderbuffer:GL_RENDERBUFFER_OES];
+}	
+
++ (GLESView*) singleton {
+	assert(global_gles_view);
+	return global_gles_view;
 }
 
 

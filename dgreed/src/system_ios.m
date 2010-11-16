@@ -7,6 +7,7 @@
 #import <UIKit/UIKit.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
+#import "GLESView.h"
 
 // Main function
 
@@ -160,7 +161,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glEnable(GL_TEXTURE_2D);
 	glShadeModel(GL_FLAT);
 	glClearDepthf(1.0f);
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, height, width);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
@@ -168,7 +169,13 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glLoadIdentity();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrthof(0.0f, (float)v_width, (float)v_height, 0.0f, -10.0f, 10.0f);
+		
+	// Some tricky transformations to properly turn view sideways 
+	glOrthof(0.0f, (float)v_width, (float)v_height, 0.0f, -1.0f, 1.0f);
+	glTranslatef((float)v_width/2.0f, (float)v_height/2.0f, 0.0f);
+	glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+	glTranslatef((float)v_height/-2.0f, (float)v_width/-2.0f, 0.0f);
+	glScalef((float)v_height/(float)v_width, (float)v_width/(float)v_height, 1.0f);
 	
 	frame = 0;
 	
@@ -191,16 +198,16 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	// Temp bucket for sorting
 	rects_out = darray_create(sizeof(TexturedRectDesc), 32);
 	
-	textures = darray_create(sizeof(textures), 16);
+	textures = darray_create(sizeof(Texture), 16);
 	
 	// Generate index buffer
 	for(uint i = 0; i < max_vertices/4; ++i) {
 		index_buffer[i*6 + 0] = i*4 + 0; 
 		index_buffer[i*6 + 1] = i*4 + 1; 
 		index_buffer[i*6 + 2] = i*4 + 3; 
-		index_buffer[i*6 + 3] = i*4 + 3; 
-		index_buffer[i*6 + 4] = i*4 + 2; 
-		index_buffer[i*6 + 5] = i*4 + 1; 
+		index_buffer[i*6 + 3] = i*4 + 2; 
+		index_buffer[i*6 + 4] = i*4 + 1; 
+		index_buffer[i*6 + 5] = i*4 + 3; 
 	}
 	
 	assert(sizeof(Vertex) == sizeof(float) * 8);
@@ -283,7 +290,7 @@ void video_present(void) {
 				if(vertex_buffer.size > 0) {
 					assert(vertex_buffer.size % 4 == 0);
 					uint tri_count = vertex_buffer.size / 2;
-					glDrawElements(GL_TRIANGLES, tri_count, GL_UNSIGNED_SHORT, 
+					glDrawElements(GL_TRIANGLES, tri_count*6, GL_UNSIGNED_SHORT, 
 								   index_buffer);
 					vertex_buffer.size = 0;
 #ifndef NO_DEVMODE
@@ -302,15 +309,15 @@ void video_present(void) {
 			vertex_buffer.size += 4;
 			assert(vertex_buffer.size <= vertex_buffer.reserved);
 			
-			Vector2 tl = vec2(rects[i].dest.left, rects[i].dest.top);
-			Vector2 tr = vec2(rects[i].dest.right, rects[i].dest.top);
-			Vector2 br = vec2(rects[i].dest.right, rects[i].dest.bottom);
-			Vector2 bl = vec2(rects[i].dest.left, rects[i].dest.bottom);
+			Vector2 tl = vec2(rects[j].dest.left, rects[j].dest.top);
+			Vector2 tr = vec2(rects[j].dest.right, rects[j].dest.top);
+			Vector2 br = vec2(rects[j].dest.right, rects[j].dest.bottom);
+			Vector2 bl = vec2(rects[j].dest.left, rects[j].dest.bottom);
 			
 			if(rects[i].rotation != 0.0f) {
-				float rot = rects[i].rotation;
-				Vector2 cnt = vec2((rects[i].dest.left + rects[i].dest.right) / 2.0f,
-								   (rects[i].dest.top + rects[i].dest.bottom) / 2.0f);
+				float rot = rects[j].rotation;
+				Vector2 cnt = vec2((rects[j].dest.left + rects[j].dest.right) / 2.0f,
+								   (rects[j].dest.top + rects[j].dest.bottom) / 2.0f);
 				
 				tl = vec2_add(vec2_rotate(vec2_sub(tl, cnt), rot), cnt);
 				tr = vec2_add(vec2_rotate(vec2_sub(tr, cnt), rot), cnt);
@@ -320,35 +327,33 @@ void video_present(void) {
 			
 			vb[k+0].x = tl.x;
 			vb[k+0].y = tl.y;
-			vb[k+0].u = rects[i].source.left;
-			vb[k+0].v = rects[i].source.top;
+			vb[k+0].u = rects[j].source.left;
+			vb[k+0].v = rects[j].source.top;
 			vb[k+0].r = r; vb[k+0].g = g; vb[k+0].b = b; vb[k+0].a = a;
 			
 			vb[k+1].x = tr.x;
 			vb[k+1].y = tr.y;
-			vb[k+1].u = rects[i].source.right;
-			vb[k+1].v = rects[i].source.top;
+			vb[k+1].u = rects[j].source.right;
+			vb[k+1].v = rects[j].source.top;
 			vb[k+1].r = r; vb[k+1].g = g; vb[k+1].b = b; vb[k+1].a = a;
 			
 			vb[k+2].x = br.x;
 			vb[k+2].y = br.y;
-			vb[k+2].u = rects[i].source.right;
-			vb[k+2].v = rects[i].source.bottom;
+			vb[k+2].u = rects[j].source.right;
+			vb[k+2].v = rects[j].source.bottom;
 			vb[k+2].r = r; vb[k+2].g = g; vb[k+2].b = b; vb[k+2].a = a;
 			
 			vb[k+3].x = bl.x;
 			vb[k+3].y = bl.y;
-			vb[k+3].u = rects[i].source.left;
-			vb[k+3].v = rects[i].source.bottom;
+			vb[k+3].u = rects[j].source.left;
+			vb[k+3].v = rects[j].source.bottom;
 			vb[k+3].r = r; vb[k+3].g = g; vb[k+3].b = b; vb[k+3].a = a;
-			
-			vertex_buffer.size += 4;
 		}
 
 		if(vertex_buffer.size > 0) {
 			assert(vertex_buffer.size % 4 == 0);
 			uint tri_count = vertex_buffer.size / 2;
-			glDrawElements(GL_TRIANGLES, tri_count, GL_UNSIGNED_SHORT, 
+			glDrawElements(GL_TRIANGLES, tri_count*6, GL_UNSIGNED_SHORT, 
 						   index_buffer);
 			vertex_buffer.size = 0;
 	#ifndef NO_DEVMODE
@@ -392,7 +397,7 @@ void video_present(void) {
 	#endif
 	}
 	
-	//[[GLESView singleton] present];
+	[[GLESView singleton] present];
 	frame++;
 	fps_count++;
 	
@@ -439,7 +444,7 @@ TexHandle tex_load(const char* filename) {
 	CGColorSpaceRef color_space = CGImageGetColorSpace(cg_image);
 	CGColorSpaceModel color_model = CGColorSpaceGetModel(color_space);
 	uint bits_per_component = CGImageGetBitsPerComponent(cg_image);
-	if(color_model != kCGColorSpaceModelRGB || bits_per_component == 8)
+	if(color_model != kCGColorSpaceModelRGB || bits_per_component != 8)
 		LOG_ERROR("Bad image color space - please use 24 or 32 bit rgb/rgba");
 	if(!(is_pow2(new_tex.width) && is_pow2(new_tex.height)))
 		LOG_ERROR("Texture dimensions must be a power of 2");

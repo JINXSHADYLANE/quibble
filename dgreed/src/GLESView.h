@@ -15,5 +15,7 @@
 - (void) startAnimation;
 - (void) stopAnimation;
 - (void) drawView;
+- (void) present;
++ (GLESView*) singleton;
 
 @end
