@@ -74,7 +74,7 @@ static uint fps_count = 0;
 #ifndef NO_DEVMODE
 VideoStats v_stats;
 
-const VideoStats* Video_stats(void) {
+const VideoStats* video_stats(void) {
 	return &v_stats;
 }
 #endif
@@ -375,17 +375,17 @@ void video_present(void) {
 			vertex_buffer.size += line_buckets[i].size * 2;
 			size_t k = 0;
 			for(j = 0; j < line_buckets[i].size; ++j) {
-				COLOR_DECONSTRUCT(rects[i].tint, r, g, b, a);
+				COLOR_DECONSTRUCT(lines[j].color, r, g, b, a);
 				vb[k].x = lines[j].start.x;
 				vb[k].y = lines[j].start.y;
 				vb[k].r = r; vb[k].g = g; vb[k].b = b; vb[k].a = a;
 				k++;
-				vb[k].x = lines[j].start.x;
-				vb[k].y = lines[j].start.y;
+				vb[k].x = lines[j].end.x;
+				vb[k].y = lines[j].end.y;
 				vb[k].r = r; vb[k].g = g; vb[k].b = b; vb[k].a = a;
 				k++;
 			}
-			glDrawArrays(GL_LINES, 0, k/2);
+			glDrawArrays(GL_LINES, 0, k);
 			vertex_buffer.size = 0;
 			glEnable(GL_TEXTURE_2D);
 		}	
@@ -559,11 +559,93 @@ void video_draw_line(uint layer, const Vector2* start,
 -------------
 */ 
 
+#ifndef NO_DEVMODE
+SoundStats s_stats;
+
+const SoundStats* sound_stats(void) {
+	return &s_stats;
+}
+#endif
+
+void sound_init(void) {
+}
+
+void sound_close(void) {
+}
+
+void sound_update(void) {
+}
+
+SoundHandle sound_load_sample(const char* filename) {
+	return 0;
+}
+
+SoundHandle sound_load_stream(const char* filename) {
+	return 0;
+}
+
+void sound_free(SoundHandle handle) {
+}
+
+void sound_play(SoundHandle handle) {
+}
+
+void sound_stop(SoundHandle handle) {
+}
+
+void sound_set_volume(SoundHandle handle, float volume) {
+}
+
+float sound_get_volume(SoundHandle handle) {
+	return 1.0f;
+}
+
 /*
 ------------- 
 --- Input ---
 -------------
 */ 
+
+bool key_pressed(Key key) {
+	return false;
+}
+
+bool char_pressed(char c) {
+	return false;
+}
+
+bool key_down(Key key) {
+	return false;
+}
+
+bool char_down(char c) {
+	return false;
+}
+
+bool key_up(Key key) {
+	return false;
+}
+
+bool char_up(char c) {
+	return false;
+}
+
+bool mouse_pressed(MouseButton button) {
+	return false;
+}
+
+bool mouse_down(MouseButton button) {
+	return false;
+}
+
+bool mouse_up(MouseButton button) {
+	return false;
+}
+
+void mouse_pos(uint* x, uint* y) {
+	*x = 0;
+	*y = 0;
+}
 
 /*
 -----------

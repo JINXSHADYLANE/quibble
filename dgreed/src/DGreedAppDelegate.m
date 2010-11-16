@@ -1,5 +1,7 @@
 #import "DGreedAppDelegate.h"
 
+#include "utils.h"
+
 extern bool dgreed_init(void);
 extern void dgreed_close(void);
 
@@ -34,6 +36,7 @@ extern void dgreed_close(void);
      Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
      Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
      */
+	LOG_INFO("iOS: applicationWillResignActive");
 	[gl_view stopAnimation];
 }
 
@@ -43,6 +46,7 @@ extern void dgreed_close(void);
      Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
      If your application supports background execution, called instead of applicationWillTerminate: when the user quits.
      */
+	LOG_INFO("iOS: applicationDidEnterBackground");
 	[gl_view stopAnimation];
 }
 
@@ -51,6 +55,7 @@ extern void dgreed_close(void);
     /*
      Called as part of  transition from the background to the inactive state: here you can undo many of the changes made on entering the background.
      */
+	LOG_INFO("iOS: applicationWillEnterForeground");
 	[gl_view startAnimation];
 }
 
@@ -59,11 +64,13 @@ extern void dgreed_close(void);
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
+	LOG_INFO("iOS: applicationDidBecomeActive");
 	[gl_view startAnimation];
 }
 
 
 - (void)applicationWillTerminate:(UIApplication *)application {
+	LOG_INFO("iOS: applicationWillTerminte");
 	dgreed_close();
 }
 
@@ -75,6 +82,7 @@ extern void dgreed_close(void);
     /*
      Free up as much memory as possible by purging cached data objects that can be recreated (or reloaded from disk) later.
      */
+	LOG_INFO("iOS: applicationDidReceiveMemoryWarning");
 }
 
 
