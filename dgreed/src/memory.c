@@ -128,7 +128,7 @@ void mem_dump(const char* path) {
 	
 	// Dump to stderr on iOS
 #ifdef TARGET_IOS
-	output = stderr;
+	FILE* output = stderr;
 #else	
 	FILE* output = fopen(path, "w");
 #endif
