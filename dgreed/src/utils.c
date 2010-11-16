@@ -3,6 +3,10 @@
 
 #include <ctype.h>
 
+#ifdef TARGET_IOS
+#define MACOSX_BUNDLE
+#endif
+
 #ifdef MACOSX_BUNDLE
 #include <CoreFoundation/CFBundle.h>
 

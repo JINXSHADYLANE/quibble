@@ -46,8 +46,12 @@ typedef unsigned char byte;
 #define RAD_TO_DEG (180.0f / PI)
 #define DEG_TO_RAD (1.0f / RAD_TO_DEG)
 
+#ifndef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+#ifndef MAX
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
+#endif
 
 /*
 -------------------

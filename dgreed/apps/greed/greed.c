@@ -7,48 +7,57 @@
 #include "ai.h"
 #include "sounds.h"
 
-bool highres = true;
+bool highres = false;
 
-int dgreed_main(int argc, const char** argv) {
-	params_init(argc, argv);
+GuiDesc style;
+#ifdef TRACK_MEMORY
+MemoryStats stats;
+#endif
 
-	if(params_find("-s") != ~0)
-		highres = false;
-
+bool dgreed_init(void) {
 	log_init("greed.log", LOG_LEVEL_INFO);
 	rand_init(47891);
-
+	
 	if(highres)
 		video_init_ex(960, 640,	480, 320, "Greed", false);
 	else
 		video_init(480, 320, "Greed");
-
+	
 	sounds_init();
-
-	GuiDesc style = greed_gui_style(highres);
+	
+	style = greed_gui_style(highres);
 	gui_init(&style);
-
+	
 	game_init();
+	
+	return true;
+}
 
-	while(system_update()) {
-		game_update();
-		game_render();
+bool dgreed_update(void) {
+	game_update();
+	sound_update();
+	
+	if(key_up(KEY_QUIT))
+		return false;
+	
+	return true;
+}
 
-		video_present();
-		sound_update();
+bool dgreed_render(void) {
+	game_render();
+	video_present();
+	
+	return true;
+}
 
-		if (key_up(KEY_QUIT))
-			break;
-	}	
-
+void dgreed_close(void) {
 	game_close();
 	gui_close();
 	greed_gui_free();
 	sounds_close();
 	video_close();
-
-	#ifdef TRACK_MEMORY
-	MemoryStats stats;
+	
+#ifdef TRACK_MEMORY
 	mem_stats(&stats);
 	LOG_INFO("Memory usage stats:");
 	LOG_INFO(" Total allocations: %u", stats.n_allocations);
@@ -58,10 +67,27 @@ int dgreed_main(int argc, const char** argv) {
 		LOG_INFO(" Dumping allocations info to memory.txt");
 		mem_dump("memory.txt");
 	}	
-	#endif
-
+#endif
+	
 	log_close();
+}
+
+
+#ifndef TARGET_IOS
+int dgreed_main(int argc, const char** argv) {
+	params_init(argc, argv);
+
+	highres = true;
+	if(params_find("-s") != ~0)
+		highres = false;
+	
+	dgreed_init();
+	while(system_update()) {
+		dgreed_update();
+		dgreed_render();
+	}	
+	dgreed_close();
 
 	return 0;
 }	
-
+#endif
