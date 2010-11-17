@@ -10,6 +10,7 @@
 	BOOL running;
 	BOOL display_link_supported;
 	id display_link;
+	CGRect view_frame;
 }
 
 - (void) startAnimation;

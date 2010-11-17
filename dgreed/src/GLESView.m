@@ -11,6 +11,7 @@ static GLESView* global_gles_view = NULL;
 
 - (id)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
+		view_frame = frame;
         // Aquire EAGL layer
 		CAEAGLLayer* eagl_layer = (CAEAGLLayer*)super.layer;
 		eagl_layer.opaque = YES;
@@ -102,12 +103,39 @@ extern void system_update(void);
 	return global_gles_view;
 }
 
-
-- (void)dealloc {
+- (void) dealloc {
 	if([EAGLContext currentContext] == context)
 		[EAGLContext setCurrentContext:nil];
 	[context release];
     [super dealloc];
+}
+
+extern uint cmouse_x, cmouse_y;
+extern bool cmouse_up, cmouse_down, cmouse_pressed;
+
+- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+	UITouch* touch = [touches anyObject];
+	CGPoint location = [touch locationInView: self];
+	cmouse_x = (uint)(location.y);
+	cmouse_y = (uint)(CGRectGetWidth(view_frame) - location.x);
+	cmouse_down = cmouse_pressed = true;
+}
+
+- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+	UITouch* touch = [touches anyObject];
+	CGPoint location = [touch locationInView: self];
+	cmouse_x = (uint)(location.y);
+	cmouse_y = (uint)(CGRectGetWidth(view_frame) - location.x);
+	cmouse_up = true;
+	cmouse_pressed = false;
+}
+
+- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+	UITouch* touch = [touches anyObject];
+	CGPoint location = [touch locationInView: self];
+	cmouse_x = (uint)(location.y);
+	cmouse_y = (uint)(CGRectGetWidth(view_frame) - location.x);
+	cmouse_pressed = true;
 }
 
 @end

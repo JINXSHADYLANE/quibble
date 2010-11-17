@@ -290,7 +290,7 @@ void video_present(void) {
 				if(vertex_buffer.size > 0) {
 					assert(vertex_buffer.size % 4 == 0);
 					uint tri_count = vertex_buffer.size / 2;
-					glDrawElements(GL_TRIANGLES, tri_count*6, GL_UNSIGNED_SHORT, 
+					glDrawElements(GL_TRIANGLES, tri_count*3, GL_UNSIGNED_SHORT, 
 								   index_buffer);
 					vertex_buffer.size = 0;
 #ifndef NO_DEVMODE
@@ -304,7 +304,9 @@ void video_present(void) {
 #endif
 			}
 			
-			COLOR_DECONSTRUCT(rects[i].tint, r, g, b, a);
+			COLOR_DECONSTRUCT(rects[j].tint, r, g, b, a);
+			r /= 255.0f; g /= 255.0f; b /= 255.0f; a /= 255.0f;
+			
 			size_t k = vertex_buffer.size;
 			vertex_buffer.size += 4;
 			assert(vertex_buffer.size <= vertex_buffer.reserved);
@@ -314,7 +316,7 @@ void video_present(void) {
 			Vector2 br = vec2(rects[j].dest.right, rects[j].dest.bottom);
 			Vector2 bl = vec2(rects[j].dest.left, rects[j].dest.bottom);
 			
-			if(rects[i].rotation != 0.0f) {
+			if(rects[j].rotation != 0.0f) {
 				float rot = rects[j].rotation;
 				Vector2 cnt = vec2((rects[j].dest.left + rects[j].dest.right) / 2.0f,
 								   (rects[j].dest.top + rects[j].dest.bottom) / 2.0f);
@@ -353,7 +355,7 @@ void video_present(void) {
 		if(vertex_buffer.size > 0) {
 			assert(vertex_buffer.size % 4 == 0);
 			uint tri_count = vertex_buffer.size / 2;
-			glDrawElements(GL_TRIANGLES, tri_count*6, GL_UNSIGNED_SHORT, 
+			glDrawElements(GL_TRIANGLES, tri_count*3, GL_UNSIGNED_SHORT, 
 						   index_buffer);
 			vertex_buffer.size = 0;
 	#ifndef NO_DEVMODE
@@ -376,6 +378,7 @@ void video_present(void) {
 			size_t k = 0;
 			for(j = 0; j < line_buckets[i].size; ++j) {
 				COLOR_DECONSTRUCT(lines[j].color, r, g, b, a);
+				r /= 255.0f; g /= 255.0f; b /= 255.0f; a /= 255.0f;
 				vb[k].x = lines[j].start.x;
 				vb[k].y = lines[j].start.y;
 				vb[k].r = r; vb[k].g = g; vb[k].b = b; vb[k].a = a;
@@ -391,7 +394,6 @@ void video_present(void) {
 		}	
 		
 	#ifndef NO_DEVOMDE
-		v_stats.frame_batches++;
 		v_stats.frame_rects += rect_buckets[i].size;
 		v_stats.frame_lines += line_buckets[i].size;
 	#endif
@@ -630,21 +632,29 @@ bool char_up(char c) {
 	return false;
 }
 
+// Current state
+uint cmouse_x, cmouse_y;
+bool cmouse_pressed, cmouse_up, cmouse_down;
+
+// Cached last frame state
+static uint lmouse_x, lmouse_y;
+static bool lmouse_pressed, lmouse_up, lmouse_down;
+
 bool mouse_pressed(MouseButton button) {
-	return false;
+	return lmouse_pressed;
 }
 
 bool mouse_down(MouseButton button) {
-	return false;
+	return lmouse_down;
 }
 
 bool mouse_up(MouseButton button) {
-	return false;
+	return lmouse_up;
 }
 
 void mouse_pos(uint* x, uint* y) {
-	*x = 0;
-	*y = 0;
+	*x = lmouse_x;
+	*y = lmouse_y;
 }
 
 /*
@@ -689,5 +699,15 @@ void _time_update(float current_time) {
 
 bool system_update(void) {
 	_time_update(CACurrentMediaTime());
+	
+	lmouse_x = cmouse_x;
+	lmouse_y = cmouse_y;
+	lmouse_up = cmouse_up;
+	lmouse_down = cmouse_down;
+	lmouse_pressed = cmouse_pressed;
+	
+	cmouse_up = false;
+	cmouse_down = false;
+	
 	return true;
 }
