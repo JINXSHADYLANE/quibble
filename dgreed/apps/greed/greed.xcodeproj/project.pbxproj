@@ -44,7 +44,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 2166D242129291D700DB92D8 /* dgreed.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D /* libdgreed.a */;
+			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = dgreed;
 		};
 /* End PBXContainerItemProxy section */
