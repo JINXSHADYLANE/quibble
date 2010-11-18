@@ -190,15 +190,30 @@ void _render_settings(float t) {
 	dest = vec2(75.0f, 105.0f);
 	_menu_text(&dest, "SFX volume:", &center, t, false, true);
 	dest.x += 80.0f;
-	if(t == 0.0f)
+	if(t == 0.0f) {
 		gui_slider(&dest);	
+	}	
+	else {
+		float state = gui_getstate_slider(&dest);
+		Vector2 pos = vec2_add(dest, vec2(254.0f/2.0f, 18.0f/2.0f));
+		pos = _adjust_scale_pos(pos, center, scale);
+		gui_draw_slider(&pos, scale, state, c);
+	}
+
 
 	dest.x = 75.0f;	
 	dest.y += 20.0f; 
 	_menu_text(&dest, "Music volume:", &center, t, false, true);
 	dest.x += 80.0f;
-	if(t == 0.0f)
+	if(t == 0.0f) {
 		gui_slider(&dest);
+	}
+	else {
+		float state = gui_getstate_slider(&dest);
+		Vector2 pos = vec2_add(dest, vec2(254.0f/2.0f, 18.0f/2.0f));
+		pos = _adjust_scale_pos(pos, center, scale);
+		gui_draw_slider(&pos, scale, state, c);
+	}
 
 	// TODO: Controls	
 	dest = vec2(75.0f, 155.0f);

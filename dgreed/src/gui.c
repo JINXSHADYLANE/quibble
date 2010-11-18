@@ -1,6 +1,7 @@
 #include "gui.h"
 #include "system.h"
 #include "font.h"
+#include "gfx_utils.h"
 
 typedef enum {
 	WIDGET_BUTTON,
@@ -412,7 +413,12 @@ bool gui_getstate_switch(const Vector2* pos) {
 	assert(pos);
 	uint hash = _hash_widget(WIDGET_SWITCH, pos);
 	WidgetState* state = _get_widget(hash);
-	assert(state);
+	if(state == NULL) {
+		state = _alloc_widget(hash);
+		state->type = WIDGET_SWITCH;
+		state->state._switch.blend = 0.0f;
+		state->state._switch.state = false;
+	}	
 	assert(state->type == WIDGET_SWITCH);
 	return state->state._switch.state;
 }	
@@ -421,7 +427,12 @@ float gui_getstate_slider(const Vector2* pos) {
 	assert(pos);
 	uint hash = _hash_widget(WIDGET_SLIDER, pos);
 	WidgetState* state = _get_widget(hash);
-	assert(state);
+	if(state == NULL) {
+		state = _alloc_widget(hash);
+		state->type = WIDGET_SLIDER;
+		state->state.slider.blend = 0.0f;
+		state->state.slider.state = 0.5f;
+	}
 	assert(state->type == WIDGET_SLIDER);
 	return state->state.slider.state;
 }	
@@ -454,3 +465,74 @@ void gui_setstate_slider(const Vector2* pos, float val) {
 	state->state.slider.state = val;
 }
 
+void gui_draw_label(const Vector2* center, float scale,
+	const char* text, Color tint) {
+	assert(center);
+	assert(text);
+
+	font_draw_ex(gui_style.font, text, gui_style.text_layer, center,
+		scale, tint);
+}
+
+void gui_draw_button(const Vector2* center, float scale,
+	const char* text, bool state, Color tint) {
+	assert(center);
+	assert(text);
+
+	RectF* src = state ? 
+		&gui_style.src_button_down : &gui_style.src_button_up;
+
+	gfx_draw_textured_rect(gui_style.texture, gui_style.first_layer,
+		src, center, 0.0f, scale, tint);
+	
+	font_draw_ex(gui_style.font, text, gui_style.text_layer, center,
+		scale, tint);
+}
+
+void gui_draw_switch(const Vector2* center, float scale,
+	const char* text, bool state, Color tint) {
+	assert(center);
+	assert(text);
+
+	float width = rectf_width(&gui_style.src_switch_on_up);
+	bool text_inside = width > 64.0f;
+
+	RectF* src = state ?
+		&gui_style.src_switch_on_up : &gui_style.src_switch_off_up;
+
+	Vector2 dest = *center;
+	Vector2 text_dest = *center;
+
+	if(!text_inside) {
+		float text_width = font_width(gui_style.font, text) * scale;
+		dest.x -= (text_width + width * scale) / 2.0f;
+		text_dest.x += width * scale / 2.0f;
+	}
+
+	gfx_draw_textured_rect(gui_style.texture, gui_style.first_layer,
+		src, &dest, 0.0f, scale, tint);
+
+	font_draw_ex(gui_style.font, text, gui_style.text_layer, &text_dest,
+		scale, tint);
+}
+
+void gui_draw_slider(const Vector2* center, float scale,
+	float state, Color tint) {
+	assert(center);
+
+	float width = rectf_width(&gui_style.src_slider);
+	float knob_width = rectf_width(&gui_style.src_slider_knob_up);
+	float knob_offset_x = (width - knob_width) * state + knob_width/2.0f;
+	knob_offset_x -= width / 2.0f;
+	knob_offset_x *= scale;
+
+	gfx_draw_textured_rect(gui_style.texture, gui_style.first_layer,
+		&gui_style.src_slider, center, 0.0f, scale, tint);
+
+	Vector2 knob_center = *center;
+	knob_center.x += knob_offset_x;
+	
+	gfx_draw_textured_rect(gui_style.texture, gui_style.first_layer,
+		&gui_style.src_slider_knob_up, &knob_center, 0.0f, scale, tint);
+
+}

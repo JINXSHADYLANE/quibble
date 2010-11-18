@@ -83,8 +83,10 @@ int dgreed_main(int argc, const char** argv) {
 	
 	dgreed_init();
 	while(system_update()) {
-		dgreed_update();
-		dgreed_render();
+		if(!dgreed_update())
+			break;
+		if(!dgreed_render())
+			break;
 	}	
 	dgreed_close();
 
