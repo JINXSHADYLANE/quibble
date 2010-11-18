@@ -33,15 +33,27 @@ bool gui_validate_desc(const GuiDesc* desc);
 void gui_init(const GuiDesc* desc);
 void gui_close(void);
 
+// Draws interactive widgets, returns their state 
 void gui_label(const Vector2* pos, const char* text);
 bool gui_button(const Vector2* pos, const char* text);
 bool gui_switch(const Vector2* pos, const char* text);
 float gui_slider(const Vector2* pos);
 
+// Widget state access
 bool gui_getstate_switch(const Vector2* pos);
 float gui_getstate_slider(const Vector2* pos);
-
 void gui_setstate_switch(const Vector2* pos, bool val);
 void gui_setstate_slider(const Vector2* pos, float val);
+
+// Draws inactive gui elements, useful for transitions/animations
+void gui_draw_label(const Vector2* center, float scale,
+	const char* text, Color tint);
+void gui_draw_button(const Vector2* center, float scale, 
+	const char* text, bool state, Color tint);
+void gui_draw_switch(const Vector2* center, float scale,
+	const char* text, bool state, Color tint);
+void gui_draw_slider(const Vector2* center, float scale,
+	float state, Color tint);
+	
 
 #endif
