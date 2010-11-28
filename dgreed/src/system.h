@@ -109,6 +109,30 @@ void sound_stop(SoundHandle handle);
 void sound_set_volume(SoundHandle handle, float volume);
 // Returns volume of sound
 float sound_get_volume(SoundHandle handle);
+// Returns length of sound in seconds
+float sound_get_length(SoundHandle handle);
+
+// Extented API for controlling specific sound sources
+
+typedef uint SourceHandle;
+
+// Plays stream or sample, optionally looping it, returns source.
+// If result is null - sound was skipped.
+SourceHandle sound_play_ex(SoundHandle handle, bool loop);
+// Pauses a specific source, if it is playing
+void sound_pause_ex(SourceHandle source);
+// Resumes a paused source
+void sound_resume_ex(SourceHandle source);
+// Stops a source, SourceHandle becomes invalid
+void sound_stop_ex(SourceHandle source);
+// Sets a volume for a source
+void sound_set_volume_ex(SourceHandle source, float volume);
+// Returns current volume of a source
+float sound_get_volume_ex(SourceHandle source);
+// Returns play cursor position in seconds
+float sound_get_pos_ex(SourceHandle source);
+// Sets play cursor position
+void sound_set_pos_ex(SourceHandle source, float pos);
 
 /*
 -------------
