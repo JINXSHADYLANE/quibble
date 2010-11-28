@@ -36,6 +36,10 @@
 		2166D24B1292923200DB92D8 /* libdgreed.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2166D24A129291D800DB92D8 /* libdgreed.a */; };
 		2166D33F129292E000DB92D8 /* greed_assets in Resources */ = {isa = PBXBuildFile; fileRef = 2166D2FA129292E000DB92D8 /* greed_assets */; };
 		2166D3F41292944300DB92D8 /* ai_precalc.c in Sources */ = {isa = PBXBuildFile; fileRef = 2166D3F21292944300DB92D8 /* ai_precalc.c */; };
+		21FB367012A2F0F300CB19B1 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21FB366F12A2F0F200CB19B1 /* AVFoundation.framework */; };
+		21FB367412A2F0FA00CB19B1 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21FB367312A2F0FA00CB19B1 /* OpenAL.framework */; };
+		21FB36AF12A2F70900CB19B1 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21FB36AE12A2F70900CB19B1 /* CoreAudio.framework */; };
+		21FB36B312A2F71C00CB19B1 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21FB36B212A2F71C00CB19B1 /* AudioToolbox.framework */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
@@ -103,6 +107,10 @@
 		2166D2FA129292E000DB92D8 /* greed_assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = greed_assets; path = ../../bin/greed_assets; sourceTree = SOURCE_ROOT; };
 		2166D3F21292944300DB92D8 /* ai_precalc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ai_precalc.c; sourceTree = "<group>"; };
 		2166D3F31292944300DB92D8 /* ai_precalc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ai_precalc.h; sourceTree = "<group>"; };
+		21FB366F12A2F0F200CB19B1 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		21FB367312A2F0FA00CB19B1 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		21FB36AE12A2F70900CB19B1 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		21FB36B212A2F71C00CB19B1 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		8D1107310486CEB800E47090 /* greed-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "greed-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -118,6 +126,10 @@
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				2166D1E9129290EE00DB92D8 /* OpenGLES.framework in Frameworks */,
 				2166D1F7129290FB00DB92D8 /* QuartzCore.framework in Frameworks */,
+				21FB367012A2F0F300CB19B1 /* AVFoundation.framework in Frameworks */,
+				21FB367412A2F0FA00CB19B1 /* OpenAL.framework in Frameworks */,
+				21FB36AF12A2F70900CB19B1 /* CoreAudio.framework in Frameworks */,
+				21FB36B312A2F71C00CB19B1 /* AudioToolbox.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -230,6 +242,10 @@
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765FC0DF74451002DB57D /* CoreGraphics.framework */,
 				2166D1F6129290FB00DB92D8 /* QuartzCore.framework */,
+				21FB366F12A2F0F200CB19B1 /* AVFoundation.framework */,
+				21FB367312A2F0FA00CB19B1 /* OpenAL.framework */,
+				21FB36AE12A2F70900CB19B1 /* CoreAudio.framework */,
+				21FB36B212A2F71C00CB19B1 /* AudioToolbox.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
