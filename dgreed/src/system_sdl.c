@@ -754,72 +754,6 @@ void sound_update(void) {
 				sound_stop_ex(sources[i].handle);
 		}
 	}
-	/*
-		int source_id = sounds[i].stream_source_id;
-		if(!sounds[i].active || !sounds[i].is_stream || source_id == -1)
-			continue;
-	
-		bool restart_stream = false;
-		ALint state;	
-		alGetSourcei(sources[source_id], AL_BUFFERS_PROCESSED, &state);
-		while(state--) {
-			// Decode new data
-			int decoded_samples = stb_vorbis_get_samples_short_interleaved(
-				sounds[i].stream, sounds[i].channels, (short*)sounds[i].buffer, 
-				STREAM_BUFFER_SIZE / sizeof(short));
-			int expected_samples = STREAM_BUFFER_SIZE / sizeof(short);
-			if(sounds[i].channels == 2)
-				expected_samples /= 2;
-
-			// Reached end of stream
-			if(decoded_samples < expected_samples) {
-				if(sounds[i].loop) {
-					stb_vorbis_seek_start(sounds[i].stream);
-				}
-				else {
-					restart_stream = true;	
-				}
-				size_t end_ptr = decoded_samples * sizeof(short);
-				if(sounds[i].channels == 2)
-					end_ptr *= 2; 
-				memset(sounds[i].buffer + end_ptr, 0, STREAM_BUFFER_SIZE - end_ptr);
-			}
-
-			// Update buffer queue
-			ALuint buffer;
-			alSourceUnqueueBuffers(sources[source_id], 1, &buffer);
-			alBufferData(buffer, 
-				sounds[i].channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
-				sounds[i].buffer, STREAM_BUFFER_SIZE, sounds[i].frequency);
-			alSourceQueueBuffers(sources[source_id], 1, &buffer); 	
-			if(alGetError() != AL_NO_ERROR)
-				LOG_ERROR("Error while streaming");
-		}
-
-		// Restart decoding stream
-		if(restart_stream) {
-			alSourceRewind(sounds[i].stream_source_id);
-			sounds[i].stream_source_id = -1;
-			stb_vorbis_seek_start(sounds[i].stream);
-			stb_vorbis_get_samples_short_interleaved(sounds[i].stream, sounds[i].channels,
-				(short*)sounds[i].buffer, STREAM_BUFFER_SIZE / sizeof(short));
-			alBufferData(sounds[i].buffers[0], 
-				sounds[i].channels==1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
-				sounds[i].buffer, STREAM_BUFFER_SIZE, sounds[i].frequency);
-			stb_vorbis_get_samples_short_interleaved(sounds[i].stream, sounds[i].channels,
-				(short*)sounds[i].buffer, STREAM_BUFFER_SIZE / sizeof(short));
-			alBufferData(sounds[i].buffers[1], 
-				sounds[i].channels==1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
-				sounds[i].buffer, STREAM_BUFFER_SIZE, sounds[i].frequency);
-		}
-		else {
-			// Resume playing if there was buffer under-run
-			alGetSourcei(sources[source_id], AL_SOURCE_STATE, &state);
-			if(state == AL_STOPPED)
-				alSourcePlay(sources[source_id]);
-		}
-	}
-	*/
 }
 
 ALenum _choose_sound_format(const RawSound* sound) {
@@ -943,6 +877,19 @@ void sound_play(SoundHandle handle) {
 	assert(sounds[handle].active);
 
 	sound_play_ex(handle, sounds[handle].is_stream);
+}	
+
+	
+void sound_stop(SoundHandle handle) {
+	assert(handle < sound_count);
+	assert(sounds[handle].active);
+
+	if(sounds[handle].is_stream) {
+		for(uint i = 0; i < source_count; ++i) {
+			if(sources[i].sound == handle)
+				sound_stop_ex(sources[i].handle);
+		}
+	}
 }	
 
 void sound_set_volume(SoundHandle handle, float volume) {
