@@ -45,12 +45,15 @@ void game_close(void);
 
 void game_reset(const char* arena, uint n_players);
 void game_update(void);
-void game_platform_taken(uint ship, uint platform);
 void game_render(void);
 void game_render_transition(float t);
 void game_render_startanim(float t);
 
 void game_shoot(uint ship);
+
+// Callbacks:
+void game_platform_taken(uint ship, uint platform);
+void game_bullet_hit(uint ship);
 
 // Helpers for ai code:
 float game_taken_platforms_frac(uint color);
