@@ -70,6 +70,8 @@ float energybar_warn_length = 0.2f;
 float start_anim_length = 1.0f;
 float start_anim_obj_fadein = 0.3f;
 float start_anim_obj_size = 2.0f;
+float bullet_cost = 1.0f;
+float bullet_damage = 0.8f;
 
 const Color ship_colors[] = {
 	COLOR_RGBA(33, 48, 189, 255),
@@ -112,6 +114,8 @@ void game_register_tweaks(Tweaks* tweaks) {
 	GAME_TWEAK(start_anim_length, 0.5f, 5.0f);
 	GAME_TWEAK(start_anim_obj_fadein, 0.1f, 1.0f);
 	GAME_TWEAK(start_anim_obj_size, 0.1f, 10.0f);
+	GAME_TWEAK(bullet_cost, 0.0f, 10.0f);
+	GAME_TWEAK(bullet_damage, 0.0f, 10.0f);
 }
 
 void game_init(void) {
@@ -213,9 +217,27 @@ void game_shoot(uint ship) {
 	float t = time_ms();
 	if(ship_states[ship].last_bullet_t + (1000.0f/ship_firing_speed) < t) {
 		ship_states[ship].last_bullet_t = t;
+		ship_states[ship].energy -= bullet_damage;
+		ship_states[ship].energy = MAX(0.0f, ship_states[ship].energy);
 		physics_spawn_bullet(ship);
 		sounds_event(SHOT);
 	}
+}
+
+void game_platform_taken(uint ship_id, uint platform_id) {
+	assert(ship_id < n_ships);
+	assert(platform_id < n_platforms);
+	
+	Vector2 pos = current_arena_desc.platforms[platform_id];
+	particles_spawn("ptransition_in", &pos, 0.0f);
+	sounds_event(PLATFORM_TAKEN);
+}	
+
+void game_bullet_hit(uint ship) {
+	assert(ship < n_ships);
+
+	ship_states[ship].energy -= bullet_damage;
+	ship_states[ship].energy = MAX(0.0f, ship_states[ship].energy);
 }
 
 void _control_keyboard1(uint ship) {
@@ -337,15 +359,6 @@ void game_update(void) {
 	}	
 
 	ai_update();
-}	
-
-void game_platform_taken(uint ship_id, uint platform_id) {
-	assert(ship_id < n_ships);
-	assert(platform_id < n_platforms);
-	
-	Vector2 pos = current_arena_desc.platforms[platform_id];
-	particles_spawn("ptransition_in", &pos, 0.0f);
-	sounds_event(PLATFORM_TAKEN);
 }	
 
 void _draw_ship(const Vector2* pos, uint ship) {
