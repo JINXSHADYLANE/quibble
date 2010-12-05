@@ -173,6 +173,9 @@ int ship2bullet_callback(cpShape* a, cpShape* b, cpContact* contacts,
 		a : b;
 	cpBody* bullet = bullet_shape->body;
 
+	cpShape* ship_shape = bullet_shape == a ? b : a;
+	cpBody* ship = ship_shape->body;
+
 	// TODO: Optimize this
 	uint i, n = physics_state.n_bullets;
 	for(i = 0; i < n; ++i) {
@@ -182,12 +185,20 @@ int ship2bullet_callback(cpShape* a, cpShape* b, cpContact* contacts,
 	assert(i != n);
 	bullets[i].remove = true;
 
+	n = physics_state.n_ships;
+	for(i = 0; i < n; ++i) {
+		if(ships[i].body == ship)
+			break;
+	}
+	assert(i != n);
+
 	// Spawn particles
 	Vector2 pos = cpv_to_gv(contacts[0].p);
 	float dir = vec2_dir(cpv_to_gv(contacts[0].n));
 	particles_spawn("sparks1", &pos, dir); 
 	particles_spawn("sparks2", &pos, dir);
 
+	game_bullet_hit(i);
 	sounds_event(COLLISION_BULLET_SHIP);
 
 	return 1;
