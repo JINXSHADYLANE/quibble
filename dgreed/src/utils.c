@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "memory.h"
+#include "sophist.h"
 
 #include <ctype.h>
 
@@ -868,27 +869,21 @@ char* path_change_ext(const char* path, const char* ext) {
 ------------
 */
 
-int endianess_helper = 0xdeadcafe;
-
 uint16 endian_swap2(uint16 in) {
-	uint16 helper = 0x0011;
-	byte first_byte = *(byte*)&helper;
-	if(first_byte == 0x00) // Big endian
-		return ((in << 8) & 0xFF00) | ((in >> 8) & 0xFF);
-	else	
-		return in;
+#if SOPHIST_endian == SOPHIST_big_endian
+	return ((in << 8) & 0xFF00) | ((in >> 8) & 0xFF);
+#else
+	return in;
+#endif	
 }
 
 uint32 endian_swap4(uint32 in) {
-	uint32 helper = 0x00112233;
-	byte first_byte = *(byte*)&helper;
-	if(first_byte == 0x00) // Big endian
+#if SOPHIST_endian == SOPHIST_big_endian
 		return ((in << 24) & 0xFF000000) | ((in << 8) & 0x00FF0000) | \
 			((in >> 8) & 0x0000FF00) | ((in >> 24) & 0x000000FF);
-	if(first_byte == 0x33) // Little endian
+#else			
 		return in;
-	assert(0 && "Unable to determine cpu endianess");	
-	return 0;	
+#endif		
 }
 
 char* strclone(const char* str) {
