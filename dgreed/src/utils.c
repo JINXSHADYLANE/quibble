@@ -886,11 +886,20 @@ uint32 endian_swap4(uint32 in) {
 #endif		
 }
 
-char* strclone(const char* str) {
+char* strclone_untracked(const char* str) {
 	assert(str);
 
 	uint len = strlen(str);
 	char* clone = MEM_ALLOC(len+1);
+	strcpy(clone, str);
+	return clone;
+}
+
+char* strclone_tracked(const char* str, const char* file, int line) {
+	assert(str);
+
+	uint len = strlen(str);
+	char* clone = mem_alloc(len+1, file, line);
 	strcpy(clone, str);
 	return clone;
 }	

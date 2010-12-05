@@ -309,7 +309,13 @@ uint32 endian_swap4(uint32 in);
 
 // Copies string to some new place in memory and returns pointer to it.
 // You must free this pointer!
-char* strclone(const char* str);
+#ifdef TRACK_MEMORY
+char* strclone_tracked(const char* str, const char* file, int line);
+#define strclone(str) strclone_tracked(str, __FILE__, __LINE__)
+#else
+char* strclone_untracked(const char* str);
+#define strclone(str) strclone_untracked(str)
+#endif
 
 // lerp
 float lerp(float a, float b, float t);

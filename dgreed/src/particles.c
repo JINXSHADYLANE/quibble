@@ -233,7 +233,10 @@ void particles_close(void) {
 			MEM_FREE(psystems[i].particles);
 		}
 	}
-	tex_free(particles_texture);
+
+	for(uint i = 0; i < psystem_descs_count; ++i) {
+		tex_free(psystem_descs[i].texture);
+	}
 }	
 
 ParticleSystem* particles_spawn(const char* name, const Vector2* pos,
