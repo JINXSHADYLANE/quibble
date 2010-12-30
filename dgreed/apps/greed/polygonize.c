@@ -98,6 +98,10 @@ DArray poly_triangulate_raster(uint* raster, uint width, uint height,
 
 int x_offsets[] = {-1,  0,  1, -1,  0, 1, -1, 1};
 int y_offsets[] = {-1, -1, -1,  1,  1, 1,  0, 0};
+const int cross_x_offsets[] = {1, -1, 0,  0};
+const int cross_y_offsets[] = {0,  0, 1, -1};
+const int walk_x_offsets[] = {-1, -1, 0, 1, 1,  1,  0, -1}; 
+const int walk_y_offsets[] = { 0,  1, 1, 1, 0, -1, -1, -1};
 
 // Returns true if pos is inside raster
 bool _clip_pos(uint width, uint height, Point pos)
@@ -107,6 +111,27 @@ bool _clip_pos(uint width, uint height, Point pos)
 	if(pos.x >= (int)width || pos.y >= (int)height)
 		return false;
 	return true;	
+}
+
+void _expand(uint* raster, uint width, uint height) {
+	assert(raster);
+
+	uint* r = MEM_ALLOC(width * height * 4);
+	memcpy(r, raster, width * height * 4);
+
+	for(int y = 0; y < height; ++y) {
+		for(int x = 0; x < width; ++x) {
+			for(uint i = 0; i < 4; ++i) {
+				int nx = x + cross_x_offsets[i];
+				int ny = y + cross_y_offsets[i];
+				if(nx >= 0 && nx < width && ny >= 0 && ny < height &&
+					r[IDX_2D(nx, ny, width)] == RASTER_SOLID)
+					raster[IDX_2D(x, y, width)] = RASTER_SOLID;
+			}
+		}
+	}
+
+	MEM_FREE(r);
 }
 
 void _flood_fill(uint* raster, uint width, uint height,
@@ -151,6 +176,8 @@ void _flood_fill(uint* raster, uint width, uint height,
 uint poly_mark_islands(uint* raster, uint width, uint height) {
 	uint island_count = 0;
 
+	_expand(raster, width, height);
+
 	for(uint y = 0; y < height; ++y) {
 		for(uint x = 0; x < width; ++x) {
 			if(raster[IDX_2D(x, y, width)] != RASTER_SOLID)
@@ -164,8 +191,7 @@ uint poly_mark_islands(uint* raster, uint width, uint height) {
 	return island_count;
 }
 
-int cross_x_offsets[] = {1, -1, 0,  0};
-int cross_y_offsets[] = {0,  0, 1, -1};
+
 
 bool _is_empty(uint* raster, uint width, uint height, Point pos) {
 	assert(raster);
@@ -202,8 +228,54 @@ void _outline_island(uint* raster, uint width, uint height, uint island) {
 	}
 }	
 
+// Filters out 1px width spikes
+void _filter_spikes(uint* raster, uint width, uint height, uint island) {
+	assert(raster);
+	assert(ARRAY_SIZE(walk_x_offsets) == 8);
+	assert(ARRAY_SIZE(walk_y_offsets) == 8);
+
+	for(uint y = 0; y < height; ++y) {
+		for(uint x = 0; x < width; ++x) {
+			if(raster[IDX_2D(x, y, width)] != island)
+				continue;
+			
+			Point p = point(x, y);
+			while(true) {
+				uint empty_neighbours = 0;
+				Point neighbour = p;
+				for(uint i = 0; i < 8; ++i) {
+					Point np = point(
+						p.x + walk_x_offsets[i],
+						p.y + walk_y_offsets[i]
+					);
+					if(_is_empty(raster, width, height, np)) 
+						empty_neighbours++;
+					else 
+						neighbour = np;
+				}
+				if(empty_neighbours == 7) {
+					raster[IDX_2D(p.x, p.y, width)] = RASTER_EMPTY;
+					p = neighbour;
+				}	
+				else
+					break;
+			}
+		}	
+	}
+}
+
 Vector2 _point_to_vec(Point p) {
 	return vec2((float)p.x + 0.5f, (float)p.y + 0.5f);
+}
+
+void _dfs(int x, int y, bool b[3][3]) {
+	b[x][y] = false;
+	for(uint i = 0; i < 8; ++i) {
+		int nx = x + walk_x_offsets[i];
+		int ny = y + walk_y_offsets[i];
+		if(nx >= 0 && nx < 3 && ny >= 0 && ny < 3 && b[nx][ny])
+			_dfs(nx, ny, b);
+	}
 }
 
 bool _is_bridge(uint* raster, uint width, uint height, Point p) {
@@ -212,40 +284,55 @@ bool _is_bridge(uint* raster, uint width, uint height, Point p) {
 	assert(p.x < width && p.y < height);
 
 	uint empty_neighbours = 0;
+	bool box[3][3];
+	memset(box, 0, sizeof(box));
+	uint px = 0, py = 0;
 	for(uint i = 0; i < 8; ++i) {
-		Point np = point(p.x + x_offsets[i], p.y + y_offsets[i]);
+		Point np = point(p.x + walk_x_offsets[i], p.y + walk_y_offsets[i]);
 		if(_is_empty(raster, width, height, np))
 			empty_neighbours++;
+		else {
+			px = 1 + walk_x_offsets[i]; py = 1 + walk_y_offsets[i];
+			box[px][py] = true;
+			
+		}	
 	}
 
-	if(empty_neighbours < 6)
+	if(empty_neighbours < 4)
 		return false;
 
-	if(_is_empty(raster, width, height, point(p.x+1, p.y))
-		&& _is_empty(raster, width, height, point(p.x-1, p.y)))
-		return true;
-	if(_is_empty(raster, width, height, point(p.x, p.y+1))
-		&& _is_empty(raster, width, height, point(p.x, p.y-1)))
-		return true;
-	if(_is_empty(raster, width, height, point(p.x+1, p.y+1))
-		&& _is_empty(raster, width, height, point(p.x-1, p.y-1)))
-		return true;
-	if(_is_empty(raster, width, height, point(p.x+1, p.y-1))
-		&& _is_empty(raster, width, height, point(p.x-1, p.y+1)))
-		return true;
+	_dfs(px, py, box);
+	for(uint y = 0; y < 3; ++y)
+		for(uint x = 0; x < 3; ++x)
+			if(box[x][y])
+				return true;
+
 	return false;	
 }
+
+extern int stbi_write_tga(const char*, int, int, int, void*);
 
 DArray poly_simplify_island(uint* raster, uint width, uint height, 
 	uint island) {
 	assert(raster);
 
 	_outline_island(raster, width, height, island);
-
+	_filter_spikes(raster, width, height, island);
+/*
+	for(uint y = 0; y < height; ++y) {
+		for(uint x = 0; x < width; ++x) {
+			size_t idx = IDX_2D(x, y, width);
+			if(raster[idx] == RASTER_ISLAND)
+				raster[idx] = RASTER_EMPTY;
+		}
+	}
+	static int i = 0;
+	const char* nm[] = {"out1.tga", "out2.tga", "out3.tga"};
+	stbi_write_tga(nm[i], width, height, 4, raster);
+	i++;
+*/
 	DArray island_polys = darray_create(sizeof(DArray), 0);
 
-	const int walk_x_offsets[] = {-1, -1, 0, 1, 1,  1,  0, -1}; 
-	const int walk_y_offsets[] = { 0,  1, 1, 1, 0, -1, -1, -1};
 
 	for(int y = 0; y < height; ++y) {
 		for(int x = 0; x < width; ++x) {
