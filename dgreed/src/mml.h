@@ -51,8 +51,8 @@ void mml_free(MMLObject* mml);
 // Converts MMLObject to string, which can later be parsed
 // to equivavalent MMLObject by mml_deserialize.
 char* mml_serialize(MMLObject* mml);
-// Mostly same as MMLObject, returns not nicely formatted but
-// as short as possible string.
+// Mostly the same as mml_serialize, returns not nicely formatted but
+// shortest possible string.
 char* mml_serialize_compact(MMLObject* mml);
 
 // Returns root node.

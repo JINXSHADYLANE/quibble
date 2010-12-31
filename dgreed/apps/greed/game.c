@@ -9,6 +9,8 @@
 #include "devmode.h"
 #include "particles.h"
 #include "menus.h"
+#include "state.h"
+#include "controls.h"
 
 #define ENERGYBAR_LAYER 6
 #define FOREGROUND_LAYER 5
@@ -123,6 +125,8 @@ void game_init(void) {
 	devmode_init();
 	#endif
 
+	state_init();
+	controls_init();
 	menus_init();
 	particles_init("greed_assets/", PARTICLES_LAYER);
 	arenas_init();
@@ -179,6 +183,8 @@ void game_close(void) {
 	arenas_close();
 	particles_close();
 	menus_close();
+	controls_close();
+	state_close();
 	
 	#ifndef NO_DEVMODE
 	devmode_close();
@@ -272,6 +278,7 @@ void game_update(void) {
 	if(_in_start_anim())
 		return;
 
+	controls_draw(0.0f);
 	_control_keyboard1(0);
 
 	float dt = time_delta() / 1000.0f;

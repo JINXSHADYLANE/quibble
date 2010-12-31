@@ -73,8 +73,8 @@ Vector2 touch_joystick(TexHandle tex, uint layer, const RectF* back_src,
 	}	
 	
 	// Draw nub
-	dest.left = touch.x - nub_width / 2.0f;
-	dest.top = touch.y - nub_height / 2.0f;
+	dest.left = pos->x + touch.x - nub_width / 2.0f;
+	dest.top = pos->y + touch.y - nub_height / 2.0f;
 	video_draw_rect(tex, layer, nub_src, &dest, nub_color);
 
 	if(offset_len < joystick_deadzone_radius)
