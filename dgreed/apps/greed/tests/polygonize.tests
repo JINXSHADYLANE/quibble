@@ -45,7 +45,7 @@ TEST_(mark_islands) {
 	ASSERT_(poly_mark_islands(raster, width, height) == 0);
 
 	_draw_rect(raster, width, height, 0, 10, 100, 15, RASTER_SOLID);
-	_draw_rect(raster, width, height, 101, 1, 60, 60, RASTER_SOLID);
+	_draw_rect(raster, width, height, 103, 1, 60, 60, RASTER_SOLID);
 	_draw_rect(raster, width, height, 50, 100, 80, 80, RASTER_SOLID);
 	_draw_circle(raster, width, height, 90, 140, 30, RASTER_EMPTY);
 	_draw_circle(raster, width, height, 200, 200, 10, RASTER_SOLID);
@@ -64,10 +64,10 @@ TEST_(mark_islands) {
 		}
 	}	
 
-	ASSERT_(island_sizes[0] == 60 * 60);
-	ASSERT_(island_sizes[1] == 100 * 15);
-	ASSERT_(island_sizes[2] == 3579);
-	ASSERT_(island_sizes[3] == 317);
+	ASSERT_(island_sizes[0] == 3840);
+	ASSERT_(island_sizes[1] == 1715);
+	ASSERT_(island_sizes[2] == 4067);
+	ASSERT_(island_sizes[3] == 377);
 
 	MEM_FREE(raster);
 }	
