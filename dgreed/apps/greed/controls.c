@@ -1,6 +1,7 @@
 #include "controls.h"
 #include "game.h"
 #include "state.h"
+#include "physics.h"
 
 #include <touch_ctrls.h>
 
@@ -36,11 +37,30 @@ void controls_draw(float fadein) {
 				shoot_btn = touch_button(gui_tex, CONTROLS_LAYER,
 					&shoot_btn_src, &pstate.shoot_btn_pos);
 
-				acc_btn = touch_button(gui_tex, CONTROLS_LAYER,
-					&acc_btn_src, &pstate.acc_btn_pos);
-
 				break;
 			}
+		}
+	}
+}
+
+void controls_update(uint ship) {
+	switch(pstate.control_type) {
+		case 0: {
+			float acc = vec2_length(joystick);
+			float dir = -1.0f;
+			if(acc > 0.0f)
+				dir = vec2_dir(vec2(joystick.x, -joystick.y));
+			physics_control_ship_ex(ship, dir, acc);
+
+			ship_states[ship].is_accelerating = acc > 0.3f;
+
+			if(shoot_btn)
+				game_shoot(ship);
+
+			joystick = vec2(0.0f, 0.0f);
+			shoot_btn = false;
+
+			break;
 		}
 	}
 }
