@@ -21,6 +21,7 @@
 
 #define SHIP_COLORS 4
 #define SHIP_FRAMES 8
+#define SHIP_SHARDS 9
 #define VORTEX_FRAMES 7
 #define PLATFORM_RINGS 8
 #define PLATFORM_FRAMES 2
@@ -28,8 +29,10 @@
 #define PLATFORM_RING_NEUTRAL 5
 #define PLATFORM_RING_NEUTRAL_SHADOW 6
 
+TexHandle shards;
 TexHandle atlas1;
 RectF ship_rects[SHIP_COLORS][SHIP_FRAMES];
+RectF ship_shards[SHIP_COLORS][SHIP_SHARDS];
 RectF ship_shadow_rect;
 RectF vortex_rects[VORTEX_FRAMES];
 RectF platform_ring_rects[PLATFORM_RINGS];
@@ -80,6 +83,18 @@ const Color ship_colors[] = {
 	COLOR_RGBA(74, 185, 46, 255),
 	COLOR_RGBA(240, 214, 53, 255),
 	COLOR_RGBA(143, 51, 140, 255)
+};	
+
+const Vector2 ship_shard_offsets[] = {
+	{-25.0f + 5.0f, -36.0f - 12.0f},
+	{-25.0f + 21.0f, -36.0f - 3.0f},
+	{-25.0f + 21.0f, -36.0f + 21.0f},
+	{-25.0f - 7.0f, -36.0f + 1.0f},
+	{-25.0f + 6.0f, -36.0f + 5.0f},
+	{-25.0f + 10.0f, -36.0f + 19.0f},
+	{-25.0f - 5.0f, -36.0f + 23.0f},
+	{-25.0f + 5.0f, -36.0f + 40.0f},
+	{-25.0f + 8.0f, -36.0f + 35.0f}
 };	
 
 // Devmode switches
@@ -134,6 +149,7 @@ void game_init(void) {
 	physics_init();
 
 	atlas1 = tex_load("greed_assets/atlas1.png");
+	shards = tex_load("greed_assets/shards.png");
 
 	// Generate texture source rentangles
 	for(uint y = 0; y < SHIP_COLORS; ++y) {
@@ -171,12 +187,31 @@ void game_init(void) {
 	energybar_rects[1] = rectf(11.0f, 480.0f, 21.0f, 480.0f + 21.0f);
 	energybar_rects[2] = rectf(21.0f, 480.0f, 32.0f, 480.0f + 21.0f);
 
+	// Shards
+	for(uint i = 0; i < SHIP_COLORS; ++i) {
+		float sx = (float)(i%2) * 105.0f;
+		float sy = (float)(i/2) * 105.0f;
+		for(uint j = 0; j < SHIP_SHARDS; ++j) {
+			float dx = (float)(j%3) * 35.0f;
+			float dy = (float)(j/3) * 35.0f;
+			uint ii = i;
+			// First two colors are mixed up
+			if(i == 0) 
+				ii = 1;
+			else 
+				if(i == 1) 
+					ii = 0;
+			ship_shards[ii][j] = rectf(sx+dx, sy+dy, sx+dx+35.0f, sy+dy+35.0f);
+		}
+	}
+
 	n_ships = 0;
 	n_platforms = 0;
 }	
 
 void game_close(void) {
 	tex_free(atlas1);
+	tex_free(shards);
 
 	physics_close();
 	arena_close();
@@ -407,6 +442,37 @@ void _draw_ship(const Vector2* pos, uint ship) {
 		&ship_shadow_rect, &shadow_pos, rot, scale, COLOR_WHITE);
 }		
 
+void _draw_shattered_ship(uint ship, float t) {
+	assert(ARRAY_SIZE(ship_shard_offsets) == SHIP_SHARDS);
+	assert(ship < n_ships);
+	assert(t >= 0.0f && t <= 1.0f);
+
+	Vector2 pos = physics_state.ships[ship].pos;
+	float rot = physics_state.ships[ship].rot;
+	float scale = physics_state.ships[ship].scale;
+
+	float escale = scale + t;
+
+	Vector2 rot_offset = vec2_rotate(vec2(17.5f*escale, 17.5f*escale), rot);
+	Vector2 center_offset = vec2(-35.0f*scale, -35.0f*scale);
+	pos = vec2_add(pos, vec2_scale(center_offset, 0.5f));
+	pos = vec2_add(pos, rot_offset);
+
+	Vector2 offsets[SHIP_SHARDS];
+	memcpy(offsets, ship_shard_offsets, sizeof(offsets));
+	gfx_transform(offsets, SHIP_SHARDS, &pos, rot, escale);
+
+	float s = 35.0f * scale;
+	for(uint i = 0; i < SHIP_SHARDS; ++i) {
+		RectF dest = {
+			offsets[i].x, offsets[i].y, 
+			offsets[i].x+s, offsets[i].y+s
+		};
+		video_draw_rect_rotated(shards, OBJECTS_LAYER,
+			&ship_shards[ship][i], &dest, rot, COLOR_WHITE);
+	}
+}	
+
 void _draw_energybar(const Vector2* pos, float length, Color color) {
 	assert(pos);
 	assert(length >= 0.0f);
@@ -455,7 +521,6 @@ float _calc_core_shrink_ratio(uint platform) {
 	}	
 	return core_shrink;
 }		
-
 
 void game_render(void) {
 	#ifndef NO_DEVMODE
