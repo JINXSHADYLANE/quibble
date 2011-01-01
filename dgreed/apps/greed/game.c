@@ -280,6 +280,7 @@ void game_update(void) {
 
 	controls_draw(0.0f);
 	_control_keyboard1(0);
+	controls_update(0);
 
 	float dt = time_delta() / 1000.0f;
 	float time = time_ms() / 1000.0f;

@@ -81,7 +81,7 @@ Vector2 touch_joystick(TexHandle tex, uint layer, const RectF* back_src,
 		return vec2(0.0f, 0.0f);
 
 	float norm_len = normalize(offset_len, 
-		joystick_deadzone_radius, joystick_area_radius);	
+		joystick_deadzone_radius, move_radius);	
 	
 	return vec2_scale(touch, norm_len / offset_len);
 }	

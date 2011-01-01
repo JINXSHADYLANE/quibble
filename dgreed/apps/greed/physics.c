@@ -362,6 +362,7 @@ void physics_reset(uint n_ships) {
 	for(i = 0; i < n_ships; ++i) {
 		physics_state.ships[i].pos = current_arena_desc.spawnpoints[i]; 
 		physics_state.ships[i].vel = vec2(0.0f, 0.0f);
+		physics_state.ships[i].target_rot = -1.0f;
 		physics_state.ships[i].rot = 0.0f;
 		physics_state.ships[i].ang_vel = 0.0f;
 		physics_state.ships[i].scale = ship_min_size;
@@ -463,7 +464,73 @@ void physics_control_ship(uint ship, bool rot_left, bool rot_right, bool acc) {
 		ships[ship].body->w += ship_turn_speed;
 	if(rot_left)
 		ships[ship].body->w -= ship_turn_speed;
-	ships[ship].body->w *= ship_turn_damping;	
+}
+
+void physics_control_ship_ex(uint ship, float target_angle, float acc) {
+	assert(ship < physics_state.n_ships);
+	
+	acc = clamp(0.0f, 1.0f, acc);
+
+	float vel_sq = vec2_length_sq(physics_state.ships[ship].vel);
+	cpVect world_force = cpBodyLocal2World(ships[ship].body,
+		cpv(0.0f, -ship_acceleration * acc));
+	world_force = cpvsub(world_force, ships[ship].body->p);
+	if(vel_sq < ship_velocity_limit*ship_velocity_limit) {
+		cpBodyApplyForce(ships[ship].body, world_force, cpvzero);
+		physics_state.ships[ship].zrot_vel += ship_zrot_acceleration * acc;
+	}
+
+	float ta = target_angle;
+	if(ta == -1.0f) 
+		return;
+
+	float a = ships[ship].body->a;
+
+	// Find optimal target angle
+	float d = fabsf(ta - a);
+	float two_pi = 2.0f * PI;
+	if(fabs(ta + two_pi - a) < d) {
+		ta += two_pi;
+		d = fabs(ta + two_pi - a);
+	}	
+	if(fabs(ta - two_pi - a) < d) {
+		ta -= two_pi;
+	}	
+
+	// HACK, heuristical rotation dif. equation solving
+	const float dt = 1.0f / 60.0f;
+
+	if(fabsf(ta - a) < 0.08f) {
+		ships[ship].body->w *= 0.5f;
+		return;
+	}
+
+	float w = ships[ship].body->w;
+	float turn = clamp(-ship_turn_speed, ship_turn_speed,
+		(ta - a) / (ship_turn_damping * dt) - w);
+
+	float nw = (w + turn) * ship_turn_damping;
+	float na = a + nw * dt;
+	float nnw = (nw + turn) * ship_turn_damping;
+	float nna = na + nnw * dt;
+
+	float flip = 1.0f;
+
+	// a < na < nna < ta
+	if(a > ta) {
+		a *= -1.0f;
+		ta *= -1.0f;
+		na *= -1.0f;
+		nna *= -1.0f;
+		flip *= -1.0f;
+	}
+
+	if(ta > nna) {
+		ships[ship].body->w += turn;
+		return;
+	}
+
+	ships[ship].body->w -= turn;
 }
 
 void physics_set_ship_size(uint ship, float size) {
@@ -540,6 +607,10 @@ void physics_update(float dt) {
 			physics_state.n_bullets--;
 		}
 	}
+
+	// Damp ship rotations
+	for(i = 0; i < physics_state.n_ships; ++i) 
+		ships[i].body->w *= ship_turn_damping;	
 
 	// Simulate next step
 	cpSpaceStep(space, dt);
