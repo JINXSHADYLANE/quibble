@@ -771,6 +771,8 @@ void _startanim_energybar(uint ship, float t) {
 void game_render_startanim(float t) {
 	arena_draw();
 
+	controls_draw(1.0f - t);
+
 	uint n_objs = n_ships + n_platforms;
 	float norm_fadein = start_anim_obj_fadein / start_anim_length;
 

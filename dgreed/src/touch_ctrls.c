@@ -117,3 +117,14 @@ bool touch_button(TexHandle tex, uint layer, const RectF* src,
 	return res;
 }	
 
+Vector2 touch_movable(const Vector2* pos, float radius) {
+	assert(pos);
+	assert(radius > 0.0f);
+
+	Vector2 touch;
+	if(!_get_touch(pos, radius, &touch))
+		return *pos;
+	else
+		return touch;
+}
+
