@@ -505,8 +505,8 @@ void gui_draw_switch(const Vector2* center, float scale,
 
 	if(!text_inside) {
 		float text_width = font_width(gui_style.font, text) * scale;
-		dest.x -= (text_width + width * scale) / 2.0f;
-		text_dest.x += width * scale / 2.0f;
+		dest.x -= (text_width) / 2.0f;
+		text_dest.x += (width - 2.0f) * scale / 2.0f;
 	}
 
 	gfx_draw_textured_rect(gui_style.texture, gui_style.first_layer,

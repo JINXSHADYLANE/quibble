@@ -1,13 +1,15 @@
 #include "menus.h"
 
-#include <system.h>
 #include <font.h>
 #include <gui.h>
 #include <gfx_utils.h>
+#include <touch_ctrls.h>
 
 #include "arena.h"
 #include "game.h"
 #include "ai.h"
+#include "controls.h"
+#include "state.h"
 
 MenuState menu_state;
 MenuState menu_transition;
@@ -65,6 +67,18 @@ float _t_to_scale(float t) {
 	float min = 1.0f - menu_animation_depth;
 	t = smoothstep(0.0f, 1.0f, (t + 1.0f) / 2.0f);
 	return 1.0f / lerp(max, min, t);
+}
+
+void menus_draw_rect(TexHandle tex, uint layer, const RectF* src, 
+	const Vector2* pos, float t) {
+	assert(pos);
+
+	float scale = _t_to_scale(t);
+	Vector2 center = {240.0f, 168.0f};
+	Vector2 dest = _adjust_scale_pos(*pos, center, scale);
+
+	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
+	gfx_draw_textured_rect(tex, layer, src, &dest, 0.0f, scale, c);
 }
 
 bool _menu_button(const Vector2* center, const char* text,
@@ -172,6 +186,8 @@ void _render_main(float t) {
 }
 
 void _render_settings(float t) {
+	controls_draw(t == 0.0f ? 0.01f : t);
+
 	float scale = _t_to_scale(t);
 
 	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
@@ -200,7 +216,6 @@ void _render_settings(float t) {
 		gui_draw_slider(&pos, scale, state, c);
 	}
 
-
 	dest.x = 75.0f;	
 	dest.y += 20.0f; 
 	_menu_text(&dest, "Music volume:", &center, t, false, true);
@@ -218,6 +233,38 @@ void _render_settings(float t) {
 	// TODO: Controls	
 	dest = vec2(75.0f, 155.0f);
 	_menu_text(&dest, "Controls:", &center, t, false, true);
+
+	const char* ctrl_names[] = {
+		"joystick + 2 buttons",
+		"joystick + button",
+		"4 buttons"
+	};	
+
+	const Vector2 ctrl_pos[] = {
+		{75.0f, 170.0f},
+		{205.0f, 170.0f},
+		{325.0f, 170.0f}
+	};
+
+	if(t == 0.0f) {
+		controls_adjust();
+		for(uint i = 0; i < ARRAY_SIZE(ctrl_pos); ++i) {
+			gui_setstate_switch(&ctrl_pos[i], pstate.control_type == i);
+			bool new_state = gui_switch(&ctrl_pos[i], ctrl_names[i]);
+			if(new_state && pstate.control_type != i)
+				pstate.control_type = i;
+		}
+	}	
+	else {
+		for(uint i = 0; i < ARRAY_SIZE(ctrl_pos); ++i) {
+			bool state = gui_getstate_switch(&ctrl_pos[i]);
+			float height = 30.0f;
+			float width = 22.0f + font_width(big_font, ctrl_names[i]);
+			Vector2 pos = vec2_add(ctrl_pos[i], vec2(width/2.0f, height/2.0f));
+			pos = _adjust_scale_pos(pos, center, scale);
+			gui_draw_switch(&pos, scale, ctrl_names[i], state, c);
+		}
+	}
 
 	// Back button	
 	Vector2 vdest = vec2(center.x, 295.0f);

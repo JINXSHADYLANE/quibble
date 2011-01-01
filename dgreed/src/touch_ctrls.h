@@ -15,4 +15,7 @@ Vector2 touch_joystick(TexHandle tex, uint layer, const RectF* back_src,
 bool touch_button(TexHandle tex, uint layer, const RectF* src, 
 	const Vector2* pos);
 
+// Invisible movable object, useful for adjustable controls
+Vector2 touch_movable(const Vector2* pos, float radius);
+
 #endif

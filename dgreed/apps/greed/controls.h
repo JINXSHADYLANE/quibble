@@ -8,5 +8,6 @@ void controls_close(void);
 
 void controls_draw(float fadein);
 void controls_update(uint ship);
+void controls_adjust(void);
 
 #endif
