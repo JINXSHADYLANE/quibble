@@ -169,12 +169,12 @@ bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r) {
 	float d1, d2, d3, d4;
 	d1 = d2 = d3 = d4 = 1000000.0f;
 	if(p->x >= rect->left && p->x <= rect->right) {
-		d1 = abs(rect->top - p->y);
-		d2 = abs(p->y - rect->bottom);
+		d1 = fabsf(rect->top - p->y);
+		d2 = fabsf(p->y - rect->bottom);
 	}
 	if(p->y <= rect->bottom && p->y >= rect->top) {
-		d3 = abs(rect->left - p->x);
-		d4 = abs(p->x - rect->right);
+		d3 = fabsf(rect->left - p->x);
+		d4 = fabsf(p->x - rect->right);
 	}
 	if(MIN(MIN(d1, d2), MIN(d3, d4)) <= r)
 		return true;
@@ -187,6 +187,38 @@ bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r) {
 	if(MIN(MIN(d1, d2), MIN(d3, d4)) <= r*r)
 		return true;
 	return false;	
+}
+
+bool _interval_collision(float s1, float e1, float s2, float e2) {
+	float t;
+	// Assure order
+	if(s1 > e1) {
+		t = s1; s1 = e1; e1 = t;
+	}
+	if(s2 > e2) {
+		t = s2; s2 = e2; e2 = t;
+	}
+
+	// If intervals collide, start of one interval will
+	// be inside other interval
+	if(s1 <= s2 && s2 <= e1)
+		return true;
+	if(s2 <= s1 && s1 <= e2)
+		return true;
+	return false;	
+}
+
+bool rectf_rectf_collision(const RectF* r1, const RectF* r2) {
+	assert(r1);
+	assert(r2);
+
+	// X axis
+	if(_interval_collision(r1->left, r1->right, r2->left, r2->right))
+		// Y axis
+		if(_interval_collision(r1->top, r1->bottom, r2->top, r2->bottom))
+			return true;
+
+	return false;
 }
 
 float rectf_width(const RectF* r) {
@@ -246,7 +278,7 @@ bool segment_intersect(Segment s1, Segment s2, Vector2* p) {
 	float c2 = a2*s2.p1.x + b2*s2.p1.y;
 
 	float det = a1*b2 - a2*b1;
-	if(abs(det) < epsilon)
+	if(fabsf(det) < epsilon)
 		return false;
 
 	float x = (b2*c1 - b1*c2) / det;
@@ -924,7 +956,7 @@ float clamp(float min, float max, float val) {
 }	
 
 bool feql(float a, float b) {
-	return abs(a - b) < 0.00001f;
+	return fabsf(a - b) < 0.00001f;
 }
 
 bool is_pow2(uint n) {

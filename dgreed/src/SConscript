@@ -1,5 +1,7 @@
 Import('env')
 
+malka = SConscript('malka/SConscript', exports='env')
+
 sources = Glob('*.c', strings=True)
 
 if str(Platform()) == 'darwin':
