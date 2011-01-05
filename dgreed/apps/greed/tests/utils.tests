@@ -18,8 +18,8 @@ TEST_(segment_point_dist) {
 	float d3 = segment_point_dist(s, p3);
 	float d4 = segment_point_dist(s, p4);
 
-	ASSERT_(feql(d1, abs(d2)));
-	ASSERT_(feql(d3, abs(d4)));
+	ASSERT_(feql(d1, fabsf(d2)));
+	ASSERT_(feql(d3, fabsf(d4)));
 }
 
 TEST_(segment_point_dist_adv) {
@@ -30,7 +30,7 @@ TEST_(segment_point_dist_adv) {
 	ASSERT_(feql(segment_point_dist(s, vec2(4.0f, -1.0f)), -sqrtf(5.0f)));
 	float d1 = segment_point_dist(s, vec2(1.0f, 2.0f));
 	float d2 = segment_point_dist(s, vec2(3.0f, 4.0f));
-	ASSERT_(feql(d2, abs(d1)));
+	ASSERT_(feql(d2, fabsf(d1)));
 	ASSERT_(d2 < sqrtf(2.0f) && d2 > 1.0f);
 }
 
