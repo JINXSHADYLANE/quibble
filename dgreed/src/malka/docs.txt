@@ -1,0 +1,93 @@
+
+malka - aesthetic game framework
+
+
+---------
+2d vector
+---------
+
+Vector is a table with fields 'x', 'y' and some overloaded operators
+for addition, subtraction, negation, multiplication/division by 
+scalar number and conversion to string. All functions actually accept
+any table, as long as it has scalar 'x' and 'y' fields.
+
+- vec2(x, y), vec2()
+returns new vector, sets components to zero if no parms are used
+
+- dot(a, b)
+dot product of two vectors a and b
+
+- length(a), length_sq(a)
+magnitude and squared magnitude of vector a
+
+- normalize(a)
+returns unit length vector with same direction
+
+- rotate(a, angle)
+returns vector a rotated by 'angle' radians
+
+
+---------
+rectangle
+---------
+
+Axis-aligned rectangle in CG coordinate space (y axis goes down). It is a table
+with fields 'l', 't', 'r' and 'b', coresponding to left, top, right and bottom
+sides of rectangle.
+
+- rect(l, t, r, b), rect(l, t), rect()
+constructs new rectangle, unspecified sides are set to zero
+
+- width(a), height(a)
+signed width and height of rectangle a
+
+- rect_rect_collision(a, b)
+returns boolean, indicating if two rectangles overlap
+
+- rect_point_collision(a, point)
+returns boolean, indicating if point is inside rectangle
+
+- rect_circle_collision(a, center, radius)
+returns boolean, indicatint if rectangle and circle overlap
+
+
+------
+colors
+------
+
+Color can be in one of two color spaces - rgb or hsv. In both cases it is a
+table, with 'r', 'g', 'b', 'a' or 'h', 's', 'v', 'a' fields. All components are
+supposed to be in range [0, 1], but it is not strictly neccessary during
+intermediate calculations. Same operators are overloaded as for vectors.
+
+- rgba(r, g, b, a), rgba(r, g, b), hsva(h, s, v, a), hsva(h, s, v)
+constructs new color
+
+- to_rgba(c), to_hsva(c)
+converts between color spaces
+
+Some 
+
+
+----------
+misc. math
+----------
+
+- lerp(a, b, t)
+linear interpolation between a and b, t must be scalar in range [0, 1]
+(otherwise, extrapolation will occur). a and b must be of same type, and can be
+vectors, scalars, colors or any types with overloaded addition and 
+multiplication by scalar operator.
+
+- smoothstep(a, b, t)
+smoothstep interpolation; lerp rules apply, but t is automatically clamped this
+time
+
+- clamp(a, b, t)
+clamps scalar value t into range [a, b]
+
+
+
+
+
+
