@@ -59,15 +59,15 @@ float ai_wall_distance(Vector2 p, DArray geometry) {
 				vec2_add(seg.p1, wraparound_offsets[j]),
 				vec2_add(seg.p2, wraparound_offsets[j]));
 			wraparound_d = segment_point_dist(wraparound_seg, p);
-			if(wraparound_d > 0.0f && wraparound_d < abs(distance))
+			if(wraparound_d > 0.0f && wraparound_d < fabsf(distance))
 				distance = wraparound_d;
 		}		
 
 		float d = segment_point_dist(seg, p);
-		if(abs(d) < abs(distance))
+		if(fabsf(d) < fabsf(distance))
 			distance = d;
 		else 
-			if(distance < 0.0f && d > 0.0f && feql((abs(distance)), d))
+			if(distance < 0.0f && d > 0.0f && feql((fabsf(distance)), d))
 				distance = d;
 	}
 	return distance > 0.0f ? distance : 0.0f;
