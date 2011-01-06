@@ -359,7 +359,7 @@ void* lz_decompress(void* input, uint input_size, uint* output_size);
 
 // Fast and simple hashing algorithm with funny name
 // http://en.wikipedia.org/wiki/MurmurHash
-uint hash_murmur(void* data, uint len, uint seed);
+uint hash_murmur(const void* data, uint len, uint seed);
 
 #endif
 

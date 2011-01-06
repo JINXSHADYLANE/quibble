@@ -86,8 +86,138 @@ time
 - clamp(a, b, t)
 clamps scalar value t into range [a, b]
 
+- hash(str), hash(str, seed)
+hashes string to a 32 bit integer, using optional integer seed
 
 
+----
+rand
+----
+
+- rand.seed(s)
+seeds randomizer with s; useful only when predictable output is needed, system
+time is used as seed by default
+
+- rand.int(min, max)
+random integer in range [min, max)
+
+- rand.float(), rand.float(min, max)
+random scalar number, either in range [0, 1) or [min, max)
+
+
+---
+log
+---
+
+- log.error(msg), log.warning(msg), log.info(msg)
+outputs log messages of various seriousness, log.error also halts application
+
+
+----
+file
+----
+
+- file.exists(name)
+returns boolean, indicating if file exists
+
+- file.read(name)
+reads text file contents, returns them as string
+
+- file.write(name, content)
+writes string to a text file
+
+
+----
+time
+----
+
+- time.ms()
+milliseconds since app start till last video.present()
+
+- time.s()
+seconds since app start till last video.present()
+
+- time.dt()
+milliseconds between two last frames
+
+- time.fps()
+number of frames drawn last second
+
+
+-------
+texture
+-------
+
+- tex.load(filename)
+loads png texture (which must have power-of-2 size), returns handle to it
+
+- tex.size(texhandle)
+returns width and height of texture in pixels
+
+- tex.free(texhandle)
+releases texture
+
+
+----
+font
+----
+
+- font.load(filename, scale)
+loads bft font, returns handle, optionally allows to provide scaling factor
+
+- font.size(fonthandle, text)
+returns width and height of text drawn using a font
+
+- font.rect(fonthandle, text, pos, scale)
+returns rectangle bounding scaled, centered text
+
+- font.free(fonthandle)
+releases font
+
+
+-----
+video
+-----
+
+- video.init(width, height, name)
+opens a window of specified size for rendering
+
+- video.init_ex(width, height, virtual_width, virtual_height, name, fullscreen)
+same as init, also sets up virtual resolution, allows to run in fullscreen
+
+- video.close()
+closes rendering window, it is polite to call this when your app exits
+
+- video.present()
+presents current frame to the screen, returns boolean indicating if app should
+continue running
+
+- video.draw_rect(tex, layer, source, dest, rot, tint)
+draws textured rectangle, arguments:
+	tex: texture handle, from tex.load
+	layer: integer in range [0, 16), higher layer rects are drawn on top
+	source: optional, rectangle of texture portion to use
+	dest: rectangle or vector (top-left corner), destination of rect on screen
+	rot: optional, angle of rotation around rect center in radians
+	tint: optional, tint color
+
+- video.draw_rect_centered(tex, layer, source, dest, rot, scale, tint)
+draws textured rectangle, same as draw_rect, except dest is vector of where rect
+center should be.
+
+- video.draw_seg(layer, start, end, color)
+draws 1 pixel wide line segment, color is optional
+
+- video.draw_text(font, layer, text, pos, color)
+draws piece of text, arguments:
+	font: font handle, from font.load
+	layer: look video.draw_rect
+	pos: vector, top-left corner of text
+	color: optional, color of text; default is black
+
+- video.draw_text_centered(font, layer, text, pos, scale, color)
+draws text, same as draw_text, except you provide center coordinates and can
+optionally scale text by a scalar factor
 
 
 

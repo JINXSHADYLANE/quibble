@@ -1097,7 +1097,7 @@ void* lz_decompress(void* input, uint input_size, uint* output_size) {
 ---------------
 */
 
-uint hash_murmur(void* data, uint len, uint seed) {
+uint hash_murmur(const void* data, uint len, uint seed) {
 	const uint m = 0x5bd1e995;
 	const int r = 24;
 	uint h = seed ^ len;

@@ -8,6 +8,7 @@ postfix = env['DGREED_POSTFIX']
 sources = Split("""
 	malka.c
 	ml_utils.c
+	ml_system.c
 """)
 
 malka = env.Library(NAME + postfix, sources)
