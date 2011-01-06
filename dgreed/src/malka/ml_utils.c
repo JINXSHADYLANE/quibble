@@ -4,10 +4,12 @@
 #include "lua/lualib.h"
 
 #include <utils.h>
+#include <memory.h>
+#include <time.h>
 
 // 2d vectors
 
-static void _new_vec2(lua_State* l, double x, double y) {
+void _new_vec2(lua_State* l, double x, double y) {
 	lua_createtable(l, 0, 2);
 	int table = lua_gettop(l);
 	lua_pushnumber(l, y);
@@ -249,7 +251,7 @@ int malka_open_vec2(lua_State* l) {
 
 // rectangle
 
-static void _new_rect(lua_State* l, double _l, double t,
+void _new_rect(lua_State* l, double _l, double t,
 	double r, double b) {
 	lua_createtable(l, 0, 4);
 	int table = lua_gettop(l);
@@ -1040,10 +1042,30 @@ static int ml_clamp(lua_State* l) {
 	return 1;
 }
 
+static int ml_hash(lua_State* l) {
+	int n = lua_gettop(l);
+	uint seed = 0;
+	if(n == 2) {
+		seed = luaL_checkinteger(l, 2);
+		n--;
+	}
+
+	if(n != 1)
+		return luaL_error(l, "wrong number of arguments provided to hash");
+
+	size_t len;
+	const char* str = luaL_checklstring(l, 1, &len);
+	uint hash = hash_murmur(str, len, seed);
+
+	lua_pushinteger(l, hash);
+	return 1;
+}
+
 static const luaL_Reg misc_fun[] = {
 	{"lerp", ml_lerp},
 	{"smoothstep", ml_smoothstep},
 	{"clamp", ml_clamp},
+	{"hash", ml_hash},
 	{NULL, NULL}
 };
 
@@ -1055,3 +1077,160 @@ int malka_open_misc(lua_State* l) {
 	}
 	return 1;
 }
+
+
+// rand
+
+static int ml_rand_seed(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 1)
+		return luaL_error(l, "wrong number of arguments provided to rand.seed");
+	
+	uint seed = luaL_checkinteger(l, 1);
+	rand_init(seed);
+	return 0;
+}
+
+static int ml_rand_int(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 2)
+		return luaL_error(l, "wrong number of arguments provided to rand.int");
+
+	int min = luaL_checkinteger(l, 1);
+	int max = luaL_checkinteger(l, 2);
+
+	lua_pushinteger(l, rand_int(min, max));
+	return 1;
+}
+
+static int ml_rand_float(lua_State* l) {
+	int n = lua_gettop(l);
+	double min = 0.0, max = 1.0;
+	if(n == 2) {
+		min = luaL_checknumber(l, 1);
+		max = luaL_checknumber(l, 2);
+		n = 0;
+	}
+
+	if(n != 0)
+		return luaL_error(l, "wrong number of arguments provided to rand.float");
+
+	double r = (double)rand_uint() / (double)(MAX_UINT32+1LL);
+	r = min + r * (max - min);
+	lua_pushnumber(l, r);
+	return 1;
+}
+
+static const luaL_Reg rand_fun[] = {
+	{"seed", ml_rand_seed},
+	{"int", ml_rand_int},
+	{"float", ml_rand_float},
+	{NULL, NULL}
+};
+
+int malka_open_rand(lua_State* l) {
+	rand_init(time(NULL));
+
+	luaL_register(l, "rand", rand_fun);
+	return 1;
+}
+
+
+// log
+
+static int ml_log_error(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 1)
+		return luaL_error(l, "wrong nubmer of arguments provided to log.error");
+	
+	const char* msg = luaL_checkstring(l, 1);
+	LOG_ERROR(msg);
+	return 0;
+}
+
+static int ml_log_warning(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 1)
+		return luaL_error(l, "wrong nubmer of arguments provided to log.warning");
+	
+	const char* msg = luaL_checkstring(l, 1);
+	LOG_WARNING(msg);
+	return 0;
+}
+
+static int ml_log_info(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 1)
+		return luaL_error(l, "wrong nubmer of arguments provided to log.info");
+	
+	const char* msg = luaL_checkstring(l, 1);
+	LOG_INFO(msg);
+	return 0;
+}
+
+static const luaL_Reg log_fun[] = {
+	{"error", ml_log_error},
+	{"warning", ml_log_warning},
+	{"info", ml_log_info},
+	{NULL, NULL}
+};	
+
+int malka_open_log(lua_State* l) {
+	luaL_register(l, "log", log_fun);
+	return 1;
+}
+
+
+// file
+
+static int ml_file_exists(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 1)
+		return luaL_error(l, "wrong number of arguments provided to file.exists");
+
+	const char* name = luaL_checkstring(l, 1);
+	lua_pushboolean(l, file_exists(name));
+	return 1;
+}
+
+static int ml_file_read(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 1)
+		return luaL_error(l, "wrong number of arguments provided to file.read");
+
+	const char* name = luaL_checkstring(l, 1);
+	const char* contents = txtfile_read(name);
+	if(contents) {
+		lua_pushstring(l, contents);
+		MEM_FREE(contents);
+		return 1;
+	}
+
+	lua_pushnil(l);
+	return 1;
+}
+
+static int ml_file_write(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 1)
+		return luaL_error(l, "wrong number of arguments provided to file.write");
+
+	const char* name = luaL_checkstring(l, 1);
+	const char* data = luaL_checkstring(l, 2);
+	txtfile_write(name, data);
+
+	return 0;
+}
+
+static const luaL_Reg file_fun[] = {
+	{"exists", ml_file_exists},
+	{"read", ml_file_read},
+	{"write", ml_file_write},
+	{NULL, NULL}
+};	
+
+int malka_open_file(lua_State* l) {
+	luaL_register(l, "file", file_fun);
+	return 1;
+}
+

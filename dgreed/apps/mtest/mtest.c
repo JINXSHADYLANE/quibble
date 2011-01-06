@@ -1,6 +1,6 @@
 #include <malka/malka.h>
 
-int main(int argc, const char** argv) {
+int dgreed_main(int argc, const char** argv) {
 	if(argc != 2) {
 		printf("Provide lua file name\n");
 		return 1;
