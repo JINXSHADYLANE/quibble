@@ -9,6 +9,12 @@
 #include <font.h>
 #include <gfx_utils.h>
 
+#define checkargs(c, name) \
+	int n = lua_gettop(l); \
+	if(n != c) \
+		return luaL_error(l, "wrong number of arguments provided to " name \
+			"; got %d, expected " #c, n)
+
 extern void _new_vec2(lua_State* l, double x, double y);
 extern void _new_rect(lua_State* l, double _l, double t,
 	double r, double b);
@@ -16,37 +22,25 @@ extern void _new_rect(lua_State* l, double _l, double t,
 // time
 
 static int ml_time_ms(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 0)
-		return luaL_error(l, "time.ms() does not take any arguments");
-
+	checkargs(0, "time.ms");
 	lua_pushnumber(l, time_ms());
 	return 1;
 }
 
 static int ml_time_s(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 0)
-		return luaL_error(l, "time.s() does not take any arguments");
-
+	checkargs(0, "time.s");
 	lua_pushnumber(l, (double)time_ms() / 1000.0);
 	return 1;
 }
 
 static int ml_time_dt(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 0)
-		return luaL_error(l, "time.dt() does not take any arguments");
-
+	checkargs(0, "time.dt");
 	lua_pushnumber(l, time_delta());
 	return 1;
 }
 
 static int ml_time_fps(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 0)
-		return luaL_error(l, "time.fps() does not take any arguments");
-
+	checkargs(0, "time.fps");
 	lua_pushinteger(l, time_fps());
 	return 1;
 }
@@ -73,10 +67,7 @@ static void _new_texhandle(lua_State* l, TexHandle h) {
 }
 
 static int ml_tex_load(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 1)
-		return luaL_error(l, "wrong number of arguments provided to tex.load");
-
+	checkargs(1, "tex.load");
 	const char* filename = luaL_checkstring(l, 1);
 	TexHandle h = tex_load(filename);
 	_new_texhandle(l, h);
@@ -84,10 +75,7 @@ static int ml_tex_load(lua_State* l) {
 }
 
 static int ml_tex_size(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 1)
-		return luaL_error(l, "wrong number of arguments provided to tex.size");
-
+	checkargs(1, "tex.size");
 	TexHandle* t = checktexhandle(l, 1);
 	uint w, h;
 	tex_size(*t, &w, &h);
@@ -97,10 +85,7 @@ static int ml_tex_size(lua_State* l) {
 }
 
 static int ml_tex_free(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 1)
-		return luaL_error(l, "wrong number of arguments provided to tex.free");
-
+	checkargs(1, "tex.free");
 	TexHandle* h = checktexhandle(l, 1);
 	tex_free(*h);
 	return 0;
@@ -144,10 +129,7 @@ static int ml_font_load(lua_State* l) {
 }
 
 static int ml_font_size(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 2)
-		return luaL_error(l, "wrong number of arguments provided to font.size");
-
+	checkargs(1, "font.size");
 	FontHandle* h = checkfonthandle(l, 1);
 	const char* text = luaL_checkstring(l, 2);
 
@@ -186,10 +168,7 @@ static int ml_font_rect(lua_State* l) {
 }
 
 static int ml_font_free(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 1)
-		return luaL_error(l, "wrong number of arguments provided to font.free");
-
+	checkargs(1, "font.free");
 	FontHandle* h = checkfonthandle(l, 1);
 	font_free(*h);
 	return 0;
@@ -206,16 +185,19 @@ static const luaL_Reg font_fun[] = {
 
 // video
 
+#define checkvideoinit() \
+	if(!video_initialized) \
+		return luaL_error(l, "video not initialized")
+
+#define checkvideodeinit() \
+	if(video_initialized) \
+		return luaL_error(l, "video already initialized")
+
 static bool video_initialized = false;
 
 static int ml_video_init(lua_State* l) {
-	if(video_initialized)
-		return luaL_error(l, "video already initialized");
-		
-	int n = lua_gettop(l);
-	if(n != 3)
-		return luaL_error(l, "wrong number of arguments provided to video.init");
-	
+	checkvideodeinit();
+	checkargs(3, "video.init");
 	uint width = luaL_checkinteger(l, 1);
 	uint height = luaL_checkinteger(l, 2);
 	const char* name = luaL_checkstring(l, 3);
@@ -227,13 +209,8 @@ static int ml_video_init(lua_State* l) {
 }	
 
 static int ml_video_init_ex(lua_State* l) {
-	if(video_initialized)
-		return luaL_error(l, "video already initialized");
-
-	int n = lua_gettop(l);
-	if(n != 6)
-		return luaL_error(l, "wrong number of arguments provided to video.init_ex");
-
+	checkvideodeinit();
+	checkargs(6, "video.init_ex");
 	uint width = luaL_checknumber(l, 1);	
 	uint height = luaL_checknumber(l, 2);
 	uint v_width = luaL_checknumber(l, 3);
@@ -248,13 +225,8 @@ static int ml_video_init_ex(lua_State* l) {
 }
 
 static int ml_video_close(lua_State* l) {
-	if(!video_initialized)
-		return luaL_error(l, "video not initialized");
-
-	int n = lua_gettop(l);
-	if(n != 0)
-		return luaL_error(l, "video.close() does not take any arguments");
-
+	checkvideoinit();
+	checkargs(0, "video.close");
 	video_close();
 	video_initialized = false;
 
@@ -262,13 +234,8 @@ static int ml_video_close(lua_State* l) {
 }	
 
 static int ml_video_present(lua_State* l) {
-	if(!video_initialized)
-		return luaL_error(l, "video not initialized");
-
-	int n = lua_gettop(l);
-	if(n != 0)
-		return luaL_error(l, "video.present() does not take any arguments");
-
+	checkvideoinit();
+	checkargs(0, "video.present");
 	bool res = system_update();
 	video_present();	
 
@@ -350,9 +317,7 @@ static bool _get_dest(lua_State* l, int i, RectF* dest) {
 }
 
 static int ml_video_draw_rect(lua_State* l) {
-	if(!video_initialized)
-		return luaL_error(l, "video not initialized");
-
+	checkvideoinit();
 	TexHandle* h = checktexhandle(l, 1);
 	uint layer = luaL_checkinteger(l, 2);
 	if(layer > 15) 
@@ -439,9 +404,7 @@ static int ml_video_draw_rect(lua_State* l) {
 }
 
 static int ml_video_draw_rect_centered(lua_State* l) {
-	if(!video_initialized)
-		return luaL_error(l, "video is not initialized");
-
+	checkvideoinit();
 	TexHandle* h = checktexhandle(l, 1);
 	uint layer = luaL_checkinteger(l, 2);
 	RectF src = rectf_null();
@@ -567,9 +530,7 @@ static int ml_video_draw_rect_centered(lua_State* l) {
 }
 
 static int ml_video_draw_seg(lua_State* l) {
-	if(!video_initialized)
-		return luaL_error(l, "video is not initialized");
-
+	checkvideoinit();
 	int n = lua_gettop(l);
 	Color c = COLOR_WHITE;
 	if(n == 4) {
@@ -597,9 +558,7 @@ static int ml_video_draw_seg(lua_State* l) {
 }
 
 static int ml_video_draw_text(lua_State* l) {
-	if(!video_initialized)
-		return luaL_error(l, "video is not initialized");
-
+	checkvideoinit();
 	int n = lua_gettop(l);
 	Color c = COLOR_BLACK;
 	if(n == 5) {
@@ -628,9 +587,7 @@ static int ml_video_draw_text(lua_State* l) {
 }
 
 static int ml_video_draw_text_centered(lua_State* l) {
-	if(!video_initialized)
-		return luaL_error(l, "video is not initialized");
-
+	checkvideoinit();
 	int n = lua_gettop(l);
 	if(n < 4 || n > 6)
 		goto nargs_error;
@@ -688,6 +645,364 @@ static const luaL_Reg video_fun[] = {
 	{NULL, NULL}
 };
 
+
+// sound
+
+#define checksoundhandle(l, i) \
+	(TexHandle*)luaL_checkudata(l, i, "_SoundHandle.mt")
+
+static void _new_soundhandle(lua_State* l, SoundHandle h) {
+	SoundHandle* t = (SoundHandle*)lua_newuserdata(l, sizeof(SoundHandle));
+	*t = h;
+	luaL_getmetatable(l, "_SoundHandle.mt");
+	lua_setmetatable(l, -2);
+}
+
+#define checksourcehandle(l, i) \
+	(TexHandle*)luaL_checkudata(l, i, "_SourceHandle.mt")
+
+static void _new_sourcehandle(lua_State* l, SourceHandle h) {
+	SourceHandle* t = (SourceHandle*)lua_newuserdata(l, sizeof(SourceHandle));
+	*t = h;
+	luaL_getmetatable(l, "_SourceHandle.mt");
+	lua_setmetatable(l, -2);
+}
+
+static bool sound_initialized = false;
+
+#define checksoundinit() \
+	if(!sound_initialized) \
+		return luaL_error(l, "sound not initialized")
+
+#define checksounddeinit() \
+	if(sound_initialized) \
+		return luaL_error(l, "sound already initialized")
+
+static int ml_sound_init(lua_State* l) {
+	checksounddeinit();
+	checkargs(0, "sound.init");
+	sound_init();
+	sound_initialized = true;
+	return 0;
+}
+
+static int ml_sound_close(lua_State* l) {
+	checksoundinit();
+	checkargs(0, "sound.close");
+	sound_close();
+	sound_initialized = false;
+	return 0;
+}
+
+static int ml_sound_update(lua_State* l) {
+	checksoundinit();
+	checkargs(0, "sound.update");
+	sound_update();
+	return 0;
+}
+
+static int ml_sound_load_stream(lua_State* l) {
+	checksoundinit();
+	checkargs(1, "sound.load_stream");
+	const char* filename = luaL_checkstring(l, 1);
+	SoundHandle h = sound_load_stream(filename);
+	_new_soundhandle(l, h);
+	return 1;
+}
+
+static int ml_sound_load_sample(lua_State* l) {
+	checksoundinit();
+	checkargs(1, "sound.load_sample");
+	const char* filename = luaL_checkstring(l, 1);
+	SoundHandle h = sound_load_sample(filename);
+	_new_soundhandle(l, h);
+
+	return 1;
+}
+
+static int ml_sound_free(lua_State* l) {
+	checksoundinit();
+	checkargs(1, "sound.free");
+	SoundHandle* h = checksoundhandle(l, 1);
+	sound_free(*h);
+	return 0;
+}
+
+static int ml_sound_set_volume(lua_State* l) {
+	checksoundinit();
+	checkargs(2, "sound.set_volume");
+	SoundHandle* h = checksoundhandle(l, 1);
+	double vol = luaL_checknumber(l, 2);
+	
+	sound_set_volume(*h, (float)vol);
+
+	return 0;
+}
+
+static int ml_sound_volume(lua_State* l) {
+	checksoundinit();
+	checkargs(1, "sound.volume");
+	SoundHandle* h = checksoundhandle(l, 1);
+	lua_pushnumber(l, sound_get_volume(*h));
+	return 1;
+}
+
+static int ml_sound_length(lua_State* l) {
+	checksoundinit();
+	checkargs(1, "sound.length");
+	SoundHandle* h = checksoundhandle(l, 1);
+	lua_pushnumber(l, sound_get_length(*h));
+	return 1;
+}
+
+static int ml_sound_play(lua_State* l) {
+	checksoundinit();	
+	int n = lua_gettop(l);
+	bool loop = false;
+	if(n == 2) {
+		loop = lua_toboolean(l, 2);
+		n--;
+	}
+
+	if(n != 1)
+		return luaL_error(l, "wrong number of arguments provided to sound.play");
+
+	SoundHandle* h = checksoundhandle(l, 1);
+	SourceHandle s = sound_play_ex(*h, loop);
+
+	if(s)
+		_new_sourcehandle(l, s);
+	else
+		lua_pushnil(l);
+
+	return 1;
+}
+
+static int ml_sound_pause(lua_State* l) {
+	checksoundinit();
+	checkargs(1, "sound.pause");
+	SourceHandle* s = checksourcehandle(l, 1);
+	sound_pause_ex(*s);
+	return 0;
+}
+
+static int ml_sound_resume(lua_State* l) {
+	checksoundinit();
+	checkargs(1, "sound.resume");
+	SourceHandle* s = checksourcehandle(l, 1);
+	sound_resume_ex(*s);
+	return 0;
+}
+
+static int ml_sound_stop(lua_State* l) {
+	checksoundinit();
+	checkargs(1, "sound.stop");
+	SourceHandle* s = checksourcehandle(l, 1);
+	sound_stop_ex(*s);
+	return 0;
+}
+
+static int ml_sound_set_src_volume(lua_State* l) {
+	checksoundinit();
+	checkargs(2, "sound.set_src_volume");
+	SourceHandle* h = checksourcehandle(l, 1);
+	double vol = luaL_checknumber(l, 2);
+	sound_set_volume_ex(*h, (float)vol);
+	return 0;
+}
+
+static int ml_sound_src_volume(lua_State* l) {
+	checksoundinit();
+	checkargs(1, "sound.src_volume");
+	SourceHandle* h = checksourcehandle(l, 1);
+	lua_pushnumber(l, sound_get_volume_ex(*h));
+	return 1;
+}
+
+static int ml_sound_set_pos(lua_State* l) {
+	checksoundinit();
+	checkargs(2, "sound.set_pos");
+	SourceHandle* h = checksourcehandle(l, 1);
+	double vol = luaL_checknumber(l, 2);
+	sound_set_pos_ex(*h, (float)vol);
+	return 0;
+}
+
+static int ml_sound_pos(lua_State* l) {
+	checksoundinit();
+	checkargs(1, "sound.pos");
+	SourceHandle* h = checksourcehandle(l, 1);
+	lua_pushnumber(l, sound_get_pos_ex(*h));
+	return 1;
+}
+
+static const luaL_Reg sound_fun[] = {
+	{"init", ml_sound_init},
+	{"close", ml_sound_close},
+	{"update", ml_sound_update},
+	{"load_stream", ml_sound_load_stream},
+	{"load_sample", ml_sound_load_sample},
+	{"free", ml_sound_free},
+	{"set_volume", ml_sound_set_volume},
+	{"volume", ml_sound_volume},
+	{"get_length", ml_sound_length},
+	{"play", ml_sound_play},
+	{"pause", ml_sound_pause},
+	{"resume", ml_sound_resume},
+	{"stop", ml_sound_stop},
+	{"set_src_volume", ml_sound_set_src_volume},
+	{"src_volume", ml_sound_src_volume},
+	{"set_pos", ml_sound_set_pos},
+	{"pos", ml_sound_pos},
+	{NULL, NULL}
+};	
+
+
+// input
+
+static int ml_key_pressed(lua_State* l) {
+	checkargs(1, "key.pressed");
+	uint key = luaL_checkinteger(l, 1);
+	if(key >= KEY_COUNT)
+		return luaL_error(l, "bad key");
+	lua_pushboolean(l, key_pressed((Key)key));
+	return 1;
+}
+
+static int ml_key_down(lua_State* l) {
+	checkargs(1, "key.down");
+	uint key = luaL_checkinteger(l, 1);
+	if(key >= KEY_COUNT)
+		return luaL_error(l, "bad key");
+	lua_pushboolean(l, key_down((Key)key));
+	return 1;
+}
+
+static int ml_key_up(lua_State* l) {
+	checkargs(1, "key.up");
+	uint key = luaL_checkinteger(l, 1);
+	if(key >= KEY_COUNT)
+		return luaL_error(l, "bad key");
+	lua_pushboolean(l, key_up((Key)key));
+	return 1;
+}
+
+static int ml_char_pressed(lua_State* l) {
+	checkargs(1, "char.pressed");
+	char c;
+	if(lua_isnumber(l, 1))
+		c = (char)lua_tointeger(l, 1);
+	else if(lua_isstring(l, 1)) {
+		const char* str = lua_tostring(l, 1);
+		if(strlen(str) > 1)
+			return luaL_error(l, "bad char");
+		c = str[0];	
+	}
+	else
+		return luaL_error(l, "bad argument");
+	lua_pushboolean(l, char_pressed(c));
+	return 1;
+}
+
+static int ml_char_down(lua_State* l) {
+	checkargs(1, "char.down");
+	char c;
+	if(lua_isnumber(l, 1))
+		c = (char)lua_tointeger(l, 1);
+	else if(lua_isstring(l, 1)) {
+		const char* str = lua_tostring(l, 1);
+		if(strlen(str) > 1)
+			return luaL_error(l, "bad char");
+		c = str[0];	
+	}
+	else
+		return luaL_error(l, "bad argument");
+	lua_pushboolean(l, char_down(c));
+	return 1;
+}
+
+static int ml_char_up(lua_State* l) {
+	checkargs(1, "char.up");
+	char c;
+	if(lua_isnumber(l, 1))
+		c = (char)lua_tointeger(l, 1);
+	else if(lua_isstring(l, 1)) {
+		const char* str = lua_tostring(l, 1);
+		if(strlen(str) > 1)
+			return luaL_error(l, "bad char");
+		c = str[0];	
+	}
+	else
+		return luaL_error(l, "bad argument");
+	lua_pushboolean(l, char_up(c));
+	return 1;
+}
+
+static int ml_mouse_pressed(lua_State* l) {
+	checkargs(1, "mouse.pressed");
+	uint mkey = luaL_checkinteger(l, 1);
+	if(mkey >= MBTN_COUNT)
+		return luaL_error(l, "bad mouse button");
+	lua_pushboolean(l, mouse_pressed((MouseButton)mkey));
+	return 1;
+}
+
+static int ml_mouse_down(lua_State* l) {
+	checkargs(1, "mouse.down");
+	uint mkey = luaL_checkinteger(l, 1);
+	if(mkey >= MBTN_COUNT)
+		return luaL_error(l, "bad mouse button");
+	lua_pushboolean(l, mouse_down((MouseButton)mkey));
+	return 1;
+}
+
+static int ml_mouse_up(lua_State* l) {
+	checkargs(1, "mouse.up");
+	uint mkey = luaL_checkinteger(l, 1);
+	if(mkey >= MBTN_COUNT)
+		return luaL_error(l, "bad mouse button");
+	lua_pushboolean(l, mouse_up((MouseButton)mkey));
+	return 1;
+}
+
+static int ml_mouse_pos(lua_State* l) {
+	checkargs(0, "mouse.pos");
+	uint x, y;
+	mouse_pos(&x, &y);
+	_new_vec2(l, (double)x, (double)y);
+	return 1;
+}
+
+static const luaL_Reg key_fun[] = {
+	{"pressed", ml_key_pressed},
+	{"down", ml_key_down},
+	{"up", ml_key_up},
+	{NULL, NULL}
+};
+
+static const luaL_Reg char_fun[] = {
+	{"pressed", ml_char_pressed},
+	{"down", ml_char_down},
+	{"up", ml_char_up},
+	{NULL, NULL}
+};	
+
+static const luaL_Reg mouse_fun[] = {
+	{"pressed", ml_mouse_pressed},
+	{"down", ml_mouse_down},
+	{"up", ml_mouse_up},
+	{"pos", ml_mouse_pos},
+	{NULL, NULL}
+};	
+
+static const char* key_names[] = {
+	"up", "down", "left", "right", "a", "b", "pause", "quit"
+};	
+
+static const char* mbtn_names[] = {
+	"primary", "secondary", "middle"
+};	
+
 int malka_open_system(lua_State* l) {
 	luaL_register(l, "time", time_fun);
 
@@ -698,6 +1013,28 @@ int malka_open_system(lua_State* l) {
 	luaL_register(l, "font", font_fun);
 
 	luaL_register(l, "video", video_fun);
+
+	luaL_newmetatable(l, "_SoundHandle.mt");
+	luaL_newmetatable(l, "_SourceHandle.mt"); 
+	luaL_register(l, "sound", sound_fun);
+
+	luaL_register(l, "key", key_fun);
+	luaL_register(l, "char", char_fun);
+	luaL_register(l, "mouse", mouse_fun);
+
+	lua_getglobal(l, "key");
+	int tbl = lua_gettop(l);
+	for(int i = 0; i < ARRAY_SIZE(key_names); ++i) {
+		lua_pushinteger(l, i);
+		lua_setfield(l, tbl, key_names[i]);
+	}
+
+	lua_getglobal(l, "mouse");
+	tbl = lua_gettop(l);
+	for(int i = 0; i < ARRAY_SIZE(mbtn_names); ++i) {
+		lua_pushinteger(l, i);
+		lua_setfield(l, tbl, mbtn_names[i]);
+	}
 
 	return 1;
 }

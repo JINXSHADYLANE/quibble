@@ -220,4 +220,78 @@ draws text, same as draw_text, except you provide center coordinates and can
 optionally scale text by a scalar factor
 
 
+-----
+sound
+-----
+
+- sound.init()
+initializes sound system
+
+- sound.close()
+closes sound system
+
+- sound.update()
+updates internal buffers, should be called periodically; once a frame is ok
+
+- sound.load_stream(filename), sound.load_sample(filename)
+loads either streamed ogg or in memory kept wav file, returns handle to it
+
+- sound.free(soundhandle)
+releases sound
+
+- sound.set_volume(soundhandle, volume), sound.get_volume(soundhandle)
+sets/gets volume, scalar number in range [0, 1]
+
+- sound.get_length(soundhandle)
+returns length of sound in seconds
+
+- sound.play(soundhandle, loop)
+plays sound, optionally looping it, returns handle to sound source
+
+- sound.pause(sourcehandle), sound.resume(sourcehandle),
+pauses/resumes
+
+- sound.stop(sourcehandle)
+stops sound and consequently, destroys source, source handle becomes invalid
+
+- sound.set_src_volume(sourcehandle, volume), sound.get_src_volume(sourchandle)
+sets/gets volume of specific sound sources
+
+- sound.get_pos(sourcehandle), sound.set_pos(sourcehandle)
+sets/gets playing cursor position
+
+
+-----
+input
+-----
+
+key constant:
+	key.up		- up arrow
+	key.down	- down arrow
+	key.left	- left arrow
+	key.right	- right arrow
+	key.a		- z 
+	key.b		- x
+	key.pause	- p
+	key.quit	- esc
+
+mouse button constants:
+	mouse.primary
+	mouse.secondary
+	mouse.middle
+
+- key.pressed(k), key.down(k), key.up(k)
+returns boolean, indicating if key is pressed, just went down or just went up
+
+- char.pressed(c), char.down(c), char.up(c)
+same as key.*, lets you use complete keyboard, but is not compatible with
+keyboard-less devices and joysticks
+
+- mouse.pressed(m), mouse.down(m), mouse.up(m)
+same as key.*, only for mouse buttons; primary key presses are also emulated on
+touch screens
+
+- mouse.pos()
+returns vector with current absolute mouse position
+
 
