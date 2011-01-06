@@ -1212,7 +1212,7 @@ uint _sdl_to_greed_mbtn(uint mbtn_id) {
 		default:
 			break;
 	}
-	return MBTN_ELSE;
+	return MBTN_COUNT;
 }
 
 bool system_update(void) {
