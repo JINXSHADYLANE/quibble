@@ -194,12 +194,12 @@ continue running
 
 - video.draw_rect(tex, layer, source, dest, rot, tint)
 draws textured rectangle, arguments:
-	tex: texture handle, from tex.load
-	layer: integer in range [0, 16), higher layer rects are drawn on top
+	tex: 	texture handle, from tex.load
+	layer: 	integer in range [0, 16), higher layer rects are drawn on top
 	source: optional, rectangle of texture portion to use
-	dest: rectangle or vector (top-left corner), destination of rect on screen
-	rot: optional, angle of rotation around rect center in radians
-	tint: optional, tint color
+	dest: 	rectangle or vector (top-left corner), destination of rect on screen
+	rot: 	optional, angle of rotation around rect center in radians
+	tint: 	optional, tint color
 
 - video.draw_rect_centered(tex, layer, source, dest, rot, scale, tint)
 draws textured rectangle, same as draw_rect, except dest is vector of where rect
@@ -210,10 +210,10 @@ draws 1 pixel wide line segment, color is optional
 
 - video.draw_text(font, layer, text, pos, color)
 draws piece of text, arguments:
-	font: font handle, from font.load
-	layer: look video.draw_rect
-	pos: vector, top-left corner of text
-	color: optional, color of text; default is black
+	font: 	font handle, from font.load
+	layer: 	look video.draw_rect
+	pos: 	vector, top-left corner of text
+	color: 	optional, color of text; default is black
 
 - video.draw_text_centered(font, layer, text, pos, scale, color)
 draws text, same as draw_text, except you provide center coordinates and can
@@ -294,4 +294,78 @@ touch screens
 - mouse.pos()
 returns vector with current absolute mouse position
 
+
+---
+gui
+---
+
+GUI style is defined by guidesc table, it has following fields:
+	texture				: texhandle to gui texture
+	font				: fonthandle of gui font
+	text_color			: text color
+
+	first_layer			: gui uses three layers for drawing
+	second_layer
+	text_layer
+	
+	src_button_down		: rects of two button states
+	src_button_up
+
+	src_switch_on_up	: rects of four switch states
+	src_switch_on_down
+	src_switch_off_up
+	src_switch_off_down
+
+	src_slider			: rects of slider and two knob states
+	src_slider_knob_up
+	src_slider_knob_up
+
+
+- gui.default_style(prefix)
+returns default guidesc, prefix is folder, where default gui resources are kept
+
+- gui.init(guidesc)
+initializes gui, using provided style description
+
+- gui.close()
+closes gui, frees resources
+
+- gui.label(pos, text)
+draws label at specified position
+
+- gui.button(pos, text)
+draws interactive button, returns boolean of its state - pressed or not pressed
+
+- gui.switch(pos, text)
+draws interactive switch, returns boolean state
+
+- gui.slider(pos)
+draws interactive slider, returns number ir range [0, 1]
+
+- gui.switch_state(pos), gui.switch_set_state(pos, state)
+access to switch state without drawing anything
+
+- gui.slider_state(pos), gui.slider_set_state(pos, state)
+access to slider state without drawing anything
+
+
+---------
+particles
+---------
+
+- particles.init(prefix, layer)
+loads particle system descriptions from prefix/particles.mml, sets layer in
+which drawing will occur
+
+- particles.close()
+frees internal resources
+
+- particles.spawn(name, pos, dir)
+spawns particle system, dir defaults to 0
+
+- particles.update(time)
+updates particle animation, time is optional and defaults to time.s()
+
+- particles.draw()
+draws all active particle systems
 

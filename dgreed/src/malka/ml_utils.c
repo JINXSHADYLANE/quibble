@@ -472,7 +472,7 @@ int malka_open_rect(lua_State* l) {
 
 // colors
 
-static void _new_rgba(lua_State* l, double r, double g,
+void _new_rgba(lua_State* l, double r, double g,
 	double b, double a) {
 	lua_createtable(l, 0, 4);
 	int table = lua_gettop(l);
