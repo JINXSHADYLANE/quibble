@@ -8,6 +8,8 @@
 #include <system.h>
 #include <font.h>
 #include <gfx_utils.h>
+#include <gui.h>
+#include <particles.h>
 
 #define checkargs(c, name) \
 	int n = lua_gettop(l); \
@@ -18,6 +20,8 @@
 extern void _new_vec2(lua_State* l, double x, double y);
 extern void _new_rect(lua_State* l, double _l, double t,
 	double r, double b);
+extern void _new_rgba(lua_State* l, double r, double g,
+	double b, double a);
 
 // time
 
@@ -1003,6 +1007,278 @@ static const char* mbtn_names[] = {
 	"primary", "secondary", "middle"
 };	
 
+
+// gui
+
+static void _push_rect(lua_State* l, RectF rect) {
+	double _l = rect.left;
+	double t = rect.top;
+	double r = rect.right;
+	double b = rect.bottom;
+	_new_rect(l, _l, t, r, b);
+}
+
+static void _push_color(lua_State* l, Color c) {
+	byte r, g, b, a;
+	COLOR_DECONSTRUCT(c, r, g, b, a);
+	double dr = (double)r / 255.0;
+	double dg = (double)r / 255.0;
+	double db = (double)r / 255.0;
+	double da = (double)r / 255.0;
+	_new_rgba(l, dr, dg, db, da);
+}
+
+#define _setrectfield(l, i, name, src) \
+	_push_rect(l, src); \
+	lua_setfield(l, i, name)
+
+static void _make_guidesc(lua_State* l, const GuiDesc* desc) {
+	lua_createtable(l, 0, 15);
+	int table = lua_gettop(l);
+	_new_texhandle(l, desc->texture);
+	lua_setfield(l, table, "texture");
+	_new_fonthandle(l, desc->font);
+	lua_setfield(l, table, "font");
+	_push_color(l, desc->text_color);
+	lua_setfield(l, table, "text_color");
+	lua_pushinteger(l, desc->first_layer);
+	lua_setfield(l, table, "first_layer");
+	lua_pushinteger(l, desc->second_layer);
+	lua_setfield(l, table, "second_layer");
+	lua_pushinteger(l, desc->text_layer);
+	lua_setfield(l, table, "text_layer");
+	_setrectfield(l, table, "src_button_down", desc->src_button_down);
+	_setrectfield(l, table, "src_button_up", desc->src_button_up);
+	_setrectfield(l, table, "src_switch_on_up", desc->src_switch_on_up);
+	_setrectfield(l, table, "src_switch_on_down", desc->src_switch_on_down);
+	_setrectfield(l, table, "src_switch_off_up", desc->src_switch_off_up);
+	_setrectfield(l, table, "src_switch_off_down", desc->src_switch_off_down);
+	_setrectfield(l, table, "src_slider", desc->src_slider);
+	_setrectfield(l, table, "src_slider_knob_up", desc->src_slider_knob_up);
+	_setrectfield(l, table, "src_slider_knob_down", desc->src_slider_knob_down);
+}
+
+#define _getrectfield(l, i, name, dest) \
+	lua_getfield(l, i, name); \
+	t = lua_gettop(l); \
+	if(!_check_rect(l, t, &dest)) return false
+
+static bool _read_guidesc(lua_State* l, GuiDesc* desc) {
+	if(!lua_istable(l, -1))
+		return false;
+	int t, table = lua_gettop(l);
+	lua_getfield(l, table, "texture");
+	TexHandle* h = checktexhandle(l, -1);
+	desc->texture =	*h;
+	lua_getfield(l, table, "font");
+	FontHandle* f = checkfonthandle(l, -1);
+	desc->font = *f;
+	lua_getfield(l, table, "text_color");
+	t = lua_gettop(l);
+	if(!_check_color(l, t, &desc->text_color))
+		return false;
+	lua_getfield(l, table, "first_layer");
+	desc->first_layer = luaL_checkinteger(l, -1);
+	lua_getfield(l, table, "second_layer");
+	desc->second_layer = luaL_checkinteger(l, -1);
+	lua_getfield(l, table, "text_layer");
+	desc->text_layer = luaL_checkinteger(l, -1);
+	_getrectfield(l, table, "src_button_down", desc->src_button_down);
+	_getrectfield(l, table, "src_button_up", desc->src_button_up);
+	_getrectfield(l, table, "src_switch_on_up", desc->src_switch_on_up);
+	_getrectfield(l, table, "src_switch_on_down", desc->src_switch_on_down);
+	_getrectfield(l, table, "src_switch_off_up", desc->src_switch_off_up);
+	_getrectfield(l, table, "src_switch_off_down", desc->src_switch_off_down);
+	_getrectfield(l, table, "src_slider", desc->src_slider);
+	_getrectfield(l, table, "src_slider_knob_up", desc->src_slider_knob_up);
+	_getrectfield(l, table, "src_slider_knob_down", desc->src_slider_knob_down);
+	return true;
+}
+
+static int ml_gui_default_style(lua_State* l) {
+	checkargs(1, "gui.default_style");
+	const char* prefix = luaL_checkstring(l, 1);
+	GuiDesc desc = gui_default_style(prefix);
+	_make_guidesc(l, &desc);
+	return 1;
+}
+
+static int ml_gui_init(lua_State* l) {
+	checkargs(1, "gui.init");
+	GuiDesc desc;
+	if(!_read_guidesc(l, &desc))
+		return luaL_error(l,"bad guidesc");
+	gui_init(&desc);
+	return 0;
+}
+
+static int ml_gui_close(lua_State* l) {
+	checkargs(0, "gui.close");
+	gui_close();
+	return 0;
+}
+
+static int ml_gui_label(lua_State* l) {
+	checkargs(2, "gui.label");
+	Vector2 pos;
+	if(!_check_vec2(l, 1, &pos))
+		return luaL_error(l,"bad pos");
+	const char* text = luaL_checkstring(l, 2);
+	gui_label(&pos, text);
+	return 0;
+}
+
+static int ml_gui_button(lua_State* l) {
+	checkargs(2, "gui.button");
+	Vector2 pos;
+	if(!_check_vec2(l, 1, &pos))
+		return luaL_error(l,"bad pos");
+	const char* text = luaL_checkstring(l, 2);
+	lua_pushboolean(l, gui_button(&pos, text));
+	return 1;
+}
+
+static int ml_gui_switch(lua_State* l) {
+	checkargs(2, "gui.switch");
+	Vector2 pos;
+	if(!_check_vec2(l, 1, &pos))
+		return luaL_error(l,"bad pos");
+	const char* text = luaL_checkstring(l, 2);
+	lua_pushboolean(l, gui_switch(&pos, text));
+	return 1;
+}
+
+static int ml_gui_slider(lua_State* l) {
+	checkargs(1, "gui.slider");
+	Vector2 pos;
+	if(!_check_vec2(l, 1, &pos))
+		return luaL_error(l, "bad pos");
+	lua_pushnumber(l, gui_slider(&pos));
+	return 1;
+}
+
+static int ml_gui_switch_state(lua_State* l) {
+	checkargs(1, "gui.switch_state");
+	Vector2 pos;
+	if(!_check_vec2(l, 1, &pos))
+		return luaL_error(l, "bad pos");
+	lua_pushboolean(l, gui_getstate_switch(&pos));
+	return 1;
+}
+
+static int ml_gui_switch_set_state(lua_State* l) {
+	checkargs(2, "gui.switch_set_state");
+	Vector2 pos;
+	if(!_check_vec2(l, 1, &pos))
+		return luaL_error(l, "bad pos");
+	bool state = lua_toboolean(l, 2);
+	gui_setstate_switch(&pos, state);
+	return 0;
+}
+
+static int ml_gui_slider_state(lua_State* l) {
+	checkargs(1, "gui.slider_state");
+	Vector2 pos;
+	if(!_check_vec2(l, 1, &pos))
+		return luaL_error(l, "bad pos");
+	lua_pushnumber(l, gui_getstate_slider(&pos));
+	return 1;
+}
+
+static int ml_gui_slider_set_state(lua_State* l) {
+	checkargs(2, "gui.slider_set_state");
+	Vector2 pos;
+	if(!_check_vec2(l, 1, &pos))
+		return luaL_error(l, "bad pos");
+	double state = luaL_checknumber(l, 2);
+	gui_setstate_slider(&pos, state);
+	return 0;
+}
+
+static const luaL_Reg gui_fun[] = {
+	{"default_style", ml_gui_default_style},
+	{"init", ml_gui_init},
+	{"close", ml_gui_close},
+	{"label", ml_gui_label},
+	{"button", ml_gui_button},
+	{"switch", ml_gui_switch},
+	{"slider", ml_gui_slider},
+	{"switch_state", ml_gui_switch_state},
+	{"switch_set_state", ml_gui_switch_set_state},
+	{"slider_state", ml_gui_slider_state},
+	{"slider_set_state", ml_gui_slider_set_state},
+	{NULL, NULL}
+};
+
+
+// particles
+
+static int ml_particles_init(lua_State* l) {
+	checkargs(2, "particles.init");
+	const char* prefix = luaL_checkstring(l, 1);
+	uint layer = luaL_checkinteger(l, 2);
+	if(layer > 15)
+		return luaL_error(l, "bad layer");
+	particles_init(prefix, layer);
+	return 0;
+}
+
+static int ml_particles_close(lua_State* l) {
+	checkargs(0, "particles.close");
+	particles_close();
+	return 0;
+}
+
+static int ml_particles_spawn(lua_State* l) {
+	int n = lua_gettop(l);
+	double dir = 0.0;
+	if(n == 3) {
+		dir = luaL_checknumber(l, 3);
+		n--;
+	}
+
+	if(n != 2)
+		return luaL_error(l, "wrong number of arguments provided to particles.spawn");
+
+	const char* name = luaL_checkstring(l, 1);
+	Vector2 pos;
+	if(!_check_vec2(l, 2, &pos))
+		return luaL_error(l, "bad pos");
+	
+	particles_spawn(name, &pos, dir);
+	return 0;
+}
+
+static int ml_particles_update(lua_State* l) {
+	int n = lua_gettop(l);
+	double time = time_ms() / 1000.0;
+	if(n == 1) {
+		time = luaL_checknumber(l, 1);
+		n--;
+	}
+
+	if(n != 0)
+		return luaL_error(l, "wrong number of arguments provided to particles.update");
+	
+	particles_update(time);
+	return 0;
+}
+
+static int ml_particles_draw(lua_State* l) {
+	checkargs(0, "particles.draw");
+	particles_draw();
+	return 0;
+}
+
+static const luaL_Reg particles_fun[] = {
+	{"init", ml_particles_init},
+	{"close", ml_particles_close},
+	{"spawn", ml_particles_spawn},
+	{"update", ml_particles_update},
+	{"draw", ml_particles_draw},
+	{NULL, NULL}
+};	
+
 int malka_open_system(lua_State* l) {
 	luaL_register(l, "time", time_fun);
 
@@ -1035,6 +1311,10 @@ int malka_open_system(lua_State* l) {
 		lua_pushinteger(l, i);
 		lua_setfield(l, tbl, mbtn_names[i]);
 	}
+
+	luaL_register(l, "gui", gui_fun);
+
+	luaL_register(l, "particles", particles_fun);
 
 	return 1;
 }
