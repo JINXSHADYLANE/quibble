@@ -522,6 +522,19 @@ RectF tilemap_world2screen(Tilemap* t, const RectF* viewport, RectF rect) {
 	return rectf(center.x - rw, center.y - rh, center.x + rw, center.y + rh);
 }
 
+RectF tilemap_screen2world(Tilemap *t, const RectF* viewport, RectF rect) {
+	assert(t);
+	assert(viewport);
+
+	Vector2 center = vec2((rect.left + rect.right) / 2.0f, (rect.top + rect.bottom) / 2.0f);
+	center = tilemap_screen2world_point(t, viewport, center);
+
+	float rw = rectf_width(&rect) / 2.0f / t->camera.z;
+	float rh = rectf_height(&rect) / 2.0f / t->camera.z;
+
+	return rectf(center.x - rw, center.y - rh, center.x + rw, center.y + rh);
+}
+
 Vector2 tilemap_world2screen_point(Tilemap* t, const RectF* viewport, Vector2 point) {
 	assert(t);
 	assert(viewport);

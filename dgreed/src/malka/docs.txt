@@ -369,3 +369,44 @@ updates particle animation, time is optional and defaults to time.s()
 - particles.draw()
 draws all active particle systems
 
+
+-------
+tilemap
+-------
+
+- tilemap.load(filename)
+loads tilemap from btm file, returns handle to it
+
+- tilemap.free(tmaphandle)
+frees tilemap
+
+- tilemap.camera(tmaphandle), tilemap.set_camera(tmaphandle, pos, z, rot)
+sets/gets camera, which is described by position (vector), optional z depth 
+(number, usually 1) and optional rotation in radians
+
+- tilemap.objects(tmaphandle)
+returns array of tilemap objects; object is a table with fields 'id' (number)
+and 'pos' (vector)
+
+- tilemap.render(tmaphandle, viewport, time)
+renders tilemap; viewport is screen rectangle of where rendered view will end
+up, time is optional and defaults to time.s()  
+
+- tilemap.collide(tmaphandle, rect) / tilemap.collide(tmaphandle, point)
+returns boolean, indicating if world-space rect or a vector collides with a 
+solid area of tilemap
+
+- tilemap.raycast(tmaphandle, start, end)
+casts ray from vector start to end, returns first intersection with solid or
+end if no intersections occured
+
+- tilemap.collide_swept(tmaphandle, rect, offset)
+does swept rectangle collision, returns maximum offset along which rect can move
+without colliding; initially, rect is assumed to not be colliding with anything!
+
+- tilemap.world2screen(tmaphandle, viewport, rect)
+- tilemap.world2screen(tmaphandle, viewport, point)
+- tilemap.screen2world(tmaphandle, viewport, rect)
+- tilemap.screen2world(tmaphandle, viewport, point)
+converts between screen-space and tilemap world-space
+

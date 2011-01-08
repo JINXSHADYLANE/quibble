@@ -10,6 +10,7 @@
 #include <gfx_utils.h>
 #include <gui.h>
 #include <particles.h>
+#include <tilemap.h>
 
 #define checkargs(c, name) \
 	int n = lua_gettop(l); \
@@ -1279,6 +1280,197 @@ static const luaL_Reg particles_fun[] = {
 	{NULL, NULL}
 };	
 
+
+// tilemap
+
+#define checktmaphandle(l, i) \
+	(Tilemap**)luaL_checkudata(l, i, "_TilemapHandle.mt")
+
+static void _new_tmaphandle(lua_State* l, Tilemap* tm) {
+	Tilemap** t = (Tilemap**)lua_newuserdata(l, sizeof(Tilemap*));
+	*t = tm;
+	luaL_getmetatable(l, "_TilemapHandle.mt");
+	lua_setmetatable(l, -2);
+}
+
+static int ml_tilemap_load(lua_State* l) {
+	checkargs(1, "tilemap.load");
+	const char* filename = luaL_checkstring(l, 1);
+	Tilemap* tmap = tilemap_load(filename);
+	_new_tmaphandle(l, tmap);
+	return 1;
+}
+
+static int ml_tilemap_free(lua_State* l) {
+	checkargs(1, "tilemap.free");
+	Tilemap** t = checktmaphandle(l, 1);
+	tilemap_free(*t);
+	return 0;
+}
+
+static int ml_tilemap_camera(lua_State* l) {
+	checkargs(1, "tilemap.camera");
+	Tilemap** t = checktmaphandle(l, 1);
+	Vector2 v = (*t)->camera.center;
+	_new_vec2(l, v.x, v.y);
+	lua_pushnumber(l, (*t)->camera.z);
+	lua_pushnumber(l, (*t)->camera.rot);
+	return 3;
+}
+
+static int ml_tilemap_set_camera(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n < 2 || n > 4)
+		return luaL_error(l, "wrong number of arguments provided to tilemap.set_camera");
+	Tilemap** t = checktmaphandle(l, 1);
+	Vector2 pos;
+	if(!_check_vec2(l, 2, &pos))
+		return luaL_error(l, "bad pos");
+	(*t)->camera.center = pos;
+	if(n >= 3) {
+		double z = luaL_checknumber(l, 3);
+		(*t)->camera.z = z;
+	}
+	if(n == 4) {
+		double rot = luaL_checknumber(l, 4);
+		(*t)->camera.rot = rot;
+	}
+	return 0;
+}
+
+static int ml_tilemap_objects(lua_State* l) {
+	checkargs(1, "tilemap.objects");
+	Tilemap** t = checktmaphandle(l, 1);
+	int n_obj = (*t)->n_objects;
+	lua_createtable(l, n_obj, 0);
+	for(int i = 0; i < n_obj; ++i) {
+		lua_createtable(l, 0, 2);
+		Vector2 pos = (*t)->objects[i].p;
+		_new_vec2(l, pos.x, pos.y);
+		lua_setfield(l, -2, "pos");
+		lua_pushinteger(l, (*t)->objects[i].id);
+		lua_setfield(l, -2, "id");
+		lua_rawseti(l, -2, i+1);	
+	}
+	return 1;
+}
+
+static int ml_tilemap_render(lua_State* l) {
+	int n = lua_gettop(l);
+	float time = time_ms() / 1000.0f;
+	if(n == 3) {
+		time = luaL_checknumber(l, 3);
+		n--;
+	}
+
+	if(n != 2)
+		return luaL_error(l, "wrong number of arguments provided to tilemap.render");
+	
+	Tilemap** t = checktmaphandle(l, 1);
+	RectF viewport;
+	if(!_check_rect(l, 2, &viewport))
+		return luaL_error(l, "bad viewport");
+
+	tilemap_render(*t, viewport, time);
+
+	return 0;
+}
+
+static int ml_tilemap_collide(lua_State* l) {
+	checkargs(2, "tilemap.collide");
+	Tilemap** t = checktmaphandle(l, 1);
+	Vector2 point;
+	if(!_check_vec2(l, 2, &point)) {
+		RectF rect;
+		if(!_check_rect(l, 2, &rect))
+			return luaL_error(l, "bad point/rect");
+		lua_pushboolean(l, tilemap_collide(*t, rect));
+		return 1;
+	}
+	lua_pushboolean(l, tilemap_collide_point(*t, point));
+	return 1;
+}
+
+static int ml_tilemap_raycast(lua_State* l) {
+	checkargs(3, "tilemap.raycast");
+	Tilemap** t = checktmaphandle(l, 1);
+	Vector2 start, end;
+	if(!_check_vec2(l, 2, &start) || !_check_vec2(l, 3, &end))
+		return luaL_error(l, "bad start/end");
+	Vector2 res = tilemap_raycast(*t, start, end);
+	_new_vec2(l, res.x, res.y);
+	return 1;
+}
+
+static int ml_tilemap_collide_swept(lua_State* l) {
+	checkargs(3, "tilemap.collide_swept");
+	Tilemap** t = checktmaphandle(l, 1);
+	RectF rect;
+	Vector2 offset;
+	if(!_check_rect(l, 2, &rect) || !_check_vec2(l, 3, &offset))
+		return luaL_error(l, "bad rect/offset");
+	Vector2 res = tilemap_collide_swept_rectf(*t, rect, offset);
+	_new_vec2(l, res.x, res.y);
+	return 1;
+}
+
+static int ml_tilemap_world2screen(lua_State* l) {
+	checkargs(3, "tilemap.world2screen");
+	Tilemap** t = checktmaphandle(l, 1);
+	RectF viewport;
+	if(!_check_rect(l, 2, &viewport))
+		return luaL_error(l, "bad viewport");
+	Vector2 point;
+	if(!_check_vec2(l, 3, &point)) {
+		RectF rect;
+		if(!_check_rect(l, 3, &rect)) {
+			return luaL_error(l, "bad rect/point");
+		}
+		RectF res = tilemap_world2screen(*t, &viewport, rect);
+		_push_rect(l, res);
+		return 1;
+	}
+	Vector2 res = tilemap_world2screen_point(*t, &viewport, point);
+	_new_vec2(l, res.x, res.y);
+	return 1;
+}
+
+static int ml_tilemap_screen2world(lua_State* l) {
+	checkargs(3, "tilemap.screen2world");
+	Tilemap** t = checktmaphandle(l, 1);
+	RectF viewport;
+	if(!_check_rect(l, 2, &viewport))
+		return luaL_error(l, "bad viewport");
+	Vector2 point;
+	if(!_check_vec2(l, 3, &point)) {
+		RectF rect;
+		if(!_check_rect(l, 3, &rect)) {
+			return luaL_error(l, "bad rect/point");
+		}
+		RectF res = tilemap_screen2world(*t, &viewport, rect);
+		_push_rect(l, res);
+		return 1;
+	}
+	Vector2 res = tilemap_screen2world_point(*t, &viewport, point);
+	_new_vec2(l, res.x, res.y);
+	return 1;
+}
+
+static const luaL_Reg tilemap_fun[] = {
+	{"load", ml_tilemap_load},
+	{"free", ml_tilemap_free},
+	{"camera", ml_tilemap_camera},
+	{"set_camera", ml_tilemap_set_camera},
+	{"objects", ml_tilemap_objects},
+	{"render", ml_tilemap_render},
+	{"collide", ml_tilemap_collide},
+	{"raycast", ml_tilemap_raycast},
+	{"collide_swept", ml_tilemap_collide_swept},
+	{"world2screen", ml_tilemap_world2screen},
+	{"screen2world", ml_tilemap_screen2world},
+	{NULL, NULL}
+};	
+
 int malka_open_system(lua_State* l) {
 	luaL_register(l, "time", time_fun);
 
@@ -1315,6 +1507,9 @@ int malka_open_system(lua_State* l) {
 	luaL_register(l, "gui", gui_fun);
 
 	luaL_register(l, "particles", particles_fun);
+
+	luaL_newmetatable(l, "_TilemapHandle.mt");
+	luaL_register(l, "tilemap", tilemap_fun);
 
 	return 1;
 }
