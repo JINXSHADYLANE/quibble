@@ -38,9 +38,9 @@ import sys
 reload(sys)
 sys.setdefaultencoding('latin-1')
 
-TILESET_WIDTH = 32
-TILESET_HEIGHT = 32
-TILES_IN_TILESET = TILESET_WIDTH * TILESET_HEIGHT
+MAX_TILESET_WIDTH = 32
+MAX_TILESET_HEIGHT = 32
+MAX_TILES_IN_TILESET = MAX_TILESET_WIDTH * MAX_TILESET_HEIGHT
 
 prefix = ''
 tile_width, tile_height = 0, 0
@@ -48,6 +48,7 @@ width, height = 0, 0
 object_ids = {}
 col, layers, tilesets, objects = [], [], [], []
 state, col_name, obj_name, layer_state, tileset_state = '', '', '', -1, -1	
+tileset_st_width, tileset_st_height = None, None
 raw_col = ''
 
 def _2dlist(e, w, h): 
@@ -102,7 +103,8 @@ def read_ogmo(level_filename, project_filename):
 	def proj_start(name, attrs):
 		global tile_width, tile_height, col_name, layers
 		if name == 'tileset':
-			tilesets.append([attrs['name'], attrs['image'], []])
+			twidth, theight = int(attrs['width']), int(attrs['height'])
+			tilesets.append([attrs['name'], attrs['image'], [], [twidth, theight]])
 			tw, th = int(attrs['tileWidth']), int(attrs['tileHeight'])
 			if tile_width == 0 and tile_height == 0:
 				tile_width, tile_height = tw, th 
@@ -141,13 +143,13 @@ def read_ogmo(level_filename, project_filename):
 
 	def lvl_start(name, attrs):
 		global tile_width, tile_height, width, height, state, layers, col
-		global layer_state, tileset_state
+		global layer_state, tileset_state, tileset_st_width, tileset_st_height
 		if name == 'tile':
 			tw, th = tile_width, tile_height
 			tx, ty = int(attrs['tx']), int(attrs['ty'])
 			x, y = int(attrs['x']), int(attrs['y'])
 			tx, ty, x, y = tx/tw, ty/th, x/tw, y/th
-			tile_id = tileset_state * TILES_IN_TILESET + (ty*TILESET_WIDTH+tx)
+			tile_id = tileset_state * MAX_TILES_IN_TILESET + (ty*tileset_st_width+tx)
 			layers[layer_state][1][x][y] = tile_id
 			return
 
@@ -157,7 +159,7 @@ def read_ogmo(level_filename, project_filename):
 			x, y = int(attrs['x']), int(attrs['y'])
 			w, h = int(attrs['w']), int(attrs['h'])
 			tx, ty, x, y, w, h = tx/tw, ty/th, x/tw, y/th, w/tw, h/th
-			tile_id = tileset_state * TILES_IN_TILESET + (ty*TILESET_WIDTH+tx)
+			tile_id = tileset_state * MAX_TILES_IN_TILESET + (ty*tileset_st_width+tx)
 			for ix in xrange(x, x+w):
 				for iy in xrange(y, y+h):
 					layers[layer_state][1][ix][iy] = tile_id
@@ -192,6 +194,8 @@ def read_ogmo(level_filename, project_filename):
 				for i, tileset in enumerate(tilesets):
 					if attrs['set'] == tileset[0]:
 						tileset_state = i
+						tileset_st_width = tileset[3][0] / tile_width
+						tileset_st_height = tileset[3][1] / tile_height
 						break
 				else:
 					raise RuntimeError('unidentified tileset')

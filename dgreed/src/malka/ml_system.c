@@ -84,9 +84,8 @@ static int ml_tex_size(lua_State* l) {
 	TexHandle* t = checktexhandle(l, 1);
 	uint w, h;
 	tex_size(*t, &w, &h);
-	lua_pushinteger(l, w);
-	lua_pushinteger(l, h);
-	return 2;
+	_new_vec2(l, (double)w, (double)h);
+	return 1;
 }
 
 static int ml_tex_free(lua_State* l) {
@@ -1001,7 +1000,7 @@ static const luaL_Reg mouse_fun[] = {
 };	
 
 static const char* key_names[] = {
-	"up", "down", "left", "right", "a", "b", "pause", "quit"
+	"_up", "_down", "_left", "_right", "a", "b", "pause", "quit"
 };	
 
 static const char* mbtn_names[] = {

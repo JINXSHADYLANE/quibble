@@ -1,8 +1,0 @@
-Import('env')
-
-NAME='mtest'
-
-sources = Glob('*.c', strings=True)
-app = env.Program(NAME + env['DGREED_POSTFIX'], sources, LIBS=env['MALKA_LIBS'])
-env.Install('#'+env['DGREED_BIN_DIR'], app)
-

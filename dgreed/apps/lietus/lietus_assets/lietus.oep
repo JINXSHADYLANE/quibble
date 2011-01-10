@@ -6,7 +6,7 @@
 		<workingDirectory>./</workingDirectory>
 	</settings>
 	<tilesets>
-		<tileset name="tiles0" image="atlas.png" tileWidth="16" tileHeight="16" />
+		<tileset name="tiles0" image="atlas.png" tileWidth="16" tileHeight="16" width="512" height="512"/>
 	</tilesets>	
 	<objects>
 		<object name="start" image="apelsinas.png" width="32" height="32" />

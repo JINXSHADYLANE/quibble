@@ -3,9 +3,9 @@
 #include "memory.h"
 #include "gfx_utils.h"
 
-#define TILESET_WIDTH 32
-#define TILESET_HEIGHT 32
-#define TILES_IN_TILESET (TILESET_WIDTH * TILESET_HEIGHT)
+#define MAX_TILESET_WIDTH 32
+#define MAX_TILESET_HEIGHT 32
+#define MAX_TILES_IN_TILESET (MAX_TILESET_WIDTH * MAX_TILESET_HEIGHT)
 
 Tilemap* tilemap_load(const char* filename) {
 	assert(filename);
@@ -43,9 +43,11 @@ Tilemap* tilemap_load(const char* filename) {
 		tex_size(tileset->texture, &w, &h);
 		if(w % t->tile_width != 0 || h % t->tile_height != 0)
 			LOG_ERROR("Tileset texture size should be divisable by tile size");
-		if(w / t->tile_width != TILESET_WIDTH || 
-				h / t->tile_height != TILESET_HEIGHT)
-			LOG_ERROR("Bad tileset texture size");
+		tileset->width = w / t->tile_width;
+		tileset->height = h / t->tile_height;
+		if(tileset->width > MAX_TILESET_WIDTH ||
+			tileset->height > MAX_TILESET_HEIGHT)
+			LOG_ERROR("Too many tiles in tileset %d", i);
 
 		// Anim defs
 		if((tileset->n_animdefs = file_read_uint32(f))) {
@@ -56,8 +58,8 @@ Tilemap* tilemap_load(const char* filename) {
 				animdef->fps = (float)file_read_uint32(f);
 				animdef->start = file_read_uint32(f);
 				animdef->end = file_read_uint32(f);
-				assert(animdef->start < TILES_IN_TILESET);
-				assert(animdef->end < TILES_IN_TILESET);
+				assert(animdef->start < MAX_TILES_IN_TILESET);
+				assert(animdef->end < MAX_TILES_IN_TILESET);
 			}
 		}	
 		else
@@ -166,12 +168,12 @@ static void _tileid_source(Tilemap* t, float time, uint16 tileid,
 	assert(src);
 	assert(tex);
 
-	uint tileset_id = tileid / TILES_IN_TILESET;
+	uint tileset_id = tileid / MAX_TILES_IN_TILESET;
 	assert(tileset_id < t->n_tilesets);
 	TilesetDef* tileset = &t->tilesets[tileset_id];
 	*tex = tileset->texture;
 
-	uint tile = tileid % TILES_IN_TILESET;
+	uint tile = tileid % MAX_TILES_IN_TILESET;
 
 	// TODO: Make this quicker
 	for(uint i = 0; i < tileset->n_animdefs; ++i) {
@@ -185,8 +187,8 @@ static void _tileid_source(Tilemap* t, float time, uint16 tileid,
 		}
 	}
 
-	uint tile_x = tile % TILESET_WIDTH;
-	uint tile_y = tile / TILESET_WIDTH;
+	uint tile_x = tile % tileset->width; 
+	uint tile_y = tile / tileset->width;
 
 	src->left = (float)(tile_x * t->tile_width);
 	src->top = (float)(tile_y * t->tile_height);
@@ -205,9 +207,11 @@ void tilemap_render(Tilemap* t, RectF viewport, float time) {
 	float vw = rectf_width(&viewport)/(2.0f * t->camera.z);
 	float vh = rectf_height(&viewport)/(2.0f * t->camera.z);
 
+	Vector2 camera_pos = t->camera.center;
+
 	// World space viewport corners
 	Vector2 corners[] = {{-vw, -vh}, {vw, -vh}, {-vw, vh}, {vw, vh}};
-	gfx_transform(corners, 4, &t->camera.center, t->camera.rot, 1.0f); 	
+	gfx_transform(corners, 4, &camera_pos, t->camera.rot, 1.0f); 	
 
 	// World space viewport bounding box
 	RectF bbox = {corners[0].x, corners[0].y, corners[0].x, corners[0].y};
@@ -256,7 +260,6 @@ void tilemap_render(Tilemap* t, RectF viewport, float time) {
 				(float)((2*x+1) * t->tile_width) / 2.0f,
 				(float)((2*y+1) * t->tile_height) / 2.0f
 			);		
-
 			// Calculate screen-space dest rect
 			Vector2 ss_center = tilemap_world2screen_point(t, &viewport, wl_center);
 			float ss_hwidth = (float)t->tile_width * t->camera.z / 2.0f;
@@ -285,6 +288,7 @@ void tilemap_render(Tilemap* t, RectF viewport, float time) {
 			}
 		}
 	}
+
 }
 
 static uint _pos_to_tile(Tilemap* t, Vector2 pos) {
