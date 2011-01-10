@@ -43,6 +43,7 @@ float gui_widget_fadeout_speed = 2.0f;
 WidgetState gui_state[HASH_MAP_SIZE];
 GuiDesc gui_style;
 uint unique_widgets = 0;
+bool default_style_loaded = false;
 
 // Hash function from http://www.concentric.net/~Ttwang/tech/inthash.htm
 uint _hash(uint key)
@@ -141,6 +142,8 @@ GuiDesc gui_default_style(const char* assets_prefix) {
 	style.src_slider_knob_up = rectf(1.0f, 68.0f, 33.0f, 84.0f);
 	style.src_slider_knob_down = rectf(34.0f, 68.0f, 66.0f, 84.0f);
 
+	default_style_loaded = true;
+
 	return style;
 }
 
@@ -206,10 +209,10 @@ void gui_init(const GuiDesc* desc) {
 }	
 
 void gui_close(void) {
-	// Should resources be freed here, 
-	// or creator of GuiDesc should be responsible ?
-	//tex_free(gui_style.texture);
-	//font_free(gui_style.font);
+	if(default_style_loaded) {
+		tex_free(gui_style.texture);
+		font_free(gui_style.font);
+	}
 }	
 
 void gui_label(const Vector2* pos, const char* text) {

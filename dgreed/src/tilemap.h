@@ -10,7 +10,7 @@ typedef struct {
 
 typedef struct {
 	TexHandle texture;
-
+	uint width, height;
 	uint n_animdefs;
 	TileAnimDef* animdefs;
 } TilesetDef;

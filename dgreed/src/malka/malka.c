@@ -8,8 +8,6 @@
 #include "lua/lualib.h"
 
 int malka_run(const char* luafile) {
-	log_init("malka.log", LOG_LEVEL_INFO);
-
 	lua_State* l = luaL_newstate();
 	luaL_openlibs(l);
 	malka_open_vec2(l);
@@ -27,7 +25,6 @@ int malka_run(const char* luafile) {
 	}
 
 	lua_close(l);
-	log_close();
 	return 0;
 }
 

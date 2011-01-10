@@ -152,7 +152,7 @@ texture
 loads png texture (which must have power-of-2 size), returns handle to it
 
 - tex.size(texhandle)
-returns width and height of texture in pixels
+returns vector, width and height of texture in pixels
 
 - tex.free(texhandle)
 releases texture
@@ -266,10 +266,10 @@ input
 -----
 
 key constant:
-	key.up		- up arrow
-	key.down	- down arrow
-	key.left	- left arrow
-	key.right	- right arrow
+	key._up		- up arrow
+	key._down	- down arrow
+	key._left	- left arrow
+	key._right	- right arrow
 	key.a		- z 
 	key.b		- x
 	key.pause	- p

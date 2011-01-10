@@ -30,6 +30,14 @@ static int ml_vec2(lua_State* l) {
 		double y = luaL_checknumber(l, 2);
 		_new_vec2(l, x, y);
 	}
+	else if(n == 1) {
+		luaL_checktype(l, 1, LUA_TTABLE);
+		lua_getfield(l, 1, "x");
+		lua_getfield(l, 1, "y");
+		double x = luaL_checknumber(l, 2);
+		double y = luaL_checknumber(l, 3);
+		_new_vec2(l, x, y);
+	}
 	else
 		return luaL_error(l, "wrong number of arguments provided to vec2");
 	return 1;	
@@ -130,6 +138,7 @@ static int ml_rotate(lua_State* l) {
 }
 
 static int ml_add(lua_State* l) {
+	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
 
 	lua_getfield(l, 1, "x");
@@ -147,6 +156,7 @@ static int ml_add(lua_State* l) {
 }
 
 static int ml_sub(lua_State* l) {
+	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
 
 	lua_getfield(l, 1, "x");
@@ -282,6 +292,18 @@ static int ml_rect(lua_State* l) {
 		double t = luaL_checknumber(l, 2);
 		double r = luaL_checknumber(l, 3);
 		double b = luaL_checknumber(l, 4);
+		_new_rect(l, _l, t, r, b);
+	}
+	else if(n == 1) {
+		luaL_checktype(l, 1, LUA_TTABLE);
+		lua_getfield(l, 1, "l");
+		lua_getfield(l, 1, "t");
+		lua_getfield(l, 1, "r");
+		lua_getfield(l, 1, "b");
+		double _l = luaL_checknumber(l, 2);
+		double t = luaL_checknumber(l, 3);
+		double r = luaL_checknumber(l, 4);
+		double b = luaL_checknumber(l, 5);
 		_new_rect(l, _l, t, r, b);
 	}
 	else
@@ -519,6 +541,7 @@ static int ml_rgba(lua_State* l) {
 		g = luaL_checknumber(l, 2);
 		b = luaL_checknumber(l, 3);
 		a = luaL_checknumber(l, 4);
+		_new_rgba(l, r, g, b, a);
 	}
 	else
 		return luaL_error(l, "wrong number of arguments provided to rgba");
