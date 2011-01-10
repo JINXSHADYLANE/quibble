@@ -555,7 +555,7 @@ void video_draw_line(uint layer, const Vector2* start,
 
 #define MAX_SOURCES 8 
 #define MAX_SOUNDS 64
-#define STREAM_BUFFER_SIZE 16384 
+#define STREAM_BUFFER_SIZE 32768
 
 typedef struct {
 	bool is_stream;
@@ -682,6 +682,7 @@ void _sound_update_stream(Source* src) {
 			expected_samples /= 2;
 
 		if(decoded_samples < expected_samples) {
+			LOG_INFO("End of stream");
 			// Reached end of stream
 			if(src->loop) {
 				// Restart stream if we're looping
@@ -689,16 +690,20 @@ void _sound_update_stream(Source* src) {
 				size_t end_idx = decoded_samples * sizeof(short);
 				if(sound->channels == 2)
 					end_idx *= 2;
-
+				memset(sound->decode_buffer + end_idx, 0,
+					STREAM_BUFFER_SIZE - end_idx);
+				/*
 				decoded_samples = stb_vorbis_get_samples_short_interleaved(
 					sound->stream,
 					sound->channels,
 					(short*)sound->decode_buffer + end_idx,
 					(STREAM_BUFFER_SIZE - end_idx) / sizeof(short)
 				);	
+				*/
 			}
 			else {
 				sound_stop_ex(src->handle);
+				return;
 			}
 		}
 
@@ -712,9 +717,13 @@ void _sound_update_stream(Source* src) {
 			STREAM_BUFFER_SIZE,
 			sound->frequency
 		);
-		alSourceQueueBuffers(src->al_source, 1, &buffer);
 		if(alGetError() != AL_NO_ERROR)
-			LOG_ERROR("Streaming error");
+			LOG_ERROR("Streaming error: alBufferData");
+
+		alSourceQueueBuffers(src->al_source, 1, &buffer);
+
+		if(alGetError() != AL_NO_ERROR)
+			LOG_ERROR("Streaming error: alSourceQueueBuffers");
 	}
 
 	// Resume playing if there was buffer under-run
