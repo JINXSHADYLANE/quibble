@@ -59,11 +59,11 @@ rel_flags = '-DNDEBUG -O2 '
 env_dbg = env.Clone()
 env_dbg.Prepend(CCFLAGS=dbg_flags, CXXFLAGS=dbg_flags, DGREED_POSTFIX='d',
 	DGREED_LIBS=['dgreedd'], DGREED_EGO_LIB=['egod'], 
-	MALKA_LIBS=['dgreedd', 'malkad', 'luad'])
+	MALKA_LIBS=['malkad', 'luad'])
 env_rel = env.Clone()
 env_rel.Prepend(CCFLAGS=rel_flags, CXXFLAGS=rel_flags, DGREED_POSTFIX='',
 	DGREED_LIBS=['dgreed'], DGREED_EGO_LIB=['ego'],
-	MALKA_LIBS=['dgreed', 'malka', 'lua'])
+	MALKA_LIBS=['malka', 'lua'])
 
 for sub in SUBS:
 	build_postfix = '' if sub=='src' else sub+'_'
