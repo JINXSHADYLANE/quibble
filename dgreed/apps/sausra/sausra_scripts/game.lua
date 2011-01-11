@@ -42,11 +42,12 @@ obj_src = {
 }	
 
 endscreen = {
-	active = false,
-	deaths = 0,
+	start_time = 0
 }	
-
 snd = {}
+normal = true
+mode = {}
+camera_t = vec2(0.5, 0.5)
 
 function game.init()
 	snd.footsteps = sound.load_sample(pre..'footsteps.wav')
@@ -59,7 +60,44 @@ function game.init()
 	fnt = font.load(pre..'lucida_grande_30px.bft')
 	back_size = tex.size(back) * 3
 	back_factor = back_size - vec2(width(screen), height(screen))
-	level = tilemap.load(pre..'world.btm')
+
+	mode_sel = tilemap.load(pre..'mode.btm')
+	mode_sel_active = true
+end
+
+function mode.draw()
+	local o = tilemap.objects(mode_sel)
+	tilemap.set_camera(mode_sel, o[1].pos + vec2(8, 8))
+	tilemap.render(mode_sel, screen)
+	local p1 = tilemap.world2screen(mode_sel, screen, o[2].pos + vec2(8, 8))
+	local p2 = tilemap.world2screen(mode_sel, screen, o[3].pos + vec2(8, 8))
+	if mouse.down(mouse.primary) then
+		if length(mouse.pos() - p1) < 30 then
+			normal = false 
+			mode_sel_active = false
+			game.reset()
+			sound.play(music, true)
+		end
+		if length(mouse.pos() - p2) < 30 then
+			normal = true 	
+			mode_sel_active = false
+			game.reset()
+			sound.play(music, true)
+		end
+	end
+end
+
+function game.reset()
+	hero.v = vec2() 
+	hero.savept = nil
+	hero.ground = false
+	endscreen.active = false
+	endscreen.deaths = 0
+	if not normal then
+		level = tilemap.load(pre..'world_easy.btm')
+	else
+		level = tilemap.load(pre..'world.btm')
+	end
 	objects = tilemap.objects(level)
 	objs = {}
 	for i = 1,#objects do
@@ -94,14 +132,10 @@ function game.set_camera(pos)
 end	
 
 function game.close()
-	sound.stop(snd.ft)
-	sound.free(snd.footsteps)
-	sound.free(snd.jump)
-	sound.free(snd.death)
-
 	tex.free(back)
 	tex.free(atlas)
 	tilemap.free(level)
+	tilemap.free(mode_sel)
 end
 
 function hero.update() 
@@ -125,7 +159,7 @@ function hero.update()
 		hero.p.x + hero.width/2,
 		hero.p.y + hero.height/2
 	)
-	bbox.r = bbox.l + hero.width
+	bbox.r = bbox.l + hero.width 
 	bbox.b = bbox.t + hero.height
 
 	dx = tilemap.collide_swept(level, bbox, vec2(hero.v.x, 0))
@@ -215,20 +249,29 @@ function endscreen.draw()
 	local t = math.floor(endscreen.end_time - endscreen.start_time)
 	local min, sec = math.modf(t / 60)
 	sec = math.fmod(t, 60)
-	video.draw_text(fnt, 3, 'time - '..tostring(min)..':'..tostring(sec), cursor)
+	local secstr = tostring(sec)
+	if #secstr == 1 then
+		secstr = '0'..secstr
+	end
+	video.draw_text(fnt, 3, 'time - '..tostring(min)..':'..secstr, cursor)
 	cursor.y = cursor.y + 150
-	video.draw_text(fnt, 3, 'You deserve a cup of tea!', cursor)
+	if normal then
+		video.draw_text(fnt, 3, 'You deserve a cup of tea!', cursor)
+	else
+		video.draw_text(fnt, 3, 'Go play normal mode now.', cursor)
+	end
 end
 
 function game.frame()
 	-- show title text
-	if time.s() > 1 and time.s() < 5 then
-		local t = (time.s() - 1) / 4
+	local tm = time.s() - endscreen.start_time
+	if not mode_sel_active and tm > 1 and tm < 5 then
+		local t = (tm - 1) / 4	
 		local t2 = math.sin(t * math.pi)
-		local c1, c2 = rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)
+		local c1, c2 = rgba(0,0,0,0), rgba(0,0,0,1)
 		local c = lerp(c1, c2, t2)
 		video.draw_text(fnt, 3, 'sausra', vec2(30 + t * 50, 20), c)
-	end	
+	end
 
 	-- calculate and draw background
 	local back_dest = rect()
@@ -239,10 +282,18 @@ function game.frame()
 	video.draw_rect(back, 0, back_dest)
 
 	-- scroll camera
-	local d = camera_pos - hero.p
-	camera_pos.x = camera_pos.x - d.x * 0.1
-	camera_pos.y = camera_pos.y - d.y * 0.03
-	game.set_camera(camera_pos)
+	if not mode_sel_active then
+		local d = camera_pos - hero.p
+		camera_pos.x = camera_pos.x - d.x * 0.1
+		camera_pos.y = camera_pos.y - d.y * 0.03
+		game.set_camera(camera_pos)
+	end
+
+	-- mode selection screen
+	if mode_sel_active then
+		mode.draw()
+		return
+	end
 
 	-- draw tilemap
 	tilemap.render(level, screen)
@@ -262,7 +313,6 @@ function game.frame()
 		end	
 	end
 
-	-- update hero, or draw endscreen
 	if not endscreen.active then
 		hero.update()
 	else

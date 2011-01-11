@@ -63,6 +63,7 @@ uint texture_count;
 uint frame;
 
 float x_size_factor, y_size_factor;
+static bool retro = false;
 
 #ifndef NO_DEVMODE
 VideoStats v_stats;
@@ -181,6 +182,12 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 
 	LOG_INFO("Video initialized");
 }	
+
+void video_init_exr(uint width, uint height, uint v_width, uint v_height,
+	const char* name, bool fullscreen) {
+	retro = true;
+	video_init_ex(width, height, v_width, v_height, name, fullscreen);
+}
 
 // TODO: Fix this
 void video_close(void) {
@@ -435,8 +442,9 @@ TexHandle tex_load(const char* filename) {
 	glBindTexture(GL_TEXTURE_2D, gl_id);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA,
 		GL_UNSIGNED_BYTE, decompr_data); 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
+	GLuint filter = retro ? GL_NEAREST : GL_LINEAR;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);	
 	
 	uint error = glGetError();
 	if(error != GL_NO_ERROR)

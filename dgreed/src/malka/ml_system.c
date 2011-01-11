@@ -228,6 +228,22 @@ static int ml_video_init_ex(lua_State* l) {
 	return 0;
 }
 
+static int ml_video_init_exr(lua_State* l) {
+	checkvideodeinit();
+	checkargs(6, "video.init_exr");
+	uint width = luaL_checknumber(l, 1);	
+	uint height = luaL_checknumber(l, 2);
+	uint v_width = luaL_checknumber(l, 3);
+	uint v_height = luaL_checknumber(l, 4);
+	const char* name = luaL_checkstring(l, 5);
+	bool fullscreen = lua_toboolean(l, 6) != 0;
+
+	video_init_exr(width, height, v_width, v_height, name, fullscreen);
+	video_initialized = true;
+
+	return 0;
+}
+
 static int ml_video_close(lua_State* l) {
 	checkvideoinit();
 	checkargs(0, "video.close");
@@ -639,6 +655,7 @@ static int ml_video_draw_text_centered(lua_State* l) {
 static const luaL_Reg video_fun[] = {
 	{"init", ml_video_init},
 	{"init_ex", ml_video_init_ex},
+	{"init_exr", ml_video_init_exr},
 	{"close", ml_video_close},
 	{"present", ml_video_present},
 	{"draw_rect", ml_video_draw_rect},

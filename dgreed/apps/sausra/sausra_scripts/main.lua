@@ -7,10 +7,10 @@ dofile(src..'game.lua')
 
 function init()
 	sound.init()
-	video.init(screen.r, screen.b, 'sausra')
+	video.init_exr(screen.r*2, screen.b*2, screen.r, screen.b, 'sausra', false)
 
 	music = sound.load_stream(pre..'Intractable.ogg')
-	sound.play(music, true)
+	--sound.play(music, true)
 
 	game.init()
 end

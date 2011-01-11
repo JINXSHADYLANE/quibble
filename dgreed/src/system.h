@@ -37,6 +37,9 @@ void video_init(uint width, uint height, const char* name);
 // Initializes video, sets virtual resolution
 void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 	char* name, bool fullscreen);
+// Same as above, but without texture filtering for "retro" look
+void video_init_exr(uint width, uint height, uint v_width, uint v_height, const
+	char* name, bool fullscreen);
 // Deinitializes video
 void video_close(void);
 // Flips backbuffer and frontbuffer, sleeps to hit 60fps.
