@@ -1,0 +1,8 @@
+Import('env')
+
+SUBS = ['empty', 'pong' , 'tor', 'keymingler', 'greed', 'gyvis', 'lietus',
+	'sausra']
+
+for sub in SUBS:
+	SConscript(sub+'/SConscript', exports='env')
+
