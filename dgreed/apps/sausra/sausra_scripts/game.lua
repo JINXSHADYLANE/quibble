@@ -70,7 +70,7 @@ function game.init()
 end
 
 function mode.draw()
-	video.draw_text_centered(fnt, 3, 'How tough are you?', vec2(240, 50))
+	video.draw_text_centered(fnt, 3, 'How tough are you?', vec2(241, 51))
 	local o = tilemap.objects(mode.map)
 	tilemap.set_camera(mode.map, o[1].pos + vec2(8, 8))
 	tilemap.render(mode.map, screen)
@@ -139,7 +139,9 @@ end
 function game.close()
 	tex.free(back)
 	tex.free(atlas)
-	tilemap.free(level)
+	if level then
+		tilemap.free(level)
+	end
 	tilemap.free(mode.map)
 end
 

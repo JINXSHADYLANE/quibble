@@ -101,8 +101,16 @@ Tilemap* tilemap_load(const char* filename) {
 		void* compr = MEM_ALLOC(compr_size);	
 		file_read(f, compr, compr_size);
 		layer->data = (uint16*)lz_decompress(compr, compr_size, &decompr_size);
+
 		assert(decompr_size == t->width * t->height * sizeof(uint16));
 		MEM_FREE(compr);
+
+		// Swap on big-endian
+		if(0x0011 != endian_swap2(0x0011)) {
+			for(size_t j = 0; j < t->width * t->height; ++j) {
+				layer->data[j] = endian_swap2(layer->data[j]);
+			}
+		}
 		
 		layer->render_layer = i;
 	}
