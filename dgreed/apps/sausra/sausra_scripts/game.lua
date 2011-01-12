@@ -31,6 +31,7 @@ hero = {
 	width = 8,
 }
 
+-- object rects in atlas
 obj_src = {
 	[2] = rect(0, 256-16, 16, 256),
 	[5] = rect(16, 256-16, 16+16, 256),
@@ -38,16 +39,19 @@ obj_src = {
 	[4] = rect(16, 256-32, 16+16, 256-16),
 	[60] = rect(0, 256-48, 16, 256-32),
 	[6] = rect(0, 256-64, 16, 256-48),
-	[7] = rect(16, 256-64, 16+16, 256-48)
 }	
 
 endscreen = {
 	start_time = 0
 }	
+
 snd = {}
-normal = true
-mode = {}
-camera_t = vec2(0.5, 0.5)
+
+mode = {
+	normal = true
+}
+	
+camera_t = vec2(0.5, 0.5) -- normalized camera coord, for background scrolling
 
 function game.init()
 	snd.footsteps = sound.load_sample(pre..'footsteps.wav')
@@ -57,30 +61,31 @@ function game.init()
 
 	back = tex.load(pre..'background.png')
 	atlas = tex.load(pre..'atlas.png')
-	fnt = font.load(pre..'lucida_grande_30px.bft')
+	fnt = font.load(pre..'lucida_grande_60px.bft', 0.5)
 	back_size = tex.size(back) * 3
 	back_factor = back_size - vec2(width(screen), height(screen))
 
-	mode_sel = tilemap.load(pre..'mode.btm')
-	mode_sel_active = true
+	mode.map = tilemap.load(pre..'mode.btm')
+	mode.active = true
 end
 
 function mode.draw()
-	local o = tilemap.objects(mode_sel)
-	tilemap.set_camera(mode_sel, o[1].pos + vec2(8, 8))
-	tilemap.render(mode_sel, screen)
-	local p1 = tilemap.world2screen(mode_sel, screen, o[2].pos + vec2(8, 8))
-	local p2 = tilemap.world2screen(mode_sel, screen, o[3].pos + vec2(8, 8))
-	if mouse.down(mouse.primary) then
-		if length(mouse.pos() - p1) < 30 then
-			normal = false 
-			mode_sel_active = false
+	video.draw_text_centered(fnt, 3, 'How tough are you?', vec2(240, 50))
+	local o = tilemap.objects(mode.map)
+	tilemap.set_camera(mode.map, o[1].pos + vec2(8, 8))
+	tilemap.render(mode.map, screen)
+	local p1 = tilemap.world2screen(mode.map, screen, o[2].pos + vec2(8, 8))
+	local p2 = tilemap.world2screen(mode.map, screen, o[3].pos + vec2(8, 8))
+	if mouse.down(mouse.primary) or key.down(key._left) or key.down(key._right) then
+		if length(mouse.pos() - p1) < 30 or key.down(key._left) then
+			mode.normal = false 
+			mode.active = false
 			game.reset()
 			sound.play(music, true)
 		end
-		if length(mouse.pos() - p2) < 30 then
-			normal = true 	
-			mode_sel_active = false
+		if length(mouse.pos() - p2) < 30 or key.down(key._right) then
+			mode.normal = true 	
+			mode.active = false
 			game.reset()
 			sound.play(music, true)
 		end
@@ -93,7 +98,7 @@ function game.reset()
 	hero.ground = false
 	endscreen.active = false
 	endscreen.deaths = 0
-	if not normal then
+	if not mode.normal then
 		level = tilemap.load(pre..'world_easy.btm')
 	else
 		level = tilemap.load(pre..'world.btm')
@@ -135,7 +140,7 @@ function game.close()
 	tex.free(back)
 	tex.free(atlas)
 	tilemap.free(level)
-	tilemap.free(mode_sel)
+	tilemap.free(mode.map)
 end
 
 function hero.update() 
@@ -265,7 +270,7 @@ end
 function game.frame()
 	-- show title text
 	local tm = time.s() - endscreen.start_time
-	if not mode_sel_active and tm > 1 and tm < 5 then
+	if not mode.active and tm > 1 and tm < 5 then
 		local t = (tm - 1) / 4	
 		local t2 = math.sin(t * math.pi)
 		local c1, c2 = rgba(0,0,0,0), rgba(0,0,0,1)
@@ -282,7 +287,7 @@ function game.frame()
 	video.draw_rect(back, 0, back_dest)
 
 	-- scroll camera
-	if not mode_sel_active then
+	if not mode.active then
 		local d = camera_pos - hero.p
 		camera_pos.x = camera_pos.x - d.x * 0.1
 		camera_pos.y = camera_pos.y - d.y * 0.03
@@ -290,7 +295,7 @@ function game.frame()
 	end
 
 	-- mode selection screen
-	if mode_sel_active then
+	if mode.active then
 		mode.draw()
 		return
 	end
@@ -321,3 +326,4 @@ function game.frame()
 
 	hero.draw()
 end
+
