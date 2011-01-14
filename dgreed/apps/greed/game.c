@@ -64,6 +64,7 @@ float platform_core_size = 0.7f;
 float platform_active_core_size = 1.0f;
 float ship_min_size = 0.5f;
 float ship_max_size = 1.0f;
+float ship_explosion_length = 0.5f;
 float energy_max = 100.0f;
 float energy_decrease_speed = 2.0f;
 float energy_holding = 0.3f;
@@ -97,6 +98,12 @@ const Vector2 ship_shard_offsets[] = {
 	{-25.0f + 8.0f, -36.0f + 35.0f}
 };	
 
+const float ship_shard_angles[] = {
+	0.2f, -1.5f, 1.0f,
+	2.0f, -0.6f, -1.8f,
+	0.4f, 3.0f, -2.5f
+};
+
 // Devmode switches
 bool draw_physics_debug = false;
 bool draw_ai_debug = false;
@@ -120,6 +127,7 @@ void game_register_tweaks(Tweaks* tweaks) {
 	GAME_TWEAK(platform_active_core_size, 0.1f, 2.0f);
 	GAME_TWEAK(ship_min_size, 0.1f, 1.5f);
 	GAME_TWEAK(ship_max_size, 0.2f, 2.0f);
+	GAME_TWEAK(ship_explosion_length, 0.2f, 3.0f);
 	GAME_TWEAK(energy_max, 10.0f, 100.0f);
 	GAME_TWEAK(energy_decrease_speed, 0.1f, 10.0f);
 	GAME_TWEAK(energy_holding, 0.1f, 10.0f);
@@ -236,6 +244,8 @@ void game_reset(const char* arena, uint n_players) {
 
 	// Reset ships
 	for(uint i = 0; i < n_players; ++i) {
+		ship_states[i].is_exploding = false;
+		ship_states[i].explode_t = 0.0f;
 		ship_states[i].energy = energy_max;
 		ship_states[i].last_bullet_t = 0.0f;
 		ship_states[i].vortex_opacity = 0.0f;
@@ -314,8 +324,10 @@ void game_update(void) {
 		return;
 
 	controls_draw(0.0f);
-	_control_keyboard1(0);
-	controls_update(0);
+	if(!ship_states[0].is_exploding) {
+		_control_keyboard1(0);
+		controls_update(0);
+	}
 
 	float dt = time_delta() / 1000.0f;
 	float time = time_ms() / 1000.0f;
@@ -325,6 +337,9 @@ void game_update(void) {
 
 	// Update ships
 	for(uint ship = 0; ship < n_ships; ++ship) {
+		if(ship_states[ship].is_exploding)
+			continue;
+
 		// Count platforms taken
 		uint platforms_taken = 0;
 		for(uint platform = 0; platform < n_platforms; ++platform) {
@@ -338,6 +353,14 @@ void game_update(void) {
 		ship_states[ship].energy += energy_delta * dt;	
 		ship_states[ship].energy = 
 			clamp(0.0f, energy_max, ship_states[ship].energy); 
+
+		if(ship_states[ship].energy == 0.0f) {
+			ship_states[ship].is_exploding = true;
+			ship_states[ship].explode_t = time;
+
+			particles_spawn("explosion1", &physics_state.ships[ship].pos, 0.0f);	
+			particles_spawn("explosion2", &physics_state.ships[ship].pos, 0.0f);	
+		}
 
 		// Update size & mass
 		float percent_taken = (float)platforms_taken / (float)n_platforms;
@@ -451,7 +474,7 @@ void _draw_shattered_ship(uint ship, float t) {
 	float rot = physics_state.ships[ship].rot;
 	float scale = physics_state.ships[ship].scale;
 
-	float escale = scale + t;
+	float escale = scale + sqrtf(t) * 1.5f;
 
 	Vector2 rot_offset = vec2_rotate(vec2(17.5f*escale, 17.5f*escale), rot);
 	Vector2 center_offset = vec2(-35.0f*scale, -35.0f*scale);
@@ -462,14 +485,42 @@ void _draw_shattered_ship(uint ship, float t) {
 	memcpy(offsets, ship_shard_offsets, sizeof(offsets));
 	gfx_transform(offsets, SHIP_SHARDS, &pos, rot, escale);
 
+	float x_min = 0.0f;
+	float x_max = (float)SCREEN_WIDTH;
+	float y_min = 0.0f;
+	float y_max = (float)SCREEN_HEIGHT;
+
+	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, t*t*t*t);
 	float s = 35.0f * scale;
 	for(uint i = 0; i < SHIP_SHARDS; ++i) {
 		RectF dest = {
 			offsets[i].x, offsets[i].y, 
 			offsets[i].x+s, offsets[i].y+s
 		};
+
+		// Adjust for wrap-around screen, not 100% correct -
+		// single shard is always drawn once, but I doubt
+		// anyone will notice
+		if(dest.left > x_max) {
+			dest.left -= x_max - x_min;
+			dest.right -= x_max - x_min;
+		}
+		if(dest.right < x_min) {
+			dest.left += x_max - x_min;
+			dest.right += x_max - x_min;
+		}
+		if(dest.bottom > y_max) {
+			dest.bottom -= y_max - y_min;
+			dest.top -= y_max - y_min;
+		}
+		if(dest.top < y_min) {
+			dest.bottom += y_max - y_min;
+			dest.top += y_max - y_min;
+		}
+
+		float a = rot + lerp(0.0f, ship_shard_angles[i], t);
 		video_draw_rect_rotated(shards, OBJECTS_LAYER,
-			&ship_shards[ship][i], &dest, rot, COLOR_WHITE);
+			&ship_shards[ship][i], &dest, a, c);
 	}
 }	
 
@@ -551,6 +602,14 @@ void game_render(void) {
 
 	// Draw ships & energy bars
 	for(uint ship = 0; ship < n_ships; ++ship) {
+		if(ship_states[ship].is_exploding) {
+			float t = (time - ship_states[ship].explode_t) 
+				/ ship_explosion_length; 
+			if(t <= 1.0f)
+				_draw_shattered_ship(ship, t);
+			continue;
+		}
+
 		// Ship
 		Vector2 pos = physics_state.ships[ship].pos;
 		_draw_ship(&pos, ship);

@@ -6,6 +6,7 @@
 #include "game.h"
 
 typedef struct {
+	bool exploded;
 	Vector2 pos;
 	Vector2 vel;
 	float target_rot;
