@@ -360,6 +360,7 @@ void physics_reset(uint n_ships) {
 	// Add ships
 	uint i;
 	for(i = 0; i < n_ships; ++i) {
+		physics_state.ships[i].exploded = false;
 		physics_state.ships[i].pos = current_arena_desc.spawnpoints[i]; 
 		physics_state.ships[i].vel = vec2(0.0f, 0.0f);
 		physics_state.ships[i].target_rot = -1.0f;
@@ -419,6 +420,9 @@ void physics_reset(uint n_ships) {
 void physics_spawn_bullet(uint ship) {
 	assert(ship < physics_state.n_ships);
 
+	if(physics_state.ships[ship].exploded)
+		return;
+
 	if(physics_state.n_bullets == MAX_BULLETS)
 		LOG_ERROR("Bullet buffer overflow");
 
@@ -451,6 +455,9 @@ void physics_spawn_bullet(uint ship) {
 void physics_control_ship(uint ship, bool rot_left, bool rot_right, bool acc) {
 	assert(ship < physics_state.n_ships);
 
+	if(physics_state.ships[ship].exploded)
+		return;
+
 	float vel = vec2_length_sq(physics_state.ships[ship].vel);
 
 	cpVect world_force = cpBodyLocal2World(ships[ship].body, 
@@ -468,6 +475,9 @@ void physics_control_ship(uint ship, bool rot_left, bool rot_right, bool acc) {
 
 void physics_control_ship_ex(uint ship, float target_angle, float acc) {
 	assert(ship < physics_state.n_ships);
+
+	if(physics_state.ships[ship].exploded)
+		return;
 	
 	acc = clamp(0.0f, 1.0f, acc);
 
@@ -608,15 +618,37 @@ void physics_update(float dt) {
 		}
 	}
 
+	// Remove destroyed ships
+	for(i = 0; i < physics_state.n_ships; ++i) {
+		if(ship_states[i].is_exploding &&
+			!physics_state.ships[i].exploded) {
+
+			cpShape* shape = ships[i].shape;
+			cpBody* body = ships[i].body;
+
+			cpSpaceRemoveShape(space, shape);
+			cpSpaceRemoveBody(space, body);
+
+			cpShapeFree(shape);
+			cpBodyFree(body);
+
+			physics_state.ships[i].exploded = true;
+		}
+	}
+
 	// Damp ship rotations
-	for(i = 0; i < physics_state.n_ships; ++i) 
-		ships[i].body->w *= ship_turn_damping;	
+	for(i = 0; i < physics_state.n_ships; ++i) { 
+		if(!physics_state.ships[i].exploded)
+			ships[i].body->w *= ship_turn_damping;	
+	}	
 
 	// Simulate next step
 	cpSpaceStep(space, dt);
 
 	// Update public state
 	for(i = 0; i < physics_state.n_ships; ++i) {
+		if(physics_state.ships[i].exploded)
+			continue;
 		
 		// Wrap around if ship is out of screen
 		Vector2 ship_pos = cpv_to_gv(ships[i].body->p);
@@ -671,6 +703,9 @@ void physics_debug_draw(void) {
 	// Draw ships
 	uint i, j;
 	for(i = 0; i < physics_state.n_ships; ++i) {
+		if(physics_state.ships[i].exploded)
+			continue;
+
 		// Copy untransformed ship vertices
 		for(j = 0; j < ARRAY_SIZE(ship_vertices); ++j)
 			ship_vertices[j] = cpv_to_gv(ship_shape_points[j]);

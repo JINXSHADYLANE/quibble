@@ -12,6 +12,8 @@
 #define MAX_PLATFORMS 16
 
 typedef struct {
+	bool is_exploding;
+	float explode_t;
 	float energy;
 	float last_bullet_t;
 	float vortex_opacity;

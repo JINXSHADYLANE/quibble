@@ -354,6 +354,9 @@ void ai_update(void) {
 	for(uint i = 0; i < MAX_AGENTS; ++i) {
 		if(agents[i].ship_id == ~0)
 			continue;
+
+		if(ship_states[agents[i].ship_id].is_exploding)
+			continue;
 		
 		if(t - agents[i].last_think_t > agent_think_interval) {
 			_agent_think(i);
