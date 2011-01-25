@@ -133,7 +133,7 @@ static int ml_font_load(lua_State* l) {
 }
 
 static int ml_font_size(lua_State* l) {
-	checkargs(1, "font.size");
+	checkargs(2, "font.size");
 	FontHandle* h = checkfonthandle(l, 1);
 	const char* text = luaL_checkstring(l, 2);
 

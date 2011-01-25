@@ -14,6 +14,9 @@ any table, as long as it has scalar 'x' and 'y' fields.
 - vec2(x, y), vec2()
 returns new vector, sets components to zero if no parms are used
 
+- vec2(v)
+makes copy of vector v
+
 - dot(a, b)
 dot product of two vectors a and b
 
@@ -37,6 +40,9 @@ sides of rectangle.
 
 - rect(l, t, r, b), rect(l, t), rect()
 constructs new rectangle, unspecified sides are set to zero
+
+- rect(r)
+makes copy of rect r
 
 - width(a), height(a)
 signed width and height of rectangle a
@@ -65,8 +71,6 @@ constructs new color
 
 - to_rgba(c), to_hsva(c)
 converts between color spaces
-
-Some 
 
 
 ----------
@@ -185,6 +189,9 @@ opens a window of specified size for rendering
 - video.init_ex(width, height, virtual_width, virtual_height, name, fullscreen)
 same as init, also sets up virtual resolution, allows to run in fullscreen
 
+- video.init_exr(width, height, virtual_width, virtual_height, name, fullscreen)
+same as init_ex, does no texture filtering for retro look
+
 - video.close()
 closes rendering window, it is polite to call this when your app exits
 
@@ -212,6 +219,7 @@ draws 1 pixel wide line segment, color is optional
 draws piece of text, arguments:
 	font: 	font handle, from font.load
 	layer: 	look video.draw_rect
+	text:	text string
 	pos: 	vector, top-left corner of text
 	color: 	optional, color of text; default is black
 
