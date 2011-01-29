@@ -26,6 +26,11 @@
 111111111111111111111111111111</col>
   <objs>
     <start x="448" y="256"/>
+    <crate x="1024" y="192"/>
+    <crate x="960" y="448"/>
+    <crate x="704" y="704"/>
+    <crate x="192" y="1024"/>
+    <crate x="192" y="704"/>
   </objs>
   <foreground set="tiles0">
     <tile tx="64" ty="0" x="0" y="0"/>
