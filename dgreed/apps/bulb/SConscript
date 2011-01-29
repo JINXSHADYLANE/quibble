@@ -19,8 +19,8 @@ if env['DGREED_POSTFIX'] == 'd':
 				asset, env['DGREED_FONT_TOOL'])
 		elif asset.endswith('.oel'):
 			env.Command('#' + env['DGREED_BIN_DIR']+'/'+ asset.replace('.oel', '.btm'),
-				[asset, ASSETS_DIR + '/sausra.oep'],
-				env['DGREED_OGMO_TOOL'] + ' -p sausra_assets/')
+				[asset, ASSETS_DIR + '/bulb.oep'],
+				env['DGREED_OGMO_TOOL'] + ' -p bulb_assets/')
 		elif asset.endswith('.png') or asset.endswith('.wav') or \
 			asset.endswith('.ogg') or asset.endswith('.mml'):
 			env.Install(dest_dir, asset)
