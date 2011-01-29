@@ -5,6 +5,8 @@ dofile(src..'objects.lua')
 game = {}
 
 robo = {
+	dir = 0,
+	frame = 1,
 	img = nil,
 	pos = vec2(),
 	size = vec2(96, 96),
@@ -12,7 +14,8 @@ robo = {
 	energy = 1,
 
 	-- tweakables
-	speed = 0.5,
+	speed = 0.3,
+	anim_speed = 30,
 	cam_speed = 0.05,
 	max_light_radius = 300,
 	energy_decr_speed = 30,
@@ -20,10 +23,45 @@ robo = {
 	beacon_radius = 180,
 }
 
+function robo.anim_frames()
+	robo.anim = {}
+	local n_frames = 41
+	-- up
+	for i=0,n_frames-1 do
+		local x, y = i*64, 0
+		while x+64 > 1024 do
+			x = x - 1024
+			y = y + 96
+		end
+		robo.anim[i] = rect(x, y, x+64, y+96)
+	end
+
+	-- down
+	for i=0,n_frames-1 do
+		local x, y = i*64, 96*3 
+		while x+64 > 1024 do
+			x = x - 1024
+			y = y + 96
+		end
+		robo.anim[100+i] = rect(x, y, x+64, y+96)
+	end
+
+	-- left/right
+	for i=0,n_frames-2 do
+		local x, y = i*96, 96*6
+		while x+96 > 960 do
+			x = x - 960 
+			y = y + 96
+		end
+		robo.anim[200+i] = rect(x, y, x+96, y+96)
+	end
+	--robo.anim[200+40] = rect(96*7, 96*6, 96*8, 96*7)
+end
 
 function game.init()
 	level = tilemap.load(pre..'test level.btm')
-	robo.img = tex.load(pre..'robo.png')
+	robo.img = tex.load(pre..'robo_anim_atlas.png')
+	robo.anim_frames()
 	game.reset()
 	lighting.init()
 	objects.init()
@@ -66,18 +104,27 @@ function game.update()
 	robo.bbox.r = robo.bbox.l + robo.size.x
 	robo.bbox.b = robo.bbox.t + robo.size.y
 
+	local move = false
 	local new_pos = vec2(robo.pos)	
 	if key.pressed(key._left) then
 		new_pos.x = new_pos.x - robo.speed * time.dt()
+		robo.dir = 2
+		move = true
 	end
 	if key.pressed(key._right) then
 		new_pos.x = new_pos.x + robo.speed * time.dt()
+		robo.dir = 3
+		move = true
 	end
 	if key.pressed(key._up) then
 		new_pos.y = new_pos.y - robo.speed * time.dt()
+		robo.dir = 0
+		move = true
 	end
 	if key.pressed(key._down) then
 		new_pos.y = new_pos.y + robo.speed * time.dt()
+		robo.dir = 1
+		move = true
 	end
 
 	local offset = robo.pos - new_pos	
@@ -112,11 +159,35 @@ function game.update()
 	-- update energy
 	robo.energy = robo.energy - time.dt()/1000 * 1/robo.energy_decr_speed
 	robo.energy = math.max(0, robo.energy)
+
+	-- update animation
+	local sp = robo.anim_speed
+	if not move then
+		sp = 0
+	end
+	robo.frame = robo.frame + time.dt()/1000 * sp 
+	while math.floor(robo.frame) > 40 do 
+		robo.frame = robo.frame - 40
+	end
 end
 
 function robo.draw()
 	local dest = tilemap.world2screen(level, screen, robo.bbox)
-	video.draw_rect(robo.img, 0, dest)	
+	local f = math.floor(robo.frame)
+	if robo.dir == 0 then
+		f = f + 100
+	end
+	if robo.dir == 2 or robo.dir == 3 then
+		f = f + 200 - 1
+	end
+	local d = vec2((dest.l + dest.r) / 2, (dest.t + dest.b) / 2)
+	if robo.dir ~= 3 then
+		video.draw_rect_centered(robo.img, 0, robo.anim[f], d)	
+	else
+		local dest = rect(d.x - 48, d.y - 48, d.x + 48, d.y + 48)
+		dest.l, dest.r = dest.r, dest.l
+		video.draw_rect(robo.img, 0, robo.anim[f], dest)
+	end
 
 	local light = {}
 	light.pos = vec2((dest.l + dest.r) / 2, (dest.t + dest.b) / 2)
