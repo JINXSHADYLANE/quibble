@@ -5,12 +5,15 @@ dofile(src..'eyes.lua')
 
 game = {}
 
+draw_hitbox = true 
+
 robo = {
+	img_empty = nil,
 	dir = 0,
 	frame = 1,
 	img = nil,
 	pos = vec2(),
-	size = vec2(96, 96),
+	size = vec2(62, 62),
 	bbox = nil,
 	energy = 1,
 
@@ -61,12 +64,14 @@ end
 
 function game.init()
 	level = tilemap.load(pre..'test level.btm')
-	robo.img = tex.load(pre..'robo_anim_atlas.png')
 	robo.anim_frames()
 	game.reset()
 	lighting.init()
 	objects.init()
 	eyes.init()
+	robo.img_empty = tex.load(pre..'obj_start.png')
+	robo.img = tex.load(pre..'robo_anim_atlas.png')
+
 
 	sfx = {}
 	sfx.pickup = sound.load_sample(pre..'pickup.wav')
@@ -106,6 +111,7 @@ function game.close()
 	sound.free(sfx.footsteps)
 
 	tilemap.free(level)
+	tex.free(robo.img_empty)
 	tex.free(robo.img)
 	lighting.destroy()
 	objects.close()
@@ -192,6 +198,10 @@ end
 
 function robo.draw()
 	local dest = tilemap.world2screen(level, screen, robo.bbox)
+	if draw_hitbox then
+		video.draw_rect(robo.img_empty, 3, dest, rgba(1, 1, 1, 0.5))
+	end
+
 	local f = math.floor(robo.frame)
 	if robo.dir == 0 then
 		f = f + 100
@@ -199,7 +209,7 @@ function robo.draw()
 	if robo.dir == 2 or robo.dir == 3 then
 		f = f + 200 - 1
 	end
-	local d = vec2((dest.l + dest.r) / 2, (dest.t + dest.b) / 2)
+	local d = vec2((dest.l + dest.r) / 2, (dest.t + dest.b) / 2 - 24)
 	if robo.dir ~= 3 then
 		video.draw_rect_centered(robo.img, 0, robo.anim[f], d)	
 	else
@@ -221,7 +231,11 @@ function robo.draw()
 		if rect_circle_collision(window, p, robo.beacon_radius) or
 			rect_point_collision(window, p) then
 			p = tilemap.world2screen(level, screen, p)
-			table.insert(lights, {pos=p, inten=robo.beacon_radius, base=0.8})
+			local int = robo.beacon_radius
+			if obj.inten ~= nil then
+				int = obj.inten
+			end
+			table.insert(lights, {pos=p, inten=int, base=0.8})
 		end
 	end
 	
