@@ -1,6 +1,7 @@
 
 dofile(src..'lighting.lua')
 dofile(src..'objects.lua')
+dofile(src..'eyes.lua')
 
 game = {}
 
@@ -14,7 +15,7 @@ robo = {
 	energy = 1,
 
 	-- tweakables
-	speed = 0.3,
+	speed = 0.2,
 	anim_speed = 30,
 	cam_speed = 0.05,
 	max_light_radius = 300,
@@ -65,6 +66,7 @@ function game.init()
 	game.reset()
 	lighting.init()
 	objects.init()
+	eyes.init()
 end
 
 function game.reset()
@@ -97,6 +99,7 @@ function game.close()
 	tex.free(robo.img)
 	lighting.destroy()
 	objects.close()
+	eyes.close()
 end
 
 function game.update()
@@ -207,6 +210,7 @@ function robo.draw()
 	end
 	
 	lighting.render(2, lights)
+	eyes.update(lights)
 end
 
 function game.frame()
@@ -216,5 +220,6 @@ function game.frame()
 	tilemap.render(level, screen)
 	robo.draw()
 	objects.draw()
+	eyes.draw()
 end
 
