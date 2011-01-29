@@ -29,6 +29,7 @@ function lighting.render(layer, lights)
 			for k, l in ipairs(lights) do
 				if ( length_sq(cord - l.pos) < l.inten*l.inten) then
 					alphaMap[i][j] = alphaMap[i][j] - (1 - length(cord - l.pos)/l.inten) * l.base
+					alphaMap[i][j] = clamp(0, 1, alphaMap[i][j])
 				end
 			end
 		end
