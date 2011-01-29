@@ -1,4 +1,4 @@
--- sausra 
+-- bulb 
 
 screen = rect(0, 0, 960, 640)
 pre, src = 'bulb_assets/', 'bulb_scripts/'

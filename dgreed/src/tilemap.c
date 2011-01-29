@@ -250,6 +250,9 @@ void tilemap_render(Tilemap* t, RectF viewport, float time) {
 	
 	for(uint y = min_tile_y; y <= max_tile_y; ++y) {
 		for(uint x = min_tile_x; x <= max_tile_x; ++x) {
+			if(x >= t->width || y >= t->height)
+				continue;
+
 			uint idx = IDX_2D(x, y, t->width);
 
 			// Skip, if tile is empty in all layers.

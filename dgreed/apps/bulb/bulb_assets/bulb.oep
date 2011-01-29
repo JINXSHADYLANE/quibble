@@ -1,0 +1,23 @@
+<project>
+	<name>bulb</name>
+	<settings>
+		<defaultWidth>1920</defaultWidth>
+		<defaultHeight>1280</defaultHeight>
+		<workingDirectory>./</workingDirectory>
+	</settings>
+	<tilesets>
+		<tileset name="tiles0" image="atlas.png" tileWidth="64" tileHeight="64"
+		width="512" height="512"/>
+	</tilesets>	
+	<objects>
+		<object name="start" image="obj_start.png" width="64" height="64" />
+		<object name="end" image="obj_end.png" width="64" height="64" />
+	</objects>
+	<layers>
+		<tiles name="background" gridSize="64" />
+		<grid name="col" gridSize="64" />
+		<objects name="objs" gridSize="64" />
+		<tiles name="foreground" gridSize="64" />
+	</layers>	
+</project>
+
