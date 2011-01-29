@@ -9,10 +9,14 @@ robo = {
 	pos = vec2(),
 	size = vec2(96, 96),
 	bbox = nil,
+	energy = 1,
 
 	-- tweakables
 	speed = 0.5,
-	cam_speed = 0.05
+	cam_speed = 0.05,
+	max_light_radius = 300,
+	energy_decr_speed = 30,
+	battery_juice = 0.4
 }
 
 
@@ -103,6 +107,10 @@ function game.update()
 	-- move camera
 	camera_pos.x = lerp(camera_pos.x, robo.pos.x + robo.size.x/2, robo.cam_speed)
 	camera_pos.y = lerp(camera_pos.y, robo.pos.y + robo.size.y/2, robo.cam_speed)
+
+	-- update energy
+	robo.energy = robo.energy - time.dt()/1000 * 1/robo.energy_decr_speed
+	robo.energy = math.max(0, robo.energy)
 end
 
 function robo.draw()
@@ -111,8 +119,8 @@ function robo.draw()
 
 	local light = {}
 	light.pos = vec2((dest.l + dest.r) / 2, (dest.t + dest.b) / 2)
-	light.inten = 300 
-	light.base = 1 
+	light.inten = robo.max_light_radius * robo.energy 
+	light.base = lerp(1, 0.3, 1 - robo.energy) 
 	
 	local lights = {light}
 	lighting.render(2, lights)
