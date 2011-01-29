@@ -16,7 +16,8 @@ robo = {
 	cam_speed = 0.05,
 	max_light_radius = 300,
 	energy_decr_speed = 30,
-	battery_juice = 0.4
+	battery_juice = 0.4,
+	beacon_radius = 180,
 }
 
 
@@ -121,8 +122,19 @@ function robo.draw()
 	light.pos = vec2((dest.l + dest.r) / 2, (dest.t + dest.b) / 2)
 	light.inten = robo.max_light_radius * robo.energy 
 	light.base = lerp(1, 0.3, 1 - robo.energy) 
-	
 	local lights = {light}
+
+	-- find visible beacons
+	local window = tilemap.screen2world(level, screen, screen)
+	for i, obj in ipairs(objects.beacons) do
+		local p = vec2((obj.rect.l + obj.rect.r) / 2, (obj.rect.t + obj.rect.b) / 2)
+		if rect_circle_collision(window, p, robo.beacon_radius) or
+			rect_point_collision(window, p) then
+			p = tilemap.world2screen(level, screen, p)
+			table.insert(lights, {pos=p, inten=robo.beacon_radius, base=0.8})
+		end
+	end
+	
 	lighting.render(2, lights)
 end
 

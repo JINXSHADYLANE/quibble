@@ -5,11 +5,13 @@ objects = {
 	layer = 0,
 	crate_img = nil,
 	battery_img = nil,
+	beacon_img = nil,
 
 
 	crates = {},
+	beacons = {},
 
-	-- all static objs are here
+	-- all other static objs are here
 	list = {}
 }
 
@@ -20,11 +22,13 @@ end
 function objects.init()
 	objects.crate_img = tex.load(pre..'crate.png')
 	objects.battery_img = tex.load(pre..'battery.png')
+	objects.beacon_img = tex.load(pre..'beacon.png')
 end
 
 function objects.close()
 	tex.free(objects.crate_img)
 	tex.free(objects.battery_img)
+	tex.free(objects.beacon_img)
 end
 
 function objects.add(id, pos)
@@ -38,6 +42,12 @@ function objects.add(id, pos)
 	-- battery
 	if id == 3 then
 		table.insert(objects.list, {rect=r, id=3, taken=false})
+	end
+
+	-- beacon
+	if id == 4 then
+		table.insert(objects.beacons, {rect=r, id=4})
+		table.insert(objects.list, {rect=r, id=4})
 	end
 end
 
@@ -62,6 +72,9 @@ function objects.draw()
 		local r = tilemap.world2screen(level, screen, obj.rect)	
 		if obj.id == 3 and obj.taken == false then
 			video.draw_rect(objects.battery_img, objects.layer, r)
+		end
+		if obj.id == 4 then
+			video.draw_rect(objects.beacon_img, objects.layer, r)
 		end
 	end
 end

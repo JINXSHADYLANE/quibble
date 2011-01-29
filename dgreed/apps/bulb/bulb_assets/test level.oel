@@ -40,6 +40,8 @@
     <battery x="384" y="768"/>
     <battery x="448" y="1024"/>
     <battery x="1472" y="1024"/>
+    <beacon x="1216" y="512"/>
+    <beacon x="1216" y="1024"/>
   </objs>
   <foreground set="tiles0">
     <tile tx="64" ty="0" x="0" y="0"/>
