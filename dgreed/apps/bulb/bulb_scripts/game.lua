@@ -1,5 +1,6 @@
 
 dofile(src..'lighting.lua')
+dofile(src..'objects.lua')
 
 game = {}
 
@@ -20,20 +21,28 @@ function game.init()
 	robo.img = tex.load(pre..'robo.png')
 	game.reset()
 	lighting.init()
+	objects.init()
 end
 
 function game.reset()
-	objects = tilemap.objects(level)
+	objs = tilemap.objects(level)
 	local start_found = false
-	for i = 1,#objects do
+	for i = 1,#objs do
 		-- start obj
-		if objects[i].id == 0 then
-			camera_pos = objects[i].pos	
+		if objs[i].id == 0 then
+			camera_pos = objs[i].pos	
 			camera_pos = camera_pos + robo.size/2
-			robo.pos = objects[i].pos
+			robo.pos = objs[i].pos
 			start_found = true
 		end
+
+		-- pass other objs elsewhere
+		if objs[i].id ~= 0 then
+			objects.add(objs[i].id, objs[i].pos)
+		end
 	end
+
+	objects.seal()
 
 	if not start_found then
 		log.warning('no start obj found!')
@@ -44,6 +53,7 @@ function game.close()
 	tilemap.free(level)
 	tex.free(robo.img)
 	lighting.destroy()
+	objects.close()
 end
 
 function game.update()
@@ -69,15 +79,26 @@ function game.update()
 
 	-- x
 	local dx = tilemap.collide_swept(level, robo.bbox, vec2(-offset.x, 0))
+	local old_rect, old_pos = rect(robo.bbox), vec2(robo.pos)
 	robo.pos = robo.pos + dx
 	robo.bbox.l = robo.bbox.l + dx.x
 	robo.bbox.r = robo.bbox.r + dx.x
+	if not objects.interact(robo.bbox, dx) then
+		robo.pos = vec2(old_pos)
+		robo.rect = rect(old_rect)
+	end
 
 	-- y
 	local dy = tilemap.collide_swept(level, robo.bbox, vec2(0, -offset.y))
+	old_rect, old_pos = rect(robo.bbox), vec2(robo.pos)
 	robo.pos = robo.pos + dy
 	robo.bbox.t = robo.bbox.t + dy.y
 	robo.bbox.b = robo.bbox.b + dy.y
+	objects.interact(robo.bbox, dy)
+	if not objects.interact(robo.bbox, dy) then
+		robo.pos = vec2(old_pos)
+		robo.rect = rect(old_rect)
+	end
 
 	-- move camera
 	camera_pos.x = lerp(camera_pos.x, robo.pos.x + robo.size.x/2, robo.cam_speed)
@@ -103,5 +124,6 @@ function game.frame()
 	tilemap.set_camera(level, camera_pos)
 	tilemap.render(level, screen)
 	robo.draw()
+	objects.draw()
 end
 
