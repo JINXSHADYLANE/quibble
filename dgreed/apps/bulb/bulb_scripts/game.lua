@@ -16,7 +16,7 @@ robo = {
 
 	-- tweakables
 	speed = 0.2,
-	anim_speed = 30,
+	anim_speed = 60,
 	cam_speed = 0.05,
 	max_light_radius = 300,
 	energy_decr_speed = 30,
@@ -67,6 +67,10 @@ function game.init()
 	lighting.init()
 	objects.init()
 	eyes.init()
+
+	sfx = {}
+	--sfx.pickup = sound.load_sample(pre..'pickup.wav')
+	--sfx.footsteps = sound.load_sample(pre..'footsteps.wav')
 end
 
 function game.reset()
@@ -95,6 +99,9 @@ function game.reset()
 end
 
 function game.close()
+	--sound.free(sfx.pickup)
+	--sound.free(sfx.footsteps)
+
 	tilemap.free(level)
 	tex.free(robo.img)
 	lighting.destroy()

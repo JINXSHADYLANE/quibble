@@ -10,9 +10,13 @@ function init()
         video.init(screen.r, screen.b, 'bulb')
 
         game.init()
+
+		music = sound.load_stream(pre..'bulb.ogg')
+		sound.play(music, true)
 end
 
 function close()
+		sound.free(music)
         game.close()
 
         video.close()

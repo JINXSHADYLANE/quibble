@@ -1,14 +1,25 @@
 
 eyes = {
 	img = nil,
+	anim = {},
 	n_eyes = 20,
-	half_size = vec2(16, 16)
+	half_size = vec2(16, 16),
+
+	-- tweaks
+	blink_time = 0.5 
 }
 
 level_rect = rect(0, 0, 1920, 1280) 
 
 function eyes.init()
 	eyes.img = tex.load(pre..'eyes.png')	
+	for i=1,4 do
+		eyes.anim[i] = rect(0, (i-1)*16, 32, i*16)
+	end
+	for i=5,7 do
+		eyes.anim[i] = rect(eyes.anim[4-(i-5)])
+	end
+	eyes.anim[0] = rect(eyes.anim[1])
 
 	for i=1,eyes.n_eyes do
 		eyes[i] = {}
@@ -17,6 +28,8 @@ function eyes.init()
 			rand.float(level_rect.t, level_rect.b)
 		)	
 		eyes[i].v = vec2()
+		eyes[i].f = 1
+		eyes[i].blink = -100
 	end
 end
 
@@ -36,6 +49,14 @@ function eyes.update(lights)
 			end
 		end
 
+		for j,ee in ipairs(eyes) do
+			if j ~= i and length(e.p - ee.p) < 50 then
+				if rand.int(0, 4) == 2 then
+					run_vect = run_vect + normalize(e.p - ee.p) * 60
+				end
+			end
+		end
+
 		if length(e.p - robo.pos) > 700 then
 			if rand.int(0, 50) == 42 then
 				run_vect = run_vect + normalize(robo.pos - e.p) * 400
@@ -48,6 +69,12 @@ function eyes.update(lights)
 			end
 			if rand.int(0, 100) == 42 then
 				run_vect = normalize(robo.pos - e.p) * 160 
+			end
+		end
+
+		if time.s() - e.blink > eyes.blink_time then
+			if rand.int(0, 250) == 42 then
+				e.blink = time.s()
 			end
 		end
 
@@ -65,9 +92,15 @@ function eyes.draw()
 			e.p.x + eyes.half_size.x, e.p.y + eyes.half_size.y
 		)	
 
+		local f = e.f
+		if time.s() - e.blink < eyes.blink_time then
+			local t = (time.s() - e.blink) / eyes.blink_time
+			f = math.floor(t * 7)
+		end
+
 		if rect_rect_collision(world_screen, r) then
 			local p = tilemap.world2screen(level, screen, e.p)
-			video.draw_rect_centered(eyes.img, 3, p)	
+			video.draw_rect_centered(eyes.img, 3, eyes.anim[f], p)	
 		end
 	end
 end
