@@ -211,6 +211,7 @@ function robo.draw()
 	
 	lighting.render(2, lights)
 	eyes.update(lights)
+	lights_cache = lights
 end
 
 function game.frame()
@@ -219,7 +220,7 @@ function game.frame()
 	tilemap.set_camera(level, camera_pos)
 	tilemap.render(level, screen)
 	robo.draw()
-	objects.draw()
+	objects.draw(lights_cache)
 	eyes.draw()
 end
 

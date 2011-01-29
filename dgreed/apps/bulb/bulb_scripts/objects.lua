@@ -7,6 +7,10 @@ objects = {
 	battery_img = nil,
 	beacon_img = nil,
 
+	-- srcs
+	normal_battery = rect(0, 0, 64, 64),
+	glow_battery = rect(64, 0, 128, 64),
+
 
 	crates = {},
 	beacons = {},
@@ -71,7 +75,9 @@ function objects.draw()
 	for i, obj in ipairs(vis_objs) do
 		local r = tilemap.world2screen(level, screen, obj.rect)	
 		if obj.id == 3 and obj.taken == false then
-			video.draw_rect(objects.battery_img, objects.layer, r)
+			video.draw_rect(objects.battery_img, objects.layer, objects.normal_battery, r)
+			-- glow-in-the-dark batteries
+			video.draw_rect(objects.battery_img, 3, objects.glow_battery, r)
 		end
 		if obj.id == 4 then
 			video.draw_rect(objects.beacon_img, objects.layer, r)
@@ -86,9 +92,11 @@ function objects.interact(player_bbox, player_offset)
 	local hit_objs = objects.qtree:query(player_bbox)
 	for i, obj in ipairs(hit_objs) do
 		if obj.id == 3 and obj.taken == false then
-			local r = tilemap.world2screen(level, screen, obj.rect)
-			r = shrinked_bbox(r, 10)
-			if rect_rect_collision(player_bbox, obj.rect) then
+			--local r = tilemap.world2screen(level, screen, obj.rect)
+			local r = shrinked_bbox(obj.rect, 20)
+			r.l = r.l + 10
+			r.r = r.r - 10
+			if rect_rect_collision(player_bbox, r) then
 				-- pick up battery!
 				obj.taken = true
 				robo.energy = robo.energy + robo.battery_juice

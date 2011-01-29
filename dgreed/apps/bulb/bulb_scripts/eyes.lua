@@ -36,9 +36,9 @@ function eyes.update(lights)
 			end
 		end
 
-		if length(e.p - robo.pos) > 1000 then
+		if length(e.p - robo.pos) > 700 then
 			if rand.int(0, 50) == 42 then
-				run_vect = run_vect + normalize(robo.pos - e.p) * 300
+				run_vect = run_vect + normalize(robo.pos - e.p) * 400
 			end
 		end
 
