@@ -101,7 +101,7 @@ function objects.interact(player_bbox, player_offset)
 				obj.taken = true
 				robo.energy = robo.energy + robo.battery_juice
 				robo.energy = math.min(1, robo.energy)
-				--sound.play(sfx.pickup)
+				sound.play(sfx.pickup)
 			end
 		end
 	end

@@ -69,8 +69,11 @@ function game.init()
 	eyes.init()
 
 	sfx = {}
-	--sfx.pickup = sound.load_sample(pre..'pickup.wav')
-	--sfx.footsteps = sound.load_sample(pre..'footsteps.wav')
+	sfx.pickup = sound.load_sample(pre..'pickup.wav')
+	sfx.footsteps = sound.load_sample(pre..'footsteps.wav')
+
+	sfx.src_footsteps = sound.play(sfx.footsteps, true)
+	sfx.vol_footsteps = 0
 end
 
 function game.reset()
@@ -99,8 +102,8 @@ function game.reset()
 end
 
 function game.close()
-	--sound.free(sfx.pickup)
-	--sound.free(sfx.footsteps)
+	sound.free(sfx.pickup)
+	sound.free(sfx.footsteps)
 
 	tilemap.free(level)
 	tex.free(robo.img)
@@ -171,14 +174,20 @@ function game.update()
 	robo.energy = math.max(0, robo.energy)
 
 	-- update animation
-	local sp = robo.anim_speed
-	if not move then
-		sp = 0
+	local sp = 0
+	local ft = 0
+	if move then
+		sp = robo.anim_speed 
+		ft = 0.5
 	end
+	sfx.vol_footsteps = lerp(sfx.vol_footsteps, ft, 0.3)
 	robo.frame = robo.frame + time.dt()/1000 * sp 
 	while math.floor(robo.frame) > 40 do 
 		robo.frame = robo.frame - 40
 	end
+
+	-- footsteps sound
+	sound.set_src_volume(sfx.src_footsteps, sfx.vol_footsteps)
 end
 
 function robo.draw()
