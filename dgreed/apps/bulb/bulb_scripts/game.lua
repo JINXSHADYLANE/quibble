@@ -1,4 +1,6 @@
 
+dofile(src..'lighting.lua')
+
 game = {}
 
 robo = {
@@ -17,6 +19,7 @@ function game.init()
 	level = tilemap.load(pre..'test level.btm')
 	robo.img = tex.load(pre..'robo.png')
 	game.reset()
+	lighting.init()
 end
 
 function game.reset()
@@ -40,6 +43,7 @@ end
 function game.close()
 	tilemap.free(level)
 	tex.free(robo.img)
+	lighting.destroy()
 end
 
 function game.update()
@@ -83,6 +87,14 @@ end
 function robo.draw()
 	local dest = tilemap.world2screen(level, screen, robo.bbox)
 	video.draw_rect(robo.img, 0, dest)	
+
+	local light = {}
+	light.pos = vec2((dest.l + dest.r) / 2, (dest.t + dest.b) / 2)
+	light.inten = 300 
+	light.base = 1 
+	
+	local lights = {light}
+	lighting.render(2, lights)
 end
 
 function game.frame()
