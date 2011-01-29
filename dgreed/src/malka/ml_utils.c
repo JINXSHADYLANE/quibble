@@ -415,7 +415,7 @@ static int ml_rect_point_collision(lua_State* l) {
 
 static int ml_rect_circle_collision(lua_State* l) {
 	int n = lua_gettop(l);
-	if(n != 2)
+	if(n != 3)
 		return luaL_error(l, "wrong number of arguments provided to rect_circle_collision");
 	
 	luaL_checktype(l, 1, LUA_TTABLE);

@@ -4,6 +4,7 @@ dofile(src..'quadtree.lua')
 objects = {
 	layer = 0,
 	crate_img = nil,
+	battery_img = nil,
 
 
 	crates = {},
@@ -18,10 +19,12 @@ end
 
 function objects.init()
 	objects.crate_img = tex.load(pre..'crate.png')
+	objects.battery_img = tex.load(pre..'battery.png')
 end
 
 function objects.close()
 	tex.free(objects.crate_img)
+	tex.free(objects.battery_img)
 end
 
 function objects.add(id, pos)
@@ -31,10 +34,15 @@ function objects.add(id, pos)
 	if id == 2 then	
 		table.insert(objects.crates, {rect=r, id=2})
 	end
+
+	-- battery
+	if id == 3 then
+		table.insert(objects.list, {rect=r, id=3, taken=false})
+	end
 end
 
 function objects.seal()
-	--objects.qtree = Quadtree:new(objs)
+	objects.qtree = Quadtree:new(objects.list)
 end
 
 function objects.draw()
@@ -49,15 +57,32 @@ function objects.draw()
 	end
 
 	-- static objs
-	--local vis_objs = objects.qtree:query(camera_rect)
-	local vis_objs = {}
+	local vis_objs = objects.qtree:query(camera_rect)
 	for i, obj in ipairs(vis_objs) do
 		local r = tilemap.world2screen(level, screen, obj.rect)	
+		if obj.id == 3 and obj.taken == false then
+			video.draw_rect(objects.battery_img, objects.layer, r)
+		end
 	end
 end
 
 function objects.interact(player_bbox, player_offset)
 	local res = true
+
+	-- pick up batteries
+	local hit_objs = objects.qtree:query(player_bbox)
+	for i, obj in ipairs(hit_objs) do
+		if obj.id == 3 and obj.taken == false then
+			local r = tilemap.world2screen(level, screen, obj.rect)
+			r = shrinked_bbox(r, 10)
+			if rect_rect_collision(player_bbox, obj.rect) then
+				-- pick up battery!
+				obj.taken = true
+				robo.energy = robo.energy + robo.battery_juice
+				robo.energy = math.min(1, robo.energy)
+			end
+		end
+	end
 
 	-- abort if hitting multiple crates
 	local hits = 0
