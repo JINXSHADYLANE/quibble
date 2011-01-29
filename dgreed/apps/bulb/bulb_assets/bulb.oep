@@ -15,6 +15,7 @@
 		<object name="crate" image="crate.png" width="64" height="64" />
 		<object name="battery" image="battery.png" width="64" height="64" />
 		<object name="beacon" image="beacon.png" width="64" height="64" />
+		<object name="button" image="button.png" width="64" height="64" />
 	</objects>
 	<layers>
 		<tiles name="background" gridSize="64" />
