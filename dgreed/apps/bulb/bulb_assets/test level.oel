@@ -140,6 +140,8 @@
     <crate x="1856" y="256"/>
     <crate x="1728" y="0"/>
     <crate x="1664" y="0"/>
+    <button x="512" y="384"/>
+    <crate x="512" y="192"/>
   </objs>
   <foreground set="tiles0">
     <tile tx="64" ty="64" x="128" y="1216"/>
