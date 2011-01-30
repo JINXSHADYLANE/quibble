@@ -10,9 +10,9 @@ draw_hitbox = false
 robo = {
 	levels = {
 		'tutorial level.btm',
-		--'pre entry.btm',
-		--'test level.btm',
-		--'level2.btm',
+		'pre entry.btm',
+		'test level.btm',
+		'level2.btm',
 		'massive out.btm'
 	},
 
@@ -28,6 +28,9 @@ robo = {
 	dead = false,
 	death_t = nil,
 	level = 1,
+
+	finished = false,
+	finished_t = nil,
 
 	-- tweakables
 	speed = 0.2,
@@ -86,6 +89,7 @@ function game.init()
 	robo.shadow = tex.load(pre..'shadow.png')
 	robo.img = tex.load(pre..'robo_anim_atlas.png')
 	robo.title = tex.load(pre..'title.png')
+	robo.win = tex.load(pre..'end.png')
 
 
 	sfx = {}
@@ -175,6 +179,7 @@ function game.close()
 	tex.free(robo.img_empty)
 	tex.free(robo.img)
 	tex.free(robo.shadow)
+	tex.free(robo.win)
 	tex.free(robo.title)
 	lighting.destroy()
 	objects.close()
@@ -182,7 +187,7 @@ function game.close()
 end
 
 function game.update()
-	if robo.dead then
+	if robo.dead or robo.finished then
 		return
 	end
 
@@ -354,6 +359,23 @@ function game.frame()
 		if t == 1 then
 			game.reset()
 		end
+	end
+
+	if robo.finished then
+		-- fadeout
+
+		sfx.vol_footsteps = lerp(sfx.vol_footsteps, 0, 0.2)
+		sfx.vol_push = lerp(sfx.vol_footsteps, 0, 0.2)
+		sfx.vol_creatures = lerp(sfx.vol_footsteps, 0, 0.2)
+		sound.set_src_volume(sfx.src_footsteps, sfx.vol_footsteps)
+		sound.set_src_volume(sfx.src_push, sfx.vol_push)
+		sound.set_src_volume(sfx.src_creatures, sfx.vol_creatures)
+
+
+		local t = (time.s() - robo.finished_t) / 5
+		t = clamp(0, 1, t)
+		local col = lerp(rgba(1, 1, 1, 0), rgba(1, 1, 1, 1), t)
+		video.draw_rect(robo.win, 4, vec2(0, 0), col)
 	end
 end
 

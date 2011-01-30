@@ -162,9 +162,12 @@
     <crate x="1664" y="0"/>
     <button x="512" y="384"/>
     <crate x="512" y="192"/>
-    <exit_decor x="1792" y="512"/>
-    <exit_decor2 x="1728" y="512"/>
-    <exit_decor2 x="1856" y="512"/>
+    <end x="1792" y="576"/>
+    <end x="1728" y="576"/>
+    <end x="1728" y="640"/>
+    <exit_decor x="1728" y="512"/>
+    <exit_decor x="1856" y="512"/>
+    <exit_decor2 x="1792" y="512"/>
   </objs>
   <foreground set="tiles0">
     <tile tx="64" ty="64" x="128" y="1216"/>
