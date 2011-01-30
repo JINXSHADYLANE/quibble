@@ -218,7 +218,8 @@ function objects.interact(player_bbox, player_offset)
 				level = tilemap.load(pre..robo.levels[robo.level])
 				game.reset()
 			else
-				-- endgame
+				robo.finished = true
+				robo.finished_t = time.s()
 			end
 		end
 
