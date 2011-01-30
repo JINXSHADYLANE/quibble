@@ -13,6 +13,8 @@ objects = {
 	glow_battery = rect(64, 0, 128, 64),
 	src_button_on = rect(0, 0, 64, 64),
 	src_button_off = rect(64, 0, 128, 64),
+	src_beacon_on = rect(0, 0, 64, 64),
+	src_beacon_off = rect(64, 0, 128, 64),
 
 
 	crates = {},
@@ -68,7 +70,7 @@ function objects.add(id, pos)
 	-- beacon
 	if id == 4 then
 		table.insert(objects.beacons, {pos=p, rect=r, id=4, has_btn=false})
-		table.insert(objects.list, {pos=p, rect=r, id=4})
+		table.insert(objects.list, objects.beacons[#objects.beacons])
 	end
 
 	-- button
@@ -120,7 +122,13 @@ function objects.draw()
 		end
 		if obj.id == 4 then
 			local p = center(r)		
-			video.draw_rect_centered(objects.beacon_img, objects.layer, p, 0.0, 1.5)
+			if obj.inten == nil or obj.inten > 5 then
+				video.draw_rect_centered(objects.beacon_img, objects.layer,
+					objects.src_beacon_on, p, 0.0, 1.5)
+			else
+				video.draw_rect_centered(objects.beacon_img, objects.layer,
+					objects.src_beacon_off, p, 0.0, 1.5)
+			end
 		end
 		if obj.id == 5 then
 			local src = objects.src_button_off

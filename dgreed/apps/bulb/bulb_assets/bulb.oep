@@ -1,8 +1,8 @@
 <project>
 	<name>bulb</name>
 	<settings>
-		<defaultWidth>1920</defaultWidth>
-		<defaultHeight>1280</defaultHeight>
+		<defaultWidth>3840</defaultWidth>
+		<defaultHeight>2560</defaultHeight>
 		<workingDirectory>./</workingDirectory>
 	</settings>
 	<tilesets>
