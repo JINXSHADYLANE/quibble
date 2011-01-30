@@ -5,7 +5,7 @@ dofile(src..'eyes.lua')
 
 game = {}
 
-draw_hitbox = true 
+draw_hitbox = false 
 
 robo = {
 	img_empty = nil,
@@ -16,6 +16,8 @@ robo = {
 	size = vec2(62, 62),
 	bbox = nil,
 	energy = 1,
+	dead = false,
+	death_t = nil,
 
 	-- tweakables
 	speed = 0.2,
@@ -76,12 +78,22 @@ function game.init()
 	sfx = {}
 	sfx.pickup = sound.load_sample(pre..'pickup.wav')
 	sfx.footsteps = sound.load_sample(pre..'footsteps.wav')
+	sfx.push = sound.load_sample(pre..'push.wav')
+	sfx.creatures = sound.load_sample(pre..'creatures.wav')
+	sfx.death = sound.load_sample(pre..'end2.wav')
 
 	sfx.src_footsteps = sound.play(sfx.footsteps, true)
 	sfx.vol_footsteps = 0
+
+	sfx.src_push = sound.play(sfx.push, true)
+	sfx.vol_push = 0
+
+	sfx.src_creatures = sound.play(sfx.creatures, true)
+	sfx.vol_creatures = 0
 end
 
 function game.reset()
+	objects.reset()
 	objs = tilemap.objects(level)
 	local start_found = false
 	for i = 1,#objs do
@@ -99,16 +111,24 @@ function game.reset()
 		end
 	end
 
+	eyes.reset()
 	objects.seal()
 
 	if not start_found then
 		log.warning('no start obj found!')
 	end
+
+	robo.dead = false
+	robo.energy = 1
+	sound.set_volume(music, 0.3)
 end
 
 function game.close()
 	sound.free(sfx.pickup)
 	sound.free(sfx.footsteps)
+	sound.free(sfx.push)
+	sound.free(sfx.creatures)
+	sound.free(sfx.death)
 
 	tilemap.free(level)
 	tex.free(robo.img_empty)
@@ -119,6 +139,10 @@ function game.close()
 end
 
 function game.update()
+	if robo.dead then
+		return
+	end
+
 	robo.bbox = rect(robo.pos.x, robo.pos.y)
 	robo.bbox.r = robo.bbox.l + robo.size.x
 	robo.bbox.b = robo.bbox.t + robo.size.y
@@ -184,7 +208,7 @@ function game.update()
 	local ft = 0
 	if move then
 		sp = robo.anim_speed 
-		ft = 0.5
+		ft = 0.3
 	end
 	sfx.vol_footsteps = lerp(sfx.vol_footsteps, ft, 0.3)
 	robo.frame = robo.frame + time.dt()/1000 * sp 
@@ -192,8 +216,10 @@ function game.update()
 		robo.frame = robo.frame - 40
 	end
 
-	-- footsteps sound
+	-- sounds
 	sound.set_src_volume(sfx.src_footsteps, sfx.vol_footsteps)
+	sound.set_src_volume(sfx.src_push, sfx.vol_push)
+	sound.set_src_volume(sfx.src_creatures, sfx.vol_creatures)
 end
 
 function robo.draw()
@@ -240,7 +266,9 @@ function robo.draw()
 	end
 	
 	lighting.render(2, lights)
-	eyes.update(lights)
+	if not robo.dead then
+		eyes.update(lights)
+	end
 	lights_cache = lights
 end
 
@@ -252,5 +280,28 @@ function game.frame()
 	robo.draw()
 	objects.draw(lights_cache)
 	eyes.draw()
+
+	if robo.dead then
+		-- fadeout
+
+		sfx.vol_footsteps = lerp(sfx.vol_footsteps, 0, 0.2)
+		sfx.vol_push = lerp(sfx.vol_footsteps, 0, 0.2)
+		sfx.vol_creatures = lerp(sfx.vol_footsteps, 0, 0.2)
+		local vol_music = lerp(sound.volume(music), 0, 0.2)
+		sound.set_volume(music, vol_music)
+		sound.set_src_volume(sfx.src_footsteps, sfx.vol_footsteps)
+		sound.set_src_volume(sfx.src_push, sfx.vol_push)
+		sound.set_src_volume(sfx.src_creatures, sfx.vol_creatures)
+
+
+		local t = (time.s() - robo.death_t) / 5
+		t = clamp(0, 1, t)
+		local col = lerp(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1), t)
+		video.draw_rect(robo.img_empty, 4, screen, col)
+		
+		if t == 1 then
+			game.reset()
+		end
+	end
 end
 

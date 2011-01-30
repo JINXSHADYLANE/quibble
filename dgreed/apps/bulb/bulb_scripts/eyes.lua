@@ -20,7 +20,9 @@ function eyes.init()
 		eyes.anim[i] = rect(eyes.anim[4-(i-5)])
 	end
 	eyes.anim[0] = rect(eyes.anim[1])
+end
 
+function eyes.reset()
 	for i=1,eyes.n_eyes do
 		eyes[i] = {}
 		eyes[i].p = vec2(
@@ -38,6 +40,7 @@ function eyes.close()
 end
 
 function eyes.update(lights)
+	local min_d = 10000
 	for i,e in ipairs(eyes) do
 		local run_vect = vec2()
 		for j,l in ipairs(lights) do
@@ -81,7 +84,17 @@ function eyes.update(lights)
 		e.v = e.v + run_vect
 		e.p = e.p + e.v * time.dt()/1000
 		e.v = e.v * 0.9
+
+		-- distance to player
+		local d = length(e.p - robo.pos)
+		min_d = math.min(d, min_d)
 	end
+	if robo.energy < 0.2 and min_d < 20 then
+		sound.play(sfx.death)
+		robo.dead = true
+		robo.death_t = time.s()
+	end
+	sfx.vol_creatures = 1 - clamp(0, 1, (min_d - 40) / 200)
 end
 
 function eyes.draw()
