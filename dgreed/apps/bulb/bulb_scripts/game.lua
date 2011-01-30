@@ -82,7 +82,8 @@ function game.init()
 	sfx.footsteps = sound.load_sample(pre..'footsteps.wav')
 	sfx.push = sound.load_sample(pre..'push.wav')
 	sfx.creatures = sound.load_sample(pre..'creatures.wav')
-	sfx.death = sound.load_sample(pre..'end2.wav')
+	sfx.death = sound.load_sample(pre..'end1.wav')
+	sfx.switch = sound.load_sample(pre..'switch.wav')
 
 	sfx.src_footsteps = sound.play(sfx.footsteps, true)
 	sfx.vol_footsteps = 0
@@ -131,6 +132,7 @@ function game.close()
 	sound.free(sfx.push)
 	sound.free(sfx.creatures)
 	sound.free(sfx.death)
+	sound.free(sfx.switch)
 
 	tilemap.free(level)
 	tex.free(robo.img_empty)

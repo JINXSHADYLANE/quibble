@@ -161,6 +161,9 @@ function objects.interact(player_bbox, player_offset)
 			l.inten = lerp(l.inten, t, 0.1)
 		end
 
+		if b.state ~= new_state then
+			sound.play(sfx.switch)
+		end
 		b.state = new_state
 	end
 
