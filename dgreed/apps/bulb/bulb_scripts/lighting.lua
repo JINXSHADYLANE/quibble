@@ -92,7 +92,6 @@ function lighting.draw(layer)
 			--video.draw_rect(blackT, layer, rectCord, rgba(1, 1, 1, alphaMap[i][j]))
 		end
 	end	
-	log.info(rec/(sx*sy)*100)
 end
 
 

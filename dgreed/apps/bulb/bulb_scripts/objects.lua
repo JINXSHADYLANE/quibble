@@ -31,11 +31,18 @@ function shrinked_bbox(bbox, r)
 	return rect(bbox.l + r, bbox.t + r, bbox.r - r, bbox.b - r)
 end
 
+function objects.reset()
+	objects.crates = {}
+	objects.beacons = {}
+	objects.buttons = {}
+	objects.list = {}
+end
+
 function objects.init()
 	objects.button_img = tex.load(pre..'button.png')
 	objects.battery_img = tex.load(pre..'battery.png')
-	objects.crate_img = tex.load(pre..'crate.png')
 	objects.beacon_img = tex.load(pre..'beacon.png')
+	objects.crate_img = tex.load(pre..'crate.png')
 end
 
 function objects.close()
@@ -183,10 +190,14 @@ function objects.interact(player_bbox, player_offset)
 		end
 	end
 
+	local pushing = false
+
 	if hits == 0 then
+		sfx.vol_push = lerp(sfx.vol_push, 0, 0.2)
 		return true
 	end
 	if hits > 1 then
+		sfx.vol_push = lerp(sfx.vol_push, 0, 0.2)
 		return false
 	end
 
@@ -252,11 +263,18 @@ function objects.interact(player_bbox, player_offset)
 
 				if dx.x ~= player_offset.x or dy.y ~= player_offset.y then		
 					res = false
+				else
+					pushing = true
 				end
 			end
 		end
 	end
 
+	local push_vol = 0
+	if pushing then
+		push_vol = 1
+	end
+	sfx.vol_push = lerp(sfx.vol_push, push_vol, 0.2)
 	return res
 end
 

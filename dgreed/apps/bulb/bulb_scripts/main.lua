@@ -9,10 +9,9 @@ function init()
         sound.init()
         video.init(screen.r, screen.b, 'bulb')
 
+		music = sound.load_stream(pre..'bulb.ogg')
         game.init()
 
-		music = sound.load_stream(pre..'bulb.ogg')
-		sound.set_volume(music, 0.5)
 		sound.play(music, true)
 end
 
