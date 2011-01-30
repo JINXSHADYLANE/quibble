@@ -2,14 +2,14 @@
 eyes = {
 	img = nil,
 	anim = {},
-	n_eyes = 20,
+	n_eyes = 24,
 	half_size = vec2(16, 16),
 
 	-- tweaks
 	blink_time = 0.5 
 }
 
-level_rect = rect(0, 0, 1920, 1280) 
+level_rect = rect(0, 0, 3840, 2560) 
 
 function eyes.init()
 	eyes.img = tex.load(pre..'eyes.png')	
