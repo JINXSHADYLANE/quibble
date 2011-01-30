@@ -7,6 +7,7 @@ objects = {
 	battery_img = nil,
 	beacon_img = nil,
 	button_img = nil,
+	exit_img = nil,
 
 	-- srcs
 	normal_battery = rect(0, 0, 64, 64),
@@ -16,6 +17,10 @@ objects = {
 	src_beacon_on = rect(0, 0, 64, 64),
 	src_beacon_off = rect(64, 0, 128, 64),
 
+	src_exit = rect(0, 0, 64, 64),
+	src_exit_glow = rect(64, 0, 128, 64),
+	src_exit2 = rect(0, 64, 64, 128),
+	src_exit2_glow = rect(64, 64, 128, 128),
 
 	crates = {},
 	beacons = {},
@@ -45,6 +50,7 @@ function objects.init()
 	objects.battery_img = tex.load(pre..'battery.png')
 	objects.beacon_img = tex.load(pre..'beacon.png')
 	objects.crate_img = tex.load(pre..'crate.png')
+	objects.exit_img = tex.load(pre..'obj_end.png')
 end
 
 function objects.close()
@@ -52,6 +58,7 @@ function objects.close()
 	tex.free(objects.battery_img)
 	tex.free(objects.beacon_img)
 	tex.free(objects.button_img)
+	tex.free(objects.exit_img)
 end
 
 function objects.add(id, pos)
@@ -77,6 +84,12 @@ function objects.add(id, pos)
 	if id == 5 then
 		table.insert(objects.buttons, {pos=p, rect=r, id=5, state=false})
 		table.insert(objects.list, objects.buttons[#objects.buttons])
+	end
+
+	-- exit decor 1 & 2
+	if id == 6 or id == 7 then
+		local i = id
+		table.insert(objects.list, {rect=r, id=i})
 	end
 end
 
@@ -136,6 +149,18 @@ function objects.draw()
 				src = objects.src_button_on
 			end
 			video.draw_rect(objects.button_img, objects.layer, src, r)
+		end
+		if obj.id == 6 then
+			video.draw_rect(objects.exit_img, objects.layer,
+				objects.src_exit, r)
+			video.draw_rect(objects.exit_img, 3,
+				objects.src_exit_glow, r)
+		end
+		if obj.id == 7 then
+			video.draw_rect(objects.exit_img, objects.layer,
+				objects.src_exit2, r)
+			video.draw_rect(objects.exit_img, 3,
+				objects.src_exit2_glow, r)
 		end
 	end
 end

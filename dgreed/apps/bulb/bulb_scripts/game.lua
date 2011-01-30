@@ -256,7 +256,7 @@ function robo.draw()
 	video.draw_rect_centered(robo.shadow, 0, shadow_pos, 0.0, 0.7, col)
 
 	local light = {}
-	light.pos = vec2((dest.l + dest.r) / 2, (dest.t + dest.b) / 2)
+	light.pos = vec2((dest.l + dest.r) / 2, (dest.t + dest.b) / 2 - 50)
 	light.inten = robo.max_light_radius * robo.energy 
 	light.base = lerp(1, 0.3, 1 - robo.energy) 
 	local lights = {light}
