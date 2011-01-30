@@ -242,8 +242,25 @@ function arena.chars_collide()
 	return false
 end
 
+function arena.get_neighbour(dir)
+	if dir == direction.left then
+		return arena[active_arena].left.id
+	elseif dir == direction.right then
+		return arena[active_arena].right.id
+	elseif dir == direction.up then
+		return arena[active_arena].top.id
+	elseif dir == direction.down then
+		return arena[active_arena].bottom.id
+	else 
+		return empty
+	end
+
+end
+
 function arena.switch()
-	if arena.state == fade_state.fadeout then
+	local neighbour = arena.get_neighbour(arena.switch_dir)
+
+	if arena.state == fade_state.fadeout and neighbour ~= empty then
 		arena.color.a = arena.color.a + fade_speed
 		if arena.color.a > 1.0 then 
 			arena.color.a = 1
