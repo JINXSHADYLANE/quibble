@@ -64,6 +64,12 @@ end
 function objects.add(id, pos)
 	local r = rect(pos.x, pos.y, pos.x+64, pos.y+64)
 	local p = center(r)
+
+	-- end
+	if id == 1 then
+		table.insert(objects.list, {rect=r, id=1})
+	end
+
 	-- crate
 	if id == 2 then	
 		table.insert(objects.crates, {rect=r, id=2})
@@ -200,9 +206,23 @@ function objects.interact(player_bbox, player_offset)
 		b.state = new_state
 	end
 
-	-- pick up batteries
 	local hit_objs = objects.qtree:query(player_bbox)
 	for i, obj in ipairs(hit_objs) do
+		-- level end
+		if obj.id == 1 then
+			sound.play(sfx.win)
+
+			robo.level = robo.level+1
+			if robo.level <= #robo.levels then
+				tilemap.free(level)
+				level = tilemap.load(pre..robo.levels[robo.level])
+				game.reset()
+			else
+				-- endgame
+			end
+		end
+
+		-- pick up batteries
 		if obj.id == 3 and obj.taken == false then
 			--local r = tilemap.world2screen(level, screen, obj.rect)
 			local r = shrinked_bbox(obj.rect, 20)

@@ -8,6 +8,14 @@ game = {}
 draw_hitbox = false 
 
 robo = {
+	levels = {
+		'tutorial level.btm',
+		--'pre entry.btm',
+		--'test level.btm',
+		--'level2.btm',
+		'massive out.btm'
+	},
+
 	shadow = nil,
 	img_empty = nil,
 	dir = 0,
@@ -19,6 +27,7 @@ robo = {
 	energy = 1,
 	dead = false,
 	death_t = nil,
+	level = 1,
 
 	-- tweakables
 	speed = 0.2,
@@ -28,6 +37,7 @@ robo = {
 	energy_decr_speed = 30,
 	battery_juice = 0.4,
 	beacon_radius = 180,
+	title_duration = 5,
 }
 
 function robo.anim_frames()
@@ -66,7 +76,7 @@ function robo.anim_frames()
 end
 
 function game.init()
-	level = tilemap.load(pre..'test level.btm')
+	level = tilemap.load(pre..robo.levels[1])
 	robo.anim_frames()
 	game.reset()
 	lighting.init()
@@ -75,6 +85,7 @@ function game.init()
 	robo.img_empty = tex.load(pre..'obj_start.png')
 	robo.shadow = tex.load(pre..'shadow.png')
 	robo.img = tex.load(pre..'robo_anim_atlas.png')
+	robo.title = tex.load(pre..'title.png')
 
 
 	sfx = {}
@@ -84,6 +95,7 @@ function game.init()
 	sfx.creatures = sound.load_sample(pre..'creatures.wav')
 	sfx.death = sound.load_sample(pre..'end1.wav')
 	sfx.switch = sound.load_sample(pre..'switch.wav')
+	sfx.win = sound.load_sample(pre..'end2.wav')
 
 	sfx.src_footsteps = sound.play(sfx.footsteps, true)
 	sfx.vol_footsteps = 0
@@ -93,6 +105,30 @@ function game.init()
 
 	sfx.src_creatures = sound.play(sfx.creatures, true)
 	sfx.vol_creatures = 0
+end
+
+function game.draw_title()
+	if time.s() - 1 > robo.title_duration then
+		return
+	end
+
+	local off_src = rect(0, 0, 512, 256)
+	local on_src = rect(0, 256, 512, 512)
+
+
+	local nt = clamp(0, 1, (time.s() - 1) / robo.title_duration)
+	t = math.sin(nt * math.pi)
+
+	local src = off_src
+	if rand.int(0, math.floor(lerp(10, 1, t))) == 0 then
+		src = on_src
+	end
+	if nt > 0.6 then
+		src = off_src
+	end
+
+	local col = lerp(rgba(1, 1, 1, 0), rgba(1, 1, 1, 1), t)	
+	video.draw_rect(robo.title, 5, src, vec2(0, 0), col)
 end
 
 function game.reset()
@@ -133,11 +169,13 @@ function game.close()
 	sound.free(sfx.creatures)
 	sound.free(sfx.death)
 	sound.free(sfx.switch)
+	sound.free(sfx.win)
 
 	tilemap.free(level)
 	tex.free(robo.img_empty)
 	tex.free(robo.img)
 	tex.free(robo.shadow)
+	tex.free(robo.title)
 	lighting.destroy()
 	objects.close()
 	eyes.close()
@@ -264,7 +302,8 @@ function robo.draw()
 	-- find visible beacons
 	local window = tilemap.screen2world(level, screen, screen)
 	for i, obj in ipairs(objects.beacons) do
-		local p = vec2((obj.rect.l + obj.rect.r) / 2, (obj.rect.t + obj.rect.b) / 2)
+		local p = vec2((obj.rect.l + obj.rect.r) / 2, 
+			(obj.rect.t + obj.rect.b) / 2 - 25)
 		if rect_circle_collision(window, p, robo.beacon_radius) or
 			rect_point_collision(window, p) then
 			p = tilemap.world2screen(level, screen, p)
@@ -291,6 +330,8 @@ function game.frame()
 	robo.draw()
 	objects.draw(lights_cache)
 	eyes.draw()
+
+	game.draw_title()
 
 	if robo.dead then
 		-- fadeout
