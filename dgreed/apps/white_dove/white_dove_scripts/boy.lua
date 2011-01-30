@@ -127,43 +127,48 @@ function boy.update_pos()
 end
 
 function boy.update_move()
+
+	if key.down(key._down) then
+		if boy.active_src.x ~= direction.down then
+			boy.active_src.y = 1
+		end
+		boy.active_src.x = direction.down
+		move_dt = move_dt + time.dt()
+	elseif key.down(key._up) then
+		if boy.active_src.x ~= direction.up then
+			boy.active_src.y = 1
+		end
+		boy.active_src.x = direction.up
+		move_dt = move_dt + time.dt()
+	elseif key.down(key._left) then
+		if boy.active_src.x ~= direction.left then
+			boy.active_src.y = 1
+		end
+		boy.active_src.x = direction.left
+		move_dt = move_dt + time.dt()
+	elseif key.down(key._right) then
+		if boy.active_src.x ~= direction.right then
+			boy.active_src.y = 1
+		end
+		boy.active_src.x = direction.right
+		move_dt = move_dt + time.dt()
+	end
+	
+	if key.pressed(key._down) or key.pressed(key._up) or
+		key.pressed(key._left) or key.pressed(key._right) then
+		move_dt = move_dt + time.dt()
+	end
+
+	if key.pressed(key._down) then boy.active_src.x = direction.down end
+	if key.pressed(key._up) then boy.active_src.x = direction.up end
+	if key.pressed(key._left) then boy.active_src.x = direction.left end
+	if key.pressed(key._right) then boy.active_src.x = direction.right end
+
+
 	if move_dt > 170 then
-		if key.pressed(key._up) then
-			if (boy.active_src.x == direction.up) then
-				boy.active_src.y = boy.active_src.y + 1
-				if boy.active_src.y > 4 then
-					boy.active_src.y = 1
-				end
-			else 
-				boy.active_src = vec2(direction.up, 1)
-			end
-		elseif key.pressed(key._down) then
-			if (boy.active_src.x == direction.down) then
-				boy.active_src.y = boy.active_src.y + 1
-				if boy.active_src.y > 4 then
-					boy.active_src.y = 1
-				end
-			else 
-				boy.active_src = vec2(direction.down, 1)
-			end
-		elseif key.pressed(key._left) then
-			if (boy.active_src.x == direction.left) then
-				boy.active_src.y = boy.active_src.y + 1
-				if boy.active_src.y > 4 then
-					boy.active_src.y = 1
-				end
-			else 
-				boy.active_src = vec2(direction.left, 1)
-			end	
-		elseif key.pressed(key._right) then
-			if (boy.active_src.x == direction.right) then
-				boy.active_src.y = boy.active_src.y + 1
-				if boy.active_src.y > 4 then
-					boy.active_src.y = 1
-				end
-			else 
-				boy.active_src = vec2(direction.right, 1)
-			end
+		boy.active_src.y = boy.active_src.y + 1
+		if boy.active_src.y > 4 then
+			boy.active_src.y = 1
 		end
 		move_dt = 0
 	end
@@ -171,7 +176,6 @@ function boy.update_move()
 end
 
 function boy.update()
-	move_dt = move_dt + time.dt() 
 	boy.update_move()
 	boy.update_pos()
 end
