@@ -45,7 +45,7 @@ function eyes.update(lights)
 		local run_vect = vec2()
 		for j,l in ipairs(lights) do
 			local lp = tilemap.screen2world(level, screen, l.pos)
-			if length(lp - e.p) < 1.1 * l.inten then
+			if length(lp - e.p) < 1.2 * l.inten then
 				if rand.int(0, 3) == 2 then
 					run_vect = run_vect + normalize(e.p - lp) * 120	
 				end
