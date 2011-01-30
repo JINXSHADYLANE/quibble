@@ -8,6 +8,7 @@ game = {}
 draw_hitbox = false 
 
 robo = {
+	shadow = nil,
 	img_empty = nil,
 	dir = 0,
 	frame = 1,
@@ -72,6 +73,7 @@ function game.init()
 	objects.init()
 	eyes.init()
 	robo.img_empty = tex.load(pre..'obj_start.png')
+	robo.shadow = tex.load(pre..'shadow.png')
 	robo.img = tex.load(pre..'robo_anim_atlas.png')
 
 
@@ -133,6 +135,7 @@ function game.close()
 	tilemap.free(level)
 	tex.free(robo.img_empty)
 	tex.free(robo.img)
+	tex.free(robo.shadow)
 	lighting.destroy()
 	objects.close()
 	eyes.close()
@@ -243,6 +246,12 @@ function robo.draw()
 		dest.l, dest.r = dest.r, dest.l
 		video.draw_rect(robo.img, 0, robo.anim[f], dest)
 	end
+
+	-- draw shadow
+	local shadow_pos = vec2(d)
+	shadow_pos.y = shadow_pos.y + 32
+	local col = rgba(1, 1, 1, 0.7)
+	video.draw_rect_centered(robo.shadow, 0, shadow_pos, 0.0, 0.7, col)
 
 	local light = {}
 	light.pos = vec2((dest.l + dest.r) / 2, (dest.t + dest.b) / 2)
