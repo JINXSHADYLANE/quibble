@@ -1,6 +1,4 @@
 
-dofile(src..'quadtree.lua')
-
 objects = {
 	layer = 0,
 	crate_img = nil,
@@ -22,11 +20,6 @@ objects = {
 	src_exit2 = rect(0, 64, 64, 128),
 	src_exit2_glow = rect(64, 64, 128, 128),
 
-	crates = {},
-	beacons = {},
-	buttons = {},
-
-	-- all other static objs are here
 	list = {}
 }
 
@@ -39,9 +32,7 @@ function shrinked_bbox(bbox, r)
 end
 
 function objects.reset()
-	objects.crates = {}
-	objects.beacons = {}
-	objects.buttons = {}
+	cobjects.reset(level);
 	objects.list = {}
 end
 
@@ -59,11 +50,19 @@ function objects.close()
 	tex.free(objects.beacon_img)
 	tex.free(objects.button_img)
 	tex.free(objects.exit_img)
+	cobjects.close()
 end
 
 function objects.add(id, pos)
 	local r = rect(pos.x, pos.y, pos.x+64, pos.y+64)
 	local p = center(r)
+
+	-- start
+	if id == 0  then
+		r.r = r.l + robo.size.x
+		r.b = r.t + robo.size.y
+		objects.start = rect(r)
+	end
 
 	-- end
 	if id == 1 then
@@ -72,24 +71,22 @@ function objects.add(id, pos)
 
 	-- crate
 	if id == 2 then	
-		table.insert(objects.crates, {rect=r, id=2})
+		cobjects.add(cobjects.obj_crate, pos)
 	end
 
 	-- battery
 	if id == 3 then
-		table.insert(objects.list, {rect=r, id=3, taken=false})
+		cobjects.add(cobjects.obj_battery, pos)
 	end
 
 	-- beacon
 	if id == 4 then
-		table.insert(objects.beacons, {pos=p, rect=r, id=4, has_btn=false})
-		table.insert(objects.list, objects.beacons[#objects.beacons])
+		cobjects.add(cobjects.obj_beacon, pos)
 	end
 
 	-- button
 	if id == 5 then
-		table.insert(objects.buttons, {pos=p, rect=r, id=5, state=false})
-		table.insert(objects.list, objects.buttons[#objects.buttons])
+		cobjects.add(cobjects.obj_button, pos)
 	end
 
 	-- exit decor 1 & 2
@@ -100,62 +97,52 @@ function objects.add(id, pos)
 end
 
 function objects.seal()
-	objects.qtree = Quadtree:new(objects.list)
-
-	-- find closest unused beacon for each button 
-	for i,b in ipairs(objects.buttons) do
-		local min_d, min_l = 100000, nil
-		for j,l in ipairs(objects.beacons) do
-			local len = length(b.pos - l.pos)
-			if min_d > len and not l.has_btn then
-				min_d = len
-				min_l = l
-			end
-		end
-
-		min_l.has_btn = true
-		b.lights = {min_l}
-		min_l.inten = 0
-	end
+	cobjects.seal(objects.start)
 end
 
 function objects.draw()
 	local camera_rect = tilemap.screen2world(level, screen, screen)	
 
 	-- crates
-	for i, obj in ipairs(objects.crates) do
-		if rect_rect_collision(camera_rect, obj.rect) then
-			local r = tilemap.world2screen(level, screen, obj.rect)
-			video.draw_rect(objects.crate_img, objects.layer, r)
-		end
+	local crates = cobjects.get_crates(camera_rect)
+	for i, obj in ipairs(crates) do
+		local p = tilemap.world2screen(level, screen, obj)
+		video.draw_rect(objects.crate_img, objects.layer, p)
 	end
 
-	-- static objs
-	local vis_objs = objects.qtree:query(camera_rect)
-	for i, obj in ipairs(vis_objs) do
+	-- batteries
+	local batteries = cobjects.get_batteries(camera_rect)
+	for i, obj in ipairs(batteries) do
+		local p = tilemap.world2screen(level, screen, obj)
+		video.draw_rect(objects.battery_img, objects.layer, objects.normal_battery, p)
+		video.draw_rect(objects.battery_img, objects.layer+2, objects.glow_battery, p)
+	end
+
+	-- beacons
+	local beacons = cobjects.get_beacons(camera_rect)
+	for i, obj in ipairs(beacons) do
+		local p = tilemap.world2screen(level, screen, obj.pos) + vec2(32, 32)
+		local src = objects.src_beacon_off
+		if obj.intensity > 0.1 then
+			src = objects.src_beacon_on
+		end
+		video.draw_rect_centered(objects.beacon_img, objects.layer, src, p, 0.0, 1.5)
+	end
+
+	-- buttons
+	local buttons = cobjects.get_buttons(camera_rect)
+	for i, obj in ipairs(buttons) do
+		local p = tilemap.world2screen(level, screen, obj.pos)
+		local src = objects.src_button_off
+		if obj.state then
+			src = objects.src_button_on
+		end
+		video.draw_rect(objects.button_img, objects.layer, src, p)
+	end
+
+	-- other objs
+	for i, obj in ipairs(objects.list) do
 		local r = tilemap.world2screen(level, screen, obj.rect)	
-		if obj.id == 3 and obj.taken == false then
-			video.draw_rect(objects.battery_img, objects.layer, objects.normal_battery, r)
-			-- glow-in-the-dark batteries
-			video.draw_rect(objects.battery_img, 3, objects.glow_battery, r)
-		end
-		if obj.id == 4 then
-			local p = center(r)		
-			if obj.inten == nil or obj.inten > 5 then
-				video.draw_rect_centered(objects.beacon_img, objects.layer,
-					objects.src_beacon_on, p, 0.0, 1.5)
-			else
-				video.draw_rect_centered(objects.beacon_img, objects.layer,
-					objects.src_beacon_off, p, 0.0, 1.5)
-			end
-		end
-		if obj.id == 5 then
-			local src = objects.src_button_off
-			if obj.state == true then
-				src = objects.src_button_on
-			end
-			video.draw_rect(objects.button_img, objects.layer, src, r)
-		end
 		if obj.id == 6 then
 			video.draw_rect(objects.exit_img, objects.layer,
 				objects.src_exit, r)
@@ -171,167 +158,26 @@ function objects.draw()
 	end
 end
 
-function objects.interact(player_bbox, player_offset)
+function objects.interact(player_bbox)
 	local res = true
 
-	-- buttons
-	for i,b in ipairs(objects.buttons) do
-		local new_state = false
+	for i, obj in ipairs(objects.list) do
+		if rect_rect_collision(obj.rect, player_bbox) then
+			-- level end
+			if obj.id == 1 and not robo.finished then
+				sound.play(sfx.win)
 
-		-- collide with player
-		if rect_rect_collision(b.rect, player_bbox) then
-			new_state = true	
-		end
-
-		-- collide with crates
-		-- potential bottleneck here - #buttons * #crates collision checks
-		for j,c in ipairs(objects.crates) do
-			if rect_rect_collision(b.rect, c.rect) then
-				new_state = true
-			end
-		end	
-
-		-- change beacon intens accordingly
-		for j,l in ipairs(b.lights) do
-			local t = 0
-			if new_state then
-				t = robo.beacon_radius
-			end
-			l.inten = lerp(l.inten, t, 0.1)
-		end
-
-		if b.state ~= new_state then
-			sound.play(sfx.switch)
-		end
-		b.state = new_state
-	end
-
-	local hit_objs = objects.qtree:query(player_bbox)
-	for i, obj in ipairs(hit_objs) do
-		-- level end
-		if obj.id == 1 then
-			sound.play(sfx.win)
-
-			robo.level = robo.level+1
-			if robo.level <= #robo.levels then
-				tilemap.free(level)
-				level = tilemap.load(pre..robo.levels[robo.level])
-				game.reset()
-			else
-				robo.finished = true
-				robo.finished_t = time.s()
-			end
-		end
-
-		-- pick up batteries
-		if obj.id == 3 and obj.taken == false then
-			--local r = tilemap.world2screen(level, screen, obj.rect)
-			local r = shrinked_bbox(obj.rect, 20)
-			r.l = r.l + 10
-			r.r = r.r - 10
-			if rect_rect_collision(player_bbox, r) then
-				-- pick up battery!
-				obj.taken = true
-				robo.energy = robo.energy + robo.battery_juice
-				robo.energy = math.min(1, robo.energy)
-				sound.play(sfx.pickup)
-			end
-		end
-	end
-
-	-- abort if hitting multiple crates
-	local hits = 0
-	for i, crate in ipairs(objects.crates) do
-		if rect_rect_collision(player_bbox, crate.rect) then
-			hits = hits + 1
-		end
-	end
-
-	local pushing = false
-
-	if hits == 0 then
-		sfx.vol_push = lerp(sfx.vol_push, 0, 0.2)
-		return true
-	end
-	if hits > 1 then
-		sfx.vol_push = lerp(sfx.vol_push, 0, 0.2)
-		return false
-	end
-
-	-- check for crate hits
-	for i, crate in ipairs(objects.crates) do
-		if rect_rect_collision(player_bbox, crate.rect) then
-			local new_rect, offset = rect(crate.rect), nil 
-			if player_offset.x < 0 then
-				new_rect.r = player_bbox.l-1
-				new_rect.l = new_rect.r - 64
-			end
-			if player_offset.x > 0 then
-				new_rect.l = player_bbox.r+1
-				new_rect.r = new_rect.l + 64
-			end
-			if player_offset.y < 0 then
-				new_rect.b = player_bbox.t-1
-				new_rect.t = new_rect.b - 64
-			end
-			if player_offset.y > 0 then
-				new_rect.t = player_bbox.b+1
-				new_rect.b = new_rect.t + 64
-			end
-			offset = vec2(
-				new_rect.l - crate.rect.l,
-				new_rect.t - crate.rect.t
-			)	
-
-			-- prevent sudden jumps
-			if math.abs(offset.x) > 20 then
-				offset.x = 0
-			end
-			if math.abs(offset.y) > 20 then
-				offset.y = 0
-			end
-
-			if offset.x ~= 0 or offset.y ~= 0 then
-				local small_bbox = shrinked_bbox(new_rect, 2)
-				-- check for collision with other crates
-				for j, ncrate in ipairs(objects.crates) do
-					if i ~= j and rect_rect_collision(small_bbox, ncrate.rect) then
-						offset = vec2()
-						res = false
-						break
-					end
-				end
-			end
-
-			if rect_rect_collision(player_bbox, new_rect) then
-				offset = vec2()
-				res = false
-			end
-
-			if offset.x ~= 0 or offset.y ~= 0 then
-				-- check for collision with walls
-				local dx = tilemap.collide_swept(level, crate.rect, vec2(offset.x, 0))
-				crate.rect.l = crate.rect.l + dx.x
-				crate.rect.r = crate.rect.r + dx.x
-
-				local dy = tilemap.collide_swept(level, crate.rect, vec2(0, offset.y))
-				crate.rect.t = crate.rect.t + dy.y
-				crate.rect.b = crate.rect.b + dy.y
-
-				if dx.x ~= player_offset.x or dy.y ~= player_offset.y then		
-					res = false
+				robo.level = robo.level+1
+				if robo.level <= #robo.levels then
+					tilemap.free(level)
+					level = tilemap.load(pre..robo.levels[robo.level])
+					game.reset()
 				else
-					pushing = true
+					robo.finished = true
+					robo.finished_t = time.s()
 				end
 			end
 		end
 	end
-
-	local push_vol = 0
-	if pushing then
-		push_vol = 1
-	end
-	sfx.vol_push = lerp(sfx.vol_push, push_vol, 0.2)
-	return res
 end
 

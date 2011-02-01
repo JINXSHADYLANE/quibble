@@ -5,7 +5,7 @@ dofile(src..'eyes.lua')
 
 game = {}
 
-draw_hitbox = false 
+draw_hitbox = true 
 
 robo = {
 	levels = {
@@ -148,10 +148,8 @@ function game.reset()
 			start_found = true
 		end
 
-		-- pass other objs elsewhere
-		if objs[i].id ~= 0 then
-			objects.add(objs[i].id, objs[i].pos)
-		end
+		-- pass all objs elsewhere
+		objects.add(objs[i].id, objs[i].pos)
 	end
 
 	eyes.reset()
@@ -218,29 +216,12 @@ function game.update()
 		move = true
 	end
 
-	local offset = robo.pos - new_pos	
-
-	-- x
-	local dx = tilemap.collide_swept(level, robo.bbox, vec2(-offset.x, 0))
-	local old_rect, old_pos = rect(robo.bbox), vec2(robo.pos)
-	robo.pos = robo.pos + dx
-	robo.bbox.l = robo.bbox.l + dx.x
-	robo.bbox.r = robo.bbox.r + dx.x
-	if not objects.interact(robo.bbox, dx) then
-		robo.pos = vec2(old_pos)
-		robo.rect = rect(old_rect)
-	end
-
-	-- y
-	local dy = tilemap.collide_swept(level, robo.bbox, vec2(0, -offset.y))
-	old_rect, old_pos = rect(robo.bbox), vec2(robo.pos)
-	robo.pos = robo.pos + dy
-	robo.bbox.t = robo.bbox.t + dy.y
-	robo.bbox.b = robo.bbox.b + dy.y
-	if not objects.interact(robo.bbox, dy) then
-		robo.pos = vec2(old_pos)
-		robo.rect = rect(old_rect)
-	end
+	local offset = new_pos - robo.pos	
+	
+	robo.bbox = cobjects.move_player(offset)
+	robo.pos.x = robo.bbox.l
+	robo.pos.y = robo.bbox.t
+	objects.interact(robo.bbox)
 
 	-- move camera
 	camera_pos.x = lerp(camera_pos.x, robo.pos.x + robo.size.x/2, robo.cam_speed)
@@ -305,18 +286,11 @@ function robo.draw()
 
 	-- find visible beacons
 	local window = tilemap.screen2world(level, screen, screen)
-	for i, obj in ipairs(objects.beacons) do
-		local p = vec2((obj.rect.l + obj.rect.r) / 2, 
-			(obj.rect.t + obj.rect.b) / 2 - 25)
-		if rect_circle_collision(window, p, robo.beacon_radius) or
-			rect_point_collision(window, p) then
-			p = tilemap.world2screen(level, screen, p)
-			local int = robo.beacon_radius
-			if obj.inten ~= nil then
-				int = obj.inten
-			end
-			table.insert(lights, {pos=p, inten=int, base=0.8})
-		end
+	local beacons = cobjects.get_beacons(window)
+	for i, obj in ipairs(beacons) do
+		local p = obj.pos + vec2(32, 7)
+		p = tilemap.world2screen(level, screen, p)
+		table.insert(lights, {pos=p, inten=obj.intensity, base=0.8})
 	end
 	
 	lighting.render(2, lights)

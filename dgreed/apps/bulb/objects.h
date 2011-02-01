@@ -30,7 +30,7 @@ void objects_close(void);
 void objects_add(ObjectType type, Vector2 pos);
 void objects_seal(RectF player);
 RectF objects_move_player(Vector2 offset, bool* battery);
-void objects_get(ObjectType type, RectF screen, DArray dest);
+void objects_get(ObjectType type, RectF screen, DArray* dest);
 
 #endif
 

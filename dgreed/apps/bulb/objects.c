@@ -32,24 +32,24 @@ static uint _vec_to_cell(Vector2 v) {
 	assert(v.x >= 0.0f && v.x < (float)world_width);
 	assert(v.y >= 0.0f && v.y < (float)world_width);
 
-	uint x = (uint)(v.x / fcell_size);
-	uint y = (uint)(v.y / fcell_size);
+	uint x = (uint)lrintf(v.x / fcell_size);
+	uint y = (uint)lrintf(v.y / fcell_size);
 	uint cell = y * (world_width / cell_size) + x;
 	assert(cell < cell_count);
 	return cell;
 }
 
 static uint _aligned_rect_to_cell(RectF rect) {
-	assert(rectf_width(&rect) <= fcell_size);
-	assert(rectf_height(&rect) <= fcell_size);
+	assert(rectf_width(&rect) <= fcell_size + 0.001f);
+	assert(rectf_height(&rect) <= fcell_size + 0.001f);
 
 	return _vec_to_cell(vec2(rect.left, rect.top));	
 }
 
 // Returns amount of result cells in out
 static uint _rect_to_cells(RectF rect, uint out[4]) {
-	assert(rectf_width(&rect) <= fcell_size);
-	assert(rectf_height(&rect) <= fcell_size);
+	assert(rectf_width(&rect) <= fcell_size + 0.001f);
+	assert(rectf_height(&rect) <= fcell_size + 0.001f);
 
 	out[0] = _vec_to_cell(vec2(rect.left, rect.top));
 	out[1] = _vec_to_cell(vec2(rect.left, rect.bottom));
@@ -59,37 +59,20 @@ static uint _rect_to_cells(RectF rect, uint out[4]) {
 	// Optimal sorting network for 4 items
 	out[0] = MIN(out[0], out[1]);
 	out[1] = MAX(out[0], out[1]);
+
 	out[2] = MIN(out[2], out[3]);
 	out[3] = MAX(out[2], out[3]);
+
 	out[0] = MIN(out[0], out[2]);
-	out[1] = MIN(out[1], out[3]);
-	out[2] = MAX(out[0], out[2]);
+	out[2] = MIN(out[0], out[2]);
+
+	out[1] = MAX(out[1], out[3]);
 	out[3] = MAX(out[1], out[3]);
+
 	out[1] = MIN(out[1], out[2]);
 	out[2] = MAX(out[1], out[2]);
 
-	// Remove duplicates
-	uint i = 1, count = 1;
-	while(i < 4) {
-		bool unique = true;
-		for(uint j = i+1; j < 4; ++j) {
-			if(out[j] == out[i]) {
-				unique = false;
-				break;
-			}	
-		}
-
-		if(unique) {
-			count++;
-			i++;
-		}
-		else {
-			for(uint j = i+1; j < 4; ++j) 
-				out[j-1] = out[j];
-		}
-	}
-
-	return count;
+	return 4;
 }
 
 void objects_reset(Tilemap* map) {
@@ -173,6 +156,7 @@ void _cell_append(uint cell_id, uint object_id) {
 	uint c = cells[cell_id].obj_count; 
 	assert(c < MAX_OBJS_IN_CELL-1);
 	cells[cell_id].obj_ids[c++] = object_id;
+	cells[cell_id].obj_count = c;
 }
 
 void _cell_remove(uint cell_id, uint object_id) {
@@ -186,6 +170,7 @@ void _cell_remove(uint cell_id, uint object_id) {
 				c->obj_ids[j-1] = c->obj_ids[j];
 			}
 			c->obj_count--;
+			break;
 		}
 	}
 	assert(success);
@@ -243,7 +228,7 @@ void objects_seal(RectF player) {
 		Object* button = &objects[buttons[i]];
 		assert(button->type == obj_button);
 
-		float min_d = 10000.0f;
+		float min_d = INFINITY;
 		uint min_id = ~0;
 
 		Vector2 bp = rectf_center(&button->rect);
@@ -277,7 +262,7 @@ static uint hit_crate_ids[16];
 
 // Works with short rays only
 static Vector2 _crates_raycast(Vector2 start, Vector2 end) {
-	float min_sq_dist = 100000.0f;
+	float min_sq_dist = INFINITY;
 	Vector2 min_hitp = end;
 
 	Vector2 d = vec2_sub(end, start);
@@ -451,11 +436,13 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 
 	// y
 	Vector2 dy = tilemap_collide_swept_rectf(level, bbox, vec2(0.0f, offset.y));
+	bbox.top += dy.y;
+	bbox.bottom += dy.y;
 
 	offset = vec2(dx.x, dy.y);
-	RectF new_bbox = bbox;
-	bbox = player_rect;
-
+//	RectF new_bbox = bbox;
+//	bbox = player_rect;
+/*
 	// Collide with crates
 	hit_crates_count = 0;
 	hit_update = true;
@@ -509,6 +496,7 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 
 	bbox.top += dy.y;
 	bbox.bottom += dy.y;
+*/
 
 	// Collide buttons against crates
 	for(uint i = 0; i < buttons_array.size; ++i) {
@@ -554,10 +542,85 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 		assert(beacon->beacon_taken == true);
 
 		float target_intensity = button->data.button_state ? beacon_intensity : 0.0f;
-		beacon->data.beacon_intensity = lerp(beacon->data.beacon_intensity, target_intensity, 0.1f);
+		beacon->data.beacon_intensity = lerp(beacon->data.beacon_intensity, target_intensity, 0.2f);
 	}
 
-	assert(cmoves < 2);
+	//assert(cmoves < 2);
+	player_rect = bbox;
 	return bbox;
+}
+
+void objects_get(ObjectType type, RectF screen, DArray* dest) {
+	static uint obj_list[256];
+	uint obj_count = 0;
+	
+	assert(dest->item_size == sizeof(Object));
+	dest->size = 0;
+
+	if(type == obj_beacon) {
+		screen.left -= beacon_intensity;
+		screen.top -= beacon_intensity;
+		screen.right += beacon_intensity;
+		screen.bottom += beacon_intensity;
+	}
+
+	// Clip screen
+	if(screen.left < 0.0f) screen.left = 0.0f;
+	if(screen.right > (float)world_width) screen.right = (float)world_width;
+	if(screen.top < 0.0f) screen.top = 0.0f;
+	if(screen.bottom > (float)world_height) screen.bottom = (float)world_height;
+
+	// Determine four corner cells
+	uint cell_tl = _vec_to_cell(vec2(screen.left, screen.top));
+	//uint cell_tr = _vec_to_cell(vec2(screen.right, screen.top));
+	//uint cell_bl = _vec_to_cell(vec2(screen.left, screen.bottom));
+	uint cell_br = _vec_to_cell(vec2(screen.right, screen.bottom));
+
+	uint horiz_cells = world_width / cell_size;
+	uint vert_cells = world_height / cell_size;
+
+	assert(world_width % cell_size == 0);
+	assert(world_height % cell_size == 0);
+
+	uint min_x = cell_tl % horiz_cells;
+	uint min_y = cell_tl / horiz_cells;
+	uint max_x = cell_br % horiz_cells;
+	uint max_y = cell_br / horiz_cells;
+
+	for(uint y = min_y; y <= max_y; ++y) {
+		for(uint x = min_x; x <= max_x; ++x) {
+			if(y >= vert_cells || x >= horiz_cells)
+				continue;
+
+			uint cell_id = y * horiz_cells + x;
+			assert(cell_id < cell_count);
+
+			SHashCell* cell = &cells[cell_id];
+			for(uint i = 0; i < cell->obj_count; ++i) {
+				uint obj_id = cell->obj_ids[i];
+				Object* obj = &objects[obj_id];
+				if(obj->type != type)
+					continue;
+				if(obj->type == obj_battery && obj->data.battery_taken)
+					continue;
+
+				bool added = false;
+				for(uint j = 0; j < obj_count; ++j) {
+					if(obj_list[j] == obj_id) {
+						added = true;
+						break;
+					}
+				}
+
+				if(!added) {
+					assert(obj_count < 255);
+					obj_list[obj_count++] = obj_id;
+				}
+			}
+		}
+	}
+
+	for(uint i = 0; i < obj_count; ++i) 
+		darray_append(dest, (void*)&objects[obj_list[i]]); 	
 }
 
