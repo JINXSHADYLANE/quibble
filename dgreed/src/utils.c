@@ -234,6 +234,14 @@ float rectf_height(const RectF* r) {
 	return r->bottom - r->top;
 }
 
+Vector2 rectf_center(const RectF* r) {
+	assert(r);
+	return vec2(
+		(r->left + r->right) / 2.0f,
+		(r->top + r->bottom) / 2.0f
+	);	
+}
+
 /*
 --------------------
 --- Line segment ---

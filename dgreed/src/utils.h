@@ -101,6 +101,8 @@ bool rectf_rectf_collision(const RectF* rect1, const RectF* rect2);
 // Returns signed width/height
 float rectf_width(const RectF* r);
 float rectf_height(const RectF* r);
+// Returns center
+Vector2 rectf_center(const RectF* r);
 
 /*
 ----------------
