@@ -237,7 +237,6 @@ function game.update()
 	robo.pos = robo.pos + dy
 	robo.bbox.t = robo.bbox.t + dy.y
 	robo.bbox.b = robo.bbox.b + dy.y
-	objects.interact(robo.bbox, dy)
 	if not objects.interact(robo.bbox, dy) then
 		robo.pos = vec2(old_pos)
 		robo.rect = rect(old_rect)
