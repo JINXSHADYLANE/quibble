@@ -263,7 +263,7 @@ static int ml_video_present(lua_State* l) {
 	return 1;
 }
 
-static bool _check_vec2(lua_State* l, int i, Vector2* v) {
+bool _check_vec2(lua_State* l, int i, Vector2* v) {
 	lua_getfield(l, i, "x");
 	lua_getfield(l, i, "y");
 
@@ -279,7 +279,7 @@ static bool _check_vec2(lua_State* l, int i, Vector2* v) {
 	}
 }
 
-static bool _check_rect(lua_State* l, int i, RectF* r) {
+bool _check_rect(lua_State* l, int i, RectF* r) {
 	lua_getfield(l, i, "l");
 	lua_getfield(l, i, "t");
 	lua_getfield(l, i, "r");
@@ -1302,7 +1302,7 @@ static const luaL_Reg particles_fun[] = {
 #define checktmaphandle(l, i) \
 	(Tilemap**)luaL_checkudata(l, i, "_TilemapHandle.mt")
 
-static void _new_tmaphandle(lua_State* l, Tilemap* tm) {
+void _new_tmaphandle(lua_State* l, Tilemap* tm) {
 	Tilemap** t = (Tilemap**)lua_newuserdata(l, sizeof(Tilemap*));
 	*t = tm;
 	luaL_getmetatable(l, "_TilemapHandle.mt");

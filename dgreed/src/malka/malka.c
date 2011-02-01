@@ -3,14 +3,12 @@
 #include "ml_utils.h"
 #include "ml_system.h"
 
-#include "lua/lua.h"
-#include "lua/lauxlib.h"
-#include "lua/lualib.h"
-
 #ifdef MACOSX_BUNDLE
 #include "memory.h"
 #include <unistd.h>
 #endif
+
+static lua_State* l;
 
 bool _endswith(const char* str, const char* tail) {
 	assert(str && tail);
@@ -40,7 +38,34 @@ bool _stripdir(char* path) {
 }
 
 int malka_run(const char* luafile) {
+	malka_init();
+	int res = malka_run_ex(luafile);
+	malka_close();
+	return res;
+}
 
+void malka_init(void) {
+	l = luaL_newstate();
+	luaL_openlibs(l);
+	malka_open_vec2(l);
+	malka_open_rect(l);
+	malka_open_colors(l);
+	malka_open_misc(l);
+	malka_open_rand(l);
+	malka_open_log(l);
+	malka_open_file(l);
+	malka_open_system(l);
+}
+
+void malka_close(void) {
+	lua_close(l);
+}
+
+int malka_register(bind_fun_ptr fun) {
+	return (*fun)(l);
+}
+
+int malka_run_ex(const char* luafile) {
 	// If we're in Mac OS X bundle, some rituals need to be performed
 	#ifdef MACOSX_BUNDLE
 	char* real_path = path_to_resource(luafile);
@@ -60,24 +85,12 @@ int malka_run(const char* luafile) {
 	MEM_FREE(real_folder);
 	#endif
 
-	lua_State* l = luaL_newstate();
-	luaL_openlibs(l);
-	malka_open_vec2(l);
-	malka_open_rect(l);
-	malka_open_colors(l);
-	malka_open_misc(l);
-	malka_open_rand(l);
-	malka_open_log(l);
-	malka_open_file(l);
-	malka_open_system(l);
-
 	if(luaL_dofile(l, luafile)) {
 		const char* err = luaL_checkstring(l, -1);
 		LOG_WARNING("error in lua script:\n%s\n", err);
 		printf("An error occured:\n%s\n", err);
 	}
 
-	lua_close(l);
 	return 0;
 }
 
