@@ -10,9 +10,9 @@ draw_hitbox = true
 robo = {
 	levels = {
 		'tutorial level.btm',
-		'pre entry.btm',
-		'test level.btm',
-		'level2.btm',
+	--	'pre entry.btm',
+	--	'test level.btm',
+	--	'level2.btm',
 		'massive out.btm'
 	},
 
@@ -218,7 +218,13 @@ function game.update()
 
 	local offset = new_pos - robo.pos	
 	
-	robo.bbox = cobjects.move_player(offset)
+	local battery
+	robo.bbox, battery = cobjects.move_player(offset)
+	if battery then
+		sound.play(sfx.pickup)
+		robo.energy = robo.energy + robo.battery_juice
+		robo.energy = math.min(1, robo.energy)
+	end
 	robo.pos.x = robo.bbox.l
 	robo.pos.y = robo.bbox.t
 	objects.interact(robo.bbox)
