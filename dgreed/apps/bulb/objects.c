@@ -11,9 +11,9 @@ typedef struct {
 } SHashCell;
 
 // Tweakables
-static uint cell_size = 64;
-static float fcell_size = 64.0f;
-static float beacon_intensity = 180.0f;
+const static uint cell_size = 64;
+const static float fcell_size = 64.0f;
+const static float beacon_intensity = 180.0f;
 
 // State
 static uint world_width, world_height, cell_count;
@@ -77,8 +77,6 @@ void objects_reset(Tilemap* map) {
 
 	world_width = map->width * map->tile_width;
 	world_height = map->height * map->tile_height;
-	LOG_INFO("Reset: %d %d %d %d %d", world_width, world_height, map->width,
-		map->height, map->tile_width);
 
 	assert(world_width % cell_size == 0);
 	assert(world_height % cell_size == 0);
@@ -421,10 +419,11 @@ Vector2 _move_crate(uint crate_id, Vector2 offset) {
 	return vec2(dx.x, dy.y);
 }
 
-RectF objects_move_player(Vector2 offset, bool* battery) {
+RectF objects_move_player(Vector2 offset, bool* battery, bool* snd_button,
+	bool* snd_push) {
 	RectF bbox = player_rect;
 
-	*battery = false;
+	*battery = *snd_button = *snd_push = false;
 
 	// x
 	Vector2 dx = tilemap_collide_swept_rectf(level, bbox, vec2(offset.x, 0.0f));
@@ -443,29 +442,30 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 	// Collide with crates
 	hit_crates_count = 0;
 	hit_update = true;
-	uint cmoves = 0;
 	bool crate_hit = false;
 	dx = _crates_collide_swept_rectf(bbox, vec2(offset.x, 0.0f));
 	
 	// Move crate horizontally
 	if(fabsf(dx.x) < fabsf(offset.x)) {
 		hit_update = false;
-		cmoves++;
 		crate_hit = true;
 
 		float min_crate_offset = INFINITY;
 		for(uint i = 0; i < hit_crates_count; ++i) {
 			uint crate_id = hit_crate_ids[i];
 			if(rectf_rectf_collision(&new_bbox, &objects[crate_id].rect)) {
-				Vector2 crate_offset = vec2(offset.x - dx.x, 0.0f);
+				Vector2 crate_offset = vec2((offset.x - dx.x)/2.0f, 0.0f);
 				crate_offset = _move_crate(crate_id, crate_offset);
 				min_crate_offset = MIN(min_crate_offset, crate_offset.x);
 			}
 		}
 		if(min_crate_offset == INFINITY)
 			min_crate_offset = 0.0f;
-		bbox.left += min_crate_offset;
-		bbox.right += min_crate_offset; 
+		if(fabs(min_crate_offset) > 0.0f) {
+			bbox.left += min_crate_offset;
+			bbox.right += min_crate_offset; 
+			*snd_push = true;
+		}
 	}	
 
 	hit_crates_count = 0;
@@ -477,22 +477,24 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 	// Move crate vertically
 	if(fabsf(dy.y) < fabsf(offset.y)) {
 		hit_update = false;
-		cmoves++;
 		crate_hit = true;
 
 		float min_crate_offset = INFINITY;
 		for(uint i = 0; i < hit_crates_count; ++i) {
 			uint crate_id = hit_crate_ids[i];
 			if(rectf_rectf_collision(&new_bbox, &objects[crate_id].rect)) {
-				Vector2 crate_offset = vec2(0.0f, offset.y - dy.y);
+				Vector2 crate_offset = vec2(0.0f, (offset.y - dy.y)/2.0f);
 				crate_offset = _move_crate(crate_id, crate_offset);
 				min_crate_offset = MIN(min_crate_offset, crate_offset.y);
 			}
 		}
 		if(min_crate_offset == INFINITY)
 			min_crate_offset = 0.0f;
-		bbox.top += min_crate_offset;
-		bbox.bottom += min_crate_offset; 
+		if(fabs(min_crate_offset) > 0.0f) {
+			bbox.top += min_crate_offset;
+			bbox.bottom += min_crate_offset; 
+			*snd_push = true;
+		}
 	}	
 
 	bbox.top += dy.y;
@@ -503,13 +505,15 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 	for(uint i = 0; i < buttons_array.size; ++i) {
 		Object* button = &objects[buttons[i]];
 		assert(button->type == obj_button);
+		button->beacon_taken = button->data.button_state;
 		button->data.button_state = false;
 		uint cell_id = _aligned_rect_to_cell(button->rect);
 		for(uint j = 0; j < cells[cell_id].obj_count; ++j) {
 			Object* obj = &objects[cells[cell_id].obj_ids[j]];
 			if(obj->type == obj_crate) {
-				if(rectf_rectf_collision(&obj->rect, &button->rect))
+				if(rectf_rectf_collision(&obj->rect, &button->rect)) {
 					button->data.button_state = true;
+				}	
 			}
 		}
 	}
@@ -538,6 +542,10 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 		Object* button = &objects[buttons[i]];
 		assert(button->type == obj_button);
 
+		// Play sound
+		if(button->data.button_state != button->beacon_taken)
+			*snd_button = true;
+
 		Object* beacon = &objects[button->button_beacon];
 		assert(beacon->type == obj_beacon);	
 		assert(beacon->beacon_taken == true);
@@ -546,12 +554,9 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 		beacon->data.beacon_intensity = lerp(beacon->data.beacon_intensity, target_intensity, 0.2f);
 	}
 
-	//assert(cmoves < 2);
 	player_rect = bbox;
 	return bbox;
 }
-
-#include <system.h>
 
 void objects_get(ObjectType type, RectF screen, DArray* dest) {
 	static uint obj_list[256];
