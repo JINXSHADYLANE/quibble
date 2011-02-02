@@ -30,6 +30,13 @@ Interface:
 
 - cobjects.get_buttons(screen)
 	returns table of buttons - eache has members pos and state
+
+- clighting.init(screen)
+
+- clighting.close()
+
+- clighting.render(layer, lights)
+	lights is a table of tables with fields pos, radius and alpha
 */	
 
 #include <malka/malka.h>
