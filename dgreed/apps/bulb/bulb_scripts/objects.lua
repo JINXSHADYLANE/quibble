@@ -123,7 +123,7 @@ function objects.draw()
 	for i, obj in ipairs(beacons) do
 		local p = tilemap.world2screen(level, screen, obj.pos) + vec2(32, 32)
 		local src = objects.src_beacon_off
-		if obj.intensity > 0.1 then
+		if obj.intensity > 5 then
 			src = objects.src_beacon_on
 		end
 		video.draw_rect_centered(objects.beacon_img, objects.layer, src, p, 0.0, 1.5)
@@ -164,7 +164,7 @@ function objects.interact(player_bbox)
 	for i, obj in ipairs(objects.list) do
 		if rect_rect_collision(obj.rect, player_bbox) then
 			-- level end
-			if obj.id == 1 and not robo.finished then
+			if obj.id == 1 then
 				sound.play(sfx.win)
 
 				robo.level = robo.level+1
@@ -176,6 +176,8 @@ function objects.interact(player_bbox)
 					robo.finished = true
 					robo.finished_t = time.s()
 				end
+
+				break
 			end
 		end
 	end

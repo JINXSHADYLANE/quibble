@@ -29,11 +29,11 @@ static RectF player_rect;
 static Tilemap* level;
 
 static uint _vec_to_cell(Vector2 v) {
-	assert(v.x >= 0.0f && v.x < (float)world_width);
-	assert(v.y >= 0.0f && v.y < (float)world_width);
+	assert(v.x >= 0.0f && v.x < (float)world_width + 1);
+	assert(v.y >= 0.0f && v.y < (float)world_height + 1);
 
-	uint x = (uint)lrintf(v.x / fcell_size);
-	uint y = (uint)lrintf(v.y / fcell_size);
+	uint x = v.x / cell_size;
+	uint y = v.y / cell_size;
 	uint cell = y * (world_width / cell_size) + x;
 	assert(cell < cell_count);
 	return cell;
@@ -56,23 +56,18 @@ static uint _rect_to_cells(RectF rect, uint out[4]) {
 	out[2] = _vec_to_cell(vec2(rect.right, rect.top));
 	out[3] = _vec_to_cell(vec2(rect.right, rect.bottom));
 
-	// Optimal sorting network for 4 items
-	out[0] = MIN(out[0], out[1]);
-	out[1] = MAX(out[0], out[1]);
+	uint count = 4;
+	for(uint i = 0; i < count; ++i) {
+		for(uint j = i+1; j < count; ++j) {
+			if(out[i] == out[j]) {
+				out[j] = out[count-1];
+				count--;
+				j--;
+			}
+		}	
+	}
 
-	out[2] = MIN(out[2], out[3]);
-	out[3] = MAX(out[2], out[3]);
-
-	out[0] = MIN(out[0], out[2]);
-	out[2] = MIN(out[0], out[2]);
-
-	out[1] = MAX(out[1], out[3]);
-	out[3] = MAX(out[1], out[3]);
-
-	out[1] = MIN(out[1], out[2]);
-	out[2] = MAX(out[1], out[2]);
-
-	return 4;
+	return count;
 }
 
 void objects_reset(Tilemap* map) {
@@ -82,6 +77,8 @@ void objects_reset(Tilemap* map) {
 
 	world_width = map->width * map->tile_width;
 	world_height = map->height * map->tile_height;
+	LOG_INFO("Reset: %d %d %d %d %d", world_width, world_height, map->width,
+		map->height, map->tile_width);
 
 	assert(world_width % cell_size == 0);
 	assert(world_height % cell_size == 0);
@@ -126,7 +123,7 @@ void objects_add(ObjectType type, Vector2 pos) {
 	assert(pos.x >= 0.0f && (pos.x + 64.0f) <= (float)world_width);
 	assert(pos.y >= 0.0f && (pos.y + 64.0f) <= (float)world_height);
 
-	Object new = {type, rectf(pos.x, pos.y, pos.x+64.0f, pos.y+64.0f)}; 
+	Object new = {type, rectf(pos.x+0.1f, pos.y+0.1f, pos.x+63.9f, pos.y+63.9f)}; 
 	uint i = objs_array.size;
 	switch(type) {
 		case obj_crate:
@@ -440,9 +437,9 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 	bbox.bottom += dy.y;
 
 	offset = vec2(dx.x, dy.y);
-//	RectF new_bbox = bbox;
-//	bbox = player_rect;
-/*
+	RectF new_bbox = bbox;
+	bbox = player_rect;
+
 	// Collide with crates
 	hit_crates_count = 0;
 	hit_update = true;
@@ -450,23 +447,25 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 	bool crate_hit = false;
 	dx = _crates_collide_swept_rectf(bbox, vec2(offset.x, 0.0f));
 	
-	// Move crate in horizontally
+	// Move crate horizontally
 	if(fabsf(dx.x) < fabsf(offset.x)) {
 		hit_update = false;
 		cmoves++;
 		crate_hit = true;
 
-		float last_crate_offset = 0.0f;
+		float min_crate_offset = INFINITY;
 		for(uint i = 0; i < hit_crates_count; ++i) {
 			uint crate_id = hit_crate_ids[i];
 			if(rectf_rectf_collision(&new_bbox, &objects[crate_id].rect)) {
 				Vector2 crate_offset = vec2(offset.x - dx.x, 0.0f);
 				crate_offset = _move_crate(crate_id, crate_offset);
-				last_crate_offset = crate_offset.x;
+				min_crate_offset = MIN(min_crate_offset, crate_offset.x);
 			}
 		}
-		bbox.left += last_crate_offset;
-		bbox.right += last_crate_offset; 
+		if(min_crate_offset == INFINITY)
+			min_crate_offset = 0.0f;
+		bbox.left += min_crate_offset;
+		bbox.right += min_crate_offset; 
 	}	
 
 	hit_crates_count = 0;
@@ -481,22 +480,24 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 		cmoves++;
 		crate_hit = true;
 
-		float last_crate_offset = 0.0f;
+		float min_crate_offset = INFINITY;
 		for(uint i = 0; i < hit_crates_count; ++i) {
 			uint crate_id = hit_crate_ids[i];
 			if(rectf_rectf_collision(&new_bbox, &objects[crate_id].rect)) {
 				Vector2 crate_offset = vec2(0.0f, offset.y - dy.y);
 				crate_offset = _move_crate(crate_id, crate_offset);
-				last_crate_offset = crate_offset.y;
+				min_crate_offset = MIN(min_crate_offset, crate_offset.y);
 			}
 		}
-		bbox.top += last_crate_offset;
-		bbox.bottom += last_crate_offset; 
+		if(min_crate_offset == INFINITY)
+			min_crate_offset = 0.0f;
+		bbox.top += min_crate_offset;
+		bbox.bottom += min_crate_offset; 
 	}	
 
 	bbox.top += dy.y;
 	bbox.bottom += dy.y;
-*/
+
 
 	// Collide buttons against crates
 	for(uint i = 0; i < buttons_array.size; ++i) {
@@ -550,6 +551,8 @@ RectF objects_move_player(Vector2 offset, bool* battery) {
 	return bbox;
 }
 
+#include <system.h>
+
 void objects_get(ObjectType type, RectF screen, DArray* dest) {
 	static uint obj_list[256];
 	uint obj_count = 0;
@@ -566,9 +569,9 @@ void objects_get(ObjectType type, RectF screen, DArray* dest) {
 
 	// Clip screen
 	if(screen.left < 0.0f) screen.left = 0.0f;
-	if(screen.right > (float)world_width) screen.right = (float)world_width;
+	if(screen.right > (float)world_width) screen.right = (float)world_width - 0.1f;
 	if(screen.top < 0.0f) screen.top = 0.0f;
-	if(screen.bottom > (float)world_height) screen.bottom = (float)world_height;
+	if(screen.bottom > (float)world_height) screen.bottom = (float)world_height - 0.1f;
 
 	// Determine four corner cells
 	uint cell_tl = _vec_to_cell(vec2(screen.left, screen.top));
