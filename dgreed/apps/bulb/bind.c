@@ -64,12 +64,14 @@ static int cobjects_move_player(lua_State* l) {
 	Vector2 offset;
 	if(!_check_vec2(l, 1, &offset))
 		return luaL_error(l, "bad first argument to cobjects.add");
-	bool battery;
-	RectF bbox = objects_move_player(offset, &battery);
+	bool battery, snd_push, snd_button;
+	RectF bbox = objects_move_player(offset, &battery, &snd_button, &snd_push);
 	_new_rect(l, (double)bbox.left, (double)bbox.top,
 		(double)bbox.right, (double)bbox.bottom);
 	lua_pushboolean(l, battery);
-	return 2;
+	lua_pushboolean(l, snd_push);
+	lua_pushboolean(l, snd_button);
+	return 4;
 }
 
 static int cobjects_get_crates(lua_State* l) {

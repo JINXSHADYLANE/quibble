@@ -15,13 +15,14 @@ robo = {
 		'massive out.btm'
 	},
 
+	atlas = nil,
 	shadow = nil,
 	img_empty = nil,
 	dir = 0,
 	frame = 1,
 	img = nil,
 	pos = vec2(),
-	size = vec2(62, 62),
+	size = vec2(52, 52),
 	bbox = nil,
 	energy = 1,
 	dead = false,
@@ -38,7 +39,6 @@ robo = {
 	max_light_radius = 300,
 	energy_decr_speed = 30,
 	battery_juice = 0.4,
-	beacon_radius = 180,
 	title_duration = 5,
 }
 
@@ -84,6 +84,7 @@ function game.init()
 	clighting.init(screen)
 	objects.init()
 	eyes.init()
+	robo.atlas = tex.load(pre..'atlas.png')
 	robo.img_empty = tex.load(pre..'obj_start.png')
 	robo.shadow = tex.load(pre..'shadow.png')
 	robo.img = tex.load(pre..'robo_anim_atlas.png')
@@ -173,6 +174,7 @@ function game.close()
 	sound.free(sfx.win)
 
 	tilemap.free(level)
+	tex.free(robo.atlas)
 	tex.free(robo.img_empty)
 	tex.free(robo.img)
 	tex.free(robo.shadow)
@@ -217,13 +219,22 @@ function game.update()
 
 	local offset = new_pos - robo.pos	
 	
-	local battery
-	robo.bbox, battery = cobjects.move_player(offset)
+	local battery, snd_push, snd_button
+	robo.bbox, battery, snd_push, snd_button = cobjects.move_player(offset)
 	if battery then
 		sound.play(sfx.pickup)
 		robo.energy = robo.energy + robo.battery_juice
 		robo.energy = math.min(1, robo.energy)
 	end
+	if snd_button then
+		sound.play(sfx.switch)
+	end
+	if snd_push then
+		sfx.vol_push = lerp(sfx.vol_push, 0.3, 0.2)
+	else
+		sfx.vol_push = lerp(sfx.vol_push, 0, 0.2)
+	end
+
 	robo.pos.x = robo.bbox.l
 	robo.pos.y = robo.bbox.t
 	objects.interact(robo.bbox)

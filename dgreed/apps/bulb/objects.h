@@ -29,7 +29,8 @@ void objects_reset(Tilemap* map);
 void objects_close(void);
 void objects_add(ObjectType type, Vector2 pos);
 void objects_seal(RectF player);
-RectF objects_move_player(Vector2 offset, bool* battery);
+RectF objects_move_player(Vector2 offset, bool* battery,
+	bool* snd_button, bool* snd_push);
 void objects_get(ObjectType type, RectF screen, DArray* dest);
 
 #endif

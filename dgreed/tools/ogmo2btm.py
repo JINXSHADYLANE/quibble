@@ -74,7 +74,7 @@ def write_btm(filename):
 		raw_tiles = []
 		for y in xrange(height):
 			for x in xrange(width):
-				raw_tiles += [struct.pack('H', layer[1][x][y])]
+				raw_tiles += [struct.pack('<H', layer[1][x][y])]
 		compr_tiles = lzss.compress(''.join(raw_tiles))
 		out += [struct.pack('<I', len(compr_tiles)), compr_tiles]
 	

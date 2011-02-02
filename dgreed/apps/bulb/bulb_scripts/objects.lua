@@ -126,7 +126,7 @@ function objects.draw()
 		if obj.intensity > 5 then
 			src = objects.src_beacon_on
 		end
-		video.draw_rect_centered(objects.beacon_img, objects.layer, src, p, 0.0, 1.5)
+		video.draw_rect_centered(objects.beacon_img, objects.layer, src, p)
 	end
 
 	-- buttons
