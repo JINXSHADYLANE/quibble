@@ -1,10 +1,12 @@
 #include "bind.h"
 
 #include "objects.h"
+#include "lighting.h"
 
 #include <darray.h>
 
 static DArray get_buffer;
+static DArray lights_buffer;
 
 #define checkargs(c, name) \
 	int n = lua_gettop(l); \
@@ -163,10 +165,57 @@ static const luaL_Reg cobjects_fun[] = {
 	{NULL, NULL}
 };	
 
+static int clighting_init(lua_State* l) {
+	checkargs(1, "clighting.init");
+	RectF screen;
+	if(!_check_rect(l, 1, &screen))
+		return luaL_error(l, "bad rect provided to clighting.init");
+	lighting_init(screen);
+	return 0;
+}
+
+static int clighting_close(lua_State* l) {
+	checkargs(0, "clighting.close");
+	lighting_close();
+	return 0;
+}
+
+static int clighting_render(lua_State* l) {
+	checkargs(2, "clighting.render");
+	uint layer = luaL_checkinteger(l, 1);
+	uint len = lua_objlen(l, 2);
+	lights_buffer.size = 0;
+	for(uint i = 0; i < len; ++i) {
+		lua_rawgeti(l, 2, i+1);
+		lua_getfield(l, 3, "pos");
+		Vector2 pos;
+		if(!_check_vec2(l, 4, &pos))
+			return luaL_error(l, "unable to get light pos");
+		lua_getfield(l, 3, "radius");
+		float radius = luaL_checknumber(l, 5);
+		lua_getfield(l, 3, "alpha");
+		float alpha = luaL_checknumber(l, 6);
+		lua_pop(l, 4);
+		Light new = {pos, radius, alpha};
+		darray_append(&lights_buffer, (void*)&new);
+	}
+	lighting_render(layer, &lights_buffer);
+	return 0;
+}
+
+static const luaL_Reg clighting_fun[] = {
+	{"init", clighting_init},
+	{"close", clighting_close},
+	{"render", clighting_render},
+	{NULL, NULL}
+};	
+
 int bind_open_bulb(lua_State* l) {
 	get_buffer = darray_create(sizeof(Object), 0);
+	lights_buffer = darray_create(sizeof(Light), 0);
 
 	luaL_register(l, "cobjects", cobjects_fun);
+	luaL_register(l, "clighting", clighting_fun);
 
 	lua_getglobal(l, "cobjects");
 	int tbl = lua_gettop(l);
@@ -184,5 +233,6 @@ int bind_open_bulb(lua_State* l) {
 
 void bind_close_bulb(void) {
 	darray_free(&get_buffer);
+	darray_free(&lights_buffer);
 }
 

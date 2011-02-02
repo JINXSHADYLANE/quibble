@@ -1,5 +1,4 @@
 
-dofile(src..'lighting.lua')
 dofile(src..'objects.lua')
 dofile(src..'eyes.lua')
 
@@ -10,9 +9,9 @@ draw_hitbox = true
 robo = {
 	levels = {
 		'tutorial level.btm',
-	--	'pre entry.btm',
-	--	'test level.btm',
-	--	'level2.btm',
+		'pre entry.btm',
+		'test level.btm',
+		'level2.btm',
 		'massive out.btm'
 	},
 
@@ -82,7 +81,7 @@ function game.init()
 	level = tilemap.load(pre..robo.levels[1])
 	robo.anim_frames()
 	game.reset()
-	lighting.init()
+	clighting.init(screen)
 	objects.init()
 	eyes.init()
 	robo.img_empty = tex.load(pre..'obj_start.png')
@@ -179,7 +178,7 @@ function game.close()
 	tex.free(robo.shadow)
 	tex.free(robo.win)
 	tex.free(robo.title)
-	lighting.destroy()
+	clighting.close()
 	objects.close()
 	eyes.close()
 end
@@ -286,8 +285,8 @@ function robo.draw()
 
 	local light = {}
 	light.pos = vec2((dest.l + dest.r) / 2, (dest.t + dest.b) / 2 - 50)
-	light.inten = robo.max_light_radius * robo.energy 
-	light.base = lerp(1, 0.3, 1 - robo.energy) 
+	light.radius = robo.max_light_radius * robo.energy 
+	light.alpha = lerp(1, 0.3, 1 - robo.energy) 
 	local lights = {light}
 
 	-- find visible beacons
@@ -296,10 +295,10 @@ function robo.draw()
 	for i, obj in ipairs(beacons) do
 		local p = obj.pos + vec2(32, 7)
 		p = tilemap.world2screen(level, screen, p)
-		table.insert(lights, {pos=p, inten=obj.intensity, base=0.8})
+		table.insert(lights, {pos=p, radius=obj.intensity, alpha=0.8})
 	end
 	
-	lighting.render(2, lights)
+	clighting.render(2, lights)
 	if not robo.dead then
 		eyes.update(lights)
 	end
