@@ -10,8 +10,6 @@ Point point(int x, int y) {
 	return result;
 }	
 
-bool _collide_rect_tri(const Triangle* tri, const RectF* rect);
-
 DArray poly_triangulate_raster(uint* raster, uint width, uint height,
 	DArray* segments) {
 	assert(raster);
@@ -63,28 +61,28 @@ DArray poly_triangulate_raster(uint* raster, uint width, uint height,
 		Triangle* tris = DARRAY_DATA_PTR(triangles, Triangle);
 
 		Triangle new;
-		if(_collide_rect_tri(&(tris[i]), &top)) {
+		if(tri_rectf_collision(&(tris[i]), &top)) {
 			new = tris[i];
 			new.p1.y += fheight; 
 			new.p2.y += fheight;
 			new.p3.y += fheight;
 			darray_append(&triangles, &new);
 		}	
-		if(_collide_rect_tri(&(tris[i]), &bottom)) {
+		if(tri_rectf_collision(&(tris[i]), &bottom)) {
 			new = tris[i];
 			new.p1.y -= fheight; 
 			new.p2.y -= fheight;
 			new.p3.y -= fheight;
 			darray_append(&triangles, &new);
 		}
-		if(_collide_rect_tri(&(tris[i]), &left)) {
+		if(tri_rectf_collision(&(tris[i]), &left)) {
 			new = tris[i];
 			new.p1.x += fwidth; 
 			new.p2.x += fwidth;
 			new.p3.x += fwidth;
 			darray_append(&triangles, &new);
 		}
-		if(_collide_rect_tri(&(tris[i]), &right)) {
+		if(tri_rectf_collision(&(tris[i]), &right)) {
 			new = tris[i];
 			new.p1.x -= fwidth; 
 			new.p2.x -= fwidth;
@@ -190,8 +188,6 @@ uint poly_mark_islands(uint* raster, uint width, uint height) {
 
 	return island_count;
 }
-
-
 
 bool _is_empty(uint* raster, uint width, uint height, Point pos) {
 	assert(raster);
@@ -462,7 +458,7 @@ DArray poly_simplify_island(uint* raster, uint width, uint height,
 	return result;
 }	
 
-
+// This applies epsilon inversely to segment_intersect in utils.c
 bool _intersect_segments(Vector2 p1, Vector2 p2, Vector2 q1, Vector2 q2) {
 	const float epsilon = 0.001f;
 
@@ -572,21 +568,6 @@ DArray poly_simplify(DArray polygon) {
 	return new_polygon;
 }	
 
-bool _point_in_triangle(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p) {
-	Vector2 a = vec2_sub(p3, p2);
-	Vector2 b = vec2_sub(p1, p3);
-	Vector2 c = vec2_sub(p2, p1);
-	Vector2 ap = vec2_sub(p, p1);
-	Vector2 bp = vec2_sub(p, p2);
-	Vector2 cp = vec2_sub(p, p3);
-
-	float abp = a.x*bp.y - a.y*bp.x;
-	float cap = c.x*ap.y - c.y*ap.x;
-	float bcp = b.x*cp.y - b.y*cp.x;
-
-	return (abp >= 0.0f) && (cap >= 0.0f) && (bcp >= 0.0f);
-}
-
 bool _can_cut(DArray polygon, uint ip1, uint ip2, uint ip3, 
 	const uint* vertices, uint v_count) {
 	assert(vertices);
@@ -615,35 +596,13 @@ bool _can_cut(DArray polygon, uint ip1, uint ip2, uint ip3,
 			continue;
 		if(p3.x == poly[vertices[i]].x && p3.y == poly[vertices[i]].y)
 			continue;
-		if(_point_in_triangle(p1, p2, p3, poly[vertices[i]]))
+		Triangle tri = {p1, p2, p3};
+		if(tri_contains_point(&tri, &poly[vertices[i]]))
 			return false;
 	}
 	return true;
 }	
 
-bool _collide_rect_tri(const Triangle* tri, const RectF* rect) {
-	assert(tri);
-	assert(rect);
-
-	if(rectf_contains_point(rect, &(tri->p1)) 
-		|| rectf_contains_point(rect, &(tri->p2))
-		|| rectf_contains_point(rect, &(tri->p3)))
-		return true;
-
-	Vector2 p1 = vec2(rect->left, rect->top);
-	Vector2 p2 = vec2(rect->left, rect->bottom);
-	Vector2 p3 = vec2(rect->right, rect->top);
-	Vector2 p4 = vec2(rect->right, rect->bottom);
-
-	if(_point_in_triangle(tri->p1, tri->p2, tri->p3, p1)
-		|| _point_in_triangle(tri->p1, tri->p2, tri->p3, p2)
-		|| _point_in_triangle(tri->p1, tri->p2, tri->p3, p3)
-		|| _point_in_triangle(tri->p1, tri->p2, tri->p3, p4))
-		return true;
-
-	return false;
-}	
-	
 DArray poly_triangulate(DArray polygon) {
 	assert(polygon.size >= 3);
 

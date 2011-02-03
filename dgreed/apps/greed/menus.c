@@ -427,10 +427,10 @@ void _render_chapters(float t) {
 	}
 
 	if(_render_slidemenu(t, &chp_camera_lookat_x, &chp_old_camera_lookat_x,
-		MENU_MAIN, text, 5)) {
+		MENU_MAIN, text, MAX_CHAPTERS)) {
 
 		selected_chapter = (int)(chp_camera_lookat_x / -x_spacing + 0.5f);
-		selected_chapter = MIN(selected_chapter, 4);
+		selected_chapter = MIN(selected_chapter, MAX_CHAPTERS-1);
 		selected_chapter = MAX(selected_chapter, 0);
 	
 		menu_transition = MENU_ARENA;
@@ -441,10 +441,11 @@ void _render_chapters(float t) {
 
 void _render_arenas(float t) {
 	if(_render_slidemenu(t, &arn_camera_lookat_x, &arn_old_camera_lookat_x,
-		MENU_CHAPTER, chapters[selected_chapter].arena_name, 5)) {
+		MENU_CHAPTER, chapters[selected_chapter].arena_name,
+		MAX_ARENAS_IN_CHAPTER)) {
 
 		uint selected_arena = (int)(arn_camera_lookat_x / -x_spacing + 0.5f);
-		selected_arena = MIN(selected_arena, 4);
+		selected_arena = MIN(selected_arena, MAX_ARENAS_IN_CHAPTER-1);
 		selected_arena = MAX(selected_arena, 0);
 
 		const char* arena_name =

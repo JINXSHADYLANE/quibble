@@ -54,7 +54,11 @@ returns boolean, indicating if two rectangles overlap
 returns boolean, indicating if point is inside rectangle
 
 - rect_circle_collision(a, center, radius)
-returns boolean, indicatint if rectangle and circle overlap
+returns boolean, indicating if rectangle and circle overlap
+
+- rect_tri_collision(r, a, b, c)
+returns true if rectangle r and clock-wise triangle with vertices a, b and c
+intersect
 
 
 ------
@@ -247,10 +251,10 @@ loads either streamed ogg or in memory kept wav file, returns handle to it
 - sound.free(soundhandle)
 releases sound
 
-- sound.set_volume(soundhandle, volume), sound.get_volume(soundhandle)
+- sound.set_volume(soundhandle, volume), sound.volume(soundhandle)
 sets/gets volume, scalar number in range [0, 1]
 
-- sound.get_length(soundhandle)
+- sound.length(soundhandle)
 returns length of sound in seconds
 
 - sound.play(soundhandle, loop)
@@ -262,11 +266,11 @@ pauses/resumes
 - sound.stop(sourcehandle)
 stops sound and consequently, destroys source, source handle becomes invalid
 
-- sound.set_src_volume(sourcehandle, volume), sound.get_src_volume(sourchandle)
+- sound.src_volume(sourchandle), sound.set_src_volume(sourcehandle, volume)
 sets/gets volume of specific sound sources
 
-- sound.get_pos(sourcehandle), sound.set_pos(sourcehandle)
-sets/gets playing cursor position
+- sound.pos(sourcehandle), sound.set_pos(sourcehandle, pos)
+sets/gets playing cursor position, pos is in seconds
 
 
 -----

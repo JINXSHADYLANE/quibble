@@ -114,6 +114,11 @@ typedef struct {
 	Vector2 p1, p2, p3;
 } Triangle;	
 
+// Returns true if point is inside triangle
+bool tri_contains_point(const Triangle* tri, const Vector2* p);
+// Returns true if rectangle and triangle intersect
+bool tri_rectf_collision(const Triangle* tri, const RectF* r); 
+
 /*
 --------------------
 --- Line segment ---
