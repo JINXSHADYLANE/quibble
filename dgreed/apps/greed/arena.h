@@ -6,7 +6,7 @@
 #include "game.h"
 #include "ai_precalc.h"
 
-#define MAX_ARENAS_IN_CHAPTER 5
+#define MAX_ARENAS_IN_CHAPTER 10 
 #define MAX_CHAPTERS 5
 
 #define DENSITY_MAP_WIDTH 30

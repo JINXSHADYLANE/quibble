@@ -844,8 +844,8 @@ static int ml_sound_set_pos(lua_State* l) {
 	checksoundinit();
 	checkargs(2, "sound.set_pos");
 	SourceHandle* h = checksourcehandle(l, 1);
-	double vol = luaL_checknumber(l, 2);
-	sound_set_pos_ex(*h, (float)vol);
+	double pos = luaL_checknumber(l, 2);
+	sound_set_pos_ex(*h, (float)pos);
 	return 0;
 }
 
@@ -866,7 +866,7 @@ static const luaL_Reg sound_fun[] = {
 	{"free", ml_sound_free},
 	{"set_volume", ml_sound_set_volume},
 	{"volume", ml_sound_volume},
-	{"get_length", ml_sound_length},
+	{"length", ml_sound_length},
 	{"play", ml_sound_play},
 	{"pause", ml_sound_pause},
 	{"resume", ml_sound_resume},

@@ -446,6 +446,54 @@ static int ml_rect_circle_collision(lua_State* l) {
 	return 1;
 }
 
+static int ml_rect_tri_collision(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 4)
+		return luaL_error(l, "wrong number of arguments provided to rect_tri_collision");
+	
+	luaL_checktype(l, 1, LUA_TTABLE);
+	luaL_checktype(l, 2, LUA_TTABLE);
+	luaL_checktype(l, 3, LUA_TTABLE);
+	luaL_checktype(l, 4, LUA_TTABLE);
+
+	lua_getfield(l, 1, "l");
+	lua_getfield(l, 1, "t");
+	lua_getfield(l, 1, "r");
+	lua_getfield(l, 1, "b");
+	lua_getfield(l, 2, "x");
+	lua_getfield(l, 2, "y");
+	lua_getfield(l, 3, "x");
+	lua_getfield(l, 3, "y");
+	lua_getfield(l, 4, "x");
+	lua_getfield(l, 4, "y");
+
+	RectF rect = {
+		luaL_checknumber(l, 5),
+		luaL_checknumber(l, 6),
+		luaL_checknumber(l, 7),
+		luaL_checknumber(l, 8)
+	};
+
+	Vector2 a = {
+		luaL_checknumber(l, 9),
+		luaL_checknumber(l, 10)
+	};
+
+	Vector2 b = {
+		luaL_checknumber(l, 11),
+		luaL_checknumber(l, 12)
+	};
+
+	Vector2 c = {
+		luaL_checknumber(l, 13),
+		luaL_checknumber(l, 14)
+	};
+
+	Triangle tri = {a, b, c};
+	lua_pushboolean(l, tri_rectf_collision(&tri, &rect));
+	return 1;
+}
+
 static int ml_rect_tostring(lua_State* l) {
 	lua_getfield(l, 1, "l");
 	lua_getfield(l, 1, "t");
@@ -468,6 +516,7 @@ static const luaL_Reg rect_fun[] = {
 	{"rect_rect_collision", ml_rect_rect_collision},
 	{"rect_point_collision", ml_rect_point_collision},
 	{"rect_circle_collision", ml_rect_circle_collision},
+	{"rect_tri_collision", ml_rect_tri_collision},
 	{NULL, NULL}
 };
 

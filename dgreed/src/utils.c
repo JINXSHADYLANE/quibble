@@ -243,6 +243,52 @@ Vector2 rectf_center(const RectF* r) {
 }
 
 /*
+---------------
+--- Triangle --
+---------------
+*/
+
+bool tri_contains_point(const Triangle* tri, const Vector2* p) {
+	assert(tri && p);
+
+	Vector2 a = vec2_sub(tri->p3, tri->p2);
+	Vector2 b = vec2_sub(tri->p1, tri->p3);
+	Vector2 c = vec2_sub(tri->p2, tri->p1);
+	Vector2 ap = vec2_sub(*p, tri->p1);
+	Vector2 bp = vec2_sub(*p, tri->p2);
+	Vector2 cp = vec2_sub(*p, tri->p3);
+
+	float abp = a.x*bp.y - a.y*bp.x;
+	float cap = c.x*ap.y - c.y*ap.x;
+	float bcp = b.x*cp.y - b.y*cp.x;
+
+	return (abp >= 0.0f) && (cap >= 0.0f) && (bcp >= 0.0f);
+}
+
+bool tri_rectf_collision(const Triangle* tri, const RectF* rect) {
+	assert(tri);
+	assert(rect);
+
+	if(rectf_contains_point(rect, &(tri->p1)) 
+		|| rectf_contains_point(rect, &(tri->p2))
+		|| rectf_contains_point(rect, &(tri->p3)))
+		return true;
+
+	Vector2 p1 = vec2(rect->left, rect->top);
+	Vector2 p2 = vec2(rect->left, rect->bottom);
+	Vector2 p3 = vec2(rect->right, rect->top);
+	Vector2 p4 = vec2(rect->right, rect->bottom);
+
+	if(tri_contains_point(tri, &p1)
+		|| tri_contains_point(tri, &p2)
+		|| tri_contains_point(tri, &p3)
+		|| tri_contains_point(tri, &p4))
+		return true;
+
+	return false;
+}	
+
+/*
 --------------------
 --- Line segment ---
 --------------------
