@@ -32,6 +32,7 @@ function eyes.reset()
 		eyes[i].v = vec2()
 		eyes[i].f = 1
 		eyes[i].blink = -100
+		eyes[i].angry = false
 	end
 end
 
@@ -47,7 +48,7 @@ function eyes.update(lights)
 			local lp = tilemap.screen2world(level, screen, l.pos)
 			if length(lp - e.p) < 1.2 * l.radius then
 				if rand.int(0, 3) == 2 then
-					run_vect = run_vect + normalize(e.p - lp) * 120	
+					run_vect = run_vect + normalize(e.p - lp) * 180	
 				end
 			end
 		end
@@ -60,9 +61,9 @@ function eyes.update(lights)
 			end
 		end
 
-		if length(e.p - robo.pos) > 500 then
+		if length(e.p - robo.pos) > 400 then
 			if rand.int(0, 43) == 42 then
-				run_vect = run_vect + normalize(robo.pos - e.p) * 800
+				run_vect = run_vect + normalize(robo.pos - e.p) * 1000 
 			end
 		end
 
@@ -70,8 +71,8 @@ function eyes.update(lights)
 			if rand.int(0, 100) == 42 then
 				run_vect = vec2(rand.float(), rand.float()) * 120 
 			end
-			if rand.int(0, 100) == 42 then
-				run_vect = normalize(robo.pos - e.p) * 160 
+			if rand.int(0, 60) == 42 then
+				run_vect = normalize(robo.pos - e.p) * 200 
 			end
 		end
 
@@ -87,9 +88,14 @@ function eyes.update(lights)
 
 		-- distance to player
 		local d = length(e.p - robo.pos)
+		if d < lights[1].radius * 1.3 then
+			e.angry = true
+		else
+			e.angry = false
+		end
 		min_d = math.min(d, min_d)
 	end
-	if robo.energy < 0.2 and min_d < 20 then
+	if robo.energy < 0.2 and min_d < 30 then
 		sound.play(sfx.death)
 		robo.dead = true
 		robo.death_t = time.s()
@@ -106,9 +112,13 @@ function eyes.draw()
 		)	
 
 		local f = e.f
-		if time.s() - e.blink < eyes.blink_time then
-			local t = (time.s() - e.blink) / eyes.blink_time
-			f = math.floor(t * 7)
+		if e.angry then
+			f = f + 2
+		else	
+			if time.s() - e.blink < eyes.blink_time then
+				local t = (time.s() - e.blink) / eyes.blink_time
+				f = math.floor(t * 7)
+			end
 		end
 
 		if rect_rect_collision(world_screen, r) then
