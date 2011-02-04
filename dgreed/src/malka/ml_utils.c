@@ -1213,7 +1213,7 @@ int malka_open_rand(lua_State* l) {
 static int ml_log_error(lua_State* l) {
 	int n = lua_gettop(l);
 	if(n != 1)
-		return luaL_error(l, "wrong nubmer of arguments provided to log.error");
+		return luaL_error(l, "wrong number of arguments provided to log.error");
 	
 	const char* msg = luaL_checkstring(l, 1);
 	LOG_ERROR(msg);
@@ -1223,7 +1223,7 @@ static int ml_log_error(lua_State* l) {
 static int ml_log_warning(lua_State* l) {
 	int n = lua_gettop(l);
 	if(n != 1)
-		return luaL_error(l, "wrong nubmer of arguments provided to log.warning");
+		return luaL_error(l, "wrong number of arguments provided to log.warning");
 	
 	const char* msg = luaL_checkstring(l, 1);
 	LOG_WARNING(msg);
@@ -1233,7 +1233,7 @@ static int ml_log_warning(lua_State* l) {
 static int ml_log_info(lua_State* l) {
 	int n = lua_gettop(l);
 	if(n != 1)
-		return luaL_error(l, "wrong nubmer of arguments provided to log.info");
+		return luaL_error(l, "wrong number of arguments provided to log.info");
 	
 	const char* msg = luaL_checkstring(l, 1);
 	LOG_INFO(msg);
