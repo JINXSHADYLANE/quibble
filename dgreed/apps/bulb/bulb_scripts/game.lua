@@ -2,7 +2,15 @@
 dofile(src..'objects.lua')
 dofile(src..'eyes.lua')
 
-game = {}
+game = {
+	font = nil,
+	disp_text = nil,
+	endscreen_show = false,
+	level_loaded = false,
+	endscreen_t = 0,
+
+	endscreen_duration = 3
+}	
 
 draw_hitbox = false 
 
@@ -15,6 +23,14 @@ robo = {
 		'massive out.btm',
 		'malcolm x.btm',
 	},
+
+	level_endscreens = {
+		"Mickey's closet",
+		"Long story",
+		"Where's Mario?",
+		"Too much air",
+		"Malcolm X"
+	},	
 
 	atlas = nil,
 	shadow = nil,
@@ -29,9 +45,6 @@ robo = {
 	dead = false,
 	death_t = nil,
 	level = 1,
-
-	finished = false,
-	finished_t = nil,
 
 	-- tweakables
 	speed = 0.2,
@@ -85,13 +98,12 @@ function game.init()
 	clighting.init(screen)
 	objects.init()
 	eyes.init()
+	game.font = font.load(pre..'lucida_grande_60px.bft')
 	robo.atlas = tex.load(pre..'atlas.png')
 	robo.img_empty = tex.load(pre..'obj_start.png')
 	robo.shadow = tex.load(pre..'shadow.png')
 	robo.img = tex.load(pre..'robo_anim_atlas.png')
 	robo.title = tex.load(pre..'title.png')
-	robo.win = tex.load(pre..'end.png')
-
 
 	sfx = {}
 	sfx.pickup = sound.load_sample(pre..'pickup.wav')
@@ -146,6 +158,9 @@ function game.reset()
 			camera_pos = objs[i].pos	
 			camera_pos = camera_pos + robo.size/2
 			robo.pos = objs[i].pos
+			robo.bbox = rect(robo.pos.x, robo.pos.y)
+			robo.bbox.r = robo.bbox.l + robo.size.x
+			robo.bbox.b = robo.bbox.t + robo.size.y
 			start_found = true
 		end
 
@@ -174,12 +189,12 @@ function game.close()
 	sound.free(sfx.switch)
 	sound.free(sfx.win)
 
+	font.free(game.font)
 	tilemap.free(level)
 	tex.free(robo.atlas)
 	tex.free(robo.img_empty)
 	tex.free(robo.img)
 	tex.free(robo.shadow)
-	tex.free(robo.win)
 	tex.free(robo.title)
 	clighting.close()
 	objects.close()
@@ -187,7 +202,7 @@ function game.close()
 end
 
 function game.update()
-	if robo.dead or robo.finished then
+	if robo.dead or game.show_endscreen then
 		return
 	end
 
@@ -328,6 +343,40 @@ function game.frame()
 
 	game.draw_title()
 
+	if game.show_endscreen then
+		local nt = (time.s() - game.endscreen_t) / game.endscreen_duration 
+		if robo.level > #robo.levels and nt > 0.5 then
+			nt = 0.5
+		end
+		t = math.sin(clamp(0, 1, nt) * math.pi)
+		local col = lerp(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1), t)
+		video.draw_rect(robo.img_empty, 4, screen, col)
+		col.r, col.g, col.b = 1, 1, 1
+		if game.disp_text then
+			video.draw_text_centered(game.font, 5, game.disp_text, center(screen), col)	
+		else
+			local p = center(screen) - vec2(450, 280)		
+			video.draw_text(game.font, 5, 'You did it!', p, col) 
+			p.y = p.y + 100
+			video.draw_text(game.font, 5, 'You have saved the light!', p, col) 
+			p.y = p.y + 290
+			video.draw_text(game.font, 5, 'Errr..', p, col)
+			p.y = p.y + 100
+			video.draw_text(game.font, 5, "But why it's still dark?", p, col)
+		end
+		
+		if nt > 0.5 and not game.level_loaded and robo.level <= #robo.levels then
+			game.level_loaded = true
+			tilemap.free(level)
+			level = tilemap.load(pre..robo.levels[robo.level])
+			game.reset()
+		end
+		if nt >= 1 and robo.level <= #robo.levels then
+			game.show_endscreen = false
+			game.level_loaded = false
+		end
+	end
+
 	if robo.dead then
 		-- fadeout
 
@@ -349,23 +398,6 @@ function game.frame()
 		if t == 1 then
 			game.reset()
 		end
-	end
-
-	if robo.finished then
-		-- fadeout
-
-		sfx.vol_footsteps = lerp(sfx.vol_footsteps, 0, 0.2)
-		sfx.vol_push = lerp(sfx.vol_footsteps, 0, 0.2)
-		sfx.vol_creatures = lerp(sfx.vol_footsteps, 0, 0.2)
-		sound.set_src_volume(sfx.src_footsteps, sfx.vol_footsteps)
-		sound.set_src_volume(sfx.src_push, sfx.vol_push)
-		sound.set_src_volume(sfx.src_creatures, sfx.vol_creatures)
-
-
-		local t = (time.s() - robo.finished_t) / 5
-		t = clamp(0, 1, t)
-		local col = lerp(rgba(1, 1, 1, 0), rgba(1, 1, 1, 1), t)
-		video.draw_rect(robo.win, 4, vec2(0, 0), col)
 	end
 end
 
