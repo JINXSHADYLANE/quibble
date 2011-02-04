@@ -150,7 +150,8 @@ def read_ogmo(level_filename, project_filename):
 			x, y = int(attrs['x']), int(attrs['y'])
 			tx, ty, x, y = tx/tw, ty/th, x/tw, y/th
 			tile_id = tileset_state * MAX_TILES_IN_TILESET + (ty*tileset_st_width+tx)
-			layers[layer_state][1][x][y] = tile_id
+			if x < width and y < height:
+				layers[layer_state][1][x][y] = tile_id
 			return
 
 		if name == 'rect':

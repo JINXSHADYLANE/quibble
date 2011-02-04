@@ -4,7 +4,7 @@ dofile(src..'eyes.lua')
 
 game = {}
 
-draw_hitbox = true 
+draw_hitbox = false 
 
 robo = {
 	levels = {
@@ -12,7 +12,8 @@ robo = {
 		'pre entry.btm',
 		'test level.btm',
 		'level2.btm',
-		'massive out.btm'
+		'massive out.btm',
+		'malcolm x.btm',
 	},
 
 	atlas = nil,
