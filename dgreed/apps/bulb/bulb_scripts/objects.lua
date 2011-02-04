@@ -166,16 +166,10 @@ function objects.interact(player_bbox)
 			-- level end
 			if obj.id == 1 then
 				sound.play(sfx.win)
-
+				game.disp_text = robo.level_endscreens[robo.level]
 				robo.level = robo.level+1
-				if robo.level <= #robo.levels then
-					tilemap.free(level)
-					level = tilemap.load(pre..robo.levels[robo.level])
-					game.reset()
-				else
-					robo.finished = true
-					robo.finished_t = time.s()
-				end
+				game.endscreen_t = time.s()
+				game.show_endscreen = true
 
 				break
 			end

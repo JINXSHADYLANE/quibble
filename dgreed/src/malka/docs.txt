@@ -98,6 +98,18 @@ clamps scalar value t into range [a, b]
 hashes string to a 32 bit integer, using optional integer seed
 
 
+------
+params
+------
+
+You can supply command line arguments to lua scripts by calling malka_params()
+C function before malka_run() or malka_run_ex().
+
+- argv
+this is a table of command line arguments (strings), or nil if malka_params
+wasn't called
+
+
 ----
 rand
 ----

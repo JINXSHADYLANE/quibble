@@ -9,6 +9,8 @@
 #endif
 
 static lua_State* l;
+static int ml_argc = 0;
+static const char** ml_argv = NULL;
 
 bool _endswith(const char* str, const char* tail) {
 	assert(str && tail);
@@ -57,6 +59,13 @@ void malka_init(void) {
 	malka_open_system(l);
 }
 
+void malka_params(int argc, const char** argv) {
+	assert(argc && argv);
+
+	ml_argc = argc;
+	ml_argv = argv;
+}
+
 void malka_close(void) {
 	lua_close(l);
 }
@@ -84,6 +93,20 @@ int malka_run_ex(const char* luafile) {
 	MEM_FREE(real_path);
 	MEM_FREE(real_folder);
 	#endif
+
+	// Register params
+	if(ml_argv) {
+		lua_createtable(l, ml_argc, 0);
+		int t = lua_gettop(l);
+		for(int i = 0; i < ml_argc; ++i) {
+			lua_pushstring(l, ml_argv[i]);
+			lua_rawseti(l, t, i+1);
+		}
+	}
+	else {
+		lua_pushnil(l);
+	}
+	lua_setfield(l, LUA_GLOBALSINDEX, "argv");
 
 	if(luaL_dofile(l, luafile)) {
 		const char* err = luaL_checkstring(l, -1);
