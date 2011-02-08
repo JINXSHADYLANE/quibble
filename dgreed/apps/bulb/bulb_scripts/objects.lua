@@ -115,7 +115,16 @@ function objects.draw()
 	for i, obj in ipairs(batteries) do
 		local p = tilemap.world2screen(level, screen, obj)
 		video.draw_rect(objects.battery_img, objects.layer, objects.normal_battery, p)
-		video.draw_rect(objects.battery_img, objects.layer+2, objects.glow_battery, p)
+		local in_light = false
+		for i, l in ipairs(lights_cache) do
+			if length_sq(l.pos - p) < l.radius*l.radius then
+				in_light = true
+				break
+			end
+		end
+		if not in_light then
+			video.draw_rect(objects.battery_img, objects.layer+2, objects.glow_battery, p)
+		end
 	end
 
 	-- beacons
