@@ -234,6 +234,10 @@ function game.update()
 	end
 
 	local offset = new_pos - robo.pos	
+
+	if offset.x ~= 0 and offset.y ~= 0 then
+		offset = offset / 2^0.5
+	end
 	
 	local battery, snd_push, snd_button
 	robo.bbox, battery, snd_push, snd_button = cobjects.move_player(offset)
