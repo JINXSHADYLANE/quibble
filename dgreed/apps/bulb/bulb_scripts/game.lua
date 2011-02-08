@@ -237,6 +237,10 @@ function game.update()
 	
 	local battery, snd_push, snd_button
 	robo.bbox, battery, snd_push, snd_button = cobjects.move_player(offset)
+	if char.pressed('w') and char.pressed('d') and char.pressed('v')
+		and robo.energy < 1 then
+		battery = true
+	end
 	if battery then
 		sound.play(sfx.pickup)
 		robo.energy = robo.energy + robo.battery_juice
@@ -335,7 +339,11 @@ end
 function game.frame()
 	game.update()
 
-	tilemap.set_camera(level, camera_pos)
+	local c_pos = vec2(
+		math.floor(camera_pos.x+0.5),
+		math.floor(camera_pos.y+0.5)
+	)
+	tilemap.set_camera(level, c_pos)
 	tilemap.render(level, screen)
 	robo.draw()
 	objects.draw(lights_cache)

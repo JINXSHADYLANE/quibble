@@ -456,7 +456,9 @@ RectF objects_move_player(Vector2 offset, bool* battery, bool* snd_button,
 			if(rectf_rectf_collision(&new_bbox, &objects[crate_id].rect)) {
 				Vector2 crate_offset = vec2((offset.x - dx.x)/2.0f, 0.0f);
 				crate_offset = _move_crate(crate_id, crate_offset);
-				min_crate_offset = MIN(min_crate_offset, crate_offset.x);
+				if(fabsf(min_crate_offset) > fabsf(crate_offset.y)) {
+					min_crate_offset = crate_offset.x;
+				}
 			}
 		}
 		if(min_crate_offset == INFINITY)
@@ -485,7 +487,9 @@ RectF objects_move_player(Vector2 offset, bool* battery, bool* snd_button,
 			if(rectf_rectf_collision(&new_bbox, &objects[crate_id].rect)) {
 				Vector2 crate_offset = vec2(0.0f, (offset.y - dy.y)/2.0f);
 				crate_offset = _move_crate(crate_id, crate_offset);
-				min_crate_offset = MIN(min_crate_offset, crate_offset.y);
+				if(fabsf(min_crate_offset) > fabsf(crate_offset.y)) {
+					min_crate_offset = crate_offset.y;
+				}
 			}
 		}
 		if(min_crate_offset == INFINITY)
