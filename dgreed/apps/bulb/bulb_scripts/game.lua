@@ -345,15 +345,20 @@ function game.frame()
 
 	if game.show_endscreen then
 		local nt = (time.s() - game.endscreen_t) / game.endscreen_duration 
-		if robo.level > #robo.levels and nt > 0.5 then
-			nt = 0.5
+		local nt_fade = clamp(0, 1, nt)
+		local nt_text = clamp(0, 1, (nt - 0.3)*1/(0.7))
+		if robo.level > #robo.levels and nt_fade > 0.5 then
+			nt_fade = 0.5
+			nt_text = 0.5
 		end
-		t = math.sin(clamp(0, 1, nt) * math.pi)
-		local col = lerp(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1), t)
+		local t_fade = math.sin(clamp(0, 1, nt_fade) * math.pi)
+		local t_text = math.sin(clamp(0, 1, nt_text) * math.pi)
+		local col = lerp(rgba(0, 0, 0, 0), rgba(0, 0, 0, 1), t_fade)
 		video.draw_rect(robo.img_empty, 4, screen, col)
-		col.r, col.g, col.b = 1, 1, 1
+		local col = lerp(rgba(1, 1, 1, 0), rgba(1, 1, 1, 1), t_text)
+		local pos = center(screen) + vec2(0, 160)
 		if game.disp_text then
-			video.draw_text_centered(game.font, 5, game.disp_text, center(screen), col)	
+			video.draw_text_centered(game.font, 5, game.disp_text, pos, col)	
 		else
 			local p = center(screen) - vec2(450, 280)		
 			video.draw_text(game.font, 5, 'You did it!', p, col) 
@@ -365,7 +370,7 @@ function game.frame()
 			video.draw_text(game.font, 5, "But why it's still dark?", p, col)
 		end
 		
-		if nt > 0.5 and not game.level_loaded and robo.level <= #robo.levels then
+		if nt_fade > 0.5 and not game.level_loaded and robo.level <= #robo.levels then
 			game.level_loaded = true
 			tilemap.free(level)
 			level = tilemap.load(pre..robo.levels[robo.level])
