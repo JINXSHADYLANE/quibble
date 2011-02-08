@@ -116,14 +116,25 @@ function objects.draw()
 		local p = tilemap.world2screen(level, screen, obj)
 		video.draw_rect(objects.battery_img, objects.layer, objects.normal_battery, p)
 		local in_light = false
+		local col = rgba(1, 1, 1, 1)
+		local min_t = 1
 		for i, l in ipairs(lights_cache) do
-			if length_sq(l.pos - p) < l.radius*l.radius then
+			local ln = length_sq(l.pos - p)
+			local lr = l.radius * l.radius
+			local ld = lr * 0.5
+			if ln < ld then
 				in_light = true
 				break
+			else
+				if ln < lr then
+					local t = (ln - ld) / (lr - ld)
+					min_t = math.min(min_t, t)
+				end
 			end
 		end
 		if not in_light then
-			video.draw_rect(objects.battery_img, objects.layer+2, objects.glow_battery, p)
+			col = lerp(rgba(1, 1, 1, 0), rgba(1, 1, 1, 1), min_t)
+			video.draw_rect(objects.battery_img, objects.layer+2, objects.glow_battery, p, col)
 		end
 	end
 
@@ -132,7 +143,7 @@ function objects.draw()
 	for i, obj in ipairs(beacons) do
 		local p = tilemap.world2screen(level, screen, obj.pos) + vec2(32, 32)
 		local src = objects.src_beacon_off
-		if obj.intensity > 5 then
+	if obj.intensity > 5 then
 			src = objects.src_beacon_on
 		end
 		video.draw_rect_centered(objects.beacon_img, objects.layer, src, p)
@@ -170,19 +181,26 @@ end
 function objects.interact(player_bbox)
 	local res = true
 
+	local level_end = false
+
 	for i, obj in ipairs(objects.list) do
 		if rect_rect_collision(obj.rect, player_bbox) then
 			-- level end
 			if obj.id == 1 then
-				sound.play(sfx.win)
-				game.disp_text = robo.level_endscreens[robo.level]
-				robo.level = robo.level+1
-				game.endscreen_t = time.s()
-				game.show_endscreen = true
-
+				level_end = true
 				break
 			end
 		end
+	end
+	if char.pressed('q') and char.pressed('s') and char.pressed('c') then
+		level_end = true
+	end
+	if level_end then
+		sound.play(sfx.win)
+		game.disp_text = robo.level_endscreens[robo.level]
+		robo.level = robo.level+1
+		game.endscreen_t = time.s()
+		game.show_endscreen = true
 	end
 end
 
