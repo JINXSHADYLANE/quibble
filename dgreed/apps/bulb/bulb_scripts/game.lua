@@ -25,11 +25,11 @@ robo = {
 	},
 
 	level_endscreens = {
-		"Mickey's closet",
-		"Long story",
-		"Where's Mario?",
-		"Too much air",
-		"Malcolm X"
+		"They seem unfriendly...",
+		"... and somewhat aggresive ...",
+		"What if I won't find an exit?",
+		"I hope there are more batteries.",
+		"I can't run through this darkness forever..."
 	},	
 
 	atlas = nil,
@@ -98,7 +98,7 @@ function game.init()
 	clighting.init(screen)
 	objects.init()
 	eyes.init()
-	game.font = font.load(pre..'monaco.bft')
+	game.font = font.load(pre..'monaco.bft', 0.5)
 	robo.atlas = tex.load(pre..'atlas.png')
 	robo.img_empty = tex.load(pre..'obj_start.png')
 	robo.shadow = tex.load(pre..'shadow.png')
@@ -372,14 +372,10 @@ function game.frame()
 		if game.disp_text then
 			video.draw_text_centered(game.font, 5, game.disp_text, pos, col)	
 		else
-			local p = center(screen) - vec2(450, 280)		
-			video.draw_text(game.font, 5, 'You did it!', p, col) 
-			p.y = p.y + 100
-			video.draw_text(game.font, 5, 'You have saved the light!', p, col) 
-			p.y = p.y + 290
-			video.draw_text(game.font, 5, 'Errr..', p, col)
-			p.y = p.y + 100
-			video.draw_text(game.font, 5, "But why it's still dark?", p, col)
+			local p = center(screen) + vec2(0, 180)		
+			video.draw_text_centered(game.font, 5, "I'm safe now.", p, col) 
+			p.y = p.y + 60 
+			video.draw_text_centered(game.font, 5, "... but why it's still dark?", p, col) 
 		end
 		
 		if nt_fade > 0.5 and not game.level_loaded and robo.level <= #robo.levels then

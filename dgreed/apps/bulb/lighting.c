@@ -2,7 +2,7 @@
 
 #include <system.h>
 
-const float light_tile_size = 16.0f;
+const float light_tile_size = 32.0f;
 
 static TexHandle light_tex; 
 static RectF light_screen;
