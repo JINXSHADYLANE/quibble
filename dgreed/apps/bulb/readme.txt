@@ -2,7 +2,7 @@
     === bulb ===
 
 A game hacked together in 48 hours, during Global Game Jam '11 in Kaunas,
-then made suitable for use by general public after week of polishing.
+then made suitable for use by general public after a week of polishing.
 
 Navigate a high-tech robot with arrow keys and get him out of a dark 
 factory warehouse style labyrinth. While light bulb shines you are able 
@@ -18,4 +18,3 @@ Team:
    Danielius Pranckevičius - prototype
 
 2011.02.08
-   
