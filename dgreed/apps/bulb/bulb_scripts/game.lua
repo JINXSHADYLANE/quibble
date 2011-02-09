@@ -26,7 +26,7 @@ robo = {
 
 	level_endscreens = {
 		"They seem unfriendly...",
-		"... and somewhat aggresive ...",
+		"... and somewhat aggressive ...",
 		"What if I won't find an exit?",
 		"I hope there are more batteries.",
 		"I can't run through this darkness forever..."
