@@ -46,7 +46,9 @@
          ( greed_assets/c3_arena4.mml 2
             ( name c3_arena4 )
         )
-        
+	( greed_assets/c3_arena5.mml 2
+	    ( name c3_arena5 )
+	)
     )
     ( chapter c5
         ( greed_assets/c5_arena1.mml 4
