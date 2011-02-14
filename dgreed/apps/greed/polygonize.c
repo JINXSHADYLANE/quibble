@@ -393,6 +393,8 @@ DArray poly_simplify_island(uint* raster, uint width, uint height,
 			const float delta_dir_tolerance[] = 
 				{50.0f, 38.0f, 30.0f, 18.0f, 6.0f};
 
+			LOG_INFO("Outline size - %d", outline.size);
+
 			float direction = 0.0f;
 			while(true) {
 				if(end == outline.size-1)
@@ -421,7 +423,7 @@ DArray poly_simplify_island(uint* raster, uint width, uint height,
 				if(path_len > 20)
 					dir_change_tolerance = 0.3f;
 
-				if(abs(pre_end_dir - post_end_dir) > 80.0f
+				if(fabsf(pre_end_dir - post_end_dir) > 80.0f
 					|| abs(direction - new_direction) > dir_change_tolerance) {
 					darray_append(&simple_outline, &v_end);
 					start = end;
@@ -432,6 +434,28 @@ DArray poly_simplify_island(uint* raster, uint width, uint height,
 				end++;
 			}	
 			darray_free(&outline);
+			
+			// Additional optimization pass
+			uint i = 0, j = 2;
+
+			LOG_INFO("Pre Island/hole, %d verts", simple_outline.size);
+
+			while(simple_outline.size > 4 && i < simple_outline.size) {
+				Vector2* s_outline = DARRAY_DATA_PTR(simple_outline, Vector2);
+
+				Segment seg = {s_outline[i], s_outline[j%simple_outline.size]};
+				uint k = (i+1)%simple_outline.size;
+				bool skip = fabsf(segment_point_dist(seg, s_outline[k])) < 0.781f;
+				if(skip) {
+					darray_remove(&simple_outline, k);
+				}	
+				else {
+					i++;
+					j = i + 2;
+				}
+			}
+
+			LOG_INFO("Island/hole, %d verts", simple_outline.size);
 			
 			// TODO: investigate why so many small outlines are generated
 			if(simple_outline.size > 2)
@@ -583,7 +607,7 @@ bool _can_cut(DArray polygon, uint ip1, uint ip2, uint ip3,
 		p2.x * (p3.y - p1.y) +
 		p3.x * (p1.y - p2.y)) / 2.0f;
 
-	if(area	< 0.00001f)
+	if(area	< 0.001f)
 		return false;
 
 	for(uint i = 0; i < v_count; ++i) {
@@ -621,16 +645,25 @@ DArray poly_triangulate(DArray polygon) {
 	uint cuts_to_do = vertex_count - 2;
 	while(cuts_to_do > 0) {
 		uint v1 = 0, v2 = 1, v3 = 2;
+		Triangle new;
 		while(!_can_cut(polygon, v1, v2, v3, vertices, vertex_count)) {
 			v1++; v2++; v3++;
 			if(v1 >= vertex_count) {
-				LOG_ERROR("Bad polygon, unable to triangulate");
+			//	// Hack for c3_arena5
+			//	if(cuts_to_do == 1) {
+			//		v1--; v2--; v3--;
+			//		goto cut;
+			//	}
+			//	else
+					LOG_ERROR("Bad polygon, unable to properly triangulate");
 			}	
 			if(v2 >= vertex_count) v2 = 0;
 			if(v3 >= vertex_count) v3 = 0;
 		}
-		Triangle new = {poly[vertices[v1]], poly[vertices[v2]], 
-			poly[vertices[v3]]};
+//	cut:
+		new.p1 = poly[vertices[v1]];
+		new.p2 = poly[vertices[v2]]; 
+		new.p3 = poly[vertices[v3]];
 		darray_append(&triangulated, &new);
 
 		for(uint i = v2; i+1 < vertex_count; ++i)
@@ -638,7 +671,6 @@ DArray poly_triangulate(DArray polygon) {
 		vertex_count--;
 		cuts_to_do--;
 	}	
-
 	MEM_FREE(vertices);
 
 	return triangulated;
