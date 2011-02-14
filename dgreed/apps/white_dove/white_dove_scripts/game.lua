@@ -7,6 +7,8 @@ dofile(script..'utils.lua')
 dofile(script..'boy.lua')
 dofile(script..'book.lua')
 dofile(script..'chars.lua')
+--dofile(script..'map.lua') -- current world map
+--dofile(script..'map_man.lua')
 dofile(script..'arenas.lua')
 
 state = action.move
@@ -32,8 +34,7 @@ function init()
 
 	fnt = font.load(media.."lucida_grande_60px.bft", 0.4)
 
-	-- will go into arena
-	boy.init()
+	--boy.init()
 end
 
 
@@ -74,7 +75,7 @@ function check_items()
 	if rect_rect_collision(book_shelf, boy.col_rect) and
 		active_arena == room and not have_book then
 		have_book = true
-		dialog_text = "You have found an old book..."
+		dialog_text = "You have found an old book... adasdasdasd asdasdasdsad sdasdasdasd asdadadsasd asdasdada "
 		dialog_q = q1
 		return true
 	end

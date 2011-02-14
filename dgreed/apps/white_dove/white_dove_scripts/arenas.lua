@@ -158,6 +158,7 @@ function arena.init()
 	arena[3].img = tex.load(media.."corner.png")
 	arena[4].img = tex.load(media.."ocean.png")
 
+	boy.init()
 	chars.init()
 
 	active_arena = room
