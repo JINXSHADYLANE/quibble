@@ -86,7 +86,9 @@ if env['DGREED_POSTFIX'] == '':
 				asset.replace(ASSETS_DIR+separator, '').replace('.fnt', '.bft'), 
 				asset, env['DGREED_FONT_TOOL'])
 		if asset.endswith('.png') or asset.endswith('.mml') or \
-			asset.endswith('.wav') or asset.endswith('.txt'):		
+			asset.endswith('.wav') or asset.endswith('.ogg') or \
+			asset.endswith('.txt'):		
+
 			env.Install(dest_dir, asset)
 
 	# Process arenas

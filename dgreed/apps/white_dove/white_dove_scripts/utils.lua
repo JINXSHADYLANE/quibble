@@ -16,6 +16,14 @@ action = {
 	dialog = 3
 }
 
+fade_speed = 0.04
+fade_state = {
+	fadein = 1,
+	fadeout = 2,
+	switch = 3,
+	other = 0
+}
+
 q1 = rect(20, 20, screen.r/2-20, screen.b/2-20)
 q2 = rect(screen.r/2+20, 20, screen.r-20, screen.b/2-20)
 q3 = rect(20, screen.b/2+20, screen.r/2-20, screen.b-20)
@@ -39,9 +47,10 @@ function dialog_quarter()
 end
 
 function draw_dialog(text, pos_rect)
+	local shift = 50
 	local start_id, end_id = 1, 1
 	local w, h = font.size(fnt, "a")
-	local text_pos = vec2(pos_rect.l + 50, pos_rect.t + 50)
+	local text_pos = vec2(pos_rect.l + shift, pos_rect.t + shift)
 	local tex_src = rect(0, 0, 512, 384)
 
 	video.draw_rect(border_tex, 3, tex_src, pos_rect)
@@ -51,7 +60,7 @@ function draw_dialog(text, pos_rect)
 	
 		if end_temp then
 			w, h = font.size(fnt, string.sub(text, start_id, end_temp-1))
-			if w > pos_rect.r-pos_rect.l then
+			if w > (pos_rect.r - pos_rect.l - 2*shift) then
 				video.draw_text(fnt, 4, string.sub(text, start_id, end_id-1), 
 					text_pos)
 				start_id = end_id + 1
@@ -64,5 +73,4 @@ function draw_dialog(text, pos_rect)
 
 	video.draw_text(fnt, 4, string.sub(text, start_id, n), text_pos)
 end
-
 

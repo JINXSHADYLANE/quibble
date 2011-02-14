@@ -2,6 +2,7 @@
 #define SOUNDS_H
 
 typedef enum {
+	MUSIC,
 	SHOT,
 	COLLISION_BULLET_WALL,
 	COLLISION_BULLET_SHIP,

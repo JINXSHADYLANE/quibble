@@ -260,6 +260,8 @@ void game_reset(const char* arena, uint n_players) {
 		platform_states[i].color_fade = 0.0f;
 		platform_states[i].ring_angle = rand_float_range(0.0f, 360.0f);
 	}	
+
+	sounds_event(MUSIC);
 }	
 
 void game_shoot(uint ship) {
