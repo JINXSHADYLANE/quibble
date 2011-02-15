@@ -1,6 +1,8 @@
 #ifndef SOUNDS_H
 #define SOUNDS_H
 
+#include <utils.h>
+
 typedef enum {
 	MUSIC,
 	SHOT,
@@ -17,6 +19,7 @@ typedef enum {
 void sounds_init();
 void sounds_close();
 void sounds_event(SoundEventType type);
+void sounds_event_ex(SoundEventType type, uint arg);
 
 #endif
 

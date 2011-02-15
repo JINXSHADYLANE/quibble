@@ -1,5 +1,5 @@
 #include "sounds.h"
-#include "system.h"
+#include <system.h>
 
 SoundHandle sound_shot;
 SoundHandle music_c1;
@@ -22,10 +22,17 @@ void sounds_close() {
 }
 
 void sounds_event(SoundEventType type) {
+	sounds_event_ex(type, ~0);
+}
+
+void sounds_event_ex(SoundEventType type, uint arg) {
+	SoundHandle music;
 	switch(type) {
 		case MUSIC:
-			sound_stop(music_c1);
-			sound_play(music_c1);
+			music = (arg == 0) ? 
+				music_c1 : music_c2;
+			sound_stop(music);
+			sound_play(music);
 			return;
 		case SHOT:
 			sound_play(sound_shot);
