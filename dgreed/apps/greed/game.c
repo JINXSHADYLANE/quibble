@@ -261,7 +261,9 @@ void game_reset(const char* arena, uint n_players) {
 		platform_states[i].ring_angle = rand_float_range(0.0f, 360.0f);
 	}	
 
-	sounds_event(MUSIC);
+	// Works as long as arenas are named "cx_arenay"
+	uint chapter = arena[1] - '0';
+	sounds_event_ex(MUSIC, chapter);
 }	
 
 void game_shoot(uint ship) {
