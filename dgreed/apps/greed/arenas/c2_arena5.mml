@@ -4,12 +4,11 @@
 	(shadow_shift -4,-4)
 	(max_players 2)
 	(spawnpoints _
-		(p 440,57)
-		(p 95,283)
+		(p 120,70)
+		(p 370,240)
 	)
 	(platforms _
-		(p 100,30)
-		(p 310,160)
+		(p 240,160)
 	)
 )	
 
