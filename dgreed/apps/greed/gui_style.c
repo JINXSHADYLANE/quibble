@@ -27,9 +27,9 @@ GuiDesc greed_gui_style(bool highres) {
 
 	style.text_color = COLOR_WHITE;
 
-	style.first_layer = 10;
-	style.second_layer = 11;
-	style.text_layer = 12;
+	style.first_layer = 12;
+	style.second_layer = 13;
+	style.text_layer = 14;
 
 	style.src_button_up = rectf(0.0f, 0.0f, 252.0f, 41.0f);
 	style.src_button_down = rectf(0.0f, 42.0f, 252.0f, 42.0f + 41.0f);

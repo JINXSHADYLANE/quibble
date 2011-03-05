@@ -15,11 +15,11 @@ MenuState menu_state;
 MenuState menu_transition;
 float menu_transition_t;
 
-#define MENU_BACKGROUND_LAYER 0
-#define MENU_PANEL_LAYER  2
-#define MENU_SHADOW_LAYER 3
+#define MENU_BACKGROUND_LAYER 5
+#define MENU_PANEL_LAYER  7
+#define MENU_SHADOW_LAYER 8
 #define MENU_TEXT_LAYER 9
-#define MENU_POPUP_LAYER 12
+#define MENU_POPUP_LAYER 8 
 
 #define BACKGROUND_IMG "greed_assets/back_chapter_1.png"
 #define MENU_ATLAS_IMG "greed_assets/menu_atlas.png"
@@ -462,6 +462,8 @@ void _render_arenas(float t) {
 	}
 }
 
+bool menu_last_game_did_win = false;
+
 void _render_gameover(float t) {
 	const char* items[] = {
 		"Restart",
@@ -472,29 +474,28 @@ void _render_gameover(float t) {
 	float scale = _t_to_scale(t);	
 	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
 
-	bool did_win = !ship_states[0].is_exploding;
+	bool did_win = menu_last_game_did_win;
 
 	Vector2 center = {240.0f, 168.0f};
 
 	// Panel
 	gfx_draw_textured_rect(menu_atlas, MENU_POPUP_LAYER, &panel_source,
-		&center, 0.0f, scale, c);
+		&center, 0.0f, scale*0.7f, c);
 
 	// Text
-	Vector2 cursor = {center.x, 80.0f};
+	Vector2 cursor = {center.x, 120.0f};
 	_menu_text(&cursor, did_win ? "Well done!" : "Bad luck.",
 		&center, t, true, false);
 
 	// Buttons
-	cursor.y += 170.0f;
-	cursor.x -= 110.0f;
+	Vector2 pos[] = {{175.0f, 220.0f}, {240.0f, 295.0f}, {320.0f, 220.0f}};
+	if(!did_win)
+		pos[0].x = 240.0f;
 	for(uint i = 0; i < ARRAY_SIZE(items); ++i) {
 		if(i == 2 && !did_win)
 			break;
 
-		Vector2 p = cursor;
-		if(i == 1)
-			p.y += 10.0f;
+		Vector2 p = pos[i];
 		if(_menu_button(&p, items[i], &center, t) && t == 0.0f) {
 			if(i == 0) {
 				menu_transition = MENU_GAME;
@@ -505,14 +506,17 @@ void _render_gameover(float t) {
 				menu_transition = MENU_ARENA;
 			}	
 			if(i == 2) {
-				menu_transition = MENU_GAME;
-				game_reset(arena_get_next(), 2);
-				ai_init_agent(1, 0);
+				const char* next = arena_get_next();
+				if(next) {
+					menu_transition = MENU_GAME;
+					game_reset(arena_get_next(), 2);
+					ai_init_agent(1, 0);
+				}
 			}
 
 			menu_transition_t = time_ms() / 1000.0f;
 		}
-		cursor.x += 110.0f;
+		cursor.x += 120.0f;
 	}
 }
 
@@ -527,7 +531,7 @@ void _menus_switch(MenuState state, float t) {
 		_render_arenas(t);
 	if(state == MENU_GAMEOVER)
 		_render_gameover(t);
-	if(state == MENU_GAME && menu_transition == MENU_GAME)
+	if(state == MENU_GAME)
 		game_render_transition(t);
 }
 
@@ -535,19 +539,31 @@ void menus_render(void) {
 	if(menu_transition == MENU_GAME && menu_state == MENU_GAME)
 		return;
 
+	float time = time_ms() / 1000.0f;
+	float t = (time - fabs(menu_transition_t)) / menu_transition_length;
+
 	// Background
 	if(menu_state != MENU_GAME && menu_state != MENU_GAMEOVER) {
+		Color color = COLOR_WHITE;
+		if(menu_transition == MENU_GAME) {
+			color = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, t);
+		}
 		RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
 		video_draw_rect(background, MENU_BACKGROUND_LAYER, &background_source,
-			&dest, COLOR_WHITE);
+			&dest, color);
 	}	
+	if(menu_state == MENU_GAMEOVER && menu_transition != MENU_GAME &&
+		menu_transition != menu_state) {
+		Color color = color_lerp(COLOR_TRANSPARENT, COLOR_WHITE, t);
+		RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
+		video_draw_rect(background, MENU_BACKGROUND_LAYER, &background_source,
+			&dest, color);
+	}
 
 	if(menu_state == menu_transition) {
 		_menus_switch(menu_state, 0.0f);
 	}	
 	else {
-		float time = time_ms() / 1000.0f;
-		float t = (time - fabs(menu_transition_t)) / menu_transition_length;
 
 		if(menu_transition_t > 0.0f) {
 			_menus_switch(menu_state, 0.0f + t);

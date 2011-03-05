@@ -373,6 +373,7 @@ void game_update(void) {
 			if(ship == 0 || ships_left == 1) {
 				menu_transition = MENU_GAMEOVER;
 				menu_transition_t = time_ms() / 1000.0f;
+				menu_last_game_did_win = !ship_states[0].is_exploding;
 			}
 		}
 
@@ -839,8 +840,10 @@ void game_render(void) {
 }	
 
 void game_render_transition(float t) {
-	arena_draw_transition(fabs(t));
-	start_anim_t = time_ms() / 1000.0f;
+	if(t < 0.0f) {
+		arena_draw();
+		start_anim_t = time_ms() / 1000.0f;
+	}
 }
 
 void _startanim_platform(uint platform, float t) {

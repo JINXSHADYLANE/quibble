@@ -6,7 +6,7 @@
 
 #include <touch_ctrls.h>
 
-#define CONTROLS_LAYER 14
+#define CONTROLS_LAYER 15
 
 extern TexHandle gui_tex;
 
