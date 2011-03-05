@@ -13,7 +13,7 @@
 #include "ai.h"
 #include "menus.h"
 
-#define TEXT_LAYER 12
+#define TEXT_LAYER 15
 
 FontHandle small_font;
 

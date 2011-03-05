@@ -16,6 +16,7 @@ typedef enum {
 extern MenuState menu_state;
 extern MenuState menu_transition;
 extern float menu_transition_t;
+extern bool menu_last_game_did_win;
 
 void menus_init(void);
 void menus_close(void);
