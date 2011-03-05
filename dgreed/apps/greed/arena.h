@@ -53,6 +53,9 @@ void arena_update(float dt);
 void arena_draw(void);
 void arena_draw_transition(float t);
 
+const char* arena_get_current(void);
+const char* arena_get_next(void);
+
 // AI helpers:
 uint arena_closest_navpoint(Vector2 pos);
 uint arena_platform_navpoint(uint platform);

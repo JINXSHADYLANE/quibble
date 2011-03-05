@@ -393,8 +393,6 @@ DArray poly_simplify_island(uint* raster, uint width, uint height,
 			const float delta_dir_tolerance[] = 
 				{50.0f, 38.0f, 30.0f, 18.0f, 6.0f};
 
-			LOG_INFO("Outline size - %d", outline.size);
-
 			float direction = 0.0f;
 			while(true) {
 				if(end == outline.size-1)
@@ -438,8 +436,6 @@ DArray poly_simplify_island(uint* raster, uint width, uint height,
 			// Additional optimization pass
 			uint i = 0, j = 2;
 
-			LOG_INFO("Pre Island/hole, %d verts", simple_outline.size);
-
 			while(simple_outline.size > 4 && i < simple_outline.size) {
 				Vector2* s_outline = DARRAY_DATA_PTR(simple_outline, Vector2);
 
@@ -455,8 +451,6 @@ DArray poly_simplify_island(uint* raster, uint width, uint height,
 				}
 			}
 
-			LOG_INFO("Island/hole, %d verts", simple_outline.size);
-			
 			// TODO: investigate why so many small outlines are generated
 			if(simple_outline.size > 2)
 				darray_append(&island_polys, &simple_outline);

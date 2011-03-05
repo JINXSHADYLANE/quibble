@@ -11,6 +11,7 @@
 uint total_arenas;
 ChapterDesc chapters[MAX_CHAPTERS];
 ArenaDesc current_arena_desc;
+const char* current_arena_name = NULL;
 
 RectF walls_source = {0.0f, 0.0f, 480.0f, 320.0f};
 RectF background_source = {0.0f, 0.0f, 480.0f, 320.0f};
@@ -135,6 +136,7 @@ void arena_reset(const char* filename, uint n_ships) {
 	_arena_prep_reset();
 
 	LOG_INFO("Loading arena from file %s", filename);
+	current_arena_name = filename;
 
 	char* desc_text = txtfile_read(filename);
 	if(!desc_text)
@@ -290,6 +292,34 @@ void arena_draw_transition(float t) {
 		video_draw_rect(current_arena_desc.walls_img, SHADOWS_LAYER,
 			&shadow_source, &dest, c);
 
+}
+
+const char* arena_get_current(void) {
+	assert(current_arena_name);
+	return current_arena_name;
+}
+
+const char* arena_get_next(void) {
+	assert(current_arena_name);	
+
+	// Find current arena, return next non-empty arena
+	for(uint i = 0; i < MAX_CHAPTERS; ++i) {
+		for(uint j = 0; j < MAX_ARENAS_IN_CHAPTER; ++j) {
+			if(chapters[i].arena_file[j]) {
+				if(strcmp(current_arena_name, chapters[i].arena_file[j]) == 0) {
+					do {
+						while(++j < MAX_ARENAS_IN_CHAPTER) {
+							if(chapters[i].arena_name[j])
+								return chapters[i].arena_file[j];
+						}
+						j = 0;
+					} while(++i < MAX_CHAPTERS);
+				}
+			}
+		}
+	}
+
+	return NULL;
 }
 
 uint arena_closest_navpoint(Vector2 pos) {

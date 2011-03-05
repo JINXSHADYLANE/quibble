@@ -321,14 +321,14 @@ void game_update(void) {
 
 	menus_update();
 
-	if(menu_state != MENU_GAME)
+	if(menu_state != MENU_GAME && menu_state != MENU_GAMEOVER)
 		return;
 
 	if(_in_start_anim())
 		return;
 
 	controls_draw(0.0f);
-	if(!ship_states[0].is_exploding) {
+	if(menu_state == MENU_GAME && !ship_states[0].is_exploding) {
 		_control_keyboard1(0);
 		controls_update(0);
 	}
@@ -358,12 +358,22 @@ void game_update(void) {
 		ship_states[ship].energy = 
 			clamp(0.0f, energy_max, ship_states[ship].energy); 
 
-		if(ship_states[ship].energy == 0.0f) {
+		if(ship_states[ship].energy == 0.0f && menu_transition == MENU_GAME) {
 			ship_states[ship].is_exploding = true;
 			ship_states[ship].explode_t = time;
 
 			particles_spawn("explosion1", &physics_state.ships[ship].pos, 0.0f);	
 			particles_spawn("explosion2", &physics_state.ships[ship].pos, 0.0f);	
+
+			uint ships_left = 0;
+			for(uint i = 0; i < n_ships; ++i)
+				ships_left += ship_states[i].is_exploding ? 0 : 1;
+
+			// Show game over screen if only 1 ship is left, or player exploded
+			if(ship == 0 || ships_left == 1) {
+				menu_transition = MENU_GAMEOVER;
+				menu_transition_t = time_ms() / 1000.0f;
+			}
 		}
 
 		// Update size & mass
@@ -585,7 +595,7 @@ void game_render(void) {
 	#endif
 
 	menus_render();
-	if(menu_state != MENU_GAME)
+	if(menu_state != MENU_GAME && menu_state != MENU_GAMEOVER)
 		return;
 
 	if(draw_physics_debug)

@@ -19,6 +19,7 @@ float menu_transition_t;
 #define MENU_PANEL_LAYER  2
 #define MENU_SHADOW_LAYER 3
 #define MENU_TEXT_LAYER 9
+#define MENU_POPUP_LAYER 12
 
 #define BACKGROUND_IMG "greed_assets/back_chapter_1.png"
 #define MENU_ATLAS_IMG "greed_assets/menu_atlas.png"
@@ -230,7 +231,6 @@ void _render_settings(float t) {
 		gui_draw_slider(&pos, scale, state, c);
 	}
 
-	// TODO: Controls	
 	dest = vec2(75.0f, 155.0f);
 	_menu_text(&dest, "Controls:", &center, t, false, true);
 
@@ -462,6 +462,60 @@ void _render_arenas(float t) {
 	}
 }
 
+void _render_gameover(float t) {
+	const char* items[] = {
+		"Restart",
+		"Back",
+		"Next"
+	};
+
+	float scale = _t_to_scale(t);	
+	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
+
+	bool did_win = !ship_states[0].is_exploding;
+
+	Vector2 center = {240.0f, 168.0f};
+
+	// Panel
+	gfx_draw_textured_rect(menu_atlas, MENU_POPUP_LAYER, &panel_source,
+		&center, 0.0f, scale, c);
+
+	// Text
+	Vector2 cursor = {center.x, 80.0f};
+	_menu_text(&cursor, did_win ? "Well done!" : "Bad luck.",
+		&center, t, true, false);
+
+	// Buttons
+	cursor.y += 170.0f;
+	cursor.x -= 110.0f;
+	for(uint i = 0; i < ARRAY_SIZE(items); ++i) {
+		if(i == 2 && !did_win)
+			break;
+
+		Vector2 p = cursor;
+		if(i == 1)
+			p.y += 10.0f;
+		if(_menu_button(&p, items[i], &center, t) && t == 0.0f) {
+			if(i == 0) {
+				menu_transition = MENU_GAME;
+				game_reset(arena_get_current(), 2);
+				ai_init_agent(1, 0);
+			}	
+			if(i == 1) {
+				menu_transition = MENU_ARENA;
+			}	
+			if(i == 2) {
+				menu_transition = MENU_GAME;
+				game_reset(arena_get_next(), 2);
+				ai_init_agent(1, 0);
+			}
+
+			menu_transition_t = time_ms() / 1000.0f;
+		}
+		cursor.x += 110.0f;
+	}
+}
+
 void _menus_switch(MenuState state, float t) {
 	if(state == MENU_MAIN)
 		_render_main(t);
@@ -471,7 +525,9 @@ void _menus_switch(MenuState state, float t) {
 		_render_chapters(t);
 	if(state == MENU_ARENA)
 		_render_arenas(t);
-	if(state == MENU_GAME)
+	if(state == MENU_GAMEOVER)
+		_render_gameover(t);
+	if(state == MENU_GAME && menu_transition == MENU_GAME)
 		game_render_transition(t);
 }
 
@@ -480,7 +536,7 @@ void menus_render(void) {
 		return;
 
 	// Background
-	if(menu_state != MENU_GAME) {
+	if(menu_state != MENU_GAME && menu_state != MENU_GAMEOVER) {
 		RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
 		video_draw_rect(background, MENU_BACKGROUND_LAYER, &background_source,
 			&dest, COLOR_WHITE);
