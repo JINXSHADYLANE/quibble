@@ -503,22 +503,52 @@ void _render_gameover(float t) {
 				menu_transition = MENU_GAME;
 				game_reset(arena_get_current(), 2);
 				ai_init_agent(1, 0);
+				menu_transition_t = time_ms() / 1000.0f;
 			}	
 			if(i == 1) {
 				menu_transition = MENU_ARENA;
+				menu_transition_t = -time_ms() / 1000.0f;
 			}	
-			
 			if(i == 2) {
 				if(next) {
 					menu_transition = MENU_GAME;
-					game_reset(arena_get_next(), 2);
+					game_reset(next, 2);
 					ai_init_agent(1, 0);
+					menu_transition_t = time_ms() / 1000.0f;
 				}
 			}
-
-			menu_transition_t = time_ms() / 1000.0f;
 		}
 		cursor.x += 120.0f;
+	}
+}
+
+void _render_pause(float t) {
+	float scale = _t_to_scale(t);
+	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
+
+	Vector2 center = {240.0f, 168.0f};
+
+	// Panel
+	gfx_draw_textured_rect(menu_atlas, MENU_POPUP_LAYER, &panel_source,
+		&center, 0.0f, scale*0.7f, c);
+
+	// Text
+	Vector2 cursor = {center.x, 120.0f};
+	_menu_text(&cursor, "Paused", &center, t, true, false);
+
+	float time = time_ms() / 1000.0f;
+
+	// Continue
+	cursor = vec2(center.x, 220.0f);
+	if(_menu_button(&cursor, "Continue", &center, t) && t == 0.0f) {
+		menu_transition = MENU_GAME;
+		menu_transition_t = -time;
+	}
+
+	cursor = vec2(center.x, 295.0f);
+	if(_menu_button(&cursor, "Back", &center, t) && t == 0.0f) {
+		menu_transition = MENU_ARENA;
+		menu_transition_t = -time;
 	}
 }
 
@@ -533,6 +563,8 @@ void _menus_switch(MenuState state, float t) {
 		_render_arenas(t);
 	if(state == MENU_GAMEOVER)
 		_render_gameover(t);
+	if(state == MENU_PAUSE)
+		_render_pause(t);
 	if(state == MENU_GAME)
 		game_render_transition(t);
 }
@@ -545,7 +577,8 @@ void menus_render(void) {
 	float t = (time - fabs(menu_transition_t)) / menu_transition_length;
 
 	// Background
-	if(menu_state != MENU_GAME && menu_state != MENU_GAMEOVER) {
+	if(menu_state != MENU_GAME && menu_state != MENU_GAMEOVER
+		&& menu_state != MENU_PAUSE) {
 		Color color = COLOR_WHITE;
 		if(menu_transition == MENU_GAME) {
 			color = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, t);
@@ -554,8 +587,8 @@ void menus_render(void) {
 		video_draw_rect(background, MENU_BACKGROUND_LAYER, &background_source,
 			&dest, color);
 	}	
-	if(menu_state == MENU_GAMEOVER && menu_transition != MENU_GAME &&
-		menu_transition != menu_state) {
+	if((menu_state == MENU_GAMEOVER || menu_state == MENU_PAUSE) 
+		&& menu_transition != MENU_GAME && menu_transition != menu_state) {
 		Color color = color_lerp(COLOR_TRANSPARENT, COLOR_WHITE, t);
 		RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
 		video_draw_rect(background, MENU_BACKGROUND_LAYER, &background_source,

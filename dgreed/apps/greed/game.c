@@ -309,8 +309,39 @@ void _control_keyboard1(uint ship) {
 		game_shoot(ship);
 }	
 
+bool _is_paused(void) {
+	return menu_state == MENU_PAUSE || menu_transition == MENU_PAUSE;
+}
+
+float _game_time(void) {
+	static float pause_t = -1.0f;
+	static float pause_acc = 0.0f;
+	static float t = 0.0f;
+	static bool was_paused = false;
+	bool is_paused = _is_paused();
+	
+	if(!was_paused && is_paused)
+		pause_t = time_ms() / 1000.0f;
+	if(was_paused && !is_paused) {
+		assert(pause_t > 0.0f);
+		pause_acc += (time_ms() / 1000.0f) - pause_t;
+	}	
+
+	if(!is_paused)
+		t = (time_ms() / 1000.0f) - pause_acc;
+	was_paused = is_paused;
+	return t;
+}
+
+float _game_dt(void) {
+	if(_is_paused())
+		return 0.0f;
+	else
+		return time_delta() / 1000.0f;
+}
+
 bool _in_start_anim(void) {
-	float t = time_ms() / 1000.0f;
+	float t = _game_time();
 	return start_anim_t + start_anim_length >= t;
 }
 
@@ -327,14 +358,21 @@ void game_update(void) {
 	if(_in_start_anim())
 		return;
 
+	if(_is_paused())
+		return;
+
+	// Paused state might change here
 	controls_draw(0.0f);
 	if(menu_state == MENU_GAME && !ship_states[0].is_exploding) {
 		_control_keyboard1(0);
 		controls_update(0);
 	}
 
-	float dt = time_delta() / 1000.0f;
-	float time = time_ms() / 1000.0f;
+	if(_is_paused())
+		return;
+
+	float dt = _game_dt();
+	float time = _game_time();
 
 	physics_update(dt);
 	particles_update(time);
@@ -560,7 +598,7 @@ void _draw_energybar(const Vector2* pos, float length, Color color) {
 float _calc_core_shrink_ratio(uint platform) {
 	assert(platform < n_platforms);
 
-	float time = time_ms() / 1000.0f;
+	float time = _game_time();
 	PlatformState* state = &(platform_states[platform]);
 
 	float core_shrink = 1.0f;
@@ -596,7 +634,9 @@ void game_render(void) {
 	#endif
 
 	menus_render();
-	if(menu_state != MENU_GAME && menu_state != MENU_GAMEOVER)
+
+	if(menu_state != MENU_GAME && menu_state != MENU_GAMEOVER 
+		&& menu_state != MENU_PAUSE)
 		return;
 
 	if(draw_physics_debug)
@@ -605,7 +645,7 @@ void game_render(void) {
 	if(draw_ai_debug)
 		ai_debug_draw();
 
-	float time = time_ms() / 1000.0f;
+	float time = _game_time();
 	if(_in_start_anim()) {
 		float t = (time - start_anim_t) / start_anim_length;
 		game_render_startanim(t);
@@ -840,9 +880,14 @@ void game_render(void) {
 }	
 
 void game_render_transition(float t) {
+	if(menu_state == MENU_PAUSE || menu_transition == MENU_PAUSE) {
+		controls_draw(t);
+		return;
+	}	
+
 	if(t < 0.0f) {
 		arena_draw();
-		start_anim_t = time_ms() / 1000.0f;
+		start_anim_t = _game_time();
 	}
 }
 
