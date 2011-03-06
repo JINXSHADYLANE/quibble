@@ -312,13 +312,15 @@ const char* arena_get_next(void) {
 							if(chapters[i].arena_name[j])
 								return chapters[i].arena_file[j];
 						}
-						j = 0;
+						j = ~0;
 					} while(++i < MAX_CHAPTERS);
+					goto end;
 				}
 			}
 		}
 	}
-
+end:
+	LOG_WARNING("Unable to get next arena after %s", current_arena_name);
 	return NULL;
 }
 
