@@ -488,11 +488,13 @@ void _render_gameover(float t) {
 		&center, t, true, false);
 
 	// Buttons
+	const char* next = arena_get_next();
 	Vector2 pos[] = {{175.0f, 220.0f}, {240.0f, 295.0f}, {320.0f, 220.0f}};
-	if(!did_win)
+	if(!did_win || next == NULL)
 		pos[0].x = 240.0f;
+	
 	for(uint i = 0; i < ARRAY_SIZE(items); ++i) {
-		if(i == 2 && !did_win)
+		if(i == 2 && (!did_win || next == NULL))
 			break;
 
 		Vector2 p = pos[i];
@@ -505,8 +507,8 @@ void _render_gameover(float t) {
 			if(i == 1) {
 				menu_transition = MENU_ARENA;
 			}	
+			
 			if(i == 2) {
-				const char* next = arena_get_next();
 				if(next) {
 					menu_transition = MENU_GAME;
 					game_reset(arena_get_next(), 2);
