@@ -16,7 +16,9 @@ static RectF acc_btn_src = {73.0f, 148.0f, 73.0f+28.0f, 148.0f+28.0f};
 static RectF shoot_btn_src = {73.0f, 183.0f, 73.0f+28.0f, 183.0f+28.0f};
 static RectF left_btn_src = {42.0f, 218.0f, 42.0f+28.0f, 218.0f+28.0f};
 static RectF right_btn_src = {72.0f, 218.0f, 72.0f+28.0f, 218.0f+28.0f};
+static RectF pause_btn_src = {42.0f, 183.0f, 42.0f+28.0f, 183.0f+28.0f};
 
+static const Vector2 pause_pos = {42.0f, 52.0f};
 static Vector2 joystick; 
 static bool shoot_btn;
 static bool acc_btn;
@@ -32,6 +34,11 @@ void controls_close(void) {
 void controls_draw(float fadein) {
 	// Draw interactive controls
 	if(fadein == 0.0f) {
+		if(touch_button(gui_tex, CONTROLS_LAYER,
+			&pause_btn_src, &pause_pos)) {
+			menu_transition = MENU_PAUSE;
+			menu_transition_t = time_ms() / 1000.0f;
+		} 
 		switch(pstate.control_type) {
 			case 0: {
 				acc_btn = touch_button(gui_tex, CONTROLS_LAYER,
@@ -63,6 +70,8 @@ void controls_draw(float fadein) {
 	}
 	// Draw animated fadein, inactive
 	else {
+		menus_draw_rect(gui_tex, CONTROLS_LAYER,
+			&pause_btn_src, &pause_pos, fadein);
 		switch(pstate.control_type) {
 			case 0: {
 				menus_draw_rect(gui_tex, CONTROLS_LAYER,
