@@ -25,22 +25,36 @@ bool _is_whitespace(char c) {
 }	
 
 // Allocates new string in string pool
-// TODO: Optimize darray_reserve
 StrIdx _alloc_str(MMLObject* mml, uint length) {
 	assert(mml);
 	assert(length);
 	
-	darray_reserve(&(mml->str_pool), mml->str_pool.size+length);
+	uint new_size, req_size = mml->str_pool.size + length;
+	if(req_size <= mml->str_pool.reserved)
+		goto end;
+
+	do {
+		new_size = (mml->str_pool.size * 3) / 2;
+	} while(new_size <= req_size);
+
+	darray_reserve(&(mml->str_pool), new_size);
+
+end:
 	mml->str_pool.size += length;
 	return mml->str_pool.size - length;
 }	
 
 // Allocates new node in node pool
-// TODO: Optimize darray_reserve
 NodeIdx _alloc_node(MMLObject* mml) {
 	assert(mml);
 
-	darray_reserve(&(mml->node_pool), mml->node_pool.size+1);
+	if(mml->node_pool.size + 1 <= mml->node_pool.reserved)
+		goto end;
+
+	uint new_size = (mml->node_pool.size * 3) / 2;
+	darray_reserve(&(mml->node_pool), new_size);
+
+end:
 	return mml->node_pool.size++;
 }
 
