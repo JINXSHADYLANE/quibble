@@ -23,14 +23,20 @@ float menu_transition_t;
 
 #define BACKGROUND_IMG "greed_assets/back_chapter_1.png"
 #define MENU_ATLAS_IMG "greed_assets/menu_atlas.png"
+#define CHAPTERS_ATLAS "greed_assets/chapter_atlas.png"
+#define ARENAS_ATLAS "greed_assets/atlas_c%d.png"
 
 TexHandle background;
 TexHandle menu_atlas;
+TexHandle chapters_atlas;
+TexHandle arenas_atlas[MAX_CHAPTERS];
 
 static RectF background_source = {0.0f, 0.0f, 480.0f, 320.0f};
 static RectF panel_source = {0.0f, 0.0f, 338.0f, 225.0f};
 static RectF title_source = {362.0f, 0.0f, 362.0f + 70.0f, 256.0f};
 static RectF separator_source = {0.0f, 246.0f, 322.0f, 246.0f + 8.0f};
+static RectF arena_list_panel_source[6];
+static RectF chapter_list_panel_source[6];
 
 static Color menu_text_color = COLOR_RGBA(214, 214, 215, 255);
 static Color menu_sel_text_color = COLOR_RGBA(166, 166, 168, 255);
@@ -45,6 +51,22 @@ float menu_animation_depth = 0.5f;
 void menus_init(void) {
 	background = tex_load(BACKGROUND_IMG);
 	menu_atlas = tex_load(MENU_ATLAS_IMG);
+	chapters_atlas = tex_load(CHAPTERS_ATLAS);
+	char file[128];
+	for(uint i = 0; i < MAX_CHAPTERS; ++i) {
+		sprintf(file, ARENAS_ATLAS, i+1);
+		arenas_atlas[i] = tex_load(file);
+	}	
+
+	for(uint i = 0; i < 6; ++i) {
+		float fx = 1.0f + (float)(i % 3) * 339.0f;
+		float fy = 1.0f + (float)(i / 3) * 226.0f;
+		arena_list_panel_source[i] = rectf(fx, fy, fx + 338.0f, fy + 225.0f);
+		
+		fx = 1.0f + (float)(i % 3) * 340.0f;
+		fy = 1.0f + (float)(i / 3) * 227.0f;
+		chapter_list_panel_source[i] = rectf(fx, fy, fx + 338.0f, fy + 225.0f);
+	}
 
 	menu_state = menu_transition = MENU_MAIN;
 }
@@ -52,6 +74,9 @@ void menus_init(void) {
 void menus_close(void) {
 	tex_free(background);
 	tex_free(menu_atlas);
+	tex_free(chapters_atlas);
+	for(uint i = 0; i < MAX_CHAPTERS; ++i) 
+		tex_free(arenas_atlas[i]);
 }
 
 void menus_update(void) {
@@ -370,7 +395,7 @@ static const float x_spacing = 380.0f;
 
 bool _render_slidemenu(float t, float* camera_lookat_x, 
 	float* old_camera_lookat_x, MenuState back, const char** text,
-	uint n_items) {
+	TexHandle texture, const RectF* sources, uint n_items) {
 
 	const uint item_count = n_items;
 	const float y_coord = 160.0f;
@@ -400,14 +425,18 @@ bool _render_slidemenu(float t, float* camera_lookat_x,
 			center, scale);
 
 		if(vdest.x > -width/2.0f && vdest.x < 480.0f + width/2.0f) {
-			gfx_draw_textured_rect(menu_atlas, MENU_PANEL_LAYER,
-				&panel_source, &vdest, 0.0f, scale, c);
+			uint src_idx = MIN(i, 5);
+			TexHandle tex = src_idx < 5 ? texture : menu_atlas;
+			const RectF* source = src_idx < 5 ? &sources[src_idx] : &panel_source;
+			gfx_draw_textured_rect(tex, MENU_PANEL_LAYER,
+				source, &vdest, 0.0f, scale, c);
 			
-			vdest =	
-				vec2(x_start + *camera_lookat_x + (float)i * x_spacing - 165.0f,
-				y_coord + 70.0f);
+			// Render text
+			//vdest =	
+			//	vec2(x_start + *camera_lookat_x + (float)i * x_spacing - 165.0f,
+			//	y_coord + 70.0f);
 
-			_menu_text(&vdest, text[i], &center, t, false, false);
+			//_menu_text(&vdest, text[i], &center, t, false, false);
 		}	
 	}
 
@@ -427,7 +456,7 @@ void _render_chapters(float t) {
 	}
 
 	if(_render_slidemenu(t, &chp_camera_lookat_x, &chp_old_camera_lookat_x,
-		MENU_MAIN, text, MAX_CHAPTERS)) {
+		MENU_MAIN, text, chapters_atlas, chapter_list_panel_source, MAX_CHAPTERS)) {
 
 		selected_chapter = (int)(chp_camera_lookat_x / -x_spacing + 0.5f);
 		selected_chapter = MIN(selected_chapter, MAX_CHAPTERS-1);
@@ -440,9 +469,11 @@ void _render_chapters(float t) {
 }		
 
 void _render_arenas(float t) {
+	uint n_arenas = chapters[selected_chapter].n_arenas;
 	if(_render_slidemenu(t, &arn_camera_lookat_x, &arn_old_camera_lookat_x,
 		MENU_CHAPTER, chapters[selected_chapter].arena_name,
-		MAX_ARENAS_IN_CHAPTER)) {
+		arenas_atlas[selected_chapter], arena_list_panel_source, 
+		n_arenas)) {
 
 		uint selected_arena = (int)(arn_camera_lookat_x / -x_spacing + 0.5f);
 		selected_arena = MIN(selected_arena, MAX_ARENAS_IN_CHAPTER-1);
