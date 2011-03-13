@@ -28,7 +28,7 @@ TexHandle background;
 TexHandle menu_atlas;
 
 static RectF background_source = {0.0f, 0.0f, 480.0f, 320.0f};
-static RectF panel_source = {0.0f, 0.0f, 360.0f, 225.0f};
+static RectF panel_source = {0.0f, 0.0f, 338.0f, 225.0f};
 static RectF title_source = {362.0f, 0.0f, 362.0f + 70.0f, 256.0f};
 static RectF separator_source = {0.0f, 246.0f, 322.0f, 246.0f + 8.0f};
 
