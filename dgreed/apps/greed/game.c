@@ -41,6 +41,7 @@ RectF platform_shadow_rect;
 RectF bullet_rect;
 RectF bullet_shadow_rect;
 RectF energybar_rects[3]; // start, end, middle
+RectF shockwave_rect;
 
 // Game state
 uint n_ships;
@@ -78,6 +79,8 @@ float start_anim_obj_fadein = 0.3f;
 float start_anim_obj_size = 2.0f;
 float bullet_cost = 1.0f;
 float bullet_damage = 0.8f;
+float shockwave_min_size = 0.5f;
+float shockwave_max_size = 3.0f;
 
 const Color ship_colors[] = {
 	COLOR_RGBA(33, 48, 189, 255),
@@ -107,6 +110,41 @@ const float ship_shard_angles[] = {
 // Devmode switches
 bool draw_physics_debug = false;
 bool draw_ai_debug = false;
+
+#define WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, pos, action) \
+	if(pos.x < x_min) { 										 \
+		Vector2 npos = vec2(pos.x + (float)SCREEN_WIDTH, pos.y); \
+		action;													 \
+		if(pos.y < y_min) {										 \
+			npos.y += (float)SCREEN_HEIGHT;						 \
+			action;												 \
+		}														 \
+		if(pos.y > y_max) {										 \
+			npos.y -= (float)SCREEN_HEIGHT;						 \
+			action;												 \
+		}														 \
+	}															 \
+	if(pos.x > x_max) {											 \
+		Vector2 npos = vec2(pos.x - (float)SCREEN_WIDTH, pos.y); \
+		action;													 \
+		if(pos.y < y_min) {										 \
+			npos.y += (float)SCREEN_HEIGHT;						 \
+			action;												 \
+		}														 \
+		if(pos.y > y_max) {										 \
+			npos.y -= (float)SCREEN_HEIGHT;						 \
+			action;												 \
+		}														 \
+	}															 \
+	if(pos.y < y_min) {											 \
+		Vector2 npos = vec2(pos.x, pos.y + (float)SCREEN_HEIGHT);\
+		action;													 \
+	}															 \
+	if(pos.y > y_max) {											 \
+		Vector2 npos = vec2(pos.x, pos.y - (float)SCREEN_HEIGHT);\
+		action;													 \
+	}												
+
 
 #define GAME_TWEAK(name, min, max) \
 	tweaks_float(tweaks, #name, &name, min, max)
@@ -141,6 +179,8 @@ void game_register_tweaks(Tweaks* tweaks) {
 	GAME_TWEAK(start_anim_obj_size, 0.1f, 10.0f);
 	GAME_TWEAK(bullet_cost, 0.0f, 10.0f);
 	GAME_TWEAK(bullet_damage, 0.0f, 10.0f);
+	GAME_TWEAK(shockwave_min_size, 0.1f, 5.0f);
+	GAME_TWEAK(shockwave_max_size, 0.1f, 5.0f);
 }
 
 void game_init(void) {
@@ -194,6 +234,8 @@ void game_init(void) {
 	energybar_rects[0] = rectf(0.0f, 480.0f, 11.0f, 480.0f + 21.0f);
 	energybar_rects[1] = rectf(11.0f, 480.0f, 21.0f, 480.0f + 21.0f);
 	energybar_rects[2] = rectf(21.0f, 480.0f, 32.0f, 480.0f + 21.0f);
+
+	shockwave_rect = rectf(400.0f, 80.0f, 400.0f + 110.f, 80.0f + 110.0f);
 
 	// Shards
 	for(uint i = 0; i < SHIP_COLORS; ++i) {
@@ -527,6 +569,25 @@ void _draw_shattered_ship(uint ship, float t) {
 	float rot = physics_state.ships[ship].rot;
 	float scale = physics_state.ships[ship].scale;
 
+	// Shockwave
+	Color shockwave_color = color_lerp(
+		COLOR_WHITE, COLOR_WHITE & 0xFFFFFF,
+		sinf(t * 3.1415f / 2.0f)
+	);
+	float shockwave_size = lerp(shockwave_min_size, shockwave_max_size, t);
+	gfx_draw_textured_rect(atlas1, OBJECTS_LAYER, &shockwave_rect,
+		&pos, rot, shockwave_size, shockwave_color);
+
+	float x_min = shockwave_size * rectf_width(&shockwave_rect) / 2.0f;
+	float x_max = (float)SCREEN_WIDTH - x_min;
+	float y_min = x_min;
+	float y_max = (float)SCREEN_HEIGHT - y_min;
+
+	// Virtual shockwaves on screen boundries
+	WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, pos, 
+		gfx_draw_textured_rect(atlas1, OBJECTS_LAYER, &shockwave_rect,
+			&npos, rot, shockwave_size, shockwave_color));
+
 	float escale = scale + sqrtf(t) * 1.5f;
 
 	Vector2 rot_offset = vec2_rotate(vec2(17.5f*escale, 17.5f*escale), rot);
@@ -538,10 +599,10 @@ void _draw_shattered_ship(uint ship, float t) {
 	memcpy(offsets, ship_shard_offsets, sizeof(offsets));
 	gfx_transform(offsets, SHIP_SHARDS, &pos, rot, escale);
 
-	float x_min = 0.0f;
-	float x_max = (float)SCREEN_WIDTH;
-	float y_min = 0.0f;
-	float y_max = (float)SCREEN_HEIGHT;
+	x_min = 0.0f;
+	x_max = (float)SCREEN_WIDTH;
+	y_min = 0.0f;
+	y_max = (float)SCREEN_HEIGHT;
 
 	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, t*t*t*t);
 	float s = 35.0f * scale;
@@ -676,39 +737,8 @@ void game_render(void) {
 		float y_max = (float)SCREEN_HEIGHT - y_min;
 
 		// Virtual ships on screen boundries
-		if(pos.x < x_min) {
-			Vector2 npos = vec2(pos.x + (float)SCREEN_WIDTH, pos.y);
-			_draw_ship(&npos, ship);
-			if(pos.y < y_min) {
-				npos.y += (float)SCREEN_HEIGHT;
-				_draw_ship(&npos, ship);
-			}
-			if(pos.y > y_max) {
-				npos.y -= (float)SCREEN_HEIGHT;
-				_draw_ship(&npos, ship);
-			}	
-		}
-		if(pos.x > x_max) {
-			Vector2 npos = vec2(pos.x - (float)SCREEN_WIDTH, pos.y);
-			_draw_ship(&npos, ship);
-			if(pos.y < y_min) {
-				npos.y += (float)SCREEN_HEIGHT;
-				_draw_ship(&npos, ship);
-			}
-			if(pos.y > y_max) {
-				npos.y -= (float)SCREEN_HEIGHT;
-				_draw_ship(&npos, ship);
-			}	
-		}
-		if(pos.y < y_min) {
-			Vector2 npos = vec2(pos.x, pos.y + (float)SCREEN_HEIGHT);
-			_draw_ship(&npos, ship);
-		}
-		if(pos.y > y_max) {
-			Vector2 npos = vec2(pos.x, pos.y - (float)SCREEN_HEIGHT);
-			_draw_ship(&npos, ship);
-		}	
-
+		WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, pos, _draw_ship(&npos, ship));
+	
 		// Energy bar
 		float max_len = (float)(SCREEN_WIDTH/n_ships) - energybar_spacing;
 		float normalized_energy = ship_states[ship].energy / energy_max;
