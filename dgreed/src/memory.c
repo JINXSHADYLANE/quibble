@@ -7,6 +7,11 @@
 #define MAX_ALLOCATIONS 4096
 
 typedef struct {
+	unsigned int id;
+	unsigned int inv_id;
+} MemBlockHeader;
+
+typedef struct {
 	void* ptr;
 	size_t size;
 
@@ -21,7 +26,7 @@ MemoryStats stats = {0, 0, 0, 0};
 
 void* mem_alloc(size_t size, const char* file, int line) {
 	// Actual memory allocation
-	void* ptr = malloc(size);
+	void* ptr = malloc(size + sizeof(MemBlockHeader));
 	
 	assert(size);
 	assert(allocations_count < MAX_ALLOCATIONS);
@@ -41,7 +46,12 @@ void* mem_alloc(size_t size, const char* file, int line) {
 		stats.peak_bytes_allocated = stats.bytes_allocated;
 	stats.n_allocations++;
 
-	return ptr;
+	// Fill header
+	MemBlockHeader* header = ptr;
+	header->id = allocations_count-1;
+	header->inv_id = ~header->id;
+
+	return ptr + sizeof(MemBlockHeader);
 }
 
 void* mem_calloc(size_t num, size_t size, const char* file, int line) {
@@ -60,17 +70,16 @@ void* mem_realloc(void* p, size_t size, const char* file, int line) {
 	assert(size);
 	assert(allocations_count < MAX_ALLOCATIONS);
 
-	// Reallocate old memory
-	ptr = (void*)realloc(p, size);
-	assert(ptr);
-
 	// Find right MemAllocation struct
-	for(i = 0; i < allocations_count; ++i) {
-		if(allocations[i].ptr == p)
-			break;
-	}
+	size_t header_size = sizeof(MemBlockHeader);
+	MemBlockHeader* header = p - header_size;
+	assert(header->id == ~header->inv_id);
+	i = header->id;
+	assert(p - header_size == allocations[i].ptr);
 
-	assert(p == allocations[i].ptr);
+	// Reallocate old memory
+	ptr = (void*)realloc(p - header_size, size + header_size);
+	assert(ptr);
 
 	// Subtract old alloc size
 	stats.bytes_allocated -= allocations[i].size;
@@ -86,7 +95,7 @@ void* mem_realloc(void* p, size_t size, const char* file, int line) {
 	if(stats.bytes_allocated > stats.peak_bytes_allocated)
 		stats.peak_bytes_allocated = stats.bytes_allocated;
 	
-	return ptr;
+	return ptr + header_size;
 }
 
 void mem_free(const void* ptr) {
@@ -95,12 +104,12 @@ void mem_free(const void* ptr) {
 	assert(ptr);
 
 	// Find right MemAllocation struct
-	for(i = 0; i < allocations_count; ++i) {
-		if(allocations[i].ptr == ptr)
-			break;
-	}
+	size_t header_size = sizeof(MemBlockHeader);
+	MemBlockHeader* header = (void*)ptr - header_size;
+	assert(header->id == ~header->inv_id);
+	i = header->id;
 
-	assert(ptr == allocations[i].ptr);
+	assert(ptr - header_size == allocations[i].ptr);
 
 	// Quick way to remove item from array:
 	// Copy last item to its place, decrease item count 
@@ -108,8 +117,13 @@ void mem_free(const void* ptr) {
 	allocations[i] = allocations[allocations_count-1];
 	allocations_count--;
 
+	// Update previuosly-last allocation header
+	MemBlockHeader* lheader = allocations[i].ptr;
+	lheader->id = i;
+	lheader->inv_id = ~lheader->id;
+
 	// Free memory
-	void* p = (void*)ptr;
+	void* p = (void*)ptr - header_size;
 	free(p);
 
 	// Update stats
