@@ -445,6 +445,8 @@ void game_update(void) {
 			particles_spawn("explosion1", &physics_state.ships[ship].pos, 0.0f);	
 			particles_spawn("explosion2", &physics_state.ships[ship].pos, 0.0f);	
 
+			physics_shockwave(ship);
+
 			uint ships_left = 0;
 			for(uint i = 0; i < n_ships; ++i)
 				ships_left += ship_states[i].is_exploding ? 0 : 1;

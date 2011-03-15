@@ -3,6 +3,7 @@
 #include <particles.h>
 #include "arena.h"
 #include "sounds.h"
+#include "ai_precalc.h"
 #include "chipmunk/chipmunk.h"
 
 #define SHIP_COLLISION 1
@@ -63,6 +64,8 @@ float platform_neutral_force = -500.0f;
 float platform_active_force = 500.0f;
 float dmap_linear_factor = 0.95f;
 float dmap_angular_factor = 0.95f;
+float shockwave_push_radius = 160.0f;
+float shockwave_push_force = 10000.0f;
 
 #define GAME_TWEAK(name, min, max) \
 	tweaks_float(tweaks, #name, &name, min, max)
@@ -92,6 +95,8 @@ void physics_register_tweaks(Tweaks* tweaks) {
 	GAME_TWEAK(platform_active_force, -1000.0f, 1000.0f);
 	GAME_TWEAK(dmap_linear_factor, 0.8f, 1.0f);
 	GAME_TWEAK(dmap_angular_factor, 0.8f, 1.0f);
+	GAME_TWEAK(shockwave_push_radius, 1.0f, 200.0f);
+	GAME_TWEAK(shockwave_push_force, 0.0f, 50000.0f);
 }
 
 extern float ship_min_size;
@@ -557,6 +562,40 @@ void physics_set_ship_size(uint ship, float size) {
 	ship_shape->scale = size;
 	cpBodySetMass(ship_body, mass);
 }	
+
+void physics_shockwave(uint ship) {
+	assert(ship < physics_state.n_ships);
+
+	Vector2 pos = physics_state.ships[ship].pos;
+
+	for(uint i = 0; i < physics_state.n_ships; ++i) {
+		if(i == ship)
+			continue;
+
+		Vector2 npos = physics_state.ships[i].pos;
+
+		// Use ai routines to get shortest path
+		Segment path = ai_shortest_path(pos, npos);
+		Segment seg1, seg2;
+		float dist;
+		if(ai_split_path(path, &seg1, &seg2)) {
+			dist = segment_length(seg1);
+			dist += segment_length(seg2);
+		}
+		else {
+			seg2 = path;
+			dist = segment_length(seg2);
+		}
+
+		// Push if within radius
+		if(dist < shockwave_push_radius) {
+			float force = shockwave_push_force * (dist / shockwave_push_radius);
+			Vector2 dir = vec2_normalize(vec2_sub(seg2.p2, seg2.p1));
+			cpVect push = gv_to_cpv(vec2_scale(dir, force));
+			cpBodyApplyForce(ships[i].body, push, cpvzero);
+		}
+	}
+}
 
 cpVect _wrap_around(cpVect p, const RectF* rect) {
 	if(p.x > rect->right) 
