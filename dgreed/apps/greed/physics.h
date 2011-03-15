@@ -40,6 +40,7 @@ void physics_close(void);
 void physics_reset(uint n_ships);
 void physics_spawn_bullet(uint ship);
 void physics_set_ship_size(uint ship, float size);
+void physics_shockwave(uint ship);
 void physics_control_ship(uint ship, bool rot_left, bool rot_right, bool acc);
 void physics_control_ship_ex(uint ship, float target_angle, float acc);
 
