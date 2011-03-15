@@ -48,6 +48,7 @@ bool _parse_vars(const char* filename, DArray* dest) {
 			TwVar new_var;
 			new_var.group = group_name_clone;
 			new_var.name = strclone(var_name);
+			new_var.overload = strclone("default");
 
 			if(strcmp(var_type, "float") == 0) {
 				if(min == 0 || max == 0)
@@ -179,6 +180,7 @@ Tweaks* tweaks_init(const char* filename, RectF dest, uint layer,
 	result->font = font;
 	result->color = COLOR_WHITE;
 	result->group = "ungrouped";
+	result->overload = "default";
 	result->vars = darray_create(sizeof(TwVar), 0);
 	result->y_spacing = 22.0f;
 	result->items_per_page = 
@@ -215,6 +217,7 @@ void tweaks_close(Tweaks* tweaks) {
 		}
 
 		MEM_FREE(vars[i].name);
+		MEM_FREE(vars[i].overload);
 	}
 
 	darray_free(&tweaks->vars);
@@ -229,9 +232,20 @@ void tweaks_group(Tweaks* tweaks, const char* name) {
 	tweaks->group = name;
 }
 
-TwVar* _get_var(DArray* vars, const char* group, const char* name) {
+void tweaks_overload(Tweaks* tweaks, const char* overload) {
+	assert(tweaks);
+
+	if(!overload)
+		overload = "default";
+	
+	tweaks->overload = overload;
+}
+
+TwVar* _get_var(DArray* vars, const char* group, const char* name, 
+	const char* overload) {
 	assert(group);
 	assert(name);
+	assert(overload);
 
 	TwVar* v = DARRAY_DATA_PTR(*vars, TwVar);
 	size_t idx = 0;
@@ -246,25 +260,30 @@ TwVar* _get_var(DArray* vars, const char* group, const char* name) {
 		memset(&new_var, 0, sizeof(new_var));
 		new_var.group = strclone(group);
 		new_var.name = strclone(name);
+		new_var.overload = strclone(overload);
 
 		darray_append(vars, (void*)&new_var);
 		v = DARRAY_DATA_PTR(*vars, TwVar);
 		return &v[vars->size-1];
 	}
 
-	// Try all vars->in group
+	// Try all vars in group
 	while(idx < vars->size 
 		&& strcmp(v[idx].group, group) == 0 
-		&& strcmp(v[idx].name, name) != 0) {
+		&& (strcmp(v[idx].name, name) != 0 
+			|| strcmp(v[idx].overload, overload) != 0)) {
 
 		idx++;
 	}
-	if(idx == vars->size || strcmp(v[idx].group, group) != 0) {
+	if(idx == vars->size 
+		|| strcmp(v[idx].group, group) != 0 
+		|| strcmp(v[idx].overload, overload) != 0) {
 		// Add new var at the end of group
 		TwVar new_var;
 		memset(&new_var, 0, sizeof(new_var));
-		new_var.group = idx < vars->size ? v[idx].group : v[idx-1].group;
+		new_var.group = v[idx-1].group;
 		new_var.name = strclone(name);
+		new_var.overload = strclone(overload);
 
 		darray_insert(vars, idx, (void*)&new_var);
 		v = DARRAY_DATA_PTR(*vars, TwVar);
@@ -281,7 +300,7 @@ void tweaks_float(Tweaks* tweaks, const char* name, float* addr,
 	assert(min < max);
 	assert(min <= *addr && *addr <= max);
 
-	TwVar* var = _get_var(&tweaks->vars, tweaks->group, name);
+	TwVar* var = _get_var(&tweaks->vars, tweaks->group, name, tweaks->overload);
 	if(var->t._float.min == 0.0f 
 		&& var->t._float.max == 0.0f
 		&& var->t._float.value == 0.0f) {
@@ -310,7 +329,7 @@ void tweaks_int(Tweaks* tweaks, const char* name, int* addr,
 	assert(min < max);
 	assert(min <= *addr && *addr <= max);
 
-	TwVar* var = _get_var(&tweaks->vars, tweaks->group, name);
+	TwVar* var = _get_var(&tweaks->vars, tweaks->group, name, tweaks->overload);
 	if(var->t._int.min == 0.0f 
 		&& var->t._int.max == 0.0f
 		&& var->t._int.value == 0.0f) {
@@ -336,7 +355,7 @@ void tweaks_bool(Tweaks* tweaks, const char* name, bool* addr) {
 	assert(name);
 	assert(addr);
 
-	TwVar* var = _get_var(&tweaks->vars, tweaks->group, name);
+	TwVar* var = _get_var(&tweaks->vars, tweaks->group, name, tweaks->overload);
 	if(var->t._float.min == 0.0f		// We can still check _float union field 
 		&& var->t._float.max == 0.0f
 		&& var->t._float.value == 0.0f) {

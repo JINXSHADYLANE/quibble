@@ -15,6 +15,7 @@ typedef struct {
 
 	char* group;
 	char* name;
+	char* overload;
 
 	union {
 		struct {
@@ -48,6 +49,7 @@ typedef struct {
 	float widest_name;
 
 	const char* group;
+	const char* overload;
 
 	uint last_drawn_page;
 	const char* last_page_name;
@@ -61,6 +63,7 @@ Tweaks* tweaks_init(const char* filename, RectF dest, uint layer,
 void tweaks_close(Tweaks* tweaks);
 
 void tweaks_group(Tweaks* tweaks, const char* name);
+void tweaks_overload(Tweaks* tweaks, const char* overload);
 void tweaks_float(Tweaks* tweaks, const char* name, float* addr, 
 	float min, float max);
 void tweaks_int(Tweaks* tweaks, const char* name, int* addr,
