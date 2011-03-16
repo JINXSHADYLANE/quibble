@@ -41,6 +41,7 @@ bool _parse_vars(const char* filename, DArray* dest) {
 			NodeIdx value = mml_get_child(&mml, var, "=");
 			NodeIdx min = mml_get_child(&mml, var, "min");
 			NodeIdx max = mml_get_child(&mml, var, "max");
+			NodeIdx ovr = mml_get_child(&mml, var, "overload");
 
 			if(value == 0)
 				return false;
@@ -77,6 +78,11 @@ bool _parse_vars(const char* filename, DArray* dest) {
 			}
 			else
 				return false;
+
+			if(ovr)
+				new_var.overload = strclone(mml_getval_str(&mml, ovr));
+			else
+				new_var.overload = strclone("default");
 
 			darray_append(dest, (void*)&new_var);	
 		}	
@@ -159,6 +165,11 @@ void _save_vars(const char* filename, DArray source) {
 		}
 		else
 			LOG_ERROR("Unexpected TwVar type");
+
+		if(strcmp(var.overload, "default") != 0) {
+			NodeIdx ovr = mml_node(&mml, "overload", var.overload);
+			mml_append(&mml, var_node, ovr);
+		}
 	}
 
 	char* out = mml_serialize(&mml);
@@ -166,6 +177,40 @@ void _save_vars(const char* filename, DArray source) {
 
 	txtfile_write(filename, out);
 	MEM_FREE(out);
+}
+
+void _var_save(TwVar* var) {
+	switch(var->type) {
+		case TWEAK_FLOAT:
+			if(var->t._float.addr)
+				var->t._float.value = *var->t._float.addr;
+			break;
+		case TWEAK_INT:
+			if(var->t._int.addr)
+				var->t._int.value = *var->t._int.addr;
+			break;
+		case TWEAK_BOOL:
+			if(var->t._bool.addr)
+				var->t._bool.value = *var->t._bool.addr;
+			break;
+	}
+}
+
+void _var_restore(TwVar* var) {
+	switch(var->type) {
+		case TWEAK_FLOAT:
+			if(var->t._float.addr)
+				*var->t._float.addr = var->t._float.value;
+			break;
+		case TWEAK_INT:
+			if(var->t._int.addr)
+				*var->t._int.addr = var->t._int.value;
+			break;
+		case TWEAK_BOOL:
+			if(var->t._bool.addr)
+				*var->t._bool.addr = var->t._bool.value;
+			break;
+	}
 }
 
 Tweaks* tweaks_init(const char* filename, RectF dest, uint layer, 
@@ -179,6 +224,7 @@ Tweaks* tweaks_init(const char* filename, RectF dest, uint layer,
 	result->layer = layer;
 	result->font = font;
 	result->color = COLOR_WHITE;
+	result->overload_color = COLOR_RGBA(156, 176, 156, 255);
 	result->group = "ungrouped";
 	result->overload = "default";
 	result->vars = darray_create(sizeof(TwVar), 0);
@@ -238,7 +284,25 @@ void tweaks_overload(Tweaks* tweaks, const char* overload) {
 	if(!overload)
 		overload = "default";
 	
-	tweaks->overload = overload;
+	if(strcmp(tweaks->overload, overload) != 0) {
+		TwVar* vars = DARRAY_DATA_PTR(tweaks->vars, TwVar);
+		for(uint i = 0; i < tweaks->vars.size; ++i) {
+			if(strcmp(vars[i].overload, tweaks->overload) == 0) {
+				TwVar* var = &vars[i];
+				_var_save(var);
+			}
+		}	
+
+		for(uint i = 0; i < tweaks->vars.size; ++i) {
+			if(strcmp(vars[i].overload, overload) == 0) {
+				TwVar* var = &vars[i];
+				_var_restore(var);
+			}
+			
+		}
+
+		tweaks->overload = overload;
+	}
 }
 
 TwVar* _get_var(DArray* vars, const char* group, const char* name, 
@@ -248,7 +312,7 @@ TwVar* _get_var(DArray* vars, const char* group, const char* name,
 	assert(overload);
 
 	TwVar* v = DARRAY_DATA_PTR(*vars, TwVar);
-	size_t idx = 0;
+	size_t s_idx, idx = 0;
 
 	// Skip straight to var's group
 	while(idx < vars->size && strcmp(v[idx].group, group) != 0) {
@@ -267,17 +331,31 @@ TwVar* _get_var(DArray* vars, const char* group, const char* name,
 		return &v[vars->size-1];
 	}
 
+	const char* expected_overload = overload;
+	
+again:
 	// Try all vars in group
+	s_idx = idx;
 	while(idx < vars->size 
 		&& strcmp(v[idx].group, group) == 0 
 		&& (strcmp(v[idx].name, name) != 0 
-			|| strcmp(v[idx].overload, overload) != 0)) {
+			|| strcmp(v[idx].overload, expected_overload) != 0)) {
 
 		idx++;
 	}
 	if(idx == vars->size 
 		|| strcmp(v[idx].group, group) != 0 
 		|| strcmp(v[idx].overload, overload) != 0) {
+
+		// Try to return default var
+		if(expected_overload == overload) {
+			expected_overload = "default";
+			if(expected_overload != overload) {
+				idx = s_idx;
+				goto again;
+			}
+		}
+
 		// Add new var at the end of group
 		TwVar new_var;
 		memset(&new_var, 0, sizeof(new_var));
@@ -387,7 +465,11 @@ uint _count_pages(Tweaks* tweaks) {
 			last_group = vars[i].group;
 		}
 
-		if(i < tweaks->vars.size &&
+		// Treat overloads as single var
+		if(i && strcmp(vars[i-1].name, vars[i].name) == 0)
+			continue;
+
+		if(i < tweaks->vars.size-1 &&
 			++items_in_group == tweaks->items_per_page &&
 			strcmp(last_group, vars[i+1].group) == 0) {
 			pages++;
@@ -414,6 +496,10 @@ const char* _page_name(Tweaks* tweaks, uint page, uint* first_var) {
 			if(first_var)
 				*first_var = i;
 		}
+
+		// Treat overloads as single var
+		if(i && strcmp(vars[i-1].name, vars[i].name) == 0)
+			continue;
 
 		if(i < tweaks->vars.size-1 &&
 			++items_in_group == tweaks->items_per_page &&
@@ -507,7 +593,16 @@ char* _var_strval(TwVar* var) {
 void tweaks_render(Tweaks* tweaks) {
 	assert(tweaks);
 
+	bool can_overload = strcmp(tweaks->overload, "default") != 0;
+
 	Vector2 cursor = vec2(tweaks->dest.left, tweaks->dest.top);
+
+	// Overload text
+	Vector2 ovr_pos = vec2(tweaks->dest.left, tweaks->dest.top - 35.0f);
+	char ovr_text[128];
+	sprintf(ovr_text, "overload: %s", tweaks->overload);
+	font_draw(tweaks->font, ovr_text, tweaks->layer, &ovr_pos, 
+		tweaks->overload_color);
 	
 	// TODO: Cache this
 	uint page_count = _count_pages(tweaks);
@@ -530,6 +625,11 @@ void tweaks_render(Tweaks* tweaks) {
 		tweaks->last_drawn_page = page;	
 	}
 
+	// Get mouse pos
+	uint x, y;
+	mouse_pos(&x, &y);
+	Vector2 mpos = vec2((float)x, (float)y);
+
 	// Draw page name
 	cursor.x = tweaks->dest.left;
 	font_draw(tweaks->font, tweaks->last_page_name, tweaks->layer, 
@@ -537,20 +637,81 @@ void tweaks_render(Tweaks* tweaks) {
 	cursor.y += tweaks->y_spacing;	
 
 	// Draw vars
+	uint def_idx = ~0, curr_idx = ~0;
 	TwVar* vars = DARRAY_DATA_PTR(tweaks->vars, TwVar);
-	for(uint i = 0; i < tweaks->items_per_page; ++i) {
-		uint idx = tweaks->last_page_first_var + i;
+	for(uint i = 0, j = 0; 
+		i < tweaks->items_per_page; 
+		j++) {
+		uint idx = tweaks->last_page_first_var + j;
 
 		if(idx >= tweaks->vars.size)
 			return;
 		if(i > 0 && strcmp(vars[idx-1].group, vars[idx].group) != 0)
 			return;
 
-		TwVar* var = &vars[idx];
+		if(strcmp(vars[idx].overload, "default") == 0) {
+			def_idx = idx;
+			if(curr_idx == ~0) 
+				curr_idx = idx;
+		}
+
+		if(strcmp(vars[idx].overload, tweaks->overload) == 0) {
+			curr_idx = idx;
+		}
+
+		if(j < tweaks->vars.size-1 
+			&& strcmp(vars[idx+1].group, vars[idx].group) == 0
+			&& strcmp(vars[idx+1].name, vars[idx].name) == 0)
+			continue;
+
+		assert(curr_idx != ~0 && def_idx != ~0);
+		TwVar* var = &vars[curr_idx];
+
+		bool is_overload = can_overload 
+			&& strcmp(var->overload, tweaks->overload) == 0;
 
 		// Name
 		font_draw(tweaks->font, var->name, tweaks->layer, 
-			&cursor, tweaks->color); 
+			&cursor, is_overload ? tweaks->overload_color : tweaks->color); 
+
+		if(can_overload && mouse_down(MBTN_LEFT)) {
+			float w = font_width(tweaks->font, var->name);
+			float h = font_height(tweaks->font);
+			RectF rect = rectf(cursor.x, cursor.y, cursor.x + w, cursor.y + h);	
+
+			if(rectf_contains_point(&rect, &mpos)) {
+				// Save last value
+				_var_save(var);
+			
+				if(is_overload) {
+					// Back to default
+					assert(def_idx != curr_idx);
+					if(def_idx > curr_idx)
+						def_idx--;
+					MEM_FREE(var->name);
+					MEM_FREE(var->overload);
+					darray_remove(&tweaks->vars, curr_idx);
+					var = &vars[def_idx];
+					if(idx > curr_idx)
+						j--;
+				}
+				else {
+					// Create overload
+					assert(def_idx == curr_idx);
+					TwVar new_var = *var;
+					new_var.name = strclone(var->name);
+					new_var.overload = strclone(tweaks->overload);
+					darray_insert(&tweaks->vars, curr_idx, &new_var);
+					vars = DARRAY_DATA_PTR(tweaks->vars, TwVar);
+					if(idx == curr_idx)
+						j++;
+				}
+
+				// Restore new value
+				_var_restore(var);
+			}
+		}
+		curr_idx = def_idx = ~0;
 		
 		cursor.x += tweaks->widest_name + 8.0f;
 		// Set value for slider, incase something changed var 
@@ -570,6 +731,7 @@ void tweaks_render(Tweaks* tweaks) {
 
 		cursor.x = tweaks->dest.left;
 		cursor.y += tweaks->y_spacing;
+		i++;
 	}
 }
 

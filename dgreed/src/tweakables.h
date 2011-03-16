@@ -43,6 +43,7 @@ typedef struct {
 	uint layer;
 	FontHandle font;
 	Color color;
+	Color overload_color;
 
 	uint items_per_page;
 	float y_spacing;
