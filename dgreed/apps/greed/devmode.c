@@ -36,6 +36,11 @@ void devmode_close(void) {
 }
 
 void devmode_update(void) {
+	tweaks_overload(tweaks, NULL);
+}
+
+void devmode_overload(const char* name) {
+	tweaks_overload(tweaks, name);
 }
 
 extern bool draw_physics_debug;
@@ -112,6 +117,7 @@ void _arena_select(void) {
 	if(gui_button(&cursor, "Go")) {
 		menu_state = menu_transition = MENU_GAME;
 		
+		tweaks_overload(tweaks, name);
 		game_reset(name, n_players);
 
 		for(uint i = 0; i < n_players-1; ++i)

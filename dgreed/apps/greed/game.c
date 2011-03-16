@@ -389,13 +389,22 @@ bool _in_start_anim(void) {
 
 void game_update(void) {
 	#ifndef NO_DEVMODE
-	devmode_update();
+	//devmode_update();
 	#endif
 
 	menus_update();
 
-	if(menu_state != MENU_GAME && menu_state != MENU_GAMEOVER)
+	if(menu_state != MENU_GAME && menu_state != MENU_GAMEOVER) {
+		#ifndef NO_DEVMODE
+		devmode_overload(NULL);
+		#endif
 		return;
+	}
+	else {
+		#ifndef NO_DEVMODE
+		devmode_overload(arena_get_current());
+		#endif
+	}
 
 	if(_in_start_anim())
 		return;
