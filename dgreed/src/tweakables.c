@@ -281,6 +281,13 @@ void tweaks_group(Tweaks* tweaks, const char* name) {
 void tweaks_overload(Tweaks* tweaks, const char* overload) {
 	assert(tweaks);
 
+	// One of to/from states must be 'default' to correctly switch them,
+	// simulate this by doing two steps if neccessary
+	if(overload && strcmp(tweaks->overload, "default") != 0
+		&& strcmp(overload, "default") != 0) {
+		tweaks_overload(tweaks, NULL);
+	}
+
 	if(!overload)
 		overload = "default";
 	
