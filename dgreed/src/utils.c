@@ -469,15 +469,71 @@ Color color_lerp(Color c1, Color c2, float t) {
 ----------------------
 */
 
+// MT19937 implementation
+
+#define MT19937_N 624
+#define MT19937_M 397
+
+static uint mt_state[MT19937_N];
+static uint mt_index;
+
+static void _mt_init(uint seed) {
+	mt_state[0] = seed;
+	for(mt_index = 1; mt_index < MT19937_N; ++mt_index) {
+		uint t = (mt_state[mt_index-1] ^ (mt_state[mt_index-1] >> 30));
+		mt_state[mt_index] = 1812433253UL * (t + mt_index);
+	}
+}
+
+static void _mt_update(void) {
+	int kk;
+	uint y;
+
+	const uint upper = 1UL << 31;
+	const uint lower = ~upper;
+	const uint matrix = 0x9908b0dfUL;
+
+	for(kk = 0; kk < MT19937_M - MT19937_N; ++kk) {
+		y = (mt_state[kk] & upper) | (mt_state[kk+1] & lower);
+		mt_state[kk] = mt_state[kk + MT19937_M] ^ (y >> 1); 
+		mt_state[kk] ^= (y & 1) ? 0 : matrix;
+	}
+
+	for(; kk < MT19937_N - 1; ++kk) {
+		y = (mt_state[kk] & upper) | (mt_state[kk+1] & lower);
+		mt_state[kk] = mt_state[kk + (MT19937_M - MT19937_N)] ^ (y >> 1);
+		mt_state[kk] ^= (y & 1) ? 0 : matrix;
+	}
+
+	y = (mt_state[kk] & upper) | (mt_state[0] & lower);
+	mt_state[kk] = mt_state[kk + (MT19937_M - MT19937_N)] ^ (y >> 1);
+	mt_state[kk] ^= (y & 1) ? 0 : matrix;
+
+	mt_index = 0;
+}
+
+static uint _mt_uint(void) {
+	if(mt_index >= MT19937_N)
+		_mt_update();
+	
+	uint result = mt_state[mt_index++];
+
+	result ^= (result >> 11);
+	result ^= (result << 7) & 0x9d2c5680UL;
+	result ^= (result << 15) & 0xefc60000UL;
+	result ^= (result >> 18);
+
+	return result;
+}
+
+// Public interface
+
 void rand_init(uint seed) {
-	srand(seed);
+	_mt_init(seed);
 }
 
 uint rand_uint(void) {
-	uint16 r1 = rand();
-	uint16 r2 = rand();
-	uint16 r3 = rand();
-	return (r1 & 0xFFF) | ((r2 & 0xFFF) << 12) | ((r3 & 0xFF) << 24); 
+	return _mt_uint();
 }
 
 int rand_int(int min, int max) {
