@@ -36,7 +36,6 @@ static RectF panel_source = {0.0f, 0.0f, 338.0f, 225.0f};
 static RectF title_source = {362.0f, 0.0f, 362.0f + 70.0f, 256.0f};
 static RectF separator_source = {0.0f, 246.0f, 322.0f, 246.0f + 8.0f};
 static RectF arena_list_panel_source[6];
-static RectF chapter_list_panel_source[6];
 
 static Color menu_text_color = COLOR_RGBA(214, 214, 215, 255);
 static Color menu_sel_text_color = COLOR_RGBA(166, 166, 168, 255);
@@ -62,12 +61,7 @@ void menus_init(void) {
 		float fx = 1.0f + (float)(i % 3) * 339.0f;
 		float fy = 1.0f + (float)(i / 3) * 226.0f;
 		arena_list_panel_source[i] = rectf(fx, fy, fx + 338.0f, fy + 225.0f);
-		
-		fx = 1.0f + (float)(i % 3) * 340.0f;
-		fy = 1.0f + (float)(i / 3) * 227.0f;
-		chapter_list_panel_source[i] = rectf(fx, fy, fx + 338.0f, fy + 225.0f);
-	}
-
+	}	
 	menu_state = menu_transition = MENU_MAIN;
 }
 
@@ -456,7 +450,7 @@ void _render_chapters(float t) {
 	}
 
 	if(_render_slidemenu(t, &chp_camera_lookat_x, &chp_old_camera_lookat_x,
-		MENU_MAIN, text, chapters_atlas, chapter_list_panel_source, MAX_CHAPTERS)) {
+		MENU_MAIN, text, chapters_atlas, arena_list_panel_source, MAX_CHAPTERS)) {
 
 		selected_chapter = (int)(chp_camera_lookat_x / -x_spacing + 0.5f);
 		selected_chapter = MIN(selected_chapter, MAX_CHAPTERS-1);
