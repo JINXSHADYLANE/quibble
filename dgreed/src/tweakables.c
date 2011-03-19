@@ -47,9 +47,13 @@ bool _parse_vars(const char* filename, DArray* dest) {
 				return false;
 
 			TwVar new_var;
+			if(ovr)
+				new_var.overload = strclone(mml_getval_str(&mml, ovr));
+			else
+				new_var.overload = strclone("default");
+
 			new_var.group = group_name_clone;
 			new_var.name = strclone(var_name);
-			new_var.overload = strclone("default");
 
 			if(strcmp(var_type, "float") == 0) {
 				if(min == 0 || max == 0)
@@ -79,11 +83,6 @@ bool _parse_vars(const char* filename, DArray* dest) {
 			else
 				return false;
 
-			if(ovr)
-				new_var.overload = strclone(mml_getval_str(&mml, ovr));
-			else
-				new_var.overload = strclone("default");
-
 			darray_append(dest, (void*)&new_var);	
 		}	
 	}
@@ -108,6 +107,7 @@ void _save_vars(const char* filename, DArray source) {
 	TwVar* vars = DARRAY_DATA_PTR(source, TwVar);
 	for(uint i = 0; i < source.size; ++i) {
 		TwVar var = vars[i];
+		bool default_overload = strcmp(var.overload, "default") == 0;
 
 		if(strcmp(last_group, var.group) != 0) {
 			group = mml_node(&mml, "group", var.group);
@@ -124,8 +124,14 @@ void _save_vars(const char* filename, DArray source) {
 			mml_set_name(&mml, var_node, "float");
 
 			NodeIdx value = mml_node(&mml, "=", "?");
-			float val = var.t._float.addr ? 
-				*var.t._float.addr : var.t._float.value;
+
+			float val;
+			if(default_overload)
+				val = var.t._float.addr ?  
+					*var.t._float.addr : var.t._float.value;
+			else
+				val = var.t._float.value;
+
 			mml_setval_float(&mml, value, val);
 			mml_append(&mml, var_node, value);
 
@@ -141,8 +147,14 @@ void _save_vars(const char* filename, DArray source) {
 			mml_set_name(&mml, var_node, "int");
 
 			NodeIdx value = mml_node(&mml, "=", "?");
-			int val = var.t._int.addr ? 
-				*var.t._int.addr : var.t._int.value;
+
+			int val;
+			if(default_overload)
+				val = var.t._int.addr ?  
+					*var.t._int.addr : var.t._int.value;
+			else
+				val = var.t._int.value;
+
 			mml_setval_int(&mml, value, val);
 			mml_append(&mml, var_node, value);
 
@@ -158,15 +170,21 @@ void _save_vars(const char* filename, DArray source) {
 			mml_set_name(&mml, var_node, "bool");
 
 			NodeIdx value = mml_node(&mml, "=", "?");
-			float val = var.t._float.addr ? 
-				*var.t._float.addr : var.t._float.value;
+
+			bool val;
+			if(default_overload)
+				val = var.t._bool.addr ?  
+					*var.t._bool.addr : var.t._bool.value;
+			else
+				val = var.t._bool.value;
+
 			mml_setval_float(&mml, value, val);
 			mml_append(&mml, var_node, value);
 		}
 		else
 			LOG_ERROR("Unexpected TwVar type");
 
-		if(strcmp(var.overload, "default") != 0) {
+		if(!default_overload) {
 			NodeIdx ovr = mml_node(&mml, "overload", var.overload);
 			mml_append(&mml, var_node, ovr);
 		}
@@ -190,25 +208,22 @@ void _var_save(TwVar* var) {
 				var->t._int.value = *var->t._int.addr;
 			break;
 		case TWEAK_BOOL:
-			if(var->t._bool.addr)
 				var->t._bool.value = *var->t._bool.addr;
 			break;
 	}
 }
 
 void _var_restore(TwVar* var) {
+	assert(var->t._float.addr);
 	switch(var->type) {
 		case TWEAK_FLOAT:
-			if(var->t._float.addr)
-				*var->t._float.addr = var->t._float.value;
+			*var->t._float.addr = var->t._float.value;
 			break;
 		case TWEAK_INT:
-			if(var->t._int.addr)
-				*var->t._int.addr = var->t._int.value;
+			*var->t._int.addr = var->t._int.value;
 			break;
 		case TWEAK_BOOL:
-			if(var->t._bool.addr)
-				*var->t._bool.addr = var->t._bool.value;
+			*var->t._bool.addr = var->t._bool.value;
 			break;
 	}
 }
@@ -250,6 +265,8 @@ Tweaks* tweaks_init(const char* filename, RectF dest, uint layer,
 void tweaks_close(Tweaks* tweaks) {
 	assert(tweaks);
 
+	tweaks_overload(tweaks, "default");
+
 	_save_vars(tweaks->filename, tweaks->vars);
 
 	TwVar* vars = DARRAY_DATA_PTR(tweaks->vars, TwVar);
@@ -276,40 +293,6 @@ void tweaks_group(Tweaks* tweaks, const char* name) {
 	assert(name);
 
 	tweaks->group = name;
-}
-
-void tweaks_overload(Tweaks* tweaks, const char* overload) {
-	assert(tweaks);
-
-	// One of to/from states must be 'default' to correctly switch them,
-	// simulate this by doing two steps if neccessary
-	if(overload && strcmp(tweaks->overload, "default") != 0
-		&& strcmp(overload, "default") != 0) {
-		tweaks_overload(tweaks, NULL);
-	}
-
-	if(!overload)
-		overload = "default";
-	
-	if(strcmp(tweaks->overload, overload) != 0) {
-		TwVar* vars = DARRAY_DATA_PTR(tweaks->vars, TwVar);
-		for(uint i = 0; i < tweaks->vars.size; ++i) {
-			if(strcmp(vars[i].overload, tweaks->overload) == 0) {
-				TwVar* var = &vars[i];
-				_var_save(var);
-			}
-		}	
-
-		for(uint i = 0; i < tweaks->vars.size; ++i) {
-			if(strcmp(vars[i].overload, overload) == 0) {
-				TwVar* var = &vars[i];
-				_var_restore(var);
-			}
-			
-		}
-
-		tweaks->overload = overload;
-	}
 }
 
 TwVar* _get_var(DArray* vars, const char* group, const char* name, 
@@ -375,6 +358,50 @@ again:
 	}
 
 	return &v[idx];
+}
+
+void tweaks_overload(Tweaks* tweaks, const char* overload) {
+	assert(tweaks);
+
+	// One of to/from states must be 'default' to correctly switch them,
+	// simulate this by doing two steps if neccessary
+	if(overload && strcmp(tweaks->overload, "default") != 0
+		&& strcmp(overload, "default") != 0) {
+		tweaks_overload(tweaks, NULL);
+	}
+
+	if(!overload)
+		overload = "default";
+	
+	if(strcmp(tweaks->overload, overload) != 0) {
+		TwVar* vars = DARRAY_DATA_PTR(tweaks->vars, TwVar);
+		for(uint i = 0; i < tweaks->vars.size; ++i) {
+			if(strcmp(vars[i].overload, tweaks->overload) == 0) {
+				TwVar* var = &vars[i];
+				_var_save(var);
+			}
+		}	
+
+		for(uint i = 0; i < tweaks->vars.size; ++i) {
+			if(strcmp(vars[i].overload, overload) == 0) {
+				TwVar* var = &vars[i];
+
+				// If current addr is null, find default overload,
+				// sync addrs
+				if(var->t._float.addr == NULL) {
+					TwVar* def = _get_var(&tweaks->vars, 
+						var->group, var->name, "default");
+					assert(def != var);
+					assert(def->t._float.addr);
+					var->t._float.addr = def->t._float.addr;
+				}
+
+				_var_restore(var);
+			}
+		}
+
+		tweaks->overload = overload;
+	}
 }
 
 void tweaks_float(Tweaks* tweaks, const char* name, float* addr,
@@ -673,6 +700,12 @@ void tweaks_render(Tweaks* tweaks) {
 
 		assert(curr_idx != ~0 && def_idx != ~0);
 		TwVar* var = &vars[curr_idx];
+
+		// Sync default and overload addr if neccessary
+		if(curr_idx != def_idx && var->t._float.addr == NULL) {
+			TwVar* def = &vars[def_idx];
+			var->t._float.addr = def->t._float.addr;
+		}
 
 		bool is_overload = can_overload 
 			&& strcmp(var->overload, tweaks->overload) == 0;
