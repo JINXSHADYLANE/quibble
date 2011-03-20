@@ -304,7 +304,7 @@ void game_reset(const char* arena, uint n_players) {
 	}	
 
 	// Works as long as arenas are named "cx_arenay"
-	uint chapter = arena[1] - '0';
+	uint chapter = arena[14] - '0';
 	sounds_event_ex(MUSIC, chapter);
 }	
 
@@ -335,12 +335,16 @@ void game_bullet_hit(uint ship) {
 
 	ship_states[ship].energy -= bullet_damage;
 	ship_states[ship].energy = MAX(0.0f, ship_states[ship].energy);
+	sounds_event(COLLISION_BULLET_SHIP);
 }
 
 void _control_keyboard1(uint ship) {
 	assert(ship < n_ships);
 
 	ship_states[ship].is_accelerating = key_pressed(KEY_UP);
+
+	if (key_down(KEY_UP))
+		sounds_event(SHIP_ACC);
 
 	physics_control_ship(ship,
 		key_pressed(KEY_LEFT),
@@ -450,6 +454,8 @@ void game_update(void) {
 		if(ship_states[ship].energy == 0.0f && menu_transition == MENU_GAME) {
 			ship_states[ship].is_exploding = true;
 			ship_states[ship].explode_t = time;
+			
+			sounds_event(SHIP_KILL);
 
 			particles_spawn("explosion1", &physics_state.ships[ship].pos, 0.0f);	
 			particles_spawn("explosion2", &physics_state.ships[ship].pos, 0.0f);	
