@@ -335,7 +335,7 @@ again:
 	}
 	if(idx == vars->size 
 		|| strcmp(v[idx].group, group) != 0 
-		|| strcmp(v[idx].overload, overload) != 0) {
+		|| strcmp(v[idx].overload, expected_overload) != 0) {
 
 		// Try to return default var
 		if(expected_overload == overload) {
@@ -363,18 +363,17 @@ again:
 void tweaks_overload(Tweaks* tweaks, const char* overload) {
 	assert(tweaks);
 
-	// One of to/from states must be 'default' to correctly switch them,
-	// simulate this by doing two steps if neccessary
-	if(overload && strcmp(tweaks->overload, "default") != 0
-		&& strcmp(overload, "default") != 0) {
-		tweaks_overload(tweaks, NULL);
-	}
-
 	if(!overload)
 		overload = "default";
 	
 	if(strcmp(tweaks->overload, overload) != 0) {
-		TwVar* vars = DARRAY_DATA_PTR(tweaks->vars, TwVar);
+		// One of to/from states must be 'default' to correctly switch them,
+		// simulate this by doing two steps if neccessary
+		if(overload && strcmp(tweaks->overload, "default") != 0
+			&& strcmp(overload, "default") != 0) {
+			tweaks_overload(tweaks, NULL);
+		}
+			TwVar* vars = DARRAY_DATA_PTR(tweaks->vars, TwVar);
 		for(uint i = 0; i < tweaks->vars.size; ++i) {
 			if(strcmp(vars[i].overload, tweaks->overload) == 0) {
 				TwVar* var = &vars[i];
@@ -582,6 +581,7 @@ void _unpack_var(TwVar* var, float packed) {
 	float* fval;
 	int* ival;
 	bool* bval;
+	assert(var->t._float.addr);
 	switch(var->type) {
 		case TWEAK_FLOAT:
 			fval = var->t._float.addr ? var->t._float.addr : &var->t._float.value;
@@ -702,10 +702,10 @@ void tweaks_render(Tweaks* tweaks) {
 		TwVar* var = &vars[curr_idx];
 
 		// Sync default and overload addr if neccessary
-		if(curr_idx != def_idx && var->t._float.addr == NULL) {
-			TwVar* def = &vars[def_idx];
-			var->t._float.addr = def->t._float.addr;
-		}
+	//	if(curr_idx != def_idx && var->t._float.addr == NULL) {
+	//		TwVar* def = &vars[def_idx];
+	//		var->t._float.addr = def->t._float.addr;
+	//	}
 
 		bool is_overload = can_overload 
 			&& strcmp(var->overload, tweaks->overload) == 0;
@@ -759,8 +759,9 @@ void tweaks_render(Tweaks* tweaks) {
 		gui_setstate_slider(&cursor, slider_val);	
 
 		// Draw slider and change var value
-		slider_val = gui_slider(&cursor);
-		_unpack_var(var, slider_val);
+		float new_slider_val = gui_slider(&cursor);
+		if(new_slider_val != slider_val)
+			_unpack_var(var, new_slider_val);
 
 		// Draw value
 		char* strval = _var_strval(var);
