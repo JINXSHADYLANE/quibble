@@ -292,25 +292,11 @@ void _agent_steer(uint id) {
 		float angle = vec2_angle(ship_dir, ship_to_steer_tg); 
 			
 		if(fabs(angle) > agent->personality->steer_tg_angle_tolerance) {
-			bool aggressive = 
-				fabs(angle) > agent->personality->steer_tg_aggressive_angle;
-
-			// Steer towards target
-			if(angle > 0.0f)
-				agent->steer_right = aggressive ? 3 : 2;
-			else
-				agent->steer_left = aggressive ? 3 : 2;
+			// Wait till angle is better
 		}
 		else {
-			// Angle is OK, now just stabilize
+			// Angle is OK, accelerate 
 			can_accelerate = true;
-			if(fabs(phys_state->ang_vel) > 
-				agent->personality->acceptable_angular_velocity) {
-				if(phys_state->ang_vel > 0.0f)
-					agent->steer_left = 1;
-				else
-					agent->steer_right = 1;
-			}
 		}
 	}	
 
@@ -350,6 +336,8 @@ void _agent_steer(uint id) {
 
 void ai_update(void) {
 	float t = time_ms();
+	ArenaDesc* arena = &current_arena_desc;
+	Vector2 unit_vector = {0.0f, -1.0f};
 
 	for(uint i = 0; i < MAX_AGENTS; ++i) {
 		if(agents[i].ship_id == ~0)
@@ -368,13 +356,24 @@ void ai_update(void) {
 			agents[i].last_steer_t = t;
 		}	
 
-		physics_control_ship(agents[i].ship_id,
-			agents[i].steer_left-- > 0,
-			agents[i].steer_right-- > 0,
-			agents[i].accelerate-- > 0);
+		ShipPhysicalState* phys_state = &physics_state.ships[agents[i].ship_id];
+		
+		Vector2 steer_tg_pos = arena->nav_mesh.navpoints[agents[i].steer_tg_node];
+		Vector2 ship_dir = vec2(sinf(phys_state->rot), -cosf(phys_state->rot));
+		Segment path = ai_shortest_path(phys_state->pos, steer_tg_pos);
+		Vector2 ship_to_steer_tg = vec2_sub(path.p2, path.p1);
 
-		agents[i].steer_left = MAX(agents[i].steer_left, 0);
-		agents[i].steer_right = MAX(agents[i].steer_right, 0);
+		float angle, distance = vec2_length(ship_to_steer_tg);
+		if(distance > agents[i].personality->steer_tg_no_steer_dist) 
+			angle = vec2_angle(unit_vector, ship_to_steer_tg); 
+		else
+			angle = vec2_angle(unit_vector, ship_dir);
+
+		physics_control_ship_ex(agents[i].ship_id,
+			angle,
+			agents[i].accelerate-- > 0
+		);
+
 		agents[i].accelerate = MAX(agents[i].accelerate, 0);
 
 		if(agents[i].shoot)
@@ -398,8 +397,6 @@ void ai_init_agent(uint player_id, uint personality) {
 	agent->last_think_t = time_ms();
 	agent->last_steer_t = time_ms();
 
-	agent->steer_left = 0;
-	agent->steer_right = 0;
 	agent->accelerate = 0;
 
 	_agent_think(agent_id);

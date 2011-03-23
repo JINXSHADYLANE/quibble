@@ -57,8 +57,6 @@ typedef struct {
 	bool shoot;
 
 	// Steering
-	int steer_left;
-	int steer_right;
 	int accelerate;
 } Agent;	
 
