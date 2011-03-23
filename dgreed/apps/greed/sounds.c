@@ -95,22 +95,22 @@ void sounds_event_ex(SoundEventType type, uint arg) {
 			sound_play(snd_shot);
 			return;
 		case COLLISION_BULLET_WALL:
-			//sound_play(snd_bullet_wall);
+			sound_play(snd_bullet_wall);
 			return;
 		case COLLISION_BULLET_SHIP:
-			//sound_play(snd_hit);
+			sound_play(snd_hit);
 			return;
 		case COLLISION_SHIP_SHIP:
-			//sound_play(snd_ship_bump);
+			sound_play(snd_ship_bump);
 			return;
 		case COLLISION_SHIP_WALL:
-			//sound_play(snd_wall_bump);
+			sound_play(snd_wall_bump);
 			return;
 		case PLATFORM_TAKEN:
 			sound_play(snd_base_taken);
 			return;
 		case PLATFORM_NEUTRALIZED:
-			//sound_play(snd_base_zero);
+			sound_play(snd_base_zero);
 			return;
 		case PLATFORM_BEEP:
 			//sound_play(snd_base_beep);
