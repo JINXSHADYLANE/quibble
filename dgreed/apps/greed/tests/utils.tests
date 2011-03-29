@@ -244,3 +244,31 @@ TEST_(is_pow2) {
 		ASSERT_(is_pow2(negative[i]) == false);
 	}	
 }
+
+TEST_(base64) {
+	byte tests[6][9] = {
+		{42, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0,  0, 0, 0, 0, 0, 0, 0},
+		{1, 0, 8,  0, 0, 0, 0, 0, 0},
+		{3, 1, 5, 7,  0, 0, 0, 0, 0},
+		{9, 8, 6, 5, 3,  0, 0, 0, 0}, 
+		{1, 1, 2, 3, 5, 8, 13, 21, 34}
+	};
+
+	for(uint i = 0; i < 6; ++i) {
+		uint size = i < 5 ? i + 1 : 9;
+		uint encoded_size;
+		char* encoded = base64_encode(tests[i], size, &encoded_size);
+		
+		uint decoded_size;
+		byte* decoded = (byte*)base64_decode(encoded, encoded_size, &decoded_size);
+		ASSERT_(decoded_size == size);
+
+		for(uint j = 0; j < size; ++j) {
+			ASSERT_(tests[i][j] == decoded[j]);
+		}
+
+		MEM_FREE(encoded);
+		MEM_FREE(decoded);
+	}
+}
