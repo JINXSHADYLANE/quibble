@@ -1202,6 +1202,94 @@ void* lz_decompress(void* input, uint input_size, uint* output_size) {
 }
 
 /*
+--------------
+--- Base64 ---
+--------------
+*/
+
+static const char* base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static byte base64_inv[256] = {0};
+static bool base64_initialized = false;
+
+static void _base64_init(void) {
+	for(uint i = 0; i < 64; ++i)
+		base64_inv[(uint)base64_chars[i]] = i;
+	base64_initialized = true;	
+}
+
+// Encodes 3 bytes to 4 chars
+static void _base64_encode_chunk(const byte* in, char* out) {
+	out[0] = base64_chars[in[0] & ((1<<6)-1)];
+	out[1] = base64_chars[(in[0] >> 6) | ((in[1] & ((1<<4)-1)) << 2)];
+	out[2] = base64_chars[(in[1] >> 4) | ((in[2] & ((1<<2)-1)) << 4)];
+	out[3] = base64_chars[in[2] >> 2];
+}
+
+// Decodes 4 chars to 3 bytes
+static void _base64_decode_chunk(const char* in, byte* out, uint padding) {
+	byte* inp = (byte*)in;
+	switch(padding) {
+		default:
+			out[0] = base64_inv[inp[0]] | base64_inv[inp[1]] << 6;
+		case 1:
+			out[1] = base64_inv[inp[1]] >> 2 | base64_inv[inp[2]] << 4;
+		case 2:
+			out[2] = base64_inv[inp[2]] >> 4 | base64_inv[inp[3]] << 2;
+	}		
+}
+
+char* base64_encode(const void* input, uint input_size, uint* output_size) {
+	assert(input && input_size);
+	assert(output_size);
+
+	uint padding = input_size % 3;
+	*output_size = (input_size / 3) * 4 + (padding ? 4 : 0);
+	char* output = MEM_ALLOC(*output_size);
+	const byte* inp = (byte*)input;
+
+	for(uint i = 0, o = 0; i < input_size; i += 3, o += 4) {
+		uint left = input_size - i;
+		byte chunk[3] = {0};
+
+		for(uint j = 0; j < MIN(3, left); ++j)
+			chunk[j] = inp[i + j];
+
+		_base64_encode_chunk(chunk, &output[o]);
+
+		if(left < 3) {
+			output[o + 3] = '=';
+			if(left < 2)
+				output[o + 2] = '=';
+		}		
+	}
+
+	return output;
+}
+
+void* base64_decode(const char* input, uint input_size, uint* output_size) {
+	assert(input && input_size);
+	assert(output_size);
+
+	if(!base64_initialized)
+		_base64_init();
+
+	uint padding = 0, i = input_size;
+	while(i && input[--i] == '=')
+		padding++;
+
+	*output_size = input_size / 4 * 3 - padding;
+	byte* output = MEM_ALLOC(*output_size);
+
+	for(uint i = 0, o = 0; i < input_size - padding; i += 4, o += 3)
+		_base64_decode_chunk(
+			&input[i], &output[o], 
+			(input_size - i) < 4 ? 4 - (input_size - i) : 0
+		);
+
+	return output;
+}
+
+/*
 ---------------
 --- Hashing ---
 ---------------

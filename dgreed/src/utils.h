@@ -359,6 +359,18 @@ void* lz_compress(void* input, uint input_size, uint* output_size);
 void* lz_decompress(void* input, uint input_size, uint* output_size);
 
 /*
+--------------
+--- Base64 ---
+--------------
+*/
+
+// Encodes binary data with base64; you must free returned buffer
+char* base64_encode(const void* input, uint input_size, uint* output_size);
+
+// Decodes base64-encoded data; you must free returned buffer
+void* base64_decode(const char* input, uint input_isze, uint* output_size);
+
+/*
 ---------------
 --- Hashing ---
 ---------------
