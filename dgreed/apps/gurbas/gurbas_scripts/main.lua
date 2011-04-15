@@ -21,31 +21,31 @@ end
 dofile(src..'game.lua')
 
 function init()
-        sound.init()
-        video.init_ex(screen.r, screen.b, screen.r, screen.b, 'gurbas', false)
+	sound.init()
+    video.init_ex(screen.r, screen.b, screen.r, screen.b, 'gurbas', false)
 
-        game.init()
+    game.init()
 end
 
 function close()
-        game.close()
+    game.close()
 
-        video.close()
-        sound.close()
+    video.close()
+    sound.close()
 end
 
 function frame()
-        game.frame()
-        return not key.pressed(key.quit) 
+    game.frame()
+    return not key.pressed(key.quit) 
 end
 
 function main()
-        init()
-        repeat
-                cont = frame()
-                sound.update()
-        until not video.present() or not cont
-        close()
+	init()
+	repeat
+		cont = frame()
+		sound.update()
+	until not video.present() or not cont
+	close()
 end
 
 main()

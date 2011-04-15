@@ -103,6 +103,8 @@ float rectf_width(const RectF* r);
 float rectf_height(const RectF* r);
 // Returns center
 Vector2 rectf_center(const RectF* r);
+// Returns first intersection point or end
+Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end);
 
 /*
 ----------------
