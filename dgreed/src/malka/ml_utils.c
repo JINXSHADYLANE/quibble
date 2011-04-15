@@ -494,6 +494,48 @@ static int ml_rect_tri_collision(lua_State* l) {
 	return 1;
 }
 
+static int ml_rect_raycast(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 3)
+		return luaL_error(l, "wrong number of arguments provided to rect_raycast");
+
+	luaL_checktype(l, 1, LUA_TTABLE);
+	luaL_checktype(l, 2, LUA_TTABLE);
+	luaL_checktype(l, 3, LUA_TTABLE);
+
+	lua_getfield(l, 1, "l");
+	lua_getfield(l, 1, "t");
+	lua_getfield(l, 1, "r");
+	lua_getfield(l, 1, "b");
+	lua_getfield(l, 2, "x");
+	lua_getfield(l, 2, "y");
+	lua_getfield(l, 3, "x");
+	lua_getfield(l, 3, "y");
+
+	RectF rect = {
+		luaL_checknumber(l, 5),
+		luaL_checknumber(l, 6),
+		luaL_checknumber(l, 7),
+		luaL_checknumber(l, 8)
+	};
+
+	Vector2 start = {
+		luaL_checknumber(l, 9),
+		luaL_checknumber(l, 10)
+	};
+
+	Vector2 end = {
+		luaL_checknumber(l, 11),
+		luaL_checknumber(l, 12)
+	};
+
+	Vector2 hit = rectf_raycast(&rect, &start, &end);	
+
+	_new_vec2(l, hit.x, hit.y);
+
+	return 1;
+}
+
 static int ml_rect_tostring(lua_State* l) {
 	lua_getfield(l, 1, "l");
 	lua_getfield(l, 1, "t");
@@ -509,6 +551,57 @@ static int ml_rect_tostring(lua_State* l) {
 	return 1;
 }
 
+static int ml_segment_intersect(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 4)
+		return luaL_error(l, "wrong number of arguments provided to segment_intersect");
+	
+	luaL_checktype(l, 1, LUA_TTABLE);
+	luaL_checktype(l, 2, LUA_TTABLE);
+	luaL_checktype(l, 3, LUA_TTABLE);
+	luaL_checktype(l, 4, LUA_TTABLE);
+	
+	lua_getfield(l, 1, "x");
+	lua_getfield(l, 1, "y");
+	lua_getfield(l, 2, "x");
+	lua_getfield(l, 2, "y");
+	lua_getfield(l, 3, "x");
+	lua_getfield(l, 3, "y");
+	lua_getfield(l, 4, "x");
+	lua_getfield(l, 4, "y");
+
+	Vector2 a1 = {
+		luaL_checknumber(l, 5),
+		luaL_checknumber(l, 6)
+	};
+
+	Vector2 a2 = {
+		luaL_checknumber(l, 7),
+		luaL_checknumber(l, 8)
+	};
+
+	Vector2 b1 = {
+		luaL_checknumber(l, 9),
+		luaL_checknumber(l, 10)
+	};
+
+	Vector2 b2 = {
+		luaL_checknumber(l, 11),
+		luaL_checknumber(l, 12)
+	};
+
+	Segment seg1 = {a1, a2};
+	Segment seg2 = {b1, b2};
+	Vector2 hit;
+
+	if(segment_intersect(seg1, seg2, &hit)) 
+		_new_vec2(l, hit.x, hit.y);
+	else
+		lua_pushnil(l);
+
+	return 1;
+}
+
 static const luaL_Reg rect_fun[] = {
 	{"rect", ml_rect},
 	{"width", ml_width},
@@ -517,6 +610,8 @@ static const luaL_Reg rect_fun[] = {
 	{"rect_point_collision", ml_rect_point_collision},
 	{"rect_circle_collision", ml_rect_circle_collision},
 	{"rect_tri_collision", ml_rect_tri_collision},
+	{"rect_raycast", ml_rect_raycast},
+	{"segment_intersect", ml_segment_intersect},
 	{NULL, NULL}
 };
 

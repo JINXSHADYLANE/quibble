@@ -60,6 +60,17 @@ returns boolean, indicating if rectangle and circle overlap
 returns true if rectangle r and clock-wise triangle with vertices a, b and c
 intersect
 
+- rect_raycast(r, start, end)
+returns point where ray hits rectangle, or end if there is no intersection;
+start is assumed to be outside of rect
+
+
+--------------
+misc. geometry
+--------------
+
+- segment_intersect(a1, a2, b1, b2)
+returns intersection point between to segments or nil
 
 ------
 colors

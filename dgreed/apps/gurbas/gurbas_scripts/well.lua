@@ -1,5 +1,7 @@
 well = {
 	layer = 5,
+	state = nil,
+	shapes = nil,
 
 	-- images
 	img_block = nil
@@ -26,6 +28,20 @@ function well.draw()
 			end
 		end
 	end
+end
+
+-- returns true if block collides with well
+function well.collide_block(b)
+	for i,part in ipairs(b.shape) do
+		if well.state[widx(part[0], part[1])] ~= nil then
+			return true 
+		end
+	end
+	return false 
+end
+
+function well.raycast(s, e)
+	return e	
 end
 
 function well.close()

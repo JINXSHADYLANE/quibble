@@ -242,6 +242,55 @@ Vector2 rectf_center(const RectF* r) {
 	);	
 }
 
+
+Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end) {
+	assert(r && start && end);
+
+	float min_sq_dist = INFINITY;
+	Vector2 min_hitp = *end;
+	Vector2 d = vec2_sub(*end, *start);
+	Segment ray = { *start, *end };
+	
+	bool dirs[] = {
+		d.y > 0.0f,
+		d.x > 0.0f,
+		d.y < 0.0f,
+		d.x < 0.0f
+	};	
+
+	Segment segs[4];
+	uint n_segs = 0;
+
+	if(dirs[0])
+		segs[n_segs++] = segment(vec2(r->left, r->top), 
+			vec2(r->right, r->top));
+
+	if(dirs[1])
+		segs[n_segs++] = segment(vec2(r->left, r->bottom), 
+			vec2(r->right, r->bottom));
+
+	if(dirs[2])
+		segs[n_segs++] = segment(vec2(r->right, r->top), 
+			vec2(r->right, r->bottom));
+
+	if(dirs[3])
+		segs[n_segs++] = segment(vec2(r->left, r->top), 
+			vec2(r->left, r->bottom));
+	
+	for(uint i = 0; i < n_segs; ++i) {
+		Vector2 hitp;
+		if(segment_intersect(ray, segs[i], &hitp)) {
+			float sq_dist = vec2_length_sq(vec2_sub(*start, hitp));
+			if(sq_dist < min_sq_dist) {
+				min_sq_dist = sq_dist;
+				min_hitp = hitp;
+			}
+		}
+	}
+
+	return min_hitp;
+}
+
 /*
 ---------------
 --- Triangle --
