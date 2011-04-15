@@ -40,8 +40,36 @@ function well.collide_block(b)
 	return false 
 end
 
+-- 'bakes' block into well
+function well.put_block(b)
+	for i,part in ipairs(b.shape) do
+		local pos = part + b.offset		
+		if pos.x >= 0 and pos.x < tiles_x then
+			if pos.y >= 0 and pos.y < tiles_y then
+				well.state[widx(pos.x, pos.y)] = true
+			end
+		end
+	end
+end
+
+-- raycast against all blocks in well
 function well.raycast(s, e)
-	return e	
+	local min_sq_dist = 1/0
+	local min_hitp = e
+	for pos,state in pairs(well.state) do
+		if state ~= nil then
+			local tl = pos * tile_size
+			local br = tl + tile
+			local r = rect(tl.x, tl.y, br.x, br.y)
+			local hitp = rect_raycast(r, s, e)
+			local sq_dist = length_sq(hitp - s)
+			if sq_dist < min_sq_dist then
+				sq_dist = min_sq_dist
+				min_hitp = hitp
+			end
+		end
+	end
+	return e
 end
 
 function well.close()
