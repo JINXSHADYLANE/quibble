@@ -1,26 +1,41 @@
--- sausra 
+-- gurbas 
 
 screen = rect(0, 0, 640, 960)
-pre, src = 'sausra_assets/', 'sausra_scripts/'
+tile_size = 64
+tiles_x, tiles_y = screen.r / tile_size, screen.b / tile_size
 
---dofile(src..'game.lua')
+pre, src = 'gurbas_assets/', 'gurbas_scripts/'
+
+-- utils
+
+-- 2d -> 1d index mapping
+function idx_2d(x, y, w)
+	return y * w + x
+end
+
+-- well index
+function widx(x, y)
+	return y * tiles_x + x
+end
+
+dofile(src..'game.lua')
 
 function init()
         sound.init()
-        video.init_exr(screen.r, screen.b, screen.r, screen.b, 'gurbas', false)
+        video.init_ex(screen.r, screen.b, screen.r, screen.b, 'gurbas', false)
 
-        --game.init()
+        game.init()
 end
 
 function close()
-        --game.close()
+        game.close()
 
         video.close()
         sound.close()
 end
 
 function frame()
-        --game.frame()
+        game.frame()
         return not key.pressed(key.quit) 
 end
 
