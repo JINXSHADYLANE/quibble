@@ -1,5 +1,5 @@
 dofile(src..'well.lua')
-dofile(src..'blocks.lua')
+dofile(src..'block.lua')
 
 game = {}
 
