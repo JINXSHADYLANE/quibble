@@ -28,7 +28,7 @@ dofile(src..'game.lua')
 
 function init()
 	sound.init()
-    video.init_ex(screen.r, screen.b, screen.r, screen.b, 'gurbas', false)
+    video.init_exr(screen.r/2, screen.b/2, screen.r, screen.b, 'gurbas', false)
 
     game.init()
 end

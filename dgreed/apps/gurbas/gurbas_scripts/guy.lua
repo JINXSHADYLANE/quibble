@@ -95,9 +95,9 @@ function guy.update()
 	guy.p = guy.p + dy
 	guy.v.y = dy.y
 
-	--if guy.ground then
-	--	guy.v.x = 0
-	--end
+	if guy.ground then
+		guy.v.x = 0
+	end
 
 	dx = guy.collide_swept(vec2(guy.v.x, 0))
 	guy.p = guy.p + dx
