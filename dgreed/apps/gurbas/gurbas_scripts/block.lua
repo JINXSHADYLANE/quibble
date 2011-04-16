@@ -7,7 +7,7 @@ block = {
 	-- time when offset position was last changed
 	off_t = 0,
 	-- how much time tile animation takes
-	fall_time = 100,
+	fall_time = 400,
 	-- 0=none, 1=90, 2=180, 3=270 degrees
 	rotation = 0,
 	layer = 1
@@ -31,7 +31,7 @@ function block.reset()
 end
 
 function block.init()
-	block.tex = tex.load(pre..'by.png')	
+	block.tex = tex.load(pre..'tile.png')	
 	block.reset()
 end
 
@@ -110,5 +110,23 @@ function block.draw()
 		dest = rect(dest.x, dest.y, dest.x + tile_size, dest.y + tile_size)
 		video.draw_rect(block.tex, block.layer, dest)
 	end
+end
+
+function block.raycast(s, e)
+	local min_sq_dist = length_sq(s - e)
+	local min_hitp = e
+
+	for i,r in ipairs(block.vis_parts()) do
+		r = r * tile_size
+		local rec = rect(r.x, r.y, r.x + tile_size, r.y + tile_size)
+		local hitp = rect_raycast(rec, s, e)
+		local sq_dist = length_sq(hitp - s)
+		if sq_dist < min_sq_dist then
+			min_sq_dist = sq_dist
+			min_hitp = hitp
+		end
+	end
+
+	return min_hitp
 end
 

@@ -17,7 +17,7 @@ well = {
 }
 
 function well.init()
-	well.img_block = tex.load(pre..'by.png')	
+	well.img_block = tex.load(pre..'tile.png')	
 	well.reset()
 end
 

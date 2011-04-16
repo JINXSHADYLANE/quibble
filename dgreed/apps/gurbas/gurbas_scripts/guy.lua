@@ -48,8 +48,20 @@ function guy.collide_swept(offset)
 	local min_ray = offset
 
 	for i,p in ipairs(pts) do
-		local ray = well.raycast(p, p + offset)
-		local sq_len = length_sq(ray - p)
+		local wall_ray = well.raycast(p, p + offset)
+		local wall_sq_len = length_sq(wall_ray - p)
+
+		local block_ray = block.raycast(p, p + offset)
+		local block_sq_len = length_sq(block_ray - p)
+
+		local ray = block_ray
+		local sq_len = block_sq_len
+
+		if wall_sq_len < block_sq_len then
+			ray = wall_ray
+			sq_len = wall_sq_len
+		end
+
 		if sq_len < min_sq_len then
 			min_sq_len = sq_len
 			min_ray = ray - p
@@ -76,16 +88,20 @@ function guy.update()
 	guy.v.y = guy.v.y + guy.gravity
 	guy.v.x = guy.v.x * guy.move_damp
 
-	dx = guy.collide_swept(vec2(guy.v.x, 0))
-	guy.p = guy.p + dx
-	guy.v.x = dx.x
-
 	dy = guy.collide_swept(vec2(0, guy.v.y))
 	if guy.v.y > 0 then
 		guy.ground = dy.y == 0	
 	end
 	guy.p = guy.p + dy
 	guy.v.y = dy.y
+
+	--if guy.ground then
+	--	guy.v.x = 0
+	--end
+
+	dx = guy.collide_swept(vec2(guy.v.x, 0))
+	guy.p = guy.p + dx
+	guy.v.x = dx.x
 
 end
 
