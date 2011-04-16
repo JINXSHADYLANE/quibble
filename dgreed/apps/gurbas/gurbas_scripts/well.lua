@@ -46,11 +46,10 @@ end
 
 -- 'bakes' block into well
 function well.put_block(b)
-	for i,part in ipairs(b.shape) do
-		local pos = part + b.offset		
-		if pos.x >= 0 and pos.x < tiles_x then
-			if pos.y >= 0 and pos.y < tiles_y then
-				well.state[widx(pos.x, pos.y)] = true
+	for i,part in ipairs(b.parts()) do		
+		if part.x >= 0 and part.x < tiles_x then
+			if part.y >= 0 and part.y < tiles_y then
+				well.state[widx(part.x, part.y)] = true
 			end
 		end
 	end
