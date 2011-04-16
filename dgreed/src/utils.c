@@ -266,16 +266,16 @@ Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end) 
 			vec2(r->right, r->top));
 
 	if(dirs[1])
+		segs[n_segs++] = segment(vec2(r->left, r->top), 
+			vec2(r->left, r->bottom));
+
+	if(dirs[2])
 		segs[n_segs++] = segment(vec2(r->left, r->bottom), 
 			vec2(r->right, r->bottom));
 
-	if(dirs[2])
+	if(dirs[3])
 		segs[n_segs++] = segment(vec2(r->right, r->top), 
 			vec2(r->right, r->bottom));
-
-	if(dirs[3])
-		segs[n_segs++] = segment(vec2(r->left, r->top), 
-			vec2(r->left, r->bottom));
 	
 	for(uint i = 0; i < n_segs; ++i) {
 		Vector2 hitp;
