@@ -122,3 +122,4 @@ function ai.move(b)
 		end
 	end
 end
+
