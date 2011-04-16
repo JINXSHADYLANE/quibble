@@ -25,10 +25,12 @@ end
 function game.frame()
 	well.draw()
 
-	block.update()
-	block.draw()
+	if not well.animates() then
+		block.update()
+		block.draw()
 
-	guy.update()
+		guy.update()
+	end
 	guy.draw()
 end
 
