@@ -513,20 +513,20 @@ static int ml_rect_raycast(lua_State* l) {
 	lua_getfield(l, 3, "y");
 
 	RectF rect = {
+		luaL_checknumber(l, 4),
 		luaL_checknumber(l, 5),
 		luaL_checknumber(l, 6),
-		luaL_checknumber(l, 7),
-		luaL_checknumber(l, 8)
+		luaL_checknumber(l, 7)
 	};
 
 	Vector2 start = {
-		luaL_checknumber(l, 9),
-		luaL_checknumber(l, 10)
+		luaL_checknumber(l, 8),
+		luaL_checknumber(l, 9)
 	};
 
 	Vector2 end = {
-		luaL_checknumber(l, 11),
-		luaL_checknumber(l, 12)
+		luaL_checknumber(l, 10),
+		luaL_checknumber(l, 11)
 	};
 
 	Vector2 hit = rectf_raycast(&rect, &start, &end);	

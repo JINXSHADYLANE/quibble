@@ -246,9 +246,9 @@ Vector2 rectf_center(const RectF* r) {
 Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end) {
 	assert(r && start && end);
 
-	float min_sq_dist = INFINITY;
 	Vector2 min_hitp = *end;
 	Vector2 d = vec2_sub(*end, *start);
+	float min_sq_dist = vec2_length_sq(d);
 	Segment ray = { *start, *end };
 	
 	bool dirs[] = {

@@ -1,5 +1,9 @@
 ai = {
-	gap_cost = 100
+	-- tweaks
+	gap_cost = 100,
+
+	-- state
+	target = nil
 }	
 
 function ai.cost(b)
@@ -74,5 +78,31 @@ function ai.best_move(b)
 	end
 
 	b.offset, b.rot = orig_off, orig_rot
-	return best_offset, best_rot
+	return {
+		offset = best_offset,
+		rotation = best_rotation
+	}
+end
+
+function ai.move(b) 
+	if ai.target == nil then
+		ai.target = ai.best_move(b)
+	end
+
+	-- stochasticly mutate offset to target state
+	if rand.int(0, 3) == 2 then
+		if ai.target.offset.x > b.offset.x then
+			b.offset.x = b.offset.x + 1
+		elseif ai.target.offset.x < b.offset.x then
+			b.offset.x = b.offset.x - 1
+		end
+	else
+		if rand.int(0, 3) == 2 then
+			if ai.target.rot > b.rot then
+				b.rot = b.rot + 1
+			elseif ai.target.rot < b.rot then
+				b.rot = b.rot - 1
+			end
+		end
+	end
 end
