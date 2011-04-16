@@ -1,6 +1,6 @@
 ai = {
 	-- tweaks
-	gap_cost = 100,
+	gap_cost = 200,
 	fill_cost = 10000,
 
 	-- state
@@ -71,8 +71,9 @@ function ai.best_move(b)
 				b.offset.x = b.offset.x + 1	
 		end
 		while true do	
+			b.offset.y = -4
 			if well.collide_block(b) then
-				break	
+				break		
 			end
 
 			-- find dropped block y

@@ -20,7 +20,10 @@ block = {
 -- block types in local coordinates
 block.shapes = {
 	{ vec2(0, 0), vec2(0, 1), vec2(1, 1), vec2(1, 2) },
-	{ vec2(1, 0), vec2(0, 1), vec2(1, 1), vec2(2, 1) }
+	{ vec2(1, 0), vec2(0, 1), vec2(1, 1), vec2(2, 1) },
+	{ vec2(0, 0), vec2(0, 1), vec2(1, 1), vec2(2, 1) },
+	{ vec2(0, 0), vec2(0, 1), vec2(1, 0), vec2(1, 1) },
+	{ vec2(0, 0), vec2(0, 1), vec2(0, 2), vec2(0, 3) }
 }
 
 -- shows directions of block movements
@@ -77,19 +80,6 @@ function block.rotate(blk, rotation)
 end
 
 function block.update()
-	-- Update keyboard arrows
-	--[[
-	if key.down(key._left) then
-		block.next_anim = 1
-	elseif key.down(key._right) then
-		block.next_anim = 3
-	elseif key.down(key._up) then
-		block.rotation = block.rotation + 1
-		if well.collide_block(block) then
-			block.rotation = block.rotation - 1
-		end			
-	end
-	]]
 	-- check if we can change block position
 	if (time.ms() - block.off_t) / block.fall_time >= 1.0 then
 		if block.animate ~= 0 then
