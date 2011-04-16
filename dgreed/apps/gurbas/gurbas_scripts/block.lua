@@ -29,10 +29,12 @@ block.moves = {
 }
 
 function block.reset()
-	block.offset = vec2(0, 0)
+	block.shape = block.shapes[rand.int(1, #block.shapes + 1)]
+	block.rotation = 0
+	
+	block.offset = vec2(3, -2)
 	block.off_t = time.ms()
-	-- TODO: pick random block
-	block.shape = block.shapes[1]
+	
 	block.animate = 4
 	block.next_anim = 4
 end
@@ -49,11 +51,29 @@ end
 
 -- returns block tiles in well coordinates
 function block.parts()
+	local shapes = {}
+	for key, value in ipairs(block.shape) do
+		shapes[key] = vec2(value)
+	end
+
+	block.rotate(shapes, block.rotation)
+	
 	list = {}
-	for id, tile in ipairs(block.shape) do
+	for id, tile in ipairs(shapes) do
 		list[id] = tile + block.offset
 	end
 	return list
+end
+
+function block.rotate(blk, rotation)
+	if rotation % 4 == 0 then
+		return 
+	end
+
+	for id = 1, #blk do
+		blk[id].x, blk[id].y = 1 - blk[id].y, blk[id].x
+	end
+	return block.rotate(blk, rotation - 1)
 end
 
 function block.update()
@@ -64,9 +84,9 @@ function block.update()
 		block.next_anim = 3
 	elseif key.down(key._up) then
 		block.rotation = block.rotation + 1
-		if block.rotation == 4 then 
-			block.rotation = 0 
-		end
+		if well.collide_block(block) then
+			block.rotation = block.rotation - 1
+		end			
 	end
 
 	-- check if we can change block position
@@ -111,7 +131,9 @@ function block.draw()
 				 (time.ms() - block.off_t) / block.fall_time)
 		end
 
-		video.draw_rect(block.tex, block.layer, tile * tile_size)
+		local dest = tile * tile_size
+		dest = rect(dest.x, dest.y, dest.x + tile_size, dest.y + tile_size)
+		video.draw_rect(block.tex, block.layer, dest)
 	end
 end
 

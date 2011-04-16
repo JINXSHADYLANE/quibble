@@ -1,14 +1,14 @@
 guy = {
 	-- tweaks
 	layer = 4,
-	move_acc = 0.8,
+	move_acc = 0.7,
 	move_damp = 0.84,
 	jump_acc = 16,
 	gravity = 0.5,
 
 	-- state
-	size = vec2(64, 128),
-	p = vec2((screen.r - 64) / 2, 500),
+	size = vec2(62, 126),
+	p = vec2((screen.r - 62) / 2, 500),
 	v = vec2(),
 	bbox = nil,
 	dir = false,
@@ -33,12 +33,14 @@ function guy.collide_swept(offset)
 	end
 	if offset.x > 0 then
 		table.insert(pts, guy.p + vec2(guy.size.x, 0))
-		table.insert(pts, guy.p + vec2(guy.size.x, guy.size.y/2))
+		table.insert(pts, guy.p + vec2(guy.size.x, guy.size.y/3))
+		table.insert(pts, guy.p + vec2(guy.size.x, 2*(guy.size.y/3)))
 		table.insert(pts, guy.p + vec2(guy.size.x, guy.size.y))
 	end
 	if offset.x < 0 then
 		table.insert(pts, vec2(guy.p))
-		table.insert(pts, guy.p + vec2(0, guy.size.y/2))
+		table.insert(pts, guy.p + vec2(0, guy.size.y/3))
+		table.insert(pts, guy.p + vec2(0, 2*(guy.size.y/3)))
 		table.insert(pts, guy.p + vec2(0, guy.size.y))
 	end
 
@@ -84,6 +86,7 @@ function guy.update()
 	end
 	guy.p = guy.p + dy
 	guy.v.y = dy.y
+
 end
 
 function guy.draw()

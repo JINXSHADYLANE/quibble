@@ -20,9 +20,6 @@ end
 
 function well.reset()
 	well.state = {} 
-	for x = 0,tiles_x-1 do
-		well.state[widx(x, tiles_y-1)] = true	
-	end
 end
 
 function well.draw()
@@ -30,6 +27,8 @@ function well.draw()
 		for x = 0,tiles_x-1 do
 			if well.state[widx(x, y)] ~= nil then
 				local dest = vec2(x * tile_size, y * tile_size) 
+				dest = rect(dest.x, dest.y, 
+					dest.x + tile_size, dest.y + tile_size)
 				video.draw_rect(well.img_block, well.layer, dest)	
 			end
 		end
@@ -52,11 +51,10 @@ end
 
 -- 'bakes' block into well
 function well.put_block(b)
-	for i,part in ipairs(b.shape) do
-		local pos = part + b.offset		
-		if pos.x >= 0 and pos.x < tiles_x then
-			if pos.y >= 0 and pos.y < tiles_y then
-				well.state[widx(pos.x, pos.y)] = true
+	for i,part in ipairs(b.parts()) do		
+		if part.x >= 0 and part.x < tiles_x then
+			if part.y >= 0 and part.y < tiles_y then
+				well.state[widx(part.x, part.y)] = true
 			end
 		end
 	end
@@ -67,21 +65,14 @@ function well.raycast(s, e)
 	local min_sq_dist = length_sq(s - e) 
 	local min_hitp = e
 
-	-- special checks for well bottom and walls
-	local well_hitp = {
-		segment_intersect(well.vertices[1], well.vertices[2], s, e),
-		segment_intersect(well.vertices[2], well.vertices[3], s, e),
-		segment_intersect(well.vertices[3], well.vertices[4], s, e)
-	}
-
-	for i,hitp in ipairs(well_hitp) do
-		if hitp then
-			local sq_dist = length_sq(hitp - s)
-			if sq_dist < min_sq_dist then
-				sq_dist = min_sq_dist
-				min_hitp = hitp
-			end
-		end
+	if e.x > screen.r then
+		e.x = screen.r
+	end
+	if e.x < 0 then
+		e.x = 0
+	end
+	if e.y > screen.b then
+		e.y = screen.b
 	end
 
 	for pos,state in pairs(well.state) do
@@ -93,7 +84,7 @@ function well.raycast(s, e)
 			local hitp = rect_raycast(r, s, e)
 			local sq_dist = length_sq(hitp - s)
 			if sq_dist < min_sq_dist then
-				sq_dist = min_sq_dist
+				min_sq_dist = sq_dist
 				min_hitp = hitp
 			end
 		end
