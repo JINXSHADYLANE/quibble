@@ -1,5 +1,6 @@
 dofile(src..'well.lua')
 dofile(src..'block.lua')
+dofile(src..'ai.lua')
 dofile(src..'guy.lua')
 
 game = {}

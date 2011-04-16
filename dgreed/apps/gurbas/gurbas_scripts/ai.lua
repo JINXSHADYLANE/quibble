@@ -1,6 +1,7 @@
 ai = {
 	-- tweaks
 	gap_cost = 100,
+	fill_cost = 10000,
 
 	-- state
 	target = nil
@@ -32,12 +33,26 @@ function ai.cost(b)
 		-- count weight for column
 		while y < tiles_y do
 			if is_empty(x, y) then
-				cost = cost + gap_cost
+				cost = cost + ai.gap_cost
 			else
-				local dy = tiles_y - y - 1
+				local dy = tiles_y - y
 				cost = cost + dy*dy*dy
 			end
 			y = y + 1
+		end
+	end
+
+	-- count full lines 
+	for y = tiles_y-1,1,-1 do
+		local full = true
+		for x = 0,tiles_x-1 do
+			if is_empty(x, y) then
+				full = false
+				break
+			end
+		end
+		if full then
+			cost = cost - ai.fill_cost
 		end
 	end
 
@@ -45,42 +60,43 @@ function ai.cost(b)
 end
 
 function ai.best_move(b)
-	local orig_off, orig_rot = b.offset, b.rotation
+	local orig_off, orig_rot = vec2(b.offset), b.rotation
 	local best_cost = 1/0
 	local best_offset, best_rot = vec2(), 0
 
 	for rot=0,3 do
 		b.rotation = rot
-		local x, y = 0, tiles_y
+		b.offset.x, b.offset.y = 0, -4 
+		while b.offset.x <= tiles_x and well.collide_block(b) do
+				b.offset.x = b.offset.x + 1	
+		end
 		while true do	
-			-- check if block can even be at this x
-			b.offset.x = x
-			b.offset.y = -4
-			x = x + 1
 			if well.collide_block(b) then
-				break
+				break	
 			end
 
 			-- find dropped block y
-			while y >= 0 and well.collide_block(b) do	
-				b.offset.y = y
-				y = y - 1
+			while b.offset.y <= tiles_y and not well.collide_block(b) do	
+				b.offset.y = b.offset.y + 1
 			end
+			b.offset.y = b.offset.y - 1
 
 			-- check cost, remember if it is best
 			local current_cost = ai.cost(b)
 			if current_cost < best_cost then
 				best_cost = current_cost
 				best_offset = vec2(b.offset)
-				best_rot = b.rot
+				best_rot = b.rotation
 			end
+
+			b.offset.x = b.offset.x + 1
 		end
 	end
 
-	b.offset, b.rot = orig_off, orig_rot
+	b.offset, b.rotation = orig_off, orig_rot
 	return {
 		offset = best_offset,
-		rotation = best_rotation
+		rotation = best_rot
 	}
 end
 
@@ -89,20 +105,19 @@ function ai.move(b)
 		ai.target = ai.best_move(b)
 	end
 
-	-- stochasticly mutate offset to target state
-	if rand.int(0, 3) == 2 then
+	if rand.int(0, 2) == 0 then
 		if ai.target.offset.x > b.offset.x then
 			b.offset.x = b.offset.x + 1
 		elseif ai.target.offset.x < b.offset.x then
 			b.offset.x = b.offset.x - 1
 		end
-	else
-		if rand.int(0, 3) == 2 then
-			if ai.target.rot > b.rot then
-				b.rot = b.rot + 1
-			elseif ai.target.rot < b.rot then
-				b.rot = b.rot - 1
-			end
+	end
+
+	if rand.int(0, 2) == 0 then
+		if ai.target.rotation > b.rotation then
+			b.rotation = b.rotation + 1
+		elseif ai.target.rotation < b.rotation then
+			b.rotation = b.rotation - 1
 		end
 	end
 end
