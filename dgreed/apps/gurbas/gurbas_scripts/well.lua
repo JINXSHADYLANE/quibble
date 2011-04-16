@@ -2,6 +2,9 @@ well = {
 	layer = 5,
 	state = nil,
 	shapes = nil,
+	drop_anim_t = nil,
+	drop_anim_len = 1000,
+	full_lines = {},
 	vertices = {
 		vec2(0, 0),
 		vec2(0, screen.b),
@@ -22,7 +25,37 @@ function well.reset()
 	well.state = {} 
 end
 
+function well.animates()
+	if well.drop_anim_t ~= nil then
+		return true
+	end
+	return false
+end
+
+function well.clear_filled()
+	for i = 1,#well.full_lines do
+		local fy = well.full_lines[#well.full_lines - i + 1]
+		for y = fy,0,-1 do
+			for x = 0,tiles_x-1 do
+				well.state[widx(x, y)] = well.state[widx(x, y-1)]
+			end
+		end
+	end
+	well.full_lines = {}
+end
+
 function well.draw()
+	if well.animates() then
+		local t = (time.ms() - well.drop_anim_t) / well.drop_anim_len 
+		if t > 1 then
+			well.clear_filled()
+			well.drop_anim_t = nil
+		else
+			well.draw_fadeout(t)
+			return
+		end
+	end
+
 	for y = 0,tiles_y-1 do
 		for x = 0,tiles_x-1 do
 			if well.state[widx(x, y)] ~= nil then
@@ -30,6 +63,31 @@ function well.draw()
 				dest = rect(dest.x, dest.y, 
 					dest.x + tile_size, dest.y + tile_size)
 				video.draw_rect(well.img_block, well.layer, dest)	
+			end
+		end
+	end
+end
+
+function well.draw_fadeout(t)
+	local col = rgba(1, 1, 1, 1 - t)
+	for y = 0,tiles_y-1 do
+		local fade = false
+		for i,f in ipairs(well.full_lines) do
+			if f == y then
+				fade = true
+			end
+		end
+
+		for x = 0,tiles_x-1 do
+			if well.state[widx(x, y)] ~= nil then
+				local dest = vec2(x * tile_size, y * tile_size) 
+				dest = rect(dest.x, dest.y, 
+					dest.x + tile_size, dest.y + tile_size)
+				if fade then
+					video.draw_rect(well.img_block, well.layer, dest, col)
+				else
+					video.draw_rect(well.img_block, well.layer, dest)	
+				end
 			end
 		end
 	end
@@ -49,6 +107,22 @@ function well.collide_block(b)
 	return false 
 end
 
+function well.check_lines()
+	for y=tiles_y-1,0,-1 do
+		local full = true
+		for x=0,tiles_x-1 do
+			if well.state[widx(x, y)] == nil then
+				full = false
+			end
+		end
+		if full then
+			table.insert(well.full_lines, y)
+		end
+	end
+
+	return #well.full_lines > 0
+end
+
 -- 'bakes' block into well
 function well.put_block(b)
 	for i,part in ipairs(b.parts()) do		
@@ -57,6 +131,10 @@ function well.put_block(b)
 				well.state[widx(part.x, part.y)] = true
 			end
 		end
+	end
+	
+	if well.check_lines() then
+		well.drop_anim_t = time.ms()
 	end
 end
 
