@@ -554,7 +554,7 @@ static int ml_video_draw_seg(lua_State* l) {
 	int n = lua_gettop(l);
 	Color c = COLOR_WHITE;
 	if(n == 4) {
-		if(!_check_color(l, 5, &c)) 
+		if(!_check_color(l, 4, &c)) 
 			goto error;
 		n--;
 	}

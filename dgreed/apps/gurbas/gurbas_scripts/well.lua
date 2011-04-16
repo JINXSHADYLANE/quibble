@@ -2,6 +2,12 @@ well = {
 	layer = 5,
 	state = nil,
 	shapes = nil,
+	vertices = {
+		vec2(0, 0),
+		vec2(0, screen.b),
+		vec2(screen.r, screen.b),
+		vec2(screen.r, 0)
+	},
 
 	-- images
 	img_block = nil
@@ -58,12 +64,31 @@ end
 
 -- raycast against all blocks in well
 function well.raycast(s, e)
-	local min_sq_dist = 1/0
+	local min_sq_dist = length_sq(s - e) 
 	local min_hitp = e
+
+	-- special checks for well bottom and walls
+	local well_hitp = {
+		segment_intersect(well.vertices[1], well.vertices[2], s, e),
+		segment_intersect(well.vertices[2], well.vertices[3], s, e),
+		segment_intersect(well.vertices[3], well.vertices[4], s, e)
+	}
+
+	for i,hitp in ipairs(well_hitp) do
+		if hitp then
+			local sq_dist = length_sq(hitp - s)
+			if sq_dist < min_sq_dist then
+				sq_dist = min_sq_dist
+				min_hitp = hitp
+			end
+		end
+	end
+
 	for pos,state in pairs(well.state) do
 		if state ~= nil then
-			local tl = pos * tile_size
-			local br = tl + tile
+			local p = inv_widx(pos)
+			local tl = p * tile_size
+			local br = tl + vec2(tile_size, tile_size)
 			local r = rect(tl.x, tl.y, br.x, br.y)
 			local hitp = rect_raycast(r, s, e)
 			local sq_dist = length_sq(hitp - s)
@@ -73,7 +98,7 @@ function well.raycast(s, e)
 			end
 		end
 	end
-	return e
+	return min_hitp 
 end
 
 function well.close()

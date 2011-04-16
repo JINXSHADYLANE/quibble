@@ -18,6 +18,12 @@ function widx(x, y)
 	return y * tiles_x + x
 end
 
+function inv_widx(i)
+	local y = math.floor(i / tiles_x)
+	local x = i - (y * tiles_x)
+	return vec2(x, y)
+end
+
 dofile(src..'game.lua')
 
 function init()
