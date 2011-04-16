@@ -7,7 +7,7 @@ block = {
 	-- time when offset position was last changed
 	off_t = 0,
 	-- how much time tile animation takes
-	fall_time = 440,
+	fall_time = 100,
 	-- 1=left, 2=up, 3=right, 4=down, 0=none
 	animate = 0,
 	next_anim = 0,
@@ -78,6 +78,7 @@ end
 
 function block.update()
 	-- Update keyboard arrows
+	--[[
 	if key.down(key._left) then
 		block.next_anim = 1
 	elseif key.down(key._right) then
@@ -88,7 +89,7 @@ function block.update()
 			block.rotation = block.rotation - 1
 		end			
 	end
-
+	]]
 	-- check if we can change block position
 	if (time.ms() - block.off_t) / block.fall_time >= 1.0 then
 		if block.animate ~= 0 then
@@ -110,6 +111,7 @@ function block.update()
 		if collide_down then			
 			well.put_block(block)
 			block.reset()
+			ai.target = nil
 			return
 		end
 		if (collide_left and block.next_anim == 1) or 
@@ -120,6 +122,8 @@ function block.update()
 		block.animate = block.next_anim
 		block.next_anim = 4
 		block.off_t = time.ms()
+
+		ai.move(block)
 	end
 end
 
