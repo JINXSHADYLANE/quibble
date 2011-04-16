@@ -32,8 +32,12 @@ end
 
 -- returns true if block collides with well
 function well.collide_block(b)
-	for i,part in ipairs(b.shape) do
-		if well.state[widx(part[0], part[1])] ~= nil then
+	local parts = b.parts()
+	for i,part in ipairs(parts) do
+		if part.x < 0 or part.x >= tiles_x or part.y >= tiles_y then
+			return true
+		end
+		if well.state[widx(part.x, part.y)] ~= nil then
 			return true 
 		end
 	end
