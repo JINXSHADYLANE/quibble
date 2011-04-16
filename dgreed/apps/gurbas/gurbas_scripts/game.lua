@@ -2,6 +2,7 @@ dofile(src..'well.lua')
 dofile(src..'block.lua')
 dofile(src..'ai.lua')
 dofile(src..'guy.lua')
+dofile(src..'bullet.lua')
 
 game = {}
 
@@ -11,6 +12,7 @@ function game.init()
 	well.init()
 	block.init()
 	guy.init()
+	bullet.init()
 end
 
 -- called on game exit,
@@ -19,6 +21,7 @@ function game.close()
 	block.close()
 	well.close()
 	guy.close()
+	bullet.close()
 end
 
 -- called repeatedly from game loop
@@ -30,6 +33,12 @@ function game.frame()
 		block.draw()
 
 		guy.update()
+
+		if bullet.update() then
+			block.reset()	
+		end
+
+		bullet.draw()
 	end
 	guy.draw()
 end
