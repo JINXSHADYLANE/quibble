@@ -7,7 +7,7 @@ block = {
 	-- time when offset position was last changed
 	off_t = 0,
 	-- how much time tile animation takes
-	fall_time = 400,
+	fall_time = 100,
 	-- 0=none, 1=90, 2=180, 3=270 degrees
 	rotation = 0,
 	layer = 1
@@ -128,5 +128,17 @@ function block.raycast(s, e)
 	end
 
 	return min_hitp
+end
+
+function block.collide_rect(r)
+	local parts = block.vis_parts()
+	for i,p in ipairs(parts) do
+		local pos = p * tile_size
+		local block_rect = rect(pos.x, pos.y, pos.x + tile_size, pos.y + tile_size)
+		if rect_rect_collision(block_rect, r) then
+			return true
+		end
+	end
+	return false
 end
 

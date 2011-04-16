@@ -170,6 +170,21 @@ function well.raycast(s, e)
 	return min_hitp 
 end
 
+function well.collide_rect(r)
+	for pos,state in pairs(well.state) do
+		if state ~= nil then
+			local p = inv_widx(pos)
+			local tl = p * tile_size
+			local br = tl + vec2(tile_size, tile_size)
+			local well_rect = rect(tl.x, tl.y, br.x, br.y)
+			if rect_rect_collision(well_rect, r) then
+				return true
+			end	
+		end
+	end
+	return false
+end
+
 function well.close()
 	tex.free(well.img_block)
 end

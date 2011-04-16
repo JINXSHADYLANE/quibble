@@ -80,7 +80,7 @@ function guy.update()
 		guy.v.x = guy.v.x + guy.move_acc
 		guy.dir = false
 	end
-	if (key.down(key._up) or key.down(key.a)) and guy.ground then
+	if key.down(key._up) and guy.ground then
 		guy.ground = false
 		guy.v.y = -guy.jump_acc
 	end
