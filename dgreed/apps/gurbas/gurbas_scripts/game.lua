@@ -7,6 +7,8 @@ dofile(src..'bullet.lua')
 game = {
 	lose_screen_t = nil,
 	lose_screen_len = 2000,
+	win_screen_t = nil,
+	win_screen_len = 4200,
 
 	-- imgs
 	img_empty = nil
@@ -51,6 +53,24 @@ function game.lose_frame()
 	video.draw_rect(game.img_empty, 10, screen, col)
 end
 
+function game.win_frame()
+	local t = (time.ms() - game.win_screen_t) / game.win_screen_len
+	if t >= 1 then
+		game.win_screen_t = nil
+		well.reset()
+		guy.reset()
+		block.reset()
+		bullet.reset()
+	end
+	
+	well.draw()
+	block.draw_static()
+	guy.draw()
+
+	local col = rgba(1, 1, 1, t)
+	video.draw_rect(game.img_empty, 10, screen, col)
+end
+
 -- called repeatedly from game loop
 function game.frame()
 	if game.lose_screen_t ~= nil then
@@ -58,13 +78,25 @@ function game.frame()
 		return
 	end
 
+	if game.win_screen_t ~= nil then
+		game.win_frame()
+		return
+	end
+
 	well.draw()
 
 	if not well.animates() then
 		block.update()
+		if well.did_lose() then
+			game.lose_screen_t = time.ms()
+		end
 
 		if guy.update() then
-			game.lose_screen_t = time.ms()
+			if guy.did_win then
+				game.win_screen_t = time.ms()
+			else
+				game.lose_screen_t = time.ms()
+			end
 		end
 
 		if bullet.update() then
@@ -72,9 +104,11 @@ function game.frame()
 		end
 
 		bullet.draw()
+		block.draw()
+	else
+		block.draw_static()
 	end
 
-	block.draw()
 	guy.draw()
 end
 

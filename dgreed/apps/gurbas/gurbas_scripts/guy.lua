@@ -10,7 +10,8 @@ guy = {
 	size = vec2(62, 126),
 	bbox = nil,
 	dir = false,
-	ground = false
+	ground = false,
+	did_win = false
 }
 
 function guy.init()
@@ -23,6 +24,7 @@ end
 function guy.reset()
 	guy.p =	vec2((screen.r - guy.size.x) / 2, 500) 
 	guy.v = vec2()
+	guy.did_win = false
 end
 
 function guy.collide_swept(offset)
@@ -76,11 +78,11 @@ function guy.collide_swept(offset)
 end
 
 function guy.update()
-	if key.pressed(key._left) then
+	if key.pressed(key._left) and not guy.ground then
 		guy.v.x = guy.v.x - guy.move_acc
 		guy.dir = true
 	end
-	if key.pressed(key._right) then
+	if key.pressed(key._right) and not guy.ground then
 		guy.v.x = guy.v.x + guy.move_acc
 		guy.dir = false
 	end
@@ -91,6 +93,10 @@ function guy.update()
 
 	guy.v.y = guy.v.y + guy.gravity
 	guy.v.x = guy.v.x * guy.move_damp
+
+	dx = guy.collide_swept(vec2(guy.v.x, 0))
+	guy.p = guy.p + dx
+	guy.v.x = dx.x
 
 	dy = guy.collide_swept(vec2(0, guy.v.y))
 	if guy.v.y > 0 then
@@ -103,10 +109,6 @@ function guy.update()
 		guy.v.x = 0
 	end
 
-	dx = guy.collide_swept(vec2(guy.v.x, 0))
-	guy.p = guy.p + dx
-	guy.v.x = dx.x
-
 	-- check block collision with head
 	local upper_hitbox = rect(guy.p.x+2, guy.p.y+1, 
 		guy.p.x + guy.size.x - 2, guy.p.y + guy.size.y / 3)
@@ -117,7 +119,8 @@ function guy.update()
 
 	-- check head collision with well top (win condition)
 	if upper_hitbox.t < 0 then
-		print('win!')
+		guy.did_win = false
+		return true
 	end
 
 	return false
