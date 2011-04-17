@@ -4,13 +4,17 @@ bullet = {
 	size = vec2(24, 24),
 	last_t = 0,
 	shoot_interval = 700,
-	speed = 17
+	speed = 17,
+
+	img = nil
 }
 
 function bullet.init() 
+	bullet.img = tex.load(pre..'bullet.png')
 end
 
 function bullet.close()
+	tex.free(bullet.img)
 end
 
 function bullet.reset()
@@ -73,17 +77,7 @@ function bullet.draw()
 	for i,b in ipairs(bullet.list) do
 		local r = bullet.rect(b.pos)
 
-		local pts = {
-			vec2(r.l, r.t),
-			vec2(r.r, r.t),
-			vec2(r.r, r.b),
-			vec2(r.l, r.b)
-		}	
-
-		video.draw_seg(bullet.layer, pts[1], pts[2], rgba(0.5, 0.5, 0.5, 1)) 
-		video.draw_seg(bullet.layer, pts[2], pts[3], rgba(0.5, 0.5, 0.5, 1)) 
-		video.draw_seg(bullet.layer, pts[3], pts[4], rgba(0.5, 0.5, 0.5, 1)) 
-		video.draw_seg(bullet.layer, pts[4], pts[1], rgba(0.5, 0.5, 0.5, 1)) 
+		video.draw_rect(bullet.img, bullet.layer, rect(0, 0, 24, 24), r)
 	end
 end
 
