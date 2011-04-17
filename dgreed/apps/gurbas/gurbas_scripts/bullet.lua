@@ -11,9 +11,13 @@ bullet = {
 
 function bullet.init() 
 	bullet.img = tex.load(pre..'bullet.png')
+	bullet.snd_shot = sound.load_sample(pre..'shot.wav')
+	bullet.snd_hit = sound.load_sample(pre..'blow.wav')
 end
 
 function bullet.close()
+	sound.free(bullet.snd_hit)
+	sound.free(bullet.snd_shot)
 	tex.free(bullet.img)
 end
 
@@ -39,6 +43,8 @@ function bullet.spawn()
 		pos = vec2(guy.p.x + guy.size.x/2, guy.p.y)
 	}
 
+	sound.play(bullet.snd_shot)
+
 	table.insert(bullet.list, new_bullet)
 	bullet.last_t = time.ms()
 end
@@ -62,6 +68,7 @@ function bullet.update()
 		if block.collide_rect(r) then
 			remove = true
 			remove_block = true
+			sound.play(bullet.snd_hit)
 		end
 
 		if not remove then

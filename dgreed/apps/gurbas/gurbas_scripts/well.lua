@@ -17,7 +17,8 @@ well = {
 }
 
 function well.init()
-	well.img_block = tex.load(pre..'tile.png')	
+	well.img_block = tex.load(pre..'tile.png')
+	well.snd_line = sound.load_sample(pre..'line.wav')
 	well.reset()
 end
 
@@ -135,6 +136,7 @@ function well.put_block(b)
 	
 	if well.check_lines() then
 		well.drop_anim_t = time.ms()
+		sound.play(well.snd_line)
 	end
 end
 
@@ -195,6 +197,7 @@ function well.did_lose()
 end
 
 function well.close()
+	sound.free(well.snd_line)
 	tex.free(well.img_block)
 end
 
