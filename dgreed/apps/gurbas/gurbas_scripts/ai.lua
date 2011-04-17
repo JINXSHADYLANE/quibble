@@ -109,16 +109,26 @@ function ai.move(b)
 	if rand.int(0, 2) == 0 then
 		if ai.target.offset.x > b.offset.x then
 			b.offset.x = b.offset.x + 1
+			if well.collide_block(b) then
+				b.offset.x = b.offset.x - 1
+			end
 		elseif ai.target.offset.x < b.offset.x then
 			b.offset.x = b.offset.x - 1
+			if well.collide_block(b) then
+				b.offfset.x = b.offset.x + 1
+			end
 		end
-	end
-
-	if rand.int(0, 2) == 0 then
+	elseif rand.int(0, 2) == 0 then
 		if ai.target.rotation > b.rotation then
 			b.rotation = b.rotation + 1
+			if well.collide_block(b) then
+				b.rotation = b.rotation - 1
+			end
 		elseif ai.target.rotation < b.rotation then
 			b.rotation = b.rotation - 1
+			if well.collide_block(b) then
+				b.rotation = b.rotation + 1
+			end
 		end
 	end
 end

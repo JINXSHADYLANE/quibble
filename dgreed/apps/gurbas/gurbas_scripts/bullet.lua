@@ -13,6 +13,10 @@ end
 function bullet.close()
 end
 
+function bullet.reset()
+	bullet.list = {}
+end
+
 function bullet.rect(p)
 	return rect(
 		p.x - bullet.size.x / 2,

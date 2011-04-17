@@ -185,6 +185,15 @@ function well.collide_rect(r)
 	return false
 end
 
+function well.did_lose()
+	for x = 0,tiles_x-1 do
+		if well.state[widx(x, 2)] ~= nil then
+			return true
+		end
+	end
+	return false
+end
+
 function well.close()
 	tex.free(well.img_block)
 end
