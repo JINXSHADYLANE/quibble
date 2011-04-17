@@ -12,7 +12,7 @@ game = {
 
 	-- imgs
 	img_empty = nil,
-
+	img_back = nil,
 	font = nil
 }
 
@@ -25,6 +25,7 @@ function game.init()
 	bullet.init()
 
 	game.img_empty = tex.load(pre..'dark.png')
+	game.img_back = tex.load(pre..'back.png')
 	game.font = font.load(pre..'nova_333px.bft')
 end
 
@@ -37,6 +38,7 @@ function game.close()
 	bullet.close()
 
 	tex.free(game.img_empty)
+	tex.free(game.img_back)
 	font.free(game.font)
 end
 
@@ -87,6 +89,8 @@ end
 
 -- called repeatedly from game loop
 function game.frame()
+	video.draw_rect(game.img_back, 0, vec2(0, 0))
+
 	game.draw_title()
 
 	if game.lose_screen_t ~= nil then
