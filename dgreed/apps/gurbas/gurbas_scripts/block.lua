@@ -10,7 +10,7 @@ block = {
 	fall_time = 200,
 	-- 0=none, 1=90, 2=180, 3=270 degrees
 	rotation = 0,
-	layer = 1,
+	layer = 2,
 
 	ghosts = {}
 }
