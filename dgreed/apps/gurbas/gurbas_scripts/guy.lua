@@ -8,17 +8,21 @@ guy = {
 
 	-- state
 	size = vec2(62, 126),
-	p = vec2((screen.r - 62) / 2, 500),
-	v = vec2(),
 	bbox = nil,
 	dir = false,
 	ground = false
 }
 
 function guy.init()
+	guy.reset()
 end
 
 function guy.close()
+end
+
+function guy.reset()
+	guy.p =	vec2((screen.r - guy.size.x) / 2, 500) 
+	guy.v = vec2()
 end
 
 function guy.collide_swept(offset)
@@ -103,6 +107,20 @@ function guy.update()
 	guy.p = guy.p + dx
 	guy.v.x = dx.x
 
+	-- check block collision with head
+	local upper_hitbox = rect(guy.p.x+2, guy.p.y+1, 
+		guy.p.x + guy.size.x - 2, guy.p.y + guy.size.y / 3)
+	
+	if block.collide_rect(upper_hitbox) then
+		return true
+	end
+
+	-- check head collision with well top (win condition)
+	if upper_hitbox.t < 0 then
+		print('win!')
+	end
+
+	return false
 end
 
 function guy.draw()
