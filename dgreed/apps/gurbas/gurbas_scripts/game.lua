@@ -11,7 +11,9 @@ game = {
 	win_screen_len = 4200,
 
 	-- imgs
-	img_empty = nil
+	img_empty = nil,
+
+	font = nil
 }
 
 -- gets called once at the game start;
@@ -23,6 +25,7 @@ function game.init()
 	bullet.init()
 
 	game.img_empty = tex.load(pre..'dark.png')
+	game.font = font.load(pre..'nova_333px.bft')
 end
 
 -- called on game exit,
@@ -34,6 +37,7 @@ function game.close()
 	bullet.close()
 
 	tex.free(game.img_empty)
+	font.free(game.font)
 end
 
 function game.lose_frame()
@@ -71,8 +75,20 @@ function game.win_frame()
 	video.draw_rect(game.img_empty, 10, screen, col)
 end
 
+function game.draw_title()
+	local t = (time.ms() - 1500) / 8000
+	if t >= 0 and t <= 1 then
+		local p = lerp(vec2(30, 590), vec2(-390, 590), t)
+		local col =	rgba(0.3, 0.3, 0.3)
+		col.a = math.sin(math.pi*t)
+		video.draw_text(game.font, 0, "gurbas", p, col)
+	end
+end
+
 -- called repeatedly from game loop
 function game.frame()
+	game.draw_title()
+
 	if game.lose_screen_t ~= nil then
 		game.lose_frame()
 		return
@@ -100,7 +116,7 @@ function game.frame()
 		end
 
 		if bullet.update() then
-			block.reset()	
+			block.reset(true)	
 		end
 
 		bullet.draw()

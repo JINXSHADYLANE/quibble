@@ -7,10 +7,12 @@ block = {
 	-- time when offset position was last changed
 	off_t = 0,
 	-- how much time tile animation takes
-	fall_time = 100,
+	fall_time = 200,
 	-- 0=none, 1=90, 2=180, 3=270 degrees
 	rotation = 0,
-	layer = 1
+	layer = 1,
+
+	ghosts = {}
 }
 
 -- block types in local coordinates
@@ -22,7 +24,16 @@ block.shapes = {
 	{ vec2(0, 0), vec2(0, 1), vec2(0, 2), vec2(0, 3) }
 }
 
-function block.reset()
+function block.reset(ghost)
+	if ghost ~= nil then
+		table.insert(block.ghosts, {
+			shape = block.vis_parts(),
+			offset = 0,
+			rotation = block.rotation,
+			t = time.ms()
+		})
+	end
+
 	block.shape = block.shapes[rand.int(1, #block.shapes + 1)]
 	block.rotation = 0
 	
@@ -98,6 +109,16 @@ function block.update()
 
 		ai.move(block)
 	end
+
+	-- update ghosts
+	local new_ghosts = {}
+	for i,g in ipairs(block.ghosts) do
+		g.offset = (time.ms() - g.t) / block.fall_time 
+		if time.ms() - g.t < block.fall_time then
+			table.insert(new_ghosts, g)
+		end
+	end
+	block.ghosts = new_ghosts
 end
 
 function block.draw()
@@ -111,6 +132,17 @@ function block.draw()
 		video.draw_rect(block.tex, block.layer, dest)
 	end
 	block.last_t = time.ms()
+
+	-- ghosts
+	for i,g in ipairs(block.ghosts) do
+		local col = rgba(1, 1, 1, 1 - g.offset)
+		local y_off = g.offset
+		for i,s in ipairs(g.shape) do
+			local d = vec2(s.x, s.y + y_off) * tile_size
+			d = rect(d.x, d.y, d.x + tile_size, d.y + tile_size)
+			video.draw_rect(block.tex, block.layer, d, col)
+		end
+	end
 end
 
 function block.draw_static()
@@ -122,6 +154,17 @@ function block.draw_static()
 		local dest = tile * tile_size
 		dest = rect(dest.x, dest.y, dest.x + tile_size, dest.y + tile_size)
 		video.draw_rect(block.tex, block.layer, dest)
+	end
+
+	-- ghosts
+	for i,g in ipairs(block.ghosts) do
+		local col = rgba(1, 1, 1, 1 - g.offset)
+		local y_off = g.offset
+		for i,s in ipairs(g.shape) do
+			local d = vec2(s.x, s.y + y_off) * tile_size
+			d = rect(d.x, d.y, d.x + tile_size, d.y + tile_size)
+			video.draw_rect(block.tex, block.layer, d, col)
+		end
 	end
 end
 

@@ -115,7 +115,7 @@ function ai.move(b)
 		elseif ai.target.offset.x < b.offset.x then
 			b.offset.x = b.offset.x - 1
 			if well.collide_block(b) then
-				b.offfset.x = b.offset.x + 1
+				b.offset.x = b.offset.x + 1
 			end
 		end
 	elseif rand.int(0, 2) == 0 then
