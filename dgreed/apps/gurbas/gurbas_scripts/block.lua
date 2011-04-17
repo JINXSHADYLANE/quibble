@@ -110,7 +110,21 @@ function block.draw()
 		dest = rect(dest.x, dest.y, dest.x + tile_size, dest.y + tile_size)
 		video.draw_rect(block.tex, block.layer, dest)
 	end
+	block.last_t = time.ms()
 end
+
+function block.draw_static()
+	for id, tile in ipairs(block.parts()) do
+		-- count tile position in pixels
+		tile = lerp(tile, tile + vec2(0, 1),
+			(block.last_t - block.off_t) / block.fall_time)
+
+		local dest = tile * tile_size
+		dest = rect(dest.x, dest.y, dest.x + tile_size, dest.y + tile_size)
+		video.draw_rect(block.tex, block.layer, dest)
+	end
+end
+
 
 function block.raycast(s, e)
 	local min_sq_dist = length_sq(s - e)
