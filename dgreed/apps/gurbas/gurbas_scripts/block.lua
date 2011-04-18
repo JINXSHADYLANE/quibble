@@ -10,10 +10,19 @@ block = {
 	fall_time = 200,
 	-- 0=none, 1=90, 2=180, 3=270 degrees
 	rotation = 0,
+	color = nil,
 	layer = 2,
 
 	ghosts = {}
 }
+
+block.colors = {
+	rgba(255/255, 211/255, 18/255),
+	rgba(228/255, 4/255, 222/255),
+	rgba(177/255, 234/255, 14/255),
+	rgba(0/255, 153/255, 234/255),
+	rgba(234/255, 74/255, 3/255)
+}	
 
 -- block types in local coordinates
 block.shapes = {
@@ -30,6 +39,7 @@ function block.reset(ghost)
 			shape = block.vis_parts(),
 			offset = 0,
 			rotation = block.rotation,
+			color = block.color,
 			t = time.ms()
 		})
 	end
@@ -39,6 +49,8 @@ function block.reset(ghost)
 	
 	block.offset = vec2(3, -2)
 	block.off_t = time.ms()
+
+	block.color = block.colors[rand.int(1, #block.colors + 1)]
 end
 
 function block.init()
@@ -129,19 +141,20 @@ function block.draw()
 
 		local dest = tile * tile_size
 		dest = rect(dest.x, dest.y, dest.x + tile_size, dest.y + tile_size)
-		video.draw_rect(block.tex, block.layer, dest)
+		video.draw_rect(block.tex, block.layer, dest, block.color)
 	end
 	block.last_t = time.ms()
 
 	-- ghosts
 	for i,g in ipairs(block.ghosts) do
-		local col = rgba(1, 1, 1, 1 - g.offset)
+		g.color.a = 1 - g.offset
 		local y_off = g.offset
 		for i,s in ipairs(g.shape) do
 			local d = vec2(s.x, s.y + y_off) * tile_size
 			d = rect(d.x, d.y, d.x + tile_size, d.y + tile_size)
-			video.draw_rect(block.tex, block.layer, d, col)
+			video.draw_rect(block.tex, block.layer, d, g.color)
 		end
+		g.color.a = 1
 	end
 end
 
@@ -153,18 +166,19 @@ function block.draw_static()
 
 		local dest = tile * tile_size
 		dest = rect(dest.x, dest.y, dest.x + tile_size, dest.y + tile_size)
-		video.draw_rect(block.tex, block.layer, dest)
+		video.draw_rect(block.tex, block.layer, dest, block.color)
 	end
 
 	-- ghosts
 	for i,g in ipairs(block.ghosts) do
-		local col = rgba(1, 1, 1, 1 - g.offset)
+		g.color.a = 1 - g.offset
 		local y_off = g.offset
 		for i,s in ipairs(g.shape) do
 			local d = vec2(s.x, s.y + y_off) * tile_size
 			d = rect(d.x, d.y, d.x + tile_size, d.y + tile_size)
-			video.draw_rect(block.tex, block.layer, d, col)
+			video.draw_rect(block.tex, block.layer, d, g.color)
 		end
+		g.color.a = 1
 	end
 end
 
