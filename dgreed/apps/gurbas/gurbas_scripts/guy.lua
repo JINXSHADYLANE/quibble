@@ -16,6 +16,7 @@ guy = {
 
 function guy.init()
 	guy.reset()
+	guy.img = tex.load(pre..'pixel_guy.png')
 	guy.snd_jump = sound.load_sample(pre..'jump.wav')
 	guy.snd_win = sound.load_sample(pre..'victory.wav')
 	guy.snd_death = sound.load_sample(pre..'death.wav')
@@ -25,6 +26,7 @@ function guy.close()
 	sound.free(guy.snd_death)
 	sound.free(guy.snd_win)
 	sound.free(guy.snd_jump)
+	tex.free(guy.img)
 end
 
 function guy.reset()
@@ -136,15 +138,5 @@ function guy.update()
 end
 
 function guy.draw()
-	local pts = {
-		guy.p,
-		guy.p + vec2(guy.size.x, 0),
-		guy.p + guy.size,
-		guy.p + vec2(0, guy.size.y)
-	}
-
-	video.draw_seg(guy.layer, pts[1], pts[2], rgba(1, 1, 1, 1))	
-	video.draw_seg(guy.layer, pts[2], pts[3], rgba(1, 1, 1, 1))	
-	video.draw_seg(guy.layer, pts[3], pts[4], rgba(1, 1, 1, 1))	
-	video.draw_seg(guy.layer, pts[4], pts[1], rgba(1, 1, 1, 1))	
+	video.draw_rect(guy.img, guy.layer, guy.p)
 end

@@ -28,7 +28,7 @@ dofile(src..'game.lua')
 
 function init()
 	sound.init()
-    video.init_exr(screen.r/2, screen.b/2, screen.r, screen.b, 'gurbas', false)
+    video.init_exr(screen.r, screen.b, screen.r, screen.b, 'gurbas', false)
 	
 	music = sound.load_stream(pre..'gurbas.ogg')
 	sound.play(music, true)
