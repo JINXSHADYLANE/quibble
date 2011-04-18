@@ -59,18 +59,18 @@ function well.draw()
 
 	for y = 0,tiles_y-1 do
 		for x = 0,tiles_x-1 do
-			if well.state[widx(x, y)] ~= nil then
+			local col = well.state[widx(x, y)]
+			if col ~= nil then
 				local dest = vec2(x * tile_size, y * tile_size) 
 				dest = rect(dest.x, dest.y, 
 					dest.x + tile_size, dest.y + tile_size)
-				video.draw_rect(well.img_block, well.layer, dest)	
+				video.draw_rect(well.img_block, well.layer, dest, col)	
 			end
 		end
 	end
 end
 
 function well.draw_fadeout(t)
-	local col = rgba(1, 1, 1, 1 - t)
 	for y = 0,tiles_y-1 do
 		local fade = false
 		for i,f in ipairs(well.full_lines) do
@@ -80,14 +80,17 @@ function well.draw_fadeout(t)
 		end
 
 		for x = 0,tiles_x-1 do
-			if well.state[widx(x, y)] ~= nil then
+			local col = well.state[widx(x, y)]
+			if col ~= nil then
 				local dest = vec2(x * tile_size, y * tile_size) 
 				dest = rect(dest.x, dest.y, 
 					dest.x + tile_size, dest.y + tile_size)
 				if fade then
+					col.a = 1 - t
 					video.draw_rect(well.img_block, well.layer, dest, col)
+					col.a = 1
 				else
-					video.draw_rect(well.img_block, well.layer, dest)	
+					video.draw_rect(well.img_block, well.layer, dest, col)	
 				end
 			end
 		end
@@ -129,7 +132,7 @@ function well.put_block(b)
 	for i,part in ipairs(b.parts()) do		
 		if part.x >= 0 and part.x < tiles_x then
 			if part.y >= 0 and part.y < tiles_y then
-				well.state[widx(part.x, part.y)] = true
+				well.state[widx(part.x, part.y)] = b.color 
 			end
 		end
 	end
