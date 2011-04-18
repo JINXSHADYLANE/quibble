@@ -11,12 +11,32 @@ guy = {
 	bbox = nil,
 	dir = false,
 	ground = false,
-	did_win = false
+	did_win = false,
+	fps = 12
 }
+
+guy.animations = {
+	idle = { 
+		frames = { 0, 0, 1, 1, 2, 2, 1, 1 }, 
+		on_finish="loop" 
+	},
+	jump_up = { 
+		frames= { 7, 9, 10, 11, 12 },
+		on_finish="stop"
+	},
+	jump_down = {
+		frames = { 13, 14, 15, 16 },
+		on_finish="stop"
+	},
+	land = {
+		frames = { 17, 19, 21, 23, 24, 25},
+		on_finish="play idle"
+	}
+}	
 
 function guy.init()
 	guy.reset()
-	guy.img = tex.load(pre..'pixel_guy.png')
+	guy.img = tex.load(pre..'spring.png')
 	guy.snd_jump = sound.load_sample(pre..'jump.wav')
 	guy.snd_win = sound.load_sample(pre..'victory.wav')
 	guy.snd_death = sound.load_sample(pre..'death.wav')
@@ -33,17 +53,48 @@ function guy.reset()
 	guy.p =	vec2((screen.r - guy.size.x) / 2, 500) 
 	guy.v = vec2()
 	guy.did_win = false
+	guy.play("idle")
+end
+
+function guy.play(name)
+	if guy.animations[name] ~= nil then
+		guy.animation = guy.animations[name]
+		guy.animation_t = time.ms()
+	end
+end
+
+function guy.frame()
+	local i = 0
+	local delta = time.ms() - guy.animation_t
+	local n_frames = #guy.animation.frames
+	local frame = delta / (1000 / guy.fps)
+	if guy.animation.on_finish == "stop" then
+		i =  math.min(#guy.animation.frames, math.floor(frame) + 1)
+	elseif guy.animation.on_finish == "loop" then
+		frame = frame - math.floor(frame / n_frames) * n_frames 
+		i = math.floor(frame) + 1
+	elseif string.find(guy.animation.on_finish, "play") ~= nil then
+		if frame < #guy.animation.frames then
+			return math.floor(frame) + 1
+		end
+		frame = frame - n_frames 
+		local anim_name = string.sub(guy.animation.on_finish, 6)
+		guy.play(anim_name)
+		guy.animation_t = guy.animation_t - frame * (1000 / guy.fps)
+		return guy.frame()
+	end
+	return guy.animation.frames[i]
 end
 
 function guy.collide_swept(offset)
 	local pts = {}
 	if offset.y > 0 then
-		table.insert(pts, guy.p + vec2(0, guy.size.y))
-		table.insert(pts, guy.p + vec2(guy.size.x, guy.size.y))
+		table.insert(pts, guy.p + vec2(2, guy.size.y))
+		table.insert(pts, guy.p + vec2(guy.size.x - 2, guy.size.y))
 	end
 	if offset.y < 0 then
-		table.insert(pts, vec2(guy.p))
-		table.insert(pts, guy.p + vec2(guy.size.x, 0))
+		table.insert(pts, guy.p + vec2(2, 0))
+		table.insert(pts, guy.p + vec2(guy.size.x - 2, 0))
 	end
 	if offset.x > 0 then
 		table.insert(pts, guy.p + vec2(guy.size.x, 0))
@@ -97,6 +148,7 @@ function guy.update()
 	if key.down(key._up) and guy.ground then
 		guy.ground = false
 		guy.v.y = -guy.jump_acc
+		guy.play("jump_up")
 		sound.play(guy.snd_jump)
 	end
 
@@ -116,6 +168,17 @@ function guy.update()
 
 	if guy.ground then
 		guy.v.x = 0
+		if guy.animation ~= guy.animations.idle then
+			if guy.animation ~= guy.animations.land then
+				guy.play("land")
+			end
+		end
+	end
+
+	if not guy.ground and guy.v.y > 1.5 then
+		if not guy.animation == guy.animations.jump_down then
+			guy.play("jump_down")
+		end
 	end
 
 	-- check block collision with head
@@ -138,5 +201,7 @@ function guy.update()
 end
 
 function guy.draw()
-	video.draw_rect(guy.img, guy.layer, guy.p)
+	local frame = guy.frame() 
+	local src = rect(64 * frame, 0, 64 * (frame+1), 128) 
+	video.draw_rect(guy.img, guy.layer, src, guy.p)
 end
