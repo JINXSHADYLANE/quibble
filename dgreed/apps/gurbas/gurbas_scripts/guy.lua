@@ -17,9 +17,15 @@ guy = {
 function guy.init()
 	guy.reset()
 	guy.img = tex.load(pre..'pixel_guy.png')
+	guy.snd_jump = sound.load_sample(pre..'jump.wav')
+	guy.snd_win = sound.load_sample(pre..'victory.wav')
+	guy.snd_death = sound.load_sample(pre..'death.wav')
 end
 
 function guy.close()
+	sound.free(guy.snd_death)
+	sound.free(guy.snd_win)
+	sound.free(guy.snd_jump)
 	tex.free(guy.img)
 end
 
@@ -91,6 +97,7 @@ function guy.update()
 	if key.down(key._up) and guy.ground then
 		guy.ground = false
 		guy.v.y = -guy.jump_acc
+		sound.play(guy.snd_jump)
 	end
 
 	guy.v.y = guy.v.y + guy.gravity
@@ -116,12 +123,14 @@ function guy.update()
 		guy.p.x + guy.size.x - 2, guy.p.y + guy.size.y / 3)
 	
 	if block.collide_rect(upper_hitbox) then
+		sound.play(guy.snd_death)
 		return true
 	end
 
 	-- check head collision with well top (win condition)
 	if upper_hitbox.t < 0 then
 		guy.did_win = false
+		sound.play(guy.snd_win)
 		return true
 	end
 

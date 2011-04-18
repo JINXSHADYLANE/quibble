@@ -42,11 +42,13 @@ function block.reset(ghost)
 end
 
 function block.init()
-	block.tex = tex.load(pre..'tile.png')	
+	block.tex = tex.load(pre..'tile.png')
+	block.snd_put = sound.load_sample(pre..'block_put.wav')
 	block.reset()
 end
 
 function block.close()
+	sound.free(block.snd_put)
 	tex.free(block.tex)
 end
 
@@ -102,6 +104,7 @@ function block.update()
 			well.put_block(block)
 			block.reset()
 			ai.target = nil
+			sound.play(block.snd_put)
 			return
 		end
 
