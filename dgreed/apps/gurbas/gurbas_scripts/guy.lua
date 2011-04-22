@@ -1,35 +1,35 @@
 guy = {
 	-- tweaks
-	layer = 4,
-	move_acc = 0.7,
-	move_damp = 0.84,
-	jump_acc = 16,
-	gravity = 0.5,
+	layer = 6,
+	move_acc = 0.9,
+	move_damp = 0.86,
+	jump_acc = 22,
+	gravity = 0.9,
 
 	-- state
-	size = vec2(62, 126),
+	size = vec2(60, 160),
 	bbox = nil,
 	dir = false,
 	ground = false,
 	did_win = false,
-	fps = 12
+	fps = 15 
 }
 
 guy.animations = {
 	idle = { 
-		frames = { 0, 0, 1, 1, 2, 2, 1, 1 }, 
+		frames = { 3, 2, 1, 0, 1, 2 }, 
 		on_finish="loop" 
 	},
 	jump_up = { 
-		frames= { 7, 9, 10, 11, 12 },
+		frames= { 4, 5, 6 },
 		on_finish="stop"
 	},
 	jump_down = {
-		frames = { 13, 14, 15, 16 },
+		frames = { 7, 8, 9, 10, 11, 11, 12 },
 		on_finish="stop"
 	},
 	land = {
-		frames = { 17, 19, 21, 23, 24, 25},
+		frames = { 13, 14, 15, 13, 11, 3},
 		on_finish="play idle"
 	}
 }	
@@ -50,6 +50,7 @@ function guy.close()
 end
 
 function guy.reset()
+	guy.on_moving_platform = false 
 	guy.p =	vec2((screen.r - guy.size.x) / 2, 500) 
 	guy.v = vec2()
 	guy.did_win = false
@@ -75,13 +76,14 @@ function guy.frame()
 		i = math.floor(frame) + 1
 	elseif string.find(guy.animation.on_finish, "play") ~= nil then
 		if frame < #guy.animation.frames then
-			return math.floor(frame) + 1
+			i = math.floor(frame) + 1
+		else
+			frame = frame - n_frames 
+			local anim_name = string.sub(guy.animation.on_finish, 6)
+			guy.play(anim_name)
+			guy.animation_t = guy.animation_t - frame * (1000 / guy.fps)
+			return guy.frame()
 		end
-		frame = frame - n_frames 
-		local anim_name = string.sub(guy.animation.on_finish, 6)
-		guy.play(anim_name)
-		guy.animation_t = guy.animation_t - frame * (1000 / guy.fps)
-		return guy.frame()
 	end
 	return guy.animation.frames[i]
 end
@@ -111,6 +113,7 @@ function guy.collide_swept(offset)
 
 	local min_sq_len = length_sq(offset) 
 	local min_ray = offset
+	local on_moving_platform = false 
 
 	for i,p in ipairs(pts) do
 		local wall_ray = well.raycast(p, p + offset)
@@ -119,12 +122,13 @@ function guy.collide_swept(offset)
 		local block_ray = block.raycast(p, p + offset)
 		local block_sq_len = length_sq(block_ray - p)
 
-		local ray = block_ray
-		local sq_len = block_sq_len
+		local ray = wall_ray
+		local sq_len = wall_sq_len
 
-		if wall_sq_len < block_sq_len then
-			ray = wall_ray
-			sq_len = wall_sq_len
+		if block_sq_len < sq_len then
+			ray = block_ray
+			sq_len = block_sq_len
+			on_moving_platform = true
 		end
 
 		if sq_len < min_sq_len then
@@ -133,6 +137,7 @@ function guy.collide_swept(offset)
 		end
 	end
 
+	guy.on_moving_platform = on_moving_platform
 	return min_ray 
 end
 
@@ -173,10 +178,8 @@ function guy.update()
 				guy.play("land")
 			end
 		end
-	end
-
-	if not guy.ground and guy.v.y > 1.5 then
-		if not guy.animation == guy.animations.jump_down then
+	else	
+		if guy.v.y > 0.5 and guy.animation ~= guy.animations.jump_down then
 			guy.play("jump_down")
 		end
 	end
@@ -202,6 +205,6 @@ end
 
 function guy.draw()
 	local frame = guy.frame() 
-	local src = rect(64 * frame, 0, 64 * (frame+1), 128) 
+	local src = rect(64 * frame, 0, 64 * (frame+1), 160) 
 	video.draw_rect(guy.img, guy.layer, src, guy.p)
 end
