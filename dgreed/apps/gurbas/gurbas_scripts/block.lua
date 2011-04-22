@@ -143,8 +143,18 @@ function block.draw()
 			(time.ms() - block.off_t) / block.fall_time)
 
 		local dest = tile * tile_size
-		dest = rect(dest.x, dest.y, dest.x + tile_size, dest.y + tile_size)
+		dest = rect(dest.x, dest.y - 10, dest.x + tile_size, dest.y - 10 + tile_size)
 		video.draw_rect(block.tex, block.layer, dest, block.color)
+
+		-- reflection 
+		local scr_height = screen.b - 10
+		if dest.b > scr_height - 10 then
+			dest.t = scr_height + (scr_height - dest.b)
+			dest.b = dest.t + tile_size
+			block.color.a = 0.5
+			video.draw_rect(block.tex, block.layer, dest, block.color)
+			block.color.a = 1.0
+		end
 	end
 	block.last_t = time.ms()
 
@@ -154,7 +164,7 @@ function block.draw()
 		local y_off = g.offset
 		for i,s in ipairs(g.shape) do
 			local d = vec2(s.x, s.y + y_off) * tile_size
-			d = rect(d.x, d.y, d.x + tile_size, d.y + tile_size)
+			d = rect(d.x, d.y - 10, d.x + tile_size, d.y - 10 + tile_size)
 			video.draw_rect(block.tex, block.layer, d, g.color)
 		end
 		g.color.a = 1
@@ -168,8 +178,19 @@ function block.draw_static()
 			(block.last_t - block.off_t) / block.fall_time)
 
 		local dest = tile * tile_size
-		dest = rect(dest.x, dest.y, dest.x + tile_size, dest.y + tile_size)
+		dest = rect(dest.x, dest.y - 10, dest.x + tile_size, dest.y - 10 + tile_size)
 		video.draw_rect(block.tex, block.layer, dest, block.color)
+
+		-- reflection 
+		local scr_height = screen.b - 10
+		if dest.b > scr_height - 10 then
+			print('draw')
+			dest.t = scr_height + (scr_height - dest.b)
+			dest.b = dest.t + tile_size
+			block.color.a = 0.5
+			video.draw_rect(block.tex, block.layer, dest, block.color)
+			block.color.a = 1.0
+		end
 	end
 
 	-- ghosts
@@ -178,7 +199,7 @@ function block.draw_static()
 		local y_off = g.offset
 		for i,s in ipairs(g.shape) do
 			local d = vec2(s.x, s.y + y_off) * tile_size
-			d = rect(d.x, d.y, d.x + tile_size, d.y + tile_size)
+			d = rect(d.x, d.y - 10, d.x + tile_size, d.y - 10 + tile_size)
 			video.draw_rect(block.tex, block.layer, d, g.color)
 		end
 		g.color.a = 1

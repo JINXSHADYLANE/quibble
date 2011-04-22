@@ -28,7 +28,14 @@ dofile(src..'game.lua')
 
 function init()
 	sound.init()
-    video.init_exr(screen.r, screen.b, screen.r, screen.b, 'gurbas', false)
+	
+	local reduction = 1
+	for i,arg in ipairs(argv) do
+		if arg == '-s' then
+			reduction = 2
+		end
+	end
+    video.init_exr(screen.r / reduction, screen.b / reduction, screen.r, screen.b, 'gurbas', false)
 	
 	music = sound.load_stream(pre..'gurbas.ogg')
 	sound.play(music, true)

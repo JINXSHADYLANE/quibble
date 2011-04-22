@@ -62,9 +62,17 @@ function well.draw()
 			local col = well.state[widx(x, y)]
 			if col ~= nil then
 				local dest = vec2(x * tile_size, y * tile_size) 
-				dest = rect(dest.x, dest.y, 
-					dest.x + tile_size, dest.y + tile_size)
+				dest = rect(dest.x, dest.y - 10, 
+					dest.x + tile_size, dest.y - 10 + tile_size)
 				video.draw_rect(well.img_block, well.layer, dest, col)	
+
+				-- draw reflection
+				if y == tiles_y-1 then 
+					dest.t, dest.b = dest.t + tile_size, dest.b + tile_size
+					col.a = 0.5
+					video.draw_rect(well.img_block, well.layer, dest, col)	
+					col.a = 1.0
+				end
 			end
 		end
 	end
@@ -83,14 +91,23 @@ function well.draw_fadeout(t)
 			local col = well.state[widx(x, y)]
 			if col ~= nil then
 				local dest = vec2(x * tile_size, y * tile_size) 
-				dest = rect(dest.x, dest.y, 
-					dest.x + tile_size, dest.y + tile_size)
+				dest = rect(dest.x, dest.y - 10, 
+					dest.x + tile_size, dest.y + tile_size - 10)
+				local alpha = 1
 				if fade then
-					col.a = 1 - t
-					video.draw_rect(well.img_block, well.layer, dest, col)
-					col.a = 1
-				else
+					alpha = 1 - t
+				end
+				
+				col.a = alpha
+				video.draw_rect(well.img_block, well.layer, dest, col)
+				col.a = 1
+
+				-- draw reflection
+				if y == tiles_y-1 then 
+					dest.t, dest.b = dest.t + tile_size, dest.b + tile_size
+					col.a = alpha * 0.5
 					video.draw_rect(well.img_block, well.layer, dest, col)	
+					col.a = 1.0
 				end
 			end
 		end
