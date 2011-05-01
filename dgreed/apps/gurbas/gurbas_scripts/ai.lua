@@ -106,6 +106,7 @@ function ai.move(b)
 		ai.target = ai.best_move(b)
 	end
 
+	b.offset.y = b.offset.y + 1
 	if rand.int(0, 2) == 0 then
 		if ai.target.offset.x > b.offset.x then
 			b.offset.x = b.offset.x + 1
@@ -131,5 +132,6 @@ function ai.move(b)
 			end
 		end
 	end
+	b.offset.y = b.offset.y - 1
 end
 

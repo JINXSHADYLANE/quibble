@@ -102,6 +102,10 @@ function block.rotate(blk, rotation)
 end
 
 function block.update()
+	if not game.drop_blocks then
+		return false
+	end
+
 	-- check if we can change block position
 	if (time.ms() - block.off_t) / block.fall_time >= 1.0 then
 		block.offset = block.offset + vec2(0, 1)
@@ -137,6 +141,10 @@ function block.update()
 end
 
 function block.draw()
+	if not game.drop_blocks then
+		return false
+	end
+
 	for id, tile in ipairs(block.parts()) do
 		-- count tile position in pixels
 		tile = lerp(tile, tile + vec2(0, 1),
@@ -172,6 +180,10 @@ function block.draw()
 end
 
 function block.draw_static()
+	if not game.drop_blocks then
+		return false
+	end
+
 	for id, tile in ipairs(block.parts()) do
 		-- count tile position in pixels
 		tile = lerp(tile, tile + vec2(0, 1),
@@ -208,6 +220,10 @@ end
 
 
 function block.raycast(s, e)
+	if not game.drop_blocks then
+		return e
+	end
+
 	local min_sq_dist = length_sq(s - e)
 	local min_hitp = e
 
@@ -226,6 +242,10 @@ function block.raycast(s, e)
 end
 
 function block.collide_rect(r)
+	if not game.drop_blocks then
+		return false
+	end
+
 	local parts = block.vis_parts()
 	for i,p in ipairs(parts) do
 		local pos = p * tile_size

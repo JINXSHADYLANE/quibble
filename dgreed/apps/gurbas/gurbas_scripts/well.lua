@@ -160,6 +160,25 @@ function well.put_block(b)
 	end
 end
 
+function well.empty(x, y)
+	if x < 0 or x >= tiles_x or y >= tiles_y then
+		return false 
+	end
+	if well.state[widx(x, y)] ~= nil then
+		return false 
+	end
+	return true
+end
+
+function well.surrounded(x, y)
+	if well.empty(x+1, y) or well.empty(x-1, y) or
+		well.empty(x, y+1) or well.empty(x, y-1) then
+		return false
+	else
+		return true
+	end
+end
+
 -- raycast against all blocks in well
 function well.raycast(s, e)
 	local min_sq_dist = length_sq(s - e) 
@@ -176,16 +195,30 @@ function well.raycast(s, e)
 	end
 
 	for pos,state in pairs(well.state) do
+		local skip = true 
+		local p = inv_widx(pos)
+		local tl = p * tile_size
 		if state ~= nil then
-			local p = inv_widx(pos)
-			local tl = p * tile_size
-			local br = tl + vec2(tile_size, tile_size)
-			local r = rect(tl.x, tl.y, br.x, br.y)
-			local hitp = rect_raycast(r, s, e)
-			local sq_dist = length_sq(hitp - s)
-			if sq_dist < min_sq_dist then
-				min_sq_dist = sq_dist
-				min_hitp = hitp
+			-- skip 'far' away rects
+			if length_sq(s - tl) < 10000 then
+				skip = false 
+			end
+
+			-- skip rects surrounded by other rects
+			if not skip then
+				skip = well.surrounded(p.x, p.y)
+			end
+	
+			if not skip then
+				local p = inv_widx(pos)
+				local br = tl + vec2(tile_size, tile_size)
+				local r = rect(tl.x, tl.y, br.x, br.y)
+				local hitp = rect_raycast(r, s, e)
+				local sq_dist = length_sq(hitp - s)
+				if sq_dist < min_sq_dist then
+					min_sq_dist = sq_dist
+					min_hitp = hitp
+				end
 			end
 		end
 	end
@@ -194,14 +227,22 @@ end
 
 function well.collide_rect(r)
 	for pos,state in pairs(well.state) do
+		local skip = true
+		local p = inv_widx(pos)
+		local tl = p * tile_size
+
 		if state ~= nil then
-			local p = inv_widx(pos)
-			local tl = p * tile_size
-			local br = tl + vec2(tile_size, tile_size)
-			local well_rect = rect(tl.x, tl.y, br.x, br.y)
-			if rect_rect_collision(well_rect, r) then
-				return true
-			end	
+			if length_sq(tl - vec2(r.t, r.l)) < 10000 then
+				skip = false
+			end
+
+			if not skip then
+				local br = tl + vec2(tile_size, tile_size)
+				local well_rect = rect(tl.x, tl.y, br.x, br.y)
+				if rect_rect_collision(well_rect, r) then
+					return true
+				end	
+			end
 		end
 	end
 	return false
