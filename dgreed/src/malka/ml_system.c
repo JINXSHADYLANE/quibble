@@ -199,6 +199,17 @@ static const luaL_Reg font_fun[] = {
 
 static bool video_initialized = false;
 
+static int ml_video_native_resolution(lua_State* l) {
+	checkargs(0, "video.native_resolution");
+
+	uint width, height;
+	video_get_native_resolution(&width, &height);
+
+	lua_pushinteger(l, width);
+	lua_pushinteger(l, height);
+	return 2;
+}
+
 static int ml_video_init(lua_State* l) {
 	checkvideodeinit();
 	checkargs(3, "video.init");
@@ -653,6 +664,7 @@ static int ml_video_draw_text_centered(lua_State* l) {
 }
 
 static const luaL_Reg video_fun[] = {
+	{"native_resolution", ml_video_native_resolution},
 	{"init", ml_video_init},
 	{"init_ex", ml_video_init_ex},
 	{"init_exr", ml_video_init_exr},

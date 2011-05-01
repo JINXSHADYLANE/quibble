@@ -28,12 +28,11 @@ dofile(src..'game.lua')
 
 function init()
 	sound.init()
-	
+
+	local w, h = video.native_resolution()
 	local reduction = 1
-	for i,arg in ipairs(argv) do
-		if arg == '-s' then
-			reduction = 2
-		end
+	if h < 1000 then
+		reduction = 2
 	end
     video.init_exr(screen.r / reduction, screen.b / reduction, screen.r, screen.b, 'gurbas', false)
 	
