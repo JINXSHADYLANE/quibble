@@ -1,14 +1,19 @@
 guy = {
 	-- tweaks
+	draw_hitbox = false,
 	layer = 6,
 	move_acc = 0.9,
 	move_damp = 0.86,
 	jump_acc = 22,
 	gravity = 0.9,
+	heights = { 
+		98, 100, 102, 104, 124, 146, 152, 148, 
+		138, 128, 112, 102, 90, 82, 74, 72 
+	},   
+	height = 160,
 
 	-- state
-	size = vec2(60, 160),
-	bbox = nil,
+	size = vec2(54, 160),
 	dir = false,
 	ground = false,
 	did_win = false,
@@ -70,12 +75,12 @@ function guy.frame()
 	local n_frames = #guy.animation.frames
 	local frame = delta / (1000 / guy.fps)
 	if guy.animation.on_finish == "stop" then
-		i =  math.min(#guy.animation.frames, math.floor(frame) + 1)
+		i =  math.min(n_frames, math.floor(frame) + 1)
 	elseif guy.animation.on_finish == "loop" then
 		frame = frame - math.floor(frame / n_frames) * n_frames 
 		i = math.floor(frame) + 1
 	elseif string.find(guy.animation.on_finish, "play") ~= nil then
-		if frame < #guy.animation.frames then
+		if frame < n_frames then
 			i = math.floor(frame) + 1
 		else
 			frame = frame - n_frames 
@@ -88,27 +93,36 @@ function guy.frame()
 	return guy.animation.frames[i]
 end
 
-function guy.collide_swept(offset)
+function guy.bbox()
+	local dy = guy.size.y - guy.height
+	return rect(guy.p.x+10, guy.p.y + dy, guy.p.x + guy.size.x, guy.p.y + guy.size.y) 
+end
+
+function guy.collide_swept(offset, bbox)
 	local pts = {}
-	if offset.y > 0 then
-		table.insert(pts, guy.p + vec2(2, guy.size.y))
-		table.insert(pts, guy.p + vec2(guy.size.x - 2, guy.size.y))
+	local w = width(bbox)
+	local h = height(bbox)
+	local dy = math.ceil(w / tile_size)
+	local dx = math.ceil(h / tile_size)
+
+	if offset.y ~= 0 then
+		local y = bbox.b
+		if offset.y < 0 then
+			y = bbox.t
+		end
+		for i=0,dy do
+			table.insert(pts, vec2(lerp(bbox.l, bbox.r, i/dy), y))
+		end
 	end
-	if offset.y < 0 then
-		table.insert(pts, guy.p + vec2(2, 0))
-		table.insert(pts, guy.p + vec2(guy.size.x - 2, 0))
-	end
-	if offset.x > 0 then
-		table.insert(pts, guy.p + vec2(guy.size.x, 0))
-		table.insert(pts, guy.p + vec2(guy.size.x, guy.size.y/3))
-		table.insert(pts, guy.p + vec2(guy.size.x, 2*(guy.size.y/3)))
-		table.insert(pts, guy.p + vec2(guy.size.x, guy.size.y))
-	end
-	if offset.x < 0 then
-		table.insert(pts, vec2(guy.p))
-		table.insert(pts, guy.p + vec2(0, guy.size.y/3))
-		table.insert(pts, guy.p + vec2(0, 2*(guy.size.y/3)))
-		table.insert(pts, guy.p + vec2(0, guy.size.y))
+
+	if offset.x ~= 0 then
+		local x = bbox.r
+		if offset.x < 0 then
+			x = bbox.l
+		end
+		for i=0,dx do
+			table.insert(pts, vec2(x, lerp(bbox.t, bbox.b, i/dx)))
+		end
 	end
 
 	local min_sq_len = length_sq(offset) 
@@ -160,11 +174,14 @@ function guy.update()
 	guy.v.y = guy.v.y + guy.gravity
 	guy.v.x = guy.v.x * guy.move_damp
 
-	dx = guy.collide_swept(vec2(guy.v.x, 0))
+	local bbox = guy.bbox()
+	guy._bbox = bbox
+
+	dx = guy.collide_swept(vec2(guy.v.x, 0), bbox)
 	guy.p = guy.p + dx
 	guy.v.x = dx.x
 
-	dy = guy.collide_swept(vec2(0, guy.v.y))
+	dy = guy.collide_swept(vec2(0, guy.v.y), bbox)
 	if guy.v.y > 0 then
 		guy.ground = dy.y == 0	
 	end
@@ -185,8 +202,10 @@ function guy.update()
 	end
 
 	-- check block collision with head
-	local upper_hitbox = rect(guy.p.x+2, guy.p.y+1, 
-		guy.p.x + guy.size.x - 2, guy.p.y + guy.size.y / 3)
+	local upper_hitbox = rect(
+		bbox.l+2, bbox.t, 
+		bbox.r-2, bbox.t + height(bbox)/3
+	)
 	
 	if block.collide_rect(upper_hitbox) then
 		sound.play(guy.snd_death)
@@ -205,6 +224,21 @@ end
 
 function guy.draw()
 	local frame = guy.frame() 
+	guy.height = guy.heights[frame+1]
 	local src = rect(64 * frame, 0, 64 * (frame+1), 160) 
 	video.draw_rect(guy.img, guy.layer, src, guy.p)
+
+	if guy.draw_hitbox then
+		local pts = {
+			vec2(guy._bbox.l, guy._bbox.t),
+			vec2(guy._bbox.r, guy._bbox.t),
+			vec2(guy._bbox.r, guy._bbox.b),
+			vec2(guy._bbox.l, guy._bbox.b)
+		}
+
+		video.draw_seg(guy.layer, pts[1], pts[2]) 
+		video.draw_seg(guy.layer, pts[2], pts[3]) 
+		video.draw_seg(guy.layer, pts[3], pts[4]) 
+		video.draw_seg(guy.layer, pts[4], pts[1]) 
+	end
 end
