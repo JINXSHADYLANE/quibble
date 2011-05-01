@@ -11,6 +11,7 @@ game = {
 	win_screen_len = 4200,
 	start_t = nil,
 	time_str = '',
+	drop_blocks = true,
 
 	-- imgs
 	img_empty = nil,
@@ -54,33 +55,39 @@ function game.lose_frame()
 		guy.reset()
 		block.reset()
 		game.start_t = time.ms()
+		game.drop_blocks = true
 	end
 	
 	well.draw()
 	block.draw_static()
 	guy.draw()
 
-	local col = rgba(1, 1, 1, t)
+	local col = rgba(0, 0.04, 0.01, t)
 	video.draw_rect(game.img_empty, 10, screen, col)
 end
 
 function game.win_frame()
 	local t = (time.ms() - game.win_screen_t) / game.win_screen_len
 	if t >= 1 then
-		game.win_screen_t = nil
-		well.reset()
-		guy.reset()
-		block.reset()
-		bullet.reset()
-		game.start_t = time.ms()
+		t = 1	
+
+		if key.pressed(key._left) or key.pressed(key._right) then
+			game.win_screen_t = nil
+			well.reset()
+			guy.reset()
+			block.reset()
+			bullet.reset()
+			game.start_t = time.ms()
+			game.drop_blocks = true
+		end
 	end
 	
 	well.draw()
 	block.draw_static()
 	guy.draw()
 
-	local col = rgba(1, 1, 1, t)
-	video.draw_rect(game.img_empty, 10, screen, col)
+	local col = rgba(0.75, 0.8, 0.91, t/4)
+	video.draw_rect(game.img_empty, 5, screen, col)
 end
 
 function game.time()
@@ -130,7 +137,7 @@ function game.frame()
 	if not well.animates() then
 		block.update()
 		if well.did_lose() then
-			game.lose_screen_t = time.ms()
+			game.drop_blocks = false
 		end
 
 		if guy.update() then
@@ -147,7 +154,6 @@ function game.frame()
 
 		bullet.draw()
 		block.draw()
-
 	else
 		block.draw_static()
 	end

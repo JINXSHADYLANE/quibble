@@ -40,7 +40,8 @@ function bullet.spawn()
 	end
 
 	local new_bullet = {
-		pos = vec2(guy.p.x + guy.size.x/2, guy.p.y)
+		pos = vec2(guy.p.x + guy.size.x/2, guy.p.y + 60),
+		birth_t = time.ms()
 	}
 
 	sound.play(bullet.snd_shot)
@@ -81,10 +82,13 @@ function bullet.update()
 end
 
 function bullet.draw()
+	local color_start = rgba(1, 1, 1, 0)
+	local color_end = rgba(1, 1, 1, 1)
 	for i,b in ipairs(bullet.list) do
+		local t = math.min(1, (time.ms() - b.birth_t) / 100)
+		local col = lerp(color_start, color_end, t)
 		local r = bullet.rect(b.pos)
-
-		video.draw_rect(bullet.img, bullet.layer, rect(0, 0, 24, 24), r)
+		video.draw_rect(bullet.img, bullet.layer, rect(0, 0, 24, 24), r, col)
 	end
 end
 

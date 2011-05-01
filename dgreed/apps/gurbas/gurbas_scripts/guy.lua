@@ -175,11 +175,6 @@ function guy.update()
 	guy.v.x = guy.v.x * guy.move_damp
 
 	local bbox = guy.bbox()
-	guy._bbox = bbox
-
-	dx = guy.collide_swept(vec2(guy.v.x, 0), bbox)
-	guy.p = guy.p + dx
-	guy.v.x = dx.x
 
 	dy = guy.collide_swept(vec2(0, guy.v.y), bbox)
 	if guy.v.y > 0 then
@@ -187,6 +182,14 @@ function guy.update()
 	end
 	guy.p = guy.p + dy
 	guy.v.y = dy.y
+
+	bbox = guy.bbox()
+
+	dx = guy.collide_swept(vec2(guy.v.x, 0), bbox)
+	guy.p = guy.p + dx
+	guy.v.x = dx.x
+
+	guy._bbox = bbox
 
 	if guy.ground then
 		guy.v.x = 0
@@ -214,7 +217,7 @@ function guy.update()
 
 	-- check head collision with well top (win condition)
 	if upper_hitbox.t < 0 then
-		guy.did_win = false
+		guy.did_win = true 
 		sound.play(guy.snd_win)
 		return true
 	end
