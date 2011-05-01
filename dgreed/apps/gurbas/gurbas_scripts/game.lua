@@ -30,6 +30,7 @@ function game.init()
 	game.img_empty = tex.load(pre..'dark.png')
 	game.img_back = tex.load(pre..'back.png')
 	game.font = font.load(pre..'nova_333px.bft')
+	game.snd_win = sound.load_sample(pre..'victory.wav')
 
 	game.start_t = time.ms()
 end
@@ -45,6 +46,7 @@ function game.close()
 	tex.free(game.img_empty)
 	tex.free(game.img_back)
 	font.free(game.font)
+	sound.free(game.snd_win)
 end
 
 function game.lose_frame()
@@ -79,6 +81,8 @@ function game.win_frame()
 			bullet.reset()
 			game.start_t = time.ms()
 			game.drop_blocks = true
+			game.snd_win_played = false
+			sound.set_volume(music, 1.0)
 		end
 	end
 	
@@ -114,6 +118,26 @@ function game.draw_title()
 	end
 end
 
+function game.music_fadeout()
+	local volume = sound.volume(music)
+	if volume < 0.15 then
+		return false
+	end
+
+	sound.set_volume(music, volume * 0.95)
+	return true
+end
+
+function game.win_sound()
+	if game.snd_win_played or game.music_fadeout() then
+		return
+	end
+
+	sound.play(game.snd_win)
+	game.snd_win_played = true
+
+end
+
 -- called repeatedly from game loop
 function game.frame()
 	video.draw_text(game.font, 1, game.time_str, vec2(-50, 100), 
@@ -129,6 +153,7 @@ function game.frame()
 
 	if game.win_screen_t ~= nil then
 		game.win_frame()
+		game.win_sound()
 		return
 	end
 
