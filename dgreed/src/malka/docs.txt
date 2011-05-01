@@ -210,6 +210,9 @@ releases font
 video
 -----
 
+- video.native_resolution()
+returns width and height pair of native (desktop) screen resolution
+
 - video.init(width, height, name)
 opens a window of specified size for rendering
 

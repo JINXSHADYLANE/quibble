@@ -51,19 +51,22 @@ typedef struct {
 
 bool draw_gfx_debug = false;
 
-TexturedRectDesc rect_buckets[BUCKET_COUNT][RECT_BUCKET_SIZE];
-uint rect_buckets_sizes[BUCKET_COUNT] = {0};
+static TexturedRectDesc rect_buckets[BUCKET_COUNT][RECT_BUCKET_SIZE];
+static uint rect_buckets_sizes[BUCKET_COUNT] = {0};
 
-LineDesc line_buckets[BUCKET_COUNT][LINE_BUCKET_SIZE];
-uint line_buckets_sizes[BUCKET_COUNT] = {0};
+static LineDesc line_buckets[BUCKET_COUNT][LINE_BUCKET_SIZE];
+static uint line_buckets_sizes[BUCKET_COUNT] = {0};
 
-Texture textures[MAX_TEXTURES];
-uint texture_count;
+static Texture textures[MAX_TEXTURES];
+static uint texture_count;
 
-uint frame;
+static uint frame;
 
-float x_size_factor, y_size_factor;
+static float x_size_factor, y_size_factor;
 static bool retro = false;
+
+static bool sdl_initialized = false;
+static uint native_width, native_height;
 
 #ifndef NO_DEVMODE
 VideoStats v_stats;
@@ -121,6 +124,27 @@ void _sort_rect_bucket(uint bucket) {
 		rect_buckets_sizes[bucket], 3);
 }	
 
+static void _init_sdl(void) {
+	if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO) < 0)
+		LOG_ERROR("Unable to initialize SDL");
+
+	const SDL_VideoInfo* info = SDL_GetVideoInfo();
+	native_width = info->current_w;
+	native_height = info->current_h;
+
+	assert(!sdl_initialized);
+	sdl_initialized = true;
+}
+
+void video_get_native_resolution(uint* width, uint* height) {
+	assert(width && height);
+
+	if(!sdl_initialized)
+		_init_sdl();
+	
+	*width = native_width;
+	*height = native_height;
+}
 
 void video_init(uint width, uint height, const char* name) {
 	video_init_ex(width, height, width, height, name, false);
@@ -133,8 +157,9 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 	assert(v_width != 0);
 	assert(v_height != 0);
 
-	if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO) < 0)
-		LOG_ERROR("Unable to initialize SDL");
+	if(!sdl_initialized)
+		_init_sdl();
+
 	SDL_WM_SetCaption(name, NULL);	
 
 	uint flags = SDL_OPENGL | SDL_DOUBLEBUF;

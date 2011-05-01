@@ -32,6 +32,9 @@ typedef struct {
 const VideoStats* video_stats(void);
 #endif
 
+// Returns native screen resolution, video does not need 
+// to be initialized for this
+void video_get_native_resolution(uint* width, uint* height);
 // Initializes video
 void video_init(uint width, uint height, const char* name); 
 // Initializes video, sets virtual resolution
