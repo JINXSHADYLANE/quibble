@@ -37,6 +37,7 @@ function init()
     video.init_exr(screen.r / reduction, screen.b / reduction, screen.r, screen.b, 'gurbas', false)
 	
 	music = sound.load_stream(pre..'gurbas.ogg')
+	sound.set_volume(music, 0.5)
 	sound.play(music, true)
 
     game.init()
