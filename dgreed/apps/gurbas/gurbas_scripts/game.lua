@@ -154,14 +154,6 @@ function game.frame()
 
 	game.draw_title()
 
-	if game.ai_lose_t ~= nil then
-		if time.ms() - game.ai_lose_t > 6000 then
-			print('opa')
-			game.lose_screen_t = time.ms()
-			game.ai_lose_t = nil
-		end
-	end
-
 	if game.lose_screen_t ~= nil then
 		game.lose_frame()
 		return
@@ -171,6 +163,13 @@ function game.frame()
 		game.win_frame()
 		game.win_sound()
 		return
+	end
+
+	if game.ai_lose_t ~= nil then
+		if time.ms() - game.ai_lose_t > 6000 then
+			game.lose_screen_t = time.ms()
+			game.ai_lose_t = nil
+		end
 	end
 
 	well.draw()
