@@ -83,7 +83,6 @@ function game.win_frame()
 			game.start_t = time.ms()
 			game.drop_blocks = true
 			game.snd_win_played = false
-			sound.set_volume(music, 0.5)
 		end
 		t = 1	
 	end
@@ -118,6 +117,20 @@ function game.draw_title()
 		col.a = math.sin(math.pi*t)
 		video.draw_text(game.font, 1, "gurbas", p, col)
 	end
+end
+
+function game.music_fadein()
+	if game.snd_win_played then
+		return false
+	end
+
+	local volume = sound.volume(music)
+	if volume >= 0.65 then
+		return false
+	end
+
+	sound.set_volume(music, volume * 1.05)
+	return true
 end
 
 function game.music_fadeout()
@@ -160,8 +173,8 @@ function game.frame()
 	end
 
 	if game.win_screen_t ~= nil then
-		game.win_frame()
 		game.win_sound()
+		game.win_frame()
 		return
 	end
 
@@ -169,8 +182,11 @@ function game.frame()
 		if time.ms() - game.ai_lose_t > 6000 then
 			game.lose_screen_t = time.ms()
 			game.ai_lose_t = nil
+			sound.play(guy.snd_death)
 		end
 	end
+
+	game.music_fadein()
 
 	well.draw()
 
