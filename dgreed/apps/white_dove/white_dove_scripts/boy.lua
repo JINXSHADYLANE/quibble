@@ -43,8 +43,10 @@ boy = {
 }
 
 function boy.set_col_rect()
-	boy.col_rect = rect(boy.pos.x - 3, boy.pos.y + 197, boy.pos.x + boy.w + 3,
-		boy.pos.y + boy.h + 3)
+	--[[boy.col_rect = rect(boy.pos.x - 3, boy.pos.y + 197, boy.pos.x + boy.w + 3,
+		boy.pos.y + boy.h + 3)]]
+		boy.col_rect = rect(boy.pos.x, boy.pos.y + 240, boy.pos.x + boy.w,
+		boy.pos.y + boy.h)
 end
 
 function boy.init()
@@ -57,11 +59,10 @@ function boy.init()
 end
 
 function boy.draw()
-	video.draw_rect(atlas, 1, boy.src[boy.active_src.x][boy.active_src.y], 
-		boy.pos, 0)
+	video.draw_rect(atlas, 1, boy.src[boy.active_src.x][boy.active_src.y], boy.pos, 0)
 end
 
-function boy.collide()
+--[[function boy.collide()
 	local boy_pos = rect(boy.pos.x, boy.pos.y, boy.pos.x+boy.w, boy.pos.y+boy.h)
 
 	-- collisions with screen bounds
@@ -81,6 +82,13 @@ function boy.collide()
 
 	return false
 	-- ToDo: add collisions to things
+end]]
+
+function boy.collide()
+	if arena.chars_collide() then 
+		return true
+	end
+	return tilemap.collide(arena[active_arena].tilemp, boy.col_rect)
 end
 
 function boy.update_pos()

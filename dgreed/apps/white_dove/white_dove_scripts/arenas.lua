@@ -1,11 +1,26 @@
 -- arenas manager
 
+arenas_count = 9
+
 empty = 0
 room = 1
 fountain = 2
 corner = 3
 ocean = 4
-active_arena = corner
+ocean2 = 5
+potter_place = 6
+door_to_b = 7
+old_street = 8
+cross = 9
+kitchen = 10
+backyard = 11
+park = 12
+pond = 13
+street = 14
+forest = 15
+portal = 16
+
+active_arena = room
 
 fade_state = {
 	fadein = 1,
@@ -35,7 +50,7 @@ arena = {
 			pos = vec2()
 		},
 
-		items = {
+		--[[items = {
 			[0] = rect(0, 0, 880, 400),
 			[1] = rect(740, 415, 1024, 465),
 			[2] = rect(947, 475, 1024, 666), 
@@ -43,9 +58,10 @@ arena = {
 			[4] = rect(385, 425, 550, 583),
 			[5] = rect(200, 425, 350, 590),
 			[6] = rect(100, 445, 200, 540)
-		},
+		},]]
 		
 		img = nil,
+		tilemp = nil,
 		char = 0 --barrel
 	},
 
@@ -63,11 +79,11 @@ arena = {
 			pos = vec2()
 		},
 		right = {
-			id = empty,
-			pos = vec2()
+			id = old_street,
+			pos = vec2(screen.r/3, screen.b - boy.h - 20)
 		},
 
-		items = {
+		--[[items = {
 			[0] = rect(670, 270, 1024, 410),
 			[1] = rect(480, 220, 650, 310),
 			[2] = rect(170, 190, 470, 220),
@@ -78,9 +94,10 @@ arena = {
 			[7] = rect(0, 495, 50, 768),
 			[8] = rect(364, 532, 554, 600),
 			[9] = rect(400, 470, 510, 550)
-		},
+		},]]
 
 		img = nil,
+		tilemp = nil,
 		char = girl
 
 	},
@@ -100,10 +117,10 @@ arena = {
 		},
 		right = {
 			id = ocean,
-			pos = vec2(20, screen.b/2 - boy.h/2)
+			pos = vec2(0, screen.b - boy.h - 10)
 		},
 		
-		items = {
+		--[[items = {
 			[0] = rect(822, 405, 1024, 492),
 			[1] = rect(930, 500, 970, 560),
 			[2] = rect(280, 250, 1024, 360),
@@ -113,20 +130,49 @@ arena = {
 			[6] = rect(0, 380, 200, 415),
 			[7] = rect(0, 420, 150, 450),
 			[8] = rect(0, 450, 60, 500)
-		},
+		},]]
 		img = nil,
+		tilemp = nil,
 		char = math
 
 	},
 
-	[4] = {
+	[4] = {  --ocean
 		top = {
 			id = empty,
 			pos = vec2()
 		},
 		left = {
 			id = corner,
-			pos = vec2(screen.r - boy.w - 20, screen.b/2 + boy.h/3 - 30)
+			pos = vec2(screen.r - boy.w - 20, screen.b - boy.h - 10)
+		},
+		bottom = {
+			id = empty,
+			pos = vec2()
+		},
+		right = {
+			id = ocean2,
+			pos = vec2(0, screen.b - boy.h - 10)  -- coords not yet set
+		}, 
+
+		--[[items = {
+			[0] = rect(0, 225, 660, 390),
+			[1] = rect(670, 220, 910, 330),
+			[2] = rect(900, 210, 1024, 300)
+		},]]
+		img = nil,
+		tilemp = nil,
+		char = mage
+	},
+	
+	[5] = {  --ocean2
+		top = {
+			id = empty,
+			pos = vec2()
+		},
+		left = {
+			id = ocean,
+			pos = vec2(screen.r - boy.w - 20, screen.b - boy.h - 20) 
 		},
 		bottom = {
 			id = empty,
@@ -137,27 +183,131 @@ arena = {
 			pos = vec2()
 		}, 
 
-		items = {
+		--[[items = {
 			[0] = rect(0, 225, 660, 390),
-			[1] = rect(670, 220, 910, 330),
-			[2] = rect(900, 210, 1024, 300)
-		},
+		},]]
 		img = nil,
-		char = mage
-
+		tilemp = nil,
+		char = 0
 	},
+	
+	[6] = {
+		top = {
+			id = empty,
+			pos = vec2()
+		},
+		left = {
+			id = cross,
+			pos = vec2(screen.l + boy.w, screen.b + boy.h/3 - 30)
+		},
+		bottom = {
+			id = empty,
+			pos = vec2()
+		},
+		right = {
+			id = empty,
+			pos = vec2()
+		}, 
 
+		--[[items = {
+			[0] = rect(0, 225, 660, 390),
+		},]]
+		img = nil,
+		tilemp = nil,
+		char = 0
+	},	
+	
+	[7] = {
+		top = {
+			id = backyard,
+			pos = vec2(screen.r/3, screen.b + boy.h/3 - 30)
+		},
+		left = {
+			id = cross,
+			pos = vec2(screen.l + boy.w, screen.b + boy.h/3 - 30)
+		},
+		bottom = {
+			id = empty,
+			pos = vec2()
+		},
+		right = {
+			id = door_to_b,
+			pos = vec2()
+		}, 
+
+		--[[items = {
+			[0] = rect(0, 225, 660, 390),
+		},]]
+		img = nil,
+		tilemp = nil,
+		char = 0
+	},
+	
+	[8] = {  -- old_street
+		top = {
+			id = empty,
+			pos = vec2()
+		},
+		left = {
+			id = empty,
+			pos = vec2()
+		},
+		bottom = {
+			id = fountain,
+			pos = vec2(screen.r - boy.w, screen.b - boy.h - 50)
+		},
+		right = {
+			id = cross,
+			pos = vec2(0, screen.b - boy.h - 20)
+		}, 
+
+		--[[items = {
+			[0] = rect(0, 1, 1, 2),
+		},]]
+		img = nil,
+		tilemp = nil,
+		char = 0
+	},
+	
+	[9] = {  --cross
+		top = {
+			id = empty,
+			pos = vec2()
+		},
+		left = {
+			id = old_street,
+			pos = vec2(screen.r - boy.w,  screen.b - boy.h - 20)
+		},
+		bottom = {
+			id = empty,
+			pos = vec2()
+		},
+		right = {
+			id = empty,
+			pos = vec2()
+		}, 
+
+		--[[items = {
+			[0] = rect(0, 1, 1, 2),
+		},]]
+		img = nil,
+		tilemp = nil,
+		char = 0
+	},
+	
+	
 	color = rgba(1, 1, 1, 0),
 	state = fade_state.other,
 	switch_dir = direction.other
 }
 
 function arena.init()
-	arena[1].img = tex.load(media.."room.png")
-	arena[2].img = tex.load(media.."fountain.png")
-	arena[3].img = tex.load(media.."corner.png")
-	arena[4].img = tex.load(media.."ocean.png")
-
+	local i
+	for i = 1, arenas_count do
+		arena[i].img = tex.load(media..i..".png")
+		arena[i].tilemp = tilemap.load(media..i..".btm")
+		tilemap.set_camera(arena[i].tilemp, vec2(screen.r/2, screen.b/2))
+	end
 	boy.init()
 	chars.init()
 
@@ -166,11 +316,11 @@ end
 
 function arena.close()
 	chars.close()
-
-	tex.free(arena[4].img)
-	tex.free(arena[3].img)
-	tex.free(arena[2].img)
-	tex.free(arena[1].img)
+	local i
+	for i = 1, arenas_count do
+		tex.free(arena[i].img)
+		tilemap.free(arena[i].tilemp)
+	end
 end
 
 function arena.draw()
