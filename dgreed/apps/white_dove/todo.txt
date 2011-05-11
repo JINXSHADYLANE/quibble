@@ -1,0 +1,12 @@
+Created: 2011-02-06
+Last updated: 2011-02-06
+
+01: Kolizijos su daiktais
+02: Tekstai
+	- Eiluciu perkelimas
+	- Kai pilnas langas, pastumti
+03: Istorija
+	- Zemelapiai, pasaulis
+	- Istorija
+	- Veikeju dialogai
+
