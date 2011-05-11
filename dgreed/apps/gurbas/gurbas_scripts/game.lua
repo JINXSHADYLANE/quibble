@@ -8,7 +8,8 @@ game = {
 	lose_screen_t = nil,
 	lose_screen_len = 2000,
 	win_screen_t = nil,
-	win_screen_len = 4200,
+	win_screen_len = 2500,
+	ai_lose_t = nil,
 	start_t = nil,
 	time_str = '',
 	drop_blocks = true,
@@ -30,6 +31,7 @@ function game.init()
 	game.img_empty = tex.load(pre..'dark.png')
 	game.img_back = tex.load(pre..'back.png')
 	game.font = font.load(pre..'nova_333px.bft')
+	game.snd_win = sound.load_sample(pre..'victory.wav')
 
 	game.start_t = time.ms()
 end
@@ -45,12 +47,14 @@ function game.close()
 	tex.free(game.img_empty)
 	tex.free(game.img_back)
 	font.free(game.font)
+	sound.free(game.snd_win)
 end
 
 function game.lose_frame()
 	local t = (time.ms() - game.lose_screen_t) / game.lose_screen_len
 	if t >= 1 then
 		game.lose_screen_t = nil
+		game.ai_lose_t = nil
 		well.reset()
 		guy.reset()
 		block.reset()
@@ -69,24 +73,25 @@ end
 function game.win_frame()
 	local t = (time.ms() - game.win_screen_t) / game.win_screen_len
 	if t >= 1 then
-		t = 1	
-
-		if key.pressed(key._left) or key.pressed(key._right) then
+		if t >= 2 or key.pressed(key._left) or key.pressed(key._right) then
 			game.win_screen_t = nil
+			game.ai_lose_t = nil
 			well.reset()
 			guy.reset()
 			block.reset()
 			bullet.reset()
 			game.start_t = time.ms()
 			game.drop_blocks = true
+			game.snd_win_played = false
 		end
+		t = 1	
 	end
 	
 	well.draw()
 	block.draw_static()
 	guy.draw()
 
-	local col = rgba(0.75, 0.8, 0.91, t/4)
+	local col = rgba(0.75, 0.8, 0.91, t)
 	video.draw_rect(game.img_empty, 5, screen, col)
 end
 
@@ -114,10 +119,50 @@ function game.draw_title()
 	end
 end
 
+function game.music_fadein()
+	if game.snd_win_played then
+		return false
+	end
+
+	local volume = sound.volume(music)
+	if volume >= 0.65 then
+		return false
+	end
+
+	sound.set_volume(music, volume * 1.05)
+	return true
+end
+
+function game.music_fadeout()
+	local volume = sound.volume(music)
+	if volume < 0.15 then
+		return false
+	end
+
+	sound.set_volume(music, volume * 0.95)
+	return true
+end
+
+function game.win_sound()
+	if game.snd_win_played or game.music_fadeout() then
+		return
+	end
+
+	sound.play(game.snd_win)
+	game.snd_win_played = true
+
+end
+
 -- called repeatedly from game loop
 function game.frame()
-	video.draw_text(game.font, 1, game.time_str, vec2(-50, 100), 
-		rgba(0.1, 0.1, 0.1, 0.9))
+	local text_size = 1
+	if not game.drop_blocks then
+		text_size = 1 + math.fmod(time.s(), 2) / 8
+	end
+	local text_w, text_h = font.size(game.font, game.time_str)
+	local text_pos = vec2(-50 + text_w/2, 100 + text_h/2)
+	video.draw_text_centered(game.font, 1, game.time_str, 
+		text_pos, text_size, rgba(0, 0, 0, 0.3))
 	video.draw_rect(game.img_back, 0, vec2(0, 0))
 
 	game.draw_title()
@@ -128,9 +173,20 @@ function game.frame()
 	end
 
 	if game.win_screen_t ~= nil then
+		game.win_sound()
 		game.win_frame()
 		return
 	end
+
+	if game.ai_lose_t ~= nil then
+		if time.ms() - game.ai_lose_t > 6000 then
+			game.lose_screen_t = time.ms()
+			game.ai_lose_t = nil
+			sound.play(guy.snd_death)
+		end
+	end
+
+	game.music_fadein()
 
 	well.draw()
 
@@ -138,6 +194,9 @@ function game.frame()
 		block.update()
 		if well.did_lose() then
 			game.drop_blocks = false
+			if game.ai_lose_t == nil then
+				game.ai_lose_t = time.ms()
+			end
 		end
 
 		if guy.update() then
