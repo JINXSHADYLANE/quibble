@@ -43,13 +43,11 @@ function guy.init()
 	guy.reset()
 	guy.img = tex.load(pre..'spring.png')
 	guy.snd_jump = sound.load_sample(pre..'jump.wav')
-	guy.snd_win = sound.load_sample(pre..'victory.wav')
 	guy.snd_death = sound.load_sample(pre..'death.wav')
 end
 
 function guy.close()
 	sound.free(guy.snd_death)
-	sound.free(guy.snd_win)
 	sound.free(guy.snd_jump)
 	tex.free(guy.img)
 end
@@ -217,11 +215,10 @@ function guy.update()
 
 	-- check head collision with well top (win condition)
 	if upper_hitbox.t < 0 then
-		guy.did_win = true 
-		sound.play(guy.snd_win)
+		guy.did_win = true
 		return true
 	end
-
+	
 	return false
 end
 
