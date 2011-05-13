@@ -4,7 +4,7 @@
 #include <utils.h>
 
 typedef enum {
-	MUSIC,
+	MUSIC = 0,
 	SHOT,
 	COLLISION_BULLET_WALL,
 	COLLISION_BULLET_SHIP,
@@ -22,6 +22,8 @@ void sounds_init();
 void sounds_close();
 void sounds_event(SoundEventType type);
 void sounds_event_ex(SoundEventType type, uint arg);
+void sounds_set_effect_volume(float volume);
+void sounds_set_music_volume(float volume);
 
 #endif
 

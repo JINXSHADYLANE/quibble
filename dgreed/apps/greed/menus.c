@@ -10,6 +10,7 @@
 #include "ai.h"
 #include "controls.h"
 #include "state.h"
+#include "sounds.h"
 
 MenuState menu_state;
 MenuState menu_transition;
@@ -227,7 +228,8 @@ void _render_settings(float t) {
 	_menu_text(&dest, "SFX volume:", &center, t, false, true);
 	dest.x += 80.0f;
 	if(t == 0.0f) {
-		gui_slider(&dest);	
+		float volume = gui_slider(&dest);	
+		sounds_set_effect_volume(volume);
 	}	
 	else {
 		float state = gui_getstate_slider(&dest);
@@ -241,7 +243,8 @@ void _render_settings(float t) {
 	_menu_text(&dest, "Music volume:", &center, t, false, true);
 	dest.x += 80.0f;
 	if(t == 0.0f) {
-		gui_slider(&dest);
+		float volume = gui_slider(&dest);
+		sounds_set_music_volume(volume);
 	}
 	else {
 		float state = gui_getstate_slider(&dest);
