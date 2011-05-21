@@ -335,6 +335,7 @@ function arena.draw()
 	end
 end
 
+-- Arena change is made here
 function arena.make_active(dir)
 	if dir == direction.down then
 		local arena_temp = arena[active_arena].bottom
@@ -367,6 +368,7 @@ function arena.make_active(dir)
 	end
 end
 
+-- Check boy collisions with other characters
 function arena.chars_active()
 	if arena[active_arena].char ~= 0 then
 		local char_rect = rect(chars[arena[active_arena].char].pos)
@@ -378,6 +380,7 @@ function arena.chars_active()
 	return false
 end
 
+-- Check if boy is near other characters
 function arena.chars_collide()
 	if arena[active_arena].char ~= 0 then
 		local char_rect = rect(chars[arena[active_arena].char].pos)
@@ -393,6 +396,7 @@ function arena.chars_collide()
 	return false
 end
 
+-- Select other (neighbour) arena
 function arena.get_neighbour(dir)
 	if dir == direction.left then
 		return arena[active_arena].left.id
@@ -431,7 +435,7 @@ function arena.switch()
 end
 
 function arena.screen_update()
-	-- check if character is near border and x is pressed
+	-- check if boy is going to the other arena
 	if (boy.pos.y + boy.h + 5 >= screen.b) and key.down(key.b) then
 			arena.switch_dir = direction.down
 			arena.state = fade_state.fadeout
@@ -446,6 +450,7 @@ function arena.screen_update()
 		arena.state = fade_state.fadeout
 	end
 
+	-- check if boy is going home
 	local door = rect(40, 440, 130, 645)
 	if active_arena == fountain and rect_rect_collision(boy.col_rect, door)
 		and key.down(key.b) then
@@ -453,6 +458,17 @@ function arena.screen_update()
 		arena.state = fade_state.fadeout
 	end
 
+
+	-- show 'x' icon
+	if arena.chars_active() or items_collide() then
+		if key.down(key.b) then 
+			have_book = true 
+			return
+		end
+		
+		local icon_pos = vec2(boy.pos.x, boy.pos.y - 100)
+		video.draw_rect(active_icon_tex, 5, icon_pos)
+	end
 end
 
 function arena.update()
