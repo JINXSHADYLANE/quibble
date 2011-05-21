@@ -16,6 +16,12 @@ action = {
 	dialog = 3
 }
 
+main_action = {
+	menu = 1,
+	pause_menu = 2,
+	game = 3
+}
+
 fade_speed = 0.04
 fade_state = {
 	fadein = 1,
@@ -24,12 +30,15 @@ fade_state = {
 	other = 0
 }
 
+text_id = 1
+text_part = 1
+
 function items_collide()
 	book_shelf = rect(930, 310, 1024, 768)
 
 	if rect_rect_collision(book_shelf, boy.col_rect) and
 		active_arena == room and not have_book then
-		dialog_text = {"You have found an old book..."}
+		dialog_text = {{"", "You have found an old book..."}}
 		dialog_q = q1
 		return true
 	end
@@ -68,27 +77,40 @@ function dialog_select_text()
 	elseif items_collide() == false then
 		dialog_text = {"ArgHHHhhhhH!"}
 	end
+	text_id = 1
+	text_part = 1
 end
 
-function draw_dialog(text, pos_rect)
-	local shift = 50
+function draw_dialog(txt, pos_rect)
+	local name = txt[1]
+	local text = txt[2]
+
+	local shift = 40
 	local start_id, end_id = 1, 1
 	local w, h = font.size(fnt, "a")
 	local text_pos = vec2(pos_rect.l + shift, pos_rect.t + shift)
-	local tex_src = rect(0, 0, 512, 384)
+	tex_src = rect(0, 0, 512, 384)
 
 	video.draw_rect(border_tex, 3, tex_src, pos_rect)
+	video.draw_text(fnt, 4, name, text_pos)
+	text_pos.y = text_pos.y + h
 
 	while end_id do
 		end_temp = string.find(text, " ", end_id+1)
 	
 		if end_temp then
 			w, h = font.size(fnt, string.sub(text, start_id, end_temp-1))
+
 			if w > (pos_rect.r - pos_rect.l - 2*shift) then
 				video.draw_text(fnt, 4, string.sub(text, start_id, end_id-1), 
 					text_pos)
 				start_id = end_id + 1
 				text_pos.y = text_pos.y + h
+
+				if (text_pos.y >= pos_rect.b - shift) then
+					text_id = end_id
+					return
+				end
 			end
 		end
 
@@ -96,5 +118,7 @@ function draw_dialog(text, pos_rect)
 	end
 
 	video.draw_text(fnt, 4, string.sub(text, start_id, n), text_pos)
+	text_id = end_id
+	return
 end
 
