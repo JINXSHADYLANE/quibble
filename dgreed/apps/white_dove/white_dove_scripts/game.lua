@@ -31,6 +31,7 @@ function init()
 	border_tex = tex.load(media.."remelis.png")
 	book_tex = tex.load(media.."knyga.png")
 	black_tex = tex.load(media.."black.png")
+	active_icon_tex = tex.load(media.."active_icon.png")
 
 	fnt = font.load(media.."lucida_grande_60px.bft", 0.4)
 
@@ -40,6 +41,8 @@ end
 
 function close()
 	font.free(fnt)
+
+	tex.free(active_icon_tex)
 	tex.free(black_tex)
 	tex.free(book_tex)
 	tex.free(border_tex)
@@ -60,26 +63,13 @@ function handle_keyboard()
 	end
 
 	if key.down(key.b) then
-		if state == action.move and (arena.chars_active() or check_items()) then
+		if state == action.move and (arena.chars_active() or items_collide()) then
 			state = action.dialog
 		elseif state == action.dialog then
 			-- change to waiting for x to continue text
 			state = action.move
 		end
 	end
-end
-
-function check_items()
-	book_shelf = rect(930, 310, 1024, 768)
-
-	if rect_rect_collision(book_shelf, boy.col_rect) and
-		active_arena == room and not have_book then
-		have_book = true
-		dialog_text = "You have found an old book... adasdasdasd asdasdasdsad sdasdasdasd asdadadsasd asdasdada "
-		dialog_q = q1
-		return true
-	end
-	return false
 end
 
 function play()
@@ -90,7 +80,8 @@ function play()
 	if state == action.move then
 		arena.update()
 	elseif state == action.dialog then
-		draw_dialog(dialog_text, dialog_q)
+		dialog_select_text()
+		draw_dialog(dialog_text[1], dialog_q)
 	elseif state == action.book then
 		book_draw()
 		book_update()

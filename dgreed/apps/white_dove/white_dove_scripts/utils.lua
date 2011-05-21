@@ -24,6 +24,18 @@ fade_state = {
 	other = 0
 }
 
+function items_collide()
+	book_shelf = rect(930, 310, 1024, 768)
+
+	if rect_rect_collision(book_shelf, boy.col_rect) and
+		active_arena == room and not have_book then
+		dialog_text = {"You have found an old book..."}
+		dialog_q = q1
+		return true
+	end
+	return false
+end
+
 q1 = rect(20, 20, screen.r/2-20, screen.b/2-20)
 q2 = rect(screen.r/2+20, 20, screen.r-20, screen.b/2-20)
 q3 = rect(20, screen.b/2+20, screen.r/2-20, screen.b-20)
@@ -44,6 +56,18 @@ function dialog_quarter()
 		return q4
 	end
 	return q1
+end
+
+function dialog_select_text()
+	if arena[active_arena].char == mage then
+		dofile(script..'dialog_mage.lua')
+	elseif arena[active_arena].char == math then
+		dofile(script..'dialog_math.lua')
+	elseif arena[active_arena].char == girl then
+		dofile(script..'dialog_girl.lua')
+	elseif items_collide() == false then
+		dialog_text = {"ArgHHHhhhhH!"}
+	end
 end
 
 function draw_dialog(text, pos_rect)
