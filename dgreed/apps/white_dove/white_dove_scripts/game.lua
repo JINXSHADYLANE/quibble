@@ -7,10 +7,9 @@ dofile(script..'utils.lua')
 dofile(script..'boy.lua')
 dofile(script..'book.lua')
 dofile(script..'chars.lua')
---dofile(script..'map.lua') -- current world map
---dofile(script..'map_man.lua')
 dofile(script..'arenas.lua')
 
+main_state = main_action.game
 state = action.move
 dialog_text = ""
 dialog_q = q1
@@ -24,7 +23,6 @@ wall = {
 
 function init()
 	video.init(screen.r, screen.b, 'White Dove')
-	
 	arena.init()
 	
 	atlas = tex.load(media.."boy_moves.png")
@@ -34,8 +32,6 @@ function init()
 	active_icon_tex = tex.load(media.."active_icon.png")
 
 	fnt = font.load(media.."lucida_grande_60px.bft", 0.4)
-
-	--boy.init()
 end
 
 
@@ -47,7 +43,7 @@ function close()
 	tex.free(book_tex)
 	tex.free(border_tex)
 	tex.free(atlas)
---	tex.free(pic)
+	
 	arena.close()
 	video.close()
 end
@@ -65,37 +61,51 @@ function handle_keyboard()
 	if key.down(key.b) then
 		if state == action.move and (arena.chars_active() or items_collide()) then
 			state = action.dialog
+			dialog_select_text()
 		elseif state == action.dialog then
-			-- change to waiting for x to continue text
-			state = action.move
+			if not text_id then
+				if not dialog_text[text_part + 1] then state = action.move
+				else text_part = text_part + 1
+				end
+
+				return
+			end
+	
+			dialog_text[text_part][2] = string.sub(dialog_text[text_part][2], text_id)
 		end
 	end
 end
 
-function play()
+function run_game()
+	if main_state == main_action.menu then
+	elseif main_state == main_action.pause_menu then
+	elseif main_state == main_action.game then
+		return play()
+	end
 
+end
+
+function play()
 	handle_keyboard()
 
 	-- handle state methods
 	if state == action.move then
 		arena.update()
 	elseif state == action.dialog then
-		dialog_select_text()
-		draw_dialog(dialog_text[1], dialog_q)
+		draw_dialog(dialog_text[text_part], dialog_q)
 	elseif state == action.book then
 		book_draw()
 		book_update()
 	end
 
 	arena.draw()
-
 	return key.pressed(key.quit)
 end
 
 function main()
 	init()
 	repeat
-		exit = play()
+		exit = run_game()
 	until not video.present() or exit
 	close()
 end

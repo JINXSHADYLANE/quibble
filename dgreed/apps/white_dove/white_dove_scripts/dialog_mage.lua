@@ -1,5 +1,5 @@
 dialog_text = {
-	"Hello mage!",
-	"Hello, boy!"
-	}
+	{ "Justis: ", "Hello mage!"},
+	{ "Mage: ", "Hello, boy!"}
+}
 
