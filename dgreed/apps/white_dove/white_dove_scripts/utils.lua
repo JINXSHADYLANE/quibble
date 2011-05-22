@@ -16,7 +16,7 @@ action = {
 	dialog = 3
 }
 
-main_action = {
+main_state = {
 	menu = 1,
 	pause_menu = 2,
 	game = 3
