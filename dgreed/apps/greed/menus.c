@@ -228,14 +228,14 @@ void _render_settings(float t) {
 	_menu_text(&dest, "SFX volume:", &center, t, false, true);
 	dest.x += 80.0f;
 	if(t == 0.0f) {
-		float volume = gui_slider(&dest);	
-		sounds_set_effect_volume(volume);
+		pstate.sound_volume = gui_slider(&dest);	
+		sounds_set_effect_volume(pstate.sound_volume);
 	}	
 	else {
-		float state = gui_getstate_slider(&dest);
+		gui_setstate_slider(&dest, pstate.sound_volume);
 		Vector2 pos = vec2_add(dest, vec2(254.0f/2.0f, 18.0f/2.0f));
 		pos = _adjust_scale_pos(pos, center, scale);
-		gui_draw_slider(&pos, scale, state, c);
+		gui_draw_slider(&pos, scale, pstate.sound_volume, c);
 	}
 
 	dest.x = 75.0f;	
@@ -243,14 +243,14 @@ void _render_settings(float t) {
 	_menu_text(&dest, "Music volume:", &center, t, false, true);
 	dest.x += 80.0f;
 	if(t == 0.0f) {
-		float volume = gui_slider(&dest);
-		sounds_set_music_volume(volume);
+		pstate.music_volume = gui_slider(&dest);
+		sounds_set_music_volume(pstate.music_volume);
 	}
 	else {
-		float state = gui_getstate_slider(&dest);
+		gui_setstate_slider(&dest, pstate.music_volume);
 		Vector2 pos = vec2_add(dest, vec2(254.0f/2.0f, 18.0f/2.0f));
 		pos = _adjust_scale_pos(pos, center, scale);
-		gui_draw_slider(&pos, scale, state, c);
+		gui_draw_slider(&pos, scale, pstate.music_volume, c);
 	}
 
 	dest = vec2(75.0f, 155.0f);

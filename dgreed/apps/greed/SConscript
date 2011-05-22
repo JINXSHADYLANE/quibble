@@ -110,4 +110,7 @@ if env['DGREED_POSTFIX'] == '':
 			# Compress
 			compressed_arena = processed_arena.replace('_uncompr', '')
 			env.Command(dest_dir + '/' + compressed_arena, 
-				dest_dir + '/' + processed_arena, env['DGREED_ARENACOMPR_TOOL'])
+				dest_dir + '/' + processed_arena, [
+					env['DGREED_ARENACOMPR_TOOL'],
+					Delete('$SOURCE')
+				])

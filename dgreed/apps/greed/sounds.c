@@ -117,15 +117,15 @@ void sounds_event_ex(SoundEventType type, uint arg) {
 			sound_play(current_music);
 			return;
 		case PLATFORM_BEEP:
-			//sound_play(snd_base_beep);
+			//sound_play(snd[PLATFORM_BEEP].handle);
 			return;
 		case SHIP_ACC:
 			// If sound ended (could be 3 sounds: init, continuous, end)
 			// game.c, line 346
-			//sound_play(snd_ship_acc);
+			//sound_play(snd[SHIP_ACC].handle);
 			return;
 		case GUI_CLICK:
-			//sound_play(snd_gui);
+			//sound_play(snd[GUI_CLICK].handle);
 			return;
 		default:
 			if(snd[type].handle != UNDEFINED)
@@ -142,6 +142,7 @@ void sounds_set_effect_volume(float volume) {
 			if(snd[i].handle != UNDEFINED)
 				sound_set_volume(snd[i].handle, volume);
 		}
+		effect_volume = volume;
 	}
 }
 
