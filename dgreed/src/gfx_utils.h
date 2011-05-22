@@ -1,0 +1,47 @@
+#ifndef GFX_UTILS_H
+#define GFX_UTILS_H
+
+#include "utils.h"
+#include "system.h"
+
+// Draws little cross where a point should be
+void gfx_draw_point(uint layer, const Vector2* pos, Color color);
+// Draws a wireframe rectangle
+void gfx_draw_rect(uint layer, const RectF* rect, Color color);
+// Draws closed polygon
+void gfx_draw_poly(uint layer, const Vector2* points, uint n_points, Color color);
+// Draws triangle
+void gfx_draw_tri(uint layer, const Triangle* tri, Color color);
+// Draws circle
+void gfx_draw_circle(uint layer, const Vector2* c, float r, Color color); 
+// Draws circle, allows to specify number of line segments used
+void gfx_draw_circle_ex(uint layer, const Vector2* c, float r, 
+	Color color, uint segs);
+// Draws rotated, scaled, textured rect
+// source can be NULL, full texture is used in that case
+void gfx_draw_textured_rect(TexHandle tex, uint layer, const RectF* source, 
+	const Vector2* dest, float rotation, float scale, Color tint);
+
+// Transforms array of vectors
+void gfx_transform(Vector2* v, uint n_v, const Vector2* translate, float rotate, 
+	float scale);
+
+// Samples 32bit image at some coordinate. If coordinate is outside of texture
+// it is clamped to nearest edge pixel
+Color gfx_sample_img(Color* img, uint w, uint h, int x, int y);
+
+// Blurs image using 5x5 gaussian blur kernel
+void gfx_blur(Color* img, uint w, uint h);
+
+// Blends two colors with the usual inv-src-alpha blending
+Color gfx_blend(Color a, Color b);
+
+// Resizes image to one half its linear dimensions
+Color* gfx_downscale(const Color* img, uint w, uint h);
+
+// Blits source image to destination, using alpha blending
+void gfx_blit(Color* dest, uint dest_w, uint dest_h,
+	const Color* src, uint src_w, uint src_h, int x, int y);
+
+#endif
+
