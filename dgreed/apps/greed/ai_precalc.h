@@ -19,6 +19,9 @@ typedef struct {
 	uint* nn_grid_count;
 	uint* nn_grid_start;
 	uint* nn_grid;
+
+	// Point-to-point visibility raycast query bitmap
+	uint* vis_bitmap;
 } NavMesh;	
 
 typedef struct {
@@ -57,6 +60,10 @@ uint ai_find_next_path_node(NavMesh* navmesh, uint current, uint dest);
 // Returns rough distance between two points, 
 // when traveling along navmesh edges
 float ai_navmesh_distance(NavMesh* navmesh, Vector2 p1, Vector2 p2);
+
+// Returns true if there is straight line of sight between two points;
+// false negatives are possible, but not false positives
+bool ai_vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2);
 
 #endif
 
