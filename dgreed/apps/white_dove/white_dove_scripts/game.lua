@@ -31,6 +31,7 @@ function init()
 	book_tex = tex.load(media.."knyga.png")
 	black_tex = tex.load(media.."black.png")
 	active_icon_tex = tex.load(media.."active_icon.png")
+	backgr = tex.load(media.."background.png")
 
 	fnt = font.load(media.."lucida_grande_60px.bft", 0.4)
 end
