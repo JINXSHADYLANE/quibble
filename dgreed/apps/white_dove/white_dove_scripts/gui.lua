@@ -30,6 +30,8 @@ function menu.set_options()
 end
 
 function menu.draw()
+	video.draw_rect(backgr, 0, screen, screen, 0)
+	
 	title_name = "*** White Dove ***"
 	play_name = "PLAY"
 	options_name = "OPTIONS"
