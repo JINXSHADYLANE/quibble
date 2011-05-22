@@ -12,12 +12,19 @@ const uint nn_grid_height = 10;
 const uint nn_grid_cells = 15 * 10; // No constant propagation in C99..
 const uint nn_samples = 10;
 
+const uint vis_bitmap_width = 3 * 32;
+const uint vis_bitmap_height = 2 * 32;
+const uint vis_bitmap_size= (3 * 32) * (2 * 32) / 32;
+
 Vector2 wraparound_offsets[5] =
 	{{10000.0f, 0.0f}, {0.0f, -10000.0f},
 	 {-10000.0f, 0.0f}, {0.0f, 10000.0f}, {0.0f, 0.0f}};
 
 float nn_cell_width = -1.0f;
 float nn_cell_height = -1.0f;
+
+float vis_cell_width = -1.0f;
+float vis_cell_height = -1.0f;
 
 Segment bounds[4];	 
 
@@ -233,7 +240,58 @@ void ai_precalc_bounds(float width, float height) {
 
 	nn_cell_width = width / (float)nn_grid_width;
 	nn_cell_height = height / (float)nn_grid_height;
+
+	vis_cell_width = width / (float)vis_bitmap_width;
+	vis_cell_height = height / (float)vis_bitmap_height;
 }	
+
+static void _precalc_vis(DArray geometry, NavMesh* res) {
+	assert(res);
+
+	Segment* segs = DARRAY_DATA_PTR(geometry, Segment);
+
+	res->vis_bitmap = MEM_ALLOC(sizeof(uint) * vis_bitmap_size);
+	memset(res->vis_bitmap, 0, sizeof(uint) * vis_bitmap_size);
+
+	for(uint y = 0; y < vis_bitmap_height; ++y) {
+		for(uint x = 0; x < vis_bitmap_width; ++x) {
+			// Construct corresponding screen rect
+			float fx = (float)x;
+			float fy = (float)y;
+			RectF r = rectf(
+				fx * vis_cell_width, fy * vis_cell_height,
+				(fx + 1.0f) * vis_cell_width, (fy + 1.0f) * vis_cell_height
+			);
+
+			// Check if any wall segment intersects rect
+			bool solid = false;
+			for(uint i = 0; i < geometry.size; ++i) {
+				// Raycast is used as a simple binary check
+				Vector2 hitp = rectf_raycast(&r, &segs[i].p1, &segs[i].p2);
+
+				// Float comparison is ok here - see rectf_raycast code
+				if(hitp.x != segs[i].p2.x || hitp.y != segs[i].p2.y) {
+					solid = true;
+					break;
+				}	
+			}
+
+			// Set bit
+			if(solid) {
+				uint cell = IDX_2D(x, y, vis_bitmap_width);
+				res->vis_bitmap[cell/32] |= (1 << (31 - (cell % 32)));
+			}
+		}
+	}
+}
+
+static bool _query_vis_bitmap(NavMesh* mesh, uint x, uint y) {
+	assert(x < vis_bitmap_width);
+	assert(y < vis_bitmap_height);
+
+	uint cell = IDX_2D(x, y, vis_bitmap_width);
+	return (mesh->vis_bitmap[cell/32] & (1 << (31 - (cell % 32)))) != 0;
+}
 
 NavMesh ai_precalc_navmesh(DArray geometry, DArray platforms,
 	float width, float height) {
@@ -355,6 +413,8 @@ NavMesh ai_precalc_navmesh(DArray geometry, DArray platforms,
 	darray_free(&edges);
 	MEM_FREE(adjacency);
 
+	_precalc_vis(geometry, &res);
+
 	return res;
 }
 
@@ -379,6 +439,7 @@ void ai_free_navmesh(NavMesh mesh) {
 	MEM_FREE(mesh.nn_grid_count);
 	MEM_FREE(mesh.nn_grid_start);
 	MEM_FREE(mesh.nn_grid);
+	MEM_FREE(mesh.vis_bitmap);
 }
 
 void ai_save_navmesh(FileHandle file, const NavMesh* navmesh) {
@@ -418,6 +479,9 @@ void ai_save_navmesh(FileHandle file, const NavMesh* navmesh) {
 
 	for(uint i = 0; i < n_nn_grid_nodes; ++i)
 		file_write_uint32(file, navmesh->nn_grid[i]);
+
+	for(uint i = 0; i < vis_bitmap_size; ++i)
+		file_write_uint32(file, navmesh->vis_bitmap[i]);
 }
 
 NavMesh ai_load_navmesh(FileHandle file) {
@@ -454,7 +518,7 @@ NavMesh ai_load_navmesh(FileHandle file) {
 		r.neighbours_start[i] = 
 			r.neighbours_start[i-1] + r.neighbour_count[i-1];
 
-	r.neighbours = (uint*)MEM_ALLOC(sizeof(uint)*n_neighbours);
+	r.neighbours = MEM_ALLOC(sizeof(uint) * n_neighbours);
 	for(uint i = 0; i < n_neighbours; ++i)
 		r.neighbours[i] = file_read_uint32(file);
 
@@ -470,13 +534,17 @@ NavMesh ai_load_navmesh(FileHandle file) {
 		n_nn_grid_nodes += r.nn_grid_count[i];
 	}
 
-	r.nn_grid = (uint*)MEM_ALLOC(sizeof(uint)*n_nn_grid_nodes);
+	r.nn_grid = MEM_ALLOC(sizeof(uint) * n_nn_grid_nodes);
 	r.nn_grid_start[0] = 0;
 	for(uint i = 1; i < nn_grid_cells; ++i)
 		r.nn_grid_start[i] = r.nn_grid_start[i-1] + r.nn_grid_count[i-1];
 
 	for(uint i = 0; i < n_nn_grid_nodes; ++i)
 		r.nn_grid[i] = file_read_uint32(file);
+
+	r.vis_bitmap = MEM_ALLOC(sizeof(uint) * vis_bitmap_size); 
+	for(uint i = 0; i < vis_bitmap_size; ++i)
+		r.vis_bitmap[i] = file_read_uint32(file);
 
 	return r;	
 }
@@ -545,5 +613,76 @@ float ai_navmesh_distance(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
 	distance += navmesh->distance[idx];
 
 	return distance;
+}
+
+static bool _vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
+	int step_x, step_y, bmap_x, bmap_y, bmap_end_x, bmap_end_y;
+
+	bmap_x = p1.x / vis_cell_width;
+	bmap_y = p1.y / vis_cell_height;
+	bmap_end_x = p2.x / vis_cell_width;
+	bmap_end_y = p2.y / vis_cell_height;
+
+	Vector2 dir = vec2_sub(p2, p1);
+	dir = vec2_normalize(dir);
+
+	Vector2 side_dist, delta_dist = vec2(
+		sqrtf(1.0f + (dir.y * dir.y) / (dir.x * dir.x)) * vis_cell_width,
+		sqrtf(1.0f + (dir.x * dir.x) / (dir.y * dir.y)) * vis_cell_height
+	);
+
+	if(dir.x > 0.0f) {
+		step_x = 1;
+		side_dist.x = (float)(bmap_x+1) * vis_cell_width - p1.x;
+	}
+	else {
+		step_y = -1;
+		side_dist.x = p1.x - (float)bmap_x * vis_cell_width;
+	}
+	side_dist.y *= delta_dist.x / vis_cell_width;
+	if(dir.y > 0.0f) {
+		step_y = 1;
+		side_dist.y = (float)(bmap_y+1) * vis_cell_height - p1.y;
+	}
+	else {
+		step_y = -1;
+		side_dist.y = p1.y - (float)bmap_y * vis_cell_height;
+	}
+	side_dist.y *= delta_dist.y / vis_cell_height;
+
+	// DDA
+	while(!_query_vis_bitmap(navmesh, bmap_x, bmap_y)) {
+
+		if(bmap_x == bmap_end_x && bmap_y == bmap_end_y)
+			return false;
+
+		if(side_dist.x < side_dist.y) {
+			side_dist.x += delta_dist.x;
+			bmap_x += step_x;
+		}
+		else {
+			side_dist.y += delta_dist.y;
+			bmap_y += step_y;
+		}
+	}
+
+	return true;
+}
+
+bool ai_vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
+	assert(navmesh);
+	assert(navmesh->vis_bitmap);
+
+	Segment seg = {p1, p2};
+	Segment s1, s2;
+	bool split = ai_split_path(seg, &s1, &s2);
+
+	if(_vis_query(navmesh, s1.p1, s1.p2))
+		return true;
+
+	if(split && _vis_query(navmesh, s2.p1, s2.p2))
+		return true;
+	
+	return false;
 }
 
