@@ -8,8 +8,8 @@ dofile(script..'boy.lua')
 dofile(script..'book.lua')
 dofile(script..'chars.lua')
 dofile(script..'arenas.lua')
+dofile(script..'gui.lua')
 
-main_state = main_action.game
 state = action.move
 dialog_text = ""
 dialog_q = q1
@@ -23,6 +23,7 @@ wall = {
 
 function init()
 	video.init(screen.r, screen.b, 'White Dove')
+	menu.init()
 	arena.init()
 	
 	atlas = tex.load(media.."boy_moves.png")
@@ -45,6 +46,7 @@ function close()
 	tex.free(atlas)
 	
 	arena.close()
+	menu.close()
 	video.close()
 end
 
@@ -77,12 +79,16 @@ function handle_keyboard()
 end
 
 function run_game()
-	if main_state == main_action.menu then
-	elseif main_state == main_action.pause_menu then
-	elseif main_state == main_action.game then
-		return play()
+	if menu.state == main_state.menu or menu.state == main_state.pause_menu then
+		if not menu.draw() then return false end
+	elseif menu.state == main_state.game then
+		if play() then 
+			menu.state = main_state.pause_menu
+			menu.pause = true
+		end
 	end
 
+	return true
 end
 
 function play()
@@ -105,8 +111,8 @@ end
 function main()
 	init()
 	repeat
-		exit = run_game()
-	until not video.present() or exit
+		run = run_game()
+	until not video.present() or not run
 	close()
 end
 
