@@ -9,6 +9,7 @@ dofile(script..'book.lua')
 dofile(script..'chars.lua')
 dofile(script..'arenas.lua')
 dofile(script..'gui.lua')
+dofile(script..'devmode.lua')
 
 state = action.move
 dialog_text = ""
@@ -25,13 +26,13 @@ function init()
 	video.init(screen.r, screen.b, 'White Dove')
 	menu.init()
 	arena.init()
+	devmode.init()
 	
 	atlas = tex.load(media.."boy_moves.png")
 	border_tex = tex.load(media.."remelis.png")
 	book_tex = tex.load(media.."knyga.png")
 	black_tex = tex.load(media.."black.png")
 	active_icon_tex = tex.load(media.."active_icon.png")
-	backgr = tex.load(media.."background.png")
 
 	fnt = font.load(media.."lucida_grande_60px.bft", 0.4)
 end
@@ -46,6 +47,7 @@ function close()
 	tex.free(border_tex)
 	tex.free(atlas)
 	
+	devmode.close()
 	arena.close()
 	menu.close()
 	video.close()
@@ -80,6 +82,8 @@ function handle_keyboard()
 end
 
 function run_game()
+	fps = time.fps()
+	gui.label(vec2(0, 0), fps..'')
 	if menu.state == main_state.menu or menu.state == main_state.pause_menu then
 		if not menu.draw() then return false end
 	elseif menu.state == main_state.game then
@@ -106,6 +110,7 @@ function play()
 	end
 
 	arena.draw()
+	if devmode_on then devmode.draw() end
 	return key.pressed(key.quit)
 end
 

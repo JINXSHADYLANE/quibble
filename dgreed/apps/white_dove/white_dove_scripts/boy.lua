@@ -58,7 +58,7 @@ function boy.init()
 	move_dt = 0
 end
 
-function boy.draw()
+function boy.draw()	
 	video.draw_rect(atlas, 1, boy.src[boy.active_src.x][boy.active_src.y], boy.pos, 0)
 end
 

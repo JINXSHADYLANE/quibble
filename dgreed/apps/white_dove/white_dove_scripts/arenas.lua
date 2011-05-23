@@ -113,7 +113,7 @@ arena = {
 		},
 		bottom = {
 			id = fountain,
-			pos = vec2(362, 90)
+			pos = vec2(362, 70)
 		},
 		right = {
 			id = ocean,
