@@ -102,12 +102,9 @@ if env['DGREED_POSTFIX'] == '':
 
 			# Build
 			processed_arena = arena.replace(ARENAS_DIR+separator, '')
-			processed_arena += '_uncompr'
-			env.Command(dest_dir + '/' + \
-				processed_arena, arena, arena_builder_tool)
-			env.Depends(processed_arena, arena_builder)
+			env.Command(dest_dir + '/' + processed_arena, arena, [
+					arena_builder_tool,
+					env['DGREED_ARENACOMPR_TOOL']
+				])	
 
-			# Compress
-			compressed_arena = processed_arena.replace('_uncompr', '')
-			env.Command(dest_dir + '/' + compressed_arena, 
-				dest_dir + '/' + processed_arena, env['DGREED_ARENACOMPR_TOOL'])
+			env.Depends(processed_arena, arena_builder)
