@@ -618,10 +618,13 @@ float ai_navmesh_distance(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
 static bool _vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
 	int step_x, step_y, bmap_x, bmap_y, bmap_end_x, bmap_end_y;
 
-	bmap_x = p1.x / vis_cell_width;
-	bmap_y = p1.y / vis_cell_height;
-	bmap_end_x = p2.x / vis_cell_width;
-	bmap_end_y = p2.y / vis_cell_height;
+	bmap_x = floorf(p1.x / vis_cell_width);
+	bmap_y = floorf(p1.y / vis_cell_height);
+	bmap_end_x = floorf(p2.x / vis_cell_width);
+	bmap_end_y = floorf(p2.y / vis_cell_height);
+
+	assert(bmap_x < vis_bitmap_width && bmap_end_x < vis_bitmap_width);
+	assert(bmap_y < vis_bitmap_height && bmap_end_y < vis_bitmap_height);
 
 	Vector2 dir = vec2_sub(p2, p1);
 	dir = vec2_normalize(dir);
@@ -636,7 +639,7 @@ static bool _vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
 		side_dist.x = (float)(bmap_x+1) * vis_cell_width - p1.x;
 	}
 	else {
-		step_y = -1;
+		step_x = -1;
 		side_dist.x = p1.x - (float)bmap_x * vis_cell_width;
 	}
 	side_dist.y *= delta_dist.x / vis_cell_width;
@@ -653,8 +656,16 @@ static bool _vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
 	// DDA
 	while(!_query_vis_bitmap(navmesh, bmap_x, bmap_y)) {
 
-		if(bmap_x == bmap_end_x && bmap_y == bmap_end_y)
-			return false;
+		bool x_cond = 
+			(step_x > 0 && bmap_x >= bmap_end_x) || 
+			(step_x < 0 && bmap_x <= bmap_end_x);
+
+		bool y_cond = 
+			(step_y > 0 && bmap_y >= bmap_end_y) || 
+			(step_y < 0 && bmap_y <= bmap_end_y);
+
+		if(x_cond && y_cond)
+			return true;
 
 		if(side_dist.x < side_dist.y) {
 			side_dist.x += delta_dist.x;
@@ -666,7 +677,7 @@ static bool _vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
 		}
 	}
 
-	return true;
+	return false;
 }
 
 bool ai_vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2) {

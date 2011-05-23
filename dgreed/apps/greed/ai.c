@@ -25,10 +25,10 @@ const char* ai_personality_names[MAX_AI_PERSONALITIES] = {
 };	
 
 AgentPersonality ai_personalities[] = {
-	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.3f,0.6f,80.0f,100.0f},
-	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.3f,0.6f,80.0f,100.0f},
-	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.3f,0.6f,80.0f,100.0f},
-	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.3f,0.6f,80.0f,100.0f}
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.6f,80.0f,100.0f},
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.6f,80.0f,100.0f},
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.6f,80.0f,100.0f},
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.6f,80.0f,100.0f}
 };	
 
 #define AI_TWEAK(name, min, max) \
@@ -55,8 +55,6 @@ void ai_register_tweaks(Tweaks* tweaks) {
 			&ai_personalities[i].steer_tg_coast_distance;
 		float* steer_tg_no_steer_dist =
 			&ai_personalities[i].steer_tg_no_steer_dist;
-		float* acceptable_angular_vel =
-			&ai_personalities[i].acceptable_angular_velocity;
 		float* shoot_angle =
 			&ai_personalities[i].shoot_angle;
 		float* shoot_dist =
@@ -72,7 +70,6 @@ void ai_register_tweaks(Tweaks* tweaks) {
 		AI_TWEAK(steer_tg_min_dist, 0.0f, 300.0f);
 		AI_TWEAK(steer_tg_coast_dist, 0.0f, 300.0f);
 		AI_TWEAK(steer_tg_no_steer_dist, 0.0f, 100.0f);
-		AI_TWEAK(acceptable_angular_vel, 0.0f, PI);
 		AI_TWEAK(shoot_angle, 0.0f, PI);
 		AI_TWEAK(shoot_dist, 0.0f, 300.0f);
 		AI_TWEAK(estimated_speed, 0.0f, 300.0f);
@@ -271,9 +268,17 @@ void _agent_steer(uint id) {
 	float tg_advance_sq = agent->personality->steer_tg_min_distance;
 	tg_advance_sq *= tg_advance_sq;
 
-	if(distance < tg_advance_sq) {
+	// Steer tg visibility
+	bool visible = ai_vis_query(&arena->nav_mesh, phys_state->pos, steer_tg_pos);
+
+	if(distance < tg_advance_sq || visible) {
+		uint old_steer_tg_node = agent->steer_tg_node;
 		agent->steer_tg_node = ai_find_next_path_node(&arena->nav_mesh, 
 			agent->steer_tg_node, agent->dest_node);
+
+		bool new_visible = ai_vis_query(&arena->nav_mesh, phys_state->pos, steer_tg_pos); 
+		if(!new_visible)
+			agent->steer_tg_node = old_steer_tg_node;
 	}
 
 	// Steer
@@ -286,7 +291,6 @@ void _agent_steer(uint id) {
 
 	// Distance between ship and steer target
 	distance = vec2_length(ship_to_steer_tg);
-
 	if(distance > agent->personality->steer_tg_no_steer_dist) {
 		// Angle between ship direction ant steer target
 		float angle = vec2_angle(ship_dir, ship_to_steer_tg); 
@@ -300,7 +304,7 @@ void _agent_steer(uint id) {
 		}
 	}	
 
-	if(distance > agent->personality->steer_tg_max_distance) {
+	if(!visible && distance > agent->personality->steer_tg_max_distance) {
 		// "Recalc" path, steer tg is too far
 		steer_tg_pos = physics_state.ships[agent->ship_id].pos;
 		agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
