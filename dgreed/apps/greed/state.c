@@ -3,6 +3,8 @@
 #include <memory.h>
 #include <mml.h>
 
+#include "sounds.h"
+
 #define STATE_FILE_NAME "greed_assets/state.mml"
 
 PersistentState pstate = 
@@ -55,6 +57,9 @@ void _load_state(const char* filename) {
 
 	mml_free(&state_obj);
 	MEM_FREE(state_text);
+
+	sounds_set_music_volume(pstate.music_volume);
+	sounds_set_effect_volume(pstate.sound_volume);
 }
 
 void _save_state(const char* filename) {
