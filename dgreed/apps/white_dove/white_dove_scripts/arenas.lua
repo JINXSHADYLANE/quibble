@@ -1,6 +1,6 @@
 -- arenas manager
 
-arenas_count = 9
+arenas_count = 10
 
 empty = 0
 room = 1
@@ -50,6 +50,8 @@ arena = {
 			pos = vec2()
 		},
 
+		n = 0,
+		doors = {},
 		--[[items = {
 			[0] = rect(0, 0, 880, 400),
 			[1] = rect(740, 415, 1024, 465),
@@ -82,7 +84,14 @@ arena = {
 			id = old_street,
 			pos = vec2(screen.r/3, screen.b - boy.h - 20)
 		},
-
+		
+		n = 1,
+		doors = {
+			[1] = {
+				d = rect(40, 440, 130, 645),
+				dir = direction.left
+		}	},
+		
 		--[[items = {
 			[0] = rect(670, 270, 1024, 410),
 			[1] = rect(480, 220, 650, 310),
@@ -120,6 +129,9 @@ arena = {
 			pos = vec2(0, screen.b - boy.h - 10)
 		},
 		
+		n = 0,
+		doors = {},
+		
 		--[[items = {
 			[0] = rect(822, 405, 1024, 492),
 			[1] = rect(930, 500, 970, 560),
@@ -155,6 +167,8 @@ arena = {
 			pos = vec2(0, screen.b - boy.h - 10)  -- coords not yet set
 		}, 
 
+		n = 0,
+		doors = {},
 		--[[items = {
 			[0] = rect(0, 225, 660, 390),
 			[1] = rect(670, 220, 910, 330),
@@ -182,6 +196,9 @@ arena = {
 			id = empty,
 			pos = vec2()
 		}, 
+		
+		n = 0,
+		doors = {},
 
 		--[[items = {
 			[0] = rect(0, 225, 660, 390),
@@ -209,6 +226,8 @@ arena = {
 			pos = vec2()
 		}, 
 
+		n = 0,
+		doors = {},
 		--[[items = {
 			[0] = rect(0, 225, 660, 390),
 		},]]
@@ -235,6 +254,9 @@ arena = {
 			pos = vec2()
 		}, 
 
+		n = 0,
+		doors = {},
+		
 		--[[items = {
 			[0] = rect(0, 225, 660, 390),
 		},]]
@@ -245,8 +267,8 @@ arena = {
 	
 	[8] = {  -- old_street
 		top = {
-			id = empty,
-			pos = vec2()
+			id = kitchen,
+			pos = vec2(518 , 732 - boy.h)
 		},
 		left = {
 			id = empty,
@@ -260,10 +282,14 @@ arena = {
 			id = cross,
 			pos = vec2(0, screen.b - boy.h - 20)
 		}, 
-
-		--[[items = {
-			[0] = rect(0, 1, 1, 2),
-		},]]
+		
+		n = 1,
+		doors = {
+			[1] = {
+				d = rect(391, 480, 496, 596),
+				dir = direction.up
+			}
+		},
 		img = nil,
 		tilemp = nil,
 		char = 0
@@ -287,14 +313,37 @@ arena = {
 			pos = vec2()
 		}, 
 
-		--[[items = {
-			[0] = rect(0, 1, 1, 2),
-		},]]
+		n = 0,
+		doors = {},
 		img = nil,
 		tilemp = nil,
 		char = 0
 	},
 	
+	[10] = {  -- kitchen
+		top = {
+			id = empty,
+			pos = vec2()
+		},
+		left = {
+			id = empty,
+			pos = vec2()
+		},
+		bottom = {
+			id = old_street,
+			pos = vec2(429, 606 - boy.h)
+		},
+		right = {
+			id = empty,
+			pos = vec2()
+		}, 
+
+		n = 0,
+		doors = {},
+		img = nil,
+		tilemp = nil,
+		char = mage
+	},	
 	
 	color = rgba(1, 1, 1, 0),
 	state = fade_state.other,
@@ -302,7 +351,6 @@ arena = {
 }
 
 function arena.init()
-	local i
 	for i = 1, arenas_count do
 		arena[i].img = tex.load(media..i..".png")
 		arena[i].tilemp = tilemap.load(media..i..".btm")
@@ -448,15 +496,23 @@ function arena.screen_update()
 	elseif (boy.pos.x <= 5) and key.down(key.b) then
 		arena.switch_dir = direction.left
 		arena.state = fade_state.fadeout
+	else
+		for i = 1, arena[active_arena].n do
+			if (rect_rect_collision(boy.col_rect, arena[active_arena].doors[i].d) and key.down(key.b)) then
+				arena.switch_dir = arena[active_arena].doors[i].dir
+				arena.state = fade_state.fadeout
+			end
+		end
 	end
 
-	-- check if boy is going home
+	-- check if boy is going home 
+	--[[
 	local door = rect(40, 440, 130, 645)
 	if active_arena == fountain and rect_rect_collision(boy.col_rect, door)
 		and key.down(key.b) then
 		arena.switch_dir = direction.left
 		arena.state = fade_state.fadeout
-	end
+	end]]
 
 
 	-- show 'x' icon
@@ -476,4 +532,3 @@ function arena.update()
 	arena.switch()
 	boy.update()
 end
-
