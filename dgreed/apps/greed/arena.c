@@ -334,3 +334,18 @@ uint arena_platform_navpoint(uint platform) {
 	return ai_nearest_navpoint(&current_arena_desc.nav_mesh, pos);
 }	
 
+uint arena_platform_nearby_navpoint(uint platform) {
+	uint search_depth = 3;
+	NavMesh* navmesh = &current_arena_desc.nav_mesh;
+
+	// Do a random graph walk
+	uint current_node = arena_platform_navpoint(platform);
+	while(search_depth--) {
+		uint i = navmesh->neighbours_start[current_node] 
+			+ rand_int(0, navmesh->neighbour_count[current_node]);
+		current_node = navmesh->neighbours[i];
+	}
+
+	return current_node;
+}
+
