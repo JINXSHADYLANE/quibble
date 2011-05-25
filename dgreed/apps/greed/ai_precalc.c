@@ -286,8 +286,8 @@ static void _precalc_vis(DArray geometry, NavMesh* res) {
 }
 
 static bool _query_vis_bitmap(NavMesh* mesh, uint x, uint y) {
-	assert(x < vis_bitmap_width);
-	assert(y < vis_bitmap_height);
+	if(x >= vis_bitmap_width || y >= vis_bitmap_height)
+		return false;
 
 	uint cell = IDX_2D(x, y, vis_bitmap_width);
 	return (mesh->vis_bitmap[cell/32] & (1 << (31 - (cell % 32)))) != 0;

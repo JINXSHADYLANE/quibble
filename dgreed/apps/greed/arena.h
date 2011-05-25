@@ -59,5 +59,6 @@ const char* arena_get_next(void);
 // AI helpers:
 uint arena_closest_navpoint(Vector2 pos);
 uint arena_platform_navpoint(uint platform);
+uint arena_platform_nearby_navpoint(uint platform);
 
 #endif

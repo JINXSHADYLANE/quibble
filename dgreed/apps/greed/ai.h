@@ -46,6 +46,7 @@ typedef struct {
 	float last_steer_t;
 	AgentState state;
 	uint dest_node;
+	uint platform;
 
 	// Steer target
 	uint steer_tg_node; 

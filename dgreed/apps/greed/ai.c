@@ -162,6 +162,7 @@ void _agent_set_state(uint id, AgentState new_state, uint prey_id) {
 			new_state = AI_ATTACK;
 		}
 		else {
+			agent->platform = closest_id;
 			agent->dest_node = arena_platform_navpoint(closest_id);
 			steer_tg_pos = physics_state.ships[agent->ship_id].pos;
 			agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
@@ -194,7 +195,8 @@ void _agent_set_state(uint id, AgentState new_state, uint prey_id) {
 		if(quickest_id == MAX_UINT32)
 			new_state = AI_ATTACK;
 
-		agent->dest_node = arena_platform_navpoint(quickest_id);
+		agent->platform = quickest_id;
+		agent->dest_node = arena_platform_nearby_navpoint(quickest_id);
 		steer_tg_pos = physics_state.ships[agent->ship_id].pos;
 		agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
 	}
@@ -228,6 +230,7 @@ void _agent_think(uint id) {
 	assert(id < MAX_AGENTS);
 
 	Agent* agent = &agents[id];
+	ArenaDesc* arena = &current_arena_desc;
 
 	// Determine agent state
 	float taken_platforms[MAX_SHIPS];
@@ -250,6 +253,23 @@ void _agent_think(uint id) {
 	else {
 		assert(max_taken_ship < n_ships);
 		_agent_set_state(id, AI_ATTACK, max_taken_ship);
+	}
+
+	if(agent->state == AI_DEFEND) {
+		// If we're defending, and we're close to the target node,
+		// choose new target node
+		Vector2 ship_pos = physics_state.ships[agent->ship_id].pos;
+		Vector2 target_pos = arena->nav_mesh.navpoints[agents->steer_tg_node];
+		if(vec2_length_sq(vec2_sub(ship_pos, target_pos)) < 32.0f * 32.0f) {
+			agent->dest_node = arena_platform_nearby_navpoint(agent->platform);
+			agent->steer_tg_node = arena_closest_navpoint(ship_pos);
+		}
+	}
+
+	if(agent->state == AI_CAPTURE) {
+		// See if we captured target platform
+		if(platform_states[agent->platform].color == agent->ship_id)
+			_agent_set_state(id, AI_DEFEND, 0);
 	}
 }
 
