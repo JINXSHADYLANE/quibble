@@ -8,6 +8,8 @@
 #define WALLS_LAYER 4
 #define CHAPTERS_FILE "greed_assets/arenas.mml"
 
+extern bool highres;
+
 uint total_arenas;
 ChapterDesc chapters[MAX_CHAPTERS];
 ArenaDesc current_arena_desc;
@@ -257,6 +259,74 @@ void arena_update(float dt) {
 	// TODO
 }	
 
+static void _arena_draw_shadow(Color c) {
+	Vector2 shift = current_arena_desc.shadow_shift;
+
+	// Quick mode for unshifted shadows
+	if(shift.x == 0.0f && shift.y == 0.0f) {
+		RectF screen = {0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT}; 
+		video_draw_rect(
+			current_arena_desc.walls_img, SHADOWS_LAYER,
+			NULL, &screen, c
+		);
+		return;
+	}
+	
+	// Only negative shifts supported for now
+	assert(shift.x < 0.0f && shift.y < 0.0f);
+
+	// Split screen rect into four parts according to shadow shift
+	float mid_x = SCREEN_WIDTH + shift.x;
+	float mid_y = SCREEN_HEIGHT + shift.y;
+	RectF parts[] = {
+		{0.0f, 0.0f, mid_x, mid_y},
+		{mid_x, 0.0f, SCREEN_WIDTH, mid_y},
+		{0.0f, mid_y, mid_x, SCREEN_HEIGHT},
+		{mid_x, mid_y, SCREEN_WIDTH, SCREEN_HEIGHT}
+	};	
+
+	// Transform screen parts into shadow texture source rects
+	// by offsetting and scaling down twice
+	for(uint i = 0; i < 4; ++i) {
+		// Shift
+		RectF source = rectf(
+			parts[i].left - shift.x, parts[i].top - shift.y,
+			parts[i].right - shift.x, parts[i].bottom - shift.y
+		);
+
+		// Wrap around out-of-screen sources
+		if(source.right > SCREEN_WIDTH) {
+			source.left -= SCREEN_WIDTH;
+			source.right -= SCREEN_WIDTH;
+		}
+		if(source.bottom > SCREEN_HEIGHT) {
+			source.top -= SCREEN_HEIGHT;
+			source.bottom -= SCREEN_HEIGHT;
+		}
+
+		// Scale down, offset
+		source.left = (source.left / 2.0f) + shadow_source.left;
+		source.top = (source.top / 2.0f) + shadow_source.top;
+		source.right = (source.right / 2.0f) + shadow_source.left;
+		source.bottom = (source.bottom / 2.0f) + shadow_source.top;
+
+		// Hack to prevent seams due to bilinear filtering in high-res mode
+		// (edge pixel mode for out-of-texture reads could be a nicer solution)
+		if(highres) {
+			source.left += 1.0f;
+			source.top += 1.0f;
+			source.right -= 1.0f;
+			source.bottom -= 1.0f;
+		}
+
+		// Render
+		video_draw_rect(
+			current_arena_desc.walls_img, SHADOWS_LAYER,
+			&source, &parts[i], c
+		);	
+	}
+}
+
 void arena_draw(void) {
 	RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
 	video_draw_rect(current_arena_desc.background_img, ARENA_LAYER, 
@@ -270,8 +340,7 @@ void arena_draw(void) {
 	dest.bottom = dest.top + rectf_height(&background_source);
 
 	if(!current_arena_desc.no_wall_shadows)
-		video_draw_rect(current_arena_desc.walls_img, SHADOWS_LAYER,
-			&shadow_source, &dest, COLOR_WHITE);
+		_arena_draw_shadow(COLOR_WHITE);
 }		
 
 void arena_draw_transition(float t) {
@@ -289,9 +358,7 @@ void arena_draw_transition(float t) {
 	dest.bottom = dest.top + rectf_height(&background_source);
 
 	if(!current_arena_desc.no_wall_shadows)
-		video_draw_rect(current_arena_desc.walls_img, SHADOWS_LAYER,
-			&shadow_source, &dest, c);
-
+		_arena_draw_shadow(c);
 }
 
 const char* arena_get_current(void) {
