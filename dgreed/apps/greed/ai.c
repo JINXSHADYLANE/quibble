@@ -25,10 +25,10 @@ const char* ai_personality_names[MAX_AI_PERSONALITIES] = {
 };	
 
 AgentPersonality ai_personalities[] = {
-	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.6f,80.0f,100.0f},
-	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.6f,80.0f,100.0f},
-	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.6f,80.0f,100.0f},
-	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,0.6f,80.0f,100.0f}
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,150.0f,1.0f,40.0f,0.6f,80.0f,100.0f},
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,150.0f,1.0f,40.0f,0.6f,80.0f,100.0f},
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,150.0f,1.0f,40.0f,0.6f,80.0f,100.0f},
+	{0.6f,0.20f,0.5f,70.0f,120.0f,45.0f,30.0f,15.0f,150.0f,1.0f,40.0f,0.6f,80.0f,100.0f}
 };	
 
 #define AI_TWEAK(name, min, max) \
@@ -55,6 +55,12 @@ void ai_register_tweaks(Tweaks* tweaks) {
 			&ai_personalities[i].steer_tg_coast_distance;
 		float* steer_tg_no_steer_dist =
 			&ai_personalities[i].steer_tg_no_steer_dist;
+		float* no_oversteer_dist =
+			&ai_personalities[i].no_oversteer_dist;
+		float* oversteer_factor =
+			&ai_personalities[i].oversteer_factor;
+		float* min_defend_target_dist =
+			&ai_personalities[i].min_defend_target_dist;
 		float* shoot_angle =
 			&ai_personalities[i].shoot_angle;
 		float* shoot_dist =
@@ -70,6 +76,9 @@ void ai_register_tweaks(Tweaks* tweaks) {
 		AI_TWEAK(steer_tg_min_dist, 0.0f, 300.0f);
 		AI_TWEAK(steer_tg_coast_dist, 0.0f, 300.0f);
 		AI_TWEAK(steer_tg_no_steer_dist, 0.0f, 100.0f);
+		AI_TWEAK(no_oversteer_dist, 0.0f, 400.0f);
+		AI_TWEAK(oversteer_factor, 0.0f, PI/2.0f);
+		AI_TWEAK(min_defend_target_dist, 0.0f, 100.0f);
 		AI_TWEAK(shoot_angle, 0.0f, PI);
 		AI_TWEAK(shoot_dist, 0.0f, 300.0f);
 		AI_TWEAK(estimated_speed, 0.0f, 300.0f);
@@ -260,7 +269,8 @@ void _agent_think(uint id) {
 		// choose new target node
 		Vector2 ship_pos = physics_state.ships[agent->ship_id].pos;
 		Vector2 target_pos = arena->nav_mesh.navpoints[agents->steer_tg_node];
-		if(vec2_length_sq(vec2_sub(ship_pos, target_pos)) < 32.0f * 32.0f) {
+		float min_dist = agent->personality->min_defend_target_dist;
+		if(vec2_length_sq(vec2_sub(ship_pos, target_pos)) < min_dist * min_dist) {
 			agent->dest_node = arena_platform_nearby_navpoint(agent->platform);
 			agent->steer_tg_node = arena_closest_navpoint(ship_pos);
 		}
@@ -291,7 +301,7 @@ void _agent_steer(uint id) {
 	// Steer tg visibility
 	bool visible = ai_vis_query(&arena->nav_mesh, phys_state->pos, steer_tg_pos);
 
-	if(distance < tg_advance_sq || visible) {
+	if(visible) {
 		uint old_steer_tg_node = agent->steer_tg_node;
 		agent->steer_tg_node = ai_find_next_path_node(&arena->nav_mesh, 
 			agent->steer_tg_node, agent->dest_node);
@@ -345,6 +355,9 @@ void _agent_steer(uint id) {
 		if(i == agent->ship_id)
 			continue;
 
+		if(physics_state.ships[i].exploded)
+			continue;
+
 		Vector2 pos = physics_state.ships[i].pos;	
 		Vector2 ship_to_ship = vec2_sub(pos, phys_state->pos);
 		float distance_sq = vec2_length_sq(ship_to_ship);
@@ -388,8 +401,20 @@ void ai_update(void) {
 		Vector2 ship_to_steer_tg = vec2_sub(path.p2, path.p1);
 
 		float angle, distance = vec2_length(ship_to_steer_tg);
-		if(distance > agents[i].personality->steer_tg_no_steer_dist) 
-			angle = vec2_angle(unit_vector, ship_to_steer_tg); 
+		float ship_angle = angle = vec2_angle(unit_vector, ship_dir);
+		if(distance > agents[i].personality->steer_tg_no_steer_dist) { 
+			angle = vec2_angle(unit_vector, ship_to_steer_tg);
+
+			// Oversteer a bit, more closer to the target
+			float dangle = angle - ship_angle;
+			float ovrsteer_dir = dangle / fabsf(dangle); 
+			float min_ovrsteer_dist = agents[i].personality->steer_tg_no_steer_dist;
+			float max_ovrsteer_dist = agents[i].personality->no_oversteer_dist;
+			float ovrsteer_t = 1.0f - clamp(0.0, 1.0f, (distance - min_ovrsteer_dist) 
+				/ (max_ovrsteer_dist - min_ovrsteer_dist)); 
+
+			angle += ovrsteer_dir * ovrsteer_t * agents[i].personality->oversteer_factor;
+		}	
 		else
 			angle = vec2_angle(unit_vector, ship_dir);
 

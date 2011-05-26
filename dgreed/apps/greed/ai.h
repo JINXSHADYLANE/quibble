@@ -28,6 +28,12 @@ typedef struct {
 	float steer_tg_coast_distance;
 	// If target is closer than this, do not steer
 	float steer_tg_no_steer_dist;
+	// No oversteer beyond this distance;
+	float no_oversteer_dist;
+	// Amount of max oversteer in radians
+	float oversteer_factor;
+	// Change defend target when closer than this
+	float min_defend_target_dist;
 
 	// If there is a ship in front within this distance and angle, shoot
 	float shoot_angle;
