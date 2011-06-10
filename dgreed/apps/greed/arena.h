@@ -2,6 +2,7 @@
 #define ARENA_H
 
 #include "utils.h"
+#include "darray.h"
 #include "system.h"
 #include "game.h"
 #include "ai_precalc.h"
@@ -36,6 +37,7 @@ typedef struct {
 	float* density_map;
 	NavMesh nav_mesh;
 
+	DArray objects;
 } ArenaDesc;
 
 extern uint total_arenas;

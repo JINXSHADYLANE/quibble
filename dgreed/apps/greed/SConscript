@@ -24,6 +24,7 @@ greed_sources = Split("""
 	menus.c
 	state.c
 	controls.c
+	objects.c
 """)
 greed_objects = env.Object(greed_sources)
 
