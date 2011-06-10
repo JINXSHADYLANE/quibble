@@ -438,6 +438,20 @@ Vector2 mml_getval_vec2(MMLObject* mml, NodeIdx node) {
 	return result;
 }
 
+RectF mml_getval_rectf(MMLObject* mml, NodeIdx node) {
+	RectF result;
+	sscanf(mml_getval_str(mml, node), "%f,%f,%f,%f",
+		&result.left, &result.top, &result.right, &result.bottom
+	);
+	return result;
+}
+
+Color mml_getval_color(MMLObject* mml, NodeIdx node) {
+	uint r, g, b, a;
+	sscanf(mml_getval_str(mml, node), "%u,%u,%u,%u", &r, &g, &b, &a);
+	return COLOR_RGBA(r, g, b, a);
+}
+
 void mml_setval_str(MMLObject* mml, NodeIdx node, const char* val) {
 	assert(mml);
 	assert(node < mml->node_pool.size);
@@ -475,6 +489,22 @@ void mml_setval_float(MMLObject* mml, NodeIdx node, float val) {
 void mml_setval_vec2(MMLObject* mml, NodeIdx node, Vector2 val) {
 	char str_val[64];
 	sprintf(str_val, "%f,%f", val.x, val.y);
+	mml_setval_str(mml, node, str_val);
+}
+
+void mml_setval_rectf(MMLObject* mml, NodeIdx node, RectF val) {
+	char str_val[128];
+	sprintf(str_val, "%f,%f,%f,%f", 
+		val.left, val.top, val.right, val.bottom
+	);
+	mml_setval_str(mml, node, str_val);
+}
+
+void mml_setval_color(MMLObject* mml, NodeIdx node, Color val) {
+	byte r, g, b, a;
+	char str_val[64];
+	COLOR_DECONSTRUCT(val, r, g, b, a);
+	sprintf(str_val, "%hhu,%hhu,%hhu,%hhu", r, g, b, a);
 	mml_setval_str(mml, node, str_val);
 }
 		
