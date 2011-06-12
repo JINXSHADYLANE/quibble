@@ -2,6 +2,7 @@
 #include "mml.h"
 #include "memory.h"
 #include "darray.h"
+#include "objects.h"
 
 #define ARENA_LAYER 1
 #define SHADOWS_LAYER 2
@@ -94,6 +95,7 @@ void arena_init(void) {
 	current_arena_desc.background_img = MAX_UINT32;
 	current_arena_desc.walls_img = MAX_UINT32;
 	current_arena_desc.density_map = NULL;
+	current_arena_desc.objects.reserved = 0;
 }
 
 void _arena_prep_reset(void) {
@@ -124,6 +126,10 @@ void _arena_prep_reset(void) {
 		ai_free_navmesh(current_arena_desc.nav_mesh);
 		current_arena_desc.nav_mesh.n_nodes = 0;
 	}	
+	if(current_arena_desc.objects.reserved != 0) {
+		darray_free(&current_arena_desc.objects);
+		current_arena_desc.objects.reserved = 0;
+	}
 }
 
 void arena_close(void) {
@@ -252,6 +258,16 @@ void arena_reset(const char* filename, uint n_ships) {
 		platform = mml_get_next(&desc, platform);
 	}
 
+	// Read objects
+	NodeIdx objects_node = mml_get_sibling(&desc, platforms_node, "objects");
+	if(objects_node)
+		objects_load(&desc, objects_node, &current_arena_desc.objects);
+	else 
+		// No objects in mml, create empty darray (for editmode)
+		current_arena_desc.objects = darray_create(sizeof(Object), 0);
+
+	objects_reset(&current_arena_desc.objects);
+
 	mml_free(&desc);
 }
 
@@ -341,10 +357,13 @@ void arena_draw(void) {
 
 	if(!current_arena_desc.no_wall_shadows)
 		_arena_draw_shadow(COLOR_WHITE);
+
+	objects_render(time_ms() / 1000.0f, 255);
 }		
 
 void arena_draw_transition(float t) {
 	Color c = color_lerp(COLOR_WHITE, COLOR_WHITE&0xFFFFFF, t);
+	int alpha = c >> 24;
 
 	RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
 	video_draw_rect(current_arena_desc.background_img, ARENA_LAYER, 
@@ -359,6 +378,8 @@ void arena_draw_transition(float t) {
 
 	if(!current_arena_desc.no_wall_shadows)
 		_arena_draw_shadow(c);
+
+	objects_render(time_ms() / 1000.0f, alpha);
 }
 
 const char* arena_get_current(void) {

@@ -6,8 +6,6 @@
 #include "system.h"
 #include "mml.h"
 
-const char* object_anim_names[] = { "none", "loop", "blink" };
-
 typedef enum {
 	OBJANIM_NONE = 0,
 	OBJANIM_LOOP,
@@ -40,7 +38,7 @@ void objects_close(void);
 void objects_reset(DArray* objs);
 void objects_load(MMLObject* mml, NodeIdx node, DArray* objs);
 void objects_save(MMLObject* mml, NodeIdx node, DArray* objs);
-void objects_render(float t);
+void objects_render(float t, uint alpha);
 
 #endif
 
