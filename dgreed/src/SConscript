@@ -5,7 +5,8 @@ malka = SConscript('malka/SConscript', exports='env')
 sources = Glob('*.c', strings=True)
 
 if str(Platform()) == 'darwin':
-	sources += ['SDLMain.m']
+	sources += ['NSFileManager+DirectoryLocations.m', 'SDLMain.m']
+	env.Append(LINKFLAGS=' -all_load')
 
 dgreed = env.Library('dgreed' + env['DGREED_POSTFIX'], sources)
 env.Install('#'+env['DGREED_BIN_DIR'], dgreed)
