@@ -11,6 +11,7 @@
 #include "menus.h"
 #include "state.h"
 #include "controls.h"
+#include "objects.h"
 
 #define ENERGYBAR_LAYER 6
 #define FOREGROUND_LAYER 5
@@ -195,6 +196,7 @@ void game_init(void) {
 	arenas_init();
 	arena_init();
 	physics_init();
+	objects_init("greed_assets/object_defs.mml");
 
 	atlas1 = tex_load("greed_assets/atlas1.png");
 	shards = tex_load("greed_assets/shards.png");
@@ -263,6 +265,7 @@ void game_close(void) {
 	tex_free(atlas1);
 	tex_free(shards);
 
+	objects_close();
 	physics_close();
 	arena_close();
 	arenas_close();

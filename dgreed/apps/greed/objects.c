@@ -2,6 +2,8 @@
 #include "gfx_utils.h"
 #include "memory.h"
 
+static const char* object_anim_names[] = { "none", "loop", "blink" };
+
 uint n_object_defs = 0;
 ObjectDef* object_defs = NULL;
 DArray* objects = NULL;
@@ -50,7 +52,7 @@ void objects_init(const char* defs_file) {
 		assert(frames != 0);
 		def->start_frame = frames_array.size;
 		def->n_frames = mml_count_children(&defs, frames);
-		for(NodeIdx frame = mml_get_first_child(&defs, frame);
+		for(NodeIdx frame = mml_get_first_child(&defs, frames);
 			frame != 0;
 			frame = mml_get_next(&defs, frame)) {
 			
@@ -84,11 +86,13 @@ void objects_close(void) {
 	for(uint i = 0; i < n_object_defs; ++i) {
 		ObjectDef* def = &object_defs[i];
 		MEM_FREE(def->name);
+		tex_free(def->texture);
 	}
 	darray_free(&frames_array);
+	MEM_FREE(object_defs);
 }
 
-void object_reset(DArray* objs) {
+void objects_reset(DArray* objs) {
 	assert(objs);
 	assert(sizeof(Object) == objs->item_size);
 
@@ -174,8 +178,9 @@ static uint _get_frame(Object* obj, float t) {
 	return 0;
 }
 
-void objects_render(float t) {
+void objects_render(float t, uint alpha) {
 	assert(objects);
+	assert(alpha < 256);
 
 	Object* objs = DARRAY_DATA_PTR(*objects, Object);
 	for(uint i = 0; i < objects->size; ++i) {
@@ -183,10 +188,14 @@ void objects_render(float t) {
 
 		uint frame = _get_frame(obj, t);
 
+		// Multiplicative alpha chanel blend, integer ops only
+		int final_alpha = alpha * (obj->color >> 24) / 256;
+		Color final = final_alpha << 24 | (obj->color & 0xFFFFFF);
+
 		gfx_draw_textured_rect(
 			obj->def->texture, obj->layer,
 			&frames[frame], &obj->pos, obj->rot,
-			obj->size, obj->color
+			obj->size, final 
 		);
 	}
 }
