@@ -13,6 +13,7 @@
 
 #include "memory.h"
 #include "wav.h"
+#include "darray.h"
 
 #define STBI_HEADER_FILE_ONLY
 #include "stb_image.c"
@@ -21,9 +22,6 @@
 #include "stb_vorbis.c"
 
 #define BUCKET_COUNT 16
-#define LINE_BUCKET_SIZE 1024 
-#define RECT_BUCKET_SIZE 4096 
-#define MAX_TEXTURES 64
 #define FPS_LIMIT 60
 #define MS_PER_FRAME (1000 / FPS_LIMIT)
 
@@ -51,14 +49,12 @@ typedef struct {
 
 bool draw_gfx_debug = false;
 
-static TexturedRectDesc rect_buckets[BUCKET_COUNT][RECT_BUCKET_SIZE];
-static uint rect_buckets_sizes[BUCKET_COUNT] = {0};
+static DArray rect_buckets[BUCKET_COUNT];
+static DArray line_buckets[BUCKET_COUNT];
+static DArray textures;
 
-static LineDesc line_buckets[BUCKET_COUNT][LINE_BUCKET_SIZE];
-static uint line_buckets_sizes[BUCKET_COUNT] = {0};
-
-static Texture textures[MAX_TEXTURES];
-static uint texture_count;
+static uint radix_counts[256];
+static DArray rects_out;
 
 static uint frame;
 
@@ -88,41 +84,78 @@ int main(int argc, char** argv) {
 	return dgreed_main(argc, argv);
 }
 
-void _radix_pass_rect(TexturedRectDesc* in, TexturedRectDesc* out, uint count,
-	uint radix) {
-	assert(in);
-	assert(out);
-	assert(count <= RECT_BUCKET_SIZE);
-	assert(radix < 4);
+static void _insertion_sort(DArray rect_bucket) {
+	assert(rect_bucket.size > 1);
+	
+	TexturedRectDesc* rects = DARRAY_DATA_PTR(rect_bucket, TexturedRectDesc);
 
-	uint i;
-	uint counts[256] = {0};
-	uint start_index[256] = {0};
+	for(int i = 1; i < rect_bucket.size; ++i) {
+		TexturedRectDesc key = rects[i];
+		int j = i-1;
+		while(j >= 0 && rects[j].tex > key.tex) {
+			rects[j+1] = rects[j];
+			j--;
+		}
+		rects[j+1] = key;
+	}
+}
 
-	for(i = 0; i < count; ++i)
-		counts[(in[i].tex >> (radix * 8)) & 0xFF]++;
-	for(i = 1; i < 256; ++i)
-		start_index[i] = start_index[i-1] + counts[i-1];
-	for(i = 0; i < count; ++i)
-		out[start_index[(in[i].tex >> (radix * 8)) & 0xFF]++] = in[i];
-}		
+static void _sort_rects(DArray rects_in) {
+	assert(rects_in.size > 1);
+		
+	// Insertion sort for small buffers
+	if(rects_in.size <= 8) {
+		_insertion_sort(rects_in);
+		return;
+	}	
+	
+	// Assure out buffer is big enough
+	rects_out.size = 0;
+	if(rects_out.reserved < rects_in.size)
+		darray_reserve(&rects_out, MAX(rects_in.size, rects_out.reserved*2));
+	
+	assert(rects_out.reserved >= rects_in.size);
+	assert(rects_out.item_size == rects_in.item_size);
+	
+	TexturedRectDesc* r_in = DARRAY_DATA_PTR(rects_in, TexturedRectDesc);
+	TexturedRectDesc* r_out = DARRAY_DATA_PTR(rects_out, TexturedRectDesc);
+	
+	uint i, unique_textures = 0, switches = 0;
+	memset(radix_counts, 0, sizeof(radix_counts));
+	
+	// If there is more than 255 textures our simple count sort won't work
+	assert(textures.size < 256);
+	
+	// Calculate histogram, unsorted texture switches, unique textures
+	for(i = 0; i < rects_in.size; ++i) {
+		size_t idx = r_in[i].tex & 0xFF;
+		radix_counts[idx]++;
+		if (radix_counts[idx] == 1)
+			unique_textures++;
+		if(i > 0 && r_in[i].tex != r_in[i-1].tex)
+			switches++;
+	}	
+	
+	// Don't bother sorting if it wouldn't decrease batch count
+	if(unique_textures < 3 || unique_textures == switches)
+		return;
+	
+	// Convert histogram to start indices
+	for(i = 1; i < ARRAY_SIZE(radix_counts); ++i)
+		radix_counts[i] = radix_counts[i-1] + radix_counts[i];
+	
+	// Count sort (single pass of radix sort - texture amount is not a large
+	// number)
+	uint r0 = 0;
+	for(i = 0; i < rects_in.size; ++i) {
+		size_t idx = r_in[i].tex & 0xFF;
+		uint* dest = idx ? &radix_counts[idx-1] : &r0;
+		r_out[(*dest)++] = r_in[i];
+	}			  
+	
+	memcpy(r_in, r_out, rects_in.size * rects_in.item_size);	
+}
 
-// Sorts single bucket of TexturedRectDescs using radix sort.
-void _sort_rect_bucket(uint bucket) {
-	assert(bucket < BUCKET_COUNT);
-	assert(rect_buckets_sizes[bucket] > 1);
-
-	TexturedRectDesc rect_sorted_temp[RECT_BUCKET_SIZE];
-
-	_radix_pass_rect(rect_buckets[bucket], rect_sorted_temp,
-		rect_buckets_sizes[bucket], 0);
-	_radix_pass_rect(rect_sorted_temp, rect_buckets[bucket],
-		rect_buckets_sizes[bucket], 1);
-	_radix_pass_rect(rect_buckets[bucket], rect_sorted_temp,
-		rect_buckets_sizes[bucket], 2);
-	_radix_pass_rect(rect_sorted_temp, rect_buckets[bucket],
-		rect_buckets_sizes[bucket], 3);
-}	
 
 static void _init_sdl(void) {
 	if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO) < 0)
@@ -189,12 +222,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 	gluOrtho2D(0.0, (double)v_width, (double)v_height, 0.0);
 
 	frame = 0;
-	texture_count = 0;
 	
-	uint i;
-	for(i = 0; i < MAX_TEXTURES; ++i)
-		textures[i].active = false;
-
 	x_size_factor = (float)v_width / (float)width;
 	y_size_factor = (float)v_height / (float)height;
 
@@ -205,6 +233,14 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 	v_stats.layer_lines = (uint*)MEM_ALLOC(sizeof(uint) * BUCKET_COUNT);
 	#endif
 
+	// Init renderer state darrays
+	rects_out = darray_create(sizeof(TexturedRectDesc), 32);
+	textures = darray_create(sizeof(Texture), 16);
+	for(uint i = 0; i < BUCKET_COUNT; ++i) {
+		rect_buckets[i] = darray_create(sizeof(TexturedRectDesc), 32);
+		line_buckets[i] = darray_create(sizeof(LineDesc), 32);
+	}
+
 	LOG_INFO("Video initialized");
 }	
 
@@ -214,7 +250,6 @@ void video_init_exr(uint width, uint height, uint v_width, uint v_height,
 	video_init_ex(width, height, v_width, v_height, name, fullscreen);
 }
 
-// TODO: Fix this
 void video_close(void) {
 	SDL_Quit();
 
@@ -223,7 +258,23 @@ void video_close(void) {
 	MEM_FREE(v_stats.layer_lines);
 	#endif
 
-	// ...
+	// Look for unfreed textures
+	if(textures.size) {
+		Texture* tex = DARRAY_DATA_PTR(textures, Texture);
+		for(uint i = 0; i < textures.size; ++i) {
+			if(tex[i].active) 
+				LOG_WARNING("Texture %s still unfreed!", tex[i].file);
+		}
+	}
+
+	// Free renderer state darrays
+	darray_free(&textures);
+	darray_free(&rects_out);
+	for(uint i = 0; i < BUCKET_COUNT; ++i) {
+		darray_free(&rect_buckets[i]);
+		darray_free(&line_buckets[i]);
+	}
+
 	LOG_INFO("Video closed");
 }	
 
@@ -246,22 +297,23 @@ void video_present(void) {
 
 	#ifndef NO_DEVMODE
 	v_stats.frame = frame+1;
-	v_stats.active_textures = texture_count;
+	v_stats.active_textures = textures.size;
 	v_stats.frame_layer_sorts = v_stats.frame_batches = v_stats.frame_rects = 0;
 	v_stats.frame_lines = v_stats.frame_texture_switches = 0;
-	memcpy(v_stats.layer_rects, rect_buckets_sizes, sizeof(rect_buckets_sizes));
-	memcpy(v_stats.layer_lines, line_buckets_sizes, sizeof(line_buckets_sizes));
+	for(uint i = 0; i < BUCKET_COUNT; ++i) {
+		v_stats.layer_rects[i] = rect_buckets[i].size;
+		v_stats.layer_lines[i] = line_buckets[i].size;
+	}
 	#endif
 
 	// Sort texture rects to minimize texture binding 
 	for(i = 0; i < BUCKET_COUNT; ++i) {
-		if(rect_buckets_sizes[i] <= 1)
-			continue;
-		_sort_rect_bucket(i);	
-		
-		#ifndef NO_DEVMODE
-		v_stats.frame_layer_sorts++;
-		#endif
+		if(rect_buckets[i].size > 2) {
+			_sort_rects(rect_buckets[i]);	
+			#ifndef NO_DEVMODE
+			v_stats.frame_layer_sorts++;
+			#endif
+		}
 	}	
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -271,9 +323,10 @@ void video_present(void) {
 	bool drawing = false;
 	float r, g, b, a;	
 	for(i = 0; i < BUCKET_COUNT; ++i) {
+		TexturedRectDesc* rects = DARRAY_DATA_PTR(rect_buckets[i], TexturedRectDesc);
 		// Draw rects
-		for(j = 0; j < rect_buckets_sizes[i]; ++j) {
-			TexturedRectDesc rect = rect_buckets[i][j];
+		for(j = 0; j < rect_buckets[i].size; ++j) {
+			TexturedRectDesc rect = rects[j];
 			if(active_tex != rect.tex) {
 				if(drawing) {
 					glEnd();
@@ -347,58 +400,59 @@ void video_present(void) {
 			#endif
 		}	
 
-		glDisable(GL_TEXTURE_2D);
-		glBegin(GL_LINES);
-		glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
-		if(draw_gfx_debug) {
-			for(j = 0; j < rect_buckets_sizes[i]; ++j) {
-				TexturedRectDesc rect = rect_buckets[i][j];
+		if(line_buckets[i].size || draw_gfx_debug) {
+			glDisable(GL_TEXTURE_2D);
+			glBegin(GL_LINES);
+			glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
+			if(draw_gfx_debug) {
+				for(j = 0; j < rect_buckets[i].size; ++j) {
+					TexturedRectDesc rect = rects[j];
 
-				float rot = rect.rotation;
-				Vector2 tl = vec2(rect.dest.left, rect.dest.top);
-				Vector2 tr = vec2(rect.dest.right, rect.dest.top);
-				Vector2 br = vec2(rect.dest.right, rect.dest.bottom);
-				Vector2 bl = vec2(rect.dest.left, rect.dest.bottom);
-				Vector2 cnt = vec2((rect.dest.left + rect.dest.right) / 2.0f,
-					(rect.dest.top + rect.dest.bottom) / 2.0f);
+					float rot = rect.rotation;
+					Vector2 tl = vec2(rect.dest.left, rect.dest.top);
+					Vector2 tr = vec2(rect.dest.right, rect.dest.top);
+					Vector2 br = vec2(rect.dest.right, rect.dest.bottom);
+					Vector2 bl = vec2(rect.dest.left, rect.dest.bottom);
+					Vector2 cnt = vec2((rect.dest.left + rect.dest.right) / 2.0f,
+						(rect.dest.top + rect.dest.bottom) / 2.0f);
 
-				tl = vec2_add(vec2_rotate(vec2_sub(tl, cnt), rot), cnt);
-				tr = vec2_add(vec2_rotate(vec2_sub(tr, cnt), rot), cnt);
-				br = vec2_add(vec2_rotate(vec2_sub(br, cnt), rot), cnt);
-				bl = vec2_add(vec2_rotate(vec2_sub(bl, cnt), rot), cnt);
+					tl = vec2_add(vec2_rotate(vec2_sub(tl, cnt), rot), cnt);
+					tr = vec2_add(vec2_rotate(vec2_sub(tr, cnt), rot), cnt);
+					br = vec2_add(vec2_rotate(vec2_sub(br, cnt), rot), cnt);
+					bl = vec2_add(vec2_rotate(vec2_sub(bl, cnt), rot), cnt);
 
-				glVertex2f(tl.x, tl.y);
-				glVertex2f(tr.x, tr.y);
+					glVertex2f(tl.x, tl.y);
+					glVertex2f(tr.x, tr.y);
 
-				glVertex2f(tr.x, tr.y);
-				glVertex2f(br.x, br.y);
+					glVertex2f(tr.x, tr.y);
+					glVertex2f(br.x, br.y);
 
-				glVertex2f(br.x, br.y);
-				glVertex2f(bl.x, bl.y);
+					glVertex2f(br.x, br.y);
+					glVertex2f(bl.x, bl.y);
 
-				glVertex2f(bl.x, bl.y);
-				glVertex2f(tl.x, tl.y);
+					glVertex2f(bl.x, bl.y);
+					glVertex2f(tl.x, tl.y);
+				}
 			}
+
+			// Draw lines
+			LineDesc* lines = DARRAY_DATA_PTR(line_buckets[i], LineDesc);
+			for(j = 0; j < line_buckets[i].size; ++j) {
+				LineDesc line = lines[j];
+				_color_to_4f(line.color, &r, &g, &b, &a);
+				glColor4f(r, g, b, a);
+				glVertex2f(line.start.x, line.start.y);
+				glVertex2f(line.end.x, line.end.y);
+			}
+
+			glEnd();
+			glEnable(GL_TEXTURE_2D);
 		}
-
-		// Draw lines
-		for(j = 0; j < line_buckets_sizes[i]; ++j) {
-			LineDesc line = line_buckets[i][j];
-			_color_to_4f(line.color, &r, &g, &b, &a);
-
-			glColor4f(r, g, b, a);
-
-			glVertex2f(line.start.x, line.start.y);
-			glVertex2f(line.end.x, line.end.y);
-		}
-
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
 
 		#ifndef NO_DEVMODE
 		v_stats.frame_batches++;
-		v_stats.frame_rects += rect_buckets_sizes[i];
-		v_stats.frame_lines += line_buckets_sizes[i];
+		v_stats.frame_rects += rect_buckets[i].size;
+		v_stats.frame_lines += line_buckets[i].size;
 		#endif
 	}	
 
@@ -406,8 +460,8 @@ void video_present(void) {
 	frame++;
 
 	for(i = 0; i < BUCKET_COUNT; ++i) {	
-		rect_buckets_sizes[i] = 0;
-		line_buckets_sizes[i] = 0;
+		rect_buckets[i].size = 0;
+		line_buckets[i].size = 0;
 	}	
 }
 
@@ -416,15 +470,18 @@ uint video_get_frame(void) {
 }	
 
 TexHandle tex_load(const char* filename) {
+	assert(filename);
+
+	Texture* tex = DARRAY_DATA_PTR(textures, Texture);
 
 	bool inactive_found = false;
 	uint first_inactive = 0;
 
 	// Look if texture is already loaded
-	for(uint i = 0; i < MAX_TEXTURES; ++i) {
-		if(textures[i].active) {
-			if(strcmp(textures[i].file, filename) == 0) {
-				textures[i].retain_count++;
+	for(uint i = 0; i < textures.size; ++i) {
+		if(tex[i].active) {
+			if(strcmp(tex[i].file, filename) == 0) {
+				tex[i].retain_count++;
 				return i;
 			}	
 		}	
@@ -439,11 +496,7 @@ TexHandle tex_load(const char* filename) {
 	LOG_INFO("Loading texture from file %s", filename);
 
 	TexHandle result = first_inactive;
-	texture_count++;
 
-	if(texture_count > MAX_TEXTURES || !inactive_found)
-		LOG_ERROR("Texture pool overflow");
-	
 	// Read file to memory
 	FileHandle tex_file = file_open(filename);
 	uint size = file_size(tex_file);
@@ -475,57 +528,67 @@ TexHandle tex_load(const char* filename) {
 	if(error != GL_NO_ERROR)
 		LOG_ERROR("OpenGl error while loading texture, id %u", error);
 
-	// Update texture pool item
-	textures[result].width = width;
-	textures[result].height = height;
-	textures[result].gl_id = gl_id;
-	textures[result].file = strclone(filename);
-	textures[result].retain_count = 1;
-	textures[result].active = true;
-
 	stbi_image_free(decompr_data);
 	MEM_FREE(buffer);
+
+	Texture new;
+	new.width = width;
+	new.height = height;
+	new.gl_id = gl_id;
+	new.file = strclone(filename);
+	new.retain_count = 1;
+	new.active = true;
+
+	if(inactive_found) {
+		tex[first_inactive] = new;
+	}
+	else {
+		result = textures.size;
+		darray_append(&textures, &new);
+	}
 
 	return result;
 }	
 
 void tex_size(TexHandle tex, uint* width, uint* height) {
-	assert(tex < MAX_TEXTURES);
-	assert(textures[tex].active);
+	assert(tex < textures.size);
 	assert(width);
 	assert(height);
 
-	*width = textures[tex].width;
-	*height = textures[tex].height;
+	Texture* t = DARRAY_DATA_PTR(textures, Texture);
+	assert(t[tex].active);
+
+	*width = t[tex].width;
+	*height = t[tex].height;
 }	
 
 void tex_free(TexHandle tex) {
-	assert(tex < MAX_TEXTURES);
-	assert(textures[tex].active);
-	assert(textures[tex].retain_count > 0);
+	assert(tex < textures.size);
+	Texture* t = DARRAY_DATA_PTR(textures, Texture);
+	assert(t[tex].active);
+	assert(t[tex].retain_count > 0);
 
-	textures[tex].retain_count--;
-	if(textures[tex].retain_count == 0) {
-		glDeleteTextures(1, &textures[tex].gl_id);
-		MEM_FREE(textures[tex].file);
-		textures[tex].active = false;
+	t[tex].retain_count--;
+	if(t[tex].retain_count == 0) {
+		glDeleteTextures(1, &t[tex].gl_id);
+		MEM_FREE(t[tex].file);
+		t[tex].active = false;
 	}
 }	
 
 uint _get_gl_id(TexHandle tex) {
-	assert(tex < MAX_TEXTURES);
-	assert(textures[tex].active);
+	assert(tex < textures.size);
+	Texture* t = DARRAY_DATA_PTR(textures, Texture);
+	assert(t[tex].active);
+	assert(t[tex].retain_count > 0);
 
-	return textures[tex].gl_id;
+	return t[tex].gl_id;
 }	
 
 void video_draw_rect_rotated(TexHandle tex, uint layer,
 	const RectF* source, const RectF* dest, float rotation, Color tint) {
 	assert(layer < BUCKET_COUNT);
 	assert(dest);
-
-	if(rect_buckets_sizes[layer] == RECT_BUCKET_SIZE)
-		LOG_ERROR("Rect bucket %u overflow", layer);
 
 	uint texture_width, texture_height;
 	tex_size(tex, &texture_width, &texture_height);
@@ -550,13 +613,8 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 	real_source.right /= (float)texture_width;
 	real_source.bottom /= (float)texture_height;
 
-	uint rect_idx = rect_buckets_sizes[layer];
-	rect_buckets[layer][rect_idx].tex = tex;
-	rect_buckets[layer][rect_idx].source = real_source;
-	rect_buckets[layer][rect_idx].dest = real_dest;
-	rect_buckets[layer][rect_idx].tint = tint;
-	rect_buckets[layer][rect_idx].rotation = rotation;
-	rect_buckets_sizes[layer]++;
+	TexturedRectDesc new = {tex, real_source, real_dest, tint, rotation};
+	darray_append(&rect_buckets[layer], &new);
 }	
 
 void video_draw_rect(TexHandle tex, uint layer,
@@ -570,14 +628,8 @@ void video_draw_line(uint layer, const Vector2* start,
 	assert(start);
 	assert(end);
 
-	if(line_buckets_sizes[layer] == LINE_BUCKET_SIZE)
-		LOG_ERROR("Line bucket %u overflow", layer);
-
-	uint line_idx = line_buckets_sizes[layer];
-	line_buckets[layer][line_idx].start = *start;
-	line_buckets[layer][line_idx].end = *end;
-	line_buckets[layer][line_idx].color = color;
-	line_buckets_sizes[layer]++;
+	LineDesc new = {*start, *end, color};
+	darray_append(&line_buckets[layer], &new);
 }	
 
 /*
