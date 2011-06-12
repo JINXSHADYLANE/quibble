@@ -10,6 +10,8 @@
 #include <sys/param.h> /* for MAXPATHLEN */
 #include <unistd.h>
 
+#import "NSFileManager+DirectoryLocations.h"
+
 /* For some reaon, Apple removed setAppleMenu from the headers in 10.4,
  but the method still is there and works. To avoid warnings, we declare
  it ourselves here. */
@@ -42,6 +44,7 @@ static BOOL   gFinderLaunch;
 static BOOL   gCalledAppMainline = FALSE;
 
 const char* g_home_dir;
+const char* g_storage_dir;
 
 static NSString *getApplicationName(void)
 {
@@ -205,7 +208,16 @@ static void CustomApplicationMain (int argc, char **argv)
 	/* Get home directory for utils.c */
 	NSString* home = NSHomeDirectory();
 	g_home_dir = [home UTF8String];
-	[home release];
+
+#ifdef MACOSX_BUNDLE
+	/* Get application support directory */
+	NSFileManager* fileManager = [[NSFileManager alloc] init];
+	NSString* storage = [fileManager applicationSupportDirectory];
+	g_storage_dir = [storage UTF8String];
+	[fileManager release];
+#else
+	g_storage_dir = "./";
+#endif
 
     /* Ensure the application object is initialised */
     [NSApplication sharedApplication];
