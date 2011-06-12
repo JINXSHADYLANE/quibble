@@ -13,6 +13,7 @@
 
 CFBundleRef main_bundle;
 extern const char* g_home_dir;
+extern const char* g_storage_dir;
 
 char* path_to_resource(const char* _file) {
 	static bool main_bundle_initialized = false;
@@ -733,6 +734,16 @@ uint params_find(const char* param) {
 ---------------
 */
 
+#ifdef MACOSX_BUNDLE
+static FILE* _storage_fopen(const char* name, const char* mode) {
+	char storage_path[256];
+	assert(strlen(g_storage_dir) + strlen(name) < 254);
+	// TODO: Do we need to strip directories from name ?
+	sprintf(storage_path, "%s/%s", g_storage_dir, name);
+	return fopen(storage_path, mode);
+}
+#endif
+
 bool file_exists(const char* name) {
 	assert(name);
 
@@ -741,6 +752,8 @@ bool file_exists(const char* name) {
 	if(path == NULL)
 		return false;
 	FILE* file = fopen(path, "rb");
+	if(file == NULL)
+		file = _storage_fopen(name, "rb");
 	MEM_FREE(path);
 #else	
 	FILE* file = fopen(name, "rb");
@@ -753,18 +766,8 @@ bool file_exists(const char* name) {
 	return false;
 }
 
-FileHandle file_open(const char* _name) {
-	assert(_name);
-
-	char* name = strclone(_name);
-
-	// Filter out newlines
-	uint i = 0;
-	while(name[i]) {
-		if(name[i] == '\n')
-			name[i] = '\0';
-		++i;
-	}
+FileHandle file_open(const char* name) {
+	assert(name);
 
 #ifdef MACOSX_BUNDLE
 	char* path = path_to_resource(name);
@@ -773,12 +776,12 @@ FileHandle file_open(const char* _name) {
 		return 0;
 	}	
 	FILE* f = fopen(path, "rb");
+	if(f == NULL) 
+		f = _storage_fopen(name, "rb");
 	MEM_FREE(path);
 #else
 	FILE* f = fopen(name, "rb");
 #endif
-
-	MEM_FREE(name);
 
 	if(f == NULL) {
 		LOG_ERROR("Unable to open file %s", name);
@@ -881,7 +884,12 @@ void file_read(FileHandle f, void* dest, uint size) {
 FileHandle file_create(const char* name) {
 	assert(name);
 
+#ifdef MACOSX_BUNDLE
+	FILE* file = _storage_fopen(name, "wb");
+#else
 	FILE* file = fopen(name, "wb");
+#endif
+
 	if(file == NULL) {
 		LOG_ERROR("Unable to open file %s for writing", name);
 		return 0;
