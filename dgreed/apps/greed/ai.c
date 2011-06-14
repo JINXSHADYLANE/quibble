@@ -133,6 +133,8 @@ void ai_debug_draw() {
 		}
 	}
 
+	// Draw visibility grid
+	ai_debug_vis_draw(nav_mesh, DEBUG_DRAW_LAYER);
 }
 
 void _agent_set_state(uint id, AgentState new_state, uint prey_id) {

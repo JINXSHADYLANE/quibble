@@ -65,5 +65,8 @@ float ai_navmesh_distance(NavMesh* navmesh, Vector2 p1, Vector2 p2);
 // false negatives are possible, but not false positives
 bool ai_vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2);
 
+// Renders visibility bitmap
+void ai_debug_vis_draw(NavMesh* navmesh, uint layer);
+
 #endif
 
