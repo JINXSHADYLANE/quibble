@@ -697,3 +697,31 @@ bool ai_vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
 	return false;
 }
 
+void ai_debug_vis_draw(NavMesh* navmesh, uint layer) {
+	assert(navmesh);
+	assert(navmesh->vis_bitmap);
+
+	Color c = COLOR_RGBA(196, 196, 196, 96);
+
+	// Draw, join horizontal runs into spans
+	for(uint y = 0; y < vis_bitmap_height; ++y) {
+		RectF dest = {
+			0.0f, (float)y * vis_cell_height, 
+			0.0f, (float)(y+1) * vis_cell_height
+		};
+		for(uint x = 0; x < vis_bitmap_width; ++x) {
+			if(_query_vis_bitmap(navmesh, x, y)) {
+				dest.right += vis_cell_width;
+			}
+			else {
+				if(rectf_width(&dest) > 0.0f) 
+					video_draw_rect(0, layer, NULL, &dest, c);
+				
+				dest.left = dest.right = (float)(x+1) * vis_cell_width;
+			}
+		}
+		if(rectf_width(&dest) > 0.0f) 
+			video_draw_rect(0, layer, NULL, &dest, c);
+	}
+}
+
