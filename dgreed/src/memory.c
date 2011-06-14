@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "memory.h"
 
-#define MAX_ALLOCATIONS 4096
+#define MAX_ALLOCATIONS 8192 
 
 typedef struct {
 	unsigned int id;
@@ -29,7 +29,10 @@ void* mem_alloc(size_t size, const char* file, int line) {
 	void* ptr = malloc(size + sizeof(MemBlockHeader));
 	
 	assert(size);
-	assert(allocations_count < MAX_ALLOCATIONS);
+	if(allocations_count == MAX_ALLOCATIONS) {
+		mem_dump("mem.txt");	
+		assert(0 && "Too many mem allocs!");
+	}
 	assert(ptr);
 
 	// Fill new MemAllocation struct

@@ -87,11 +87,13 @@ cpPolyShapeDestroy(cpShape *shape)
 {
 	cpPolyShape *poly = (cpPolyShape *)shape;
 	
-	cpfree(poly->verts);
-	cpfree(poly->tVerts);
-	
-	cpfree(poly->axes);
-	cpfree(poly->tAxes);
+	if(poly->numVerts != 3) {
+		cpfree(poly->verts);
+		cpfree(poly->tVerts);
+		
+		cpfree(poly->axes);
+		cpfree(poly->tAxes);
+	}
 }
 
 static int
@@ -112,10 +114,18 @@ cpPolyShapeInit(cpPolyShape *poly, cpBody *body, int numVerts, cpVect *verts, cp
 {	
 	poly->numVerts = numVerts;
 
-	poly->verts = (cpVect *)cpcalloc(numVerts, sizeof(cpVect));
-	poly->tVerts = (cpVect *)cpcalloc(numVerts, sizeof(cpVect));
-	poly->axes = (cpPolyShapeAxis *)cpcalloc(numVerts, sizeof(cpPolyShapeAxis));
-	poly->tAxes = (cpPolyShapeAxis *)cpcalloc(numVerts, sizeof(cpPolyShapeAxis));
+	if(numVerts == 3) {
+		poly->verts = &poly->triVects[0];
+		poly->tVerts = &poly->triVects[3];
+		poly->axes = &poly->triAxes[0];
+		poly->tAxes = &poly->triAxes[3];
+	}
+	else {
+		poly->verts = (cpVect *)cpcalloc(numVerts, sizeof(cpVect));
+		poly->tVerts = (cpVect *)cpcalloc(numVerts, sizeof(cpVect));
+		poly->axes = (cpPolyShapeAxis *)cpcalloc(numVerts, sizeof(cpPolyShapeAxis));
+		poly->tAxes = (cpPolyShapeAxis *)cpcalloc(numVerts, sizeof(cpPolyShapeAxis));
+	}
 	poly->scale = 1.0f;
 	
 	for(int i=0; i<numVerts; i++){

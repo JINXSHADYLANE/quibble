@@ -42,6 +42,10 @@ typedef struct cpPolyShape{
 
 	// Scaling coefficient
 	float scale;
+
+	// Greed hack for triangular shapes (saves mallocs)
+	cpVect triVects[6];
+	cpPolyShapeAxis triAxes[6];
 } cpPolyShape;
 
 // Basic allocation functions.

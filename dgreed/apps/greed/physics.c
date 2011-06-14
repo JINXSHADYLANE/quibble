@@ -314,8 +314,8 @@ void _space_init(void) {
 
 
 	// TODO: Tweak these numbers
-	cpSpaceResizeStaticHash(space, 64.0f, 100);
-	cpSpaceResizeActiveHash(space, 32.0f, 500);
+	cpSpaceResizeStaticHash(space, 32.0f, 1000);
+	cpSpaceResizeActiveHash(space, 32.0f, 100);
 
 	space->gravity = cpvzero;
 
