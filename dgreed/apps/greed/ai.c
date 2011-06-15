@@ -351,6 +351,11 @@ void _agent_steer(uint id) {
 		}	
 	}
 
+	// If we're standing still - something is not right;
+	// accelerate just for the fun of it!
+	if(vec2_length_sq(phys_state->vel) < 0.5f)
+		agent->accelerate = 2;
+
 	// Look for ships to shoot
 	agent->shoot = false;
 	for(uint i = 0; i < n_ships; ++i) {

@@ -8,6 +8,8 @@
 #define STBI_HEADER_FILE_ONLY
 #include "stb_image.c"
 
+#include <ctype.h>
+
 const uint width = 480;
 const uint height = 320;
 const uint density_width = 30;
@@ -16,6 +18,7 @@ const uint density_height = 20;
 #define COLOR_SHADOW COLOR_RGBA(0, 0, 0, 196)
 #define COLOR_EMPTY COLOR_RGBA(0, 0, 0, 0)
 
+uint chapter = 0;
 const char* backg_img_filename = NULL;
 const char* walls_img_filename = NULL;
 const char* density_filename = NULL;
@@ -35,7 +38,21 @@ float* density_map = NULL;
 
 FileHandle precalc_file = (FileHandle)NULL;
 
+// externs for modifying navmesh builder settings
+extern float min_wall_distance;
+extern float min_point_distance;
+extern float max_edge_distance;
+
 void init(const char* mml_file) {
+	// Get chapter - second-to-last digit in filename 
+	// Works as long as arenas are named cx_arenay
+	uint i = strlen(mml_file);
+	while(i && !isdigit(mml_file[--i]));
+	while(i && !isdigit(mml_file[--i]));
+	assert(i);
+	chapter = mml_file[i] - '0';
+	printf("chapter: %d\n", chapter);
+
 	char* mml_text = txtfile_read(mml_file);
 	if(!mml_deserialize(&arena_mml, mml_text))
 		LOG_ERROR("Failed to deserialize arena description file");
@@ -267,6 +284,13 @@ void gen_precalc_data(void) {
 
 		darray_append(&platforms, (void*)&p);
 	}	
+
+	// Set navmesh settings, special for fourth chapter
+	if(chapter == 4) {
+		min_wall_distance = 21.0f;
+		min_point_distance = 19.0f;
+		max_edge_distance = 40.0f;
+	}
 
 	NavMesh	nav_mesh = ai_precalc_navmesh(segments, platforms,
 		(float)width, (float)height);
