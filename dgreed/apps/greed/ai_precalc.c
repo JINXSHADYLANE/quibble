@@ -618,13 +618,10 @@ float ai_navmesh_distance(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
 static bool _vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
 	int step_x, step_y, bmap_x, bmap_y, bmap_end_x, bmap_end_y;
 
-	bmap_x = floorf(p1.x / vis_cell_width);
-	bmap_y = floorf(p1.y / vis_cell_height);
-	bmap_end_x = floorf(p2.x / vis_cell_width);
-	bmap_end_y = floorf(p2.y / vis_cell_height);
-
-	assert(bmap_x < vis_bitmap_width && bmap_end_x < vis_bitmap_width);
-	assert(bmap_y < vis_bitmap_height && bmap_end_y < vis_bitmap_height);
+	bmap_x = MIN(floorf(p1.x / vis_cell_width), vis_bitmap_width-1);
+	bmap_y = MIN(floorf(p1.y / vis_cell_height), vis_bitmap_height-1);
+	bmap_end_x = MIN(floorf(p2.x / vis_cell_width), vis_bitmap_width-1);
+	bmap_end_y = MIN(floorf(p2.y / vis_cell_height), vis_bitmap_height-1);
 
 	Vector2 dir = vec2_sub(p2, p1);
 	dir = vec2_normalize(dir);
