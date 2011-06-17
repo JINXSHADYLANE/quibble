@@ -431,6 +431,9 @@ function arena.init()
 	boy.init()
 	chars.init()
 
+	-- Change to stage_man.lua
+	dofile(script..'stage_0.lua')
+
 	active_arena = room
 end
 
@@ -555,6 +558,8 @@ function arena.switch()
 end
 
 function arena.screen_update()
+
+
 	-- check if boy is going to the other arena
 	if (boy.pos.y + boy.h + 5 >= screen.b) and key.down(key.b) then
 			arena.switch_dir = direction.down
