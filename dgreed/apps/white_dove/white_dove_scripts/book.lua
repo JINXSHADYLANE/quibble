@@ -2,16 +2,12 @@
 
 page = {
 	[1] = {
-		left = "Magic book, which shows you the way to unseen world",
-		right = "Press left or right arrow to search through pages"
-	},
-	[2] = {
 		left = "",
-		right = "You sould look for a red mage in this game"
-	},
+		right = ""
+	}
 }
 
-book_pages = 2
+book_pages = 0
 active_page = 1
 have_book = false
 

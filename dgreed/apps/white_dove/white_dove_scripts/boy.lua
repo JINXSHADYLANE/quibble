@@ -36,7 +36,7 @@ boy = {
 	col_rect = rect(), -- rectangle for collision checking
 
 	size = 1,
-	speed = 0.7,
+	speed = 0.35,
 	dx = 3,
 	w = 91,
 	h = 273
