@@ -14,7 +14,7 @@ const uint nn_samples = 10;
 
 const uint vis_bitmap_width = 3 * 32;
 const uint vis_bitmap_height = 2 * 32;
-const uint vis_bitmap_size= (3 * 32) * (2 * 32) / 32;
+const uint vis_bitmap_size = (3 * 32) * (2 * 32) / 32;
 
 Vector2 wraparound_offsets[5] =
 	{{10000.0f, 0.0f}, {0.0f, -10000.0f},
@@ -287,7 +287,7 @@ static void _precalc_vis(DArray geometry, NavMesh* res) {
 
 static bool _query_vis_bitmap(NavMesh* mesh, uint x, uint y) {
 	if(x >= vis_bitmap_width || y >= vis_bitmap_height)
-		return false;
+		return true;
 
 	uint cell = IDX_2D(x, y, vis_bitmap_width);
 	return (mesh->vis_bitmap[cell/32] & (1 << (31 - (cell % 32)))) != 0;
@@ -681,7 +681,7 @@ bool ai_vis_query(NavMesh* navmesh, Vector2 p1, Vector2 p2) {
 	assert(navmesh);
 	assert(navmesh->vis_bitmap);
 
-	Segment seg = {p1, p2};
+	Segment seg = ai_shortest_path(p1, p2);
 	Segment s1, s2;
 	bool split = ai_split_path(seg, &s1, &s2);
 

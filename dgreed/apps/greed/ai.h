@@ -50,6 +50,7 @@ typedef struct {
 
 	float last_think_t;
 	float last_steer_t;
+	float last_tg_seen_t;
 	AgentState state;
 	uint dest_node;
 	uint platform;

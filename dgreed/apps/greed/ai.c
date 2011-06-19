@@ -288,6 +288,8 @@ void _agent_think(uint id) {
 void _agent_steer(uint id) {
 	assert(id < MAX_AGENTS);
 
+	float t = time_ms() / 1000.0f;
+
 	Agent* agent = &agents[id];
 	ArenaDesc* arena = &current_arena_desc;
 		
@@ -304,6 +306,8 @@ void _agent_steer(uint id) {
 	bool visible = ai_vis_query(&arena->nav_mesh, phys_state->pos, steer_tg_pos);
 
 	if(visible) {
+		agent->last_tg_seen_t = t;
+
 		uint old_steer_tg_node = agent->steer_tg_node;
 		agent->steer_tg_node = ai_find_next_path_node(&arena->nav_mesh, 
 			agent->steer_tg_node, agent->dest_node);
@@ -336,7 +340,8 @@ void _agent_steer(uint id) {
 		}
 	}	
 
-	if(!visible && distance > agent->personality->steer_tg_max_distance) {
+	if((!visible && distance > agent->personality->steer_tg_max_distance) ||
+		t - agent->last_tg_seen_t > 1.0f) {
 		// "Recalc" path, steer tg is too far
 		steer_tg_pos = physics_state.ships[agent->ship_id].pos;
 		agent->steer_tg_node = arena_closest_navpoint(steer_tg_pos);
@@ -353,8 +358,8 @@ void _agent_steer(uint id) {
 
 	// If we're standing still - something is not right;
 	// accelerate just for the fun of it!
-	if(vec2_length_sq(phys_state->vel) < 0.5f)
-		agent->accelerate = 2;
+	if(vec2_length_sq(phys_state->vel) < 1.5f)
+		agent->accelerate = 3;
 
 	// Look for ships to shoot
 	agent->shoot = false;
