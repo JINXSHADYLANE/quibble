@@ -1264,6 +1264,14 @@ void mouse_pos(uint* x, uint* y) {
 	*y = (uint)((float)mouse_y * y_size_factor);
 }	
 
+uint touches_count(void) {
+	return 0;
+}
+
+Touch* touches_get(void) {
+	return NULL;
+}
+
 float t_ms = 0.0f, t_d = 0.0f;
 uint last_frame_time = 0, last_fps_update = 0;
 uint fps_count = 0;

@@ -1096,6 +1096,48 @@ void mouse_pos(uint* x, uint* y) {
 	*y = lmouse_y;
 }
 
+#define max_touches 11
+uint touch_count = 0;
+Touch touches[max_touches];
+
+void _touch_down(float x, float y) {
+	if(touch_count < max_touches) {
+		uint i = touch_count;
+		touches[i].hit_time = time_ms() / 1000.0f;
+		touches[i].pos = vec2(x, y);
+		touch_count++;
+	}
+}
+
+void _touch_move(float old_x, float old_y, float new_x, float new_y) {
+	for(uint i = 0; i < touch_count; ++i) {
+		if(touches[i].pos.x == old_x && touches[i].pos.y == old_y) {
+			touches[i].pos = vec2(new_x, new_y);
+			return;
+		}
+	}
+	assert(0 && "Unable to find the right touch to move!");
+}
+
+void _touch_up(float old_x, float old_y) {
+	uint count = touch_count;
+	for(uint i = 0; i < count; ++i) {
+		if(touches[i].pos.x == old_x && touches[i].pos.y == old_y) {
+			touches[i] = touches[--touch_count];
+			return;
+		}
+	}
+	assert(0 && "Unable to find the right touch to remove!");
+}
+
+uint touches_count(void) {
+	return touch_count;
+}
+
+Touch* touches_get(void) {
+	return touch_count ? &touches[0] : NULL;
+}
+
 /*
 -----------
 --- Time --

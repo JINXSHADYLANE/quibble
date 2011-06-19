@@ -43,6 +43,8 @@ static GLESView* global_gles_view = NULL;
 			display_link_supported = TRUE;
 		
 		global_gles_view = self;
+		
+		[self setMultipleTouchEnabled: YES];
 	}
     return self;
 }
@@ -113,12 +115,24 @@ extern void system_update(void);
 extern uint cmouse_x, cmouse_y;
 extern bool cmouse_up, cmouse_down, cmouse_pressed;
 
+extern void _touch_down(float x, float y);
+extern void _touch_move(float old_x, float old_y, float new_x, float new_y);
+extern void _touch_up(float old_x, float old_y);
+
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 	UITouch* touch = [touches anyObject];
 	CGPoint location = [touch locationInView: self];
 	cmouse_x = (uint)(location.y);
 	cmouse_y = (uint)(CGRectGetWidth(view_frame) - location.x);
 	cmouse_down = cmouse_pressed = true;
+	
+	for(id t in [touches allObjects]) {
+		UITouch* touch = t;
+		CGPoint pos = [touch locationInView: self];
+		float x = pos.y;
+		float y = CGRectGetWidth(view_frame) - pos.x;
+		_touch_down(x, y);
+	}
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -128,6 +142,14 @@ extern bool cmouse_up, cmouse_down, cmouse_pressed;
 	cmouse_y = (uint)(CGRectGetWidth(view_frame) - location.x);
 	cmouse_up = true;
 	cmouse_pressed = false;
+	
+	for(id t in [touches allObjects]) {
+		UITouch* touch = t;
+		CGPoint pos = [touch locationInView: self];
+		float x = pos.y;
+		float y = CGRectGetWidth(view_frame) - pos.x;
+		_touch_up(x, y);
+	}
 }
 
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -136,6 +158,18 @@ extern bool cmouse_up, cmouse_down, cmouse_pressed;
 	cmouse_x = (uint)(location.y);
 	cmouse_y = (uint)(CGRectGetWidth(view_frame) - location.x);
 	cmouse_pressed = true;
+	
+	for(id t in [touches allObjects]) {
+		UITouch* touch = t;
+		CGPoint pos = [touch previousLocationInView: self];
+		float x = pos.y;
+		float y = CGRectGetWidth(view_frame) - pos.x;
+		
+		pos = [touch locationInView: self];
+		float new_x = pos.y;
+		float new_y = CGRectGetWidth(view_frame) - pos.x;
+		_touch_move(x, y, new_x, new_y);
+	}	
 }
 
 @end
