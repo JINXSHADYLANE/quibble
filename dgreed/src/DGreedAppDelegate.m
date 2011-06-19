@@ -1,12 +1,16 @@
 #import "DGreedAppDelegate.h"
+#import "NSFileManager+DirectoryLocations.h"
 
 #include "utils.h"
+#include "memory.h"
 
 extern bool dgreed_init(void);
 extern void dgreed_close(void);
 
-@implementation DGreedAppDelegate
+const char* g_home_dir = NULL;
+const char* g_storage_dir = NULL;
 
+@implementation DGreedAppDelegate
 
 #pragma mark -
 #pragma mark Application lifecycle
@@ -23,6 +27,16 @@ extern void dgreed_close(void);
     [window makeKeyAndVisible];
 	
 	[application setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
+	
+	/* Get home directory for utils.c */
+	NSString* home = NSHomeDirectory();
+	g_home_dir = strclone([home UTF8String]);
+	
+	/* Get application support directory */
+	NSFileManager* fileManager = [[NSFileManager alloc] init];
+	NSString* storage = [fileManager applicationSupportDirectory];
+	g_storage_dir = strclone([storage UTF8String]);
+	[fileManager release];
 	
 	if(!dgreed_init())
 		return NO;
@@ -72,6 +86,8 @@ extern void dgreed_close(void);
 - (void)applicationWillTerminate:(UIApplication *)application {
 	LOG_INFO("iOS: applicationWillTerminte");
 	dgreed_close();
+	MEM_FREE(g_storage_dir);
+	MEM_FREE(g_home_dir);
 }
 
 

@@ -35,6 +35,11 @@
 		2166D1A212928CC000DB92D8 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2166D18612928CC000DB92D8 /* utils.h */; };
 		2166D1A312928CC000DB92D8 /* wav.c in Sources */ = {isa = PBXBuildFile; fileRef = 2166D18712928CC000DB92D8 /* wav.c */; };
 		2166D1A412928CC000DB92D8 /* wav.h in Headers */ = {isa = PBXBuildFile; fileRef = 2166D18812928CC000DB92D8 /* wav.h */; };
+		2196A71313AE22030079B6AC /* NSFileManager+DirectoryLocations.h in Headers */ = {isa = PBXBuildFile; fileRef = 2196A70E13AE22030079B6AC /* NSFileManager+DirectoryLocations.h */; };
+		2196A71413AE22030079B6AC /* NSFileManager+DirectoryLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = 2196A70F13AE22030079B6AC /* NSFileManager+DirectoryLocations.m */; };
+		2196A71513AE22030079B6AC /* sophist.h in Headers */ = {isa = PBXBuildFile; fileRef = 2196A71013AE22030079B6AC /* sophist.h */; };
+		2196A71613AE22030079B6AC /* touch_ctrls.c in Sources */ = {isa = PBXBuildFile; fileRef = 2196A71113AE22030079B6AC /* touch_ctrls.c */; };
+		2196A71713AE22030079B6AC /* touch_ctrls.h in Headers */ = {isa = PBXBuildFile; fileRef = 2196A71213AE22030079B6AC /* touch_ctrls.h */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
@@ -67,6 +72,11 @@
 		2166D18612928CC000DB92D8 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		2166D18712928CC000DB92D8 /* wav.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wav.c; sourceTree = "<group>"; };
 		2166D18812928CC000DB92D8 /* wav.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wav.h; sourceTree = "<group>"; };
+		2196A70E13AE22030079B6AC /* NSFileManager+DirectoryLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+DirectoryLocations.h"; sourceTree = "<group>"; };
+		2196A70F13AE22030079B6AC /* NSFileManager+DirectoryLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+DirectoryLocations.m"; sourceTree = "<group>"; };
+		2196A71013AE22030079B6AC /* sophist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sophist.h; sourceTree = "<group>"; };
+		2196A71113AE22030079B6AC /* touch_ctrls.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = touch_ctrls.c; sourceTree = "<group>"; };
+		2196A71213AE22030079B6AC /* touch_ctrls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = touch_ctrls.h; sourceTree = "<group>"; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* libdgreed.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libdgreed.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -112,6 +122,11 @@
 		08FB77AEFE84172EC02AAC07 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2196A70E13AE22030079B6AC /* NSFileManager+DirectoryLocations.h */,
+				2196A70F13AE22030079B6AC /* NSFileManager+DirectoryLocations.m */,
+				2196A71013AE22030079B6AC /* sophist.h */,
+				2196A71113AE22030079B6AC /* touch_ctrls.c */,
+				2196A71213AE22030079B6AC /* touch_ctrls.h */,
 				2166D16D12928CC000DB92D8 /* darray.c */,
 				2166D16E12928CC000DB92D8 /* darray.h */,
 				2166D16F12928CC000DB92D8 /* DGreedAppDelegate.h */,
@@ -166,6 +181,9 @@
 				2166D1A012928CC000DB92D8 /* tweakables.h in Headers */,
 				2166D1A212928CC000DB92D8 /* utils.h in Headers */,
 				2166D1A412928CC000DB92D8 /* wav.h in Headers */,
+				2196A71313AE22030079B6AC /* NSFileManager+DirectoryLocations.h in Headers */,
+				2196A71513AE22030079B6AC /* sophist.h in Headers */,
+				2196A71713AE22030079B6AC /* touch_ctrls.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,6 +251,8 @@
 				2166D19F12928CC000DB92D8 /* tweakables.c in Sources */,
 				2166D1A112928CC000DB92D8 /* utils.c in Sources */,
 				2166D1A312928CC000DB92D8 /* wav.c in Sources */,
+				2196A71413AE22030079B6AC /* NSFileManager+DirectoryLocations.m in Sources */,
+				2196A71613AE22030079B6AC /* touch_ctrls.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

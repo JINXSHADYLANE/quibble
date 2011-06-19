@@ -295,6 +295,11 @@ char* path_to_resource(const char* file);
 // if path is invalid (eg. with already removed filename).
 char* path_get_folder(const char* path);
 
+// Returns string with removed folders before the file name.
+// Result is NULL if path is invalid. Does not allocate new memory - no need to 
+// cleanup afterwards!
+const char* path_get_file(const char* path);
+
 // Returns same path, with changed file extension. If path does
 // not end with file or extension is invalid returns NULL. 
 char* path_change_ext(const char* path, const char* ext);
