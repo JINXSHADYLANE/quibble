@@ -426,7 +426,8 @@ void particles_update(float time) {
 	}
 	#endif
 
-	assert(time > last_time);
+	if(time <= last_time)
+		return;
 	float dt = time - last_time;
 	last_time = time;
 

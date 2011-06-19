@@ -185,6 +185,17 @@ bool mouse_up(MouseButton button);
 // Returns absolute mouse position
 void mouse_pos(uint* x, uint* y);
 
+typedef struct {
+	float hit_time;
+	Vector2 pos;
+} Touch;
+
+// Returns number of fingers currently touching the screen
+uint touches_count(void);
+
+// Returns array to all touches, NULL if no touches
+Touch* touches_get(void);
+
 /*
 -----------
 --- Time --

@@ -9,20 +9,33 @@ Color pressed_color = COLOR_RGBA(196, 196, 196, 255);
 bool _get_touch(const Vector2* pos, float radius, Vector2* touch) {
 	assert(pos);
 
-	if(!mouse_pressed(MBTN_LEFT))
+	Touch* touches = touches_get();
+	if(!touches)
 		return false;
-
-	uint x, y;
-	mouse_pos(&x, &y);
-	Vector2 m_pos = {(float)x, (float)y};
-
-	if(vec2_length_sq(vec2_sub(*pos, m_pos)) > radius*radius)
-		return false;
-
-	if(touch)
-		*touch = m_pos;
-
-	return true;	
+	
+	uint count = touches_count();
+	for(uint i = 0; i < count; ++i) {
+		if(vec2_length_sq(vec2_sub(*pos, touches[i].pos)) > radius*radius)
+			continue;
+		
+		if(touch)
+			*touch = touches[i].pos;
+		
+		return true;	
+	}
+	
+	if(mouse_pressed(MBTN_LEFT)) {
+		uint x, y;
+		mouse_pos(&x, &y);
+		Vector2 mpos = {(float)x, (float)y};
+		if(vec2_length_sq(vec2_sub(*pos, mpos)) <= radius*radius) {
+			if(touch)
+				*touch = mpos;
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 Vector2 touch_joystick(TexHandle tex, uint layer, const RectF* back_src,
