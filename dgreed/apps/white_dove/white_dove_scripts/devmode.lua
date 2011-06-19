@@ -31,4 +31,5 @@ function devmode.draw()
 	for i = 1, arena[active_arena].n do
 		video.draw_rect(tile, 0, arena[active_arena].doors[i].d, blue)
 	end
+	
 end

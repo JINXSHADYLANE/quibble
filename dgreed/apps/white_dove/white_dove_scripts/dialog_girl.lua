@@ -1,9 +1,9 @@
-dialog_text = {
-	{"Justis:", "Hello girl, how are you? WHERE ARE YOU FASDASDASDASDASDASDASDAS \
-	ASDADASDASDSADASDADA DA AASDSASDASDAD ASDASDASDASD ASDASDASDADSADA \
-	ASDASDASDASD   asdasROM WHERE ARE YOU FROM WHERE ARE \
-	YOU FTOM where are YOU GTOM WHERE ARE YOU FTOM?ARE MYTE ASDASD ERERE DSDSDS \
-	VEVEVE BRBRbr bntntnt asdad?" },
-	{ "Mergele:", "Hi there!"}
-}
+if stage == 0 then
+	if girl_talking == 0  then
+		dialog_text = {
+			{ "Girl: ", "Hi there! What a beautiful day! How are you?" },
+			{ "You: ", "(You really don't want to know...)" }
+		}
+	end
+end
 

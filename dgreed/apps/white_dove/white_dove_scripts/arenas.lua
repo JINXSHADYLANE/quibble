@@ -1,6 +1,6 @@
 -- arenas manager
 
-arenas_count = 10
+arenas_count = 14
 
 empty = 0
 room = 1
@@ -52,16 +52,6 @@ arena = {
 
 		n = 0,
 		doors = {},
-		--[[items = {
-			[0] = rect(0, 0, 880, 400),
-			[1] = rect(740, 415, 1024, 465),
-			[2] = rect(947, 475, 1024, 666), 
-			[3] = rect(990, 666, 1024, 768),
-			[4] = rect(385, 425, 550, 583),
-			[5] = rect(200, 425, 350, 590),
-			[6] = rect(100, 445, 200, 540)
-		},]]
-		
 		img = nil,
 		tilemp = nil,
 		char = 0 --barrel
@@ -91,20 +81,6 @@ arena = {
 				d = rect(40, 440, 130, 645),
 				dir = direction.left
 		}	},
-		
-		--[[items = {
-			[0] = rect(670, 270, 1024, 410),
-			[1] = rect(480, 220, 650, 310),
-			[2] = rect(170, 190, 470, 220),
-			[3] = rect(130, 220, 255, 345),
-			[4] = rect(30, 330, 220, 415),
-			[5] = rect(0, 430, 160, 460),
-			[6] = rect(60, 460, 110, 580),
-			[7] = rect(0, 495, 50, 768),
-			[8] = rect(364, 532, 554, 600),
-			[9] = rect(400, 470, 510, 550)
-		},]]
-
 		img = nil,
 		tilemp = nil,
 		char = girl
@@ -131,18 +107,6 @@ arena = {
 		
 		n = 0,
 		doors = {},
-		
-		--[[items = {
-			[0] = rect(822, 405, 1024, 492),
-			[1] = rect(930, 500, 970, 560),
-			[2] = rect(280, 250, 1024, 360),
-			[3] = rect(635, 380, 1024, 400),
-			[4] = rect(815, 390, 1024, 420),
-			[5] = rect(0, 210, 300, 380),
-			[6] = rect(0, 380, 200, 415),
-			[7] = rect(0, 420, 150, 450),
-			[8] = rect(0, 450, 60, 500)
-		},]]
 		img = nil,
 		tilemp = nil,
 		char = math
@@ -164,16 +128,11 @@ arena = {
 		},
 		right = {
 			id = ocean2,
-			pos = vec2(0, screen.b - boy.h - 10)  -- coords not yet set
+			pos = vec2(5, screen.b - boy.h - 10) 
 		}, 
 
 		n = 0,
 		doors = {},
-		--[[items = {
-			[0] = rect(0, 225, 660, 390),
-			[1] = rect(670, 220, 910, 330),
-			[2] = rect(900, 210, 1024, 300)
-		},]]
 		img = nil,
 		tilemp = nil,
 		char = mage
@@ -189,8 +148,8 @@ arena = {
 			pos = vec2(screen.r - boy.w - 20, screen.b - boy.h - 20) 
 		},
 		bottom = {
-			id = empty,
-			pos = vec2()
+			id = cross,
+			pos = vec2(419, 232 - boy.h)
 		},
 		right = {
 			id = empty,
@@ -199,67 +158,65 @@ arena = {
 		
 		n = 0,
 		doors = {},
-
-		--[[items = {
-			[0] = rect(0, 225, 660, 390),
-		},]]
 		img = nil,
 		tilemp = nil,
 		char = 0
 	},
 	
-	[6] = {
+	[6] = {  --potter_place
 		top = {
 			id = empty,
 			pos = vec2()
 		},
 		left = {
-			id = cross,
-			pos = vec2(screen.l + boy.w, screen.b + boy.h/3 - 30)
+			id = empty,
+			pos = vec2()
 		},
 		bottom = {
-			id = empty,
-			pos = vec2()
+			id = street,
+			pos = vec2(820, 600 - boy.h)
 		},
 		right = {
-			id = empty,
-			pos = vec2()
+			id = door_to_b,
+			pos = vec2(screen.r/2 - boy.w, 700 - boy.h)
 		}, 
-
-		n = 0,
-		doors = {},
-		--[[items = {
-			[0] = rect(0, 225, 660, 390),
-		},]]
+		n = 1,
+		doors = {
+			[1] = {
+				dir = direction.right,
+				d = rect(667, 439, 704, 511)
+			}
+		},
 		img = nil,
 		tilemp = nil,
 		char = 0
 	},	
 	
-	[7] = {
+	[7] = {  -- door
 		top = {
 			id = backyard,
-			pos = vec2(screen.r/3, screen.b + boy.h/3 - 30)
+			pos = vec2(4*screen.r/3 - boy.w, screen.b - boy.h/3 - 30)
 		},
 		left = {
-			id = cross,
-			pos = vec2(screen.l + boy.w, screen.b + boy.h/3 - 30)
-		},
-		bottom = {
 			id = empty,
 			pos = vec2()
 		},
+		bottom = {
+			id = potter_place,
+			pos = vec2(606, 461)
+		},
 		right = {
-			id = door_to_b,
+			id = empty,
 			pos = vec2()
 		}, 
 
-		n = 0,
-		doors = {},
-		
-		--[[items = {
-			[0] = rect(0, 225, 660, 390),
-		},]]
+		n = 1,
+		doors = {
+			[1] = {
+				d = rect(536, 378, 682, 440),
+				dir = direction.top
+			}
+		},
 		img = nil,
 		tilemp = nil,
 		char = 0
@@ -297,24 +254,34 @@ arena = {
 	
 	[9] = {  --cross
 		top = {
+			id = park,
+			pos = vec2(screen.r/2 - boy.w, 700 - boy.h)
+		},
+		left = {
 			id = empty,
 			pos = vec2()
 		},
-		left = {
+		bottom = {
 			id = old_street,
 			pos = vec2(screen.r - boy.w,  screen.b - boy.h - 20)
 		},
-		bottom = {
-			id = empty,
-			pos = vec2()
-		},
 		right = {
-			id = empty,
-			pos = vec2()
+			id = street,
+			pos = vec2(screen.r/2 - boy.w, 700 - boy.h)
 		}, 
 
-		n = 0,
-		doors = {},
+		n = 2,
+		doors = {
+			[1] = {
+				d = rect(802, 102, 972, 272),
+				dir = direction.top
+			},
+			[2] = {
+				d = rect(983, 397, 1024, 577),
+				dir = direction.right
+			}
+			
+		},
 		img = nil,
 		tilemp = nil,
 		char = 0
@@ -345,6 +312,111 @@ arena = {
 		char = mage
 	},	
 	
+	[11] = {  -- backyard
+		top = {
+			id = empty,
+			pos = vec2()
+		},
+		left = {
+			id = empty,
+			pos = vec2()
+		},
+		bottom = {
+			id = door_to_b,
+			pos = vec2(screen.r/5 - boy.w, 700 - boy.h)
+		},
+		right = {
+			id = empty,
+			pos = vec2()
+		}, 
+
+		n = 0,
+		doors = {},
+		img = nil,
+		tilemp = nil,
+		char = 0
+	},	
+	
+	[12] = {  -- park
+		top = {
+			id = pond,
+			pos = vec2(3*screen.r/4, 700 - boy.h)
+		},
+		left = {
+			id = empty,
+			pos = vec2()
+		},
+		bottom = {
+			id = cross,
+			pos = vec2(837, 189 - boy.h)
+		},
+		right = {
+			id = empty,
+			pos = vec2()
+		}, 
+
+		n = 0,
+		doors = {},
+		img = nil,
+		tilemp = nil,
+		char = 0
+	},
+
+	[13] = {  -- pond
+		top = {
+			id = empty,
+			pos = vec2()
+		},
+		left = {
+			id = empty,
+			pos = vec2()
+		},
+		bottom = {
+			id = park,
+			pos = vec2(screen.r/2, boy.h + 3)
+		},
+		right = {
+			id = empty,
+			pos = vec2()
+		}, 
+
+		n = 0,
+		doors = {},
+		img = nil,
+		tilemp = nil,
+		char = 0
+	},	
+	
+	[14] = {  -- street
+		top = {
+			id = empty,
+			pos = vec2()
+		},
+		left = {
+			id = empty,
+			pos = vec2()
+		},
+		bottom = {
+			id = cross,
+			pos = vec2(914, 485 - boy.h)
+		},
+		right = {
+			id = potter_place,
+			pos = vec2(screen.r/2 - boy.w, 700 - boy.h)
+		}, 
+
+		n = 1,
+		doors = {
+			[1] = {
+				dir = direction.right,
+				d = rect(903, 561, 1007, 650)
+			}
+		},
+		img = nil,
+		tilemp = nil,
+		char = 0
+	},	
+	
 	color = rgba(1, 1, 1, 0),
 	state = fade_state.other,
 	switch_dir = direction.other
@@ -358,6 +430,9 @@ function arena.init()
 	end
 	boy.init()
 	chars.init()
+
+	-- Change to stage_man.lua
+	dofile(script..'stage_0.lua')
 
 	active_arena = room
 end
@@ -483,6 +558,8 @@ function arena.switch()
 end
 
 function arena.screen_update()
+
+
 	-- check if boy is going to the other arena
 	if (boy.pos.y + boy.h + 5 >= screen.b) and key.down(key.b) then
 			arena.switch_dir = direction.down
