@@ -40,6 +40,7 @@ function items_collide()
 		active_arena == room and not have_book then
 		dialog_text = {{"", "You have found an old book..."}}
 		dialog_q = q1
+		dofile(script.."dialog_book.lua")
 		return true
 	end
 	return false
@@ -75,7 +76,7 @@ function dialog_select_text()
 	elseif arena[active_arena].char == girl then
 		dofile(script..'dialog_girl.lua')
 	elseif items_collide() == false then
-		dialog_text = {"ArgHHHhhhhH!"}
+		dialog_text = {{"You: ", "Ahhh... What a day!"}}
 	end
 	text_id = 1
 	text_part = 1
