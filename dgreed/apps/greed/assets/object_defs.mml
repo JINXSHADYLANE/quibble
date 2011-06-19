@@ -1,0 +1,11 @@
+(object_defs _
+	(obj testobj
+		(tex greed_assets/particles.png)
+		(frames _
+			(f 0,0,32,32)
+			(f 32,32,64,64)
+		)
+		(anim loop)
+		(fps 3)
+	)
+)
