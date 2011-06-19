@@ -68,7 +68,7 @@ static void _unload_samples(void) {
 	for(uint i = 0; i < ARRAY_SIZE(snd); ++i) {
 		if(snd[i].handle != UNDEFINED)
 			sound_free(snd[i].handle);
-	}
+	} 
 }
 
 static void _unload_music(void) {
@@ -106,6 +106,7 @@ void sounds_event(SoundEventType type) {
 void sounds_event_ex(SoundEventType type, uint arg) {
 	switch(type) {
 		case MUSIC:
+			
 			sound_stop(current_music);
 
 			if(arg >= 1 && arg <= 5)
@@ -150,6 +151,6 @@ void sounds_set_music_volume(float volume) {
 	if(volume != music_volume) {
 		sound_set_volume(current_music, volume);
 		music_volume = volume;
-	}
+	} 
 }
 

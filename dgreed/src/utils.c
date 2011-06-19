@@ -737,9 +737,10 @@ uint params_find(const char* param) {
 #ifdef MACOSX_BUNDLE
 static FILE* _storage_fopen(const char* name, const char* mode) {
 	char storage_path[256];
-	assert(strlen(g_storage_dir) + strlen(name) < 254);
+	const char* file = path_get_file(name);
+	assert(strlen(g_storage_dir) + strlen(file) < 254);
 	// TODO: Do we need to strip directories from name ?
-	sprintf(storage_path, "%s/%s", g_storage_dir, name);
+	sprintf(storage_path, "%s/%s", g_storage_dir, file);
 	return fopen(storage_path, mode);
 }
 #endif
@@ -748,12 +749,15 @@ bool file_exists(const char* name) {
 	assert(name);
 
 #ifdef MACOSX_BUNDLE
+	
+	FILE* file = _storage_fopen(name, "rb");
+	if(file != NULL) {
+		fclose(file);
+		return true;
+	}
+
 	char* path = path_to_resource(name);
-	if(path == NULL)
-		return false;
-	FILE* file = fopen(path, "rb");
-	if(file == NULL)
-		file = _storage_fopen(name, "rb");
+	file = fopen(path, "rb");
 	MEM_FREE(path);
 #else	
 	FILE* file = fopen(name, "rb");
@@ -771,14 +775,14 @@ FileHandle file_open(const char* name) {
 
 #ifdef MACOSX_BUNDLE
 	char* path = path_to_resource(name);
-	if(path == NULL) {
-		LOG_ERROR("Unable to get path to file %s", name);
-		return 0;
-	}	
+	if(path == NULL)
+		LOG_WARNING("Unable to get path to file %s", name);
+
 	FILE* f = fopen(path, "rb");
 	if(f == NULL) 
 		f = _storage_fopen(name, "rb");
-	MEM_FREE(path);
+	if(path)
+		MEM_FREE(path);
 #else
 	FILE* f = fopen(name, "rb");
 #endif
@@ -944,8 +948,12 @@ void file_write(FileHandle f, void* data, uint size) {
 void txtfile_write(const char* name, const char* text) {
 	assert(name);
 	assert(text);
-
+	
+#ifdef MACOSX_BUNDLE
+	FILE* file = _storage_fopen(name, "w");
+#else
 	FILE* file = fopen(name, "w");
+#endif
 
 	if(!file)
 		LOG_ERROR("Unable to open file %s for writing", name);
@@ -998,6 +1006,16 @@ char* path_get_folder(const char* path) {
 	strncpy(result, path, new_len-1);
 	result[new_len-1] = '\0';
 	return result;
+}
+
+const char* path_get_file(const char* path) {
+	assert(path);
+	uint i = strlen(path);
+	while(i && !_is_delim(path[--i]));
+	if(_is_delim(path[i]))
+	   return &path[i+1];
+	else
+	   return NULL;
 }
 
 bool _validate_extension(const char* ext) {

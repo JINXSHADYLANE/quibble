@@ -4,6 +4,8 @@
 #include "darray.h"
 #include "wav.h"
 
+#import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
 #import <AVFoundation/AVFoundation.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
@@ -142,12 +144,14 @@ void _sort_rects(DArray rects_in) {
 	for(i = 1; i < 256; ++i)
 		radix_counts[i] = radix_counts[i-1] + radix_counts[i];
 	
-	// Count sort
+	// Count sort (single pass of radix sort - texture amount is not a large
+	// number)
+	uint r0 = 0;
 	for(i = 0; i < rects_in.size; ++i) {
 		size_t idx = r_in[i].tex & 0xFF;
-		size_t dest = radix_counts[(256+idx-1)%256]++;
-		r_out[dest] = r_in[idx];
-	}			  
+		uint* dest = idx ? &radix_counts[idx-1] : &r0;
+		r_out[(*dest)++] = r_in[i];
+	}		  
 	
 	memcpy(r_in, r_out, rects_in.size * rects_in.item_size);	
 }
@@ -395,6 +399,11 @@ void video_present(void) {
 			glDrawArrays(GL_LINES, 0, k);
 			vertex_buffer.size = 0;
 			glEnable(GL_TEXTURE_2D);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			
+			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vb[0].x);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vb[0].u);
+			glColorPointer(4, GL_FLOAT, sizeof(Vertex), &vb[0].r);
 		}	
 		
 	#ifndef NO_DEVOMDE
@@ -752,20 +761,34 @@ SoundHandle sound_load_sample(const char* filename) {
 	return s.handle;
 }
 
+static void _log_nserror(NSError* error) {
+	NSArray* detailedErrors = [[error userInfo] objectForKey:NSDetailedErrorsKey];
+    if(detailedErrors != nil && [detailedErrors count] > 0)
+        for(NSError* detailedError in detailedErrors)
+            NSLog(@"  DetailedError: %@", [detailedError userInfo]);
+    else 
+        NSLog(@"  %@", [error userInfo]);
+}
+
 SoundHandle sound_load_stream(const char* filename) {
 	assert(filename);
 	
 	Sound s = {sound_handle_counter++, true, true, NULL, 0, 1.0f};
-	char* file = path_change_ext(filename, "");
-	NSString* ns_file = [[NSString alloc] initWithUTF8String:file];
-	NSURL* url = [[NSURL alloc] initFileURLWithPath:
-				  [[NSBundle mainBundle] pathForResource:ns_file ofType:@"m4a"]];
-	s.av_player = [[AVAudioPlayer alloc] initWithContentsOfURL:url];
-	if(!s.av_player)
-		LOG_ERROR("Unable to make AVAudioPlayer from stream");
+	char* file = path_change_ext(filename, "m4a");
+	NSString* ns_file = [NSString stringWithUTF8String:file];
+	NSString* resource_path = [[NSBundle mainBundle] resourcePath];
+	NSString* full_path = [resource_path stringByAppendingPathComponent:ns_file];
+	NSURL* url = [[NSURL alloc] initFileURLWithPath:full_path];
 	
 	MEM_FREE(file);
-	[ns_file release];
+
+	NSError* err = nil;
+	s.av_player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&err];
+	if(!s.av_player) {
+		_log_nserror(err);
+		LOG_ERROR("Unable to make AVAudioPlayer from stream");
+	}	
+	
 	[url release];
 	
 	darray_append(&sounds, &s);
@@ -899,6 +922,7 @@ SourceHandle sound_play_ex(SoundHandle handle, bool loop) {
 	src->pos = 0.0f;
 	
 	if(sound->is_stream) {
+		[sound->av_player setNumberOfLoops:loop ? -1 : 1];
 		[sound->av_player setVolume:sound->volume];
 		[sound->av_player play];
 		sound->is_paused = false;
