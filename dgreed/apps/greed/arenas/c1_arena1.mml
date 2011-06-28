@@ -3,9 +3,9 @@
 	(walls "c1_wall_1.png")
 	(no_wall_shadows true)
 	(shadow_shift -4,-4)
-	(max_players 3)
+	(max_players 4)
 	(spawnpoints _
-		(p 388,57)
+		(p 388,57)                 (p 420,267)
 		(p 85,263)
                 (p 60,200)
 	)

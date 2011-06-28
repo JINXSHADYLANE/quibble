@@ -2,10 +2,10 @@
 	(background "back_chapter_3.png")
 	(walls "c3_wall_2.png")
 	(shadow_shift -4,-4)
-	(max_players 2)
+	(max_players 4)
 	(spawnpoints _
-		(p 50,50)
-		(p 420,260)
+		(p 50,50)		(p 230,50)
+		(p 420,260)		(p 60,150)
 	)
 	(platforms _
 		(p 210,110)
