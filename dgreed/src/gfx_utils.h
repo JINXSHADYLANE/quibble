@@ -43,5 +43,14 @@ Color* gfx_downscale(const Color* img, uint w, uint h);
 void gfx_blit(Color* dest, uint dest_w, uint dest_h,
 	const Color* src, uint src_w, uint src_h, int x, int y);
 
+// Blits source image to destination, using alpha blending.
+// Performs wrap-around source image shift.
+void gfx_blit_ex(Color* dest, uint dest_w, uint dest_h,
+	const Color* src, uint src_w, uint src_h, int x, int y, int ddx, int ddy);
+
+// Fill rectangle with a color. Rect is not clipped!
+void gfx_fill(Color* dest, uint dest_w, uint dest_h,
+	Color c, int l, int t, int r, int b);
+
 #endif
 

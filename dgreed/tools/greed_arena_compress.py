@@ -11,7 +11,7 @@ def compress(arena_mml, mml_path, out_path):
 	(folder, mml_filename) = os.path.split(mml_path)
 
 	for child in arena_mml.children:
-		if child.name == 'background' or child.name == 'walls':
+		if child.name == 'walls' or child.name == 'tex':
 			(img_directory, img_filename) = os.path.split(child.value)
 			new_img_filename = img_filename.replace('tga', 'png')
 

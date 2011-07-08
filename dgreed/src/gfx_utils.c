@@ -192,7 +192,7 @@ Color gfx_blend(Color ca, Color cb) {
 	r = (ar * (255-ba) + br * ba) / 255;
 	g = (ag * (255-ba) + bg * ba) / 255;
 	b = (ab * (255-ba) + bb * ba) / 255;
-	a = ba;
+	a = aa;
 
 	assert(r < 256); assert(g < 256);
 	assert(b < 256); assert(a < 256);
@@ -233,6 +233,12 @@ Color* gfx_downscale(const Color* img, uint w, uint h) {
 
 void gfx_blit(Color* dest, uint dest_w, uint dest_h,
 	const Color* src, uint src_w, uint src_h, int x, int y) {
+	gfx_blit_ex(dest, dest_w, dest_h, src, src_w, src_h, x, y, 0, 0);
+}	
+
+void gfx_blit_ex(Color* dest, uint dest_w, uint dest_h,
+	const Color* src, uint src_w, uint src_h, int x, int y,
+	int ddx, int ddy) {
 	assert(dest);
 	assert(src);
 	assert(dest_w && dest_h);
@@ -286,10 +292,30 @@ void gfx_blit(Color* dest, uint dest_w, uint dest_h,
 	for(uint dy = 0; dy < h; ++dy) {
 		for(uint dx = 0; dx < w; ++dx) {
 			size_t d_idx = IDX_2D(dest_l + dx, dest_t + dy, dest_w);
-			size_t s_idx = IDX_2D(src_l + dx, src_t + dy, src_w);
+			size_t s_idx = IDX_2D(
+				(src_w + src_l + dx - ddx) % src_w, 
+				(src_h + src_t + dy - ddy) % src_h, 
+				src_w
+			);
 
 			dest[d_idx] = endian_swap4(gfx_blend(endian_swap4(dest[d_idx]), 
 				endian_swap4(src[s_idx])));
+		}
+	}
+}
+
+void gfx_fill(Color* dest, uint dest_w, uint dest_h,
+	Color c, int l, int t, int r, int b) {
+	assert(dest);
+	assert(dest_w && dest_h);
+	assert(l >= 0 && t >= 0);
+	assert(r < dest_w && b < dest_h);
+	assert(l < r && t < b);
+
+	for(uint y = t; y < b; ++y) {
+		for(uint x = l; x < r; ++x) {
+			size_t idx = IDX_2D(x, y, dest_w);
+			dest[idx] = c;
 		}
 	}
 }

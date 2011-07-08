@@ -31,8 +31,7 @@ Color* background = NULL;
 Color* walls = NULL;
 Color* density = NULL;
 Color* shadow = NULL;
-Color* final_background = NULL;
-Color* final_arena = NULL;
+Color* final_image = NULL;
 uint* collision_mask = NULL;
 float* density_map = NULL;
 
@@ -51,7 +50,6 @@ void init(const char* mml_file) {
 	while(i && !isdigit(mml_file[--i]));
 	assert(i);
 	chapter = mml_file[i] - '0';
-	printf("chapter: %d\n", chapter);
 
 	char* mml_text = txtfile_read(mml_file);
 	if(!mml_deserialize(&arena_mml, mml_text))
@@ -88,24 +86,17 @@ char* _get_file(const char* path) {
 	return strclone(&(path[idx+1]));
 }	
 
-void save(const char* mml_file, const char* walls_img_file, const char*
-	backg_img_file) {
-
+void save(const char* mml_file, const char* walls_img_file)
+{
 	NodeIdx root = mml_root(&arena_mml);
 
 	// Update mml
 	char* walls_filename = _get_file(walls_img_file);
-	char* backg_filename = _get_file(backg_img_file);
 	char img_path[256];
 	sprintf(img_path, "greed_assets/%s", walls_filename);
 	NodeIdx walls_img_node = mml_get_child(&arena_mml, root, "walls");
 	mml_setval_str(&arena_mml, walls_img_node, img_path);
-	sprintf(img_path, "greed_assets/%s", backg_filename);
-	NodeIdx backg_img_node = mml_get_child(&arena_mml, root, "background");
-	mml_setval_str(&arena_mml, backg_img_node, img_path);
-
 	MEM_FREE(walls_filename);
-	MEM_FREE(backg_filename);
 
 	const char* arena_name = mml_getval_str(&arena_mml, root);
 	char precalc_filename[256];
@@ -121,8 +112,7 @@ void save(const char* mml_file, const char* walls_img_file, const char*
 	MEM_FREE(mml_text);
 
 	// Save images
-	stbi_write_tga(backg_img_file, 512, 512, 4, (void*)final_background);
-	stbi_write_tga(walls_img_file, 512, 512, 4, (void*)final_arena);
+	stbi_write_tga(walls_img_file, 512, 1024, 4, (void*)final_image);
 }	
 
 void deinit(void) {
@@ -135,11 +125,8 @@ void deinit(void) {
 		MEM_FREE(collision_mask);
 	if(shadow)
 		MEM_FREE(shadow);
-	if(final_background)
-		MEM_FREE(final_background);
-	if(final_arena)
-		MEM_FREE(final_arena);
-		
+	if(final_image)
+		MEM_FREE(final_image);
 }
 
 void gen_density_map(void) {
@@ -244,25 +231,38 @@ void make_shadow(void) {
 	gfx_blur(shadow, width, height);
 	gfx_blur(shadow, width, height);
 	gfx_blur(shadow, width, height);
-
-	Color* big_shadow = shadow;
-	shadow = gfx_downscale(big_shadow, width, height);
-	MEM_FREE(big_shadow);
 }
 
 void blend_images(void) {
-	final_background = (Color*)MEM_ALLOC(sizeof(Color) * 512 * 512);
-	memset(final_background, 0, sizeof(Color) * 512 * 512);
+	const int w = 512;
+	const int h = 1024;
 
-	final_arena = (Color*)MEM_ALLOC(sizeof(Color) * 512 * 512);
-	memset(final_arena, 0, sizeof(Color) * 512 * 512);
+	final_image = (Color*)MEM_ALLOC(sizeof(Color) * w * h);
+	memset(final_image, 0, sizeof(Color) * w * h);
 
-	gfx_blit(final_background, 512, 512, background, width, height, 0, 0);
+	// First - all layers blended together
+	gfx_fill(final_image, w, h, COLOR_WHITE, 0, 0, width, height);
+	gfx_blit(final_image, w, h, background, width, height, 0, 0);
+	gfx_blit_ex(final_image, w, h, shadow, width, height, 0, 0,
+		shadow_shift_x, shadow_shift_y);
+	gfx_blit(final_image, w, h, walls, width, height, 0, 0);
 
-	gfx_blit(final_arena, 512, 512, walls, width, height, 0, 0);
-	gfx_blit(final_arena, 512, 512, shadow, width/2, height/2, 0, height+1);
+	// Second - background and shadow only
+	gfx_fill(final_image, w, h, COLOR_WHITE, 0, height+2, width, height*2 + 2);
+	gfx_blit(final_image, w, h, background, width, height, 0, height+2);
+	gfx_blit_ex(final_image, w, h, shadow, width, height, 0, height+2,
+		shadow_shift_x, shadow_shift_y);
+
+	// Third - walls only (perform simple byte-by-byte copy)
+	for(uint dy = 0; dy < height; ++dy) {
+		for(uint dx = 0; dx < width; ++dx) {
+			uint y = (height+2) * 2 + dy;
+			size_t dest_idx = IDX_2D(dx, y, w);
+			size_t src_idx = IDX_2D(dx, dy, width);
+			final_image[dest_idx] = walls[src_idx];
+		}
+	}	
 }	
-
 void gen_precalc_data(void) {
 	DArray segments = darray_create(sizeof(Segment), 0);
 	DArray triangles; 
@@ -350,19 +350,14 @@ int dgreed_main(int argc, const char** argv) {
 	make_collision_mask();
 	make_shadow();
 	blend_images();
-	
+
 	// Figure out where to save final img:
 	char* mml_path = path_get_folder(params_get(1)); 
 	// Glue everything together
 	char final_walls_name[256];
-	char final_backg_name[256];
 	
 	char* file = path_change_ext(walls_img_filename, "tga");
 	sprintf(final_walls_name, "%s%s", mml_path, file);
-	MEM_FREE(file);
-
-	file = path_change_ext(backg_img_filename, "tga");
-	sprintf(final_backg_name, "%s%s", mml_path, file);
 	MEM_FREE(file);
 	
 	// Save collision and ai precalc data in binary file
@@ -375,7 +370,7 @@ int dgreed_main(int argc, const char** argv) {
 	MEM_FREE(mml_path);
 	MEM_FREE(precalc_filename);
 
-	save(params_get(1), final_walls_name, final_backg_name);
+	save(params_get(1), final_walls_name);
 	deinit();
 	log_close();
 
