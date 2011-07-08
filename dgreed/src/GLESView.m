@@ -145,7 +145,7 @@ extern void _touch_up(float old_x, float old_y);
 	
 	for(id t in [touches allObjects]) {
 		UITouch* touch = t;
-		CGPoint pos = [touch locationInView: self];
+		CGPoint pos = [touch previousLocationInView: self];
 		float x = pos.y;
 		float y = CGRectGetWidth(view_frame) - pos.x;
 		_touch_up(x, y);

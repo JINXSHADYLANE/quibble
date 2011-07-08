@@ -1122,7 +1122,9 @@ void _touch_move(float old_x, float old_y, float new_x, float new_y) {
 void _touch_up(float old_x, float old_y) {
 	uint count = touch_count;
 	for(uint i = 0; i < count; ++i) {
-		if(touches[i].pos.x == old_x && touches[i].pos.y == old_y) {
+		float dx = touches[i].pos.x - old_x;
+		float dy = touches[i].pos.y - old_y;
+		if(dx*dx + dy*dy < 10) {
 			touches[i] = touches[--touch_count];
 			return;
 		}
