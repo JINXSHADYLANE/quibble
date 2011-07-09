@@ -13,6 +13,8 @@
 #import <OpenGLES/ES1/glext.h>
 #import <OpenAL/al.h>
 #import <OpenAL/alc.h>
+#include <mach/mach.h>
+#include <mach/mach_time.h>
 #import "GLESView.h"
 
 // Main function
@@ -171,7 +173,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glClearDepthf(1.0f);
 	glViewport(0, 0, height, width);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -1121,15 +1123,18 @@ void _touch_move(float old_x, float old_y, float new_x, float new_y) {
 
 void _touch_up(float old_x, float old_y) {
 	uint count = touch_count;
+	float min_d = 10000.0f;
+	uint min_i = 0;
 	for(uint i = 0; i < count; ++i) {
 		float dx = touches[i].pos.x - old_x;
 		float dy = touches[i].pos.y - old_y;
-		if(dx*dx + dy*dy < 10) {
-			touches[i] = touches[--touch_count];
-			return;
+		float d = dx*dx + dy*dy;
+		if(dx*dx + dy*dy < min_d) {
+			min_d = d;
+			min_i = i;
 		}
 	}
-	assert(0 && "Unable to find the right touch to remove!");
+	touches[min_i] = touches[--touch_count];
 }
 
 uint touches_count(void) {
@@ -1151,7 +1156,7 @@ static float last_frame_time = 0.0f, last_fps_update = 0.0f;
 static uint fps = 0;
 
 float time_ms(void) {
-	return t_s * 1000.0f;
+	return t_s;
 }
 
 float time_delta(void) {
@@ -1164,10 +1169,30 @@ uint time_fps(void) {
 	return fps;
 }
 
+static float _get_t(void) {
+	static mach_timebase_info_data_t info;
+	static bool first = true;
+	static uint64_t start_t;
+	if(first) {
+		mach_timebase_info(&info);
+		start_t = mach_absolute_time();
+		first = false;
+	}
+	
+    uint64_t t = mach_absolute_time();
+	
+	t = t - start_t;
+	
+	t *= info.numer;
+	t /= info.denom;
+	
+	return (float)t / 1000000.0f;
+}	
+
 void _time_update(float current_time) {
 	t_s = current_time;
 	t_d = current_time - last_frame_time;
-	if(last_fps_update + 1.0f < current_time) {
+	if(last_fps_update + 1000.0f < current_time) {
 		fps = fps_count;
 		fps_count = 0;
 		last_fps_update = current_time;
@@ -1182,7 +1207,7 @@ void _time_update(float current_time) {
 */
 
 bool system_update(void) {
-	_time_update(CACurrentMediaTime());
+	_time_update(_get_t());
 	
 	lmouse_x = cmouse_x;
 	lmouse_y = cmouse_y;

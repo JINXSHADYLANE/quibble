@@ -275,12 +275,6 @@ void arena_draw(RectF* obstructions, uint obstruction_count) {
 		}
 		cnt -= old_cnt;
 	}
-<<<<<<< local
-=======
-	
-	// Only negative shifts supported for now
-	//assert(shift.x < 0.0f && shift.y < 0.0f);
->>>>>>> other
 
 	// Draw unobstructed arena parts
 	for(uint i = 0; i < cnt; ++i) {
