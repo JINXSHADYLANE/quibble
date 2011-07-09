@@ -1,7 +1,7 @@
 (arena c2_arena3
 	(background "back_chapter_2.png")
 	(walls "c2_wall_3.png")
-	(shadow_shift -4,-4)
+	(shadow_shift 0,-4)
 	(max_players 4)
 	(spawnpoints _
 		(p 360,60)

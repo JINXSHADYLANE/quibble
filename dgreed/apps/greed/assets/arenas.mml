@@ -1,69 +1,69 @@
 ( arenas _
     ( chapter c1
-        ( greed_assets/c1_arena1.mml 3
+        ( greed_assets/c1_arena1.mml 4
             ( name c1_arena1 )
         )
-        ( greed_assets/c1_arena2.mml 2
+        ( greed_assets/c1_arena2.mml 4
             ( name c1_arena2 )
         )
-        ( greed_assets/c1_arena3.mml 2
+        ( greed_assets/c1_arena3.mml 4
             ( name c1_arena3 )
         )
-        ( greed_assets/c1_arena4.mml 2
+        ( greed_assets/c1_arena4.mml 4
             ( name c1_arena4 )
         )
-        ( greed_assets/c1_arena5.mml 2
+        ( greed_assets/c1_arena5.mml 4
             ( name c1_arena5 )
         )
     )
     ( chapter c2
-        ( greed_assets/c2_arena1.mml 2
+        ( greed_assets/c2_arena1.mml 4
             ( name c2_arena1 )
         )
-        ( greed_assets/c2_arena2.mml 2
+        ( greed_assets/c2_arena2.mml 4
             ( name c2_arena2 )
         )
         ( greed_assets/c2_arena3.mml 4
             ( name c2_arena3 )
         )
-        ( greed_assets/c2_arena4.mml 2
+        ( greed_assets/c2_arena4.mml 4
             ( name c2_arena4 )
         )
-        ( greed_assets/c2_arena5.mml 2
+        ( greed_assets/c2_arena5.mml 4
             ( name c2_arena5 )
         )
     )
     ( chapter c3
-        ( greed_assets/c3_arena1.mml 2
+        ( greed_assets/c3_arena1.mml 4
             ( name c3_arena1 )
         )
-        ( greed_assets/c3_arena2.mml 2
+        ( greed_assets/c3_arena2.mml 4
             ( name c3_arena2 )
         )
-        ( greed_assets/c3_arena3.mml 2
+        ( greed_assets/c3_arena3.mml 4
             ( name c3_arena3 )
         )
-        ( greed_assets/c3_arena4.mml 2
+        ( greed_assets/c3_arena4.mml 4
             ( name c3_arena4 )
         )
-        ( greed_assets/c3_arena5.mml 2
+        ( greed_assets/c3_arena5.mml 4
             ( name c3_arena5 )
         )
     )
     ( chapter c4
-        ( greed_assets/c4_arena1.mml 2
+        ( greed_assets/c4_arena1.mml 4
             ( name c4_arena1 )
         )
-        ( greed_assets/c4_arena2.mml 2
+        ( greed_assets/c4_arena2.mml 4
             ( name c4_arena2 )
         )
-        ( greed_assets/c4_arena3.mml 2
+        ( greed_assets/c4_arena3.mml 4
             ( name c4_arena3 )
         )
-        ( greed_assets/c4_arena4.mml 2
+        ( greed_assets/c4_arena4.mml 4
             ( name c4_arena4 )
         )
-        ( greed_assets/c4_arena5.mml 2
+        ( greed_assets/c4_arena5.mml 4
             ( name c4_arena5 )
         )
     )
