@@ -289,7 +289,7 @@ static void _arena_draw_shadow(Color c) {
 	}
 	
 	// Only negative shifts supported for now
-	assert(shift.x < 0.0f && shift.y < 0.0f);
+	//assert(shift.x < 0.0f && shift.y < 0.0f);
 
 	// Split screen rect into four parts according to shadow shift
 	float mid_x = SCREEN_WIDTH + shift.x;
