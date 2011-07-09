@@ -272,3 +272,42 @@ TEST_(base64) {
 		MEM_FREE(decoded);
 	}
 }
+
+TEST_(rectf_cut) {
+	RectF a, b;
+	RectF out[4];
+
+	// b fully inside a
+	a = rectf(0.0f, 0.0f, 10.0f, 10.0f);
+	b = rectf(1.0f, 1.0f, 9.0f, 9.0f);
+	ASSERT_(rectf_cut(&a, &b, out) == 4);	
+	ASSERT_(out[0].left == 0.0f && out[0].top == 0.0f && out[0].right == 1.0f && out[0].bottom == 10.0f);
+	ASSERT_(out[1].left == 1.0f && out[1].top == 0.0f && out[1].right == 9.0f && out[1].bottom == 1.0f);
+	ASSERT_(out[2].left == 1.0f && out[2].top == 9.0f && out[2].right == 9.0f && out[2].bottom == 10.0f);
+	ASSERT_(out[3].left == 9.0f && out[3].top == 0.0f && out[3].right == 10.0f && out[3].bottom == 10.0f);
+
+	// no intersection
+	b = rectf(10.0f, 0.0f, 20.0f, 10.0f);
+	ASSERT_(rectf_cut(&a, &b, out) == 1);
+	ASSERT_(out[0].left == a.left && out[0].top == a.top && out[0].right == a.right && out[0].bottom == a.bottom);
+
+	// partial horizontal intersection
+	b = rectf(-5.0f, 5.0f, 5.0f, 7.0f);
+	ASSERT_(rectf_cut(&a, &b, out) == 3);
+	ASSERT_(out[0].left == 0.0f && out[0].top == 0.0f && out[0].right == 5.0f && out[0].bottom == 5.0f);
+	ASSERT_(out[1].left == 0.0f && out[1].top == 7.0f && out[1].right == 5.0f && out[1].bottom == 10.0f);
+	ASSERT_(out[2].left == 5.0f && out[2].top == 0.0f && out[2].right == 10.0f && out[2].bottom == 10.0f);
+
+	// partial vertical intersection
+	b = rectf(2.0f, -2.0f, 8.0f, 2.0f);
+	ASSERT_(rectf_cut(&a, &b, out) == 3);
+	ASSERT_(out[0].left == 0.0f && out[0].top == 0.0f && out[0].right == 2.0f && out[0].bottom == 10.0f);
+	ASSERT_(out[1].left == 2.0f && out[1].top == 2.0f && out[1].right == 8.0f && out[1].bottom == 10.0f);
+	ASSERT_(out[2].left == 8.0f && out[2].top == 0.0f && out[2].right == 10.0f && out[2].bottom == 10.0f);
+
+	// corner intersection
+	b = rectf(-1.0f, -1.0f, 1.0f, 1.0f);
+	ASSERT_(rectf_cut(&a, &b, out) == 2);
+	ASSERT_(out[0].left == 0.0f && out[0].top == 1.0f && out[0].right == 1.0f && out[0].bottom == 10.0f);
+	ASSERT_(out[1].left == 1.0f && out[1].top == 0.0f && out[1].right == 10.0f && out[1].bottom == 10.0f);
+}

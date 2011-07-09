@@ -105,6 +105,11 @@ float rectf_height(const RectF* r);
 Vector2 rectf_center(const RectF* r);
 // Returns first intersection point or end
 Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end);
+// Does CSG subtraction a - b and returns number of rectangles in final shape.
+// Rects itself end up in 'out', there must be enough space for 4 rects.
+uint rectf_cut(const RectF* a, const RectF* b, RectF* out);
+// Returns bounding box of two rectangles
+RectF rectf_bbox(const RectF* a, const RectF* b);
 
 /*
 ----------------
