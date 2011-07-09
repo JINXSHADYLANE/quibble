@@ -734,7 +734,9 @@ void game_render(void) {
 	}	
 	
 	particles_draw();
-	arena_draw();
+
+	RectF obstructions[4];
+	uint obstruction_count = 0;
 
 	// Draw ships & energy bars
 	for(uint ship = 0; ship < n_ships; ++ship) {
@@ -755,6 +757,12 @@ void game_render(void) {
 		float x_max = (float)SCREEN_WIDTH - x_min;
 		float y_min = x_min;
 		float y_max = (float)SCREEN_HEIGHT - y_min;
+
+		float r = (ship_circle_radius + 10.0f) * scale;
+		obstructions[obstruction_count++] = rectf(
+			pos.x - r, pos.y - r,
+			pos.x + r, pos.y + r
+		);
 
 		// Virtual ships on screen boundries
 		WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, pos, _draw_ship(&npos, ship));
@@ -778,6 +786,22 @@ void game_render(void) {
 		c = color_lerp(c, ca, ct);
 		_draw_energybar(&pos, length, c);
 	}		
+
+	// Reduce obstructions
+	for(uint i = 0; i < obstruction_count; ++i) {
+		for(uint j = i + 1; j < obstruction_count; ++j) {
+			if(rectf_rectf_collision(&obstructions[i], &obstructions[j])) {
+				obstructions[i] = rectf_bbox(&obstructions[i], &obstructions[j]);
+				obstructions[j] = obstructions[obstruction_count-1];
+				obstruction_count--;
+				i--;
+				j--;
+				break;
+			}
+		}
+	}
+
+	arena_draw(obstructions, obstruction_count);
 
 	// Draw bullets
 	for(uint bullet = 0; bullet < physics_state.n_bullets; ++bullet) {
@@ -936,7 +960,7 @@ void game_render_transition(float t) {
 	}	
 
 	if(t < 0.0f) {
-		arena_draw();
+		arena_draw(NULL, 0);
 		start_anim_t = _game_time();
 	}
 }
@@ -1005,7 +1029,7 @@ void _startanim_energybar(uint ship, float t) {
 }
 
 void game_render_startanim(float t) {
-	arena_draw();
+	arena_draw(NULL, 0);
 
 	controls_draw(1.0f - t);
 

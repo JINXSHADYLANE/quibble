@@ -23,8 +23,7 @@ typedef struct {
 
 
 typedef struct {
-	TexHandle background_img;
-	TexHandle walls_img;
+	TexHandle img;
 	bool no_wall_shadows;
 
 	Vector2 shadow_shift;
@@ -52,7 +51,7 @@ void arena_close(void);
 void arena_reset(const char* filename, uint n_ships);
 
 void arena_update(float dt);
-void arena_draw(void);
+void arena_draw(RectF* obstructions, uint obstruction_count);
 void arena_draw_transition(float t);
 
 const char* arena_get_current(void);

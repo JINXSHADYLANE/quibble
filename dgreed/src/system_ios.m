@@ -1156,7 +1156,8 @@ float time_ms(void) {
 
 float time_delta(void) {
 	// TODO: fix timestep here?
-	return t_d * 1000.0f;
+	//return t_d * 1000.0f;
+	return 1000.0f / 60.0f;
 }
 
 uint time_fps(void) {
