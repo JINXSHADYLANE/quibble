@@ -467,6 +467,17 @@ void _render_chapters(float t) {
 
 void _render_arenas(float t) {
 	uint n_arenas = chapters[selected_chapter].n_arenas;
+	static const char* arena_name;
+	static bool load = false;
+	if(load) {
+			game_reset(arena_name, 2);
+			ai_init_agent(1, 0);
+
+			menu_transition = MENU_GAME;
+			menu_transition_t = time_ms() / 1000.0f;
+
+			load = false;
+	}
 	if(_render_slidemenu(t, &arn_camera_lookat_x, &arn_old_camera_lookat_x,
 		MENU_CHAPTER, chapters[selected_chapter].arena_name,
 		arenas_atlas[selected_chapter], arena_list_panel_source, 
@@ -476,17 +487,17 @@ void _render_arenas(float t) {
 		selected_arena = MIN(selected_arena, MAX_ARENAS_IN_CHAPTER-1);
 		selected_arena = MAX(selected_arena, 0);
 
-		const char* arena_name =
-			chapters[selected_chapter].arena_file[selected_arena];
+		arena_name = chapters[selected_chapter].arena_file[selected_arena];
 		if(arena_name != NULL) {
-			menu_transition = MENU_GAME;
-			menu_transition_t = time_ms() / 1000.0f;
-
-			// TODO: Draw loading text here
-
-			game_reset(arena_name, 2);
-			ai_init_agent(1, 0);
+			Vector2 center = {240.0f, 160.0f};
+			font_draw_ex(huge_font, "Loading...", MENU_TEXT_LAYER, &center, 1.0f,
+			COLOR_WHITE); 	
+			load = true;
 		}	
+	}
+	else {
+		arena_name = NULL;
+		load = false;
 	}
 }
 
@@ -498,6 +509,18 @@ void _render_gameover(float t) {
 		"Back",
 		"Next"
 	};
+
+	static const char* arena_name;
+	static bool load = false;
+	if(load) {
+			game_reset(arena_name, 2);
+			ai_init_agent(1, 0);
+
+			menu_transition = MENU_GAME;
+			menu_transition_t = time_ms() / 1000.0f;
+
+			load = false;
+	}
 
 	float scale = _t_to_scale(t);	
 	Color c = color_lerp(COLOR_WHITE, COLOR_TRANSPARENT, fabs(t));
@@ -539,10 +562,11 @@ void _render_gameover(float t) {
 			}	
 			if(i == 2) {
 				if(next) {
-					menu_transition = MENU_GAME;
-					game_reset(next, 2);
-					ai_init_agent(1, 0);
-					menu_transition_t = time_ms() / 1000.0f;
+					arena_name = next;
+					load = true;
+
+					font_draw_ex(huge_font, "Loading...", MENU_TEXT_LAYER, &center, 1.0f,
+						COLOR_WHITE); 
 				}
 			}
 		}
