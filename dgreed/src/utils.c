@@ -243,7 +243,6 @@ Vector2 rectf_center(const RectF* r) {
 	);	
 }
 
-
 Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end) {
 	assert(r && start && end);
 
@@ -290,6 +289,54 @@ Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end) 
 	}
 
 	return min_hitp;
+}
+
+uint rectf_cut(const RectF* a, const RectF* b, RectF* out) {
+	assert(a && b && out);
+
+	uint cnt = 0;
+
+	if(!rectf_rectf_collision(a, b)) {
+		out[0] = *a;
+		return 1;
+	}
+
+	// Left horizontal slice
+	float slice_width = b->left - a->left;
+	if(slice_width > 0.0f)
+		out[cnt++] = rectf(a->left, a->top, b->left, a->bottom);
+
+	// Middle horizontal slice
+	float slice_start = MAX(a->left, b->left);
+	float slice_end = MIN(a->right, b->right);
+
+	// Top vertical slice
+	float slice_height = b->top - a->top;
+	if(slice_height > 0.0f)
+		out[cnt++] = rectf(slice_start, a->top, slice_end, b->top);
+	
+	// Bottom vertical slice
+	slice_height = a->bottom - b->bottom;
+	if(slice_height > 0.0f)
+		out[cnt++] = rectf(slice_start, b->bottom, slice_end, a->bottom);
+
+	// Right horizontal slice
+	slice_width = a->right - b->right;
+	if(slice_width > 0.0f)
+		out[cnt++] = rectf(b->right, a->top, a->right, a->bottom);
+
+	return cnt;
+}
+
+RectF rectf_bbox(const RectF* a, const RectF* b) {
+	RectF bbox = *a;
+
+	bbox.left = MIN(bbox.left, b->left);
+	bbox.right = MAX(bbox.right, b->right);
+	bbox.top = MIN(bbox.top, b->top);
+	bbox.bottom = MAX(bbox.bottom, b->bottom);
+
+	return bbox;
 }
 
 /*
