@@ -16,9 +16,9 @@ ChapterDesc chapters[MAX_CHAPTERS];
 ArenaDesc current_arena_desc;
 const char* current_arena_name = NULL;
 
-RectF walls_source = {0.0f, 0.0f, 480.0f, 320.0f};
-RectF background_source = {0.0f, 0.0f, 480.0f, 320.0f};
-RectF shadow_source = {0.0f, 321.0f, 240.0f, 321.0f + 160.0f};
+RectF final_source = {0.0f, 0.0f, 480.0f, 320.0f};
+RectF no_walls_source = {0.0f, 322.0f, 480.0f, 642.0f};
+RectF walls_source = {0.0f, 644.0f, 480.0f, 964.0f};
 
 void _parse_chapters(const char* filename) {
 	assert(filename);
@@ -92,8 +92,7 @@ void arenas_close(void) {
 void arena_init(void) {
 	current_arena_desc.platforms = NULL;
 	current_arena_desc.collision_tris = NULL;
-	current_arena_desc.background_img = MAX_UINT32;
-	current_arena_desc.walls_img = MAX_UINT32;
+	current_arena_desc.img = MAX_UINT32;
 	current_arena_desc.density_map = NULL;
 	current_arena_desc.objects.reserved = 0;
 }
@@ -107,16 +106,9 @@ void _arena_prep_reset(void) {
 		MEM_FREE(current_arena_desc.collision_tris);
 		current_arena_desc.collision_tris = NULL;
 	}
-	// Free background later, in case new arena has same one
-	/*
-	if(current_arena_desc.background_img != MAX_UINT32) {
-		tex_free(current_arena_desc.background_img);
-		current_arena_desc.background_img = MAX_UINT32;
-	}	
-	*/
-	if(current_arena_desc.walls_img != MAX_UINT32) {
-		tex_free(current_arena_desc.walls_img);
-		current_arena_desc.walls_img = MAX_UINT32;
+	if(current_arena_desc.img != MAX_UINT32) {
+		tex_free(current_arena_desc.img);
+		current_arena_desc.img = MAX_UINT32;
 	}	
 	if(current_arena_desc.density_map != NULL) {
 		MEM_FREE(current_arena_desc.density_map);
@@ -134,10 +126,6 @@ void _arena_prep_reset(void) {
 
 void arena_close(void) {
 	_arena_prep_reset();
-	if(current_arena_desc.background_img != MAX_UINT32) {
-		tex_free(current_arena_desc.background_img);
-		current_arena_desc.background_img = MAX_UINT32;
-	}
 }
 
 void arena_reset(const char* filename, uint n_ships) {
@@ -160,25 +148,16 @@ void arena_reset(const char* filename, uint n_ships) {
 	if(strcmp(mml_get_name(&desc, root), "arena") != 0)
 		LOG_ERROR("Invalid arena description file");
 
-	// Load background image
-	NodeIdx img_node = mml_get_child(&desc, root, "background");
-	if(!img_node)
-		LOG_ERROR("No background propierty found in arena description");
-	TexHandle background_img = tex_load(mml_getval_str(&desc, img_node));
-	if(current_arena_desc.background_img != MAX_UINT32)
-		tex_free(current_arena_desc.background_img);
-	current_arena_desc.background_img = background_img;
-
-	// Load walls & shadow image
+	// Load composite arena image
 	NodeIdx walls_node = mml_get_child(&desc, root, "walls");
-	if(!img_node)
+	if(!walls_node)
 		LOG_ERROR("No walls propierty found in arena description");
-	current_arena_desc.walls_img = 
+	current_arena_desc.img = 
 		tex_load(mml_getval_str(&desc, walls_node));
 
 	// Read precalculated data filename
 	NodeIdx precalc_node = mml_get_child(&desc, root, "precalc");
-	if(!img_node)
+	if(!precalc_node)
 		LOG_ERROR("No precalc propierty found in arena description");
 	FileHandle precalc_file = file_open(mml_getval_str(&desc, precalc_node));	
 
@@ -275,88 +254,47 @@ void arena_update(float dt) {
 	// TODO
 }	
 
-static void _arena_draw_shadow(Color c) {
-	Vector2 shift = current_arena_desc.shadow_shift;
+void arena_draw(RectF* obstructions, uint obstruction_count) {
+	RectF rects[48];
+	uint cnt = 0;
+	rects[cnt++] = final_source;
 
-	// Quick mode for unshifted shadows
-	if(shift.x == 0.0f && shift.y == 0.0f) {
-		RectF screen = {0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT}; 
-		video_draw_rect(
-			current_arena_desc.walls_img, SHADOWS_LAYER,
-			NULL, &screen, c
-		);
-		return;
+	// Perform CSG & clipping for all obstructions
+	for(uint i = 0; i < obstruction_count; ++i) {
+		uint old_cnt = cnt;
+		for(uint j = 0; j < old_cnt; ++j) {
+			RectF out[4];
+			uint out_cnt = rectf_cut(&rects[j], &obstructions[i], out);
+			for(uint k = 0; k < out_cnt; ++k) {
+				rects[cnt++] = out[k];
+				assert(cnt < 48);
+			}	
+		}
+		for(uint j = old_cnt; j < cnt; ++j) {
+			rects[j - old_cnt] = rects[j];
+		}
+		cnt -= old_cnt;
 	}
-	
-	// Only negative shifts supported for now
-	assert(shift.x < 0.0f && shift.y < 0.0f);
 
-	// Split screen rect into four parts according to shadow shift
-	float mid_x = SCREEN_WIDTH + shift.x;
-	float mid_y = SCREEN_HEIGHT + shift.y;
-	RectF parts[] = {
-		{0.0f, 0.0f, mid_x, mid_y},
-		{mid_x, 0.0f, SCREEN_WIDTH, mid_y},
-		{0.0f, mid_y, mid_x, SCREEN_HEIGHT},
-		{mid_x, mid_y, SCREEN_WIDTH, SCREEN_HEIGHT}
-	};	
-
-	// Transform screen parts into shadow texture source rects
-	// by offsetting and scaling down twice
-	for(uint i = 0; i < 4; ++i) {
-		// Shift
-		RectF source = rectf(
-			parts[i].left - shift.x, parts[i].top - shift.y,
-			parts[i].right - shift.x, parts[i].bottom - shift.y
-		);
-
-		// Wrap around out-of-screen sources
-		if(source.right > SCREEN_WIDTH) {
-			source.left -= SCREEN_WIDTH;
-			source.right -= SCREEN_WIDTH;
-		}
-		if(source.bottom > SCREEN_HEIGHT) {
-			source.top -= SCREEN_HEIGHT;
-			source.bottom -= SCREEN_HEIGHT;
-		}
-
-		// Scale down, offset
-		source.left = (source.left / 2.0f) + shadow_source.left;
-		source.top = (source.top / 2.0f) + shadow_source.top;
-		source.right = (source.right / 2.0f) + shadow_source.left;
-		source.bottom = (source.bottom / 2.0f) + shadow_source.top;
-
-		// Hack to prevent seams due to bilinear filtering in high-res mode
-		// (edge pixel mode for out-of-texture reads could be a nicer solution)
-		if(highres) {
-			source.left += 1.0f;
-			source.top += 1.0f;
-			source.right -= 1.0f;
-			source.bottom -= 1.0f;
-		}
-
-		// Render
-		video_draw_rect(
-			current_arena_desc.walls_img, SHADOWS_LAYER,
-			&source, &parts[i], c
-		);	
+	// Draw unobstructed arena parts
+	for(uint i = 0; i < cnt; ++i) {
+		video_draw_rect(current_arena_desc.img, ARENA_LAYER, 
+			&rects[i], &rects[i], COLOR_WHITE);
 	}
-}
 
-void arena_draw(void) {
-	RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
-	video_draw_rect(current_arena_desc.background_img, ARENA_LAYER, 
-		&background_source, &dest, COLOR_WHITE);
-	video_draw_rect(current_arena_desc.walls_img, WALLS_LAYER,
-		&walls_source, &dest, COLOR_WHITE);
+	// Draw parts in front of obstructions
+	for(uint i = 0; i < obstruction_count; ++i) {
+		RectF src = obstructions[i];
+		src.top += final_source.bottom + 2.0f;
+		src.bottom += final_source.bottom + 2.0f;
+		video_draw_rect(current_arena_desc.img, ARENA_LAYER,
+			&src, &obstructions[i], COLOR_WHITE);
 
-	dest.left = current_arena_desc.shadow_shift.x;
-	dest.top = current_arena_desc.shadow_shift.y;
-	dest.right = dest.left + rectf_width(&background_source);
-	dest.bottom = dest.top + rectf_height(&background_source);
-
-	if(!current_arena_desc.no_wall_shadows)
-		_arena_draw_shadow(COLOR_WHITE);
+		src.top += final_source.bottom + 2.0f;
+		src.bottom += final_source.bottom + 2.0f;
+		video_draw_rect(current_arena_desc.img, WALLS_LAYER,
+			&src, &obstructions[i], COLOR_WHITE);
+	}
 
 	objects_render(time_ms() / 1000.0f, 255);
 }		
@@ -366,18 +304,8 @@ void arena_draw_transition(float t) {
 	int alpha = c >> 24;
 
 	RectF dest = rectf(0.0f, 0.0f, 0.0f, 0.0f);
-	video_draw_rect(current_arena_desc.background_img, ARENA_LAYER, 
-		&background_source, &dest, c);
-	video_draw_rect(current_arena_desc.walls_img, WALLS_LAYER,
-		&walls_source, &dest, c);
-
-	dest.left = current_arena_desc.shadow_shift.x;
-	dest.top = current_arena_desc.shadow_shift.y;
-	dest.right = dest.left + rectf_width(&background_source);
-	dest.bottom = dest.top + rectf_height(&background_source);
-
-	if(!current_arena_desc.no_wall_shadows)
-		_arena_draw_shadow(c);
+	video_draw_rect(current_arena_desc.img, ARENA_LAYER, 
+		&final_source, &dest, c);
 
 	objects_render(time_ms() / 1000.0f, alpha);
 }
