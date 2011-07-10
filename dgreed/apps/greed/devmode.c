@@ -12,6 +12,7 @@
 #include "arena.h"
 #include "ai.h"
 #include "menus.h"
+#include "objects.h"
 
 #define TEXT_LAYER 15
 
@@ -135,6 +136,12 @@ void devmode_render(void) {
 		tweaks_render(tweaks);
 		return;
 	}	
+	cursor.y += 20.0f;
+
+	if(gui_switch(&cursor, "obj ed.")) {
+		objects_edit();
+		return;
+	}
 	cursor.y += 20.0f;
 
 	bool show_arenasel = gui_switch(&cursor, "arena sel.");

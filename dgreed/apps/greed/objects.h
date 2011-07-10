@@ -40,5 +40,7 @@ void objects_load(MMLObject* mml, NodeIdx node, DArray* objs);
 void objects_save(MMLObject* mml, NodeIdx node, DArray* objs);
 void objects_render(float t, uint alpha);
 
+void objects_edit(void);
+
 #endif
 

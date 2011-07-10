@@ -8,6 +8,8 @@
 void gfx_draw_point(uint layer, const Vector2* pos, Color color);
 // Draws a wireframe rectangle
 void gfx_draw_rect(uint layer, const RectF* rect, Color color);
+// Draws rotated & scaled wireframe rectangle
+void gfx_draw_rect_rotscale(uint layer, const RectF* rect, float rot, float scale, Color color);
 // Draws closed polygon
 void gfx_draw_poly(uint layer, const Vector2* points, uint n_points, Color color);
 // Draws triangle

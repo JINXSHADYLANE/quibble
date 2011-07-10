@@ -165,6 +165,16 @@ bool rectf_contains_point(const RectF* r, const Vector2* p) {
 	return false;		
 }	
 
+bool rectf_contains_point_rotscale(const RectF* rect, float rot, float scale,
+	const Vector2* p) {
+	
+	Vector2 c = rectf_center(rect);
+	Vector2 d = vec2_scale(vec2_rotate(vec2_sub(*p, c), -rot), 1.0f / scale);
+	d = vec2_add(c, d);
+
+	return rectf_contains_point(rect, &d);
+}
+
 bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r) {
 	assert(r >= 0.0f && r < 1000000.0f);
 	float d1, d2, d3, d4;

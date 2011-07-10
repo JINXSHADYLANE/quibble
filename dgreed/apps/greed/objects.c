@@ -1,6 +1,10 @@
 #include "objects.h"
-#include "gfx_utils.h"
-#include "memory.h"
+
+#include <gfx_utils.h>
+#include <font.h>
+#include <memory.h>
+
+#define TEXT_LAYER 15
 
 static const char* object_anim_names[] = { "none", "loop", "blink" };
 
@@ -99,6 +103,16 @@ void objects_reset(DArray* objs) {
 	objects = objs;
 }
 
+static uint _get_def(const char* def_name) {
+	uint def_id = 0;
+	while(
+		def_id < n_object_defs &&
+		strcmp(def_name, object_defs[def_id++].name) != 0
+	);
+	assert(def_id <= n_object_defs);
+	return def_id-1;
+}
+
 #define GET_OBJECT_VAL(type, name, dest) \
 	NodeIdx name = mml_get_child(mml, mobj, #name); \
 	assert(name != 0); \
@@ -118,13 +132,7 @@ void objects_load(MMLObject* mml, NodeIdx node, DArray* objs) {
 
 		// Find def
 		const char* def_name = mml_getval_str(mml, mobj);
-		uint def_id = 0;
-		while(
-			def_id < n_object_defs &&
-			strcmp(def_name, object_defs[def_id++].name) != 0
-		);
-		assert(def_id <= n_object_defs);
-		new.def = &object_defs[def_id-1];
+		new.def = &object_defs[_get_def(def_name)];
 
 		GET_OBJECT_VAL(vec2, pos, new.pos);
 		GET_OBJECT_VAL(float, size, new.size);
@@ -198,5 +206,171 @@ void objects_render(float t, uint alpha) {
 			obj->size, final 
 		);
 	}
+}
+
+// --- Edit mode ---
+
+extern FontHandle small_font;
+
+static bool obj_sel = false;
+static uint obj_sel_id = 0;
+static Vector2 mdown_pos, sdown_pos, rdown_pos, obj_old_pos;
+static Vector2 ldown_pos, tdown_pos, pdown_pos;
+static float obj_old_scale, obj_old_rot, obj_old_phase;
+static int obj_old_layer, obj_old_type;
+
+void objects_edit(void) {
+	const Color hot_color = COLOR_RGBA(128, 128, 128, 64);
+	const Color sel_color = COLOR_RGBA(198, 128, 148, 128);
+
+	Object* objs = DARRAY_DATA_PTR(*objects, Object);
+
+	uint mx, my;
+	mouse_pos(&mx, &my);
+	Vector2 mpos = {(float)mx, (float)my};
+
+	// Figure out 'hot' object
+	bool hovering = false;
+	uint hot_id = 0;
+	for(uint i = 0; i < objects->size; ++i) {
+		RectF r = frames[objs[i].def->start_frame];
+		float half_width = rectf_width(&r) / 2.0f;
+		float half_height = rectf_height(&r) / 2.0f;
+		r = rectf(
+			objs[i].pos.x - half_width, objs[i].pos.y - half_height,
+			objs[i].pos.x + half_width, objs[i].pos.y + half_height
+		);
+		if(obj_sel && obj_sel_id == i) {
+			gfx_draw_rect_rotscale(TEXT_LAYER, &r, 
+				objs[i].rot, objs[i].size, sel_color);
+		}
+		if(rectf_contains_point_rotscale(&r, objs[i].rot, objs[i].size, &mpos)) {
+			gfx_draw_rect_rotscale(TEXT_LAYER, &r, 
+				objs[i].rot, objs[i].size, hot_color);
+
+			if(mouse_down(MBTN_LEFT)) {
+				obj_sel = true;
+				obj_sel_id = i;
+			}
+
+			hovering = true;
+			hot_id = i;
+			break;
+		}
+	}
+	if(!hovering && mouse_down(MBTN_LEFT)) {
+		obj_sel = false;
+	}
+
+	if(obj_sel) {
+		Object* obj = &objs[obj_sel_id];	
+
+		Vector2 cursor = { 4.0f, 290.0f };
+		char text[256];
+		const float y_adv = 8.0f;
+
+		sprintf(text, "[t]ype: %s", obj->def->name);
+		font_draw(small_font, text, TEXT_LAYER, &cursor, COLOR_WHITE);
+		cursor.y += y_adv;
+
+		sprintf(text, "[l]ayer: %u", obj->layer);
+		font_draw(small_font, text, TEXT_LAYER, &cursor, COLOR_WHITE);
+		cursor.y += y_adv;
+
+		sprintf(text, "[p]hase: %.2f", obj->phase);
+		font_draw(small_font, text, TEXT_LAYER, &cursor, COLOR_WHITE);
+
+		// Move
+		if(hovering && obj_sel_id == hot_id) {
+			if(char_down('m')) {
+				mdown_pos = mpos;
+				obj_old_pos = obj->pos; 
+			}
+			if(char_pressed('m')) {
+				Vector2 delta = vec2_sub(mpos, mdown_pos);
+				obj->pos = vec2_add(obj_old_pos, delta);
+			}
+		}
+
+		// Scale
+		if(char_down('s')) {
+			sdown_pos = mpos;
+			obj_old_scale = obj->size;
+		}
+		if(char_pressed('s')) {
+			obj->size = obj_old_scale + (mpos.x - sdown_pos.x) / 50.0f;
+		}
+
+		// Rotate
+		if(char_down('r')) {
+			rdown_pos = mpos;
+			obj_old_rot = obj->rot;
+		}
+		if(char_pressed('r')) {
+			obj->rot = obj_old_rot + (mpos.x - rdown_pos.x) / 50.0f;
+		}
+
+		// Layer
+		if(char_down('l')) {
+			ldown_pos = mpos;
+			obj_old_layer = obj->layer;
+		}
+		if(char_pressed('l')) {
+			int d = (int)((mpos.x - ldown_pos.x) / 20.0f);
+			obj->layer = MAX(0, MIN(15, (int)obj_old_layer + d));
+		}
+
+		// Phase
+		if(char_down('p')) {
+			pdown_pos = mpos;
+			obj_old_phase = obj->phase;
+		}
+		if(char_pressed('p')) {
+			float max_phase = (float)obj->def->n_frames / obj->def->fps;
+			float d = (mpos.x - pdown_pos.x) / 80.0f;
+			obj->phase = clamp(0.0f, max_phase, obj_old_phase + d);
+		}
+
+		// Type
+		if(char_down('t')) {
+			tdown_pos = mpos;
+			obj_old_type = _get_def(obj->def->name); 
+		}
+		if(char_pressed('t')) {
+			int d = (int)((mpos.x - tdown_pos.x) / 50.0f);
+			int new_type = MAX(0, MIN(n_object_defs-1, (int)obj_old_type + d));
+			obj->def = &object_defs[new_type]; 
+		}
+
+		// Remove object
+		if(obj_sel && char_up('d')) {
+			darray_remove_fast(objects, obj_sel_id);
+			obj_sel = false;
+		}
+	}
+
+	// Add object
+	if(char_down('a')) {
+		Object new = {NULL, {0.0f, 0.0f}, 1.0f, 0.0f, 0.0f, 15, COLOR_WHITE}; 
+		if(obj_sel)
+			new = objs[obj_sel_id];
+		else
+			new.def = objects->size ? objs[objects->size-1].def : &object_defs[0];
+		new.pos = mpos;
+		darray_append(objects, &new);
+		return;
+	}
+	if(char_pressed('a')) {
+		objs[objects->size-1].pos = mpos;	
+	}
+
+	// Help
+	Vector2 cursor = vec2(80.0f, 306.0f);
+	const char* help_string = "[a]dd [d]elete [m]ove [s]cale [r]otate";
+	if(!obj_sel) {
+		help_string = "[a]dd";
+		cursor.x = 4.0f;
+	}
+	font_draw(small_font, help_string , TEXT_LAYER, &cursor, COLOR_WHITE);
 }
 

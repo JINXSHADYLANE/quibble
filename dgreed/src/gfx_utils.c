@@ -27,6 +27,27 @@ void gfx_draw_rect(uint layer, const RectF* rect, Color color) {
 	video_draw_line(layer, &p4, &p1, color);
 }
 
+void gfx_draw_rect_rotscale(uint layer, const RectF* rect, float rot, 
+	float scale, Color color) {
+
+	Vector2 tl = vec2(rect->left, rect->top);
+	Vector2 tr = vec2(rect->right, rect->top);
+	Vector2 br = vec2(rect->right, rect->bottom);
+	Vector2 bl = vec2(rect->left, rect->bottom);
+	Vector2 cnt = vec2((rect->left + rect->right) / 2.0f,
+		(rect->top + rect->bottom) / 2.0f);
+
+	tl = vec2_add(vec2_scale(vec2_rotate(vec2_sub(tl, cnt), rot), scale), cnt);
+	tr = vec2_add(vec2_scale(vec2_rotate(vec2_sub(tr, cnt), rot), scale), cnt);
+	br = vec2_add(vec2_scale(vec2_rotate(vec2_sub(br, cnt), rot), scale), cnt);
+	bl = vec2_add(vec2_scale(vec2_rotate(vec2_sub(bl, cnt), rot), scale), cnt);
+
+	video_draw_line(layer, &tl, &tr, color);
+	video_draw_line(layer, &tr, &br, color);
+	video_draw_line(layer, &br, &bl, color);
+	video_draw_line(layer, &bl, &tl, color);
+}
+
 void gfx_draw_poly(uint layer, const Vector2* points, uint n_points, Color color) {
 	assert(points);
 	assert(n_points);
