@@ -131,7 +131,10 @@ bool _menu_button(const Vector2* center, const char* text,
 	font_draw_ex(huge_font, text, MENU_TEXT_LAYER, 
 		&adj_vdest, scale, curr_text_col);
 
-	return mouse_inside && mouse_down(MBTN_LEFT); 	
+	bool button_down = mouse_inside && mouse_down(MBTN_LEFT);
+	if (button_down) sounds_event(GUI_CLICK);
+
+	return button_down; 	
 }
 
 void _menu_text(const Vector2* topleft, const char* text,

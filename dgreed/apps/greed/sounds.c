@@ -17,7 +17,6 @@ SoundDef snd[] = {
 	SOUNDDEF("SHOT"),
 	SOUNDDEF("BULLET_WALL"),
 	SOUNDDEF("SHIP_HIT"),
-	SOUNDDEF("SHIP_HIT"),
 	SOUNDDEF("SHIP_SHIP"),
 	SOUNDDEF("SHIP_WALL"),
 	SOUNDDEF("BASE_TAKEN"),
@@ -27,7 +26,6 @@ SoundDef snd[] = {
 	SOUNDDEF("SHIP_KILL"),
 	SOUNDDEF("GUI_CLICK")
 };
-
 
 typedef enum {
 	MUS_C1 = 0, 
@@ -50,9 +48,17 @@ SoundDef music[] = {
 	SOUNDDEF("MENU")
 };	
 
+typedef enum {
+	NO_FADE = 0,
+	FADE_IN,
+	FADE_OUT
+} SoundFade;
+
 SoundHandle current_music = UNDEFINED;
 float music_volume = 1.0f;
 float effect_volume = 1.0f;
+float fade_speed = 0.3f;
+SoundFade snd_fade = NO_FADE;
 
 static void _load_samples(void) {
 	char filename[256];
@@ -99,40 +105,66 @@ void sounds_close() {
 	sound_close();
 }
 
+void _sound_fade(SoundHandle sound) {
+	float volume = sound_get_volume(sound);
+	if (volume > effect_volume || volume <= 0.1f)
+		snd_fade = NO_FADE;
+	if (volume <= 0.05f)
+		sound_stop(sound);
+
+	switch (snd_fade) {
+		case NO_FADE:
+			return;
+		case FADE_IN:
+			if (volume >= effect_volume) 
+				snd_fade = NO_FADE;
+			sound_set_volume(sound, volume + fade_speed);
+			break;
+		case FADE_OUT:
+			sound_set_volume(sound, volume - fade_speed);
+			break;
+	}
+}
+
+void sounds_update() {
+	_sound_fade(SHIP_ACC);
+}
+
 void sounds_event(SoundEventType type) {
 	sounds_event_ex(type, UNDEFINED);
 }
 
 void sounds_event_ex(SoundEventType type, uint arg) {
-	switch(type) {
-		case MUSIC:
-			
-			sound_stop(current_music);
+	if (type == MUSIC) {
+		sound_stop(current_music);
+		if(arg >= 1 && arg <= 5)
+			_load_music(MUS_C1 + arg-1);
+		else
+			_load_music(MUS_MENU);
 
-			if(arg >= 1 && arg <= 5)
-				_load_music(MUS_C1 + arg-1);
-			else 
-				_load_music(MUS_MENU);
+		sound_set_volume(current_music, music_volume);
+		sound_play(current_music);
+		return;
+	}
 
-			sound_set_volume(current_music, music_volume);
-			sound_play(current_music);
+	if (snd[type].handle != UNDEFINED) {
+		if (type == SHIP_ACC) {
+			if (arg == 1) {
+				sound_play_ex(snd[type].handle, true);
+				//snd_fade = FADE_IN;
+				//sound_set_volume(snd[type].handle, 0.1f);
+			}
+			if (arg == 2) {
+				//snd_fade = FADE_OUT;
+				sound_stop(snd[type].handle);
+				return;
+			}
+
+			//_sound_fade(snd[type].handle);
 			return;
-		case PLATFORM_BEEP:
-			//sound_play(snd[PLATFORM_BEEP].handle);
-			return;
-		case SHIP_ACC:
-			// If sound ended (could be 3 sounds: init, continuous, end)
-			// game.c, line 346
-			//sound_play(snd[SHIP_ACC].handle);
-			return;
-		case GUI_CLICK:
-			//sound_play(snd[GUI_CLICK].handle);
-			return;
-		default:
-			if(snd[type].handle != UNDEFINED)
-				sound_play(snd[type].handle);
-			break;
-	};
+		}
+		//sound_play(snd[type].handle);
+	}
 
 	//LOG_ERROR("Unknown SoundEventType");
 }	

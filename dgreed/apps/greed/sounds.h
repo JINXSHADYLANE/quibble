@@ -20,6 +20,7 @@ typedef enum {
 
 void sounds_init();
 void sounds_close();
+void sounds_update();
 void sounds_event(SoundEventType type);
 void sounds_event_ex(SoundEventType type, uint arg);
 void sounds_set_effect_volume(float volume);
