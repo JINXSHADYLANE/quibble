@@ -12,6 +12,7 @@
 #include "state.h"
 #include "controls.h"
 #include "objects.h"
+#include "sounds.h"
 
 #define ENERGYBAR_LAYER 6
 #define FOREGROUND_LAYER 5
@@ -304,6 +305,7 @@ void game_reset(const char* arena, uint n_players) {
 		platform_states[i].last_color = PLATFORM_NEUTRAL;
 		platform_states[i].color_fade = 0.0f;
 		platform_states[i].ring_angle = rand_float_range(0.0f, 360.0f);
+		platform_states[i].is_beeping = false;
 	}	
 
 	// Works as long as arenas are named "cx_arenay"
@@ -347,7 +349,9 @@ void _control_keyboard1(uint ship) {
 	ship_states[ship].is_accelerating = key_pressed(KEY_UP);
 
 	if (key_down(KEY_UP))
-		sounds_event(SHIP_ACC);
+		sounds_event_ex(SHIP_ACC, 1);
+	if (key_up(KEY_UP))
+		sounds_event_ex(SHIP_ACC, 2);
 
 	physics_control_ship(ship,
 		key_pressed(KEY_LEFT),
@@ -399,6 +403,7 @@ void game_update(void) {
 	//devmode_update();
 	#endif
 
+	sounds_update();
 	menus_update();
 
 	if(menu_state != MENU_GAME && menu_state != MENU_GAMEOVER) {
@@ -687,6 +692,11 @@ float _calc_core_shrink_ratio(uint platform) {
 		platform_holding_time + state->activation_t;
 
 	if(time >= neutralization_t - platform_warning1_time) {
+		if(!state->is_beeping) {
+			sounds_event(PLATFORM_BEEP);
+			state->is_beeping = true;
+		}
+
 		float sin_t = sin(time*PI*2.0f);
 		core_shrink = sin_t*sin_t;
 		if(time >= neutralization_t - platform_warning2_time) {
@@ -834,12 +844,15 @@ void game_render(void) {
 			RectF* last_ring;
 			RectF* last_ring_shadow;
 
+			sound_stop(PLATFORM_BEEP);
+
 			if(state->color == PLATFORM_NEUTRAL) {
 				core_size = platform_core_size;
 				ring = &(platform_ring_rects[PLATFORM_RING_NEUTRAL]);
 				ring_shadow =
 					&(platform_ring_rects[PLATFORM_RING_NEUTRAL_SHADOW]);
-				ring_angle = state->ring_angle;	
+				ring_angle = state->ring_angle;
+				state->is_beeping = false;
 			}
 			else {
 				core_size = platform_active_core_size;

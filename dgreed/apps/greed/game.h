@@ -30,6 +30,7 @@ typedef struct {
 	float color_fade;
 	float activation_t;
 	float ring_angle;
+	bool is_beeping;
 } PlatformState;
 
 extern uint n_ships;
