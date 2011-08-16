@@ -10,18 +10,18 @@ bool _get_touch(const Vector2* pos, float radius, Vector2* touch) {
 	assert(pos);
 
 	Touch* touches = touches_get();
-	if(!touches)
-		return false;
-	
-	uint count = touches_count();
-	for(uint i = 0; i < count; ++i) {
-		if(vec2_length_sq(vec2_sub(*pos, touches[i].pos)) > radius*radius)
-			continue;
-		
-		if(touch)
-			*touch = touches[i].pos;
-		
-		return true;	
+	if(touches)
+	{
+		uint count = touches_count();
+		for(uint i = 0; i < count; ++i) {
+			if(vec2_length_sq(vec2_sub(*pos, touches[i].pos)) > radius*radius)
+				continue;
+			
+			if(touch)
+				*touch = touches[i].pos;
+			
+			return true;	
+		}
 	}
 	
 	if(mouse_pressed(MBTN_LEFT)) {
