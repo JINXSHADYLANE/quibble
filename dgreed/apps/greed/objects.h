@@ -41,6 +41,8 @@ void objects_save(MMLObject* mml, NodeIdx node, DArray* objs);
 void objects_render(float t, uint alpha);
 
 void objects_edit(void);
+void objects_soft_save(void);
+void objects_hard_save(void);
 
 #endif
 

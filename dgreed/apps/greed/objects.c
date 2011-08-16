@@ -4,6 +4,8 @@
 #include <font.h>
 #include <memory.h>
 
+#include "arena.h"
+
 #define TEXT_LAYER 15
 
 static const char* object_anim_names[] = { "none", "loop", "blink" };
@@ -364,13 +366,71 @@ void objects_edit(void) {
 		objs[objects->size-1].pos = mpos;	
 	}
 
+	// Save
+	if(char_down('o'))
+		objects_soft_save();
+	if(char_down('h'))
+		objects_hard_save();
+
 	// Help
 	Vector2 cursor = vec2(80.0f, 306.0f);
-	const char* help_string = "[a]dd [d]elete [m]ove [s]cale [r]otate";
+	const char* help_string = "[a]dd [d]elete [m]ove [s]cale [r]otate sv_s[o]ft sv_[h]ard";
 	if(!obj_sel) {
-		help_string = "[a]dd";
+		help_string = "[a]dd sv_s[o]ft sv_[h]ard";
 		cursor.x = 4.0f;
 	}
 	font_draw(small_font, help_string , TEXT_LAYER, &cursor, COLOR_WHITE);
+}
+
+static void _save_to_mml(const char* path) {
+	// Read
+	char* mml_text = txtfile_read(path);
+	if(!mml_text)
+		LOG_ERROR("Unable to read it!");
+	MMLObject mml;
+	if(!mml_deserialize(&mml, mml_text))
+		LOG_ERROR("Unable to parse mml!");
+	MEM_FREE(mml_text);
+	NodeIdx root = mml_root(&mml);
+
+	// If there was objects node, remove it
+	NodeIdx objects_node = mml_get_child(&mml, root, "objects");
+	if(objects_node)
+		mml_remove_child(&mml, root, "objects");
+		
+	// Create new empty objects node
+	objects_node = mml_node(&mml, "objects", "_");
+	mml_append(&mml, root, objects_node);
+
+	// Save
+	objects_save(&mml, objects_node, objects);
+
+	// Write to file
+	mml_text = mml_serialize(&mml);
+	txtfile_write(path, mml_text);
+	MEM_FREE(mml_text);
+	mml_free(&mml);
+}
+
+void objects_soft_save(void) {
+	const char* path = arena_get_current();
+	LOG_INFO("Soft saving to %s", path);
+	_save_to_mml(path);
+}
+
+void objects_hard_save(void) {
+	char path[128];
+
+	// Delete prefix from arena filename
+	const char* prefix = "greed_assets/";
+	const char* current = arena_get_current();
+	while(*prefix && *current && *prefix == *current) {
+		prefix++;
+		current++;
+	}
+	
+	sprintf(path, "../apps/greed/arenas/%s", current);
+	LOG_INFO("Hard saving to %s", path);
+	_save_to_mml(path);
 }
 
