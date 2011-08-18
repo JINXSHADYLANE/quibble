@@ -167,9 +167,10 @@ void controls_update(uint ship) {
 				if(ship_dir > M_PI)
 					ship_dir -= 2.0f * M_PI;
 
-				Segment s = ai_shortest_path(ship_pos, pos);
-				Vector2 offset = vec2_sub(s.p2, s.p1); 
-				float offset_dir = vec2_dir(vec2(offset.x, -offset.y));
+				//Segment s = ai_shortest_path(ship_pos, pos);
+				//Vector2 offset = vec2_sub(s.p2, s.p1); 
+				Vector2 offset = vec2_sub(pos, ship_pos);
+                float offset_dir = vec2_dir(vec2(offset.x, -offset.y));
 				float acc = 0.0f;
 
 				// If direction is good enough, accelerate
@@ -183,7 +184,7 @@ void controls_update(uint ship) {
 				
 				physics_control_ship_ex(ship, offset_dir, acc);
 			}
-			if(tcount == 2 || mouse_pressed(MBTN_RIGHT))
+			if(tcount == 2 || (mouse_pressed(MBTN_RIGHT) && tcount == 0))
 				game_shoot(ship);
 			break;
 		}
@@ -199,7 +200,7 @@ void controls_update(uint ship) {
 			if(tcount >= 1 || mouse_pressed(MBTN_LEFT)) {
 				Vector2 hit_pos, pos;
 				if(tcount) {
-					hit_pos = vec2(0.0f, 0.0f);
+					hit_pos = touches[0].hit_pos;
 					pos = touches[0].pos;
 				}
 				else {
@@ -220,7 +221,7 @@ void controls_update(uint ship) {
 				if(len > min_len / 2.0f)
 					physics_control_ship_ex(ship, dir, acc);
 			}
-			if(tcount == 2 || mouse_pressed(MBTN_RIGHT))
+			if(tcount == 2 || (mouse_pressed(MBTN_RIGHT) && tcount == 0))
 				game_shoot(ship);
 			break;
 		}
