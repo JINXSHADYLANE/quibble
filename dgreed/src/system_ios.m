@@ -1098,6 +1098,10 @@ void mouse_pos(uint* x, uint* y) {
 	*y = lmouse_y;
 }
 
+void mouse_vec(void) {
+	return vec2((float)lmouse_x, (float)lmouse_y);
+}
+
 #define max_touches 11
 uint touch_count = 0;
 Touch touches[max_touches];
@@ -1106,6 +1110,7 @@ void _touch_down(float x, float y) {
 	if(touch_count < max_touches) {
 		uint i = touch_count;
 		touches[i].hit_time = time_ms() / 1000.0f;
+		touches[i].hit_pos = vec2(x, y);
 		touches[i].pos = vec2(x, y);
 		touch_count++;
 	}

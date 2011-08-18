@@ -1264,6 +1264,12 @@ void mouse_pos(uint* x, uint* y) {
 	*y = (uint)((float)mouse_y * y_size_factor);
 }	
 
+Vector2 mouse_vec(void) {
+	uint x, y;
+	mouse_pos(&x, &y);
+	return vec2((float)x, (float)y);
+}
+
 uint touches_count(void) {
 	return 0;
 }

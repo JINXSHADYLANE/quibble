@@ -155,17 +155,12 @@ void controls_update(uint ship) {
 			uint tcount = touches_count();
 			Touch* touches = touches_get();
 
-			Vector2 mpos;
-			uint mx, my;
-			mouse_pos(&mx, &my);
-			mpos = vec2((float)mx, (float)my);
-
 			if(tcount == 1 || mouse_pressed(MBTN_LEFT)) {
 				Vector2 pos;
 				if(tcount) 
 					pos = touches[0].pos;
 				else
-					pos = mpos;
+					pos = mouse_vec();
 
 				Vector2 ship_pos = physics_state.ships[ship].pos;
 				float ship_dir = physics_state.ships[ship].rot;
@@ -196,15 +191,10 @@ void controls_update(uint ship) {
 			uint tcount = touches_count();
 			Touch* touches = touches_get();
 
-			Vector2 mpos = {0.0f, 0.0f};
 			static Vector2 hit_mpos;
-			if(!tcount) {
-				uint mx, my;
-				mouse_pos(&mx, &my);
-				mpos = vec2((float)mx, (float)my);
+			if(!tcount)
 				if(mouse_down(MBTN_LEFT))
-					hit_mpos = mpos;
-			}
+					hit_mpos = mouse_vec();
 
 			if(tcount >= 1 || mouse_pressed(MBTN_LEFT)) {
 				Vector2 hit_pos, pos;
@@ -214,7 +204,7 @@ void controls_update(uint ship) {
 				}
 				else {
 					hit_pos = hit_mpos;
-					pos = mpos;
+					pos = mouse_vec();
 				}
 
 				Vector2 offset = vec2_sub(pos, hit_pos);
