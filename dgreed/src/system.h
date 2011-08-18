@@ -184,9 +184,11 @@ bool mouse_up(MouseButton button);
 
 // Returns absolute mouse position
 void mouse_pos(uint* x, uint* y);
+Vector2 mouse_vec(void);
 
 typedef struct {
 	float hit_time;
+	Vector2 hit_pos;
 	Vector2 pos;
 } Touch;
 
