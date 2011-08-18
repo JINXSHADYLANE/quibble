@@ -173,7 +173,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glClearDepthf(1.0f);
 	glViewport(0, 0, height, width);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -1098,7 +1098,7 @@ void mouse_pos(uint* x, uint* y) {
 	*y = lmouse_y;
 }
 
-void mouse_vec(void) {
+Vector2 mouse_vec(void) {
 	return vec2((float)lmouse_x, (float)lmouse_y);
 }
 

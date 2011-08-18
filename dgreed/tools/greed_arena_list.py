@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 from PIL import Image, ImageDraw, ImageChops
 from optparse import OptionParser

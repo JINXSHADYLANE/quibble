@@ -3,10 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2122C83F13FDB5D0000633BB /* icon57.png in Resources */ = {isa = PBXBuildFile; fileRef = 2122C83E13FDB5D0000633BB /* icon57.png */; };
+		2122C84113FDB5D4000633BB /* icon114.png in Resources */ = {isa = PBXBuildFile; fileRef = 2122C84013FDB5D4000633BB /* icon114.png */; };
 		2166D20E1292915300DB92D8 /* ai.c in Sources */ = {isa = PBXBuildFile; fileRef = 2166D1FD1292915300DB92D8 /* ai.c */; };
 		2166D20F1292915300DB92D8 /* arena.c in Sources */ = {isa = PBXBuildFile; fileRef = 2166D1FF1292915300DB92D8 /* arena.c */; };
 		2166D2101292915300DB92D8 /* devmode.c in Sources */ = {isa = PBXBuildFile; fileRef = 2166D2011292915300DB92D8 /* devmode.c */; };
@@ -59,6 +61,8 @@
 
 /* Begin PBXFileReference section */
 		1D6058910D05DD3D006BFB54 /* greed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = greed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2122C83E13FDB5D0000633BB /* icon57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon57.png; sourceTree = "<group>"; };
+		2122C84013FDB5D4000633BB /* icon114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon114.png; sourceTree = "<group>"; };
 		2166D1FD1292915300DB92D8 /* ai.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ai.c; sourceTree = "<group>"; };
 		2166D1FE1292915300DB92D8 /* ai.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ai.h; sourceTree = "<group>"; };
 		2166D1FF1292915300DB92D8 /* arena.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = arena.c; sourceTree = "<group>"; };
@@ -233,6 +237,8 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				2122C84013FDB5D4000633BB /* icon114.png */,
+				2122C83E13FDB5D0000633BB /* icon57.png */,
 				2166D242129291D700DB92D8 /* dgreed.xcodeproj */,
 				2166D2171292916700DB92D8 /* chipmunk */,
 				2166D1FA1292910700DB92D8 /* src */,
@@ -294,8 +300,11 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0410;
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "greed" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -335,6 +344,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				2166D33F129292E000DB92D8 /* greed_assets in Resources */,
+				2122C83F13FDB5D0000633BB /* icon57.png in Resources */,
+				2122C84113FDB5D4000633BB /* icon114.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -386,6 +397,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = "greed-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
 				OTHER_LDFLAGS = (
@@ -403,6 +415,7 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = "greed-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
 				OTHER_LDFLAGS = (
@@ -425,7 +438,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = ../../src;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
-				PREBINDING = NO;
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = ../../src;
 			};
@@ -443,7 +455,6 @@
 				HEADER_SEARCH_PATHS = ../../src;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				PREBINDING = NO;
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = ../../src;
 			};
