@@ -3,6 +3,7 @@
 #include "state.h"
 #include "physics.h"
 #include "menus.h"
+#include "ai_precalc.h"
 
 #include <touch_ctrls.h>
 
@@ -64,6 +65,11 @@ void controls_draw(float fadein) {
 					&shoot_btn_src, &pstate.shoot_btn_pos);
 				break;
 			}	
+			case 3: 
+			case 4: {
+				// Nothing to draw!
+				break;
+			}
 			default:
 				LOG_ERROR("Unknown touch control scheme");
 		}
@@ -95,6 +101,10 @@ void controls_draw(float fadein) {
 					&acc_btn_src, &pstate.acc_btn_pos, fadein);
 				menus_draw_rect(gui_tex, CONTROLS_LAYER,
 					&shoot_btn_src, &pstate.shoot_btn_pos, fadein);
+				break;
+			}
+			case 3: 
+			case 4: {
 				break;
 			}
 			default:
@@ -139,6 +149,89 @@ void controls_update(uint ship) {
 				game_shoot(ship);
 
 			left_btn = right_btn = acc_btn = shoot_btn = false;	
+			break;
+		}
+		case 3: {
+			uint tcount = touches_count();
+			Touch* touches = touches_get();
+
+			Vector2 mpos;
+			uint mx, my;
+			mouse_pos(&mx, &my);
+			mpos = vec2((float)mx, (float)my);
+
+			if(tcount == 1 || mouse_pressed(MBTN_LEFT)) {
+				Vector2 pos;
+				if(tcount) 
+					pos = touches[0].pos;
+				else
+					pos = mpos;
+
+				Vector2 ship_pos = physics_state.ships[ship].pos;
+				float ship_dir = physics_state.ships[ship].rot;
+				if(ship_dir > M_PI)
+					ship_dir -= 2.0f * M_PI;
+
+				Segment s = ai_shortest_path(ship_pos, pos);
+				Vector2 offset = vec2_sub(s.p2, s.p1); 
+				float offset_dir = vec2_dir(vec2(offset.x, -offset.y));
+				float acc = 0.0f;
+
+				// If direction is good enough, accelerate
+				if(fabsf(ship_dir - offset_dir) < 0.1f) {
+					const float min_len = 32.0f;
+					const float max_len = 200.0f;
+					float len = vec2_length(offset);
+					float norm_len = (len - min_len) / (max_len - min_len);
+					acc = clamp(0.0f, 1.0f, norm_len);
+				}
+				
+				physics_control_ship_ex(ship, offset_dir, acc);
+			}
+			if(tcount == 2 || mouse_pressed(MBTN_RIGHT))
+				game_shoot(ship);
+			break;
+		}
+		case 4: {
+			uint tcount = touches_count();
+			Touch* touches = touches_get();
+
+			Vector2 mpos = {0.0f, 0.0f};
+			static Vector2 hit_mpos;
+			if(!tcount) {
+				uint mx, my;
+				mouse_pos(&mx, &my);
+				mpos = vec2((float)mx, (float)my);
+				if(mouse_down(MBTN_LEFT))
+					hit_mpos = mpos;
+			}
+
+			if(tcount >= 1 || mouse_pressed(MBTN_LEFT)) {
+				Vector2 hit_pos, pos;
+				if(tcount) {
+					hit_pos = vec2(0.0f, 0.0f);
+					pos = touches[0].pos;
+				}
+				else {
+					hit_pos = hit_mpos;
+					pos = mpos;
+				}
+
+				Vector2 offset = vec2_sub(pos, hit_pos);
+				float len = vec2_length(offset);
+				float dir = vec2_dir(vec2(offset.x, -offset.y));
+
+				const float min_len = 16.0f;
+				const float max_len = 200.0f;
+
+				float norm_len = (len - min_len) / (max_len - min_len);
+				float acc = clamp(0.0f, 1.0f, norm_len);
+
+				if(len > min_len / 2.0f)
+					physics_control_ship_ex(ship, dir, acc);
+			}
+			if(tcount == 2 || mouse_pressed(MBTN_RIGHT))
+				game_shoot(ship);
 			break;
 		}
 		default:
@@ -190,6 +283,10 @@ void controls_adjust(void) {
 			if(_good_pos(new_shoot))
 				pstate.shoot_btn_pos = new_shoot;
 			break;	
+		}
+		case 3:
+		case 4: {
+			break;
 		}
 		default:
 			LOG_ERROR("Unknown touch control scheme");

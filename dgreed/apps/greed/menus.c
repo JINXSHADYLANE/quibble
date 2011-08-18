@@ -262,13 +262,17 @@ void _render_settings(float t) {
 	const char* ctrl_names[] = {
 		"joystick + 2 buttons",
 		"joystick + button",
-		"4 buttons"
+		"4 buttons",
+		"finger guided",
+		"magical joystick"
 	};	
 
 	const Vector2 ctrl_pos[] = {
 		{75.0f, 170.0f},
 		{205.0f, 170.0f},
-		{325.0f, 170.0f}
+		{325.0f, 170.0f},
+		{75.0f, 190.0f},
+		{205.0f, 190.0f}
 	};
 
 	if(t == 0.0f) {
