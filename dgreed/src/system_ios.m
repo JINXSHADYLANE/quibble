@@ -173,7 +173,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glClearDepthf(1.0f);
 	glViewport(0, 0, height, width);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -316,6 +316,7 @@ void video_present(void) {
 			
 			COLOR_DECONSTRUCT(rects[j].tint, r, g, b, a);
 			r /= 255.0f; g /= 255.0f; b /= 255.0f; a /= 255.0f;
+            r *= a; g *= a; b *= a;
 			
 			size_t k = vertex_buffer.size;
 			vertex_buffer.size += 4;
