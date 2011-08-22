@@ -448,3 +448,18 @@ without colliding; initially, rect is assumed to not be colliding with anything!
 - tilemap.screen2world(tmaphandle, viewport, point)
 converts between screen-space and tilemap world-space
 
+
+---
+mml
+---
+
+Node is table with three members - 'name', 'value' strings and a 'childs' table of
+nodes.
+
+- mml.read(filename), mml.read_str(string)
+parses contents of a file or a text string, returns root node
+
+- mml.write(node, filename), mml.write_str(node)
+serializes node into text, writes it to a file or returns as a string
+
+
