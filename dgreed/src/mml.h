@@ -25,13 +25,13 @@ typedef uint StrIdx;
 
 typedef struct {
 	// Indexes to str_pool 
-	NodeIdx name_start;
-	NodeIdx value_start;
+	StrIdx name_start;
+	StrIdx value_start;
 
 	// Indexes to node_pool.
 	// Root node always has index 0, so here it means invalid index.
-	StrIdx first_child_idx;
-	StrIdx next_idx;
+	NodeIdx first_child_idx;
+	NodeIdx next_idx;
 } MMLNode;	
 
 typedef struct {

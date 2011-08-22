@@ -2,6 +2,7 @@
 
 #include "ml_utils.h"
 #include "ml_system.h"
+#include "ml_mml.h"
 
 #ifdef MACOSX_BUNDLE
 #include "memory.h"
@@ -56,6 +57,7 @@ void malka_init(void) {
 	malka_open_rand(l);
 	malka_open_log(l);
 	malka_open_file(l);
+	malka_open_mml(l);
 	malka_open_system(l);
 }
 
