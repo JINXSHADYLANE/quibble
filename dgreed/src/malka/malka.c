@@ -13,6 +13,8 @@ static lua_State* l;
 static int ml_argc = 0;
 static const char** ml_argv = NULL;
 
+extern bool fs_devmode;
+
 bool _endswith(const char* str, const char* tail) {
 	assert(str && tail);
 
@@ -101,6 +103,8 @@ int malka_run_ex(const char* luafile) {
 		lua_createtable(l, ml_argc, 0);
 		int t = lua_gettop(l);
 		for(int i = 0; i < ml_argc; ++i) {
+			if(strcmp(ml_argv[i], "-fsdev") == 0)
+				fs_devmode = true;
 			lua_pushstring(l, ml_argv[i]);
 			lua_rawseti(l, t, i+1);
 		}
