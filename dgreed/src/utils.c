@@ -791,6 +791,9 @@ uint params_find(const char* param) {
 ---------------
 */
 
+bool fs_devmode = false; // If this is true, also look for files in 'prefix + filename'
+const char* fs_devmode_prefix = "../../bin/";
+
 #ifdef MACOSX_BUNDLE
 static FILE* _storage_fopen(const char* name, const char* mode) {
 	char storage_path[256];
@@ -824,6 +827,18 @@ bool file_exists(const char* name) {
 		fclose(file);
 		return true;
 	}
+
+	if(fs_devmode) {
+		char dev_path[256];
+		strcpy(dev_path, fs_devmode_prefix);
+		strcat(dev_path, name);
+		file = fopen(dev_path, "rb");
+		if(file != NULL) {
+			fclose(file);
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -845,6 +860,15 @@ FileHandle file_open(const char* name) {
 #endif
 
 	if(f == NULL) {
+		if(fs_devmode) {
+			char dev_path[256];
+			strcpy(dev_path, fs_devmode_prefix);
+			strcat(dev_path, name);
+			f = fopen(dev_path, "rb");
+			if(f != NULL) 
+				return (FileHandle)f;
+		}
+	
 		LOG_ERROR("Unable to open file %s", name);
 		return 0;
 	}
