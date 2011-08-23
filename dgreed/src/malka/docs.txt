@@ -463,3 +463,40 @@ parses contents of a file or a text string, returns root node
 serializes node into text, writes it to a file or returns as a string
 
 
+------
+states
+------
+
+Game states system is a way to avoid writing your own game loop with transitions
+and spaghetti logic for different game states. You are not forced to use it!
+Making your own main loop in lua is perfectly valid too.
+
+State is a table with methods (all optional):
+	init() : called before entering main loop 
+	close() : called on program exit
+	enter() : called when state is about to become active 
+	leave() : called when state is no longer active
+
+	update() : called once every frame (not in transitions tough), must return 
+		bool (false means stop the horses and break out of main loop); do not 
+		do any rendering here!
+
+	render(t) : just like update, but you're supposed to do rendering here;
+		also called in transitions - t is transition param, 0 when not in 
+		transition, varies from -1 to 0 when trasitioning to this state,
+		from 0 to 1 when transitioning out
+
+Enter game loop by calling malka_states_run(mainfile) from C code, it runs the
+file you provided through interpreter, calls global game_init() method if such
+exists (init subsystems, register states and push initial state there), runs
+game up to the point when stack becomes empty, calls game_close() and exits.
+
+- states.register(name, state)
+registers a state
+
+- states.push(name), states.pop()
+state stack handling
+
+- states.transition_len 
+a number of seconds for transitioning between states, 0 by default
+

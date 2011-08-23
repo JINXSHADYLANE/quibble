@@ -14,10 +14,17 @@ int malka_run(const char* luafile);
 
 typedef int (*bind_fun_ptr)(lua_State* l);
 
+// Basic init/close, must be called if you're not using basic API
 void malka_init(void);
-void malka_params(int argc, const char** argv);
-int malka_register(bind_fun_ptr fun);
-int malka_run_ex(const char* luafile);
 void malka_close(void);
+
+// Call this to expose params to lua code, also handle -fsdev
+void malka_params(int argc, const char** argv);
+// Binds some of your code to lua
+int malka_register(bind_fun_ptr fun);
+// Runs specified file
+int malka_run_ex(const char* luafile);
+// Enters ml_states controlled game loop
+int malka_states_run(const char* luafile);
 
 #endif
