@@ -3,6 +3,7 @@
 #include "ml_utils.h"
 #include "ml_system.h"
 #include "ml_mml.h"
+#include "ml_states.h"
 
 #include "memory.h"
 
@@ -62,6 +63,7 @@ void malka_init(void) {
 	malka_open_log(l);
 	malka_open_file(l);
 	malka_open_mml(l);
+	malka_open_states(l);
 	malka_open_system(l);
 }
 
