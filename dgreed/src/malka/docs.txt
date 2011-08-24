@@ -494,7 +494,7 @@ game up to the point when stack becomes empty, calls game_close() and exits.
 - states.register(name, state)
 registers a state
 
-- states.push(name), states.pop()
+- states.push(name), states.pop(), states.replace(name)
 state stack handling
 
 - states.transition_len 
