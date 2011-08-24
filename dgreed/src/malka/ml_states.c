@@ -44,7 +44,7 @@ static bool _call_state_func(lua_State* l, const char* name,
 	lua_call(l, arg ? 1 : 0, 1);
 
 	bool res = lua_toboolean(l, -1);
-	lua_pop(l, 5);
+	lua_pop(l, 4);
 	return res;
 }
 
@@ -177,17 +177,24 @@ static int ml_states_push(lua_State* l) {
 	if(idx == ~0)
 		return luaL_error(l, "No such state!");
 
-	// Leave old state
-	int top = _stack_get(_stack_size()-1);
-	_call_state_func(l, _names_get(top), "leave", NULL);
+	bool stack_empty = _stack_size() == 0;	
+
+	int top;
+	if(!stack_empty) {
+		// Leave old state
+		top = _stack_get(_stack_size()-1);
+		_call_state_func(l, _names_get(top), "leave", NULL);
+	}
 
 	_stack_push(idx);
 
-	// Set up transition
-	states_from = top;
-	top = _stack_get(_stack_size()-1);
-	states_to = top;
-	states_transition_t = time_ms() / 1000.0f;
+	if(!stack_empty) {
+		// Set up transition
+		states_from = top;
+		top = _stack_get(_stack_size()-1);
+		states_to = top;
+		states_transition_t = time_ms() / 1000.0f;
+	}
 
 	return 0;
 }
@@ -203,6 +210,36 @@ static int ml_states_pop(lua_State* l) {
 	_call_state_func(l, _names_get(top), "leave", NULL);
 
 	_stack_pop();
+
+	// Set up transition
+	if(_stack_size()) {
+		states_from = top;
+		top = _stack_get(_stack_size()-1);
+		states_to = top;
+		states_transition_t = time_ms() / 1000.0f;
+	}
+
+	return 0;
+}
+
+static int ml_states_replace(lua_State* l) {
+	checkargs(1, "states.replace");
+
+	const char* name = luaL_checkstring(l, 1);
+
+	uint idx = _names_find(name);
+	if(idx == ~0)
+		return luaL_error(l, "No such state!");
+
+	if(states_stack.size == 0)
+		return luaL_error(l, "Trying to replace the top of empty stack!");
+
+	// Leave old state
+	int top = _stack_get(_stack_size()-1);
+	_call_state_func(l, _names_get(top), "leave", NULL);
+
+	_stack_pop();
+	_stack_push(idx);
 
 	// Set up transition
 	states_from = top;
@@ -280,6 +317,8 @@ void ml_states_run(lua_State* l) {
 				video_present();
 			}	
 		}
+		if(!system_update())
+			breakout = true;
 	}
 	while(!breakout && (_stack_size() || _in_transition()));
 	states_in_mainloop = false;
@@ -298,6 +337,7 @@ static const luaL_Reg states_fun[] = {
 	{"register", ml_states_register},
 	{"push", ml_states_push},
 	{"pop", ml_states_pop},
+	{"replace", ml_states_replace},
 	{NULL, NULL}
 };
 

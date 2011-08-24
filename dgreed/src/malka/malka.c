@@ -145,7 +145,24 @@ int malka_run_ex(const char* luafile) {
 }
 
 int malka_states_run(const char* luafile) {
-	// TBD
+	malka_run_ex(luafile);
+	ml_states_init(l);
+
+	lua_getglobal(l, "game_init");
+	if(lua_isfunction(l, -1))
+		lua_call(l, 0, 0);
+	else
+		lua_pop(l, 1);
+
+	ml_states_run(l);
+
+	lua_getglobal(l, "game_close");
+	if(lua_isfunction(l, -1))
+		lua_call(l, 0, 0);
+	else
+		lua_pop(l, 1);
+
+	ml_states_close(l);
 	return 0;
 }
 
