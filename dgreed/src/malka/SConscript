@@ -10,6 +10,7 @@ sources = Split("""
 	ml_utils.c
 	ml_system.c
 	ml_mml.c
+	ml_states.c
 """)
 
 malka = env.Library(NAME + postfix, sources)
