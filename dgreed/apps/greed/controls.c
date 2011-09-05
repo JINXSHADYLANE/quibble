@@ -164,12 +164,14 @@ void controls_update(uint ship) {
 
 				Vector2 ship_pos = physics_state.ships[ship].pos;
 				float ship_dir = physics_state.ships[ship].rot;
-				if(ship_dir > M_PI)
-					ship_dir -= 2.0f * M_PI;
+				if(ship_dir > PI)
+					ship_dir -= 2.0f * PI;
+				if(ship_dir < -PI)
+					ship_dir += 2.0f * PI;
 
-				//Segment s = ai_shortest_path(ship_pos, pos);
-				//Vector2 offset = vec2_sub(s.p2, s.p1); 
-				Vector2 offset = vec2_sub(pos, ship_pos);
+				Segment s = ai_shortest_path(ship_pos, pos);
+				Vector2 offset = vec2_sub(s.p2, s.p1); 
+				//Vector2 offset = vec2_sub(pos, ship_pos);
                 float offset_dir = vec2_dir(vec2(offset.x, -offset.y));
 				float acc = 0.0f;
 
