@@ -3,7 +3,7 @@
 // Tweakables
 float joystick_area_radius = 80.0f;
 float joystick_deadzone_radius = 10.0f;
-float button_area_radius = 30.0f;
+float button_area_radius = 60.0f;
 Color pressed_color = COLOR_RGBA(196, 196, 196, 255);
 
 bool _get_touch(const Vector2* pos, float radius, Vector2* touch) {
