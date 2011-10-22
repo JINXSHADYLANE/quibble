@@ -445,7 +445,7 @@ function tick()
 										add(particle:new({
 											center = p,
 											vel = dp * spawn_force,
-											color = rand.int(1, 3),
+											color = 1 + math.fmod(i, 2),
 										}))
 									end
 									break
