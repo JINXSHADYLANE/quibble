@@ -34,12 +34,36 @@ function close()
 end
 
 function render_particle(self)
+	local c, r = self.center, self.radius
 	local rect_i = self.color + (self.mass-1)*2
-	video.draw_rect_centered(
-				part_tex, part_layer,
-				part_rects[rect_i], self.center,
-				self.angle
-	)
+	local color = rgba(1, 1, 1, 1)
+	if self.death_time ~= nil then
+		local t = (time.s() - self.death_time)
+		t = clamp(0, 1, t / sim.ghost_lifetime)
+		color.a = 1 - t
+	end
+	local draw = function(pos)
+		video.draw_rect_centered(
+					part_tex, part_layer,
+					part_rects[rect_i], pos,
+					self.angle, color
+		)
+	end
+
+	draw(c)
+
+	if c.x < r then
+		draw(c + sim.path_offsets[1])
+	end
+	if c.x > sim.w - r then
+		draw(c + sim.path_offsets[3])
+	end
+	if c.y < r then
+		draw(c + sim.path_offsets[4])
+	end
+	if c.y > sim.h - r then
+		draw(c + sim.path_offsets[2])
+	end
 end
 
 function circle(c, r)
@@ -110,7 +134,11 @@ function render(t)
 	video.draw_rect(back_tex, 0, vec2(0, 0))
 	
 	for i,p in ipairs(sim.all) do
-		p:render()
+		render_particle(p)
+	end
+
+	for i,p in ipairs(sim.ghosts) do
+		render_particle(p)
 	end
 
 	return true

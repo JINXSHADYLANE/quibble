@@ -9,6 +9,8 @@ spawn_torque = 0.01
 
 particle_radius = 16
 
+ghost_lifetime = 1.8
+
 particle = {
 	center = vec2(),
 	angle = 0,
@@ -23,9 +25,6 @@ particle = {
 		setmetatable(o, self)
 		self.__index = self
 		return o
-	end,
-
-	render = function(self) 
 	end,
 
 	centers = function(self)
@@ -88,6 +87,7 @@ function init(width, height, cell_width, cell_height)
 	end
 
 	-- create list of all particles and cell lists, precalc cell rects
+	ghosts = {}
 	all = {}
 	cell = {}
 	cell_rects = {}
@@ -244,6 +244,8 @@ function add(p)
 end
 
 function tick()
+	update_ghosts()
+
 	-- iterate over all particles
 	local i = 1
 	while i <= #all do
@@ -330,17 +332,39 @@ function tick()
 								pa.remove = true
 								pb.remove = true
 								local d = pa.center - pb.center
+								local c = (pa.center + pb.center) / 2
 								if pa.mass + pb.mass == 2 then
-									add(sim.particle:new({
-										center = (pa.center + pb.center) / 2,
+									add(particle:new({
+										center = c,
 										vel = pa.vel + pb.vel,
 										color = pa.color,
 										mass = 2,
 										angle = math.atan2(d.y, d.x), 
-										ang_vel = rand.float(-0.001, 0.001),
-										render = pa.render
+										ang_vel = rand.float(-spawn_torque, spawn_torque),
 									}))
+								else
+									-- create ghost
+									local v = (pa.vel*pa.mass + pb.vel*pb.mass)
+									table.insert(ghosts, particle:new({
+										center = c,
+										vel = v/3,
+										color = pa.color,
+										mass = 3,
+										angle = math.atan2(d.y, d.x),
+										ang_vel = rand.float(-spawn_torque, spawn_torque),
+										death_time = time.s()
+									}))
+
+									-- additional real particle if merged 4
+									if pa.mass + pb.mass == 4 then
+										add(particle:new({
+											center = c,
+											vel = -v,
+											color = pa.color
+										}))
+									end
 								end
+
 								break
 							else
 								-- different color, do something bad
@@ -355,18 +379,21 @@ function tick()
 									pa.remove = true
 									pb.remove = true
 
-									for i=1,4 do
-										rot = rot + math.pi/2
+									local n = 4
+									if pa.mass + pb.mass == 6 then
+										n = 6
+									end
+									for i=1,n do
+										rot = rot + 2*math.pi/n
 										local dp = vec2(
 											math.cos(rot), 
 											math.sin(rot)
 										)
 										local p = c + dp * (particle_radius*1.5)
-										add(sim.particle:new({
+										add(particle:new({
 											center = p,
 											vel = dp * spawn_force,
 											color = rand.int(1, 3),
-											render = pa.render
 										}))
 									end
 									break
@@ -376,6 +403,35 @@ function tick()
 					end
 				end
 			end
+		end
+	end
+end
+
+function update_ghosts()
+	local t = time.s()
+	local i = 1
+	while i <= #ghosts do
+		local p = ghosts[i]
+		if t - p.death_time > ghost_lifetime then
+			ghosts[i] = ghosts[#ghosts]
+			table.remove(ghosts)
+		else
+			p.center = p.center + p.vel * time.dt()
+			p.angle = p.angle + p.ang_vel * time.dt()
+
+			-- wrap
+			p.center.x = math.fmod(w + p.center.x, w)
+			p.center.y = math.fmod(h + p.center.y, h)
+			p.angle = math.fmod(
+				2 * math.pi + p.angle, 
+				2 * math.pi
+			)
+
+			-- damp
+			p.vel = p.vel * linear_damping
+			p.angle = p.angle * angular_damping
+
+			i = i + 1
 		end
 	end
 end
