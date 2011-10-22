@@ -97,6 +97,10 @@ function merge_three(p)
 	particles.spawn('wicked_blast0', p)
 end
 
+function reset(p)
+	particles.spawn('gameover', p)
+end
+
 function render(back_tex)
 	particles.draw()
 	render_ffield(back_tex)

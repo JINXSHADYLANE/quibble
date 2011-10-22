@@ -269,7 +269,8 @@ function spawn_random()
 	add(sim.particle:new({
 		center = p,
 		vel = v,
-		color = col
+		color = col,
+		spawn_t = time.s()
 	}))
 
 	return p
