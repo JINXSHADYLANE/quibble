@@ -10,7 +10,7 @@ function game_init()
 	-- reduce screen size if we don't have enough space
 	local w, h = video.native_resolution()
 	local reduction = 1
-	if h < 768 then
+	if h <= 768 then
 		reduction = 2
 	end
 

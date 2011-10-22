@@ -41,6 +41,7 @@ function init()
 	part_tex = tex.load(pre..'atlas.png')
 	back_tex = tex.load(pre..'background.png')
 
+	effects.init()
 	sim.init(scr_size.x, scr_size.y, 64, 64, 1)
 
 	-- preprocess inside colours
@@ -52,10 +53,11 @@ function init()
 		end
 	end
 
-	generate(40)
+	generate(10)
 end
 
 function close()
+	effects.close()
 	tex.free(part_tex)
 	tex.free(back_tex)
 end
