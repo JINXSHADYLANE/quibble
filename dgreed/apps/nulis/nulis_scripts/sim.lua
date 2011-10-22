@@ -26,12 +26,16 @@ particle = {
 		o = o or {}
 		setmetatable(o, self)
 		self.__index = self
+		o.in_cols = {rand.float(), rand.float()}
+		o.in_grad = rand.int(1, 10)
+		o.in_rot = {rand.float(-1, 1), rand.float(-1, 1)}
+		o.in_t = 0
 		return o
 	end,
 
 	centers = function(self)
 		if self.mass == 2 then
-			local d = rotate(vec2(self.radius, 0), self.angle) 
+			local d = rotate(vec2(self.radius*0.75, 0), self.angle) 
 			return {self.center + d, self.center - d}
 		end
 		return {self.center}
@@ -262,7 +266,7 @@ function spawn_random()
 	sim.add(sim.particle:new({
 		center = p,
 		vel = v,
-		color = col,
+		color = col
 	}))
 end
 
@@ -287,9 +291,14 @@ function tick()
 			all[i] = all[#all]
 			table.remove(all)
 		else
+			local dt = time.dt()
+
+			-- update insides
+			p.in_t = math.max(0, p.in_t - dt / 200)
+
 			-- update position, rotation
-			p.center = p.center + p.vel * time.dt()
-			p.angle = p.angle + p.ang_vel * time.dt()
+			p.center = p.center + p.vel * dt
+			p.angle = p.angle + p.ang_vel * dt
 
 			-- wrap
 			p.center.x = math.fmod(w + p.center.x, w)
@@ -449,8 +458,13 @@ function update_ghosts()
 			ghosts[i] = ghosts[#ghosts]
 			table.remove(ghosts)
 		else
-			p.center = p.center + p.vel * time.dt()
-			p.angle = p.angle + p.ang_vel * time.dt()
+			local dt = time.dt()
+
+			-- update insides
+			p.in_t = math.max(0, p.in_t - dt / 200)
+
+			p.center = p.center + p.vel * dt
+			p.angle = p.angle + p.ang_vel * dt
 
 			-- wrap
 			p.center.x = math.fmod(w + p.center.x, w)
