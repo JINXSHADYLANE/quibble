@@ -20,11 +20,37 @@ part_layer = 3
 affect_radius = 120 
 affect_force = 0.02
 
+inside_cols = {
+	{rgba(242,255,0), rgba(255,44,0)},
+	{rgba(0,129,255), rgba(255,44,0)},
+	{rgba(0,129,255), rgba(242,255,0)},
+	{rgba(242,255,0), rgba(147,255,0)},
+	{rgba(255,0,236), rgba(242,255,0)},
+	{rgba(255,255,255), rgba(242,255,0)},
+	{rgba(242,255,0), rgba(0,129,255)},
+	{rgba(255,44,0), rgba(242,255,0)},
+	{rgba(255,255,255), rgba(242,255,0)}
+}
+
+inside_rects = {
+	rect(85, 0, 85 + 32, 32),
+	rect(85, 32, 85 + 32, 64)
+}
+
 function init()
 	part_tex = tex.load(pre..'atlas.png')
 	back_tex = tex.load(pre..'background.png')
 
 	sim.init(scr_size.x, scr_size.y, 64, 64, 1)
+
+	-- preprocess inside colours
+	for i,pair in ipairs(inside_cols) do
+		for j,col in ipairs(pair) do
+			col.r = col.r / 255
+			col.g = col.g / 255
+			col.b = col.b / 255
+		end
+	end
 
 	generate(40)
 end
@@ -32,6 +58,26 @@ end
 function close()
 	tex.free(part_tex)
 	tex.free(back_tex)
+end
+
+function render_particle_insides(pos, self, t)
+	local grad = inside_cols[self.in_grad]
+	local cola = lerp(grad[1], grad[2], self.in_cols[1])
+	local colb = lerp(grad[1], grad[2], self.in_cols[2])
+	cola.a = t
+	colb.a = t
+	local anga = time.s() * self.in_rot[1]
+	local angb = time.s() * self.in_rot[2]
+
+	video.draw_rect_centered(part_tex,
+		part_layer+1, inside_rects[1], pos,
+		anga, cola
+	)
+
+	video.draw_rect_centered(part_tex,
+		part_layer+1, inside_rects[2], pos,
+		angb, colb
+	)
 end
 
 function render_particle(self)
@@ -49,6 +95,18 @@ function render_particle(self)
 					part_rects[rect_i], pos,
 					self.angle, color
 		)
+
+		local in_t = clamp(0, 1, self.in_t)	
+		if in_t ~= 0 then
+			if self.mass == 1 then
+				render_particle_insides(pos, self, in_t)
+			end
+			if self.mass == 2 then
+				local centers = self:centers()
+				render_particle_insides(centers[1], self, in_t)
+				render_particle_insides(centers[2], self, in_t)
+			end
+		end
 	end
 
 	draw(c)
@@ -110,6 +168,7 @@ function update()
 			end
 			local dnorm = normalize(d)
 			p.vel = p.vel + dnorm * f * affect_force
+			p.in_t = math.min(2, p.in_t + time.dt() / 100)
 		end
 	end
 
