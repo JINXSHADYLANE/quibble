@@ -6,7 +6,7 @@ angular_damping = 0.99
 particle = {
 	center = vec2(),
 	angle = 0,
-	radius = 32,
+	radius = 16,
 	mass = 10,
 	vel = vec2(),
 	ang_vel = 0,
@@ -38,7 +38,7 @@ function path(a, b)
 		local p = a + off - b
 		local d = length_sq(p)
 		if d < min_d then
-			d = min_d
+			min_d = d
 			min_path = p
 		end
 	end
@@ -129,7 +129,7 @@ function cell_neighbours_movement(cid, delta)
 	local cyn = math.fmod(cy + 1, nh) * nw
 
 	cy = cy * nw
-	local sx = cxp + cx + cxn
+	local sx = cxp + cxn
 
 	local cxr = cxp
 	if delta.x > 0 then
@@ -150,7 +150,7 @@ function cell_neighbours_movement(cid, delta)
 			cxr + cy + 1,
 			cxr + cyn + 1,
 			cx + cyr + 1,
-			(sx - cx - cxr) + cyr + 1
+			(sx - cxr) + cyr + 1
 		}
 	end
 	if new_row then
@@ -276,6 +276,7 @@ function tick()
 			end
 
 			-- resolve collisions
+			local j, k
 			for j=1,#c do
 				local pa = c[j]
 				if not pa.remove then

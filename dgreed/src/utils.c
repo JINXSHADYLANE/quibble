@@ -177,16 +177,12 @@ bool rectf_contains_point_rotscale(const RectF* rect, float rot, float scale,
 
 bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r) {
 	assert(r >= 0.0f && r < 1000000.0f);
-	float d1, d2, d3, d4;
-	d1 = d2 = d3 = d4 = 1000000.0f;
-	if(p->x >= rect->left && p->x <= rect->right) {
-		d1 = fabsf(rect->top - p->y);
-		d2 = fabsf(p->y - rect->bottom);
-	}
-	if(p->y <= rect->bottom && p->y >= rect->top) {
-		d3 = fabsf(rect->left - p->x);
-		d4 = fabsf(p->x - rect->right);
-	}
+
+	float d1 = rect->top - p->y;
+	float d2 = p->y - rect->bottom;
+	float d3 = rect->left - p->x;
+	float d4 = p->x - rect->right;
+
 	if(MIN(MIN(d1, d2), MIN(d3, d4)) <= r)
 		return true;
 
