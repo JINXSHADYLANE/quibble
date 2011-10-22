@@ -11,6 +11,8 @@ particle_radius = 16
 
 ghost_lifetime = 1.8
 
+random_spawn_limit = 20
+
 particle = {
 	center = vec2(),
 	angle = 0,
@@ -74,9 +76,12 @@ function path(a, b)
 	return min_path, min_d
 end
 
-function init(width, height, cell_width, cell_height)
+function init(width, height, cell_width, cell_height, rand_t)
 	w, h, cw, ch = width, height, cell_width, cell_height
 	nw, nh = w / cw, h / ch
+
+	last_random_t = time.s()
+	random_t = rand_t
 
 	-- some sanity checks
 	if math.floor(nw) ~= nw or math.floor(nh) ~= nh then
@@ -243,8 +248,34 @@ function add(p)
 	return true
 end
 
+function spawn_random()
+	local p = vec2(
+		rand.float(0, w),
+		rand.float(0, h)
+	)
+
+	local v = vec2(0, rand.float()/100)
+	v = rotate(v, rand.float(0, math.pi * 2))
+
+	local col = rand.int(1, 3)
+
+	sim.add(sim.particle:new({
+		center = p,
+		vel = v,
+		color = col,
+	}))
+end
+
 function tick()
 	update_ghosts()
+
+	-- spawn random particles
+	if #all < random_spawn_limit then
+		if time.s() - last_random_t > random_t then
+			last_random_t = time.s()
+			spawn_random()
+		end
+	end
 
 	-- iterate over all particles
 	local i = 1
@@ -380,16 +411,18 @@ function tick()
 									pb.remove = true
 
 									local n = 4
-									if pa.mass + pb.mass == 6 then
+									local rf = 1.5
+									if pa.mass + pb.mass == 4 then
 										n = 6
+										rf = 2.5
 									end
 									for i=1,n do
-										rot = rot + 2*math.pi/n
+										rot = rot + (2*math.pi/n)
 										local dp = vec2(
 											math.cos(rot), 
 											math.sin(rot)
 										)
-										local p = c + dp * (particle_radius*1.5)
+										local p = c + dp * (particle_radius*rf)
 										add(particle:new({
 											center = p,
 											vel = dp * spawn_force,

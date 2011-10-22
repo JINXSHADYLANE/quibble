@@ -23,7 +23,7 @@ function init()
 	part_tex = tex.load(pre..'atlas.png')
 	back_tex = tex.load(pre..'background.png')
 
-	sim.init(scr_size.x, scr_size.y, 64, 64)
+	sim.init(scr_size.x, scr_size.y, 64, 64, 1)
 
 	generate(60)
 end
@@ -79,22 +79,7 @@ end
 
 function generate(n)
 	for i = 1,n do
-		local p = vec2(
-			rand.float(0, scr_size.x),
-			rand.float(0, scr_size.y)
-		)
-
-		local v = vec2(0, rand.float()/100)
-		v = rotate(v, rand.float(0, math.pi * 2))
-
-		local col = rand.int(1, 3)
-
-		sim.add(sim.particle:new({
-			center = p,
-			vel = v,
-			color = col,
-			render = render_particle
-		}))
+		sim.spawn_random()
 	end
 end
 
