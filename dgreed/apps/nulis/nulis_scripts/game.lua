@@ -37,12 +37,19 @@ inside_rects = {
 	rect(85, 32, 85 + 32, 64)
 }
 
+levels = {
+	{name = 'origin', w=3, start_spawning=0, spawn_interval=1000},
+	{name = 'nulis', r=20, start_spawning=20, spawn_interval=2}
+}
+
+current_level = 1
+to_spawn = {w=0, b=0, r=0, c=0}
+
 function init()
 	part_tex = tex.load(pre..'atlas.png')
 	back_tex = tex.load(pre..'background.png')
 
 	effects.init()
-	sim.init(scr_size.x, scr_size.y, 64, 64, 1)
 
 	-- preprocess inside colours
 	for i,pair in ipairs(inside_cols) do
@@ -53,7 +60,29 @@ function init()
 		end
 	end
 
-	generate(10)
+	reset(levels[1])
+	current_level = 1
+end
+
+reset_t = 0
+function reset(level) 
+	reset_t = time.ms()
+	sim.init(scr_size.x, scr_size.y, 64, 64, 
+		level.spawn_interval, level.start_spawning)
+
+	if level.w then
+		to_spawn.w = to_spawn.w + level.w
+	end
+
+	if level.b then
+		to_spawn.b = to_spawn.b + level.b
+	end
+
+	if level.r then
+		to_spawn.r = to_spawn.r + level.r
+	end
+
+	to_spawn.c = to_spawn.w + to_spawn.b
 end
 
 function close()
@@ -127,30 +156,49 @@ function render_particle(self)
 	end
 end
 
-function circle(c, r)
-	local segs = 16
-	for i=0,segs-1 do
-		local a1 = i / segs * math.pi * 2
-		local a2 = (i+1) / segs * math.pi * 2
-		local p1 = vec2(math.cos(a1), math.sin(a1)) * r
-		local p2 = vec2(math.cos(a2), math.sin(a2)) * r
-		video.draw_seg(part_layer, c + p1, c + p2)
-	end
-end
-
-function generate(n)
-	for i = 1,n do
-		sim.spawn_random()
-	end
-end
-
 function enter()
 end
 
 function leave()
 end
 
+last_spawn_t = 0
+spawn_interval = 0.1
 function update()
+	if time.s() - last_spawn_t > spawn_interval then
+		last_spawn_t = time.s()
+		-- spawn particles if we need to
+		local cc = to_spawn.w + to_spawn.b
+		if cc > 0 then
+			local a = (cc / to_spawn.c) * math.pi * 2
+			local p = vec2(sim.w/2, sim.h/2)
+			p = p + rotate(vec2(0, 160), a)
+
+			-- first spawn white, then black
+			local col
+			if to_spawn.w > 0 then
+				col = 2
+				to_spawn.w = to_spawn.w - 1
+			else
+				col = 1
+				to_spawn.b = to_spawn.b - 1
+			end
+
+			effects.spawn(p)
+			sim.add(sim.particle:new({
+				center = p,
+				vel = vec2(),
+				color = col
+			}))
+		else
+			if to_spawn.r > 0 then
+				local p = sim.spawn_random()
+				effects.spawn(p)
+				to_spawn.r = to_spawn.r - 1
+			end
+		end
+	end
+
 	sim.tick()
 	effects.update()
 
@@ -171,6 +219,14 @@ function update()
 			local dnorm = normalize(d)
 			p.vel = p.vel + dnorm * f * affect_force
 			p.in_t = math.min(2, p.in_t + time.dt() / 100)
+		end
+	end
+
+	-- start new level if no more particles
+	if time.s() - reset_t > 3 then
+		if #sim.all + #sim.ghosts == 0 then
+			current_level = current_level+1
+			reset(levels[current_level])
 		end
 	end
 
