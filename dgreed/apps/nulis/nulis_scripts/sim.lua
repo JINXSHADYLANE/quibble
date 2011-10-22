@@ -1,13 +1,13 @@
 module(..., package.seeall)
 
-linear_damping = 0.99
+linear_damping = 0.995
 angular_damping = 0.99
 
 particle = {
 	center = vec2(),
 	angle = 0,
-	radius = 0,
-	mass = 0,
+	radius = 32,
+	mass = 10,
 	vel = vec2(),
 	ang_vel = 0,
 	remove = false,
@@ -23,10 +23,27 @@ particle = {
 	end,
 
 	collide = function(self, p)
-		local d = length_sq(self.center - p.center)
-		return d < self.radius + p.radius
+		local d, l = path(self.center, p.center) 
+		local r = self.radius + p.radius
+		return l < r*r 
 	end
 }
+
+-- shortest path between a and b in a toroidal space
+path_offsets = nil
+function path(a, b)
+	local min_path = a - b
+	local min_d = length_sq(min_path)
+	for i,off in ipairs(path_offsets) do
+		local p = a + off - b
+		local d = length_sq(p)
+		if d < min_d then
+			d = min_d
+			min_path = p
+		end
+	end
+	return min_path, min_d
+end
 
 function init(width, height, cell_width, cell_height)
 	w, h, cw, ch = width, height, cell_width, cell_height
@@ -53,6 +70,12 @@ function init(width, height, cell_width, cell_height)
 		end
 	end
 
+	path_offsets = {
+		vec2(w, 0),
+		vec2(0, -h),
+		vec2(-w, 0),
+		vec2(0, h)
+	}
 end
 
 function point_to_cell(pt)
@@ -108,7 +131,7 @@ function cell_neighbours_movement(cid, delta)
 	cy = cy * nw
 	local sx = cxp + cx + cxn
 
-	local cxc = cxp
+	local cxr = cxp
 	if delta.x > 0 then
 		cxr = cxn
 	end
@@ -194,9 +217,12 @@ function tick()
 			p.angle = p.angle + p.ang_vel * time.dt()
 
 			-- wrap
-			p.center.x = math.fmod(p.center.x, w)
-			p.center.y = math.fmod(p.center.y, h)
-			p.angle = math.fmod(p.angle, 2 * math.pi)
+			p.center.x = math.fmod(w + p.center.x, w)
+			p.center.y = math.fmod(h + p.center.y, h)
+			p.angle = math.fmod(
+				2 * math.pi + p.angle, 
+				2 * math.pi
+			)
 
 			-- add particle to new grid cells
 			local cid = point_to_cell(p.center)
@@ -225,11 +251,12 @@ function tick()
 		end
 	end
 
-	-- remove particles from old grid cells 
 	for y=0,nh-1 do
 		for x=0,nw-1 do
 			local cid = x + y * nw + 1
 			local c = cell[cid]
+
+			-- remove particles from old grid cells 
 			local j = 1
 			while j <= #c do
 				local p = c[j]
@@ -245,6 +272,21 @@ function tick()
 					table.remove(c)
 				else
 					j = j + 1
+				end
+			end
+
+			-- resolve collisions
+			for j=1,#c do
+				local pa = c[j]
+				if not pa.remove then
+					for k=j+1,#c do
+						local pb = c[k]
+						if not pb.remove and pa:collide(pb) then
+							pa.remove = true
+							pb.remove = true
+							break
+						end
+					end
 				end
 			end
 		end
@@ -263,6 +305,19 @@ function draw_grid()
 		video.draw_seg(1, vec2(0, y), vec2(w, y))
 		y = y + ch
 	end
+end
+
+-- returns all particles within distance r of point c
+function query(c, r)
+	local out = {}
+	for i,p in ipairs(all) do
+		local d, l = path(c, p.center)
+		local ri = r + p.radius
+		if l < ri*ri then
+			table.insert(out, p)
+		end
+	end
+	return out
 end
 
 
