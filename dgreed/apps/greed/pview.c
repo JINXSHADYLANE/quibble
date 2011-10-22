@@ -50,6 +50,7 @@ void draw_grid(uint layer, float spacing) {
 int dgreed_main(int argc, const char** argv) {
 	log_init("pview.log", LOG_LEVEL_INFO);
 	video_init(800, 600, "PView");
+	rand_init(666);
 
 	GuiDesc style = greed_gui_style(false);
 
