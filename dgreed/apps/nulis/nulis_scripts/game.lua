@@ -3,6 +3,9 @@ module(..., package.seeall)
 require 'sim'
 require 'effects'
 
+mfont = nil
+text_layer = 1
+text_len = 4
 part_tex = nil
 back_tex = nil
 vignette_tex = nil
@@ -21,6 +24,8 @@ part_rects = {
 	rect(0, 64, 52, 64 + 52),
 	rect(52, 64, 52 + 52, 64 + 52)
 }
+
+title_rect = rect(256, 768, 750, 1024)
 
 part_layer = 3
 
@@ -49,13 +54,14 @@ levels = {
 	{name = 'black', b=3, start_spawning=0, spawn_interval=1000},
 	{name = 'collision', w=2, b=1, start_spawning=0, spawn_interval=1000},
 	{name = 'sequence', w=1, b=3, start_spawning=0, spawn_interval=1000},
-	{name = 'nulis', r=20, start_spawning=20, spawn_interval=2}
+	{name = 'madness', r=20, start_spawning=20, spawn_interval=2}
 }
 
 current_level = 1
 to_spawn = {w=0, b=0, r=0, c=0}
 
 function init()
+	mfont = font.load(pre..'varela.bft')
 	part_tex = tex.load(pre..'atlas.png')
 	back_tex = tex.load(pre..'background.png')
 	vignette_tex = tex.load(pre..'vignette.png')
@@ -98,9 +104,14 @@ end
 
 function close()
 	effects.close()
+	font.free(mfont)
 	tex.free(part_tex)
 	tex.free(back_tex)
 	tex.free(vignette_tex)
+end
+
+function spawn_func(t)
+	return t * (math.sin(t*4*math.pi)*(1-t)+1) 
 end
 
 function render_particle_insides(pos, self, t)
@@ -132,11 +143,20 @@ function render_particle(self)
 		t = clamp(0, 1, t / sim.ghost_lifetime)
 		color.a = 1 - t
 	end
+
+	local scale = 1
+	if self.spawn_t ~= nil then
+		local t = time.s() - self.spawn_t
+		if t >= 0 and t < 1 then
+			scale = spawn_func(t)
+		end
+	end
+
 	local draw = function(pos)
 		video.draw_rect_centered(
 					part_tex, part_layer,
 					part_rects[rect_i], pos,
-					self.angle, color
+					self.angle, scale, color
 		)
 
 		local in_t = clamp(0, 1, self.in_t)	
@@ -200,7 +220,8 @@ function update()
 			sim.add(sim.particle:new({
 				center = p,
 				vel = vec2(),
-				color = col
+				color = col,
+				spawn_t = time.s()
 			}))
 		else
 			if to_spawn.r > 0 then
@@ -277,13 +298,36 @@ function render(t)
 		if t >= 0.5 and not vignette_did_reset then
 			vignette_did_reset = true
 			for i,p in ipairs(sim.all) do
-				effects.spawn(p.center)
+				effects.reset(p.center)
 			end
 			reset(levels[current_level])
 		end
 		
 		if t >= 1 then
 			vignette_t = nil
+		end
+	end
+
+	-- show title
+	local t = (time.s() - 2) / text_len
+	if t >= 0 and t < 1 then
+		local color = rgba(1, 1, 1, math.sin(t * math.pi))
+		video.draw_rect_centered(
+			back_tex, text_layer, title_rect, 
+			vec2(sim.w/2, sim.h/2), color
+		)
+	end
+
+	-- show level name
+	t = (time.s() - reset_t) / text_len
+	if t >= 0 and t < 1 then
+		local color = rgba(1, 1, 1, math.sin(t * math.pi))
+		if current_level > 1 then
+			video.draw_text(
+				mfont, text_layer, 
+				levels[current_level].name,
+				vec2(32, 768 - 32 - 48), color
+			)
 		end
 	end
 
