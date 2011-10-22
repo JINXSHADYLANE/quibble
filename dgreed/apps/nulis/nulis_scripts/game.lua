@@ -6,7 +6,7 @@ part_tex = nil
 part_layer = 2
 
 affect_radius = 120 
-affect_force = 0.1
+affect_force = 0.02
 
 function init()
 	part_tex = {
@@ -16,12 +16,13 @@ function init()
 
 	sim.init(scr_size.x, scr_size.y, 64, 64)
 
-	generate(50)
+	generate(100)
 end
 
 function render_particle(self)
 	video.draw_rect_centered(
-				part_tex[1], part_layer, self.center 
+				part_tex[self.color], part_layer, self.center,
+				0, 0.5
 	)
 end
 
@@ -46,9 +47,12 @@ function generate(n)
 		local v = vec2(0, rand.float()/100)
 		v = rotate(v, rand.float(0, math.pi * 2))
 
+		local col = rand.int(1, 3)
+
 		sim.add(sim.particle:new({
 			center = p,
 			vel = v,
+			color = col,
 			render = render_particle
 		}))
 	end
