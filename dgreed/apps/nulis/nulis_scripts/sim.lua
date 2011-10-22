@@ -82,12 +82,13 @@ function path(a, b)
 	return min_path, min_d
 end
 
-function init(width, height, cell_width, cell_height, rand_t)
+function init(width, height, cell_width, cell_height, rand_t, rand_start)
 	w, h, cw, ch = width, height, cell_width, cell_height
 	nw, nh = w / cw, h / ch
 
 	last_random_t = time.s()
 	random_t = rand_t
+	random_spawn_limit = rand_start
 
 	-- some sanity checks
 	if math.floor(nw) ~= nw or math.floor(nh) ~= nh then
@@ -124,10 +125,10 @@ function point_to_cell(pt)
 	local cy = math.floor(pt.y / ch)
 
 	-- sanity check, comment out for performance
-	if cx < 0 or cx >= w or cy < 0 or cy >= h then
-		print(debug.traceback())
-		log.error('Pt is out of bounds')
-	end
+	--if cx < 0 or cx >= w or cy < 0 or cy >= h then
+	--	print(debug.traceback())
+	--	log.error('Pt is out of bounds')
+	--end
 
 	return cx + cy * nw + 1
 end
@@ -214,12 +215,12 @@ end
 
 function add_to_cell(cid, p)
 	-- check if already added (disable later)
-	for i,part in ipairs(cell[cid]) do
-		if part == p then
-			print(debug.traceback())
-			log.error('p already in cell!')
-		end
-	end
+	--for i,part in ipairs(cell[cid]) do
+	--	if part == p then
+	--		print(debug.traceback())
+	--		log.error('p already in cell!')
+	--	end
+	--end
 
 	table.insert(cell[cid], p)
 end
@@ -265,7 +266,7 @@ function spawn_random()
 
 	local col = rand.int(1, 3)
 
-	sim.add(sim.particle:new({
+	add(sim.particle:new({
 		center = p,
 		vel = v,
 		color = col
@@ -334,7 +335,7 @@ function tick()
 
 			-- damp angular & linear velocities
 			p.vel = p.vel * linear_damping
-			p.angle = p.angle * angular_damping
+			p.ang_vel = p.ang_vel * angular_damping
 
 			i = i + 1
 		end
