@@ -3,11 +3,16 @@ module(..., package.seeall)
 linear_damping = 0.995
 angular_damping = 0.99
 
+collide_force = 0.01
+spawn_force = 0.05
+
+particle_radius = 16
+
 particle = {
 	center = vec2(),
 	angle = 0,
-	radius = 16,
-	mass = 10,
+	radius = particle_radius,
+	mass = 1,
 	vel = vec2(),
 	ang_vel = 0,
 	remove = false,
@@ -184,8 +189,19 @@ function add_to_cell(cid, p)
 end
 
 function add(p)
+	-- wrap coords
+	p.center.x = math.fmod(w + p.center.x, w)
+	p.center.y = math.fmod(h + p.center.y, h)
+
 	-- get cell id
 	local cid = point_to_cell(p.center) 	
+
+	-- check for collisions with existing particles
+	for i,pt in ipairs(cell[cid]) do
+		if not pt.remove and p:collide(pt) then
+			return false
+		end
+	end
 
 	-- get list of neighbour cell ids
 	local n_cids = cell_neighbours(cid)
@@ -199,6 +215,7 @@ function add(p)
 	end
 
 	table.insert(all, p)
+	return true
 end
 
 function tick()
@@ -283,9 +300,50 @@ function tick()
 					for k=j+1,#c do
 						local pb = c[k]
 						if not pb.remove and pa:collide(pb) then
-							pa.remove = true
-							pb.remove = true
-							break
+							if pa.color == pb.color then
+								-- same color
+								pa.remove = true
+								pb.remove = true
+								if pa.mass + pb.mass == 2 then
+									add(sim.particle:new({
+										center = (pa.center + pb.center) / 2,
+										vel = pa.vel + pb.vel,
+										color = pa.color,
+										mass = 2,
+										render = pa.render
+									}))
+								end
+								break
+							else
+								-- different color, do something bad
+								local d = normalize(pa.center - pb.center)
+								if pa.mass + pb.mass == 2 then
+									pa.vel = pa.vel + d * collide_force
+									pb.vel = pb.vel - d * collide_force
+								else
+									local c = (pa.center + pb.center) / 2
+									local rot = rand.float(0, math.pi * 2)
+
+									pa.remove = true
+									pb.remove = true
+
+									for i=1,4 do
+										rot = rot + math.pi/2
+										local dp = vec2(
+											math.cos(rot), 
+											math.sin(rot)
+										)
+										local p = c + dp * (particle_radius*1.5)
+										add(sim.particle:new({
+											center = p,
+											vel = dp * spawn_force,
+											color = rand.int(1, 3),
+											render = pa.render
+										}))
+									end
+									break
+								end
+							end
 						end
 					end
 				end
