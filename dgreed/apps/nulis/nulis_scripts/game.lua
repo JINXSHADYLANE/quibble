@@ -5,6 +5,13 @@ require 'effects'
 
 part_tex = nil
 back_tex = nil
+vignette_tex = nil
+
+vignette_rect = rect(0, 0, 512, 512)
+vignette_t = nil
+vignette_len = 7
+vignette_layer = 7
+vignette_did_reset = false
 
 part_rects = {
 	rect(0, 0, 32, 32),
@@ -38,7 +45,7 @@ inside_rects = {
 }
 
 levels = {
-	{name = 'origin', w=3, start_spawning=0, spawn_interval=1000},
+	{name = 'origin', w=4, b=1, start_spawning=0, spawn_interval=1000},
 	{name = 'nulis', r=20, start_spawning=20, spawn_interval=2}
 }
 
@@ -48,6 +55,7 @@ to_spawn = {w=0, b=0, r=0, c=0}
 function init()
 	part_tex = tex.load(pre..'atlas.png')
 	back_tex = tex.load(pre..'background.png')
+	vignette_tex = tex.load(pre..'vignette.png')
 
 	effects.init()
 
@@ -89,6 +97,7 @@ function close()
 	effects.close()
 	tex.free(part_tex)
 	tex.free(back_tex)
+	tex.free(vignette_tex)
 end
 
 function render_particle_insides(pos, self, t)
@@ -222,11 +231,22 @@ function update()
 		end
 	end
 
-	-- start new level if no more particles
 	if time.s() - reset_t > 3 then
+		-- start new level if no more particles
 		if #sim.all + #sim.ghosts == 0 then
 			current_level = current_level+1
 			reset(levels[current_level])
+		end
+
+		-- check if game is not winnable
+		if vignette_t == nil and 
+			levels[current_level].start_spawning == 0 then
+			local winnable = #sim.all >= 3 
+
+			if not winnable then
+				vignette_t = time.s() + 4 
+				vignette_did_reset = false
+			end
 		end
 	end
 
@@ -235,6 +255,29 @@ function update()
 end
 
 function render(t)
+	-- handle vignette
+	if vignette_t ~= nil then
+		local t = (time.s() - vignette_t) / vignette_len
+		if t >= 0 and t < 1 then
+			local color = rgba(1, 1, 1, math.sin(t * math.pi))
+
+			video.draw_rect(
+				vignette_tex, vignette_layer, vignette_rect,
+				rect(0, 0, sim.w, sim.h), 0, color
+			)
+		end
+		if t >= 0.5 and not vignette_did_reset then
+			vignette_did_reset = true
+			for i,p in ipairs(sim.all) do
+				effects.spawn(p.center)
+			end
+			reset(levels[current_level])
+		end
+		if t >= 1 then
+			vignette_t = nil
+		end
+	end
+
 	video.draw_rect(back_tex, 0, vec2(0, 0))
 	effects.render(back_tex)
 	
