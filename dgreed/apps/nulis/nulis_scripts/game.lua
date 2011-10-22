@@ -1,6 +1,7 @@
 module(..., package.seeall)
 
 require 'sim'
+require 'effects'
 
 part_tex = nil
 back_tex = nil
@@ -25,7 +26,7 @@ function init()
 
 	sim.init(scr_size.x, scr_size.y, 64, 64, 1)
 
-	generate(60)
+	generate(40)
 end
 
 function close()
@@ -91,13 +92,14 @@ end
 
 function update()
 	sim.tick()
+	effects.update()
 
 	local push = mouse.pressed(mouse.primary)
 	local pull = mouse.pressed(mouse.secondary)
 
 	if push or pull then
 		local mp = mouse.pos()
-		circle(mp, affect_radius)
+		effects.force_field(mp, pull, affect_radius)
 		local parts = sim.query(mouse.pos(), affect_radius)
 		for i,p in ipairs(parts) do
 			local d, l = sim.path(mp, p.center)
@@ -117,6 +119,7 @@ end
 
 function render(t)
 	video.draw_rect(back_tex, 0, vec2(0, 0))
+	effects.render(back_tex)
 	
 	for i,p in ipairs(sim.all) do
 		render_particle(p)
