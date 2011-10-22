@@ -3,26 +3,42 @@ module(..., package.seeall)
 require 'sim'
 
 part_tex = nil
-part_layer = 2
+back_tex = nil
+
+part_rects = {
+	rect(0, 0, 32, 32),
+	rect(0, 32, 32, 64),
+	rect(32, 0, 85, 32),
+	rect(32, 32, 85, 64),
+	rect(0, 64, 52, 64 + 52),
+	rect(52, 64, 52 + 52, 64 + 52)
+}
+
+part_layer = 3
 
 affect_radius = 120 
 affect_force = 0.02
 
 function init()
-	part_tex = {
-		tex.load(pre..'particle1.png'),
-		tex.load(pre..'particle2.png')
-	}
+	part_tex = tex.load(pre..'atlas.png')
+	back_tex = tex.load(pre..'background.png')
 
 	sim.init(scr_size.x, scr_size.y, 64, 64)
 
-	generate(100)
+	generate(60)
+end
+
+function close()
+	tex.free(part_tex)
+	tex.free(back_tex)
 end
 
 function render_particle(self)
+	local rect_i = self.color + (self.mass-1)*2
 	video.draw_rect_centered(
-				part_tex[self.color], part_layer, self.center,
-				0, 0.5
+				part_tex, part_layer,
+				part_rects[rect_i], self.center,
+				self.angle
 	)
 end
 
@@ -55,12 +71,6 @@ function generate(n)
 			color = col,
 			render = render_particle
 		}))
-	end
-end
-
-function close()
-	for i,t in ipairs(part_tex) do
-		tex.free(t)
 	end
 end
 
@@ -97,7 +107,8 @@ function update()
 end
 
 function render(t)
-	sim.draw_grid()
+	video.draw_rect(back_tex, 0, vec2(0, 0))
+	
 	for i,p in ipairs(sim.all) do
 		p:render()
 	end

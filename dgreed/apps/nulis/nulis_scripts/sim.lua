@@ -5,6 +5,7 @@ angular_damping = 0.99
 
 collide_force = 0.01
 spawn_force = 0.05
+spawn_torque = 0.01
 
 particle_radius = 16
 
@@ -27,10 +28,34 @@ particle = {
 	render = function(self) 
 	end,
 
+	centers = function(self)
+		if self.mass == 2 then
+			local d = rotate(vec2(self.radius, 0), self.angle) 
+			return {self.center + d, self.center - d}
+		end
+		return {self.center}
+	end,
+
 	collide = function(self, p)
-		local d, l = path(self.center, p.center) 
-		local r = self.radius + p.radius
-		return l < r*r 
+		if self.mass == 1 and p.mass == 1 then
+			local d, l = path(self.center, p.center) 
+			local r = self.radius + p.radius
+			return l < r*r 
+		end
+
+		local ac = self:centers()
+		local bc = p:centers()
+
+		for i,a in ipairs(ac) do
+			for j,b in ipairs(bc) do
+				local d, l = path(a, b)
+				local r = particle_radius * 2
+				if l < r*r then
+					return true
+				end
+			end
+		end
+		return false
 	end
 }
 
@@ -304,12 +329,15 @@ function tick()
 								-- same color
 								pa.remove = true
 								pb.remove = true
+								local d = pa.center - pb.center
 								if pa.mass + pb.mass == 2 then
 									add(sim.particle:new({
 										center = (pa.center + pb.center) / 2,
 										vel = pa.vel + pb.vel,
 										color = pa.color,
 										mass = 2,
+										angle = math.atan2(d.y, d.x), 
+										ang_vel = rand.float(-0.001, 0.001),
 										render = pa.render
 									}))
 								end
