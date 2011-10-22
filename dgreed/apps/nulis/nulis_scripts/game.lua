@@ -45,7 +45,10 @@ inside_rects = {
 }
 
 levels = {
-	{name = 'origin', w=4, b=1, start_spawning=0, spawn_interval=1000},
+	{name = 'white', w=3, start_spawning=0, spawn_interval=1000},
+	{name = 'black', b=3, start_spawning=0, spawn_interval=1000},
+	{name = 'collision', w=2, b=1, start_spawning=0, spawn_interval=1000},
+	{name = 'sequence', w=1, b=3, start_spawning=0, spawn_interval=1000},
 	{name = 'nulis', r=20, start_spawning=20, spawn_interval=2}
 }
 
@@ -74,7 +77,7 @@ end
 
 reset_t = 0
 function reset(level) 
-	reset_t = time.ms()
+	reset_t = time.s()
 	sim.init(scr_size.x, scr_size.y, 64, 64, 
 		level.spawn_interval, level.start_spawning)
 
@@ -236,16 +239,20 @@ function update()
 		if #sim.all + #sim.ghosts == 0 then
 			current_level = current_level+1
 			reset(levels[current_level])
-		end
+		else
+			-- check if game is not winnable
+			if vignette_t == nil and 
+				levels[current_level].start_spawning == 0 then
+				local mass_sum = 0
+				for i,p in ipairs(sim.all) do
+					mass_sum = mass_sum + p.mass
+				end
+				local winnable = mass_sum >= 3 or mass_sum == 0 
 
-		-- check if game is not winnable
-		if vignette_t == nil and 
-			levels[current_level].start_spawning == 0 then
-			local winnable = #sim.all >= 3 
-
-			if not winnable then
-				vignette_t = time.s() + 4 
-				vignette_did_reset = false
+				if not winnable then
+					vignette_t = time.s() + 4 
+					vignette_did_reset = false
+				end
 			end
 		end
 	end
@@ -266,6 +273,7 @@ function render(t)
 				rect(0, 0, sim.w, sim.h), 0, color
 			)
 		end
+
 		if t >= 0.5 and not vignette_did_reset then
 			vignette_did_reset = true
 			for i,p in ipairs(sim.all) do
@@ -273,6 +281,7 @@ function render(t)
 			end
 			reset(levels[current_level])
 		end
+		
 		if t >= 1 then
 			vignette_t = nil
 		end
