@@ -9,6 +9,14 @@ ffield_circle_layer = 1
 ffield_color_start = rgba(0/255, 129/255, 255/255)
 ffield_color_end = rgba(255/255, 0/255, 236/255)
 
+function init()
+	particles.init(pre, 5)
+end
+
+function close()
+	particles.close()
+end
+
 function force_field(p, dir, r)
 	local t = time.s()
 	if t - ffield_last_spawn > ffield_spawn_t then
@@ -60,10 +68,41 @@ function render_ffield(tex)
 	end
 end
 
+last_collide = 0
+function collide(p, dir)
+	if time.s() - last_collide < 0.1 then
+		return
+	end
+	particles.spawn('collision0', p, dir+math.pi/2)
+	particles.spawn('collision0', p, dir-math.pi/2)
+	last_collide = time.s()
+end
+
+function create(p)
+	particles.spawn('collision2', p, 0)
+	particles.spawn('collision2', p, math.pi/2)
+	particles.spawn('collision2', p, math.pi)
+	particles.spawn('collision2', p, math.pi*3/2)
+end
+
+function spawn(p)
+	particles.spawn('blast1', p)
+end
+
+function merge_two(p)
+	particles.spawn('blast0', p)
+end
+
+function merge_three(p)
+	particles.spawn('wicked_blast0', p)
+end
+
 function render(back_tex)
+	particles.draw()
 	render_ffield(back_tex)
 end
 
 function update()
+	particles.update()
 	update_ffield()
 end

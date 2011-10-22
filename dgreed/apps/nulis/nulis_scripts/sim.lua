@@ -1,5 +1,7 @@
 module(..., package.seeall)
 
+require 'effects'
+
 linear_damping = 0.995
 angular_damping = 0.99
 
@@ -268,6 +270,8 @@ function spawn_random()
 		vel = v,
 		color = col
 	}))
+
+	return p
 end
 
 function tick()
@@ -277,7 +281,8 @@ function tick()
 	if #all < random_spawn_limit then
 		if time.s() - last_random_t > random_t then
 			last_random_t = time.s()
-			spawn_random()
+			local p = spawn_random()
+			effects.spawn(p)
 		end
 	end
 
@@ -374,6 +379,7 @@ function tick()
 								local d = pa.center - pb.center
 								local c = (pa.center + pb.center) / 2
 								if pa.mass + pb.mass == 2 then
+									effects.merge_two(c)
 									add(particle:new({
 										center = c,
 										vel = pa.vel + pb.vel,
@@ -383,6 +389,7 @@ function tick()
 										ang_vel = rand.float(-spawn_torque, spawn_torque),
 									}))
 								else
+									effects.merge_three(c)
 									-- create ghost
 									local v = (pa.vel*pa.mass + pb.vel*pb.mass)
 									table.insert(ghosts, particle:new({
@@ -409,11 +416,13 @@ function tick()
 							else
 								-- different color, do something bad
 								local d = normalize(pa.center - pb.center)
+								local c = (pa.center + pb.center) / 2
 								if pa.mass + pb.mass == 2 then
+									effects.collide(c, math.atan2(d.y, d.x))
 									pa.vel = pa.vel + d * collide_force
 									pb.vel = pb.vel - d * collide_force
 								else
-									local c = (pa.center + pb.center) / 2
+									effects.create(c)
 									local rot = rand.float(0, math.pi * 2)
 
 									pa.remove = true
