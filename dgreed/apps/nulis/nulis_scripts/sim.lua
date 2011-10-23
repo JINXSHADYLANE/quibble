@@ -279,7 +279,7 @@ function tick()
 	update_ghosts()
 
 	-- spawn random particles
-	if #all < random_spawn_limit then
+	if #all < random_spawn_limit and #all ~= 0 then
 		if time.s() - last_random_t > random_t then
 			last_random_t = time.s()
 			local p = spawn_random()

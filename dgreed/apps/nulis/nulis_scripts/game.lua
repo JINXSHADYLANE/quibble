@@ -86,8 +86,10 @@ function init()
 end
 
 reset_t = 0
+played_win_sound = false
 function reset(level) 
 	reset_t = time.s()
+	played_win_sound = false
 	sim.init(scr_size.x, scr_size.y, 64, 64, 
 		level.spawn_interval, level.start_spawning)
 
@@ -252,6 +254,12 @@ function update()
 	end
 
 	if time.s() - reset_t > 3 then
+		-- play win sound
+		if not played_win_sound and #sim.all == 0 then
+			effects.win()
+			played_win_sound = true
+		end
+
 		-- start new level if no more particles
 		if #sim.all + #sim.ghosts == 0 then
 			current_level = current_level+1
