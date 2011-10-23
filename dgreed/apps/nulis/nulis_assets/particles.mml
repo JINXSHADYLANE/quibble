@@ -1,7 +1,7 @@
 ( particles _
     ( psystem diffusion
 		( texture nulis_assets/smoke_particles.png )
-		( tex_source 112.0,32.0,128.0,48.0 )
+		( tex_source 96.0,64.0,112.0,80.0 )
 		( max_particles 32 )
 		( duration 0.07 )
 		( direction 0.0 )
