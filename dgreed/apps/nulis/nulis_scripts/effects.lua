@@ -8,7 +8,8 @@ ffield_circle_rect = rect(2, 770, 254, 768 + 254)
 ffield_circle_layer = 1
 ffield_color_start = rgba(0/255, 129/255, 255/255)
 ffield_color_end = rgba(255/255, 0/255, 236/255)
-
+ffield_volume = 0
+ffield_sound_src = nil
 
 function init()
 	particles.init(pre, 5)
@@ -22,6 +23,10 @@ function init()
 	snd_appear = sound.load_sample(pre..'appear.wav')
 	sound.set_volume(snd_appear, 0.3)
 	snd_win = sound.load_sample(pre..'win.wav')
+	sound.set_volume(snd_win, 0.5)
+	snd_ffield = sound.load_sample(pre..'ffield.wav')
+	ffield_sound_src = sound.play(snd_ffield, true)
+	sound.set_src_volume(ffield_sound_src, ffield_volume)
 end
 
 function close()
@@ -37,6 +42,7 @@ function close()
 end
 
 function force_field(p, dir, r)
+	ffield_volume = math.min(1, ffield_volume + 0.10)
 	local t = time.s()
 	if t - ffield_last_spawn > ffield_spawn_t then
 		ffield_last_spawn = t
@@ -51,6 +57,8 @@ function force_field(p, dir, r)
 end
 
 function update_ffield()
+	ffield_volume = math.max(0, ffield_volume - 0.05)
+	sound.set_src_volume(ffield_sound_src, ffield_volume)
 	local i = 1
 	while i <= #ffield_circles do
 		local c = ffield_circles[i]
@@ -114,6 +122,7 @@ end
 
 function merge_two(p)
 	particles.spawn('blast0', p)
+	particles.spawn('fusion', p)
 	sound.play(snd_merge)
 end
 
