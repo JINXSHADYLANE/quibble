@@ -13,13 +13,15 @@ ffield_color_end = rgba(255/255, 0/255, 236/255)
 function init()
 	particles.init(pre, 5)
 
-	snd_crash = sound.load_sample(pre..'crash.wav')
+	snd_crash = sound.load_sample(pre..'bounce.wav')
+	sound.set_volume(snd_crash, 0.4)
 	snd_merge = sound.load_sample(pre..'bad_string.wav')
 	snd_triple = sound.load_sample(pre..'windup+click.wav')
 	snd_bad = sound.load_sample(pre..'hit.wav')
 	snd_vanish = sound.load_sample(pre..'vanish.wav')
 	snd_appear = sound.load_sample(pre..'appear.wav')
 	sound.set_volume(snd_appear, 0.3)
+	snd_win = sound.load_sample(pre..'win.wav')
 end
 
 function close()
@@ -31,6 +33,7 @@ function close()
 	sound.free(snd_bad)
 	sound.free(snd_vanish)
 	sound.free(snd_appear)
+	sound.free(snd_win)
 end
 
 function force_field(p, dir, r)
@@ -127,6 +130,10 @@ function reset(p)
 	end
 	sound.play(snd_vanish)
 	last_reset = time.s()
+end
+
+function win()
+	sound.play(snd_win)
 end
 
 function render(back_tex)
