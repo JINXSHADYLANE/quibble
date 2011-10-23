@@ -50,11 +50,15 @@ inside_rects = {
 }
 
 levels = {
-	{name = 'white', w=3, start_spawning=0, spawn_interval=1000},
-	{name = 'black', b=3, start_spawning=0, spawn_interval=1000},
-	{name = 'collision', w=2, b=1, start_spawning=0, spawn_interval=1000},
-	{name = 'sequence', w=1, b=3, start_spawning=0, spawn_interval=1000},
-	{name = 'madness', r=20, start_spawning=20, spawn_interval=2}
+	{name = 'nulis', w=3, start_spawning=0, spawn_interval=1000},
+	{name = 'cascajal', b=3, start_spawning=0, spawn_interval=1000},
+	{name = 'guariviara', w=2, b=2, start_spawning=0, spawn_interval=1000},
+	{name = 'chiriqui', w=2, b=1, start_spawning=0, spawn_interval=1000},
+	{name = 'tabasara', w=1, b=3, start_spawning=0, spawn_interval=1000},
+	{name = 'cangandi', r=8, start_spawning=0, spawn_interval=1000},
+	{name = 'pacora', w=1, b=1, start_spawning=3, spawn_interval=10},
+	{name = 'sixoala', r=15, start_spawning=10, spawn_interval=6},
+	{name = 'grande', r=20, start_spawning=20, spawn_interval=2}
 }
 
 current_level = 1
@@ -116,21 +120,11 @@ end
 
 function render_particle_insides(pos, self, t)
 	local grad = inside_cols[self.in_grad]
-	local cola = lerp(grad[1], grad[2], self.in_cols[1])
-	local colb = lerp(grad[1], grad[2], self.in_cols[2])
-	cola.a = t
-	colb.a = t
-	local anga = time.s() * self.in_rot[1]
-	local angb = time.s() * self.in_rot[2]
+	local col = lerp(grad[1], grad[2], self.in_col)
+	col.a = t
 
 	video.draw_rect_centered(part_tex,
-		part_layer+1, inside_rects[1], pos,
-		anga, cola
-	)
-
-	video.draw_rect_centered(part_tex,
-		part_layer+1, inside_rects[2], pos,
-		angb, colb
+		part_layer+1, inside_rects[1], pos, col
 	)
 end
 
