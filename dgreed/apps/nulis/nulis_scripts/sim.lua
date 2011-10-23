@@ -28,9 +28,8 @@ particle = {
 		o = o or {}
 		setmetatable(o, self)
 		self.__index = self
-		o.in_cols = {rand.float(), rand.float()}
+		o.in_col = rand.float()
 		o.in_grad = rand.int(1, 10)
-		o.in_rot = {rand.float(-1, 1), rand.float(-1, 1)}
 		o.in_t = 0
 		return o
 	end,
@@ -374,12 +373,18 @@ function tick()
 					for k=j+1,#c do
 						local pb = c[k]
 						if not pb.remove and pa:collide(pb) then
+
+							-- calculate correct midpoint
+							local c, l = path(pa.center, pb.center)
+							local c = pb.center + c / 2
+							c.x = math.fmod(c.x, w)
+							c.y = math.fmod(c.y, h)
+
 							if pa.color == pb.color then
 								-- same color
 								pa.remove = true
 								pb.remove = true
 								local d = pa.center - pb.center
-								local c = (pa.center + pb.center) / 2
 								if pa.mass + pb.mass == 2 then
 									effects.merge_two(c)
 									add(particle:new({
@@ -418,7 +423,6 @@ function tick()
 							else
 								-- different color, do something bad
 								local d = normalize(pa.center - pb.center)
-								local c = (pa.center + pb.center) / 2
 								if pa.mass + pb.mass == 2 then
 									effects.collide(c, math.atan2(d.y, d.x))
 									pa.vel = pa.vel + d * collide_force
@@ -445,7 +449,7 @@ function tick()
 										local p = c + dp * (particle_radius*rf)
 										add(particle:new({
 											center = p,
-											vel = dp * spawn_force,
+											vel = pa.vel + pb.vel + dp * spawn_force,
 											color = 1 + math.fmod(i, 2),
 										}))
 									end

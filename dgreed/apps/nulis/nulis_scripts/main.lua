@@ -18,7 +18,7 @@ function game_init()
 	sound.init()
 	video.init_ex(
 		scr_size.x / reduction, scr_size.y / reduction, 
-		scr_size.x, scr_size.y, 'nulis', false
+		scr_size.x, scr_size.y, 'nulis', false 
 	)
 
 	-- register and enter game state

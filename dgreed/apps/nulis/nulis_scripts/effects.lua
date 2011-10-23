@@ -83,6 +83,7 @@ function create(p)
 	particles.spawn('collision2', p, math.pi/2)
 	particles.spawn('collision2', p, math.pi)
 	particles.spawn('collision2', p, math.pi*3/2)
+	particles.spawn('diffusion', p)
 end
 
 function spawn(p)
