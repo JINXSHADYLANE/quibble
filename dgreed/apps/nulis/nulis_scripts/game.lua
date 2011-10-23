@@ -29,7 +29,7 @@ title_rect = rect(256, 768, 750, 1024)
 
 part_layer = 3
 
-affect_radius = 120 
+affect_radius = 160 
 affect_force = 0.02
 
 inside_cols = {
@@ -191,6 +191,8 @@ end
 last_spawn_t = 0
 spawn_interval = 0.1
 function update()
+	sound.update()
+
 	if time.s() - last_spawn_t > spawn_interval then
 		last_spawn_t = time.s()
 		-- spawn particles if we need to

@@ -9,12 +9,28 @@ ffield_circle_layer = 1
 ffield_color_start = rgba(0/255, 129/255, 255/255)
 ffield_color_end = rgba(255/255, 0/255, 236/255)
 
+
 function init()
 	particles.init(pre, 5)
+
+	snd_crash = sound.load_sample(pre..'crash.wav')
+	snd_merge = sound.load_sample(pre..'bad_string.wav')
+	snd_triple = sound.load_sample(pre..'windup+click.wav')
+	snd_bad = sound.load_sample(pre..'hit.wav')
+	snd_vanish = sound.load_sample(pre..'vanish.wav')
+	snd_appear = sound.load_sample(pre..'appear.wav')
+	sound.set_volume(snd_appear, 0.3)
 end
 
 function close()
 	particles.close()
+
+	sound.free(snd_crash)
+	sound.free(snd_merge)
+	sound.free(snd_triple)
+	sound.free(snd_bad)
+	sound.free(snd_vanish)
+	sound.free(snd_appear)
 end
 
 function force_field(p, dir, r)
@@ -75,6 +91,7 @@ function collide(p, dir)
 	end
 	particles.spawn('collision0', p, dir+math.pi/2)
 	particles.spawn('collision0', p, dir-math.pi/2)
+	sound.play(snd_crash)
 	last_collide = time.s()
 end
 
@@ -84,22 +101,32 @@ function create(p)
 	particles.spawn('collision2', p, math.pi)
 	particles.spawn('collision2', p, math.pi*3/2)
 	particles.spawn('diffusion', p)
+	sound.play(snd_bad)
 end
 
 function spawn(p)
 	particles.spawn('blast1', p)
+	sound.play(snd_appear)
 end
 
 function merge_two(p)
 	particles.spawn('blast0', p)
+	sound.play(snd_merge)
 end
 
 function merge_three(p)
 	particles.spawn('wicked_blast0', p)
+	sound.play(snd_triple)
 end
 
+last_reset = 0
 function reset(p)
 	particles.spawn('gameover', p)
+	if time.s() - last_reset < 0.1 then
+		return
+	end
+	sound.play(snd_vanish)
+	last_reset = time.s()
 end
 
 function render(back_tex)
