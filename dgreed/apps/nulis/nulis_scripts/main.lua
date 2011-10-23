@@ -22,6 +22,7 @@ function game_init()
 	)
 
 	local music = sound.load_stream(pre..'theme.ogg')
+	sound.set_volume(music, 0.3)
 	sound.play(music, true)
 
 	-- register and enter game state
