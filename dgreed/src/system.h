@@ -204,6 +204,7 @@ Touch* touches_get(void);
 -----------
 */
 
+float time_s(void);
 float time_ms(void);
 float time_delta(void);
 uint time_fps(void);
