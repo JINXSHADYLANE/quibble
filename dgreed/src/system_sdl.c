@@ -1284,6 +1284,10 @@ uint fps_count = 0;
 uint fps = 0;
 uint last_time = 0;
 
+float time_s(void) {
+	return t_ms / 1000.0f;
+}
+
 float time_ms(void) {
 	return t_ms;
 }
