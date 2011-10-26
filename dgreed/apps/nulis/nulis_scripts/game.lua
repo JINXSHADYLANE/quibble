@@ -18,15 +18,15 @@ affect_radius = 160
 affect_force = 0.02
 
 levels = {
-	{name = 'nulis', w=3, start_spawning=0, spawn_interval=1000},
-	{name = 'cascajal', b=3, start_spawning=0, spawn_interval=1000},
-	{name = 'guariviara', w=2, b=2, start_spawning=0, spawn_interval=1000},
-	{name = 'chiriqui', w=2, b=1, start_spawning=0, spawn_interval=1000},
-	{name = 'tabasara', w=1, b=3, start_spawning=0, spawn_interval=1000},
-	{name = 'cangandi', r=8, start_spawning=0, spawn_interval=1000},
+	{name = 'nulis', w=3},
+	{name = 'cascajal', b=3},
+	{name = 'guariviara', w=2, b=2},
+	{name = 'chiriqui', w=2, b=1},
+	{name = 'tabasara', w=1, b=3},
+	{name = 'cangandi', r=9},
 	{name = 'pacora', w=1, b=1, start_spawning=3, spawn_interval=10},
-	{name = 'sixoala', r=15, start_spawning=10, spawn_interval=6},
-	{name = 'grande', r=50, start_spawning=20, spawn_interval=0.8}
+	{name = 'sixoala', r=15, start_spawning=10, spawn_interval=5},
+	{name = 'grande', r=100, start_spawning=20, spawn_interval=0.8}
 }
 
 current_level = 1
@@ -49,7 +49,9 @@ played_win_sound = false
 function reset(level) 
 	reset_t = time.s()
 	played_win_sound = false
-	csim.reset(level.spawn_interval, level.start_spawning)
+	local spawn_interval = level.spawn_interval or 1000
+	local start_spawning = level.start_spawning or 0
+	csim.reset(spawn_interval, start_spawning)
 
 	if level.w then
 		to_spawn.w = to_spawn.w + level.w
@@ -92,7 +94,7 @@ function update()
 		if cc > 0 then
 			local a = (cc / to_spawn.c) * math.pi * 2
 			local p = vec2(scr_size.x/2, scr_size.y/2)
-			p = p + rotate(vec2(0, 160), a)
+			p = p + rotate(vec2(0, 170), a)
 
 			-- first spawn white, then black
 			local col
@@ -147,7 +149,7 @@ function update()
 		else
 			-- check if game is not winnable
 			if vignette_t == nil and 
-				levels[current_level].start_spawning == 0 then
+				levels[current_level].start_spawning == nil then
 				local mass_sum = csim.total_mass() 
 				local winnable = mass_sum >= 3 or mass_sum == 0 
 
@@ -160,7 +162,11 @@ function update()
 	end
 
 	-- quit game on esc
-	return not key.down(key.quit) 
+	if key.down(key.quit) then
+		states.pop()
+	end
+
+	return true
 end
 
 function render(t)
@@ -178,9 +184,7 @@ function render(t)
 
 		if t >= 0.5 and not vignette_did_reset then
 			vignette_did_reset = true
-			for i,p in ipairs(sim.all) do
-				ceffects.destroy(p.center)
-			end
+			csim.destroy()
 			reset(levels[current_level])
 		end
 		

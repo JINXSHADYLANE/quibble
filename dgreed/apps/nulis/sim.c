@@ -130,8 +130,8 @@ void sim_reset(float spawn_interval, uint start_spawning_at) {
 static void _spawn_ex(Vector2 p, Vector2 v, uint type, float t, float a, 
 		float w, uint mass, DArray* dest) {
 	// Wrap coords
-	p.x = fmodf(p.x, SCREEN_WIDTH);
-	p.y = fmodf(p.y, SCREEN_HEIGHT);
+	p.x = fmodf(SCREEN_WIDTH + p.x, SCREEN_WIDTH);
+	p.y = fmodf(SCREEN_HEIGHT + p.y, SCREEN_HEIGHT);
 
 	// Color
 	ColorHSV hsv = {0.0f, 0.8f, 0.9f, 1.0f};
@@ -194,7 +194,7 @@ void sim_force_field(Vector2 p, float r, float strength) {
 		if(d < r*r) {
 			float f = 1.0f - clamp(0.0f, 1.0f, sqrtf(d) / r);
 			path = vec2_normalize(path);
-			b->v = vec2_add(b->v, vec2_scale(path, f * strength));
+			b->v = vec2_add(b->v, vec2_scale(path, f * strength / (float)b->mass));
 			b->core += time_delta() / 100.0f;
 			if(b->core > 2.0f)
 				b->core = 2.0f;
@@ -211,8 +211,8 @@ static void _update_ball(Ball* b, float dt) {
 	b->p = vec2_add(b->p, vec2_scale(b->v, dt));
 	b->a += b->w * dt;
 
-	b->p.x = fmodf(b->p.x, SCREEN_WIDTH);
-	b->p.y = fmodf(b->p.y, SCREEN_HEIGHT);
+	b->p.x = fmodf(b->p.x + SCREEN_WIDTH, SCREEN_WIDTH);
+	b->p.y = fmodf(b->p.y + SCREEN_HEIGHT, SCREEN_HEIGHT);
 
 	b->v = vec2_scale(b->v, linear_damp);
 	b->w *= angular_damp;
@@ -419,3 +419,9 @@ int sim_total_mass(void) {
 	return mass;
 }
 
+void sim_destroy(void) {
+	Ball* balls = DARRAY_DATA_PTR(balls_array, Ball);
+	for(uint i = 0; i < balls_array.size; ++i) {
+		effects_destroy(balls[i].p);
+	}
+}

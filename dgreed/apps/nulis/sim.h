@@ -14,5 +14,6 @@ void sim_render(void);
 int sim_count_alive(void);
 int sim_count_ghosts(void);
 int sim_total_mass(void);
+void sim_destroy(void);
 
 #endif
