@@ -171,6 +171,12 @@ static int csim_total_mass(lua_State* l) {
 	return 1;
 }
 
+static int csim_destroy(lua_State* l) {
+	checkargs(0, "csim.destroy");
+	sim_destroy();
+	return 0;
+}
+
 static const luaL_Reg csim_fun[] = {
 	{"init", csim_init},
 	{"close", csim_close},
@@ -183,6 +189,7 @@ static const luaL_Reg csim_fun[] = {
 	{"count_alive", csim_count_alive},
 	{"count_ghosts", csim_count_ghosts},
 	{"total_mass", csim_total_mass},
+	{"destroy", csim_destroy},
 	{NULL, NULL}
 };
 

@@ -10,7 +10,13 @@ function game_init()
 	-- reduce screen size if we don't have enough space
 	local w, h = video.native_resolution()
 	local reduction = 1
-	if h <= 768 then
+	local fullscreen = false
+
+	if w == scr_size.x and h == scr_size.y then
+		fullscreen = true
+	end
+
+	if not fullscreen and h <= scr_size.y then
 		reduction = 2
 	end
 
@@ -18,7 +24,7 @@ function game_init()
 	sound.init()
 	video.init_ex(
 		scr_size.x / reduction, scr_size.y / reduction, 
-		scr_size.x, scr_size.y, 'nulis', false 
+		scr_size.x, scr_size.y, 'nulis', fullscreen 
 	)
 
 	local music = sound.load_stream(pre..'theme.ogg')

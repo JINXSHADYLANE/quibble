@@ -47,7 +47,7 @@ SfxDef sfx[] = {
 	{"hit.wav", 1.0f, 0},
 	{"vanish.wav", 1.0f, 0},
 	{"appear.wav", 0.3f, 0},
-	{"win.wav", 0.5f, 0}
+	{"win.wav", 0.1f, 0}
 };
 
 static void _sfx_load(void) {

@@ -327,7 +327,7 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 		psystem->emission_acc -= inv_emission_rate;
 
 		if(psystem->particle_count == psystem->desc->max_particles) {
-			LOG_WARNING("Maximum particle count reached, skipping particle");
+			//LOG_WARNING("Maximum particle count reached, skipping particle");
 			continue;
 		}	
 
