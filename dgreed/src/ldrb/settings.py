@@ -12,7 +12,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '/home/justina/Desktop/quibble/dgreed/src/ldrb/ldrb.db', # <==============  enter absolute path to database file here =========
+        'NAME': '/home/justina/Desktop/quibble/dgreed/src/ldrb/ldrb.db', # <===  enter absolute path to database file here
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.

@@ -1,14 +1,12 @@
-from django.utils import unittest
+from django.test import TestCase
 from records.models import record
 
+class RecordsTestCase(TestCase):	
+	def test_put(self):
+		response = self.client.post('/records/put/', POST='(record r (gid rthief) (uid seklys_morka) (weight 3) (data fhdjh5254557y7765b550fhd5HBe74&*6))', content_type='text', follow=False, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		self.assertEqual(response.status_code, 200)
+		
 
-'''class RecordTestCase(unittest.TestCase):
-    def setUp(self):
-		pass'''
-
-
-# read: https://docs.djangoproject.com/en/1.3/topics/testing/#making-requests
-
-# run:  ./manage.py test records
+# run:  python manage.py test records
 		
 
