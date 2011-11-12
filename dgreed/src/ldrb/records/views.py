@@ -7,18 +7,19 @@ import datetime
 def put(request):
 	
 	print 'request: ', request , ' -- end'
-	# pvz: "(record r (gid rthief) (uid awesomeWormie) (weight 5) (data fhdfhd5HBe74&*6))"
-	tree = mml.deserialize(request.raw_post_data)	
-	#TODO: tree validation
+	#print 'POST:', request.META['POST']
+
+	tree = mml.deserialize(request.META['POST'])	
+	fields = dict( [(tree.children[i].name, tree.children[i].value) for i in range(4)] )
 
 	r = record()
-	r.gid = tree.children[0].value
-	r.uid = tree.children[1].value
+	r.gid = fields['gid']
+	r.uid = fields['uid']
 	r.time = datetime.datetime.now()
-	r.weight = tree.children[2].value
-	r.data = tree.children[3].value
+	r.weight = fields['weight']
+	r.data = fields['data']
 	r.save()
-
+	
 	response = HttpResponse()
 	response.status_code = 200 # OK
 	return response
@@ -32,7 +33,7 @@ def query(request):
 	result = result[ :req[1].value ]  # take first n values
 	
 	response = HttpResponse()
-	# write results to response
+	# write result to response
 	response.status_code = 200 # ok	
 	return response
 
