@@ -1,4 +1,4 @@
-from models import record
+from models import *
 from django.http import HttpRequest, HttpResponse
 import datetime
 import time
@@ -6,15 +6,24 @@ import mml
 
 
 def put(request):
-	
-	print 'Put: request: ', request , ' -- end\n'
+	response = HttpResponse()
+	#print 'Put: request: ', request , ' -- end\n'
+	try:
+		tree = mml.deserialize(request.META['raw_post_data'])
+	except Exception:
+		response.status_code = 400 # Bad Request
+		response.write('Bad entry format')
+		return response 
 
-	tree = mml.deserialize(request.META['raw_post_data'])
-	if len(tree.children) != 4:
-		print 'Bad entry format. 4 fields required, got ', len(tree.children)
-		return
+	if len(tree.children) != 4:	
+		response.status_code = 400 # Bad Request
+		response.write('Bad entry format. 4 fields required, got ') 
+		response.write(len(tree.children))
+		return response
 
 	fields = dict( [(tree.children[i].name, tree.children[i].value) for i in range(4)] )
+
+	#TODO: validate fields
 
 	r = record()
 	r.gid = fields['gid']
@@ -24,23 +33,31 @@ def put(request):
 	r.data = fields['data']
 	r.save()
 	
-	response = HttpResponse()
-	response.status_code = 200 # ok	
-	return response
+	response.status_code = 201 # Created
+	return response 
 
 
 
 def query(request):
-	print '\nQuery: request: ', request , ' -- end\n'
+	#print '\nQuery: request: ', request , ' -- end\n'
+	response = HttpResponse(mimetype="text/plain")
+	
+	try:
+		tree = mml.deserialize(request.META['QUERY_STRING'])
+	except Exception:
+		response.status_code = 400 # Bad Request
+		response.write('Bad query format')
+		return response 
 
-	tree = mml.deserialize(request.META['QUERY_STRING'])
-	if len(tree.children) != 5:
-		print 'Bad query format. 5 fields required, got', len(tree.children)
-		return
+	if len(tree.children) != 5:	
+		response.status_code = 400 # Bad Request
+		response.write('Bad query format. 5 fields required, got ') 
+		response.write(len(tree.children))
+		return response
 
-	for i in record.objects.values_list():
-		print i
-	print '\n'
+	#for i in record.objects.values_list():
+	#	print i
+	#print '\n'
 
 	fields = dict( [(tree.children[i].name, tree.children[i].value) for i in range(5)] )
 	
@@ -64,9 +81,7 @@ def query(request):
 		entry.children.append(mml.Node('data', r.data))
 		resp.children.append(entry)
 
-	response = HttpResponse(mimetype="text/mml")
-
 	response.write(mml.serialize(resp))
-	response.status_code = 200 # ok	
+	response.status_code = 201 # Created	
 	return response
 
