@@ -1,5 +1,0 @@
-* fix encoding issues in fnt2bft.py and ogmo2btm.py
-* finish tilemap.c
-* memory tracking in stb_image and stb_vorbis
-* mml string/node pool alloc optimization
-* mt19937 prng 
