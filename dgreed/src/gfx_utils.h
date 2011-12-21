@@ -54,5 +54,11 @@ void gfx_blit_ex(Color* dest, uint dest_w, uint dest_h,
 void gfx_fill(Color* dest, uint dest_w, uint dest_h,
 	Color c, int l, int t, int r, int b);
 
+// Saves image into a 32bpp tga file
+void gfx_save_tga(const char* filename, Color* img, uint w, uint h);
+
+// Saves image into a 32bpp png file
+//void gfx_save_png(const char* filename, Color* img, uint w, uint h);
+
 #endif
 

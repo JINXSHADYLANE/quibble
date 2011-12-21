@@ -330,7 +330,7 @@ void gfx_fill(Color* dest, uint dest_w, uint dest_h,
 	assert(dest);
 	assert(dest_w && dest_h);
 	assert(l >= 0 && t >= 0);
-	assert(r < dest_w && b < dest_h);
+	assert(r <= dest_w && b <= dest_h);
 	assert(l < r && t < b);
 
 	for(uint y = t; y < b; ++y) {
@@ -339,5 +339,16 @@ void gfx_fill(Color* dest, uint dest_w, uint dest_h,
 			dest[idx] = c;
 		}
 	}
+}
+
+extern int stbi_write_tga(const char*, int, int, int, void*);
+
+void gfx_save_tga(const char* filename, Color* img, uint w, uint h) {
+	assert(filename);
+	assert(img);
+	assert(w && h);
+	assert(w <= 8192 && h <= 8192);
+
+	stbi_write_tga(filename, w, h, 4, img);
 }
 
