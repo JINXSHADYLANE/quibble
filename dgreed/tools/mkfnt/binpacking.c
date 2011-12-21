@@ -38,8 +38,8 @@ static bool _pack_recursive(uint x_off, uint y_off, uint w, uint h, uint n,
 		return true;
 
 	// Find largest rect, move it to front
-	uint largest_i = _largest_rect(n, widths, heights);
-	_rect_swap(0, largest_i, widths, heights, pos, idx);
+	//uint largest_i = _largest_rect(n, widths, heights);
+	//_rect_swap(0, largest_i, widths, heights, pos, idx);
 
 	// Size of the biggest rect
 	uint rw = widths[0];
@@ -118,7 +118,16 @@ static bool _pack_recursive(uint x_off, uint y_off, uint w, uint h, uint n,
 
 	// Put the rest into bin B
 	return _pack_recursive(b_x_off, b_y_off, b_w, b_h, n - front_i, 
-			widths + front_i, heights + front_i, pos + front_i, idx);
+			widths + front_i, heights + front_i, pos + front_i, idx + front_i);
+}
+
+void _insertion_sort(uint n, uint* widths, uint* heights, Pos* pos, uint* idx) {
+	for(int i = 1; i < n; ++i) {
+		int j = i;
+		while(j-1 >= 0 && widths[j] * heights[j] < widths[j-1] * heights[j-1]) {
+			_rect_swap(j, j-1, widths, heights, pos, idx);
+		}
+	}
 }
 
 Pos* bpack(uint w, uint h, uint n, uint* widths, uint* heights) {
@@ -128,6 +137,8 @@ Pos* bpack(uint w, uint h, uint n, uint* widths, uint* heights) {
 		uint* idx = MEM_ALLOC(sizeof(Pos) * n);
 		for(uint i = 0; i < n; ++i)
 			idx[i] = i;
+
+		_insertion_sort(n, widths, heights, pos, idx);
 
 		bool res = _pack_recursive(0, 0, w, h, n, widths, heights, pos, idx); 
 
