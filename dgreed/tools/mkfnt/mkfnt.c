@@ -58,8 +58,8 @@ bool mkfnt_try_arrange(uint size) {
 		}
 	}
 		
-	//MEM_FREE(widths);
-	//MEM_FREE(heights);
+	MEM_FREE(widths);
+	MEM_FREE(heights);
 
 	return glyph_pos != NULL;
 }
