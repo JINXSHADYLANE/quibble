@@ -284,7 +284,7 @@ void file_write_byte(FileHandle f, byte data);
 void file_write_uint16(FileHandle f, uint16 data);
 void file_write_uint32(FileHandle f, uint32 data);
 void file_write_float(FileHandle f, float data);
-void file_write(FileHandle f, void* data, uint size);
+void file_write(FileHandle f, const void* data, uint size);
 
 // Text file helpers
 

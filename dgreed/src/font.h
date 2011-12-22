@@ -10,6 +10,8 @@ typedef uint FontHandle;
 FontHandle font_load(const char* filename); 
 // Loads a new font file, allows to provide glyph scaling factor
 FontHandle font_load_ex(const char* filename, float scale);
+// Loads a new font file, allows to specify scale and texture path prefix
+FontHandle font_load_exp(const char* filename, float scale, const char* prefix);
 // Frees font which was loaded with font_load
 void font_free(FontHandle font);
 // Returns width of text in specified font

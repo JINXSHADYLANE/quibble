@@ -1013,7 +1013,7 @@ void file_write_float(FileHandle f, float data) {
 	file_write_uint32(f, *((uint32*)pd));
 }	
 
-void file_write(FileHandle f, void* data, uint size) {
+void file_write(FileHandle f, const void* data, uint size) {
 	FILE* file = (FILE*)f;
 
 	assert(file);

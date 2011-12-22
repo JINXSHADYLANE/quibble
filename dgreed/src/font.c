@@ -17,6 +17,7 @@ typedef struct {
 typedef struct {
 	TexHandle tex;
 	float height;
+	float y_gap;
 	Char chars[256];
 	bool active;
 	float scale;
@@ -31,6 +32,10 @@ FontHandle font_load(const char* filename) {
 }
 
 FontHandle font_load_ex(const char* filename, float scale) {
+	return font_load_exp(filename, scale, NULL);
+}
+
+FontHandle font_load_exp(const char* filename, float scale, const char* prefix) {
 	assert(filename);
 	assert(sizeof(CharDesc) == 16);
 
@@ -74,7 +79,16 @@ FontHandle font_load_ex(const char* filename, float scale) {
 	tex_filename[str_len] = '\0';
 
 	// Load texture
-	fonts[result].tex = tex_load(tex_filename);
+	char tex_path[256];
+	if(prefix) {
+		assert(strlen(tex_filename) + strlen(prefix) < 255);
+		strcpy(tex_path, prefix);
+	}
+	else {
+		tex_path[0] = '\0';
+	}
+	strcat(tex_path, tex_filename);
+	fonts[result].tex = tex_load(tex_path);
 
 	// Read number of chars
 	uint16 chars = file_read_uint16(font_file);
@@ -105,6 +119,10 @@ FontHandle font_load_ex(const char* filename, float scale) {
 		fonts[result].chars[char_desc.id].x_advance = 
 			(float)char_desc.xadvance;
 	}
+
+	// If space glyph has 0 x_advance, use 'a' glyph x_advance
+	if(fonts[result].chars[' '].x_advance == 0)
+		fonts[result].chars[' '].x_advance = fonts[result].chars['a'].x_advance;
 
 	file_close(font_file);
 	
