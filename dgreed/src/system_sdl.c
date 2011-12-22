@@ -72,6 +72,8 @@ const VideoStats* video_stats(void) {
 }
 #endif
 
+extern void _async_init(void);
+extern void _async_close(void);
 extern int dgreed_main(int, char**);
 #ifdef __APPLE__
 int SDL_main(int argc, char** argv) {
@@ -81,7 +83,10 @@ int SDL_main(int argc, char** argv) {
 #endif
 int main(int argc, char** argv) {
 #endif
-	return dgreed_main(argc, argv);
+	_async_init();
+	int res = dgreed_main(argc, argv);
+	_async_close();
+	return res;
 }
 
 static void _insertion_sort(DArray rect_bucket) {
