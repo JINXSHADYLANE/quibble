@@ -1,0 +1,76 @@
+import os
+import tools.mml
+
+BIN_DIR = 'bin'
+BUILD_DIR = 'build_'
+TOOL_DIR = 'tools'
+SUBS = ['src', 'apps', 'tools']
+
+common_flags = '-DTRACK_MEMORY -Wall '
+env = Environment(CCFLAGS=common_flags + '-std=c99 ',
+	CPPPATH='#/src', LIBPATH='#/bin', DGREED_BIN_DIR=BIN_DIR)
+
+env['CXXFLAGS'] = common_flags	
+# Prevent CCFLAGS being used when compiling C++
+env['CXXCOM'] = '$CXX -o $TARGET -c $CXXFLAGS $_CCCOMCOM $SOURCES'
+
+default_font_tool = TOOL_DIR + '/' + 'fnt2bft.py $SOURCE $TARGET' 	
+default_test_tool = TOOL_DIR + '/' + 'gen_tests.py -o $TARGET $SOURCES'
+default_arenacompr_tool = TOOL_DIR + '/' + 'greed_arena_compress.py $TARGET $TARGET'
+default_ogmo_tool = TOOL_DIR + '/' + 'ogmo2btm.py $SOURCES -o $TARGET'
+if str(Platform()) == 'win32':
+	Tool('mingw')(env)
+	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32'],
+		DGREED_FONT_TOOL=default_font_tool.replace('/', '\\'),
+		DGREED_TEST_TOOL=default_test_tool.replace('/', '\\'),
+		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool.replace('/', '\\'),
+		DGREED_OGMO_TOOL=default_ogmo_tool.replace('/', '\\'),
+		DGREED_DIR_SEPARATOR='\\', LINKFLAGS=' -mwindows')
+elif str(Platform()) == 'darwin':
+	env.Append(DGREED_LIBS=[], DGREED_FONT_TOOL=default_font_tool,
+		DGREED_TEST_TOOL=default_test_tool,
+		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool,
+		DGREED_OGMO_TOOL=default_ogmo_tool,
+		DGREED_DIR_SEPARATOR='/',
+		FRAMEWORKS=['SDL', 'OpenGL', 'OpenAL', 'Cocoa'])
+	
+	AddOption('--bundle', dest='bundle', action='store_true', 
+		help='compile apps to be placed in Mac OS X bundles')
+	if GetOption('bundle'):
+		env.Append(CCFLAGS=' -DMACOSX_BUNDLE')
+
+	AddOption('--universal', dest='universal', action='store_true',
+		help='build universal (i386 and ppc) Mac OS X binaries')
+	if GetOption('universal'):
+		newflags = ' -arch ppc -arch i386'
+		env.Append(CCFLAGS=newflags, CXXFLAGS=newflags, 
+			LINKFLAGS=newflags)
+else:
+	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal'],
+		DGREED_FONT_TOOL=default_font_tool, 
+		DGREED_TEST_TOOL=default_test_tool,
+		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool,
+		DGREED_OGMO_TOOL=default_ogmo_tool,
+		DGREED_DIR_SEPARATOR='/')
+	
+dbg_flags = '-D_DEBUG -g '
+rel_flags = '-DNDEBUG -O2 '
+
+env_dbg = env.Clone()
+env_dbg.Prepend(CCFLAGS=dbg_flags, CXXFLAGS=dbg_flags, DGREED_POSTFIX='d',
+	DGREED_LIBS=['dgreedd'], DGREED_EGO_LIB=['egod'], 
+	MALKA_LIBS=['malkad', 'luad'])
+env_rel = env.Clone()
+env_rel.Prepend(CCFLAGS=rel_flags, CXXFLAGS=rel_flags, DGREED_POSTFIX='',
+	DGREED_LIBS=['dgreed'], DGREED_EGO_LIB=['ego'],
+	MALKA_LIBS=['malka', 'lua'])
+
+for sub in SUBS:
+	build_postfix = '' if sub=='src' else sub+'_'
+	env = env_dbg
+	env.SConscript(sub + '/SConscript', variant_dir=BUILD_DIR+build_postfix+'dbg',
+		duplicate=0, exports='env')
+	env = env_rel
+	env.SConscript(sub + '/SConscript', variant_dir=BUILD_DIR+build_postfix+'rel',
+		duplicate=0, exports='env')
+
