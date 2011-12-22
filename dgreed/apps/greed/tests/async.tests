@@ -1,0 +1,35 @@
+#include "async.h"
+
+CriticalSection cs;
+
+int fib(int n) {
+	if(n == 0 || n == 1)
+		return 1;
+	if(n > 1)
+		return fib(n-1) + fib(n-2);
+	return -1;
+}
+
+void inc_counter(void* userdata) {
+	int* counter = userdata;
+	async_enter_cs(cs);
+	*counter += 1;
+	async_leave_cs(cs);
+}
+
+SETUP_{
+	cs = async_make_cs();
+}
+
+TEST_(stress) {
+	int counter = 0;
+	for(uint i = 0; i < 1000; ++i) {
+		async_run(inc_counter, &counter);
+	}
+
+	// Spin processor for a while
+	int fib35 = fib(35);
+	ASSERT_(fib35 == 14930352);
+
+	ASSERT_(counter == 1000);
+}

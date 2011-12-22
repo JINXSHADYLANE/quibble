@@ -19,10 +19,15 @@
 
 // Main function
 
+extern void _async_init(void);
+extern void _async_close(void)
+
 int main(int argc, char *argv[]) {
     
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	_async_init();
     int retVal = UIApplicationMain(argc, argv, nil, @"DGreedAppDelegate");
+	_async_close();
     [pool release];
     return retVal;
 }
