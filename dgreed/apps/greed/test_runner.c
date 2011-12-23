@@ -68,6 +68,12 @@ void run_tests(void)
 		current_group = &groups[i];
 		printf("Testing group %s ...", current_group->name);
 
+		#ifdef TRACK_MEMORY
+		MemoryStats stats;
+		mem_stats(&stats);
+		size_t mem_used = stats.bytes_allocated;
+		#endif
+
 		if(current_group->setup)
 			(*current_group->setup)();
 
@@ -96,6 +102,13 @@ void run_tests(void)
 		if(current_group->teardown)
 			(*current_group->teardown)();
 
+		#ifdef TRACK_MEMORY
+		mem_stats(&stats);
+		if(stats.bytes_allocated != mem_used) {
+			printf(" Leaked %zu bytes of memory!\n", stats.bytes_allocated - mem_used);
+		}
+		#endif
+
 		if(group_passed_tests == current_group->test_count)
 			printf(" all passed\n");
 		else
@@ -112,21 +125,6 @@ void run_tests(void)
 
 int dgreed_main(int argc, const char** argv) {
 	run_tests();
-
-	#ifdef TRACK_MEMORY
-	log_init("tests.log", LOG_LEVEL_INFO);
-	MemoryStats stats;
-	mem_stats(&stats);
-	LOG_INFO("Memory usage stats:");
-	LOG_INFO(" Total allocations: %u", stats.n_allocations);
-	LOG_INFO(" Peak dynamic memory usage: %uB", stats.peak_bytes_allocated);
-	if(stats.bytes_allocated) {
-		LOG_INFO(" Bytes still allocted: %u", stats.bytes_allocated);
-		LOG_INFO(" Dumping allocations info to memory.txt");
-		mem_dump("memory.txt");
-	}	
-	log_close();
-	#endif
 
 	if(passed_tests == TEST_COUNT)
 		return 0;

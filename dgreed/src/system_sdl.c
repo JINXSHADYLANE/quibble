@@ -86,6 +86,20 @@ int main(int argc, char** argv) {
 	_async_init();
 	int res = dgreed_main(argc, argv);
 	_async_close();
+
+#ifdef TRACK_MEMORY
+	MemoryStats stats;
+	mem_stats(&stats);
+	printf("Memory usage stats:\n");
+	printf(" Total allocations: %u\n", stats.n_allocations);
+	printf(" Peak dynamic memory usage: %zuB\n", stats.peak_bytes_allocated);
+	if(stats.bytes_allocated) {
+		printf(" Bytes still allocted: %zu\n", stats.bytes_allocated);
+		printf(" Dumping allocations info to memory.txt\n");
+		mem_dump("memory.txt");
+	}	
+#endif
+
 	return res;
 }
 

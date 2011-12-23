@@ -22,14 +22,52 @@ SETUP_{
 }
 
 TEST_(stress) {
+	TaskId taskids[1000];
 	int counter = 0;
 	for(uint i = 0; i < 1000; ++i) {
-		async_run(inc_counter, &counter);
+		taskids[i] = async_run(inc_counter, &counter);
 	}
 
 	// Spin processor for a while
 	int fib35 = fib(35);
 	ASSERT_(fib35 == 14930352);
 
+	// Wait for all tasks to finish
+	bool all_finished;
+	do {
+		all_finished = true;
+		for(uint i = 0; i < 1000; ++i) {
+			if(!async_is_finished(taskids[i])) {
+				all_finished = false;
+				break;
+			}
+		}
+	} while(!all_finished);
+
 	ASSERT_(counter == 1000);
+}
+
+
+char* io_test_message = "kukutis";
+char io_test_reversed[10];
+char* io_write_ptr = io_test_reversed;
+
+void io_test_task(void* userdata) {
+	char* c = userdata;
+	*io_write_ptr = *c;
+	io_write_ptr++;
+}
+
+TEST_(io) {
+	TaskId taskid;
+	uint l = strlen(io_test_message);
+	for(uint i = 0; i < l; ++i) {
+		taskid = async_run_io(io_test_task, &io_test_message[l-i-1]);	
+	}
+	io_test_reversed[l] = '\0';
+
+	// Wait for the last task to finish
+	while(!async_is_finished(taskid));
+
+	ASSERT_(strcmp(io_test_reversed, "situkuk") == 0);
 }

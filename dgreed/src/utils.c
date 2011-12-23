@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "memory.h"
 #include "sophist.h"
+#include "async.h"
 
 #include <ctype.h>
 
@@ -664,6 +665,7 @@ float rand_float_range(float min, float max) {
 
 FILE* log_file = NULL;
 uint log_level = LOG_LEVEL_INFO;
+CriticalSection log_cs;
 
 void LOG_ERROR(const char* format, ...) {
 	va_list args;
@@ -718,6 +720,8 @@ bool log_init(const char* log_path, uint log_level) {
 
 	log_level = log_level;	
 
+	log_cs = async_make_cs();
+
 	LOG_INFO("Log initialized");
 	return true;
 }
@@ -728,11 +732,12 @@ void log_close(void) {
 	LOG_INFO("Log closed");
 	if(log_file != stderr)
 		fclose(log_file);
+	log_file = NULL;
 }
 
 /* TODO: Display time */
 void log_send(uint log_level, const char* format, va_list args) {
-	static char msg_buffer[LOG_MSG_BUFFER_SIZE];
+	char msg_buffer[LOG_MSG_BUFFER_SIZE];
 
 	assert(log_file);
 
@@ -740,7 +745,10 @@ void log_send(uint log_level, const char* format, va_list args) {
 			return;
 
 	vsnprintf(msg_buffer, LOG_MSG_BUFFER_SIZE, format, args);
+	
+	async_enter_cs(log_cs);
 	fprintf(log_file, "%s: %s\n", log_level_to_cstr(log_level), msg_buffer);
+	async_leave_cs(log_cs);
 }
 
 /*

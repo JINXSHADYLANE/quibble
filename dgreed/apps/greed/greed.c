@@ -61,19 +61,6 @@ void dgreed_close(void) {
 	sounds_close();
 	tex_free(0);
 	video_close();
-	
-#ifdef TRACK_MEMORY
-	mem_stats(&stats);
-	LOG_INFO("Memory usage stats:");
-	LOG_INFO(" Total allocations: %u", stats.n_allocations);
-	LOG_INFO(" Peak dynamic memory usage: %uB", stats.peak_bytes_allocated);
-	if(stats.bytes_allocated) {
-		LOG_INFO(" Bytes still allocted: %u", stats.bytes_allocated);
-		LOG_INFO(" Dumping allocations info to memory.txt");
-		mem_dump("memory.txt");
-	}	
-#endif
-	
 	log_close();
 }
 
