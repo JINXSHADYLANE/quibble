@@ -1,0 +1,119 @@
+#include "datastruct.h"
+
+typedef struct {
+	int n;
+	ListHead list;
+} ListEntry;
+
+TEST_(list) {
+	ListHead l;
+
+	list_init(&l);
+	ASSERT_(l.prev == &l);
+	ASSERT_(l.next == &l);
+	ASSERT_(list_empty(&l) == true);
+
+	ListEntry a, b, c;
+	a.n = 1;
+	b.n = 2;
+	c.n = 3;
+
+	list_push_back(&l, &a.list);
+	ASSERT_(list_empty(&l) == false);
+	ASSERT_(a.list.next == &l);
+	ASSERT_(a.list.prev == &l);
+	ASSERT_(list_first_entry(&l, ListEntry, list) == &a);
+	ASSERT_(list_last_entry(&l, ListEntry, list) == &a);
+
+	ListEntry* pos;
+	uint count = 0;
+	list_for_each_entry(pos, &l, list) {
+		ASSERT_(pos->n == 1);
+		count++;
+	}
+	ASSERT_(count == 1);
+
+	list_push_back(&l, &b.list);
+	list_push_front(&l, &c.list);
+
+	ASSERT_(list_first_entry(&l, ListEntry, list) == &c);
+
+	ASSERT_(list_entry(&b.list, ListEntry, list) == &b);
+	int n[] = {3, 1, 2};	
+	int* p = n;
+	count = 0;
+	list_for_each_entry(pos, &l, list) {
+		ASSERT_(*p == pos->n);
+		p++;
+		count++;
+	}
+	ASSERT_(count == 3);
+
+	list_pop_front(&l);
+	ASSERT_(list_first_entry(&l, ListEntry, list) == &a);
+
+	list_remove(&b.list);
+
+	ASSERT_(list_first_entry(&l, ListEntry, list) == &a);
+	ASSERT_(list_last_entry(&l, ListEntry, list) == &a);
+
+	list_pop_back(&l);
+
+	ASSERT_(list_empty(&l) == true);
+}
+
+TEST_(heap) {
+	Heap h;
+
+	heap_init(&h);
+	ASSERT_(heap_size(&h) == 0);
+
+	heap_push(&h, 1, NULL);
+	ASSERT_(heap_size(&h) == 1);
+	ASSERT_(heap_peek(&h, NULL) == 1);
+
+	heap_push(&h, 4, NULL);
+	heap_push(&h, 3, NULL);
+	heap_push(&h, 2, NULL);
+	ASSERT_(heap_size(&h) == 4);
+	ASSERT_(heap_peek(&h, NULL) == 1);
+
+	ASSERT_(heap_pop(&h, NULL) == 1); 
+	ASSERT_(heap_peek(&h, NULL) == 2);
+	ASSERT_(heap_size(&h) == 3);
+
+	ASSERT_(heap_pop(&h, NULL) == 2);
+	ASSERT_(heap_pop(&h, NULL) == 3);
+	ASSERT_(heap_pop(&h, NULL) == 4);
+
+	ASSERT_(heap_size(&h) == 0);
+
+	heap_free(&h);
+}
+
+TEST_(heapsort) {
+	Heap h;
+
+	int m[] = {2, 2, 1, 6, 1, 9, -4, 3, 8, 6, 0, 2, 4, -5, -2, 8, 4};
+	int sorted[] = {-5, -4, -2, 0, 1, 1, 2, 2, 2, 3, 4, 4, 6, 6, 8, 8, 9};
+	int n = ARRAY_SIZE(m);
+
+	heap_init(&h);
+
+	for(uint i = 0; i < n; ++i) {
+		heap_push(&h, m[i], &m[i]);
+	}
+
+	ASSERT_(heap_size(&h) == n);
+
+	for(uint i = 0; i < n; ++i) {
+		int* data;
+		ASSERT_(heap_pop(&h, (void**)&data) == sorted[i]); 
+		ASSERT_(*data == sorted[i]);
+	}
+
+	ASSERT_(heap_size(&h) == 0);
+
+	heap_free(&h);
+}
+
