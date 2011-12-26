@@ -59,7 +59,7 @@ void io_test_task(void* userdata) {
 }
 
 TEST_(io) {
-	TaskId taskid;
+	TaskId taskid = 0;
 	uint l = strlen(io_test_message);
 	for(uint i = 0; i < l; ++i) {
 		taskid = async_run_io(io_test_task, &io_test_message[l-i-1]);	
