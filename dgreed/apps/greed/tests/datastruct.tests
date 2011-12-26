@@ -117,3 +117,182 @@ TEST_(heapsort) {
 	heap_free(&h);
 }
 
+TEST_(aatree_empty) {
+	AATree t;
+
+	aatree_init(&t);
+	
+	ASSERT_(aatree_size(&t) == 0);
+	ASSERT_(aatree_find(&t, 16) == NULL);
+	ASSERT_(aatree_find(&t, 0) == NULL);
+
+	aatree_free(&t);
+}
+
+TEST_(aatree_insert) {
+	AATree t;
+
+	char* a = "karass";
+	char* b = "granfaloon";
+	char* c = "duprass";
+
+	aatree_init(&t);
+
+	ASSERT_(aatree_insert(&t, 7, a) == true);
+	ASSERT_(aatree_size(&t) == 1);
+
+	void* p = NULL;
+	ASSERT_(aatree_min(&t, &p) == 7);
+	ASSERT_(p == a);
+	p = NULL;
+	ASSERT_(aatree_max(&t, &p) == 7);
+	ASSERT_(p == a);
+	ASSERT_(aatree_find(&t, 7) == a);
+
+	ASSERT_(aatree_insert(&t, 19, b) == true);
+	ASSERT_(aatree_insert(&t, 37, c) == true);
+	ASSERT_(aatree_insert(&t, 7, a) == false);
+
+	ASSERT_(aatree_size(&t) == 3);
+	ASSERT_(aatree_min(&t, NULL) == 7);
+	ASSERT_(aatree_max(&t, NULL) == 37);
+
+	ASSERT_(aatree_find(&t, 8) == NULL);
+	ASSERT_(aatree_find(&t, 19) == b);
+
+	aatree_free(&t);
+}
+
+TEST_(aatree_insert_stress) {
+	AATree t;
+
+	aatree_init(&t);
+
+	for(uint i = 0; i < 10000; ++i) {
+		ASSERT_(aatree_insert(&t, (i+1) * 3, &t) == true);
+	}
+
+	ASSERT_(aatree_size(&t) == 10000);
+	ASSERT_(aatree_min(&t, NULL) == 3);
+	ASSERT_(aatree_max(&t, NULL) == 30000);
+
+	for(uint i = 1; i <= 3000; ++i) {
+		ASSERT_(aatree_find(&t, i) == (i % 3 ? NULL : &t));
+	}
+
+	ASSERT_(aatree_insert(&t, 303, NULL) == false);
+	ASSERT_(aatree_insert(&t, 15, NULL) == false);
+	ASSERT_(aatree_insert(&t, 7, NULL) == true);
+
+	aatree_clear(&t);
+	ASSERT_(aatree_size(&t) == 0);
+	ASSERT_(aatree_insert(&t, 7, NULL) == true);
+	ASSERT_(aatree_insert(&t, 3, NULL) == true);
+	ASSERT_(aatree_insert(&t, 7, NULL) == false);
+	ASSERT_(aatree_size(&t) == 2);
+
+	aatree_free(&t);
+}
+
+TEST_(aatree_remove_simple) {
+	AATree t;
+
+	aatree_init(&t);
+
+	ASSERT_(aatree_insert(&t, 1, &t) == true);
+	ASSERT_(aatree_remove(&t, 1) == &t);
+
+	ASSERT_(aatree_insert(&t, 3, &t) == true);
+	ASSERT_(aatree_insert(&t, 2, &t) == true);
+	ASSERT_(aatree_insert(&t, 1, &t) == true);
+	ASSERT_(aatree_remove(&t, 2) == &t);
+	ASSERT_(aatree_remove(&t, 1) == &t);
+	ASSERT_(aatree_remove(&t, 3) == &t);
+	ASSERT_(aatree_size(&t) == 0);
+
+	aatree_free(&t);
+}
+
+TEST_(aatree_remove) {
+	AATree t;
+
+	uint data[] = {4, 2, 8, 6, -3, 5, 7, 9, -11, 19, 14, 10}; 
+	uint n = ARRAY_SIZE(data);
+
+	aatree_init(&t);
+
+	for(uint i = 0; i < n; ++i) {
+		ASSERT_(aatree_insert(&t, data[i], &data[i]) == true);
+	}
+
+	ASSERT_(aatree_size(&t) == n);
+	ASSERT_(aatree_remove(&t, 5) != NULL);
+	ASSERT_(aatree_remove(&t, 1) == NULL);
+	ASSERT_(aatree_size(&t) == n-1);
+
+	ASSERT_(aatree_remove(&t, -11) != NULL);
+	ASSERT_(aatree_remove(&t, -3) != NULL);
+	ASSERT_(aatree_size(&t) == n-3);
+	ASSERT_(aatree_min(&t, NULL) == 2);
+	ASSERT_(aatree_find(&t, -3) == NULL);
+	ASSERT_(aatree_find(&t, 7) != NULL);
+	ASSERT_(aatree_remove(&t, 7) != NULL);
+	ASSERT_(aatree_remove(&t, 7) == NULL);
+	ASSERT_(aatree_find(&t, 7) == NULL);
+
+	aatree_free(&t);
+}
+
+bool is_prime(int n) {
+	if(n == 2)
+		return true;
+	if(n % 2 == 0 || n < 2)
+		return false;
+
+	for(uint d = 3; d*d <= n; d += 2) {
+		if(n % d == 0)
+			return false;
+	}
+
+	return true;
+}
+
+TEST_(aatree_remove_stress) {
+	AATree t;
+
+	aatree_init(&t);
+	/*	
+	for(uint i = 0; i < 10000; ++i) {
+		ASSERT_(aatree_insert(&t, i, &t) == true);
+	}
+
+	for(uint i = 0; i < 10000; ++i) {
+		if(!is_prime(i)) {
+			ASSERT_(aatree_remove(&t, i) == &t);
+		}
+	}
+
+	ASSERT_(aatree_size(&t) == 1229);
+	ASSERT_(aatree_min(&t, NULL) == 2);
+	ASSERT_(aatree_max(&t, NULL) == 9973);
+
+	for(uint i = 8; i < 10000; i += 3) {
+		bool prime = (aatree_find(&t, i) != NULL);
+		ASSERT_(prime == is_prime(i));
+	}
+
+	uint first_primes[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
+	uint n = ARRAY_SIZE(first_primes);
+	for(uint i = 0; i < n; ++i) {
+		int p = first_primes[i];
+		ASSERT_(aatree_min(&t, NULL) == p);
+		ASSERT_(aatree_remove(&t, (p+1) * 15) == NULL);
+		ASSERT_(aatree_remove(&t, p) == &t);
+	}
+
+	ASSERT_(aatree_size(&t) == 1229 - n);
+	*/	
+	aatree_free(&t);
+}
+
+
