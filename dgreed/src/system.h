@@ -209,6 +209,9 @@ float time_ms(void);
 float time_delta(void);
 uint time_fps(void);
 
+// This returns precise current time, updated continously
+uint time_ms_current(void);
+
 /*
 ------------
 --- Misc ---

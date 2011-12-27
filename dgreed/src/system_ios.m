@@ -1180,7 +1180,7 @@ uint time_fps(void) {
 	return fps;
 }
 
-static float _get_t(void) {
+uint time_ms_current(void) {
 	static mach_timebase_info_data_t info;
 	static bool first = true;
 	static uint64_t start_t;
@@ -1196,8 +1196,13 @@ static float _get_t(void) {
 	
 	t *= info.numer;
 	t /= info.denom;
+
+	return t / 1000;
+}
+
+static float _get_t(void) {
 	
-	return (float)t / 1000000.0f;
+	return (float)time_ms_current() / 1000.0f;
 }	
 
 void _time_update(float current_time) {

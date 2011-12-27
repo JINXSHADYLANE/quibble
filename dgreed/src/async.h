@@ -21,7 +21,7 @@ TaskId async_run_io(Task task, void* userdata);
 
 // Schedule task to be executed in t miliseconds on the same thread.
 // Timing is precise to 1/60 of a second.
-TaskId async_schedule(Task task, int t, void* userdata);
+TaskId async_schedule(Task task, uint t, void* userdata);
 
 // Returns true if task is finished
 bool async_is_finished(TaskId id);

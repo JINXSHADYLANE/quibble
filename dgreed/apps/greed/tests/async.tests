@@ -29,8 +29,8 @@ TEST_(stress) {
 	}
 
 	// Spin processor for a while
-	int fib35 = fib(35);
-	ASSERT_(fib35 == 14930352);
+	int fib32 = fib(32);
+	ASSERT_(fib32 == 3524578);
 
 	// Wait for all tasks to finish
 	bool all_finished;
