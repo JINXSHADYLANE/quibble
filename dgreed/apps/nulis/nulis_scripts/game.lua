@@ -18,7 +18,7 @@ affect_radius = 160
 affect_force = 0.02
 
 levels = {
-	{name = 'nulis', w=3},
+	{name = 'nulis', gw=1, gb=1, tw=1, tb=1},
 	{name = 'cascajal', b=3},
 	{name = 'guariviara', w=2, b=2},
 	{name = 'chiriqui', w=2, b=1},
@@ -30,7 +30,7 @@ levels = {
 }
 
 current_level = 1
-to_spawn = {w=0, b=0, r=0, c=0}
+to_spawn = {w=0, b=0, gw=0, gb=0, tw=0, tb=0, r=0, c=0}
 
 function init()
 	mfont = font.load(pre..'varela.bft')
@@ -61,11 +61,30 @@ function reset(level)
 		to_spawn.b = to_spawn.b + level.b
 	end
 
+	if level.gw then
+		to_spawn.gw = to_spawn.gw + level.gw
+	end
+
+	if level.gb then
+		to_spawn.gb = to_spawn.gb + level.gb
+	end
+
+	if level.tw then
+		to_spawn.tw = to_spawn.tw + level.tw
+	end
+
+	if level.tb then
+		to_spawn.tb = to_spawn.tb + level.tb
+	end
+
 	if level.r then
 		to_spawn.r = to_spawn.r + level.r
 	end
 
+
 	to_spawn.c = to_spawn.w + to_spawn.b
+	to_spawn.c = to_spawn.c + to_spawn.gw + to_spawn.gb
+	to_spawn.c = to_spawn.c + to_spawn.tw + to_spawn.tb
 end
 
 function close()
@@ -90,28 +109,48 @@ function update()
 	if time.s() - last_spawn_t > spawn_interval then
 		last_spawn_t = time.s()
 		-- spawn particles if we need to
-		local cc = to_spawn.w + to_spawn.b
+		local cc = to_spawn.w + to_spawn.b + to_spawn.gw + to_spawn.gb + to_spawn.tw + to_spawn.tb
 		if cc > 0 then
 			local a = (cc / to_spawn.c) * math.pi * 2
 			local p = vec2(scr_size.x/2, scr_size.y/2)
 			p = p + rotate(vec2(0, 170), a)
 
-			-- first spawn white, then black
+			-- first spawn white, then black ...
 			local col
 			if to_spawn.w > 0 then
 				col = 1
 				to_spawn.w = to_spawn.w - 1
 			else
-				col = 0
-				to_spawn.b = to_spawn.b - 1
+				if to_spawn.b > 0 then
+					col = 0
+					to_spawn.b = to_spawn.b - 1
+				else
+					if to_spawn.gw > 0 then
+						col = 3
+						to_spawn.gw = to_spawn.gw - 1
+					else
+						if to_spawn.gb > 0 then
+							col = 2
+							to_spawn.gb = to_spawn.gb - 1
+						else
+							if to_spawn.tw > 0 then
+								col = 5
+								to_spawn.tw = to_spawn.tw - 1
+							else
+								col = 4
+								to_spawn.tb = to_spawn.tb - 1
+							end
+						end
+					end
+				end
 			end
 
-			--effects.spawn(p)
+			ceffects.spawn(p)
 			csim.spawn(p, vec2(), col)
 		else
 			if to_spawn.r > 0 then
 				csim.spawn_random()
-				--effects.spawn(p)
+				ceffects.spawn(p)
 				to_spawn.r = to_spawn.r - 1
 			end
 		end

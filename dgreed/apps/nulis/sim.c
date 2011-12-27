@@ -12,15 +12,30 @@ const RectF ball_rects[] = {
 	{32.0f, 0.0f, 85.0f, 32.0f},
 	{32.0f, 32.0f, 85.0f, 64.0f},
 	{0.0f, 64.0f, 52.0f, 64.0f + 52.0f},
-	{52.0f, 64.0f, 52.0f + 52.0f, 64.0f + 52.0f}
+	{52.0f, 64.0f, 52.0f + 52.0f, 64.0f + 52.0f},
+	{156.0f - 52.0f, 116.0f - 52.0f, 156.0f, 116.0f},
+	{208.0f - 52.0f, 116.0f - 52.0f, 208.0f, 116.0f},
+	{118.0f, 0.0f, 118.0f + 32.0f, 32.0f},
+	{118.0f, 32.0f, 118.0f + 32.0f, 32.0f + 32.0f},
 };
 const RectF ball_core_rect = {85.0f, 0.0f, 85.0f + 32.0f, 32.0f};
 const uint balls_layer = 3;
 
+typedef enum {
+	BT_BLACK = 0,
+	BT_WHITE,
+	BT_GRAV_BLACK,
+	BT_GRAV_WHITE,
+	BT_TIME_BLACK,
+	BT_TIME_WHITE,
+	BT_TYPE_COUNT
+} BallType;
+
 typedef struct {
 	Vector2 p, v;
 	float r, a, w, birth_t, core;
-	uint type, mass;
+	BallType type;
+	uint mass;
 	Color color;
 	bool remove;
 } Ball;
@@ -272,6 +287,15 @@ void sim_update(void) {
 				Vector2 midpoint = vec2_add(a->p, vec2_scale(path, 0.5f));
 				float dir = atan2f(path.y, path.x);
 
+				if(a->type > BT_WHITE || b->type > BT_WHITE) {
+					// Fancy ball type
+					path = vec2_normalize(path);
+					//effects_collide_ab(midpoint, dir);
+					a->v = vec2_add(a->v, vec2_scale(path, -collide_force));
+					b->v = vec2_add(b->v, vec2_scale(path, collide_force));
+					continue;
+				}
+
 				if(a->type == b->type) {
 					// Same type
 					a->remove = true;
@@ -345,7 +369,7 @@ static void _render_ball_internal(Vector2 p, Ball* b, uint rect_i,
 			b->a, scale, col);
 
 	float t = clamp(0.0f, 1.0f, b->core);
-	if(t > 0.0f) {
+	if(t > 0.0f && b->type <= BT_WHITE) {
 		Color col = b->color;
 		col &= ((byte)lrintf(t * 255.0f)) << 24 | 0xFFFFFF;
 		if(b->mass == 1) {
@@ -364,7 +388,12 @@ static void _render_ball_internal(Vector2 p, Ball* b, uint rect_i,
 }
 
 static void _render_ball(Ball* b, bool ghost, float t) {
-	uint rect_i = b->type + (b->mass-1)*2;
+	uint rect_i;
+	if(b->type <= BT_WHITE)
+		rect_i = b->type + (b->mass-1)*2;
+	else
+		rect_i = 4 + b->type;
+
 	Color col = COLOR_WHITE;
 	if(ghost) {
 		float bt = 1.0f - clamp(0.0f, 1.0f, (t - b->birth_t) / ghost_lifetime);

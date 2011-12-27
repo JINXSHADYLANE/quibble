@@ -27,7 +27,7 @@ function game_init()
 		scr_size.x, scr_size.y, 'nulis', fullscreen 
 	)
 
-	local music = sound.load_stream(pre..'theme.ogg')
+	music = sound.load_stream(pre..'theme.ogg')
 	sound.set_volume(music, 0.3)
 	sound.play(music, true)
 
@@ -37,6 +37,7 @@ function game_init()
 end
 
 function game_close()
+	sound.free(music)
 	video.close()
 	sound.close()
 end
