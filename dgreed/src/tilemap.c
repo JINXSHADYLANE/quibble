@@ -168,6 +168,8 @@ void tilemap_free(Tilemap* t) {
 
 	assert(t->collission);
 	MEM_FREE(t->collission);
+
+	MEM_FREE(t);
 }
 
 static void _tileid_source(Tilemap* t, float time, uint16 tileid, 
