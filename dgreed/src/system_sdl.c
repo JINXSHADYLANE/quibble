@@ -1320,6 +1320,10 @@ uint time_fps(void) {
 	return fps; 
 }	
 
+uint time_ms_current(void) {
+	return SDL_GetTicks();
+}
+
 void _time_update(uint current_time) {
 	t_ms = (float)current_time;
 	t_d = (float)(current_time - last_frame_time);
