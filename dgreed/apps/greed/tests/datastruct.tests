@@ -261,7 +261,7 @@ TEST_(aatree_remove_stress) {
 	AATree t;
 
 	aatree_init(&t);
-	/*	
+		
 	for(uint i = 0; i < 10000; ++i) {
 		ASSERT_(aatree_insert(&t, i, &t) == true);
 	}
@@ -291,7 +291,7 @@ TEST_(aatree_remove_stress) {
 	}
 
 	ASSERT_(aatree_size(&t) == 1229 - n);
-	*/	
+		
 	aatree_free(&t);
 }
 

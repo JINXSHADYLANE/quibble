@@ -236,8 +236,23 @@ static void _aatree_delete_node(AATree* tree) {
 	// Copy last node to its place
 	nodes[idx] = nodes[last];	
 
-	// Relabel node we just moved
+	// Relabel its children parent pointers
+	if(nodes[idx].left != INVALID_IDX) {
+		assert(nodes[idx].left < tree->tree.size-1);
+		AATNode* left = &nodes[nodes[idx].left];
+		assert(left->parent == last);
+		left->parent = idx;
+	}
+	if(nodes[idx].right != INVALID_IDX) {
+		assert(nodes[idx].right < tree->tree.size-1);
+		AATNode* right = &nodes[nodes[idx].right];
+		assert(right->parent == last);
+		right->parent = idx;
+	}
+
+	// Relabel its parent children pointers
 	if(nodes[idx].parent != INVALID_IDX) {
+		assert(nodes[idx].parent < tree->tree.size-1);
 		AATNode* parent = &nodes[nodes[idx].parent];
 		if(parent->left == last)
 			parent->left = idx;
@@ -247,7 +262,7 @@ static void _aatree_delete_node(AATree* tree) {
 			assert(0 && "Something went horribly wrong.");
 	}
 
-	// Relabel root is neccessary
+	// Relabel root if neccessary
 	if(tree->root == last)
 		tree->root = idx;
 
@@ -276,8 +291,8 @@ static AATNodeIdx _aatree_skew(DArray* tree, AATNodeIdx idx) {
 		idx = node->left;
 		node->left = node_left->right;
 		node_left->right = temp;
+		node_left->parent = node->parent;
 		node->parent = idx;
-		node_left->parent = INVALID_IDX;
 		if(node_left_right)
 			node_left_right->parent = temp; 
 	}
@@ -309,9 +324,9 @@ static AATNodeIdx _aatree_split(DArray* tree, AATNodeIdx idx) {
 		idx = node->right;
 		node->right = node_right->left;
 		node_right->left = temp;
+		node_right->parent = node->parent; 
 		node->parent = idx;
 		node_right->level++;
-		node_right->parent = INVALID_IDX;
 		if(node_right_left)
 			node_right_left->parent = temp;
 	}
@@ -487,20 +502,17 @@ static AATNodeIdx _aatree_remove(AATree* tree, AATNodeIdx idx, int key) {
 	tree->rem_last = idx;
 	
 	AATNode* node = _aatree_get_node(&tree->tree, idx);
+	AATNodeIdx new_child_idx = INVALID_IDX;
 	if(key < node->key) {
-		node->left = _aatree_remove(tree, node->left, key);
-		if(node->left != INVALID_IDX) {
-			AATNode* new_child = _aatree_get_node(&tree->tree, node->left);
-			new_child->parent = idx;
-		}
+		new_child_idx = node->left = _aatree_remove(tree, node->left, key);
 	}
 	else {
 		tree->rem_candidate = idx;
-		node->right = _aatree_remove(tree, node->right, key);
-		if(node->right != INVALID_IDX) {
-			AATNode* new_child = _aatree_get_node(&tree->tree, node->right);
-			new_child->parent = idx;
-		}
+		new_child_idx = node->right = _aatree_remove(tree, node->right, key);
+	}
+	if(new_child_idx != INVALID_IDX) {
+		AATNode* new_child = _aatree_get_node(&tree->tree, new_child_idx);
+		new_child->parent = idx;
 	}
 
 	// Get pointer to delete candidate node
