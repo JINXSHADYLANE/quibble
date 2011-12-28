@@ -6,6 +6,7 @@
 #include <gfx_utils.h>
 
 TexHandle atlas;
+TexHandle backgr;
 const RectF ball_rects[] = {
 	{0.0f, 0.0f, 32.0f, 32.0f},
 	{0.0f, 32.0f, 32.0f, 64.0f},
@@ -20,6 +21,13 @@ const RectF ball_rects[] = {
 };
 const RectF ball_core_rect = {85.0f, 0.0f, 85.0f + 32.0f, 32.0f};
 const uint balls_layer = 3;
+
+const RectF halo_rects[] = {
+	{768.0f, 768.0f, 980.0f, 980.0f},
+	{2.0f, 770.0f, 254.0f, 768.0f + 254.0f}
+};
+
+const float halo_radius = 106.0f;
 
 typedef enum {
 	BT_BLACK = 0,
@@ -130,12 +138,14 @@ void sim_init(void) {
 	ghosts_array = darray_create(sizeof(Ball), 0);
 
 	atlas = tex_load(ASSET_PRE "atlas.png");
+	backgr = tex_load(ASSET_PRE "background.png");
 }
 
 void sim_close(void) {
 	darray_free(&balls_array);
 	darray_free(&ghosts_array);
 	tex_free(atlas);
+	tex_free(backgr);
 }
 
 void sim_reset(float spawn_interval, uint start_spawning_at) {
@@ -408,6 +418,29 @@ void sim_update(void) {
 						continue;
 					}
 
+					// Time + pair
+					if(normal && normal->mass == 2 && 
+						(fancy->type == BT_TIME_WHITE || fancy->type == BT_TIME_BLACK)) {
+						normal->remove = true;
+						fancy->v = vec2_add(fancy->v, normal->v);
+						if( (normal->type == BT_WHITE && fancy->type == BT_TIME_WHITE) ||
+						 	(normal->type == BT_BLACK && fancy->type == BT_TIME_BLACK)) {
+							fancy->mass += 1;
+							fancy->r *= sqrtf(2.0f);
+						}
+						else {
+							fancy->mass -= 1;
+							fancy->r /= sqrtf(2.0f);
+
+							if(fancy->mass == 0) {
+								fancy->type -= 2;
+								fancy->mass = 1;
+								fancy->r = 16.0f;
+							}
+						}
+						continue;
+					}
+
 					if(_is_closing(a, b)) {
 						path = vec2_normalize(path);
 						//effects_collide_ab(midpoint, dir);
@@ -484,6 +517,33 @@ static float _ball_spawn_func(float t) {
 	return t * (sinf(t*4.0f*PI)*(1.0f-t)+1);
 }
 
+static void _render_halo(Vector2 p, Ball* b, float scale, Color col) {
+	RectF src = halo_rects[0];
+	
+	if(b->type == BT_TIME_WHITE || b->type == BT_TIME_BLACK)
+		src = halo_rects[1]; 
+
+	float t = time_s() * 4.0f;
+	const int n_rings = 4;
+
+	for(uint i = 0; i < n_rings; ++i) {
+		float s = sinf(t + i*(PI*2.0f / n_rings))/2.0f + 0.5f;
+		float c = cosf(t + i*(PI*2.0f / n_rings));
+
+		if(c > 0.0f) {
+			float r;
+			if(b->type == BT_TIME_WHITE || b->type == BT_GRAV_WHITE)
+				r = lerp(0.3f, 1.0f, s) * scale;
+			else
+				r = lerp(1.0f, 0.3f, s) * scale;
+
+			Color transp = col & 0xFFFFFF;
+			Color cc = color_lerp(transp, col, c);
+			gfx_draw_textured_rect(backgr, balls_layer, &src, &p, b->a, r, cc); 
+		}
+	}
+}
+
 static void _render_ball_internal(Vector2 p, Ball* b, uint rect_i, 
 		Color col, float scale) {
 	gfx_draw_textured_rect(atlas, balls_layer, &ball_rects[rect_i], &p,
@@ -539,6 +599,18 @@ static void _render_ball(Ball* b, bool ghost, float t) {
 
 	WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->p,
 			_render_ball_internal(npos, b, rect_i, col, scale));
+
+	if(b->type > BT_WHITE) {
+		_render_halo(b->p, b, scale, col);
+
+		x_min = halo_radius * scale;
+		x_max = SCREEN_WIDTH - x_min;
+		y_min = x_min;
+		y_max = SCREEN_HEIGHT - y_min;
+
+		WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->p,
+				_render_halo(npos, b, scale, col));
+	}
 }
 
 void sim_render(void) {
