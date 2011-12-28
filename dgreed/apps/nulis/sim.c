@@ -48,6 +48,11 @@ const float spawn_rot = 0.01f;
 const float collide_force = 0.05f;
 const float born_force = 0.01f;
 
+const float time_factor = 4.0f;
+const float time_max_dist = 150.0f;
+const float gravity_force = 8.0f;
+const float gravity_max_dist = 150.0f;
+
 // State
 
 DArray balls_array;
@@ -199,6 +204,61 @@ void sim_spawn_random(void) {
 	effects_spawn(p);
 }
 
+static float _time_scale(Vector2 p) {
+	float time_scale = 1.0f;
+
+	Ball* balls = DARRAY_DATA_PTR(balls_array, Ball);
+	for(uint i = 0; i < balls_array.size; ++i) {
+		Ball* b = &balls[i];
+		float factor = 1.0f;
+		if(b->p.x == p.x && b->p.y == p.y)
+			continue;
+		if(b->type == BT_TIME_WHITE) {
+			float d = sqrtf(_distance(p, b->p, NULL)) / time_max_dist;
+			d = clamp(0.0f, 1.0f, d);
+			factor = lerp(powf(1.0f / time_factor, (float)b->mass), 1.0f, d);
+		}
+		if(b->type == BT_TIME_BLACK) {
+			float d = sqrtf(_distance(p, b->p, NULL)) / time_max_dist;
+			d = clamp(0.0f, 1.0f, d);
+			factor = lerp(powf(time_factor, (float)b->mass), 1.0f, d);
+		}
+		time_scale *= factor;
+	}
+
+	return time_scale;
+}
+
+static void _apply_gravity(Ball* a, float dt) {
+	Ball* balls = DARRAY_DATA_PTR(balls_array, Ball);
+	for(uint i = 0; i < balls_array.size; ++i) {
+		Ball* b = &balls[i];
+		if(a == b || (b->type != BT_GRAV_WHITE && b->type != BT_GRAV_BLACK))
+			continue;
+		
+		Vector2 path;
+		float sqr_d = _distance(a->p, b->p, &path);
+		if(sqr_d > gravity_max_dist * gravity_max_dist)
+			continue;
+
+		float d = sqrtf(sqr_d);
+		if(d <= a->r + b->r)
+			continue;
+
+		float decay = 
+			MIN(fabs(d - gravity_max_dist), fabs(d + gravity_max_dist));
+		decay = powf(decay / gravity_max_dist, 0.25f);
+
+		float f = (float)a->mass * (float)b->mass / sqr_d;
+		if(b->type == BT_GRAV_WHITE)
+			f *= -1.0f;
+
+		path = vec2_normalize(path);
+		a->v = vec2_add(a->v, vec2_scale(path, dt * f * decay / (float)a->mass));
+		b->v = vec2_add(b->v, vec2_scale(path, -dt * f * decay / (float)b->mass));
+	}
+}
+
 void sim_force_field(Vector2 p, float r, float strength) {
 	Ball* balls = DARRAY_DATA_PTR(balls_array, Ball);
 	for(uint i = 0; i < balls_array.size; ++i) {
@@ -207,10 +267,11 @@ void sim_force_field(Vector2 p, float r, float strength) {
 		Vector2 path;
 		float d = _distance(p, b->p, &path);
 		if(d < r*r) {
+			float ts = _time_scale(b->p);
 			float f = 1.0f - clamp(0.0f, 1.0f, sqrtf(d) / r);
 			path = vec2_normalize(path);
-			b->v = vec2_add(b->v, vec2_scale(path, f * strength / (float)b->mass));
-			b->core += time_delta() / 100.0f;
+			b->v = vec2_add(b->v, vec2_scale(path, ts * f * strength / (float)b->mass));
+			b->core += time_delta() / 100.0f * ts;
 			if(b->core > 2.0f)
 				b->core = 2.0f;
 		}
@@ -219,18 +280,32 @@ void sim_force_field(Vector2 p, float r, float strength) {
 }
 
 static void _update_ball(Ball* b, float dt) {
+	float ts = _time_scale(b->p);
+	//assert(ts == 1.0f);
+
+	//_apply_gravity(b, dt, ts);
+
 	b->core -= dt / 200.0f;
 	if(b->core < 0.0f)
 		b->core = 0.0f;
 
-	b->p = vec2_add(b->p, vec2_scale(b->v, dt));
-	b->a += b->w * dt;
+	b->p = vec2_add(b->p, vec2_scale(b->v, dt * ts));
+	b->a += b->w * dt * ts;
 
 	b->p.x = fmodf(b->p.x + SCREEN_WIDTH, SCREEN_WIDTH);
 	b->p.y = fmodf(b->p.y + SCREEN_HEIGHT, SCREEN_HEIGHT);
 
 	b->v = vec2_scale(b->v, linear_damp);
 	b->w *= angular_damp;
+}
+
+static bool _is_closing(Ball* a, Ball* b) {
+	float d1 = _distance(a->p, b->p, NULL);
+	Vector2 nap = vec2_add(a->p, a->v);
+	Vector2 nbp = vec2_add(b->p, b->v);
+	float d2 = _distance(nap, nbp, NULL);
+
+	return d2 <= d1;
 }
 
 void sim_update(void) {
@@ -258,7 +333,7 @@ void sim_update(void) {
 		}
 	}
 
-	// Update balls
+	// Update gravity
 	Ball* balls = DARRAY_DATA_PTR(balls_array, Ball);
 	for(uint i = 0; i < balls_array.size; ++i) {
 		Ball* b = &balls[i];
@@ -267,8 +342,15 @@ void sim_update(void) {
 			--i;
 		}
 		else {
-			_update_ball(b, dt);
+			_apply_gravity(b, dt);
 		}
+	}
+
+	// Update balls
+	for(uint i = 0; i < balls_array.size; ++i) {
+		Ball* b = &balls[i];
+		assert(!b->remove);
+		_update_ball(b, dt);
 	}
 
 	// Resolve collisions
@@ -287,12 +369,49 @@ void sim_update(void) {
 				Vector2 midpoint = vec2_add(a->p, vec2_scale(path, 0.5f));
 				float dir = atan2f(path.y, path.x);
 
+				// Handle fancy ball types
 				if(a->type > BT_WHITE || b->type > BT_WHITE) {
-					// Fancy ball type
-					path = vec2_normalize(path);
-					//effects_collide_ab(midpoint, dir);
-					a->v = vec2_add(a->v, vec2_scale(path, -collide_force));
-					b->v = vec2_add(b->v, vec2_scale(path, collide_force));
+					Ball* normal = NULL;
+					if(a->type <= BT_WHITE)
+						normal = a;
+					if(b->type <= BT_WHITE)
+						normal = b;
+					Ball* fancy = NULL;
+					if(a->type > BT_WHITE)
+						fancy = a;
+					if(b->type > BT_WHITE)
+						fancy = b;
+
+					
+					// Gravity + pair
+					if(normal && normal->mass == 2 && 
+						(fancy->type == BT_GRAV_WHITE || fancy->type == BT_GRAV_BLACK)) {
+						normal->remove = true;
+						fancy->v = vec2_add(fancy->v, normal->v);
+						if( (normal->type == BT_WHITE && fancy->type == BT_GRAV_WHITE) ||
+						 	(normal->type == BT_BLACK && fancy->type == BT_GRAV_BLACK)) {
+							fancy->mass += 1;
+							fancy->r *= sqrtf(2.0f);
+						}
+						else {
+							fancy->mass -= 1;
+							fancy->r /= sqrtf(2.0f);
+
+							if(fancy->mass == 0) {
+								fancy->type -= 2;
+								fancy->mass = 1;
+								fancy->r = 16.0f;
+							}
+						}
+						continue;
+					}
+
+					if(_is_closing(a, b)) {
+						path = vec2_normalize(path);
+						//effects_collide_ab(midpoint, dir);
+						a->v = vec2_add(a->v, vec2_scale(path, -collide_force));
+						b->v = vec2_add(b->v, vec2_scale(path, collide_force));
+					}
 					continue;
 				}
 
@@ -405,6 +524,9 @@ static void _render_ball(Ball* b, bool ghost, float t) {
 	if(!ghost && b->birth_t > 0.0f && st >= 0.0f && st < 1.0f) {
 		scale = _ball_spawn_func(st);	
 	}
+
+	if(b->type > BT_WHITE)
+		scale = b->r / 16.0f;
 
 	float x_min = b->r;
 	float x_max = SCREEN_WIDTH - x_min;

@@ -18,7 +18,7 @@ affect_radius = 160
 affect_force = 0.02
 
 levels = {
-	{name = 'nulis', gw=1, gb=1, tw=1, tb=1},
+	{name = 'nulis', b=4, gw=1, gb=2},
 	{name = 'cascajal', b=3},
 	{name = 'guariviara', w=2, b=2},
 	{name = 'chiriqui', w=2, b=1},
@@ -116,32 +116,14 @@ function update()
 			p = p + rotate(vec2(0, 170), a)
 
 			-- first spawn white, then black ...
+			local col_order = {'w', 'b', 'gw', 'gb', 'tw', 'tb'}
+			local col_type = {1, 0, 3, 2, 5, 4}
 			local col
-			if to_spawn.w > 0 then
-				col = 1
-				to_spawn.w = to_spawn.w - 1
-			else
-				if to_spawn.b > 0 then
-					col = 0
-					to_spawn.b = to_spawn.b - 1
-				else
-					if to_spawn.gw > 0 then
-						col = 3
-						to_spawn.gw = to_spawn.gw - 1
-					else
-						if to_spawn.gb > 0 then
-							col = 2
-							to_spawn.gb = to_spawn.gb - 1
-						else
-							if to_spawn.tw > 0 then
-								col = 5
-								to_spawn.tw = to_spawn.tw - 1
-							else
-								col = 4
-								to_spawn.tb = to_spawn.tb - 1
-							end
-						end
-					end
+			for i,c in ipairs(col_order) do
+				if to_spawn[c] ~= nil and to_spawn[c] > 0 then
+					col = col_type[i]
+					to_spawn[c] = to_spawn[c] - 1
+					break
 				end
 			end
 
