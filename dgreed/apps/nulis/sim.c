@@ -168,6 +168,8 @@ static void _spawn_ex(Vector2 p, Vector2 v, uint type, float t, float a,
 	if(dest == &balls_array) {
 		Ball* balls = DARRAY_DATA_PTR(balls_array, Ball);
 		for(uint i = 0; i < balls_array.size; ++i) {
+			if(balls[i].type > BT_WHITE)
+				continue;
 			if(!balls[i].remove && _balls_collide(&new, &balls[i]))
 				return;
 		}
@@ -371,6 +373,7 @@ void sim_update(void) {
 
 				// Handle fancy ball types
 				if(a->type > BT_WHITE || b->type > BT_WHITE) {
+
 					Ball* normal = NULL;
 					if(a->type <= BT_WHITE)
 						normal = a;
@@ -381,7 +384,6 @@ void sim_update(void) {
 						fancy = a;
 					if(b->type > BT_WHITE)
 						fancy = b;
-
 					
 					// Gravity + pair
 					if(normal && normal->mass == 2 && 
