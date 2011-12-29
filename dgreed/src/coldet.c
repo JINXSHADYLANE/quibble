@@ -68,6 +68,33 @@ static void _pt_cell(CDWorld* world, Vector2 pt, int* x, int* y) {
 	*y = lrintf(y_int);
 }
 
+static RectF _rectf_from_cell(CDWorld* world, int x, int y) {
+	assert(world);
+
+	RectF rect = {
+		.left = (float)x * world->cell_size,
+		.top = (float)y * world->cell_size,
+		.right = ((float)x + 1.0f) * world->cell_size,
+		.bottom = ((float)y + 1.0f) * world->cell_size
+	};
+
+	return rect;
+}
+
+static RectF _rectf_from_aabb(CDObj* obj) {
+	assert(obj);
+	assert(obj->type == CD_AABB);
+
+	RectF rect = {
+		.left = obj->pos.x,
+		.top = obj->pos.y,
+		.right = obj->pos.x + obj->size.size.x,
+		.bottom = obj->pos.y + obj->size.size.y
+	};
+
+	return rect;
+}
+
 static void _coldet_hashmap_init(CDWorld* world, uint size) {
 	assert(world);
 
@@ -164,7 +191,10 @@ static void _coldet_hashmap_insert(CDWorld* world, CDObj* obj) {
 
 	uint n;
 	int x, y;
-	_pt_cell(world, obj->pos, &x, &y);
+	Vector2 pt = obj->pos;			// Upper left corner
+	if(obj->type == CD_CIRCLE)
+		pt = vec2_sub(pt, vec2(obj->size.radius, obj->size.radius));
+	_pt_cell(world, pt, &x, &y);
 
 try_again:
 
@@ -241,13 +271,252 @@ static void _coldet_hashmap_remove(CDWorld* world, CDObj* obj) {
 	int x, y;
 	_pt_cell(world, obj->pos, &x, &y);
 
+	list_remove(&obj->list);	
+}
+
+static CDCell* _coldet_hashmap_get(CDWorld* world, int x, int y) {
+	uint n = world->reserved_cells;
+
 	// Find correct cell. Cuckoo hashing assures it will be one
 	// of two alternatives.
-	uint n = world->reserved_cells;
 	CDCell* cell = &world->cells[_hash(x, y, 0) % n];
 	if(cell->x != x || cell->y != y)
 		cell = &world->cells[_hash(x, y, 1) % n];
 
-	assert(cell->x == x && cell->y == y);
+	if(cell->x != x || cell->y != y)
+		return NULL;
+	
+	return list_empty(&cell->objs) ? NULL : cell;
 }
 
+// Public interface
+
+void coldet_init(CDWorld* cd, float max_obj_size) {
+	coldet_init_ex(cd, max_obj_size, 0.0f, 0.0f, false, false);
+}
+
+void coldet_init_ex(CDWorld* cd, float max_obj_size,
+		float width, float height, bool vert_wrap, bool horiz_wrap) {
+	assert(cd);
+	assert(max_obj_size > 0.01f && max_obj_size < 10000.0f);
+
+	float int_part, cell_size = max_obj_size;
+	if(vert_wrap) {
+		assert(width >= cell_size*2.0f);
+		// Increase cell size to fit integral number of cells vertically
+		if(fabsf(modff(width / cell_size, &int_part)) > 0.001f) {
+			cell_size = width / (int_part-1.0f);
+		}
+	}
+
+	if(horiz_wrap) {
+		assert(height >= cell_size*2.0f);
+		// Increase cell size to fit integral number of cells horizontally 
+		if(fabsf(modff(height / cell_size, &int_part)) > 0.001f) {
+			cell_size = height / (int_part-1.0f);
+		}
+	}
+
+	assert(fabsf(modff(width / cell_size, &int_part)) <= 0.001f);
+	assert(fabsf(modff(height / cell_size, &int_part)) <= 0.001f);
+
+	cd->cell_size = cell_size;
+	cd->vert_wrap = vert_wrap;
+	cd->horiz_wrap = horiz_wrap;
+	cd->width = width;
+	cd->height = height;
+
+	mempool_init(&cd->allocator, sizeof(CDObj));
+
+	_coldet_hashmap_init(cd, primes[0]);
+}
+
+void coldet_close(CDWorld* cd) {
+	assert(cd);
+
+	_coldet_hashmap_close(cd);
+
+	mempool_drain(&cd->allocator);
+}
+
+CDObj* coldet_new_circle(CDWorld* cd, Vector2 center, float radius,
+		uint mask, void* userdata) {
+	assert(cd);
+	assert(mask); // If mask is 0, object will be just ghost
+
+	CDObj* new = mempool_alloc(&cd->allocator);
+	
+	new->pos = center;
+	new->size.radius = radius;
+	new->offset = vec2(0.0f, 0.0f);
+	new->dirty = false;
+	new->type = CD_CIRCLE;
+	new->mask = mask;
+	new->userdata = userdata;
+
+	_coldet_hashmap_insert(cd, new); 
+
+	return new;
+}
+
+CDObj* coldet_new_aabb(CDWorld* cd, const RectF* rect, uint mask,
+		void* userdata) {
+	assert(cd);
+	assert(mask); // If mask is 0, object will be just ghost
+
+	CDObj* new = mempool_alloc(&cd->allocator);
+	
+	new->pos = vec2(rect->left, rect->top);
+	new->size.size = vec2(rectf_width(rect), rectf_height(rect));
+	new->offset = vec2(0.0f, 0.0f);
+	new->dirty = false;
+	new->type = CD_AABB;
+	new->mask = mask;
+	new->userdata = userdata;
+
+	_coldet_hashmap_insert(cd, new); 
+
+	return new;
+}
+
+void coldet_remove_obj(CDWorld* cd, CDObj* obj) {
+	assert(cd);
+	
+	_coldet_hashmap_remove(cd, obj);
+	mempool_free(&cd->allocator, obj);
+}
+
+uint coldet_query_circle(CDWorld* cd, Vector2 center, float radius, uint mask,
+		CDQueryCallback callback) {
+	assert(cd);
+	assert(mask);
+
+	int count = 0;
+
+	int ul_x, ul_y; // Upper left cell
+	int lr_x, lr_y; // Lower right cell
+
+	_pt_cell(cd, vec2(center.x - radius, center.y - radius), &ul_x, &ul_y);
+	_pt_cell(cd, vec2(center.x + radius, center.y + radius), &lr_x, &lr_y);
+
+	assert(ul_x <= lr_x);
+	assert(ul_y <= lr_y);
+
+	// If circle is big enough, we can sometimes skip individual collission checks
+	bool can_skip_tests = (radius - cd->cell_size) > cd->cell_size * 2.0f;
+
+	for(int y = ul_y-1; y <= lr_y; ++y) {
+		for(int x = ul_x-1; x <= lr_y; ++x) {
+
+			// Iterate through every colliding cell
+			CDCell* cell = _coldet_hashmap_get(cd, x, y);
+			if(cell == NULL)
+				continue;
+
+			// If cell rect is completely inside circle,
+			// don't bother with individual collission checks
+			if(can_skip_tests) {
+				RectF cell_rect = _rectf_from_cell(cd, x, y);
+				if(rectf_inside_circle(&cell_rect, &center, radius - cd->cell_size)) {
+					CDObj* pos;
+					list_for_each_entry(pos, &cell->objs, list) {
+						if(pos->mask & mask) {
+							(*callback)(pos);
+							count++;
+						}
+					}
+				}
+				continue;
+			}
+
+			// Perform full collission checks
+			CDObj* pos;
+			list_for_each_entry(pos, &cell->objs, list) {
+				if(pos->mask & mask) {
+					// AABB
+					if(pos->type == CD_AABB) {
+						RectF aabb = _rectf_from_aabb(pos);
+						if(rectf_circle_collision(&aabb, &center, radius)) {
+							(*callback)(pos);
+							count++;
+						}
+					}
+					// Circle
+					if(pos->type == CD_CIRCLE) {
+						Vector2 d = vec2_sub(center, pos->pos);
+						float rr = radius + pos->size.radius;
+						if(vec2_length_sq(d) <= rr * rr) {
+							(*callback)(pos);
+							count++;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return count;
+}
+
+uint coldet_query_aabb(CDWorld* cd, const RectF* rect, uint mask,
+		CDQueryCallback callback) {
+	assert(cd);
+	assert(mask);
+
+	int count = 0;
+	int ul_x, ul_y; // Upper left cell
+	int lr_x, lr_y; // Lower right cell
+
+	_pt_cell(cd, vec2(rect->left, rect->top), &ul_x, &ul_y);
+	_pt_cell(cd, vec2(rect->right, rect->bottom), &lr_x, &lr_y);
+
+	assert(ul_x <= lr_x);
+	assert(ul_y <= lr_y);
+
+	for(int y = ul_y-1; y <= lr_y; ++y) {
+		for(int x = ul_x-1; x <= lr_x; ++x) {
+
+			// Iterate through every colliding cell
+			CDCell* cell = _coldet_hashmap_get(cd, x, y);
+			if(cell == NULL)
+				continue;
+
+			// Don't check for collissions with individual objects if
+			// we're sure cell is completely inside AABB
+			if(ul_y < y && y < lr_y && ul_x < x && x < lr_x) {
+				CDObj* pos;
+				list_for_each_entry(pos, &cell->objs, list) {
+					if(pos->mask & mask) {
+						(*callback)(pos);
+						count++;
+					}
+				}
+				continue;
+			}
+
+			// Perform collission checks for boundary objects
+			CDObj* pos;
+			list_for_each_entry(pos, &cell->objs, list) {
+				if(pos->mask & mask) {
+					// AABB
+					if(pos->type == CD_AABB) {
+						RectF aabb = _rectf_from_aabb(pos);
+						if(rectf_rectf_collision(rect, &aabb)) {
+							(*callback)(pos);
+							count++;
+						}
+					}
+					// Circle
+					if(pos->type == CD_CIRCLE) {
+						if(rectf_circle_collision(rect, &pos->pos, pos->size.radius)) {
+							(*callback)(pos);
+							count++;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return count;
+}
