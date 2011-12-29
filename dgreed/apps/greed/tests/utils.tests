@@ -311,3 +311,25 @@ TEST_(rectf_cut) {
 	ASSERT_(out[0].left == 0.0f && out[0].top == 1.0f && out[0].right == 1.0f && out[0].bottom == 10.0f);
 	ASSERT_(out[1].left == 1.0f && out[1].top == 0.0f && out[1].right == 10.0f && out[1].bottom == 10.0f);
 }
+
+TEST_(rectf_inside_circle) {
+	RectF a = {-1.0f, -1.0f, 1.0f, 1.0f};
+	RectF b = {2.0f, 2.0f, 4.0f, 6.0f};
+
+	Vector2 ca = {0.0f, 0.0f};
+	Vector2 cb = {1.0f, 4.0f};
+
+	ASSERT_(rectf_inside_circle(&a, &ca, 1.0f) == false);
+	ASSERT_(rectf_inside_circle(&b, &ca, 1.0f) == false);
+	ASSERT_(rectf_inside_circle(&a, &ca, sqrtf(2.0f) + 0.1f) == true);
+	ASSERT_(rectf_inside_circle(&a, &ca, sqrtf(2.0f) - 0.1f) == false);
+	ASSERT_(rectf_inside_circle(&b, &ca, sqrtf(2.0f) + 0.1f) == false);
+	ASSERT_(rectf_inside_circle(&a, &cb, 3.0f) == false);
+	ASSERT_(rectf_inside_circle(&b, &cb, 3.0f) == false);
+	ASSERT_(rectf_inside_circle(&a, &cb, sqrtf(13.0f) + 0.1f) == false);
+	ASSERT_(rectf_inside_circle(&b, &cb, sqrtf(13.0f) + 0.1f) == true);
+	ASSERT_(rectf_inside_circle(&b, &cb, sqrtf(13.0f) - 0.1f) == false);
+	ASSERT_(rectf_inside_circle(&a, &cb, 7.0f) == true);
+	ASSERT_(rectf_inside_circle(&b, &cb, 7.0f) == true);
+}
+

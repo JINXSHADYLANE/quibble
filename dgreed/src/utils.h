@@ -98,6 +98,8 @@ bool rectf_contains_point(const RectF* r, const Vector2* p);
 // Returns true if point is in rotated & scaled rectangle
 bool rectf_contains_point_rotscale(const RectF* r, float rot, float scale, 
 	const Vector2* p);
+// Returns true if no points in rectangle are outside circle
+bool rectf_inside_circle(const RectF* rect, const Vector2* p, float r);
 // Returns true if rectangle and circle collide
 bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r);
 // Returns true if two rectangles intersect

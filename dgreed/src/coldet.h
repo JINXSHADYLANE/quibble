@@ -87,6 +87,7 @@ void coldet_remove_obj(CDWorld* cd, CDObj* obj);
 // Circle query. Radius can be bigger than world->cell_size.
 // Performs a callback for each object which intersects circle and
 // expression obj->mask & mask != 0 is true.
+// Returns number of times callback was invoked.
 uint coldet_query_circle(CDWorld* cd, Vector2 center, float radius, uint mask,
 	CDQueryCallback callback);
 

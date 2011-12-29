@@ -176,25 +176,47 @@ bool rectf_contains_point_rotscale(const RectF* rect, float rot, float scale,
 	return rectf_contains_point(rect, &d);
 }
 
-bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r) {
+bool rectf_inside_circle(const RectF* rect, const Vector2* p, float r) {
+	assert(rect && p);
 	assert(r >= 0.0f && r < 1000000.0f);
 
-	float d1 = rect->top - p->y;
-	float d2 = p->y - rect->bottom;
-	float d3 = rect->left - p->x;
-	float d4 = p->x - rect->right;
+	// RectF is completely inside circle, if all its points are inside circle
+	Vector2 a, b, c, d;
+	a = vec2_sub(*p, vec2(rect->left, rect->top));
+	b = vec2_sub(*p, vec2(rect->right, rect->top));
+	c = vec2_sub(*p, vec2(rect->left, rect->top));
+	d = vec2_sub(*p, vec2(rect->right, rect->bottom));
 
-	if(MIN(MIN(d1, d2), MIN(d3, d4)) <= r)
-		return true;
+	float r_sq = r*r;
+	return vec2_length_sq(a) < r_sq 
+		&& vec2_length_sq(b) < r_sq 
+		&& vec2_length_sq(c) < r_sq
+		&& vec2_length_sq(d) < r_sq;
+}
 
-	d1 = vec2_length_sq(vec2_sub(*p, vec2(rect->left, rect->top)));	
-	d2 = vec2_length_sq(vec2_sub(*p, vec2(rect->left, rect->bottom)));	
-	d3 = vec2_length_sq(vec2_sub(*p, vec2(rect->right, rect->top)));	
-	d4 = vec2_length_sq(vec2_sub(*p, vec2(rect->right, rect->bottom)));	
+bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r) {
+	assert(rect && p);
+	assert(r >= 0.0f && r < 1000000.0f);
 
-	if(MIN(MIN(d1, d2), MIN(d3, d4)) <= r*r)
-		return true;
-	return false;	
+	float sq_dist = 0.0f;
+	if(p->x < rect->left) {
+		float d = rect->left - p->x;
+		sq_dist += d*d; 
+	}
+	if(p->x > rect->right) {
+		float d = p->x - rect->right;
+		sq_dist += d*d;
+	}
+	if(p->y < rect->top) {
+		float d = rect->top - p->y;
+		sq_dist += d*d; 
+	}
+	if(p->y > rect->bottom) {
+		float d = p->y - rect->bottom;
+		sq_dist += d*d;
+	}
+
+	return sq_dist <= r*r;
 }
 
 bool _interval_collision(float s1, float e1, float s2, float e2) {
