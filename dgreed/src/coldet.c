@@ -520,3 +520,116 @@ uint coldet_query_aabb(CDWorld* cd, const RectF* rect, uint mask,
 
 	return count;
 }
+
+static CDObj* _coldet_cell_cast(CDWorld* cd, int cell_x, int cell_y, 
+		Vector2 start, Vector2 end, uint mask, float* d, Vector2* hitpoint) {
+		
+	CDCell* cell = _coldet_hashmap_get(cd, cell_x, cell_y);
+	if(cell == NULL)
+		return NULL;
+
+	float min_d = 100000.0f;
+	Vector2 hitp;
+	CDObj* pos;
+	list_for_each_entry(pos, &cell->objs, list) {
+		if(pos->mask & mask) {
+			// AABB
+			if(pos->type == CD_AABB) {
+			}
+			if(pos->type == CD_CIRCLE) {
+			}
+		}
+	}
+}
+
+CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
+		Vector2* hitpoint) {
+	assert(cd);
+	assert(mask);
+
+	int tile_x, tile_y;
+	_pt_cell(cd, start, &tile_x, &tile_y);
+
+	Vector2 dir = vec2_normalize(vec2_sub(end, start));
+	float k = dir.x / dir.y;
+	float inv_k = dir.y / dir.x;
+
+	Vector2 dist, ddist = vec2(
+			sqrtf(1.0f + k*k) * cd->cell_size,
+			sqrtf(1.0f + inv_k*inv_k) * cd->cell_size
+	);
+
+	int step_x, step_y;
+
+	if(dir.x < 0.0f) {
+		step_x = 1;
+		dist.x = (float)(tile_x+1) * cd->cell_size - start.x;
+	}
+	else {
+		step_x = -1;
+		dist.x = start.x - (float)tile_x * cd->cell_size;
+	}
+
+	if(dir.y < 0.0f) {
+		step_y = 1;
+		dist.y = (float)(tile_y+1) * cd->cell_size - start.y;
+	}
+	else {
+		step_y = -1;
+		dist.y = start.y - (float)tile_y * cd->cell_size;
+	}
+
+	dist.x *= ddist.x / cd->cell_size;
+	dist.y *= ddist.y / cd->cell_size;
+
+	float dx, dy;
+	
+	// DDA
+	Vector2 pos = start;
+	while(true) {
+		if(dist.x < dist.y) {
+			if(step_x > 0)
+				dx = (float)(tile_x+1) * cd->cell_size - pos.x;
+			else
+				dx = (float)tile_x * cd->cell_size - pos.x;
+
+			pos.x += dx;
+			pos.y += dx / k;
+
+			dist.x += ddist.x;
+			tile_x += step_x;
+		}
+		else {
+			if(step_y > 0)
+				dy = (float)(tile_y+1) * cd->cell_size - pos.y;
+			else
+				dy = (float)tile_y * cd->cell_size - pos.y;
+
+			pos.x += dy * k;
+			pos.y += dy;
+
+			dist.y += ddist.y;
+			tile_y += step_y;
+		}
+
+		if(step_x > 0) {
+			if(pos.x > end.x)
+				break;
+		}		
+		else {
+			if(pos.x < end.x)
+				break;
+		}		
+
+		if(step_y > 0) {
+			if(pos.y > end.y)
+				break;
+		}		
+		else {
+			if(pos.y < end.y)
+				break;
+		}
+	}
+
+	return NULL;
+}

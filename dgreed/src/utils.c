@@ -479,6 +479,47 @@ bool segment_intersect(Segment s1, Segment s2, Vector2* p) {
 	return false;
 }
 
+static bool _in_interval(float start, float end, float x) {
+	if(start <= x && x <= end)
+		return true;
+	if(end <= x && x <= start)
+		return true;
+	return false;
+}
+
+Vector2 circle_raycast(const Vector2* center, float r,
+		const Vector2* start, const Vector2* end) {
+
+	assert(center && start && end);
+	assert(r > 0.0f);
+
+	Vector2 s = vec2_sub(*start, *center);
+	Vector2 n = vec2_normalize(vec2_sub(*end, *start));
+
+	float b = vec2_dot(s, n);
+	float c = vec2_length_sq(s) - r*r;
+
+	if(b > 0.0f && c > 0.0f)
+		return *end;
+
+	float d_sqr = b*b - c;
+
+	if(d_sqr < 0.0f)
+		return *end;
+
+	float t = -b - sqrtf(d_sqr);
+	if(t < 0.0f) 
+		t = 0.0f;
+
+	Vector2 hitp = vec2_add(*start, vec2_scale(n, t));
+	if(_in_interval(start->x, end->x, hitp.x) &&
+		_in_interval(start->y, end->y, hitp.y))
+		return hitp;
+
+	return *end;
+}
+
+
 /*
 --------------
 --- Colors ---

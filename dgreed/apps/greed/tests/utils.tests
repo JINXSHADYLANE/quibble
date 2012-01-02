@@ -333,3 +333,34 @@ TEST_(rectf_inside_circle) {
 	ASSERT_(rectf_inside_circle(&b, &cb, 7.0f) == true);
 }
 
+bool _vec2_feql(Vector2 v, float x, float y) {
+	return feql(v.x, x) && feql(v.y, y); 
+}
+
+TEST_(circle_raycast) {
+	Vector2 ca = {1.0f, 1.0f};
+	float ra = 1.0f;
+	Vector2 cb = {2.0f, 3.0f};
+	float rb = 1.5f;
+
+	Vector2 sa[] = {{0.0f, 2.0f}, {3.0f, 2.0f}};
+	Vector2 sb[] = {{1.0f, 1.0f}, {2.0f, 3.0f}};
+	Vector2 sc[] = {{7.0f, 0.0f}, {5.0f, 1.0f}};
+	Vector2 sd[] = {{4.0f, 5.0f}, {1.0f, 0.0f}};
+	Vector2 se[] = {{1.0f, 5.0f}, {3.0f, 6.0f}};
+
+	ASSERT_(_vec2_feql(circle_raycast(&ca, ra, &sa[0], &sa[1]), 1.0f, 2.0f));
+	ASSERT_(_vec2_feql(circle_raycast(&cb, rb, &sa[0], &sa[1]), 0.88196f, 2.0f));
+	
+	ASSERT_(_vec2_feql(circle_raycast(&ca, ra, &sb[0], &sb[1]), sb[0].x, sb[0].y));
+
+	ASSERT_(_vec2_feql(circle_raycast(&ca, ra, &sc[0], &sc[1]), sc[1].x, sc[1].y));
+	ASSERT_(_vec2_feql(circle_raycast(&cb, rb, &sc[0], &sc[1]), sc[1].x, sc[1].y));
+
+	ASSERT_(!_vec2_feql(circle_raycast(&ca, ra, &sd[0], &sd[1]), sd[1].x, sd[1].y));
+	ASSERT_(!_vec2_feql(circle_raycast(&cb, rb, &sd[0], &sd[1]), sd[1].x, sd[1].y));
+
+	ASSERT_(_vec2_feql(circle_raycast(&ca, ra, &se[0], &se[1]), se[1].x, se[1].y));
+	ASSERT_(_vec2_feql(circle_raycast(&cb, rb, &se[0], &se[1]), se[1].x, se[1].y))
+}
+

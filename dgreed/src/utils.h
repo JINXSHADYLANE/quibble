@@ -158,6 +158,16 @@ float segment_point_dist(Segment s, Vector2 p);
 bool segment_intersect(Segment s1, Segment s2, Vector2* p);
 
 /*
+----------------------
+--- Other geometry ---
+----------------------
+*/
+
+// Returns first intersection point or end
+Vector2 circle_raycast(const Vector2* center, float r,
+		const Vector2* start, const Vector2* end);
+
+/*
 --------------
 --- Colors ---
 --------------
