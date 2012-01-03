@@ -1,0 +1,80 @@
+#include "coldet.h"
+
+uint query_count = 0;
+uint collission_count = 0;
+
+void query_cb(CDObj* obj) {
+	query_count++;
+}
+
+void collission_cb(CDObj* a, CDObj* b) {
+	collission_count++;
+}
+
+TEST_(empty) {
+	CDWorld cd;
+
+	coldet_init(&cd, 10.0f);
+
+	RectF r = {-100.0f, -100.0f, 100.0f, 100.0f};
+	coldet_query_aabb(&cd, &r, 0xFFFFFFFF, query_cb); 
+	ASSERT_(query_count == 0);
+
+	coldet_query_circle(&cd, vec2(13.0f, 2.2f), 100.0f,
+		0xFFFFFFFF, query_cb);
+	ASSERT_(query_count == 0);
+
+	Vector2 hp = {1.0f, 2.0f};
+	ASSERT_(coldet_cast_segment(&cd, vec2(-24.0f, -15.0f), vec2(42.0f, 81.3f),
+		0xFFFFFFFF, &hp) == NULL);
+	ASSERT_(hp.x == 1.0f && hp.y == 2.0f);
+
+	coldet_process(&cd, collission_cb);
+	ASSERT_(collission_count == 0);
+
+	coldet_close(&cd);
+}
+
+TEST_(insert) {
+	CDWorld cd;
+
+	coldet_init(&cd, 10.0f);
+
+	RectF rects[] = {
+		{16.0f, 31.5f, 21.0f, 40.0f},
+		{-2.0f, 10.0f, 1.0f, 17.2f},
+		{-9.0f, 15.0f, -7.0f, 17.0f}
+	};
+
+	CDObj* box_a = coldet_new_aabb(&cd, &rects[0], 0xFFFFFFFF, &rects[0]);
+	ASSERT_(box_a);
+	ASSERT_(box_a->pos.x == 16.0f && box_a->pos.y == 31.5f);
+	ASSERT_(box_a->size.size.x == 5.0f && box_a->size.size.y == 8.5f);
+	ASSERT_(box_a->offset.x == 0.0f && box_a->offset.y == 0.0f);
+	ASSERT_(box_a->dirty == false);
+	ASSERT_(box_a->type == CD_AABB);
+	ASSERT_(box_a->mask == 0xFFFFFFFF);
+	ASSERT_(box_a->userdata == &rects[0]);
+
+	CDObj* box_b = coldet_new_aabb(&cd, &rects[1], 0xFFFFFFFF, &rects[1]);
+	ASSERT_(box_b);
+	CDObj* box_c = coldet_new_aabb(&cd, &rects[2], 0xFFFFFFFF, &rects[2]);
+	ASSERT_(box_c);
+
+	CDObj* cr_a = coldet_new_circle(&cd, vec2(51.0f, -4.0f), 4.0f, 0xFFFFFFFF, NULL);  
+	ASSERT_(cr_a);
+	ASSERT_(cr_a->pos.x == 51.0f && cr_a->pos.y == -4.0f);
+	ASSERT_(cr_a->size.radius == 4.0f);
+	ASSERT_(cr_a->offset.x == 0.0f && cr_a->offset.y == 0.0f);
+	ASSERT_(cr_a->dirty == false);
+	ASSERT_(cr_a->type == CD_CIRCLE);
+	ASSERT_(cr_a->mask == 0xFFFFFFFF);
+	ASSERT_(cr_a->userdata == NULL);
+
+	CDObj* cr_b = coldet_new_circle(&cd, vec2(11.0f, 21.3f), 9.0f, 0xFFFFFFFF, NULL);  
+	ASSERT_(cr_b);
+	CDObj* cr_c = coldet_new_circle(&cd, vec2(-2.0f, 18.0f), 1.2f, 0xFFFFFFFF, NULL);  
+	ASSERT_(cr_c);
+
+	coldet_close(&cd);
+}

@@ -275,49 +275,58 @@ Vector2 rectf_center(const RectF* r) {
 Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end) {
 	assert(r && start && end);
 
-	Vector2 min_hitp = *end;
-	Vector2 d = vec2_sub(*end, *start);
-	float min_sq_dist = vec2_length_sq(d);
-	Segment ray = { *start, *end };
-	
-	bool dirs[] = {
-		d.y > 0.0f,
-		d.x > 0.0f,
-		d.y < 0.0f,
-		d.x < 0.0f
-	};	
+	Vector2 dir = vec2_normalize(vec2_sub(*end, *start));
+	float tmin = 0.0f, tmax = FLT_MAX;
 
-	Segment segs[4];
-	uint n_segs = 0;
+	// Vertical slab
+	if(fabsf(dir.x) < 0.0001f) {
+		if(start->x < r->left || start->y > r->right)
+			return *end;
+	}
+	else {
+		float d = 1.0f / dir.x;
+		float t1 = (r->left - start->x) * d;
+		float t2 = (r->right - start->x) * d;
 
-	if(dirs[0])
-		segs[n_segs++] = segment(vec2(r->left, r->top), 
-			vec2(r->right, r->top));
-
-	if(dirs[1])
-		segs[n_segs++] = segment(vec2(r->left, r->top), 
-			vec2(r->left, r->bottom));
-
-	if(dirs[2])
-		segs[n_segs++] = segment(vec2(r->left, r->bottom), 
-			vec2(r->right, r->bottom));
-
-	if(dirs[3])
-		segs[n_segs++] = segment(vec2(r->right, r->top), 
-			vec2(r->right, r->bottom));
-	
-	for(uint i = 0; i < n_segs; ++i) {
-		Vector2 hitp;
-		if(segment_intersect(ray, segs[i], &hitp)) {
-			float sq_dist = vec2_length_sq(vec2_sub(*start, hitp));
-			if(sq_dist < min_sq_dist) {
-				min_sq_dist = sq_dist;
-				min_hitp = hitp;
-			}
+		if(t1 > t2) {
+			float temp = t1;
+			t1 = t2;
+			t2 = temp;
 		}
+
+		tmin = MIN(tmin, t1);
+		tmax = MAX(tmax, t2);
+
+		if(tmin > tmax)
+			return *end;
 	}
 
-	return min_hitp;
+	// Horizontal slab
+	if(fabsf(dir.y) < 0.0001f) {
+		if(start->y < r->top || start->y > r->bottom)
+			return *end;
+	}
+	else {
+		float d = 1.0f / dir.y;
+		float t1 = (r->top - start->y) * d;
+		float t2 = (r->bottom - start->y) * d;
+
+		if(t1 > t2) {
+			float temp = t1;
+			t1 = t2;
+			t2 = temp;
+		}
+
+		tmin = MIN(tmin, t1);
+		tmax = MAX(tmax, t2);
+
+		if(tmin > tmax)
+			return *end;
+	}
+
+	Vector2 hitp = vec2_add(*start, vec2_scale(dir, tmin));
+
+	return hitp;
 }
 
 uint rectf_cut(const RectF* a, const RectF* b, RectF* out) {

@@ -51,10 +51,13 @@ static uint _next_size(uint current_size) {
 }
 
 static uint _hash(int x, int y, int n) {
-	int hash = 1178803047;
+	uint hash = 1178803047;
 	hash += x * 422378729;
+	hash ^= (hash << 17) | (hash >> 16);
 	hash += y * 2002318489;
+	hash ^= (hash << 17) | (hash >> 16);
 	hash += n * 615241643;
+	hash ^= (hash << 17) | (hash >> 16);
 	return hash;
 }
 
@@ -327,6 +330,13 @@ void coldet_init_ex(CDWorld* cd, float max_obj_size,
 	cd->height = height;
 
 	mempool_init(&cd->allocator, sizeof(CDObj));
+	list_init(&cd->reinsert_list);
+
+#ifndef NO_DEVMODE
+	cd->last_process_hittests = 0;
+	cd->last_process_reinserts = 0;
+	cd->max_objs_in_cell = 0;
+#endif
 
 	_coldet_hashmap_init(cd, primes[0]);
 }
@@ -348,6 +358,9 @@ CDObj* coldet_new_circle(CDWorld* cd, Vector2 center, float radius,
 	
 	new->pos = center;
 	new->size.radius = radius;
+	
+	assert(radius*2.0f <= cd->cell_size);
+
 	new->offset = vec2(0.0f, 0.0f);
 	new->dirty = false;
 	new->type = CD_CIRCLE;
@@ -368,6 +381,10 @@ CDObj* coldet_new_aabb(CDWorld* cd, const RectF* rect, uint mask,
 	
 	new->pos = vec2(rect->left, rect->top);
 	new->size.size = vec2(rectf_width(rect), rectf_height(rect));
+
+	assert(new->size.size.x <= cd->cell_size);
+	assert(new->size.size.y <= cd->cell_size);
+	
 	new->offset = vec2(0.0f, 0.0f);
 	new->dirty = false;
 	new->type = CD_AABB;
@@ -521,22 +538,41 @@ uint coldet_query_aabb(CDWorld* cd, const RectF* rect, uint mask,
 	return count;
 }
 
-static CDObj* _coldet_cell_cast(CDWorld* cd, int cell_x, int cell_y, 
-		Vector2 start, Vector2 end, uint mask, float* d, Vector2* hitpoint) {
+static void _coldet_cell_cast(CDWorld* cd, int cell_x, int cell_y, 
+		Vector2 start, Vector2 end, uint mask, float* min_d, Vector2* hitpoint,
+		CDObj** obj) {
 		
 	CDCell* cell = _coldet_hashmap_get(cd, cell_x, cell_y);
 	if(cell == NULL)
-		return NULL;
+		return;
 
-	float min_d = 100000.0f;
-	Vector2 hitp;
 	CDObj* pos;
 	list_for_each_entry(pos, &cell->objs, list) {
 		if(pos->mask & mask) {
+			Vector2 hitp;
+			bool hittest = false;
+
 			// AABB
 			if(pos->type == CD_AABB) {
+				RectF r = _rectf_from_aabb(pos);
+				hitp = rectf_raycast(&r, &start, &end);
+				hittest = true;
+				
 			}
+
+			// Circle
 			if(pos->type == CD_CIRCLE) {
+				hitp = circle_raycast(&pos->pos, pos->size.radius, &start, &end);
+				hittest = true;
+			}
+
+			if(hittest && (hitp.x != end.x || hitp.y != end.y)) {
+				float d = vec2_length_sq(vec2_sub(hitp, start));
+				if(d < *min_d) {
+					*min_d = d;
+					*hitpoint = hitp;
+					*obj = pos;
+				}
 			}
 		}
 	}
@@ -561,7 +597,7 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 
 	int step_x, step_y;
 
-	if(dir.x < 0.0f) {
+	if(dir.x > 0.0f) {
 		step_x = 1;
 		dist.x = (float)(tile_x+1) * cd->cell_size - start.x;
 	}
@@ -570,7 +606,7 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 		dist.x = start.x - (float)tile_x * cd->cell_size;
 	}
 
-	if(dir.y < 0.0f) {
+	if(dir.y > 0.0f) {
 		step_y = 1;
 		dist.y = (float)(tile_y+1) * cd->cell_size - start.y;
 	}
@@ -583,10 +619,20 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 	dist.y *= ddist.y / cd->cell_size;
 
 	float dx, dy;
+
+	// Do initial check for the cell where segment start is
+	float min_d = FLT_MAX;
+	CDObj* obj = NULL;
+	Vector2 hitp;
+	
+	_coldet_cell_cast(cd, tile_x-1, tile_y-1, start, end, mask, &min_d, &hitp, &obj);
+	_coldet_cell_cast(cd, tile_x, tile_y-1, start, end, mask, &min_d, &hitp, &obj);
+	_coldet_cell_cast(cd, tile_x-1, tile_y, start, end, mask, &min_d, &hitp, &obj);
+	_coldet_cell_cast(cd, tile_x, tile_y, start, end, mask, &min_d, &hitp, &obj);
 	
 	// DDA
 	Vector2 pos = start;
-	while(true) {
+	while(!obj) {
 		if(dist.x < dist.y) {
 			if(step_x > 0)
 				dx = (float)(tile_x+1) * cd->cell_size - pos.x;
@@ -596,8 +642,24 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 			pos.x += dx;
 			pos.y += dx / k;
 
+			// Check if we're still inside ray segment
+			if(step_x > 0) {
+				if(pos.x > end.x)
+					break;
+			}		
+			else {
+				if(pos.x < end.x)
+					break;
+			}
+
 			dist.x += ddist.x;
+
+			// x coord for next tiles to check 
+			int hittest_tile_x = tile_x + (3*step_x - 1) / 2;
 			tile_x += step_x;
+
+			_coldet_cell_cast(cd, hittest_tile_x, tile_y-1, start, end, mask, &min_d, &hitp, &obj);
+			_coldet_cell_cast(cd, hittest_tile_x, tile_y, start, end, mask, &min_d, &hitp, &obj);
 		}
 		else {
 			if(step_y > 0)
@@ -608,28 +670,217 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 			pos.x += dy * k;
 			pos.y += dy;
 
+			// Check if we're still inside ray segment
+			if(step_y > 0) {
+				if(pos.y > end.y)
+					break;
+			}		
+			else {
+				if(pos.y < end.y)
+					break;
+			}
+
 			dist.y += ddist.y;
+
+			// y coord for next tiles to check
+			int hittest_tile_y = tile_y + (3*step_y - 1) / 2;
 			tile_y += step_y;
-		}
 
-		if(step_x > 0) {
-			if(pos.x > end.x)
-				break;
-		}		
-		else {
-			if(pos.x < end.x)
-				break;
-		}		
-
-		if(step_y > 0) {
-			if(pos.y > end.y)
-				break;
-		}		
-		else {
-			if(pos.y < end.y)
-				break;
+			_coldet_cell_cast(cd, tile_x-1, hittest_tile_y, start, end, mask, &min_d, &hitp, &obj);
+			_coldet_cell_cast(cd, tile_x, hittest_tile_y, start, end, mask, &min_d, &hitp, &obj);
 		}
 	}
 
-	return NULL;
+	if(obj)
+		*hitpoint = hitp;
+
+	return obj;
+}
+
+static void _coldet_obj_to_cell(CDWorld* cd, CDObj* obj, CDCell* cell,
+		CDCollissionCallback callback) {
+	assert(cd && obj && cell);
+
+	CDObj* a = obj;
+	CDObj* b;
+
+	list_for_each_entry(b, &cell->objs, list) {
+		if(a >= b)
+			continue;
+
+		if(a->mask & b->mask) {
+#ifndef NO_DEVMODE
+			cd->last_process_hittests++;
+#endif
+			bool intersects = false;
+			if(a->type == CD_CIRCLE && b->type == CD_CIRCLE) {
+				// Circle & circle
+				float r = a->size.radius + b->size.radius;
+				intersects = vec2_length_sq(vec2_sub(a->pos, b->pos)) <= r*r;
+			}
+			else if(a->type == CD_AABB && b->type == CD_AABB) {
+				// AABB & AABB
+				RectF rect_a = _rectf_from_aabb(a);
+				RectF rect_b = _rectf_from_aabb(b);
+				intersects = rectf_rectf_collision(&rect_a, &rect_b); 
+			}
+			else {
+				// AABB & circle
+				CDObj* circle_obj = a->type == CD_CIRCLE ? a : b;
+				CDObj* aabb_obj = a->type == CD_AABB ? a : b;
+				RectF rect = _rectf_from_aabb(aabb_obj);
+				intersects = rectf_circle_collision(&rect, &circle_obj->pos,
+						circle_obj->size.radius);
+			}
+
+			if(intersects) {
+				(*callback)(a, b);
+			}
+		}
+	}
+}
+
+void coldet_process(CDWorld* cd, CDCollissionCallback callback) {
+	assert(cd);
+
+#ifndef NO_DEVMODE
+	cd->last_process_hittests = 0;
+	cd->last_process_reinserts = 0;
+#endif
+
+	assert(list_empty(&cd->reinsert_list));
+
+	// Rehash dirty objects and move ones with offset
+	for(uint i = 0; i < cd->reserved_cells; ++i) {
+		CDCell* cell = &cd->cells[i];
+
+	
+#ifndef NO_DEVMODE
+		uint cell_objs = 0;
+#endif
+		// Iterate over cell objects
+		CDObj* obj;
+		list_for_each_entry(obj, &cell->objs, list) {
+
+#ifdef _DEBUG
+		if(obj->type == CD_CIRCLE) {
+			assert(obj->size.radius*2.0f <= cd->cell_size);
+		}
+		if(obj->type == CD_AABB) {
+			assert(obj->size.size.x <= cd->cell_size);
+			assert(obj->size.size.y <= cd->cell_size);
+		}
+#endif
+
+#ifndef NO_DEVMODE
+			cell_objs++;
+			cd->max_objs_in_cell = MAX(cd->max_objs_in_cell, cell_objs);
+#endif
+
+			if(obj->dirty || obj->offset.x != 0.0f || obj->offset.y != 0.0f) {
+				int old_tile_x, old_tile_y, new_tile_x, new_tile_y;
+
+				Vector2 new_pos = vec2_add(obj->pos, obj->offset);
+				_pt_cell(cd, obj->pos, &old_tile_x, &old_tile_y);
+				_pt_cell(cd, new_pos, &new_tile_x, &new_tile_y);
+
+				// Rehash obj if neccessary
+				if(obj->dirty || old_tile_x != new_tile_x || old_tile_y != new_tile_y) {
+					// Clear dirty flag, set new pos
+					obj->dirty = false;
+					obj->pos = new_pos;
+					obj->offset = vec2(0.0f, 0.0f);
+
+					// Remove obj from current list
+					list_remove(&obj->list);
+
+					// Insert into reinsert list 
+					list_push_back(&cd->reinsert_list, &obj->list);
+#ifndef NO_DEVMODE
+					cd->last_process_reinserts++;
+#endif
+				}
+			}
+		}
+	}
+
+	// Process reinsert list
+	while(!list_empty(&cd->reinsert_list)) {
+		CDObj* obj = list_first_entry(&cd->reinsert_list, CDObj, list);
+		list_pop_front(&cd->reinsert_list);
+		_coldet_hashmap_insert(cd, obj);
+	}
+
+	// We need to check 3 to 8 cell neighbours for correct result,
+	// these are neighbour offsets. The order is very important,
+	// we always check [0..2], [3,4] is checked only if object 
+	// crosses x boundary of cell, [5,6] if it crosses y and also 
+	// 7 if it crosses both.
+	const int cell_offset_x[] = {-1, 0, -1, 1, 1, -1, 0, 1};
+	const int cell_offset_y[] = {-1, -1, 0, -1, 0, 1, 1, 1};
+	
+	// Finally, check collissions
+	for(uint i = 0; i < cd->reserved_cells; ++i) {
+		CDCell* cell = &cd->cells[i];
+		if(list_empty(&cell->objs))
+			continue;
+
+		CDCell* neighbours[8];
+		for(uint j = 0; j < 8; ++j)
+			neighbours[j] = _coldet_hashmap_get(cd, 
+					cell->x + cell_offset_x[j],
+					cell->y + cell_offset_y[j]
+			);
+
+		// Iterate over objects
+		CDObj* obj;
+		list_for_each_entry(obj, &cell->objs, list) {
+
+			// Determine if right vertical and bottom horizontal cell
+			// wall is crossed.
+			bool crosses_x = false, crosses_y = false;
+
+			float local_x = obj->pos.x - (float)cell->x * cd->cell_size;
+			float local_y = obj->pos.y - (float)cell->y * cd->cell_size;
+
+			if(obj->type == CD_CIRCLE) {
+				if(local_x + obj->size.radius * 2.0f > cd->cell_size)
+					crosses_x = true;
+				if(local_y + obj->size.radius * 2.0f > cd->cell_size)
+					crosses_y = true;
+			}
+
+			if(obj->type == CD_AABB) {
+				if(local_x + obj->size.size.x > cd->cell_size)
+					crosses_x = true;
+				if(local_y + obj->size.size.y > cd->cell_size)
+					crosses_y = true;
+			}
+
+			// Iterate over objects in the same cell
+			_coldet_obj_to_cell(cd, obj, cell, callback);
+
+			// Iterate over objects in neighbour cells
+			for(uint j = 0; j < 3; ++j) {
+				if(neighbours[i])
+					_coldet_obj_to_cell(cd, obj, neighbours[j], callback);
+			}
+			if(crosses_x) {
+				for(uint j = 3; j < 5; ++j) {
+					if(neighbours[i])
+						_coldet_obj_to_cell(cd, obj, neighbours[j], callback);
+				}
+			}
+			if(crosses_y) {
+				for(uint j = 5; j < 7; ++j) {
+					if(neighbours[i])
+						_coldet_obj_to_cell(cd, obj, neighbours[j], callback);
+				}
+			}
+			if(crosses_x && crosses_y) {
+				if(neighbours[7])
+					_coldet_obj_to_cell(cd, obj, neighbours[7], callback);
+			}
+		}
+	}
 }

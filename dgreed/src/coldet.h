@@ -28,6 +28,14 @@ typedef struct {
 
 	// Objects
 	MemPool allocator;
+	ListHead reinsert_list;
+
+#ifndef NO_DEVMODE	
+	// Devmode stats
+	uint last_process_hittests;
+	uint last_process_reinserts;
+	uint max_objs_in_cell;
+#endif
 } CDWorld;
 
 typedef enum {
@@ -55,7 +63,7 @@ typedef struct {
 	ListHead list;
 } CDObj;
 
-// Query callback functions, gets called once for each object
+// Query callback functions, gets called once for each object.
 typedef void (*CDQueryCallback)(CDObj* obj);
 
 // Collission callback, called once for each colliding pair
@@ -82,6 +90,8 @@ CDObj* coldet_new_aabb(CDWorld* cd, const RectF* rect, uint mask,
 		void* userdata);
 
 // Removes any object. Pointers to it become invalid!
+// Calling this in query/collission callback results in
+// undefined behaviour.
 void coldet_remove_obj(CDWorld* cd, CDObj* obj);
 
 // Circle query. Radius can be bigger than world->cell_size.
