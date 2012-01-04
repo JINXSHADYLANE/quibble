@@ -71,10 +71,146 @@ TEST_(insert) {
 	ASSERT_(cr_a->mask == 0xFFFFFFFF);
 	ASSERT_(cr_a->userdata == NULL);
 
-	CDObj* cr_b = coldet_new_circle(&cd, vec2(11.0f, 21.3f), 9.0f, 0xFFFFFFFF, NULL);  
-	ASSERT_(cr_b);
+	CDObj* cr_b = coldet_new_circle(&cd, vec2(11.0f, 21.3f), 5.0f, 0xFFFFFFFF, NULL);  
+	ASSERT_(cr_b && cr_b != cr_a);
 	CDObj* cr_c = coldet_new_circle(&cd, vec2(-2.0f, 18.0f), 1.2f, 0xFFFFFFFF, NULL);  
-	ASSERT_(cr_c);
+	ASSERT_(cr_c && cr_c != cr_b);
+
+	coldet_close(&cd);
+}
+
+RectF rects[] = {
+	{1.0f, 1.0f, 2.0f, 3.0f},
+	{1.0f, 2.0f, 4.0f, 5.0f},
+	{-6.0f, -2.0f, -2.0f, 2.0f},
+	{-4.0f, 5.0f, -1.0f, 7.0f},
+	{10.0f, 5.0f, 11.0f, 8.0f}
+};
+
+struct {
+	Vector2 c;
+	float r;
+} circles[] = {
+	{{2.0f, -1.0f}, 1.0f},
+	{{2.0f, 6.0f}, 1.0f},
+	{{7.0f, 1.0f}, 2.0f},
+	{{5.0f, 8.0f}, 1.0f}
+};
+
+
+TEST_(queries_aabb) {
+	CDWorld cd;
+
+	coldet_init(&cd, 4.0f);
+
+	for(uint i = 0; i < ARRAY_SIZE(rects); ++i)
+		ASSERT_(coldet_new_aabb(&cd, &rects[i], 0xFFFFFFFF, NULL));
+
+	for(uint i = 0; i < ARRAY_SIZE(circles); ++i)
+		ASSERT_(coldet_new_circle(&cd, circles[i].c, circles[i].r, 0xFFFFFFFF, NULL));
+
+	RectF query_rect = {0.0f, 0.0f, 0.9f, 0.9f};
+	ASSERT_(coldet_query_aabb(&cd, &query_rect, 0xFFFFFFFF, query_cb) == 0);  
+	query_rect = rectf(5.0f, 4.0f, 9.0f, 6.0f);
+	ASSERT_(coldet_query_aabb(&cd, &query_rect, 0xFFFFFFFF, query_cb) == 0);
+	query_rect = rectf(0.0f, 1.0f, 4.5f, 7.0f);
+	ASSERT_(query_count == 0);
+	ASSERT_(coldet_query_aabb(&cd, &query_rect, 0xFFFFFFFF, query_cb) == 3);
+	ASSERT_(query_count == 3);
+	query_rect = rectf(-10.0f, -10.0f, 10.0f, 10.0f);
+	ASSERT_(coldet_query_aabb(&cd, &query_rect, 0xFFFFFFFF, query_cb) == 9);
+	ASSERT_(query_count == 12);
+	query_count = 0;
+
+	coldet_close(&cd);
+}
+
+TEST_(queries_circle) {
+	CDWorld cd;
+
+	coldet_init(&cd, 4.0f);
+
+	for(uint i = 0; i < ARRAY_SIZE(rects); ++i)
+		ASSERT_(coldet_new_aabb(&cd, &rects[i], 0xFFFFFFFF, NULL));
+
+	for(uint i = 0; i < ARRAY_SIZE(circles); ++i)
+		ASSERT_(coldet_new_circle(&cd, circles[i].c, circles[i].r, 0xFFFFFFFF, NULL));
+
+	// Circle
+	ASSERT_(coldet_query_circle(&cd, vec2(7.0f, 5.0f), 1.5f, 0xFFFFFFFF, query_cb) == 0);
+	ASSERT_(coldet_query_circle(&cd, vec2(5.0f, -2.0f), 3.0f, 0xFFFFFFFF, query_cb) == 2);
+	ASSERT_(coldet_query_circle(&cd, vec2(-6.0f, 9.0f), 3.0f, 0xFFFFFFFF, query_cb) == 1);
+	ASSERT_(query_count == 3);
+	ASSERT_(coldet_query_circle(&cd, vec2(3.0f, 4.0f), 2.0f, 0xFFFFFFFF, query_cb) == 3);
+	ASSERT_(query_count == 6);
+	ASSERT_(coldet_query_circle(&cd, vec2(3.0f, 4.0f), 20.0f, 0xFFFFFFFF, query_cb) == 9);
+	ASSERT_(query_count == 15);
+	query_count = 0;
+
+	coldet_close(&cd);
+}
+
+TEST_(segment_cast) {
+	CDWorld cd;
+
+	coldet_init(&cd, 4.0f);
+
+	for(uint i = 0; i < ARRAY_SIZE(rects); ++i)
+		ASSERT_(coldet_new_aabb(&cd, &rects[i], 0xFFFFFFFF, NULL));
+
+	for(uint i = 0; i < ARRAY_SIZE(circles); ++i)
+		ASSERT_(coldet_new_circle(&cd, circles[i].c, circles[i].r, 0xFFFFFFFF, NULL));
+	
+	Vector2 hp;
+
+	ASSERT_(coldet_cast_segment(&cd, vec2(0.0f, 0.0f), vec2(-3.0f, 0.0f), 0xFFFFFFFF, &hp));
+	ASSERT_(hp.x == -2.0f && hp.y == 0.0f);
+	ASSERT_(coldet_cast_segment(&cd, vec2(0.0f, 0.0f), vec2(-1.0f, 4.0f), 0xFFFFFFFF, &hp) == NULL);
+	ASSERT_(hp.x == -2.0f && hp.y == 0.0f);
+
+	CDObj* circle = coldet_cast_segment(&cd, vec2(10.0f, 9.0f), vec2(8.0f, -1.0f),
+		0xFFFFFFFF, &hp);
+	ASSERT_(circle);
+	ASSERT_(circle->type == CD_CIRCLE);
+	ASSERT_(circle->pos.x == 7.0f && circle->pos.y == 1.0f);
+
+	CDObj* aabb = coldet_cast_segment(&cd, vec2(1.0f, 0.0f), vec2(-2.0, 8.0f), 
+		0xFFFFFFFF, &hp);
+	ASSERT_(aabb);
+	ASSERT_(aabb->type == CD_AABB);
+	ASSERT_(aabb->pos.x == -4.0f && aabb->pos.y == 5.0f);
+
+	coldet_close(&cd);
+
+}
+
+TEST_(stress) {
+	CDWorld cd;
+
+	coldet_init(&cd, 1.0f);
+
+	for(int y = -100; y <= 100; ++y) {
+		for(int x = -100; x <= 100; ++x) {
+			Vector2 c = {
+				(float)x + 0.5f,
+				(float)y + 0.5f
+			};
+
+			RectF rect = {
+				c.x - 0.4f,
+				c.y - 0.4f,
+				c.x + 0.4f,
+				c.y + 0.4f
+			};
+
+			ASSERT_(coldet_new_aabb(&cd, &rect, 0xFFFFFFFF, NULL));
+			ASSERT_(coldet_new_circle(&cd, c, 0.3f, 0xFFFFFFFF, NULL));
+		}
+	}
+
+	RectF rect = {-101.0f, -101.0f, 101.0f, 101.0f}; 
+	ASSERT_(coldet_query_aabb(&cd, &rect, 0xFFFFFFFF, query_cb) == 201*201*2);
+	ASSERT_(coldet_query_circle(&cd, vec2(0.0f, 0.0f), 150.0f, 0xFFFFFFFF, query_cb) == 201*201*2);
 
 	coldet_close(&cd);
 }
