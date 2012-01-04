@@ -212,5 +212,33 @@ TEST_(stress) {
 	ASSERT_(coldet_query_aabb(&cd, &rect, 0xFFFFFFFF, query_cb) == 201*201*2);
 	ASSERT_(coldet_query_circle(&cd, vec2(0.0f, 0.0f), 150.0f, 0xFFFFFFFF, query_cb) == 201*201*2);
 
+	coldet_process(&cd, collission_cb);
+	ASSERT_(collission_count == 201*201);
+	collission_count = 0;
+
 	coldet_close(&cd);
 }
+
+TEST_(collission_simple) {
+	CDWorld cd;
+
+	coldet_init(&cd, 4.0f);
+
+	for(uint i = 0; i < ARRAY_SIZE(rects); ++i)
+		ASSERT_(coldet_new_aabb(&cd, &rects[i], 0xFFFFFFFF, NULL));
+
+	for(uint i = 0; i < ARRAY_SIZE(circles); ++i)
+		ASSERT_(coldet_new_circle(&cd, circles[i].c, circles[i].r, 0xFFFFFFFF, NULL));
+	
+	coldet_process(&cd, collission_cb);
+	ASSERT_(collission_count == 2);
+	collission_count = 0;
+
+	ASSERT_(coldet_new_circle(&cd, vec2(0.0f, 6.0f), 1.1f, 0xFFFFFFFF, NULL));
+	coldet_process(&cd, collission_cb);
+	ASSERT_(collission_count == 4);
+	collission_count = 0;
+
+	coldet_close(&cd);
+}
+
