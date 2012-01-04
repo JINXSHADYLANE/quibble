@@ -294,8 +294,8 @@ Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end) 
 			t2 = temp;
 		}
 
-		tmin = MIN(tmin, t1);
-		tmax = MAX(tmax, t2);
+		tmin = MAX(tmin, t1);
+		tmax = MIN(tmax, t2);
 
 		if(tmin > tmax)
 			return *end;
@@ -317,12 +317,15 @@ Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end) 
 			t2 = temp;
 		}
 
-		tmin = MIN(tmin, t1);
-		tmax = MAX(tmax, t2);
+		tmin = MAX(tmin, t1);
+		tmax = MIN(tmax, t2);
 
 		if(tmin > tmax)
 			return *end;
 	}
+
+	if(tmin*tmin >= vec2_length_sq(vec2_sub(*end, *start)))
+		return *end;
 
 	Vector2 hitp = vec2_add(*start, vec2_scale(dir, tmin));
 

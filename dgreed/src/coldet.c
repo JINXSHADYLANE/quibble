@@ -1,6 +1,8 @@
 #include "coldet.h"
 #include "memory.h"
 
+static const uint max_swapchain_depth = 10;
+
 // Primes close to the powers of 2, for hashtable size 
 static const uint primes[] = {
 	61,
@@ -71,6 +73,13 @@ static void _pt_cell(CDWorld* world, Vector2 pt, int* x, int* y) {
 	*y = lrintf(y_int);
 }
 
+static void _obj_cell(CDWorld* world, CDObj* obj, int* x, int* y) {
+	Vector2 pt = obj->pos;			// Upper left corner
+	if(obj->type == CD_CIRCLE)
+		pt = vec2_sub(pt, vec2(obj->size.radius, obj->size.radius));
+	_pt_cell(world, pt, x, y);
+}
+
 static RectF _rectf_from_cell(CDWorld* world, int x, int y) {
 	assert(world);
 
@@ -123,11 +132,14 @@ static void _coldet_hashmap_resize(CDWorld* world, bool force) {
 	assert(world);
 
 	if(force || world->occupied_cells >= world->reserved_cells * 3 / 4) {
+		uint occupied = world->occupied_cells;
 		uint old_size = world->reserved_cells;
 		uint new_size = _next_size(old_size);
 
 		CDCell* old = world->cells; 
 		_coldet_hashmap_init(world, new_size);
+
+		world->occupied_cells = occupied;
 
 		// Rehash cells
 		for(uint i = 0; i < old_size; ++i) {
@@ -141,6 +153,8 @@ static void _coldet_hashmap_resize(CDWorld* world, bool force) {
 }
 
 static bool _coldet_cell_insert(CDWorld* world, CDCell* cell, CDObj* obj, int x, int y) {
+	assert(world && cell && obj);
+
 	if(list_empty(&cell->objs)) {
 		// Occupy new cell
 		world->occupied_cells++;
@@ -159,8 +173,11 @@ static bool _coldet_cell_insert(CDWorld* world, CDCell* cell, CDObj* obj, int x,
 	return true;
 }
 
-static bool _coldet_cell_move(CDWorld* world, CDCell* cell, CDCell* start) {
+static bool _coldet_cell_move(CDWorld* world, CDCell* cell, CDCell* start,
+		uint depth) {
 	if(cell == start)
+		return false;
+	if(depth > max_swapchain_depth)
 		return false;
 
 	assert(!list_empty(&cell->objs));
@@ -175,7 +192,7 @@ static bool _coldet_cell_move(CDWorld* world, CDCell* cell, CDCell* start) {
 
 	if(!list_empty(&alternative->objs)) {
 		// Recursively move alternative cell
-		if(!_coldet_cell_move(world, alternative, start))
+		if(!_coldet_cell_move(world, alternative, start, depth+1))
 			return false;
 	}
 
@@ -186,6 +203,9 @@ static bool _coldet_cell_move(CDWorld* world, CDCell* cell, CDCell* start) {
 	// Move cell
 	*alternative = *cell;
 
+	// Make cell empty
+	list_init(&cell->objs);	
+
 	return true;
 }
 
@@ -194,23 +214,26 @@ static void _coldet_hashmap_insert(CDWorld* world, CDObj* obj) {
 
 	uint n;
 	int x, y;
-	Vector2 pt = obj->pos;			// Upper left corner
-	if(obj->type == CD_CIRCLE)
-		pt = vec2_sub(pt, vec2(obj->size.radius, obj->size.radius));
-	_pt_cell(world, pt, &x, &y);
+	_obj_cell(world, obj, &x, &y);
 
 try_again:
 
 	n = world->reserved_cells;
+
 	CDCell* cell = &world->cells[_hash(x, y, 0) % n];
+	if(!list_empty(&cell->objs) && (cell->x != x || cell->y != y))
+		cell = &world->cells[_hash(x, y, 1) % n];
 
 	if(!_coldet_cell_insert(world, cell, obj, x, y)) {
-		// Perform cuckoo swapping
 		CDCell* start = cell;
-		CDCell* alternative = &world->cells[_hash(x, y, 1) % n];
 
+		CDCell* alt1 = &world->cells[_hash(x, y, 0) % n];
+		CDCell* alt2 = &world->cells[_hash(x, y, 1) % n];
+		CDCell* alternative = (cell == alt1) ? alt2 : alt1;
+
+		// Perform cuckoo swapping
 		if(!list_empty(&alternative->objs)) {
-			if(!_coldet_cell_move(world, alternative, start)) {
+			if(!_coldet_cell_move(world, alternative, start, 0)) {
 				// Encountered cycle, resize table
 				_coldet_hashmap_resize(world, true);
 				goto try_again;
@@ -229,15 +252,18 @@ static void _coldet_hashmap_insert_cell(CDWorld* world, CDCell* cell) {
 	assert(world && cell);
 	assert(!list_empty(&cell->objs));
 
+	int x = cell->x;
+	int y = cell->y;
 	uint n;
-	uint hash1 = _hash(cell->x, cell->y, 0);
-	uint hash2 = _hash(cell->x, cell->y, 1);
 
 try_again:
 
 	n = world->reserved_cells;
 
-	CDCell* dest = &world->cells[hash1 % n];
+	CDCell* dest = &world->cells[_hash(x, y, 0) % n];
+	if(!list_empty(&dest->objs))
+		dest = &world->cells[_hash(x, y, 1) % n];
+
 	if(list_empty(&dest->objs)) {
 		// Fix linked list pointers
 		cell->objs.prev->next = &dest->objs;
@@ -249,10 +275,11 @@ try_again:
 	else {
 		// Perform cuckoo swapping
 		CDCell* start = dest;
-		CDCell* alternative = &world->cells[hash2 % n];
+		CDCell* alternative = (dest == &world->cells[_hash(x, y, 0) % n]) ?
+			&world->cells[_hash(x, y, 1) % n] : &world->cells[_hash(x, y, 0) % n];
 
 		if(!list_empty(&alternative->objs)) {
-			if(!_coldet_cell_move(world, alternative, start)) {
+			if(!_coldet_cell_move(world, alternative, start, 0)) {
 				// Cycle, must resize table
 				LOG_WARNING("_coldet_hashmap_insert_cell triggered table resize!");
 				_coldet_hashmap_resize(world, true);
@@ -271,9 +298,6 @@ try_again:
 }
 
 static void _coldet_hashmap_remove(CDWorld* world, CDObj* obj) {
-	int x, y;
-	_pt_cell(world, obj->pos, &x, &y);
-
 	list_remove(&obj->list);	
 }
 
@@ -423,7 +447,7 @@ uint coldet_query_circle(CDWorld* cd, Vector2 center, float radius, uint mask,
 	bool can_skip_tests = (radius - cd->cell_size) > cd->cell_size * 2.0f;
 
 	for(int y = ul_y-1; y <= lr_y; ++y) {
-		for(int x = ul_x-1; x <= lr_y; ++x) {
+		for(int x = ul_x-1; x <= lr_x; ++x) {
 
 			// Iterate through every colliding cell
 			CDCell* cell = _coldet_hashmap_get(cd, x, y);
@@ -591,8 +615,8 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 	float inv_k = dir.y / dir.x;
 
 	Vector2 dist, ddist = vec2(
-			sqrtf(1.0f + k*k) * cd->cell_size,
-			sqrtf(1.0f + inv_k*inv_k) * cd->cell_size
+			sqrtf(1.0f + inv_k*inv_k) * cd->cell_size,
+			sqrtf(1.0f + k*k) * cd->cell_size
 	);
 
 	int step_x, step_y;
@@ -780,16 +804,15 @@ void coldet_process(CDWorld* cd, CDCollissionCallback callback) {
 			if(obj->dirty || obj->offset.x != 0.0f || obj->offset.y != 0.0f) {
 				int old_tile_x, old_tile_y, new_tile_x, new_tile_y;
 
-				Vector2 new_pos = vec2_add(obj->pos, obj->offset);
-				_pt_cell(cd, obj->pos, &old_tile_x, &old_tile_y);
-				_pt_cell(cd, new_pos, &new_tile_x, &new_tile_y);
+				_obj_cell(cd, obj, &old_tile_x, &old_tile_y);
+				obj->pos = vec2_add(obj->pos, obj->offset);
+				_obj_cell(cd, obj, &new_tile_x, &new_tile_y);
+				obj->offset = vec2(0.0f, 0.0f);
 
 				// Rehash obj if neccessary
 				if(obj->dirty || old_tile_x != new_tile_x || old_tile_y != new_tile_y) {
 					// Clear dirty flag, set new pos
 					obj->dirty = false;
-					obj->pos = new_pos;
-					obj->offset = vec2(0.0f, 0.0f);
 
 					// Remove obj from current list
 					list_remove(&obj->list);
