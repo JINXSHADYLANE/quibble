@@ -71,6 +71,11 @@ static void _pt_cell(CDWorld* world, Vector2 pt, int* x, int* y) {
 	modff(pt.y / world->cell_size, &y_int);
 	*x = lrintf(x_int);
 	*y = lrintf(y_int);
+
+	if(pt.x < 0.0f)
+		*x -= 1;
+	if(pt.y < 0.0f)
+		*y -= 1;
 }
 
 static void _obj_cell(CDWorld* world, CDObj* obj, int* x, int* y) {
@@ -607,12 +612,12 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 	assert(cd);
 	assert(mask);
 
-	int tile_x, tile_y;
-	_pt_cell(cd, start, &tile_x, &tile_y);
-
 	Vector2 dir = vec2_normalize(vec2_sub(end, start));
 	float k = dir.x / dir.y;
 	float inv_k = dir.y / dir.x;
+
+	int tile_x, tile_y;
+	_pt_cell(cd, start, &tile_x, &tile_y);
 
 	Vector2 dist, ddist = vec2(
 			sqrtf(1.0f + inv_k*inv_k) * cd->cell_size,
@@ -621,22 +626,22 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 
 	int step_x, step_y;
 
-	if(dir.x > 0.0f) {
+	if(dir.x >= 0.0f) {
 		step_x = 1;
-		dist.x = (float)(tile_x+1) * cd->cell_size - start.x;
+		dist.x = fabsf((float)(tile_x+1) * cd->cell_size - start.x);
 	}
 	else {
 		step_x = -1;
-		dist.x = start.x - (float)tile_x * cd->cell_size;
+		dist.x = fabsf(start.x - (float)tile_x * cd->cell_size);
 	}
 
-	if(dir.y > 0.0f) {
+	if(dir.y >= 0.0f) {
 		step_y = 1;
-		dist.y = (float)(tile_y+1) * cd->cell_size - start.y;
+		dist.y = fabsf((float)(tile_y+1) * cd->cell_size - start.y);
 	}
 	else {
 		step_y = -1;
-		dist.y = start.y - (float)tile_y * cd->cell_size;
+		dist.y = fabsf(start.y - (float)tile_y * cd->cell_size);
 	}
 
 	dist.x *= ddist.x / cd->cell_size;
@@ -666,6 +671,15 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 			pos.x += dx;
 			pos.y += dx / k;
 
+			dist.x += ddist.x;
+
+			// x coord for next tiles to check 
+			int hittest_tile_x = tile_x + (3*step_x - 1) / 2;
+			tile_x += step_x;
+
+			_coldet_cell_cast(cd, hittest_tile_x, tile_y-1, start, end, mask, &min_d, &hitp, &obj);
+			_coldet_cell_cast(cd, hittest_tile_x, tile_y, start, end, mask, &min_d, &hitp, &obj);
+		
 			// Check if we're still inside ray segment
 			if(step_x > 0) {
 				if(pos.x > end.x)
@@ -675,15 +689,6 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 				if(pos.x < end.x)
 					break;
 			}
-
-			dist.x += ddist.x;
-
-			// x coord for next tiles to check 
-			int hittest_tile_x = tile_x + (3*step_x - 1) / 2;
-			tile_x += step_x;
-
-			_coldet_cell_cast(cd, hittest_tile_x, tile_y-1, start, end, mask, &min_d, &hitp, &obj);
-			_coldet_cell_cast(cd, hittest_tile_x, tile_y, start, end, mask, &min_d, &hitp, &obj);
 		}
 		else {
 			if(step_y > 0)
@@ -694,6 +699,15 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 			pos.x += dy * k;
 			pos.y += dy;
 
+			dist.y += ddist.y;
+
+			// y coord for next tiles to check
+			int hittest_tile_y = tile_y + (3*step_y - 1) / 2;
+			tile_y += step_y;
+
+			_coldet_cell_cast(cd, tile_x-1, hittest_tile_y, start, end, mask, &min_d, &hitp, &obj);
+			_coldet_cell_cast(cd, tile_x, hittest_tile_y, start, end, mask, &min_d, &hitp, &obj);
+			
 			// Check if we're still inside ray segment
 			if(step_y > 0) {
 				if(pos.y > end.y)
@@ -703,15 +717,6 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 				if(pos.y < end.y)
 					break;
 			}
-
-			dist.y += ddist.y;
-
-			// y coord for next tiles to check
-			int hittest_tile_y = tile_y + (3*step_y - 1) / 2;
-			tile_y += step_y;
-
-			_coldet_cell_cast(cd, tile_x-1, hittest_tile_y, start, end, mask, &min_d, &hitp, &obj);
-			_coldet_cell_cast(cd, tile_x, hittest_tile_y, start, end, mask, &min_d, &hitp, &obj);
 		}
 	}
 
@@ -867,9 +872,9 @@ void coldet_process(CDWorld* cd, CDCollissionCallback callback) {
 			float local_y = obj->pos.y - (float)cell->y * cd->cell_size;
 
 			if(obj->type == CD_CIRCLE) {
-				if(local_x + obj->size.radius * 2.0f > cd->cell_size)
+				if(local_x + obj->size.radius > cd->cell_size)
 					crosses_x = true;
-				if(local_y + obj->size.radius * 2.0f > cd->cell_size)
+				if(local_y + obj->size.radius > cd->cell_size)
 					crosses_y = true;
 			}
 
@@ -885,18 +890,18 @@ void coldet_process(CDWorld* cd, CDCollissionCallback callback) {
 
 			// Iterate over objects in neighbour cells
 			for(uint j = 0; j < 3; ++j) {
-				if(neighbours[i])
+				if(neighbours[j])
 					_coldet_obj_to_cell(cd, obj, neighbours[j], callback);
 			}
 			if(crosses_x) {
 				for(uint j = 3; j < 5; ++j) {
-					if(neighbours[i])
+					if(neighbours[j])
 						_coldet_obj_to_cell(cd, obj, neighbours[j], callback);
 				}
 			}
 			if(crosses_y) {
 				for(uint j = 5; j < 7; ++j) {
-					if(neighbours[i])
+					if(neighbours[j])
 						_coldet_obj_to_cell(cd, obj, neighbours[j], callback);
 				}
 			}
