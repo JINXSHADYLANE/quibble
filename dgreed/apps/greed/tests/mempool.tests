@@ -27,12 +27,11 @@ TEST_(small) {
 	}
 
 	for(uint i = 0; i < 100; ++i) {
-		ASSERT_((*m[i]) == i);
+		if(i % 2 == 1) {
+			ASSERT_(*m[i] == i);
+		}
 		m[i] = mempool_alloc(&p);
 		ASSERT_(m[i]);
-		if(i < 50) {
-			ASSERT_((*m[i]) == i*2);
-		}
 	}
 
 	mempool_drain(&p);
