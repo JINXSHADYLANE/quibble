@@ -65,6 +65,8 @@ void malka_init(void) {
 	malka_open_mml(l);
 	malka_open_states(l);
 	malka_open_system(l);
+
+	ml_states_init(l);
 }
 
 void malka_params(int argc, const char** argv) {
@@ -75,6 +77,8 @@ void malka_params(int argc, const char** argv) {
 }
 
 void malka_close(void) {
+	ml_states_close(l);
+
 	lua_close(l);
 }
 
@@ -146,7 +150,6 @@ int malka_run_ex(const char* luafile) {
 
 int malka_states_run(const char* luafile) {
 	malka_run_ex(luafile);
-	ml_states_init(l);
 
 	lua_getglobal(l, "game_init");
 	if(lua_isfunction(l, -1))
@@ -162,7 +165,10 @@ int malka_states_run(const char* luafile) {
 	else
 		lua_pop(l, 1);
 
-	ml_states_close(l);
 	return 0;
+}
+
+lua_State* malka_lua_state(void) {
+	return l;
 }
 
