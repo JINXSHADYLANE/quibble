@@ -1,4 +1,3 @@
-require "winter"
 require "spring"
 require "summer"
 
@@ -7,7 +6,7 @@ pre = 'states_assets/'
 function game_init()
 	video.init(512, 512, 'states')
 
-	states.register("winter", winter)
+--	states.register("winter", winter)
 	states.register("spring", spring)
 	states.register("summer", summer)
 
