@@ -364,3 +364,23 @@ TEST_(circle_raycast) {
 	ASSERT_(_vec2_feql(circle_raycast(&cb, rb, &se[0], &se[1]), se[1].x, se[1].y))
 }
 
+TEST_(rectf_raycast) {
+	RectF r = {-10.1f, 3.2f, 4.0f, 18.41f};
+
+	Vector2 s = {-20.0f, 5.0f};
+	Vector2 e = {20.0f, 5.0f};
+	Vector2 h = rectf_raycast(&r, &s, &e);
+	ASSERT_(feql(h.x, -10.1f) && h.y == s.y);
+
+	h = rectf_raycast(&r, &e, &s);
+	ASSERT_(feql(h.x, 4.0f) && h.y == s.y);
+
+	s = vec2(0.2f, 0.0f);
+	e = vec2(0.2f, 20.0f);
+	h = rectf_raycast(&r, &s, &e);
+	ASSERT_(h.x == s.x && feql(h.y, 3.2f));
+
+	h = rectf_raycast(&r, &e, &s);
+	ASSERT_(h.x == s.x && feql(h.y, 18.41f));
+}
+

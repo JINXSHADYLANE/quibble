@@ -280,7 +280,7 @@ Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end) 
 
 	// Vertical slab
 	if(fabsf(dir.x) < 0.0001f) {
-		if(start->x < r->left || start->y > r->right)
+		if(start->x < r->left || start->x > r->right)
 			return *end;
 	}
 	else {
