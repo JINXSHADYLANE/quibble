@@ -295,4 +295,81 @@ TEST_(aatree_remove_stress) {
 	aatree_free(&t);
 }
 
+TEST_(dict_empty) {
+	Dict d;
+
+	dict_init(&d);
+
+	ASSERT_(d.items == 0);
+	ASSERT_(d.mask);
+
+	dict_free(&d);
+}
+
+
+TEST_(dict_simple) {
+	Dict d;
+
+	dict_init(&d);
+
+	ASSERT_(dict_insert(&d, "viens", &d));
+	ASSERT_(dict_insert(&d, "du", &d));
+	ASSERT_(dict_insert(&d, "du", &d) == false);
+	ASSERT_(dict_insert(&d, "trys", &d + 2));
+	dict_set(&d, "grazi", &d + 3);
+	dict_set(&d, "lietuva", &d + 4);
+	dict_set(&d, "du", &d + 1);
+
+	ASSERT_(dict_get(&d, "trys") == &d + 2);
+	ASSERT_(dict_get(&d, "du") == &d + 1);
+	ASSERT_(dict_get(&d, "grazi") == &d + 3);
+	ASSERT_(dict_delete(&d, "grazi") == &d + 3);
+	ASSERT_(dict_get(&d, "vienas") == NULL);
+	ASSERT_(dict_get(&d, "grazi") == NULL);
+
+	dict_set(&d, "grazi", &d);
+	ASSERT_(dict_insert(&d, "vienas", &d));
+	ASSERT_(dict_get(&d, "grazi") == &d);
+
+	dict_free(&d);
+}
+
+TEST_(dict_stress) {
+	Dict d;
+
+	char numbers[1024*1024];
+	char* p = numbers;	
+
+	dict_init(&d);
+
+	for(size_t i = 0; i < 10000; ++i) {
+		sprintf(p, "%zd", i);
+		ASSERT_(dict_insert(&d, p, (void*)i));
+		p += strlen(p)+1;
+	}
+
+	char scratch[10];
+	for(size_t i = 0; i < 10000; ++i) {
+		sprintf(scratch, "%zd", i);
+		ASSERT_(dict_get(&d, scratch) == (void*)i);	
+	}
+
+	for(size_t i = 0; i < 10000; ++i) {
+		if(!is_prime(i)) {
+			sprintf(scratch, "%zd", i);
+			ASSERT_(dict_delete(&d, scratch) == (void*)i);
+		}
+	}
+
+	for(size_t i = 0; i < 10000; ++i) {
+		sprintf(scratch, "%zd", i);
+		if(is_prime(i)) {
+			ASSERT_(dict_get(&d, scratch) == (void*)i);	
+		}
+		sprintf(scratch, "%zd", (i+2)*7);
+		ASSERT_(dict_get(&d, scratch) == NULL);	
+	}
+
+	dict_free(&d);
+}
 

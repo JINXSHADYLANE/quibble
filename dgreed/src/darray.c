@@ -104,6 +104,20 @@ void darray_insert(DArray* array, unsigned int index, void* item_ptr) {
 	array->size++;
 }
 
+static void _expand_by_count(DArray* array, unsigned int count) {
+	unsigned int expand_amount = EXPAND_AMOUNT / (array->item_size);
+	if(expand_amount == 0)
+		expand_amount = 1;
+
+	unsigned int new_reservation = array->reserved  * array->item_size > DOUBLING_BOUND ?
+		array->reserved + expand_amount : array->reserved * 2;
+
+	if(new_reservation <= array->size + count)
+		new_reservation = array->size + count;
+
+	darray_reserve(array, new_reservation);	
+}
+
 void darray_append_multi(DArray* array, void* item_ptr, unsigned int count) {
 	assert(array);
 	assert(array->data);
@@ -114,18 +128,7 @@ void darray_append_multi(DArray* array, void* item_ptr, unsigned int count) {
 
 	if(array->size + count > array->reserved) {
 		// Not enough space, allocate more
-
-		unsigned int expand_amount = EXPAND_AMOUNT / (array->item_size);
-		if(expand_amount == 0)
-			expand_amount = 1;
-
-		unsigned int new_reservation = array->reserved  * array->item_size > DOUBLING_BOUND ?
-			array->reserved + expand_amount : array->reserved * 2;
-
-		if(new_reservation <= array->size + count)
-			new_reservation = array->size + count;
-
-		darray_reserve(array, new_reservation);	
+		_expand_by_count(array, count);
 	}	
 	assert(array->size + count <= array->reserved);
 
@@ -133,6 +136,23 @@ void darray_append_multi(DArray* array, void* item_ptr, unsigned int count) {
 		item_ptr, array->item_size * count);
 	array->size += count;	
 }		
+
+void darray_append_nulls(DArray* array, unsigned int count) {
+	assert(array);
+	assert(array->data);
+	assert(count);
+	assert(array->size <= array->reserved);
+
+	if(array->size + count > array->reserved) {
+		// Alloc space
+		_expand_by_count(array, count);
+	}
+	assert(array->size + count <= array->reserved);
+
+	memset(array->data + array->item_size * array->size, 0,
+			array->item_size * count);
+	array->size += count;
+}
 
 void darray_remove(DArray* array, unsigned int index) {
 	assert(array);

@@ -1,4 +1,5 @@
 #include "datastruct.h"
+#include "memory.h"
 
 // List
 
@@ -590,5 +591,221 @@ void* aatree_remove(AATree* tree, int key) {
 	assert(tree->root != INVALID_IDX || tree->tree.size == 0);
 
 	return tree->rem_data;
+}
+
+
+// Hashmap with hopscotch addressing
+
+#define H 32
+
+void dict_init(Dict* dict) {
+	assert(dict);
+
+	size_t size = 4*H;
+
+	dict->items = 0;
+	dict->mask = size-1;
+	dict->map = MEM_ALLOC(sizeof(DictEntry) * size);
+	memset(dict->map, 0, sizeof(DictEntry) * size);
+}
+
+void dict_free(Dict* dict) {
+	assert(dict);
+
+	MEM_FREE(dict->map);
+}
+
+static DictEntry* _dict_get(Dict* dict, uint i) {
+	return &dict->map[i & dict->mask];
+}
+
+static bool _dict_insert(Dict* dict, const char* key, void* data, uint hash) {
+	assert(dict && dict->mask);
+	assert(key);
+
+	size_t size = dict->mask + 1;
+	
+	// Find a free entry by linear scan
+	uint free = ~0;
+	for(uint i = 0; i < size; ++i) {
+		DictEntry* e = _dict_get(dict, hash+i);
+		if(i < H && e->hash == hash && strcmp(e->key, key) == 0) {
+			// Duplicate entry
+			return false;
+		}
+
+		if(e->key == NULL) {
+			// Free entry
+			free = i;
+			break;
+		}
+	}
+	assert(free != ~0);
+
+	// Free entry is further away than H, move it closer by hopping
+	while(free >= H) {
+		uint j = 1;
+		DictEntry* farthest;
+		while(j < H) {
+			farthest = _dict_get(dict, hash + free - (H-j)); 
+			if(farthest->hopinfo)
+				break;
+			else
+				j++;
+		}
+		assert(farthest->hopinfo);
+
+		// Find which entry we can move to free slot
+		uint i = 0;
+		while(i < (H-j) && (farthest->hopinfo & (1 << i)) == 0)
+			i++;
+		DictEntry* src = _dict_get(dict, hash + free - (H-j) + i);
+		DictEntry* dest = _dict_get(dict, hash + free);
+		assert(src->key != NULL && src->data != NULL);
+		assert(dest->key == NULL && dest->data == NULL);
+
+		// Move it
+		dest->key = src->key;
+		dest->data = src->data;
+		dest->hash = src->hash;
+		assert(!(dest->hopinfo & 1));
+
+		// Update hopinfo
+		farthest->hopinfo &= ~(1 << i);
+		farthest->hopinfo |= 1 << (H-j);
+		src->hopinfo &= ~1;
+
+#ifdef _DEBUG
+		src->key = NULL;
+		src->data = NULL;
+		src->hash = 0;
+#endif
+
+		free = free - (H-j) + i;
+	}
+	
+	// free is within H of initial hashed position, just put it there and
+	// update hopinfo
+	assert(free < H);
+	DictEntry* dest = _dict_get(dict, hash + free);
+	dest->key = key;
+	dest->data = data;
+	dest->hash = hash;
+	
+	DictEntry* orig = _dict_get(dict, hash);
+	orig->hopinfo |= 1 << free;
+	
+	return true;
+}
+
+static void _dict_resize(Dict* dict) {
+	assert(dict);
+
+	size_t old_size = dict->mask + 1;
+	size_t size = old_size * 2;
+	dict->mask = size-1;
+	dict->items = 0;
+
+	DictEntry* old_map = dict->map;
+	dict->map = MEM_ALLOC(sizeof(DictEntry) * size);
+	memset(dict->map, 0, sizeof(DictEntry) * size);
+
+	for(uint i = 0; i < old_size; ++i) {
+		DictEntry* e = &old_map[i];
+		if(e->key != NULL) {
+			#ifdef _DEBUG
+			assert(_dict_insert(dict, e->key, e->data, e->hash) == true);
+			#else
+			_dict_insert(dict, e->key, e->data, e->hash);
+			#endif
+		}
+	}
+}
+
+bool dict_insert(Dict* dict, const char* key, void* data) {
+	size_t size = dict->mask + 1;
+
+	// Resize if neccessary
+	dict->items++;
+	if(dict->items*4 > size * 3)
+		_dict_resize(dict);
+
+	assert(dict->items*4 <= size * 3);
+
+	uint hash = hash_murmur(key, strlen(key), 7);	
+	
+	return _dict_insert(dict, key, data, hash);
+}
+
+void* dict_delete(Dict* dict, const char* key) {
+	assert(dict);
+	assert(key);
+
+	uint hash = hash_murmur(key, strlen(key), 7);
+	
+	DictEntry* e = _dict_get(dict, hash);
+
+	for(uint i = 0; i < H; ++i) {
+		if(e->hopinfo & (1 << i)) {
+			DictEntry* entry = _dict_get(dict, hash + i);
+			if(hash == entry->hash && strcmp(key, entry->key) == 0) {
+				e->hopinfo &= ~(1 << i);
+				void* data = entry->data;
+				entry->data = NULL;
+				entry->key = NULL;
+				entry->hash = 0;
+				return data;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+void dict_set(Dict* dict, const char* key, void* data) {
+	assert(dict);
+	assert(key && data);
+
+	uint hash = hash_murmur(key, strlen(key), 7);
+
+	DictEntry* e = _dict_get(dict, hash);
+
+	// Look for existing item, set its data
+	for(uint i = 0; i < H; ++i) {
+		if(e->hopinfo & (1 << i)) {
+			DictEntry* entry = _dict_get(dict, hash + i);
+			if(hash == entry->hash && strcmp(key, entry->key) == 0) {
+				entry->data = data;
+				return;
+			}
+		}
+	}
+
+	// Apparently, item doesn't exist - insert a new one
+#ifdef _DEBUG
+	assert(_dict_insert(dict, key, data, hash));
+#else
+	_dict_insert(dict, key, data, hash);
+#endif
+}
+
+void* dict_get(Dict* dict, const char* key) {
+	assert(dict);
+	assert(key);
+
+	uint hash = hash_murmur(key, strlen(key), 7);
+
+	DictEntry* e = _dict_get(dict, hash);
+
+	for(uint i = 0; i < H; ++i) {
+		if(e->hopinfo & (1 << i)) {
+			DictEntry* entry = _dict_get(dict, hash + i);
+			if(hash == entry->hash && strcmp(key, entry->key) == 0) {
+				return entry->data;
+			}
+		}
+	}
+
+	return NULL;
 }
 
