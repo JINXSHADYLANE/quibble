@@ -72,4 +72,27 @@ int aatree_max(AATree* tree, void** data);				// O(n log n)
 bool aatree_insert(AATree* tree, int key, void* data);  // O(n log n)
 void* aatree_remove(AATree* tree, int key);				// O(n log n)
 
+
+// string -> void* hashmap dictionary
+
+typedef struct {
+	const char* key;
+	void* data;
+	uint32 hash;
+	uint32 hopinfo;
+} DictEntry;
+
+typedef struct {
+	uint items;
+	uint mask;
+	DictEntry* map;
+} Dict;
+
+void dict_init(Dict* dict);
+void dict_free(Dict* dict);
+bool dict_insert(Dict* dict, const char* key, void* data);
+void* dict_delete(Dict* dict, const char* key);
+void dict_set(Dict* dict, const char* key, void* data);
+void* dict_get(Dict* dict, const char* key);
+
 #endif
