@@ -258,6 +258,44 @@ draws text, same as draw_text, except you provide center coordinates and can
 optionally scale text by a scalar factor
 
 
+--------
+sprsheet (not implemented)
+--------
+
+Abstraction over video which allows to describe sprite source rectangles outside
+of code and handles texture loading.
+
+- sprsheet.init(filename)
+initializes sprsheet system, loads sprite descriptions
+
+- sprsheet.close()
+closes sound system
+
+- sprsheet.get_handle(name)
+returns handle for sprite (accessing sprites by handle is faster)
+
+- sprsheet.get(spr)
+returns texhandle and source rect, spr can be string or sprhandle
+
+- sprsheet.get_anim(spr, frame)
+returns texhandle and source rect for animation frame
+
+- sprsheet.anim_frames(spr)
+returns number of frames in animation
+
+- sprsheet.draw(spr, layer, dest, tint)
+draws sprite, dest is vec2 or rect, tint is optional
+
+- sprsheet.draw_anim(spr, frame, layer, dest, tint)
+same as sprsheet.draw, just for animations
+
+- sprsheet.draw_centered(spr, layer, dest, rot, scale, tint)
+draws centered sprite; rot, scale and tint is optional 
+
+- sprsheet.draw_anim_centered(spr, frame, layer, dest, rot, scale, tint)
+same as sprsheet.draw_centered, for animations
+
+
 -----
 sound
 -----
@@ -303,7 +341,7 @@ sets/gets playing cursor position, pos is in seconds
 input
 -----
 
-key constant:
+key constants:
 	key._up		- up arrow
 	key._down	- down arrow
 	key._left	- left arrow
@@ -449,6 +487,84 @@ without colliding; initially, rect is assumed to not be colliding with anything!
 converts between screen-space and tilemap world-space
 
 
+------
+coldet (not implemented)
+------
+
+Collission detection system.
+
+- coldet.init(max_obj_size, w, h)
+creates instance of coldet world, returns handle to it; w and h are optional and
+only needed if you want a world with vertical or horizontal wrap-around
+
+- coldet.close(cdhandle)
+destroys coldet world
+
+- coldet.new_circle(cdhandle, center, radius, mask, userdata)
+creates a circle, returns cdobjhandle; arguments:
+	cdhandle: 	coldet world handle
+	center:		vector, circle center
+	radius:		number, circle radius
+	mask:		optional, filtering bitmask
+	userdata:	optional, anything
+
+- coldet.new_aabb(cdhandle, rect, mask, userdata)
+creates an axis-aligned bounding box, returns cdobjhandle; arguments:
+	cdhandle:	coldet world handle
+	rect:		aabb rectangle
+	mask:		optional, filtering bitmask
+	userdata:	optional, anything
+
+- coldet.remove(cdhandle, cdobjhandle)
+removes object from coldet world
+
+- coldet.query_circle(cdhandle, center, radius, mask, callback)
+does a circle query, returns number of objects within circle; arguments:
+	cdhandle:	coldet world handle
+	center:		vector, circle center
+	radius:		number, circle radius
+	mask:		optional, filtering bitmask
+	callback:	optional, unary function, called once for each object within 	
+
+- coldet.query_aabb(cdhandle, rect, mask, callback)
+does a aabb query, returns number of objects within aabb; arguments:
+	cdhandle:	coldet world handle
+	center:		vector, circle center
+	radius:		number, circle radius
+	mask:		optional, filtering bitmask
+	callback:	optional, unary function, called once for each object within
+
+- coldet.cast_segment(cdhandle, start, end, mask)
+casts a segment from start to end, returns first intersection point and
+cdobjhandle of intersection point; in case no object was hit - returns end
+
+- coldet.process(cdhandle, callback)
+moves objects, invokes callback once for each colliding object pair
+
+- cdobj.pos(cdobjhandle), cdobj.set_pos(cdobjhandle, pos)
+gets/sets position of object; use cdobj.move for simple continous movement!
+
+- cdobj.move(cdobjhandle, offset)
+sets object movement offset; position actually changes only after coldet.process()!
+
+- cdobj.size(cdobjhandle)
+- cdobj.set_size(cdobjhandle, radius)
+- cdobj.set_size(cdobjhandle, width, height)
+gets/sets radius of circle or width and height for aabb
+
+- cdobj.rect(cdobjhandle)
+returns aabb object rectangle or circle bounding box
+
+- cdobj.is_circle(cdobjhandle), cdobj.is_aabb(cdobjhandle)
+return boolean, indicating object type
+
+- cdobj.userdata(cdobjhandle), cdobj.set_userdata(cdobjhandle, data)
+gets/sets object userdata
+
+- cdobj.mask(cdobjhandle), cdobj.set_mask(cdobjhandle, mask)
+gets/sets collission and query filtering mask
+
+
 ---
 mml
 ---
@@ -499,4 +615,32 @@ state stack handling
 
 - states.transition_len 
 a number of seconds for transitioning between states, 0 by default
+
+
+-------
+devmode (not implemented)
+-------
+
+Displays various technical stats.
+
+- devmode.color(), devmode.set_color(c)
+gets/sets devmode stats text color
+
+- devmode.show_memory(pos, fonthandle)
+displays memory stats
+
+- devmode.show_video(pos, fonthandle)
+displays video stats
+
+- devmode.show_sound(pos, fonthandle)
+displays sound stats
+
+- devmode.show_particles(pos, fonthandle)
+displays particle stats
+
+- devmode.show_states(pos, fonthandle)
+displays state system stats and time spent in lua code
+
+- devmode.video_debug(flag)
+turns video debug mode on/off, flag is bool
 
