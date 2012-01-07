@@ -644,25 +644,37 @@ static bool _dict_insert(Dict* dict, const char* key, void* data, uint hash) {
 
 	// Free entry is further away than H, move it closer by hopping
 	while(free >= H) {
-		uint j = 1;
-		DictEntry* farthest;
-		while(j < H) {
-			farthest = _dict_get(dict, hash + free - (H-j)); 
-			if(farthest->hopinfo)
-				break;
-			else
-				j++;
-		}
-		assert(farthest->hopinfo);
+		// Try H-1 candidates to fill free slot, starting from
+		// one farthest away
+		uint i, j;
+		DictEntry* c = NULL;
+		for(i = H-1; i >= 0; --i) {
+			c = _dict_get(dict, hash + free - i);
+			assert(c->key);
 
-		// Find which entry we can move to free slot
-		uint i = 0;
-		while(i < (H-j) && (farthest->hopinfo & (1 << i)) == 0)
-			i++;
-		DictEntry* src = _dict_get(dict, hash + free - (H-j) + i);
+			// If candidate or any nearby cell between it and the free cell
+			// can be moved to the free slot, our search is over
+			if(c->hopinfo & ((1 << i)-1)) {
+				break;
+			}
+			else {
+				c = NULL;
+			}
+		}
+
+		assert(c);
+		
+		// Find which entry we can move to the free slot
+		j = 0;
+		while(j < i && ((c->hopinfo & (1 << j)) == 0))
+			j++;
+		assert(c->hopinfo & (1 << j));
+		assert(j < i);
+
+		DictEntry* src = _dict_get(dict, hash + free - i + j);
 		DictEntry* dest = _dict_get(dict, hash + free);
-		assert(src->key != NULL && src->data != NULL);
-		assert(dest->key == NULL && dest->data == NULL);
+		assert(src->key != NULL);
+		assert(dest->key == NULL);
 
 		// Move it
 		dest->key = src->key;
@@ -670,18 +682,18 @@ static bool _dict_insert(Dict* dict, const char* key, void* data, uint hash) {
 		dest->hash = src->hash;
 		assert(!(dest->hopinfo & 1));
 
-		// Update hopinfo
-		farthest->hopinfo &= ~(1 << i);
-		farthest->hopinfo |= 1 << (H-j);
-		src->hopinfo &= ~1;
-
 #ifdef _DEBUG
 		src->key = NULL;
 		src->data = NULL;
 		src->hash = 0;
 #endif
 
-		free = free - (H-j) + i;
+		// Update hopinfo
+		c->hopinfo &= ~(1 << j);
+		c->hopinfo |= 1 << i;
+
+		// Repeat
+		free = free - i + j;
 	}
 	
 	// free is within H of initial hashed position, just put it there and
@@ -713,6 +725,7 @@ static void _dict_resize(Dict* dict) {
 	for(uint i = 0; i < old_size; ++i) {
 		DictEntry* e = &old_map[i];
 		if(e->key != NULL) {
+			dict->items++;
 			#ifdef _DEBUG
 			assert(_dict_insert(dict, e->key, e->data, e->hash) == true);
 			#else
@@ -720,6 +733,8 @@ static void _dict_resize(Dict* dict) {
 			#endif
 		}
 	}
+
+	MEM_FREE(old_map);
 }
 
 bool dict_insert(Dict* dict, const char* key, void* data) {
@@ -730,6 +745,7 @@ bool dict_insert(Dict* dict, const char* key, void* data) {
 	if(dict->items*4 > size * 3)
 		_dict_resize(dict);
 
+	size = dict->mask + 1;
 	assert(dict->items*4 <= size * 3);
 
 	uint hash = hash_murmur(key, strlen(key), 7);	
