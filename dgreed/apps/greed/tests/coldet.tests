@@ -211,6 +211,7 @@ TEST_(stress) {
 	RectF rect = {-101.0f, -101.0f, 101.0f, 101.0f}; 
 	ASSERT_(coldet_query_aabb(&cd, &rect, 0xFFFFFFFF, query_cb) == 201*201*2);
 	ASSERT_(coldet_query_circle(&cd, vec2(0.0f, 0.0f), 150.0f, 0xFFFFFFFF, query_cb) == 201*201*2);
+	query_count = 0;
 
 	coldet_process(&cd, collission_cb);
 	ASSERT_(collission_count == 201*201);
@@ -238,6 +239,58 @@ TEST_(collission_simple) {
 	coldet_process(&cd, collission_cb);
 	ASSERT_(collission_count == 4);
 	collission_count = 0;
+
+	coldet_close(&cd);
+}
+
+TEST_(wraparound_h) {
+	CDWorld cd;
+
+	coldet_init_ex(&cd, 2.0f, 6.0f, 0.0f, true, false);
+
+	ASSERT_(coldet_new_circle(&cd, vec2(1.0f, 1.0f), 0.5f, 1, NULL));
+	ASSERT_(coldet_new_circle(&cd, vec2(3.0f, 2.0f), 0.5f, 1, NULL));
+	ASSERT_(coldet_new_circle(&cd, vec2(5.0f, 3.0f), 0.5f, 1, NULL));
+	ASSERT_(coldet_new_circle(&cd, vec2(0.0f, 2.0f), 0.25f, 1, NULL));
+
+	RectF r = rectf(0.5f, 2.5f, 1.5f, 3.5f);
+	ASSERT_(coldet_new_aabb(&cd, &r, 1, NULL));
+	r = rectf(4.5f, 0.5f, 5.5f, 1.5f);
+	ASSERT_(coldet_new_aabb(&cd, &r, 1, NULL));
+
+	// No collissions
+	coldet_process(&cd, collission_cb);
+	ASSERT_(collission_count == 0);
+
+	// Circle queries
+	ASSERT_(coldet_query_circle(&cd, vec2(0.0f, 0.0f), 1.0f, 1, query_cb) == 2);
+	ASSERT_(coldet_query_circle(&cd, vec2(6.0f, 0.0f), 1.0f, 1, query_cb) == 2);
+	ASSERT_(query_count == 4);
+	query_count = 0;
+
+	ASSERT_(coldet_query_circle(&cd, vec2(3.0f, 3.0f), 1.0f, 1, query_cb) == 1);
+	ASSERT_(coldet_query_circle(&cd, vec2(5.9f, 1.0f), 0.3f, 1, query_cb) == 0);
+	ASSERT_(query_count == 1);
+	query_count = 0;
+
+	ASSERT_(coldet_query_circle(&cd, vec2(0.0f, 3.0f), 6.0f, 1, query_cb) == 13);
+	ASSERT_(query_count == 13);
+	query_count = 0;
+
+	// AABB queries
+	r = rectf(-1.0f, -1.0f, 2.0f, 2.0f);
+	ASSERT_(coldet_query_aabb(&cd, &r, 1, query_cb) == 3);
+	r = rectf(-1.0f, 0.0f, 1.0f, 4.0f);
+	ASSERT_(coldet_query_aabb(&cd, &r, 1, query_cb) == 5);
+	r = rectf(2.0f, -3.0f, 4.0f, 1.0f);
+	ASSERT_(coldet_query_aabb(&cd, &r, 1, query_cb) == 0);
+	ASSERT_(query_count == 8);
+	query_count = 0;
+
+	// Collission
+	ASSERT_(coldet_new_circle(&cd, vec2(0.0f, 2.0f), 1.0f, 1, NULL));
+	coldet_process(&cd, collission_cb);
+	ASSERT_(collission_count == 5);
 
 	coldet_close(&cd);
 }
