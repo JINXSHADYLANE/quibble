@@ -22,8 +22,8 @@ typedef struct {
 	CDCell* cells;
 
 	// Wrapping
-	bool vert_wrap;
 	bool horiz_wrap;
+	bool vert_wrap;
 	float width, height;
 
 	// Objects
@@ -75,7 +75,7 @@ void coldet_init(CDWorld* cd, float max_obj_size);
 
 // Same as above, also lets to setup tube or torus shaped wraparound worlds
 void coldet_init_ex(CDWorld* cd, float max_obj_size,
-		float width, float height, bool vert_wrap, bool horiz_wrap);
+		float width, float height, bool horiz_wrap, bool vert_wrap);
 
 // Frees internal resources
 void coldet_close(CDWorld* cd);

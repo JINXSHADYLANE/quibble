@@ -1,6 +1,20 @@
 #include "coldet.h"
 #include "memory.h"
 
+#define HORIZ_WRAP(x, x_off) {\
+	int horiz_cells = lrintf(world->width / world->cell_size); \
+	x_off = world->width * (float)(x / horiz_cells); \
+	if(x < 0 && x % horiz_cells != 0) x_off -= world->width; \
+	x = ((x % horiz_cells) + horiz_cells) % horiz_cells; \
+}
+
+#define VERT_WRAP(y, y_off) {\
+	int vert_cells = lrintf(world->height / world->cell_size); \
+	y_off = world->height * (float)(y / vert_cells); \
+	if(y < 0 && y % vert_cells != 0) y_off -= world->width; \
+	y = ((y % vert_cells) + vert_cells) % vert_cells; \
+}
+
 static const uint max_swapchain_depth = 10;
 
 // Primes close to the powers of 2, for hashtable size 
@@ -82,7 +96,20 @@ static void _obj_cell(CDWorld* world, CDObj* obj, int* x, int* y) {
 	Vector2 pt = obj->pos;			// Upper left corner
 	if(obj->type == CD_CIRCLE)
 		pt = vec2_sub(pt, vec2(obj->size.radius, obj->size.radius));
+
 	_pt_cell(world, pt, x, y);
+
+	if(world->horiz_wrap) {
+		float x_off;
+		HORIZ_WRAP(*x, x_off);
+		obj->pos.x -= x_off;
+	}
+
+	if(world->vert_wrap) {
+		float y_off;
+		VERT_WRAP(*y, y_off);
+		obj->pos.y -= y_off;
+	}
 }
 
 static RectF _rectf_from_cell(CDWorld* world, int x, int y) {
@@ -306,8 +333,15 @@ static void _coldet_hashmap_remove(CDWorld* world, CDObj* obj) {
 	list_remove(&obj->list);	
 }
 
-static CDCell* _coldet_hashmap_get(CDWorld* world, int x, int y) {
+static CDCell* _coldet_hashmap_get(CDWorld* world, int x, int y,
+		float* x_offset, float* y_offset) {
 	uint n = world->reserved_cells;
+
+	if(world->horiz_wrap) 
+		HORIZ_WRAP(x, *x_offset);
+
+	if(world->vert_wrap) 
+		VERT_WRAP(y, *y_offset);
 
 	// Find correct cell. Cuckoo hashing assures it will be one
 	// of two alternatives.
@@ -328,12 +362,12 @@ void coldet_init(CDWorld* cd, float max_obj_size) {
 }
 
 void coldet_init_ex(CDWorld* cd, float max_obj_size,
-		float width, float height, bool vert_wrap, bool horiz_wrap) {
+		float width, float height, bool horiz_wrap, bool vert_wrap) {
 	assert(cd);
 	assert(max_obj_size > 0.01f && max_obj_size < 10000.0f);
 
 	float int_part, cell_size = max_obj_size;
-	if(vert_wrap) {
+	if(horiz_wrap) {
 		assert(width >= cell_size*2.0f);
 		// Increase cell size to fit integral number of cells vertically
 		if(fabsf(modff(width / cell_size, &int_part)) > 0.001f) {
@@ -341,7 +375,7 @@ void coldet_init_ex(CDWorld* cd, float max_obj_size,
 		}
 	}
 
-	if(horiz_wrap) {
+	if(vert_wrap) {
 		assert(height >= cell_size*2.0f);
 		// Increase cell size to fit integral number of cells horizontally 
 		if(fabsf(modff(height / cell_size, &int_part)) > 0.001f) {
@@ -353,8 +387,8 @@ void coldet_init_ex(CDWorld* cd, float max_obj_size,
 	assert(fabsf(modff(height / cell_size, &int_part)) <= 0.001f);
 
 	cd->cell_size = cell_size;
-	cd->vert_wrap = vert_wrap;
 	cd->horiz_wrap = horiz_wrap;
+	cd->vert_wrap = vert_wrap;
 	cd->width = width;
 	cd->height = height;
 
@@ -453,9 +487,10 @@ uint coldet_query_circle(CDWorld* cd, Vector2 center, float radius, uint mask,
 
 	for(int y = ul_y-1; y <= lr_y; ++y) {
 		for(int x = ul_x-1; x <= lr_x; ++x) {
+			float x_off = 0.0f, y_off = 0.0f;
 
 			// Iterate through every colliding cell
-			CDCell* cell = _coldet_hashmap_get(cd, x, y);
+			CDCell* cell = _coldet_hashmap_get(cd, x, y, &x_off, &y_off);
 			if(cell == NULL)
 				continue;
 
@@ -471,8 +506,8 @@ uint coldet_query_circle(CDWorld* cd, Vector2 center, float radius, uint mask,
 							count++;
 						}
 					}
+					continue;
 				}
-				continue;
 			}
 
 			// Perform full collission checks
@@ -482,6 +517,8 @@ uint coldet_query_circle(CDWorld* cd, Vector2 center, float radius, uint mask,
 					// AABB
 					if(pos->type == CD_AABB) {
 						RectF aabb = _rectf_from_aabb(pos);
+						aabb.left += x_off; aabb.right += x_off;
+						aabb.top += y_off; aabb.bottom += y_off;
 						if(rectf_circle_collision(&aabb, &center, radius)) {
 							(*callback)(pos);
 							count++;
@@ -489,7 +526,8 @@ uint coldet_query_circle(CDWorld* cd, Vector2 center, float radius, uint mask,
 					}
 					// Circle
 					if(pos->type == CD_CIRCLE) {
-						Vector2 d = vec2_sub(center, pos->pos);
+						Vector2 p = vec2(pos->pos.x+x_off, pos->pos.y+y_off);
+						Vector2 d = vec2_sub(center, p);
 						float rr = radius + pos->size.radius;
 						if(vec2_length_sq(d) <= rr * rr) {
 							(*callback)(pos);
@@ -521,9 +559,10 @@ uint coldet_query_aabb(CDWorld* cd, const RectF* rect, uint mask,
 
 	for(int y = ul_y-1; y <= lr_y; ++y) {
 		for(int x = ul_x-1; x <= lr_x; ++x) {
+			float x_off = 0.0f, y_off = 0.0f;
 
 			// Iterate through every colliding cell
-			CDCell* cell = _coldet_hashmap_get(cd, x, y);
+			CDCell* cell = _coldet_hashmap_get(cd, x, y, &x_off, &y_off);
 			if(cell == NULL)
 				continue;
 
@@ -547,6 +586,8 @@ uint coldet_query_aabb(CDWorld* cd, const RectF* rect, uint mask,
 					// AABB
 					if(pos->type == CD_AABB) {
 						RectF aabb = _rectf_from_aabb(pos);
+						aabb.left += x_off; aabb.right += x_off;
+						aabb.top += y_off; aabb.bottom += y_off;
 						if(rectf_rectf_collision(rect, &aabb)) {
 							(*callback)(pos);
 							count++;
@@ -554,7 +595,8 @@ uint coldet_query_aabb(CDWorld* cd, const RectF* rect, uint mask,
 					}
 					// Circle
 					if(pos->type == CD_CIRCLE) {
-						if(rectf_circle_collision(rect, &pos->pos, pos->size.radius)) {
+						Vector2 p = vec2(pos->pos.x+x_off, pos->pos.y+y_off);
+						if(rectf_circle_collision(rect, &p, pos->size.radius)) {
 							(*callback)(pos);
 							count++;
 						}
@@ -571,7 +613,8 @@ static void _coldet_cell_cast(CDWorld* cd, int cell_x, int cell_y,
 		Vector2 start, Vector2 end, uint mask, float* min_d, Vector2* hitpoint,
 		CDObj** obj) {
 		
-	CDCell* cell = _coldet_hashmap_get(cd, cell_x, cell_y);
+	float x_off = 0.0f, y_off = 0.0f;
+	CDCell* cell = _coldet_hashmap_get(cd, cell_x, cell_y, &x_off, &y_off);
 	if(cell == NULL)
 		return;
 
@@ -584,6 +627,8 @@ static void _coldet_cell_cast(CDWorld* cd, int cell_x, int cell_y,
 			// AABB
 			if(pos->type == CD_AABB) {
 				RectF r = _rectf_from_aabb(pos);
+				r.left += x_off; r.right += x_off;
+				r.top += y_off; r.bottom += y_off;
 				hitp = rectf_raycast(&r, &start, &end);
 				hittest = true;
 				
@@ -591,7 +636,8 @@ static void _coldet_cell_cast(CDWorld* cd, int cell_x, int cell_y,
 
 			// Circle
 			if(pos->type == CD_CIRCLE) {
-				hitp = circle_raycast(&pos->pos, pos->size.radius, &start, &end);
+				Vector2 p = vec2(pos->pos.x+x_off, pos->pos.y+y_off);
+				hitp = circle_raycast(&p, pos->size.radius, &start, &end);
 				hittest = true;
 			}
 
@@ -727,11 +773,15 @@ CDObj* coldet_cast_segment(CDWorld* cd, Vector2 start, Vector2 end, uint mask,
 }
 
 static void _coldet_obj_to_cell(CDWorld* cd, CDObj* obj, CDCell* cell,
-		CDCollissionCallback callback) {
+		float x_off, float y_off, CDCollissionCallback callback) {
 	assert(cd && obj && cell);
 
 	CDObj* a = obj;
 	CDObj* b;
+
+	Vector2 old_pos = a->pos;
+	a->pos.x -= x_off;
+	b->pos.y -= y_off;
 
 	list_for_each_entry(b, &cell->objs, list) {
 		if(a >= b)
@@ -767,6 +817,8 @@ static void _coldet_obj_to_cell(CDWorld* cd, CDObj* obj, CDCell* cell,
 			}
 		}
 	}
+
+	a->pos = old_pos;
 }
 
 void coldet_process(CDWorld* cd, CDCollissionCallback callback) {
@@ -789,16 +841,17 @@ void coldet_process(CDWorld* cd, CDCollissionCallback callback) {
 #endif
 		// Iterate over cell objects
 		CDObj* obj;
-		list_for_each_entry(obj, &cell->objs, list) {
+		CDObj* n;
+		list_for_each_entry_safe(obj, n, &cell->objs, list) {
 
 #ifdef _DEBUG
-		if(obj->type == CD_CIRCLE) {
-			assert(obj->size.radius*2.0f <= cd->cell_size);
-		}
-		if(obj->type == CD_AABB) {
-			assert(obj->size.size.x <= cd->cell_size);
-			assert(obj->size.size.y <= cd->cell_size);
-		}
+			if(obj->type == CD_CIRCLE) {
+				assert(obj->size.radius*2.0f <= cd->cell_size);
+			}
+			if(obj->type == CD_AABB) {
+				assert(obj->size.size.x <= cd->cell_size);
+				assert(obj->size.size.y <= cd->cell_size);
+			}
 #endif
 
 #ifndef NO_DEVMODE
@@ -854,10 +907,14 @@ void coldet_process(CDWorld* cd, CDCollissionCallback callback) {
 			continue;
 
 		CDCell* neighbours[8];
+		float neighbour_x_off[8] = {0};
+		float neighbour_y_off[8] = {0};
 		for(uint j = 0; j < 8; ++j)
 			neighbours[j] = _coldet_hashmap_get(cd, 
 					cell->x + cell_offset_x[j],
-					cell->y + cell_offset_y[j]
+					cell->y + cell_offset_y[j],
+					&neighbour_x_off[j],
+					&neighbour_y_off[j]
 			);
 
 		// Iterate over objects
@@ -886,28 +943,32 @@ void coldet_process(CDWorld* cd, CDCollissionCallback callback) {
 			}
 
 			// Iterate over objects in the same cell
-			_coldet_obj_to_cell(cd, obj, cell, callback);
+			_coldet_obj_to_cell(cd, obj, cell, 0.0f, 0.0f, callback);
 
 			// Iterate over objects in neighbour cells
 			for(uint j = 0; j < 3; ++j) {
 				if(neighbours[j])
-					_coldet_obj_to_cell(cd, obj, neighbours[j], callback);
+					_coldet_obj_to_cell(cd, obj, neighbours[j],
+							neighbour_x_off[j], neighbour_y_off[j], callback);
 			}
 			if(crosses_x) {
 				for(uint j = 3; j < 5; ++j) {
 					if(neighbours[j])
-						_coldet_obj_to_cell(cd, obj, neighbours[j], callback);
+						_coldet_obj_to_cell(cd, obj, neighbours[j],
+							neighbour_x_off[j], neighbour_y_off[j], callback);
 				}
 			}
 			if(crosses_y) {
 				for(uint j = 5; j < 7; ++j) {
 					if(neighbours[j])
-						_coldet_obj_to_cell(cd, obj, neighbours[j], callback);
+						_coldet_obj_to_cell(cd, obj, neighbours[j],
+							neighbour_x_off[j], neighbour_y_off[j], callback);
 				}
 			}
 			if(crosses_x && crosses_y) {
 				if(neighbours[7])
-					_coldet_obj_to_cell(cd, obj, neighbours[7], callback);
+					_coldet_obj_to_cell(cd, obj, neighbours[7],
+							neighbour_x_off[7], neighbour_y_off[7], callback);
 			}
 		}
 	}

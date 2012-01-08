@@ -35,10 +35,10 @@ void list_remove(ListHead* node);
 	     pos = list_entry(pos->member.next, __typeof__(*pos), member))
 
 #define list_for_each_entry_safe(pos, n, head, member)			\
-	for (pos = list_entry((head)->next, typeof(*pos), member),	\
-		n = list_entry(pos->member.next, typeof(*pos), member);	\
+	for (pos = list_entry((head)->next, __typeof__(*pos), member),	\
+		n = list_entry(pos->member.next, __typeof__(*pos), member);	\
 	     &pos->member != (head); 					\
-	     pos = n, n = list_entry(n->member.next, typeof(*n), member)
+	     pos = n, n = list_entry(n->member.next, __typeof__(*n), member))
 
 // Binary min-heap priority queue
 
