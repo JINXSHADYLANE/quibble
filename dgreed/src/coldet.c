@@ -502,7 +502,8 @@ uint coldet_query_circle(CDWorld* cd, Vector2 center, float radius, uint mask,
 					CDObj* pos;
 					list_for_each_entry(pos, &cell->objs, list) {
 						if(pos->mask & mask) {
-							(*callback)(pos);
+							if(callback)
+								(*callback)(pos);
 							count++;
 						}
 					}
@@ -520,7 +521,8 @@ uint coldet_query_circle(CDWorld* cd, Vector2 center, float radius, uint mask,
 						aabb.left += x_off; aabb.right += x_off;
 						aabb.top += y_off; aabb.bottom += y_off;
 						if(rectf_circle_collision(&aabb, &center, radius)) {
-							(*callback)(pos);
+							if(callback)
+								(*callback)(pos);
 							count++;
 						}
 					}
@@ -530,7 +532,8 @@ uint coldet_query_circle(CDWorld* cd, Vector2 center, float radius, uint mask,
 						Vector2 d = vec2_sub(center, p);
 						float rr = radius + pos->size.radius;
 						if(vec2_length_sq(d) <= rr * rr) {
-							(*callback)(pos);
+							if(callback)
+								(*callback)(pos);
 							count++;
 						}
 					}
@@ -572,7 +575,8 @@ uint coldet_query_aabb(CDWorld* cd, const RectF* rect, uint mask,
 				CDObj* pos;
 				list_for_each_entry(pos, &cell->objs, list) {
 					if(pos->mask & mask) {
-						(*callback)(pos);
+						if(callback)
+							(*callback)(pos);
 						count++;
 					}
 				}
@@ -589,7 +593,8 @@ uint coldet_query_aabb(CDWorld* cd, const RectF* rect, uint mask,
 						aabb.left += x_off; aabb.right += x_off;
 						aabb.top += y_off; aabb.bottom += y_off;
 						if(rectf_rectf_collision(rect, &aabb)) {
-							(*callback)(pos);
+							if(callback)
+								(*callback)(pos);
 							count++;
 						}
 					}
@@ -597,7 +602,8 @@ uint coldet_query_aabb(CDWorld* cd, const RectF* rect, uint mask,
 					if(pos->type == CD_CIRCLE) {
 						Vector2 p = vec2(pos->pos.x+x_off, pos->pos.y+y_off);
 						if(rectf_circle_collision(rect, &p, pos->size.radius)) {
-							(*callback)(pos);
+							if(callback)
+								(*callback)(pos);
 							count++;
 						}
 					}
@@ -781,7 +787,7 @@ static void _coldet_obj_to_cell(CDWorld* cd, CDObj* obj, CDCell* cell,
 
 	Vector2 old_pos = a->pos;
 	a->pos.x -= x_off;
-	b->pos.y -= y_off;
+	a->pos.y -= y_off;
 
 	list_for_each_entry(b, &cell->objs, list) {
 		if(a >= b)
