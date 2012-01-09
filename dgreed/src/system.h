@@ -159,10 +159,16 @@ typedef enum {
 } Key;	
 
 typedef enum {
-	MBTN_LEFT = 0,
-	MBTN_RIGHT,
+
+	MBTN_PRIMARY = 0,
+	MBTN_SECONDARY = 1,
 	MBTN_MIDDLE,
-	MBTN_COUNT
+	
+	// Left/right is deprecated
+	MBTN_LEFT = 0,
+	MBTN_RIGHT = 1,
+	
+	MBTN_COUNT = 3
 } MouseButton;	
 
 // Returns true if key is being held down
