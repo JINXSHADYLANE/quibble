@@ -140,6 +140,15 @@ float vec2_angle(Vector2 a, Vector2 b) {
 	return atan2f(a.x, a.y) - atan2f(b.x, b.y);
 }
 
+Vector2 vec2_lerp(Vector2 a, Vector2 b, float t) {
+	Vector2 result = {
+		.x = a.x + (b.x-a.x)*t,
+		.y = a.y + (b.y-a.y)*t
+	};
+	return result;
+}
+
+
 /*
 -----------------
 --- Rectangle ---
@@ -529,6 +538,31 @@ Vector2 circle_raycast(const Vector2* center, float r,
 		return hitp;
 
 	return *end;
+}
+
+float circle_circle_test(
+		Vector2 a_center, float a_radius, Vector2 a_offset,
+		Vector2 b_center, float b_radius, Vector2 b_offset) {
+	assert(a_radius > 0.0f && b_radius > 0.0f);
+
+	Vector2 ab = vec2_sub(b_center, a_center);
+	Vector2 rel = vec2_sub(b_offset, a_offset);
+	float r = a_radius + b_radius;
+	float c = vec2_dot(ab, ab) - r*r;
+	if(c < 0.0f)		// Already overalapping at t=0
+		return 0.0f;
+
+	float a = vec2_dot(rel, rel);
+	if(a < 0.00001f)	// No relative movement 
+		return -1.0f;
+	float b = vec2_dot(rel, ab);
+	if(b >= 0.0f)		// Not moving towards
+		return -1.0f;
+	float d = b*b - a*c;
+	if(d < 0.0f)		// No intersection
+		return -1.0f;
+
+	return (-b - sqrtf(d)) / a;
 }
 
 

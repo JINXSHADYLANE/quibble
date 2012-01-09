@@ -42,6 +42,7 @@ typedef struct {
 // Game state
 static float screen_widthf, screen_heightf;
 static DArray balls;
+static DArray spawns;
 static DArray ghosts;
 static CDWorld cd;
 static LevelDef level;
@@ -102,6 +103,7 @@ void sim_init(uint screen_width, uint screen_height) {
 
 	balls = darray_create(sizeof(Ball), 0);
 	ghosts = darray_create(sizeof(Ball), 0);
+	spawns = darray_create(sizeof(Ball), 0);
 
 	coldet_init_ex(&cd, MAX_BALL_SIZE, screen_widthf, screen_heightf, true, true);
 }
@@ -109,6 +111,7 @@ void sim_init(uint screen_width, uint screen_height) {
 void sim_close(void) {
 	coldet_close(&cd);
 
+	darray_free(&spawns);
 	darray_free(&ghosts);
 	darray_free(&balls);
 }
@@ -121,6 +124,11 @@ void sim_reset(const char* level) {
 
 const char* sim_level(void) {
 	return level.name;
+}
+
+static void _spawn_ex(Ball* b) {
+	b->t = time_s();
+	darray_append(&spawns, b);
 }
 
 static void _spawn(Vector2 pos, Vector2 vel, BallType type, float a) {
@@ -144,14 +152,7 @@ static void _spawn(Vector2 pos, Vector2 vel, BallType type, float a) {
 		.remove = false
 	};
 
-	int hits = coldet_query_circle(&cd, pos, radius, 1, NULL);
-	if(hits == 0) {
-		darray_append(&balls, &new);
-		Ball* pballs = DARRAY_DATA_PTR(balls, Ball);
-		Ball* pnew = &pballs[balls.size-1];
-		CDObj* obj = coldet_new_circle(&cd, pos, radius, 1, pnew);
-		pnew->collider = obj;
-	}
+	_spawn_ex(&new);
 }
 
 static float _distance(Vector2 start, Vector2 end, Vector2* out_path) {
@@ -195,7 +196,7 @@ static void _ball_centers(const Ball* a, Vector2* c) {
 	}
 }
 
-static bool _balls_collide(const Ball* a, const Ball* b) {
+static bool _do_balls_collide(const Ball* a, const Ball* b) {
 	assert(a && b);
 
 	float r = ball_radius * 2.0f;
@@ -323,6 +324,109 @@ void _apply_gravity_cb(CDObj* obj) {
 void _apply_timescale_cb(CDObj* obj) {
 }
 
+Ball _balls_merge(Ball* a, Ball* b) {
+	Ball new;
+
+	// Momentum times dt
+	Vector2 pa = vec2_scale(vec2_sub(a->pos, a->old_pos), 1.0f / a->inv_mass);
+	Vector2 pb = vec2_scale(vec2_sub(a->pos, a->old_pos), 1.0f / a->inv_mass);
+	Vector2 pn = vec2_add(pa, pb);
+
+	new.pos = vec2_scale(vec2_add(a->pos, b->pos), 0.5f);
+	new.inv_mass = (a->inv_mass * b->inv_mass) / (a->inv_mass + b->inv_mass);
+	new.old_pos = vec2_sub(new.pos, vec2_scale(pn, new.inv_mass));
+	new.angle = atan2f(
+			b->pos.y - a->pos.y,
+			b->pos.x - a->pos.x
+	);
+	new.old_angle = new.angle - (a->angle - a->old_angle) - (b->angle - b->old_angle);
+	new.ts = (a->ts + b->ts) * 0.5f;
+
+	return new;
+}
+
+// Perfect elastic collission
+void _balls_bounce(Ball* a, Ball* b) {
+	// Normal and tangent vectors of collission space
+	Vector2 sn = vec2_normalize(vec2_sub(b->pos, a->pos));
+	Vector2 st = vec2(sn.y, -sn.x);
+
+	// Velocities
+	Vector2 va = vec2_sub(a->pos, a->old_pos);
+	Vector2 vb = vec2_sub(a->pos, a->old_pos);
+	
+	// Normal velocities
+	Vector2 n_va = vec2_scale(sn, vec2_dot(sn, va));
+	Vector2 n_vb = vec2_scale(sn, vec2_dot(sn, vb));
+
+	// Tangent velocities
+	Vector2 t_va = vec2_scale(st, vec2_dot(st, va));
+	Vector2 t_vb = vec2_scale(st, vec2_dot(st, vb));
+
+	// Find exact moment in time collission occured 
+	float t = circle_circle_test(
+			a->old_pos, ball_radius, vec2_sub(a->pos, a->old_pos),
+			b->old_pos, ball_radius, vec2_sub(b->pos, b->old_pos)
+	);
+	assert(t >= 0.0f);
+
+	// Positions of balls at the moment of collission
+	Vector2 pa = vec2_lerp(a->old_pos, a->pos, t);
+	Vector2 pb = vec2_lerp(b->old_pos, b->pos, t);
+
+	// Calculate new speeds, preserving momentum and kinetic energy
+	float ma = 1.0f / a->inv_mass;
+	float mb = 1.0f / b->inv_mass;
+	float inv_mab = 1.0f / (ma + mb);
+	Vector2 nva = vec2_add(
+			vec2_scale(n_va, (ma - mb) * inv_mab),
+			vec2_scale(n_vb, 2.0f * ma * inv_mab)
+	);
+	Vector2 nvb = vec2_add(
+			vec2_scale(n_vb, (mb - ma) * inv_mab),
+			vec2_scale(n_va, 2.0f * mb * inv_mab)
+	);
+
+	// Add tangent velocities, which did not change
+	nva = vec2_add(nva, t_va);
+	nvb = vec2_add(nvb, t_vb);
+
+	// Calculate current position by moving balls with new speed
+	// for all the remaining time after collission
+	assert(1.0f - t >= 0.0f);
+	a->pos = vec2_add(pa, vec2_scale(nva, 1.0f - t));
+	a->old_pos = vec2_sub(a->pos, nva);
+	b->pos = vec2_add(pb, vec2_scale(nvb, 1.0f - t));
+	b->old_pos = vec2_sub(b->pos, nvb);
+}
+
+void _collission_cb(CDObj* a, CDObj* b) {
+	Ball* ball_a = (Ball*)a->userdata;
+	Ball* ball_b = (Ball*)b->userdata;
+
+	assert(ball_a != ball_b);
+	assert(ball_a && ball_b);
+
+	BallType ta = ball_a->type, tb = ball_b->type;
+
+	if((ta & BT_WHITE) == (tb & BT_WHITE)) {
+		// X + X = XX
+		if(((ta & ~BT_WHITE) == 0) && ((tb & ~BT_WHITE) == 0)) {
+			ball_a->remove = ball_b->remove = true;
+			Ball new = _balls_merge(ball_a, ball_b);
+			new.type = ta | BT_PAIR;
+			_spawn_ex(&new);
+			return;
+		}
+	}
+
+	// Other cases - bounce off
+	if(!(ta & BT_PAIR) && !(tb & BT_PAIR)) {
+		_balls_bounce(ball_a, ball_b);
+	}
+	
+}
+
 void sim_update(void) {
 	_update_level();
 
@@ -396,5 +500,32 @@ void sim_update(void) {
 		Vector2 offset = vec2_sub(ball->pos, ball->old_pos);
 		ball->collider->offset = offset;
 	}
+
+	coldet_process(&cd, _collission_cb);
+
+	// Remove balls marked for removal
+	b = DARRAY_DATA_PTR(balls, Ball);
+	for(uint i = 0; i < balls.size; ++i) {
+		if(b[i].remove) {
+			coldet_remove_obj(&cd, b[i].collider);
+			darray_remove_fast(&balls, i);
+			--i;
+		}
+	}
+
+	// Spawn new balls 
+	b = DARRAY_DATA_PTR(spawns, Ball);
+	for(uint i = 0; i < spawns.size; ++i) {
+		float radius = b[i].type & BT_PAIR ? ball_radius * pair_displacement : ball_radius;
+		int hits = coldet_query_circle(&cd, b[i].pos, radius, 1, NULL);
+		if(hits == 0) {
+			darray_append(&spawns, &b[i]);
+			Ball* pballs = DARRAY_DATA_PTR(balls, Ball);
+			Ball* pnew = &pballs[balls.size-1];
+			CDObj* obj = coldet_new_circle(&cd, b->pos, radius, 1, pnew);
+			pnew->collider = obj;
+		}
+	}
+	spawns.size = 0;
 }
 

@@ -79,6 +79,7 @@ float vec2_length(Vector2 a);
 float vec2_length_sq(Vector2 b);
 float vec2_dir(Vector2 a);
 float vec2_angle(Vector2 a, Vector2 b);
+Vector2 vec2_lerp(Vector2 a, Vector2 b, float t);
 
 /*
 -----------------
@@ -167,6 +168,13 @@ bool segment_intersect(Segment s1, Segment s2, Vector2* p);
 // Returns first intersection point or end
 Vector2 circle_raycast(const Vector2* center, float r,
 		const Vector2* start, const Vector2* end);
+
+// Collission test between two moving spheres, returns collission time
+// in range [0, 1] or -1 if there was no collission
+float circle_circle_test(
+		Vector2 a_center, float a_radius, Vector2 a_offset,
+		Vector2 b_center, float b_radius, Vector2 b_offset
+);
 
 /*
 --------------
