@@ -180,13 +180,13 @@ static void _sprsheet_load(SprDesc* desc) {
 }
 
 static void _sprsheet_load_desc(const char* desc) {
-	assert(sprsheet_initialized);
 	assert(sprsheet_descs.item_size == sizeof(SprDesc));
 
 	// Read mml
 	char* mml_text = txtfile_read(desc); 
 	if(!mml_deserialize(&sprsheet_mml, mml_text))
 		LOG_ERROR("Unable to parse sprsheet desc %s", desc);
+	MEM_FREE(mml_text);
 
 	NodeIdx root = mml_root(&sprsheet_mml);
 	if(strcmp(mml_get_name(&sprsheet_mml, root), "sprsheet") != 0)

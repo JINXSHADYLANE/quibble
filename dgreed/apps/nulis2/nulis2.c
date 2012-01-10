@@ -1,6 +1,7 @@
 #include <malka/malka.h>
 #include <malka/ml_states.h>
 #include <system.h>
+#include <sprsheet.h>
 
 #include "game.h"
 
@@ -13,6 +14,8 @@ void dgreed_init(int argc, const char** argv) {
 	malka_init();
 	malka_params(argc, argv);
 
+	sprsheet_init("nulis2_assets/sprsheet_768p.mml");
+
 	malka_states_register("game", &game_state);
 	malka_states_push("game");
 	malka_states_init("nulis2_scripts/main.lua");
@@ -20,6 +23,9 @@ void dgreed_init(int argc, const char** argv) {
 
 void dgreed_close(void) {
 	malka_states_close();
+
+	sprsheet_close();
+
 	malka_close();
 	video_close();
 	log_close();
