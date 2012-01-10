@@ -330,7 +330,12 @@ try_again:
 }
 
 static void _coldet_hashmap_remove(CDWorld* world, CDObj* obj) {
+	ListHead* next = obj->list.next;
+
 	list_remove(&obj->list);	
+
+	if(list_empty(next))
+		world->occupied_cells--;
 }
 
 static CDCell* _coldet_hashmap_get(CDWorld* world, int x, int y,
@@ -879,7 +884,7 @@ void coldet_process(CDWorld* cd, CDCollissionCallback callback) {
 					obj->dirty = false;
 
 					// Remove obj from current list
-					list_remove(&obj->list);
+					_coldet_hashmap_remove(cd, obj);
 
 					// Insert into reinsert list 
 					list_push_back(&cd->reinsert_list, &obj->list);
