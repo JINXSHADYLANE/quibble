@@ -1,0 +1,61 @@
+(sprsheet nulis_ipad
+	(prefix "nulis2_assets/")
+	(img title
+		(tex "nulis_title.png")
+	)
+	(img background
+		(tex "background.png")
+		(src 0,0,240,160)
+	)
+	(img vignette
+		(tex "background.png")
+		(src 0,160,240,320)
+	)
+	(img bubble_w
+		(tex "bubbles_1_s.png")
+		(src 0,0,32,32)
+	)
+	(img bubble_b
+		(tex "bubbles_1_s.png")
+		(src 0,32,32,64)
+	)
+	(img double_bubble_w
+		(tex "bubbles_1_s.png")
+		(src 64,0,116,32)
+	)
+	(img double_bubble_b
+		(tex "bubbles_1_s.png")
+		(src 64,32,116,64)
+	)
+	(img triple_bubble_w
+		(tex "bubbles_2_s.png")
+		(src 0,0,52,52)
+	)
+	(img triple_bubble_b
+		(tex "bubbles_2_s.png")
+		(src 0,52,52,104)
+	)
+	(img beacon
+		(tex "bubbles_1_s.png")
+		(src 32,0,64,32)
+	)
+	(img time_w
+		(tex "bubbles_1_s.png")
+		(src 128,0,192,64)
+	)
+	(img time_b
+		(tex "bubbles_1_s.png")
+		(src 192,0,256,64)
+	)
+	(img gravity_b
+		(tex "bubbles_2_s.png")
+		(src 52,0,154,102)
+	)
+	(img gravity_w
+		(tex "bubbles_2_s.png")
+		(src 154,0,256,102)
+	)
+	(img circle
+		(tex "circle.png")
+	)
+)

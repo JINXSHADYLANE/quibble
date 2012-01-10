@@ -519,7 +519,7 @@ void sim_update(void) {
 		float radius = b[i].type & BT_PAIR ? ball_radius * pair_displacement : ball_radius;
 		int hits = coldet_query_circle(&cd, b[i].pos, radius, 1, NULL);
 		if(hits == 0) {
-			darray_append(&spawns, &b[i]);
+			darray_append(&balls, &b[i]);
 			Ball* pballs = DARRAY_DATA_PTR(balls, Ball);
 			Ball* pnew = &pballs[balls.size-1];
 			CDObj* obj = coldet_new_circle(&cd, b->pos, radius, 1, pnew);
@@ -527,5 +527,13 @@ void sim_update(void) {
 		}
 	}
 	spawns.size = 0;
+}
+
+void sim_render(void) {
+	// Render background
+	
+	// Render vignette
+	
+	// Render balls
 }
 

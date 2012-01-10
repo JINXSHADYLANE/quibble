@@ -28,6 +28,8 @@ void malka_states_pop(void);
 void malka_states_set_transition_len(float len);
 float malka_states_transition_len(void);
 
+void malka_states_start(void);
+void malka_states_end(void);
 bool malka_states_step(void);
 
 #endif
