@@ -3,6 +3,7 @@
 #include <system.h>
 #include <sprsheet.h>
 
+#include "common.h"
 #include "game.h"
 
 void dgreed_init(int argc, const char** argv) {
@@ -14,11 +15,11 @@ void dgreed_init(int argc, const char** argv) {
 	malka_init();
 	malka_params(argc, argv);
 
-	sprsheet_init("nulis2_assets/sprsheet_768p.mml");
+	sprsheet_init(ASSETS_PRE "sprsheet_768p.mml");
 
 	malka_states_register("game", &game_state);
 	malka_states_push("game");
-	malka_states_init("nulis2_scripts/main.lua");
+	malka_states_init(SCRIPTS_PRE "main.lua");
 }
 
 void dgreed_close(void) {
