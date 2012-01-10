@@ -3,6 +3,7 @@
 #include <sprsheet.h>
 #include <coldet.h>
 #include <darray.h>
+#include <sprsheet.h>
 
 #define MAX_BALL_SIZE 48.0f
 #define DT (1.0f / 60.0f)
@@ -38,6 +39,9 @@ typedef struct {
 	uint spawn_random_at;
 	float spawn_random_interval;
 } LevelDef;
+
+// Sprites
+static SprHandle spr_background;
 
 // Game state
 static float screen_widthf, screen_heightf;
@@ -106,6 +110,8 @@ void sim_init(uint screen_width, uint screen_height) {
 	spawns = darray_create(sizeof(Ball), 0);
 
 	coldet_init_ex(&cd, MAX_BALL_SIZE, screen_widthf, screen_heightf, true, true);
+
+	spr_background = sprsheet_get_handle("background");
 }
 
 void sim_close(void) {
@@ -531,6 +537,7 @@ void sim_update(void) {
 
 void sim_render(void) {
 	// Render background
+	spr_draw_h(spr_background, 0, rectf(0.0f, 0.0f, screen_widthf, screen_heightf), COLOR_WHITE);
 	
 	// Render vignette
 	
