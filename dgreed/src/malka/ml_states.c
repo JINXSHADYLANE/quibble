@@ -345,38 +345,15 @@ static const char* top_name;
 static bool breakout;
 
 void ml_states_run(lua_State* l) {
-	if(!_stack_size()) {
-		LOG_WARNING("Entering main loop with empty state stack");
-		return;
-	}	
-
-	// Init all states
-	for(uint i = 0; i < _names_size(); ++i)
-		_call_state_func(l, _names_get(i), "init", NULL);
-
-	states_from = states_to = _stack_get(_stack_size()-1);	
-
-	// Enter top state
-	top_name = _names_get(_stack_get(_stack_size()-1));
-	_call_state_func(l, top_name, "enter", NULL);
+	malka_states_start();
 
 	// Main loop
-	states_in_mainloop = true;
-	breakout = false;
 	bool cont = true;
 	do {
 		cont = malka_states_step();
 	} while(cont);
-	states_in_mainloop = false;
 
-	// Leave top state if stack is not empty
-	if(_stack_size()) {
-		top_name = _names_get(_stack_get(_stack_size()-1));
-		_call_state_func(l, top_name, "leave", NULL);
-	}
-
-	for(uint i = 0; i < _names_size(); ++i)
-		_call_state_func(l, _names_get(i), "close", NULL);
+	malka_states_end();
 }
 
 static const luaL_Reg states_fun[] = {
@@ -433,6 +410,44 @@ void malka_states_set_transition_len(float len) {
 
 float malka_states_transition_len(void) {
 	return _get_transition_len(malka_lua_state());
+}
+
+void malka_states_start(void) {
+	lua_State* l = malka_lua_state();
+
+	if(!_stack_size()) {
+		LOG_WARNING("Entering main loop with empty state stack");
+		return;
+	}	
+
+	// Init all states
+	for(uint i = 0; i < _names_size(); ++i)
+		_call_state_func(l, _names_get(i), "init", NULL);
+
+	states_from = states_to = _stack_get(_stack_size()-1);	
+
+	// Enter top state
+	top_name = _names_get(_stack_get(_stack_size()-1));
+	_call_state_func(l, top_name, "enter", NULL);
+
+	// Prep for main loop
+	states_in_mainloop = true;
+	breakout = false;
+}
+
+void malka_states_end(void) {
+	lua_State* l = malka_lua_state();
+
+	states_in_mainloop = false;
+
+	// Leave top state if stack is not empty
+	if(_stack_size()) {
+		top_name = _names_get(_stack_get(_stack_size()-1));
+		_call_state_func(l, top_name, "leave", NULL);
+	}
+
+	for(uint i = 0; i < _names_size(); ++i)
+		_call_state_func(l, _names_get(i), "close", NULL);
 }
 
 bool malka_states_step(void) {

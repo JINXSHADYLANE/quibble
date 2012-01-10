@@ -27,4 +27,9 @@ int malka_run_ex(const char* luafile);
 // Enters ml_states controlled game loop
 int malka_states_run(const char* luafile);
 
+// Alternatives for writing your own game loop
+void malka_states_init(const char* luafile);
+void malka_states_close(void);
+extern bool malka_states_step(void);
+
 #endif
