@@ -421,14 +421,13 @@ CDObj* coldet_new_circle(CDWorld* cd, Vector2 center, float radius,
 		uint mask, void* userdata) {
 	assert(cd);
 	assert(mask); // If mask is 0, object will be just ghost
+	assert(radius > 0.0f && radius*2.0f <= cd->cell_size);
 
 	CDObj* new = mempool_alloc(&cd->allocator);
 	
 	new->pos = center;
 	new->size.radius = radius;
 	
-	assert(radius*2.0f <= cd->cell_size);
-
 	new->offset = vec2(0.0f, 0.0f);
 	new->dirty = false;
 	new->type = CD_CIRCLE;

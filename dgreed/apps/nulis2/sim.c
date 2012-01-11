@@ -64,6 +64,7 @@ static Ball* new_ball;
 
 // Tweaks
 float ball_mass = 2.0f;
+float grav_mass = 6.0f;
 float ball_radius = 16.0f;
 float pair_displacement = 1.5f;
 float linear_damp = 0.997f;
@@ -72,8 +73,8 @@ float angular_damp = 0.99f;
 float ffield_strength = 1500.0f;
 float ffield_radius = 160.0f;
 
-float gravity_max_dist = 160.0f;
-float gravity_strength = 200.0f;
+float gravity_max_dist = 320.0f;
+float gravity_strength = 200000.0f;
 
 float spawn_anim_len = 0.5f;
 float spawn_maxspeed = 30.0f;
@@ -87,7 +88,7 @@ float ghost_maxrot = 7.0f;
 static void _load_level(const char* level_name) {
 	// Todo
 	strcpy(level.name, "testlevel");
-	level.n_spawns = 4;
+	level.n_spawns = 5;
 
 	level.spawns[0].pos = vec2(-200.0f, 0.0f);
 	level.spawns[0].vel = vec2(0.0f, 0.0f);
@@ -108,6 +109,11 @@ static void _load_level(const char* level_name) {
 	level.spawns[3].vel = vec2(0.0f, 0.0f);
 	level.spawns[3].t = 3.0f;
 	level.spawns[3].type = 0;
+
+	level.spawns[4].pos = vec2(0.0f, 0.0f);
+	level.spawns[4].vel = vec2(0.0f, 0.0f);
+	level.spawns[4].t = 5.0f;
+	level.spawns[4].type = BT_GRAV;
 
 	level.spawn_random_at = 0;
 	level.spawn_random_interval = 0.0f;
@@ -170,6 +176,8 @@ static void _spawn(Vector2 pos, Vector2 vel, BallType type, float a, float t) {
 	float angular_vel = rand_float_range(-spawn_maxrot, spawn_maxrot);
 	float radius = type & BT_PAIR ? ball_radius * pair_displacement : ball_radius; 
 	float mass = type & BT_PAIR ? ball_mass * 2.0f : ball_mass;
+	if(type & BT_GRAV)
+		mass = grav_mass;
 
 	Ball new = {
 		.pos = pos,
@@ -336,29 +344,30 @@ void _apply_gravity_cb(CDObj* obj) {
 		Vector2 path;
 		float sqr_d = _distance(grav_ball->pos, ball->pos, &path);
 
-		assert(sqr_d <= gravity_max_dist * gravity_max_dist);
+		float d = sqrtf(sqr_d);
 
-		float d = sqrtf(d);
-
-		// Turn off gravity when objects penetrate
 		/*
-		float g_r = ball_radius;
-		float b_r = ball_radius;
-		if(ball->type & BT_PAIR)
-			b_r *= pair_displacement;
-		if(d <= g_r + b_r)
-			return;
+		// Create "electric" push force, when objects are close 
+		float f = 0.0f;
+		if(d <= r_lim) {
+			f = (((r_lim*r_lim) / (d*d)) - 1.0f) * 5000.0f;
+		}
 		*/
+
+		float g_r = grav_ball->radius; 
+		float b_r = ball->radius;
+		float r_lim = (g_r + b_r) * 1.1f;
+		if(d <= r_lim)
+			return;
 
 		// Magic function to make force falloff to zero at max_dist,
 		// allows to calculate gravity interactions in nearly linear time
 		float decay = MIN(fabsf(d - gravity_max_dist), fabsf(d + gravity_max_dist));
 		decay = powf(decay / gravity_max_dist, 0.25f);
 
-		float f = (1.0f / (grav_ball->inv_mass * ball->inv_mass)) / sqr_d;
+		float f = (gravity_strength / (grav_ball->inv_mass * ball->inv_mass)) / sqr_d;
 		if(grav_ball->type & BT_WHITE)
 			f *= -1.0f;
-		f *= gravity_strength;
 		
 		path = vec2_normalize(path);
 		grav_ball->force = vec2_add(grav_ball->force,
@@ -421,6 +430,26 @@ static Vector2 _move_ball(Ball* a, Ball* b) {
 		return new_pos;
 	}
 	return a->pos;
+}
+
+// Perfect inelastic collission
+void _balls_join(Ball* a, Ball* b) {
+	Vector2 va = vec2_sub(a->pos, a->old_pos);
+	Vector2 vb = vec2_sub(b->pos, b->old_pos);
+
+	float ma = 1.0f / a->inv_mass;
+	float mb = 1.0f / b->inv_mass;
+	float inv_mab = 1.0f / (ma + mb);
+
+	a->pos = _move_ball(a, b);
+
+	Vector2 nv = vec2_add(
+			vec2_scale(va, ma * inv_mab),
+			vec2_scale(vb, mb * inv_mab)
+	);
+
+	a->old_pos = vec2_sub(a->pos, nv);
+	b->old_pos = vec2_sub(b->pos, nv);
 }
 
 // Perfect elastic collission
@@ -493,7 +522,16 @@ void _collission_cb(CDObj* a, CDObj* b) {
 	if(ball_a->remove || ball_b->remove)
 		return;
 
+	if(!_do_balls_collide(ball_a, ball_b))
+		return;
+
 	BallType ta = ball_a->type, tb = ball_b->type;
+
+	if(ta & BT_GRAV || tb & BT_GRAV) {
+		_balls_join(ball_a, ball_b);
+		return;
+	}
+		
 
 	if((ta & BT_WHITE) == (tb & BT_WHITE)) {
 		// X + X = XX
@@ -526,65 +564,58 @@ void _collission_cb(CDObj* a, CDObj* b) {
 	}
 	else {
 		if((ta & BT_PAIR) || (tb & BT_PAIR)) {
-			if(_do_balls_collide(ball_a, ball_b)) {
+			ball_a->remove = ball_b->remove = true;
+			Vector2 path;
+			_distance(ball_a->pos, ball_b->pos, &path);
+			Vector2 p = vec2_add(ball_a->pos, vec2_scale(path, 0.5f));
 
-				ball_a->remove = ball_b->remove = true;
-				Vector2 path;
-				_distance(ball_a->pos, ball_b->pos, &path);
-				Vector2 p = vec2_add(ball_a->pos, vec2_scale(path, 0.5f));
+			Vector2 vab = vec2_add(
+					vec2_sub(ball_a->pos, ball_a->old_pos),
+					vec2_sub(ball_b->pos, ball_b->old_pos)
+			);
+			vab = vec2_scale(vab, 1.0f / DT);
 
-				Vector2 vab = vec2_add(
-						vec2_sub(ball_a->pos, ball_a->old_pos),
-						vec2_sub(ball_b->pos, ball_b->old_pos)
-				);
-				vab = vec2_scale(vab, 1.0f / DT);
+			float a = rand_float_range(0.0f, 2.0f*PI);
 
-				float a = rand_float_range(0.0f, 2.0f*PI);
-
-				// XX + YY = X + X + X + Y + Y + Y
-				if((ta & BT_PAIR) && (tb & BT_PAIR)) {
-					float r = sqrtf(2.0f) * ball_radius * 1.7f;
-					for(uint i = 0; i < 6; ++i) {
-						float t = (float)i / 6.0f;
-						float ri = i % 2 ? r : r * 0.5f;
-						Vector2 offset = vec2(
-							cosf(a + t * 2.0f * PI) * ri,
-							sinf(a + t * 2.0f * PI) * ri
-						);	
-						Vector2 pos = vec2_add(p, offset);
-						Vector2 v = vec2_add(vec2_scale(offset, 0.5), vab);
-						_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f);
-					}
+			// XX + YY = X + X + X + Y + Y + Y
+			if((ta & BT_PAIR) && (tb & BT_PAIR)) {
+				float r = sqrtf(2.0f) * ball_radius * 1.7f;
+				for(uint i = 0; i < 6; ++i) {
+					float t = (float)i / 6.0f;
+					float ri = i % 2 ? r : r * 0.5f;
+					Vector2 offset = vec2(
+						cosf(a + t * 2.0f * PI) * ri,
+						sinf(a + t * 2.0f * PI) * ri
+					);	
+					Vector2 pos = vec2_add(p, offset);
+					Vector2 v = vec2_add(vec2_scale(offset, 0.5), vab);
+					_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f);
 				}
-				// XX + Y = X + X + Y + Y
-				else {
-					float r = sqrtf(2.0f) * ball_radius;
-					for(uint i = 0; i < 4; ++i) {
-						float t = (float)i / 4.0f;
-						Vector2 offset = vec2(
-							cosf(a + t * 2.0f * PI) * r,
-							sinf(a + t * 2.0f * PI) * r
-						);	
-						Vector2 pos = vec2_add(p, offset);
-						Vector2 v = vec2_add(vec2_scale(offset, 0.5f), vab);
-						_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f);
-					}
+			}
+			// XX + Y = X + X + Y + Y
+			else {
+				float r = sqrtf(2.0f) * ball_radius;
+				for(uint i = 0; i < 4; ++i) {
+					float t = (float)i / 4.0f;
+					Vector2 offset = vec2(
+						cosf(a + t * 2.0f * PI) * r,
+						sinf(a + t * 2.0f * PI) * r
+					);	
+					Vector2 pos = vec2_add(p, offset);
+					Vector2 v = vec2_add(vec2_scale(offset, 0.5f), vab);
+					_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f);
 				}
 			}
 			return;
 		}
 	}
-
 	// Other cases - bounce off
-	if(!(ta & BT_PAIR) && !(tb & BT_PAIR)) {
-		_balls_bounce(ball_a, ball_b);
-	}
-	
+	_balls_bounce(ball_a, ball_b);
 }
 
 static void _spawn_cb(CDObj* obj) {
 	Ball* a = _get_ball((size_t)obj->userdata);
-	if(!a->remove) {
+	if(!a->remove && !(a->type & BT_GRAV)) {
 		a->pos = _move_ball(a, new_ball);
 	}
 }
@@ -685,7 +716,7 @@ void sim_update(void) {
 
 		if(b->type & BT_GRAV) {
 			grav_ball = b;
-			coldet_query_circle(&cd, b->pos, ball_radius, 1,
+			coldet_query_circle(&cd, b->pos, gravity_max_dist, 1,
 					_apply_gravity_cb);
 		}
 		if(b->type & BT_TIME) {
@@ -757,7 +788,7 @@ void sim_update(void) {
 		else {
 			// Append new ball otherwise
 			darray_append(&balls, &b[i]);
-			pnew = &pballs[balls.size-1];
+			pnew = _get_ball(balls.size-1);
 			idx = balls.size-1;
 		}
 		assert(pnew);
@@ -780,22 +811,28 @@ static void _render_ball(Ball* b, float t) {
 	float angle = (b->type & ~BT_WHITE) ? b->angle : 0.0f;
 
 	Color c = COLOR_WHITE;
+	uint layer = 2;
 
+	float radius = b->radius;
 	if(b->type & BT_TRIPLE) {
 		float a = clamp(0.0f, 1.0f, 1.0f - (t - b->t) / ghost_lifetime);
 		c &= ((byte)lrintf(a * 255.0f) << 24) | 0xFFFFFF;
 		scale = 1.0f;
+		radius *= 2.0f;
 	}
 
-	spr_draw_cntr_h(spr_balls[b->type], 1, b->pos, angle, scale, c);
+	if(b->type & BT_GRAV)
+		layer = 1;
 
-	float x_min = b->radius * scale;
+	spr_draw_cntr_h(spr_balls[b->type], layer, b->pos, angle, scale, c);
+
+	float x_min = radius * scale;
 	float x_max = screen_widthf - x_min;
 	float y_min = x_min;
 	float y_max = screen_heightf - x_min;
 
 	WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->pos,
-		spr_draw_cntr_h(spr_balls[b->type], 1, npos, angle, scale, c));
+		spr_draw_cntr_h(spr_balls[b->type], layer, npos, angle, scale, c));
 }
 
 void sim_render(void) {
