@@ -7,7 +7,7 @@
 #include <darray.h>
 #include <sprsheet.h>
 
-#define MAX_BALL_SIZE 48.0f
+#define MAX_BALL_SIZE 51.2f
 #define DT (1.0f / 60.0f)
 #define LEVEL_NAMELEN 16
 #define MAX_SPAWNS 16
@@ -77,7 +77,9 @@ float gravity_strength = 200.0f;
 
 float spawn_anim_len = 0.5f;
 float spawn_maxspeed = 30.0f;
-float spawn_maxrot = 1.0f;
+float spawn_maxrot = 2.0f;
+float ghost_lifetime = 1.0f;
+float ghost_maxrot = 7.0f;
 
 
 // Code
@@ -109,6 +111,12 @@ static void _load_level(const char* level_name) {
 
 	level.spawn_random_at = 0;
 	level.spawn_random_interval = 0.0f;
+}
+
+static Ball* _get_ball(uint i) {
+	assert(i < balls.size);
+	Ball* b = DARRAY_DATA_PTR(balls, Ball);
+	return &b[i];
 }
 
 void sim_init(uint screen_width, uint screen_height) {
@@ -157,7 +165,7 @@ static void _spawn_ex(Ball* b) {
 	darray_append(&spawns, b);
 }
 
-static void _spawn(Vector2 pos, Vector2 vel, BallType type, float a) {
+static void _spawn(Vector2 pos, Vector2 vel, BallType type, float a, float t) {
 
 	float angular_vel = rand_float_range(-spawn_maxrot, spawn_maxrot);
 	float radius = type & BT_PAIR ? ball_radius * pair_displacement : ball_radius; 
@@ -171,7 +179,7 @@ static void _spawn(Vector2 pos, Vector2 vel, BallType type, float a) {
 		.old_angle = a - angular_vel * DT,
 		.radius = radius,
 		.inv_mass = 1.0f / mass,
-		.t = time_s(),
+		.t = t,
 		.ts = 1.0f,
 		.type = type,
 		.collider = NULL,
@@ -258,7 +266,7 @@ static void _update_level(void) {
 					screen_widthf/2.0f + s->pos.x,
 					screen_heightf/2.0f + s->pos.y
 			);
-			_spawn(p, s->vel, s->type, 0.0f);
+			_spawn(p, s->vel, s->type, 0.0f, t);
 			last_spawn_t = t;
 
 			// Move last spawn here, decrease count
@@ -293,14 +301,14 @@ static void _update_level(void) {
 					sinf(a) * v
 			);
 
-			_spawn(pos, vel, type, 0.0f);
+			_spawn(pos, vel, type, 0.0f, t);
 			last_spawn_t = t;
 		}
 	}
 }
 
 void _apply_force_field_cb(CDObj* obj) {
-	Ball* ball = (Ball*)obj->userdata;
+	Ball* ball = _get_ball((size_t)obj->userdata);
 	assert(!ball->remove);
 
 	if(!ball->remove) {
@@ -321,7 +329,7 @@ void _apply_force_field_cb(CDObj* obj) {
 }
 
 void _apply_gravity_cb(CDObj* obj) {
-	Ball* ball = (Ball*)obj->userdata;
+	Ball* ball = _get_ball((size_t)obj->userdata);
 	assert(!ball->remove);
 
 	if(ball != grav_ball) {
@@ -393,6 +401,28 @@ Ball _balls_merge(Ball* a, Ball* b) {
 	return new;
 }
 
+// Returns a new position for ball a, for it not to collide with b
+static Vector2 _move_ball(Ball* a, Ball* b) {
+
+	// Add a little randomness to solve cases where a and b perfectly overlap
+	Vector2 bpos = vec2_add(b->pos, vec2(
+				rand_float_range(-1.0f, 1.0f),
+				rand_float_range(-1.0f, 1.0f)
+	));
+
+	Vector2 ba = vec2_sub(a->pos, bpos);
+	float d_sqr = vec2_length_sq(ba);
+	float rr = a->radius + b->radius;
+	if(d_sqr <= rr*rr) {
+		float d = sqrtf(d_sqr);
+		Vector2 dir = vec2_normalize(ba);
+		Vector2 offset = vec2_scale(dir, rr - d + 0.1f); 
+		Vector2 new_pos = vec2_add(a->pos, offset);
+		return new_pos;
+	}
+	return a->pos;
+}
+
 // Perfect elastic collission
 void _balls_bounce(Ball* a, Ball* b) {
 	// Normal and tangent vectors of collission space
@@ -416,8 +446,10 @@ void _balls_bounce(Ball* a, Ball* b) {
 			a->old_pos, ball_radius, va,
 			b->old_pos, ball_radius, vb 
 	);
-	if(t < 0.0f)
+	if(t <= 0.0f) {
+		a->pos = _move_ball(a, b);
 		return;
+	}
 
 	assert(t >= 0.0f);
 
@@ -452,8 +484,8 @@ void _balls_bounce(Ball* a, Ball* b) {
 }
 
 void _collission_cb(CDObj* a, CDObj* b) {
-	Ball* ball_a = (Ball*)a->userdata;
-	Ball* ball_b = (Ball*)b->userdata;
+	Ball* ball_a = _get_ball((size_t)a->userdata);
+	Ball* ball_b = _get_ball((size_t)b->userdata);
 
 	assert(ball_a != ball_b);
 	assert(ball_a && ball_b);
@@ -471,6 +503,25 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			new.type = ta | BT_PAIR;
 			_spawn_ex(&new);
 			return;
+		}
+
+		if((ta & BT_PAIR) || (tb & BT_PAIR)) {
+			// XX + X = 0
+			ball_a->remove = ball_b->remove = true;
+			Ball new = _balls_merge(ball_a, ball_b);
+			new.type = (ta & BT_WHITE) | BT_TRIPLE;
+			float rot = rand_float_range(-ghost_maxrot, ghost_maxrot);
+			new.old_angle = new.angle - rot * DT;
+			new.t = time_s();
+			new.collider = NULL;
+			darray_append(&ghosts, &new);
+
+			// XX + XX = X
+			if((ta & BT_PAIR) && (tb & BT_PAIR)) {
+				Vector2 vel = vec2_sub(new.old_pos, new.pos);
+				vel = vec2_scale(vel, 1.0f / DT);
+				_spawn(new.pos, vel, ta & BT_WHITE, 0.0f, -1.0f);
+			}
 		}
 	}
 	else {
@@ -502,7 +553,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 						);	
 						Vector2 pos = vec2_add(p, offset);
 						Vector2 v = vec2_add(vec2_scale(offset, 0.5), vab);
-						_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f);
+						_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f);
 					}
 				}
 				// XX + Y = X + X + Y + Y
@@ -516,7 +567,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 						);	
 						Vector2 pos = vec2_add(p, offset);
 						Vector2 v = vec2_add(vec2_scale(offset, 0.5f), vab);
-						_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f);
+						_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f);
 					}
 				}
 			}
@@ -531,37 +582,75 @@ void _collission_cb(CDObj* a, CDObj* b) {
 	
 }
 
-// Returns a new position for ball a, for it not to collide with b)
-static Vector2 _move_ball(Ball* a, Ball* b) {
-
-	// Add a little randomness to solve cases where a and b perfectly overlap
-	Vector2 bpos = vec2_add(b->pos, vec2(
-				rand_float_range(-1.0f, 1.0f),
-				rand_float_range(-1.0f, 1.0f)
-	));
-
-	Vector2 ba = vec2_sub(a->pos, bpos);
-	float d_sqr = vec2_length_sq(ba);
-	float rr = a->radius + b->radius;
-	if(d_sqr <= rr*rr) {
-		float d = sqrtf(d_sqr);
-		Vector2 dir = vec2_normalize(ba);
-		Vector2 offset = vec2_scale(dir, rr - d + 0.1f); 
-		Vector2 new_pos = vec2_add(a->pos, offset);
-		return new_pos;
-	}
-	return a->pos;
-}
-
 static void _spawn_cb(CDObj* obj) {
-	Ball* a = (Ball*)obj->userdata;
+	Ball* a = _get_ball((size_t)obj->userdata);
 	if(!a->remove) {
 		a->pos = _move_ball(a, new_ball);
 	}
 }
 
+static void _update_ball(Ball* ball) {
+	float dt = DT * ball->ts;
+
+	// Position
+	float damp = powf(linear_damp, ball->ts);
+	Vector2 acc = vec2_scale(ball->force, ball->inv_mass);
+	Vector2 new_pos = {
+		.x = (1.0f+damp)*ball->pos.x - damp*ball->old_pos.x + acc.x * dt*dt,
+		.y = (1.0f+damp)*ball->pos.y - damp*ball->old_pos.y + acc.y * dt*dt
+	};
+	ball->old_pos = ball->pos;
+	ball->pos = new_pos;
+
+	// Wrap around
+	if(ball->pos.x < 0.0f || ball->pos.x >= screen_widthf) {
+		float new_x = ball->pos.x;
+		while(new_x < 0.0f)
+			new_x += screen_widthf;
+		new_x = fmodf(new_x, screen_widthf);
+		ball->old_pos.x += new_x - ball->pos.x;
+		ball->pos.x = new_x;
+	}
+	if(ball->pos.y < 0.0f || ball->pos.y >= screen_heightf) {
+		float new_y = ball->pos.y;
+		while(new_y < 0.0f)
+			new_y += screen_heightf;
+		new_y = fmodf(new_y, screen_heightf);
+		ball->old_pos.y += new_y - ball->pos.y;
+		ball->pos.y = new_y;
+	}
+
+	// Rotation
+	float ang_damp = powf(angular_damp, ball->ts);
+	float new_angle = (1.0f+ang_damp)*ball->angle - ang_damp*ball->old_angle;
+	ball->old_angle = ball->angle;
+	ball->angle = new_angle;
+
+	// Reset force and timescale
+	ball->force = vec2(0.0f, 0.0f);
+	ball->ts = 1.0f;
+
+	// Set collider offset
+	if(ball->collider) {
+		Vector2 offset = vec2_sub(ball->pos, ball->collider->pos);
+		ball->collider->offset = offset;
+	}
+}
+
+void _assert_query(CDObj* obj) {
+	Ball* b = _get_ball((size_t)obj->userdata);
+	assert(b->remove == false);
+}
+
 void sim_update(void) {
+	float t = time_s();
+
 	_update_level();
+
+#ifdef _DEBUG
+	RectF r = {0.0f, 0.0f, screen_widthf, screen_heightf};
+	uint h = coldet_query_aabb(&cd, &r, 1, _assert_query);
+#endif
 
 	// Accumulate forces and time scale factors
 	
@@ -589,75 +678,55 @@ void sim_update(void) {
 	}
 
 	// Gravity & time scale
-	Ball* b = DARRAY_DATA_PTR(balls, Ball);
 	for(uint i = 0; i < balls.size; ++i) {
-		if(b[i].remove)
+		Ball* b = _get_ball(i);
+		if(b->remove)
 			continue;
 
-		if(b[i].type & BT_GRAV) {
-			grav_ball = &b[i];
-			coldet_query_circle(&cd, b[i].pos, ball_radius, 1,
+		if(b->type & BT_GRAV) {
+			grav_ball = b;
+			coldet_query_circle(&cd, b->pos, ball_radius, 1,
 					_apply_gravity_cb);
 		}
-		if(b[i].type & BT_TIME) {
-			time_ball = &b[i];
-			coldet_query_circle(&cd, b[i].pos, ball_radius, 1,
+		if(b->type & BT_TIME) {
+			time_ball = b;
+			coldet_query_circle(&cd, b->pos, ball_radius, 1,
 					_apply_timescale_cb);
 		}
 	}
 
 	// Calculate next state using verlet integration
 	for(uint i = 0; i < balls.size; ++i) {
-		Ball* ball = &b[i];	
-		if(ball->remove)
+		Ball* b = _get_ball(i);	
+		if(b->remove)
 			continue;
 
-		float dt = DT * ball->ts;
+		_update_ball(b);
+	}
+	
+	// Remove old ghosts and update all the others
+	Ball* b = DARRAY_DATA_PTR(ghosts, Ball);
+	for(uint i = 0; i < ghosts.size; ++i) {
+		Ball* ghost = &b[i];
 
-		// Position
-		float damp = powf(linear_damp, ball->ts);
-		Vector2 acc = vec2_scale(ball->force, ball->inv_mass);
-		Vector2 new_pos = {
-			.x = (1.0f+damp)*ball->pos.x - damp*ball->old_pos.x + acc.x * dt*dt,
-			.y = (1.0f+damp)*ball->pos.y - damp*ball->old_pos.y + acc.y * dt*dt
-		};
-		ball->old_pos = ball->pos;
-		ball->pos = new_pos;
-
-		// Wrap around
-		if(ball->pos.x < 0.0f || ball->pos.x >= screen_widthf) {
-			float new_x = fmodf(ball->pos.x + screen_widthf, screen_widthf);
-			ball->old_pos.x += new_x - ball->pos.x;
-			ball->pos.x = new_x;
+		if(t - ghost->t >= ghost_lifetime) {
+			b[i] = b[ghosts.size-1];
+			ghosts.size--;
+			i--;
 		}
-		if(ball->pos.y < 0.0f || ball->pos.y >= screen_heightf) {
-			float new_y = fmodf(ball->pos.y + screen_heightf, screen_heightf);
-			ball->old_pos.y += new_y - ball->pos.y;
-			ball->pos.y = new_y;
+		else {
+			_update_ball(ghost);
 		}
-
-		// Rotation
-		float ang_damp = powf(angular_damp, ball->ts);
-		float new_angle = (1.0f+ang_damp)*ball->angle - ang_damp*ball->old_angle;
-		ball->old_angle = ball->angle;
-		ball->angle = new_angle;
-
-		// Reset force and timescale
-		ball->force = vec2(0.0f, 0.0f);
-		ball->ts = 1.0f;
-
-		// Set collider offset
-		Vector2 offset = vec2_sub(ball->pos, ball->collider->pos);
-		ball->collider->offset = offset;
 	}
 
+	// Process all collissions
 	coldet_process(&cd, _collission_cb);
 
 	// Remove balls marked for removal
 	b = DARRAY_DATA_PTR(balls, Ball);
 	for(uint i = 0; i < balls.size; ++i) {
 		if(b[i].remove && b[i].collider) {
-			assert(b[i].collider->userdata == &b[i]);
+			assert(b[i].collider->userdata == (size_t)i);
 			coldet_remove_obj(&cd, b[i].collider);
 			b[i].collider = NULL;
 		}
@@ -672,9 +741,10 @@ void sim_update(void) {
 		// Find a ball which was removed (can be made O(log n))
 		Ball* pnew = NULL;
 		Ball* pballs = DARRAY_DATA_PTR(balls, Ball);
-		uint idx = ~0;
+		size_t idx = ~0;
 		for(uint j = 0; j < balls.size; ++j) {
 			if(pballs[j].remove) {
+				assert(pballs[j].collider == NULL);
 				idx = j;
 				break;
 			}
@@ -688,10 +758,11 @@ void sim_update(void) {
 			// Append new ball otherwise
 			darray_append(&balls, &b[i]);
 			pnew = &pballs[balls.size-1];
+			idx = balls.size-1;
 		}
 		assert(pnew);
 
-		CDObj* obj = coldet_new_circle(&cd, pnew->pos, pnew->radius, 1, pnew);
+		CDObj* obj = coldet_new_circle(&cd, pnew->pos, pnew->radius, 1, (void*)idx);
 		pnew->collider = obj;
 	}
 	spawns.size = 0;
@@ -708,7 +779,15 @@ static void _render_ball(Ball* b, float t) {
 
 	float angle = (b->type & ~BT_WHITE) ? b->angle : 0.0f;
 
-	spr_draw_cntr_h(spr_balls[b->type], 1, b->pos, angle, scale, COLOR_WHITE);
+	Color c = COLOR_WHITE;
+
+	if(b->type & BT_TRIPLE) {
+		float a = clamp(0.0f, 1.0f, 1.0f - (t - b->t) / ghost_lifetime);
+		c &= ((byte)lrintf(a * 255.0f) << 24) | 0xFFFFFF;
+		scale = 1.0f;
+	}
+
+	spr_draw_cntr_h(spr_balls[b->type], 1, b->pos, angle, scale, c);
 
 	float x_min = b->radius * scale;
 	float x_max = screen_widthf - x_min;
@@ -716,7 +795,7 @@ static void _render_ball(Ball* b, float t) {
 	float y_max = screen_heightf - x_min;
 
 	WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->pos,
-		spr_draw_cntr_h(spr_balls[b->type], 1, npos, angle, scale, COLOR_WHITE));
+		spr_draw_cntr_h(spr_balls[b->type], 1, npos, angle, scale, c));
 }
 
 void sim_render(void) {
@@ -732,6 +811,12 @@ void sim_render(void) {
 	for(uint i = 0; i < balls.size; ++i) {
 		if(!b[i].remove)
 			_render_ball(&b[i], t);
+	}
+
+	// Render ghosts
+	b = DARRAY_DATA_PTR(ghosts, Ball);
+	for(uint i = 0; i < ghosts.size; ++i) {
+		_render_ball(&b[i], t);
 	}
 }
 
