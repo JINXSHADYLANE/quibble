@@ -562,7 +562,7 @@ float circle_circle_test(
 	if(d < 0.0f)		// No intersection
 		return -1.0f;
 
-	float t = -b - sqrtf(d) / a;
+	float t = (-b - sqrtf(d)) / a;
 	if(t <= 1.0f)
 		return t;
 	else
