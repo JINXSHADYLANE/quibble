@@ -20,9 +20,11 @@ void dgreed_init(int argc, const char** argv) {
 	malka_states_register("game", &game_state);
 	malka_states_push("game");
 	malka_states_init(SCRIPTS_PRE "main.lua");
+	malka_states_start();
 }
 
 void dgreed_close(void) {
+	malka_states_end();
 	malka_states_close();
 
 	sprsheet_close();
@@ -34,7 +36,7 @@ void dgreed_close(void) {
 
 bool dgreed_update(void) {
 	if(key_up(KEY_QUIT))
-		return false;
+		malka_states_pop();
 
 	return true;
 }
