@@ -63,6 +63,7 @@ static Ball* time_ball;
 static Ball* new_ball;
 
 // Tweaks
+float overlap_resolve_factor = 0.25f;
 float ball_mass = 2.0f;
 float grav_mass = 6.0f;
 float ball_radius = 16.0f;
@@ -76,6 +77,10 @@ float ffield_radius = 160.0f;
 float gravity_max_dist = 320.0f;
 float gravity_strength = 200000.0f;
 
+float time_max_dist = 160.0f;
+float time_strength = 3.0f;
+float time_pulse_speed = 8.0f;
+
 float spawn_anim_len = 0.5f;
 float spawn_maxspeed = 30.0f;
 float spawn_maxrot = 2.0f;
@@ -88,32 +93,37 @@ float ghost_maxrot = 7.0f;
 static void _load_level(const char* level_name) {
 	// Todo
 	strcpy(level.name, "testlevel");
-	level.n_spawns = 5;
+	level.n_spawns = 6;
 
 	level.spawns[0].pos = vec2(-200.0f, 0.0f);
 	level.spawns[0].vel = vec2(0.0f, 0.0f);
 	level.spawns[0].t = 0.0f;
-	level.spawns[0].type = BT_WHITE;
+	level.spawns[0].type = BT_WHITE | BT_PAIR;
 	
 	level.spawns[1].pos = vec2(-100.0f, 0.0f);
 	level.spawns[1].vel = vec2(0.0f, 0.0f);
 	level.spawns[1].t = 1.0f;
-	level.spawns[1].type = BT_WHITE;
+	level.spawns[1].type = BT_WHITE | BT_PAIR;
 
 	level.spawns[2].pos = vec2(100.0f, 0.0f);
 	level.spawns[2].vel = vec2(0.0f, 0.0f);
 	level.spawns[2].t = 2.0f;
-	level.spawns[2].type = 0;
+	level.spawns[2].type = BT_WHITE | BT_PAIR;
 
 	level.spawns[3].pos = vec2(200.0f, 0.0f);
 	level.spawns[3].vel = vec2(0.0f, 0.0f);
 	level.spawns[3].t = 3.0f;
-	level.spawns[3].type = 0;
+	level.spawns[3].type = BT_WHITE | BT_PAIR;
 
-	level.spawns[4].pos = vec2(0.0f, 0.0f);
+	level.spawns[4].pos = vec2(0.0f, 300.0f);
 	level.spawns[4].vel = vec2(0.0f, 0.0f);
-	level.spawns[4].t = 5.0f;
-	level.spawns[4].type = BT_GRAV;
+	level.spawns[4].t = 3.0f;
+	level.spawns[4].type = BT_WHITE | BT_PAIR;
+
+	level.spawns[5].pos = vec2(0.0f, 0.0f);
+	level.spawns[5].vel = vec2(0.0f, 0.0f);
+	level.spawns[5].t = 5.0f;
+	level.spawns[5].type = BT_TIME | BT_WHITE;
 
 	level.spawn_random_at = 0;
 	level.spawn_random_interval = 0.0f;
@@ -380,6 +390,21 @@ void _apply_gravity_cb(CDObj* obj) {
 }
 
 void _apply_timescale_cb(CDObj* obj) {
+	Ball* ball = _get_ball((size_t)obj->userdata);
+	assert(!ball->remove);
+
+	if(ball != time_ball) {
+		float m = (1.0f / time_ball->inv_mass) / ball_mass;
+		float sqr_d = _distance(time_ball->pos, ball->pos, NULL);
+		float f = clamp(0.0f, 1.0f, sqrtf(sqr_d) / time_max_dist);
+		float ts = time_strength;
+		if(time_ball->type & BT_WHITE)
+			ts = 1.0f / time_strength;
+
+		f = lerp(powf(ts, m), 1.0f, f);
+
+		ball->ts *= f;
+	}
 }
 
 Ball _balls_merge(Ball* a, Ball* b) {
@@ -419,13 +444,14 @@ static Vector2 _move_ball(Ball* a, Ball* b) {
 				rand_float_range(-1.0f, 1.0f)
 	));
 
-	Vector2 ba = vec2_sub(a->pos, bpos);
-	float d_sqr = vec2_length_sq(ba);
+	Vector2 ba;
+	float d_sqr = _distance(bpos, a->pos, &ba);
 	float rr = a->radius + b->radius;
 	if(d_sqr <= rr*rr) {
 		float d = sqrtf(d_sqr);
 		Vector2 dir = vec2_normalize(ba);
-		Vector2 offset = vec2_scale(dir, rr - d + 0.1f); 
+		float f = (rr - d + 0.1f) * overlap_resolve_factor;
+		Vector2 offset = vec2_scale(dir, f); 
 		Vector2 new_pos = vec2_add(a->pos, offset);
 		return new_pos;
 	}
@@ -454,13 +480,22 @@ void _balls_join(Ball* a, Ball* b) {
 
 // Perfect elastic collission
 void _balls_bounce(Ball* a, Ball* b) {
-	// Normal and tangent vectors of collission space
-	Vector2 sn = vec2_normalize(vec2_sub(b->pos, a->pos));
-	Vector2 st = vec2(sn.y, -sn.x);
-
 	// Velocities
 	Vector2 va = vec2_sub(a->pos, a->old_pos);
 	Vector2 vb = vec2_sub(b->pos, b->old_pos);
+
+	// Calculate new position for ball, taking world 
+	// wrap-around into account
+	Vector2 ab;
+	_distance(a->pos, b->pos, &ab);
+	Vector2 a_pos = a->pos;
+	Vector2 b_pos = vec2_add(a->pos, ab);
+	Vector2 a_old_pos = a->old_pos;
+	Vector2 b_old_pos = vec2_sub(b_pos, vb);
+
+	// Normal and tangent vectors of collission space
+	Vector2 sn = vec2_normalize(vec2_sub(b_pos, a_pos));
+	Vector2 st = vec2(sn.y, -sn.x);
 	
 	// Normal velocities
 	Vector2 n_va = vec2_scale(sn, vec2_dot(sn, va));
@@ -472,8 +507,8 @@ void _balls_bounce(Ball* a, Ball* b) {
 
 	// Find exact moment in time collission occured 
 	float t = circle_circle_test(
-			a->old_pos, ball_radius, va,
-			b->old_pos, ball_radius, vb 
+			a_old_pos, ball_radius, va,
+			b_old_pos, ball_radius, vb 
 	);
 	if(t <= 0.0f) {
 		a->pos = _move_ball(a, b);
@@ -527,11 +562,65 @@ void _collission_cb(CDObj* a, CDObj* b) {
 
 	BallType ta = ball_a->type, tb = ball_b->type;
 
-	if(ta & BT_GRAV || tb & BT_GRAV) {
+	if(((ta | tb) & (BT_GRAV | BT_TIME))) {
+		// Gravity/time shrinking and growing
+
+		Ball* normal = (ta & (BT_GRAV | BT_TIME)) ? ball_b : ball_a;
+		Ball* fancy = (ta & (BT_GRAV | BT_TIME)) ? ball_a : ball_b;
+
+		if(normal->type & BT_PAIR) {
+			Vector2 vf = vec2_sub(fancy->pos, fancy->old_pos);
+			vf = vec2_scale(vf, 1.0f / DT);
+
+			// Same color, grow
+			if(~(ta ^ tb) & BT_WHITE) {
+				normal->remove = true;
+				fancy->inv_mass /= 2.0f;
+				fancy->radius += 2.0f;
+				fancy->collider->size.radius += 2.0f;
+				fancy->collider->dirty = true;
+
+				// Too big, explode into 5 balls
+				if(fancy->radius > 24.0f) {
+					fancy->remove = true;
+					fancy->collider->size.radius = 24.0f;
+
+					float a = fancy->angle;
+					float r = sqrtf(2.0f) * ball_radius * 1.4f;
+					for(uint i = 0; i < 5; ++i) {
+						float t = (float)i / 5.0f;
+						Vector2 offset = vec2(
+							cosf(a + t * 2.0f * PI) * r,
+							sinf(a + t * 2.0f * PI) * r
+						);	
+						Vector2 pos = vec2_add(fancy->pos, offset);
+						Vector2 v = vec2_add(vec2_scale(offset, 0.5), vf);
+						_spawn(pos, v, ta & BT_WHITE, 0.0f, -1.0f);
+					}
+				}
+			}
+			// Shrink
+			else {
+				normal->remove = true;
+				fancy->inv_mass *= 2.0f;
+				fancy->radius -= 2.0f;
+				fancy->collider->size.radius -= 2.0f;
+				fancy->collider->dirty = true;
+
+				// To small, become a normal ball
+				if(fancy->radius < 16.0f) {
+					fancy->remove = true;
+					_spawn(fancy->pos, vf, fancy->type & BT_WHITE, 0.0f, -1.0f);
+				}
+			}
+			return;
+		}
+	}
+
+	if((ta | tb) & BT_GRAV & ~BT_WHITE) {
 		_balls_join(ball_a, ball_b);
 		return;
 	}
-		
 
 	if((ta & BT_WHITE) == (tb & BT_WHITE)) {
 		// X + X = XX
@@ -621,17 +710,17 @@ static void _spawn_cb(CDObj* obj) {
 }
 
 static void _update_ball(Ball* ball) {
-	float dt = DT * ball->ts;
 
 	// Position
 	float damp = powf(linear_damp, ball->ts);
 	Vector2 acc = vec2_scale(ball->force, ball->inv_mass);
 	Vector2 new_pos = {
-		.x = (1.0f+damp)*ball->pos.x - damp*ball->old_pos.x + acc.x * dt*dt,
-		.y = (1.0f+damp)*ball->pos.y - damp*ball->old_pos.y + acc.y * dt*dt
+		.x = (1.0f+damp)*ball->pos.x - damp*ball->old_pos.x + acc.x * DT*DT,
+		.y = (1.0f+damp)*ball->pos.y - damp*ball->old_pos.y + acc.y * DT*DT 
 	};
-	ball->old_pos = ball->pos;
-	ball->pos = new_pos;
+	Vector2 v = vec2_sub(new_pos, ball->pos);
+	ball->pos = vec2_add(ball->pos, vec2_scale(v, ball->ts));
+	ball->old_pos = vec2_sub(ball->pos, v);
 
 	// Wrap around
 	if(ball->pos.x < 0.0f || ball->pos.x >= screen_widthf) {
@@ -668,20 +757,10 @@ static void _update_ball(Ball* ball) {
 	}
 }
 
-void _assert_query(CDObj* obj) {
-	Ball* b = _get_ball((size_t)obj->userdata);
-	assert(b->remove == false);
-}
-
 void sim_update(void) {
 	float t = time_s();
 
 	_update_level();
-
-#ifdef _DEBUG
-	RectF r = {0.0f, 0.0f, screen_widthf, screen_heightf};
-	uint h = coldet_query_aabb(&cd, &r, 1, _assert_query);
-#endif
 
 	// Accumulate forces and time scale factors
 	
@@ -721,7 +800,7 @@ void sim_update(void) {
 		}
 		if(b->type & BT_TIME) {
 			time_ball = b;
-			coldet_query_circle(&cd, b->pos, ball_radius, 1,
+			coldet_query_circle(&cd, b->pos, time_max_dist, 1,
 					_apply_timescale_cb);
 		}
 	}
@@ -757,7 +836,6 @@ void sim_update(void) {
 	b = DARRAY_DATA_PTR(balls, Ball);
 	for(uint i = 0; i < balls.size; ++i) {
 		if(b[i].remove && b[i].collider) {
-			assert(b[i].collider->userdata == (size_t)i);
 			coldet_remove_obj(&cd, b[i].collider);
 			b[i].collider = NULL;
 		}
@@ -803,27 +881,52 @@ static void _render_ball(Ball* b, float t) {
 	assert(spr_balls[b->type]);
 
 	float scale = 1.0f;
+	
+	// Spawn animation
 	if(b->t >= 0.0f && (t - b->t) <= spawn_anim_len) {
 		float nt = (t - b->t) / spawn_anim_len;
 		scale = nt * (sinf(nt*4.0f*PI)*(1.0f-nt)+1.0f);
 	}
 
+	// Simple balls are always at 0 angle
 	float angle = (b->type & ~BT_WHITE) ? b->angle : 0.0f;
 
 	Color c = COLOR_WHITE;
-	uint layer = 2;
+	uint layer = 1;
 
 	float radius = b->radius;
+
 	if(b->type & BT_TRIPLE) {
+		// Alpha fadeout for ghosts
 		float a = clamp(0.0f, 1.0f, 1.0f - (t - b->t) / ghost_lifetime);
 		c &= ((byte)lrintf(a * 255.0f) << 24) | 0xFFFFFF;
 		scale = 1.0f;
 		radius *= 2.0f;
 	}
 
-	if(b->type & BT_GRAV)
-		layer = 1;
+	if(b->type & BT_GRAV) {
+		// Draw gravity balls on top
+		layer = 2;
 
+		scale *= b->radius / ball_radius;
+	}
+
+	if(b->type & BT_TIME) {
+
+		radius = 64.0f;
+		scale *= 0.5f;
+
+		// Pulsating animation for time balls
+		float f = (1.0f / b->inv_mass) / ball_mass;
+		if(b->type & BT_WHITE)
+			f = 1.0f / f;
+		float anim = (cosf(t*time_pulse_speed * f) + 1.0f) / 2.0f;
+		scale = lerp(scale, scale*0.85f, anim);
+
+		scale *= b->radius / ball_radius;
+	}
+
+	// Draw
 	spr_draw_cntr_h(spr_balls[b->type], layer, b->pos, angle, scale, c);
 
 	float x_min = radius * scale;
@@ -831,6 +934,7 @@ static void _render_ball(Ball* b, float t) {
 	float y_min = x_min;
 	float y_max = screen_heightf - x_min;
 
+	// Draw virtual copies on screen boundries
 	WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->pos,
 		spr_draw_cntr_h(spr_balls[b->type], layer, npos, angle, scale, c));
 }
