@@ -1,4 +1,5 @@
 #include "ml_mml.h"
+#include "ml_common.h"
 
 #include "lua/lauxlib.h"
 #include "lua/lualib.h"
@@ -6,12 +7,6 @@
 #include <utils.h>
 #include <mml.h>
 #include <memory.h>
-
-#define checkargs(c, name) \
-	int n = lua_gettop(l); \
-	if(n != c) \
-		return luaL_error(l, "wrong number of arguments provided to " name \
-			"; got %d, expected " #c, n)
 
 static void _node_to_table(lua_State* l, MMLObject* obj, NodeIdx node) {
 	lua_createtable(l, 0, 3);

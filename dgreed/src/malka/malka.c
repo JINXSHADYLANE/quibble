@@ -4,6 +4,7 @@
 #include "ml_system.h"
 #include "ml_mml.h"
 #include "ml_states.h"
+#include "ml_sprsheet.h"
 
 #include "memory.h"
 
@@ -52,9 +53,13 @@ int malka_run(const char* luafile) {
 	return res;
 }
 
+extern int luaopen_bit(lua_State* l);
+
 void malka_init(void) {
 	l = luaL_newstate();
 	luaL_openlibs(l);
+	luaopen_bit(l);
+
 	malka_open_vec2(l);
 	malka_open_rect(l);
 	malka_open_colors(l);
@@ -65,6 +70,7 @@ void malka_init(void) {
 	malka_open_mml(l);
 	malka_open_states(l);
 	malka_open_system(l);
+	malka_open_sprsheet(l);
 
 	ml_states_init(l);
 }
@@ -156,8 +162,6 @@ void malka_states_init(const char* luafile) {
 		lua_call(l, 0, 0);
 	else
 		lua_pop(l, 1);
-
-	malka_states_start();
 }
 
 void malka_states_close(void) {
@@ -166,8 +170,6 @@ void malka_states_close(void) {
 		lua_call(l, 0, 0);
 	else
 		lua_pop(l, 1);
-
-	malka_states_end();
 }
 
 int malka_states_run(const char* luafile) {

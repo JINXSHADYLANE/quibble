@@ -1,4 +1,5 @@
 #include "ml_states.h"
+#include "ml_common.h"
 
 #include "lua/lauxlib.h"
 #include "lua/lualib.h"
@@ -135,12 +136,6 @@ get_storage:
 
 	lua_pop(l, 3);
 }
-
-#define checkargs(c, name) \
-	int n = lua_gettop(l); \
-	if(n != c) \
-		return luaL_error(l, "wrong number of arguments provided to " name \
-			"; got %d, expected " #c, n)
 
 static float _get_transition_len(lua_State* l) {
 	lua_getglobal(l, "states");	

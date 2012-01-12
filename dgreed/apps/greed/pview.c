@@ -8,6 +8,12 @@
 const float screen_width = (float)EDITOR_WIDTH;
 const float screen_height = (float)EDITOR_HEIGHT;
 
+Color backgrounds[] = {
+	COLOR_RGBA(0, 0, 0, 255),
+	COLOR_RGBA(206, 216, 207, 255),
+	COLOR_RGBA(255, 255, 255, 255)
+};
+
 void draw_grid(uint layer, float spacing) {
 	const Color grid_col1 = COLOR_RGBA(196, 196, 196, 128);
 	const Color grid_col2 = COLOR_RGBA(128, 128, 128, 128);
@@ -57,25 +63,35 @@ int dgreed_main(int argc, const char** argv) {
 	gui_init(&style);
 	particles_init("greed_assets/", 5);
 
+	TexHandle empty = tex_load("greed_assets/empty.png");
+
 	if(psystem_descs_count < 1) 
 		LOG_ERROR("No particle systems described!");
 	
+	int active_backg = 0;
 	int active_desc = 0;
 	const char* active_desc_name = psystem_descs[active_desc].name;
 
 	RectF gui_area = rectf(0.0f, 0.0f, 520.0f, 80.0f);		
+	RectF gui_area2 = rectf(0.0f, 500.0f, 280.0f, 600.0f);
 	Vector2 button_prev_pos = vec2(10.0f, 10.0f);
 	Vector2 button_next_pos = vec2(280.0f, 10.0f);
+	Vector2 button_backg_pos = vec2(10.0f, 550.0f);
 	Vector2 label_name_pos = vec2(20.0f, 60.0f);
 	char label_text[256];
 	
 	while(system_update()) {
+		RectF src = rectf_null();
+		RectF dest = {0.0f, 0.0f, EDITOR_WIDTH, EDITOR_HEIGHT};
+		Color c = backgrounds[active_backg % ARRAY_SIZE(backgrounds)];
+		video_draw_rect(empty, 0, &src, &dest, c);
 		if(mouse_down(MBTN_LEFT)) {
 			uint x, y;
 			mouse_pos(&x, &y);
 			Vector2 pos = vec2((float)x, (float)y);
 			if(!rectf_contains_point(&gui_area, &pos))
-				particles_spawn(active_desc_name, &pos, 0.0f);
+				if(!rectf_contains_point(&gui_area2, &pos))
+					particles_spawn(active_desc_name, &pos, 0.0f);
 		}	
 
 		particles_update(time_ms() / 1000.0f);
@@ -86,6 +102,8 @@ int dgreed_main(int argc, const char** argv) {
 			active_desc = MAX(0, active_desc-1);
 		if(gui_button(&button_next_pos, "Next"))
 			active_desc = MIN(psystem_descs_count-1, active_desc+1);
+		if(gui_button(&button_backg_pos, "Background color"))
+				active_backg++;
 		active_desc_name = psystem_descs[active_desc].name;	
 
 		particles_draw();
@@ -94,24 +112,12 @@ int dgreed_main(int argc, const char** argv) {
 		video_present();
 	}	
 
+	tex_free(empty);
 	particles_close();
 	gui_close();
 	greed_gui_free();
 	video_close();
 	
-	#ifdef TRACK_MEMORY
-	MemoryStats stats;
-	mem_stats(&stats);
-	LOG_INFO("Memory usage stats:");
-	LOG_INFO(" Total allocations: %u", stats.n_allocations);
-	LOG_INFO(" Peak dynamic memory usage: %uB", stats.peak_bytes_allocated);
-	if(stats.bytes_allocated) {
-		LOG_INFO(" Bytes still allocted: %u", stats.bytes_allocated);
-		LOG_INFO(" Dumping allocations info to memory.txt");
-		mem_dump("memory.txt");
-	}	
-	#endif
-
 	log_close();
 	return 0;
 }

@@ -18,7 +18,7 @@ affect_radius = 160
 affect_force = 0.02
 
 levels = {
-	{name = 'nulis', gb=1, gw=1, tw=1, tb=1},
+	{name = 'nulis', w=3},
 	{name = 'cascajal', b=3},
 	{name = 'guariviara', w=2, b=2},
 	{name = 'chiriqui', w=2, b=1},

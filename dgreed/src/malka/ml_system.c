@@ -1,4 +1,5 @@
 #include "ml_system.h"
+#include "ml_common.h"
 
 #include "lua/lauxlib.h"
 #include "lua/lualib.h"
@@ -11,12 +12,6 @@
 #include <gui.h>
 #include <particles.h>
 #include <tilemap.h>
-
-#define checkargs(c, name) \
-	int n = lua_gettop(l); \
-	if(n != c) \
-		return luaL_error(l, "wrong number of arguments provided to " name \
-			"; got %d, expected " #c, n)
 
 extern void _new_vec2(lua_State* l, double x, double y);
 extern void _new_rect(lua_State* l, double _l, double t,
@@ -64,7 +59,7 @@ static const luaL_Reg time_fun[] = {
 #define checktexhandle(l, i) \
 	(TexHandle*)luaL_checkudata(l, i, "_TexHandle.mt")
 
-static void _new_texhandle(lua_State* l, TexHandle h) {
+void _new_texhandle(lua_State* l, TexHandle h) {
 	TexHandle* t = (TexHandle*)lua_newuserdata(l, sizeof(TexHandle));
 	*t = h;
 	luaL_getmetatable(l, "_TexHandle.mt");
@@ -311,7 +306,7 @@ bool _check_rect(lua_State* l, int i, RectF* r) {
 	}
 }
 
-static bool _check_color(lua_State* l, int i, Color* c) {
+bool _check_color(lua_State* l, int i, Color* c) {
 	lua_getfield(l, i, "r");
 	lua_getfield(l, i, "g");
 	lua_getfield(l, i, "b");
@@ -1006,6 +1001,33 @@ static int ml_mouse_pos(lua_State* l) {
 	return 1;
 }
 
+static int ml_touch_count(lua_State* l) {
+	checkargs(0, "touch.count");
+	lua_pushinteger(l, touches_count());
+	return 1;
+}
+
+static int ml_touch_get(lua_State* l) {
+	checkargs(1, "touch.get");
+	
+	uint i = luaL_checkinteger(l, 1);
+	Touch* t = touches_get();
+	if(!t || i >= touches_count())
+		return luaL_error(l, "Trying to get non-existing touch");
+
+	lua_createtable(l, 0, 3);
+	int table = lua_gettop(l);
+
+	_new_vec2(l, t[i].pos.x, t[i].pos.y);
+	lua_setfield(l, table, "pos");
+	_new_vec2(l, t[i].hit_pos.x, t[i].hit_pos.y);
+	lua_setfield(l, table, "hit_pos");
+	lua_pushnumber(l, t[i].hit_time);
+	lua_setfield(l, table, "hit_time");
+
+	return 1;
+}
+
 static const luaL_Reg key_fun[] = {
 	{"pressed", ml_key_pressed},
 	{"down", ml_key_down},
@@ -1027,6 +1049,12 @@ static const luaL_Reg mouse_fun[] = {
 	{"pos", ml_mouse_pos},
 	{NULL, NULL}
 };	
+
+static const luaL_Reg touch_fun[] = {
+	{"count", ml_touch_count},
+	{"get", ml_touch_get},
+	{NULL, NULL}
+};
 
 static const char* key_names[] = {
 	"_up", "_down", "_left", "_right", "a", "b", "pause", "quit"
@@ -1517,6 +1545,7 @@ int malka_open_system(lua_State* l) {
 	luaL_register(l, "key", key_fun);
 	luaL_register(l, "char", char_fun);
 	luaL_register(l, "mouse", mouse_fun);
+	luaL_register(l, "touch", touch_fun);
 
 	lua_getglobal(l, "key");
 	int tbl = lua_gettop(l);

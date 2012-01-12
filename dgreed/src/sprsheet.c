@@ -375,7 +375,7 @@ void spr_draw_cntr_h(SprHandle handle, uint layer, Vector2 dest, float rot,
 	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale, tint);
 }
 
-void spr_draw_cntr_anim(const char* name, uint frame, uint layer, Vector2 dest, 
+void spr_draw_anim_cntr(const char* name, uint frame, uint layer, Vector2 dest, 
 		float rot, float scale, Color tint) {
 	TexHandle tex;
 	RectF src;
@@ -384,7 +384,7 @@ void spr_draw_cntr_anim(const char* name, uint frame, uint layer, Vector2 dest,
 	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale, tint);
 }
 
-void spr_draw_cntr_anim_h(SprHandle handle, uint frame, uint layer, Vector2 dest, 
+void spr_draw_anim_cntr_h(SprHandle handle, uint frame, uint layer, Vector2 dest, 
 		float rot, float scale, Color tint) {
 	TexHandle tex;
 	RectF src;

@@ -259,7 +259,7 @@ optionally scale text by a scalar factor
 
 
 --------
-sprsheet (not implemented)
+sprsheet
 --------
 
 Abstraction over video which allows to describe sprite source rectangles outside
@@ -290,7 +290,7 @@ draws sprite, dest is vec2 or rect, tint is optional
 same as sprsheet.draw, just for animations
 
 - sprsheet.draw_centered(spr, layer, dest, rot, scale, tint)
-draws centered sprite; rot, scale and tint is optional 
+draws centered sprite; rot, scale and tint are optional 
 
 - sprsheet.draw_anim_centered(spr, frame, layer, dest, rot, scale, tint)
 same as sprsheet.draw_centered, for animations
@@ -369,6 +369,13 @@ touch screens
 
 - mouse.pos()
 returns vector with current absolute mouse position
+
+- touch.count()
+returns number of fingers on the screen
+
+- touch.get(i)
+returns i-th touch object, which is a table with fields pos, hit_pos and
+hit_time
 
 
 ---
