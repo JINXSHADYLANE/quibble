@@ -1,6 +1,7 @@
 #include "sim.h"
 
 #include "common.h"
+#include "levels.h"
 
 #include <sprsheet.h>
 #include <coldet.h>
@@ -9,16 +10,6 @@
 
 #define MAX_BALL_SIZE 51.2f
 #define DT (1.0f / 60.0f)
-#define LEVEL_NAMELEN 16
-#define MAX_SPAWNS 16
-
-typedef enum {
-	BT_WHITE = 1,
-	BT_PAIR = 2,
-	BT_GRAV = 4,
-	BT_TIME = 8, 
-	BT_TRIPLE = 16
-} BallType;
 
 typedef struct {
 	Vector2 pos, old_pos, force;
@@ -28,20 +19,6 @@ typedef struct {
 	CDObj* collider;
 	bool remove;
 } Ball;
-
-typedef struct {
-	Vector2 pos, vel;
-	float t;
-	BallType type;
-} SpawnDef;
-
-typedef struct {
-	char name[LEVEL_NAMELEN];
-	uint n_spawns;
-	SpawnDef spawns[MAX_SPAWNS];
-	uint spawn_random_at;
-	float spawn_random_interval;
-} LevelDef;
 
 // Sprites
 static SprHandle spr_background;

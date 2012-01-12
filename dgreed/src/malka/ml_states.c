@@ -246,7 +246,7 @@ static void _states_push(lua_State* l, uint idx) {
 		states_from = top;
 		top = _stack_get(_stack_size()-1);
 		states_to = top;
-		states_transition_t = time_ms() / 1000.0f;
+		states_transition_t = time_s();
 	}
 
 }
@@ -277,7 +277,7 @@ static void _state_pop(lua_State* l) {
 		states_from = top;
 		top = _stack_get(_stack_size()-1);
 		states_to = top;
-		states_transition_t = time_ms() / 1000.0f;
+		states_transition_t = time_s();
 	}
 }
 
@@ -304,7 +304,7 @@ static void _states_replace(lua_State* l, uint idx) {
 	states_from = top;
 	top = _stack_get(_stack_size()-1);
 	states_to = top;
-	states_transition_t = time_ms() / 1000.0f;
+	states_transition_t = time_s();
 }
 
 static int ml_states_replace(lua_State* l) {
@@ -450,17 +450,17 @@ bool malka_states_step(void) {
 	lua_State* l = malka_lua_state();
 
 	if(_in_transition()) {
-		float time_s = time_ms() / 1000.0f;
+		float time = time_s();
 		float len = _get_transition_len(l);
 
-		if(states_transition_t + len < time_s) {
+		if(states_transition_t + len < time) {
 			// End transition
 			_call_state_func(l, _names_get(states_to), "enter", NULL);
 			states_from = states_to;
 		}
 		else {
 			// Render transition
-			float t = (time_s - states_transition_t) / len;
+			float t = (time - states_transition_t) / len;
 			float tt = -1.0f + t;
 			assert(t >= 0.0f && t <= 1.0f);
 			_call_state_func(l, _names_get(states_from), "render", &t);
@@ -469,15 +469,20 @@ bool malka_states_step(void) {
 		}
 	}
 	else {
-		top_name = _names_get(_stack_get(_stack_size()-1));
-		if(!_call_state_func(l, top_name, "update", NULL)) {
-			breakout = true;
+		if(_stack_size()) {
+			top_name = _names_get(_stack_get(_stack_size()-1));
+			if(!_call_state_func(l, top_name, "update", NULL)) {
+				breakout = true;
+			}
+			else {
+				// Update may have made stack empty, check again
+				if(_stack_size()) {
+					float zero = 0.0f;
+					breakout = !_call_state_func(l, top_name, "render", &zero);
+					video_present();
+				}
+			}	
 		}
-		else {
-			float zero = 0.0f;
-			breakout = !_call_state_func(l, top_name, "render", &zero);
-			video_present();
-		}	
 	}
 	if(!system_update())
 		breakout = true;
