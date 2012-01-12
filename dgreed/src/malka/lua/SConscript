@@ -30,6 +30,7 @@ sources = Split("""
 	ltablib.c 
 	loadlib.c 
 	linit.c
+	bit.c
 """)
 
 lua = env.Library('lua' + env['DGREED_POSTFIX'], sources)
