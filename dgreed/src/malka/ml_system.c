@@ -260,7 +260,6 @@ static int ml_video_close(lua_State* l) {
 }	
 
 static int ml_video_present(lua_State* l) {
-	checkvideoinit();
 	checkargs(0, "video.present");
 	bool res = system_update();
 	video_present();	
@@ -343,7 +342,6 @@ static bool _get_dest(lua_State* l, int i, RectF* dest) {
 }
 
 static int ml_video_draw_rect(lua_State* l) {
-	checkvideoinit();
 	TexHandle* h = checktexhandle(l, 1);
 	uint layer = luaL_checkinteger(l, 2);
 	if(layer > 15) 
@@ -430,7 +428,6 @@ static int ml_video_draw_rect(lua_State* l) {
 }
 
 static int ml_video_draw_rect_centered(lua_State* l) {
-	checkvideoinit();
 	TexHandle* h = checktexhandle(l, 1);
 	uint layer = luaL_checkinteger(l, 2);
 	RectF src = rectf_null();
@@ -556,7 +553,6 @@ static int ml_video_draw_rect_centered(lua_State* l) {
 }
 
 static int ml_video_draw_seg(lua_State* l) {
-	checkvideoinit();
 	int n = lua_gettop(l);
 	Color c = COLOR_WHITE;
 	if(n == 4) {
@@ -584,7 +580,6 @@ static int ml_video_draw_seg(lua_State* l) {
 }
 
 static int ml_video_draw_text(lua_State* l) {
-	checkvideoinit();
 	int n = lua_gettop(l);
 	Color c = COLOR_BLACK;
 	if(n == 5) {
@@ -613,7 +608,6 @@ static int ml_video_draw_text(lua_State* l) {
 }
 
 static int ml_video_draw_text_centered(lua_State* l) {
-	checkvideoinit();
 	int n = lua_gettop(l);
 	if(n < 4 || n > 6)
 		goto nargs_error;

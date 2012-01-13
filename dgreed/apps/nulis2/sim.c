@@ -7,6 +7,7 @@
 #include <coldet.h>
 #include <darray.h>
 #include <sprsheet.h>
+#include <malka/ml_states.h>
 
 #define MAX_BALL_SIZE 51.2f
 #define DT (1.0f / 60.0f)
@@ -735,6 +736,9 @@ static void _update_ball(Ball* ball) {
 }
 
 void sim_update(void) {
+	if(touches_count() == 4 || char_up('e'))
+		malka_states_push("editor");
+
 	float t = time_s();
 
 	_update_level();

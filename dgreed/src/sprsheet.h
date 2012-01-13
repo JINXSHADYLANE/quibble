@@ -32,7 +32,7 @@ Example description:
 
 */
 
-typedef void* SprHandle;
+typedef uint SprHandle;
 
 void sprsheet_init(const char* desc);
 void sprsheet_close(void);
