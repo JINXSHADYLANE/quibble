@@ -21,6 +21,13 @@ balls = {
 	{t='gb', p=vec2(100,0), v=vec2(0,0), time=1, s=1}
 }
 
+-- input state
+use_touch = false
+idown = false
+ipos = nil
+ihit_pos = nil
+ihit_time = 0
+
 function init()
 end
 
@@ -36,6 +43,34 @@ function leave()
 end
 
 function update()
+	-- update input state
+	if not use_touch then
+		if mouse.down(mouse.primary) then
+			ihit_pos = mouse.pos()
+			ihit_time = time.s()
+			idown = true
+		end
+
+		if mouse.up(mouse.primary) then
+			idown = false
+		end
+
+		ipos = mouse.pos()
+	end
+
+	if touch.count() > 0 then
+		use_touch = true
+		local t = touch.get(0)
+		ihit_pos = t.hit_pos
+		ihit_time = t.hit_time
+		idown = true
+	else
+		if use_touch then
+			idown = false
+		end
+	end
+
+	-- quit
 	if key.up(key.quit) then
 		states.pop()
 	end
@@ -52,7 +87,7 @@ function draw_arrow(layer, s, e)
 end
 
 function draw_circle(layer, p, r)
-	local segs = math.ceil(6 + r / 12)
+	local segs = math.ceil(7 + r / 12)
 	local d = vec2(r, 0)
 
 	for i=1,segs do
@@ -60,6 +95,21 @@ function draw_circle(layer, p, r)
 		local b = rotate(d, (i-1) / segs * 2 * math.pi)
 		video.draw_seg(layer, p+a, p+b, ui_color_dark)
 	end
+end
+
+function selected_ball(pos) 
+	local best = nil
+	local best_d = nil
+	for i,b in ipairs(balls) do
+		local d_sqr = length_sq(b.p - pos)
+		if d_sqr < 32*32 then
+			if best_d == nil or best_d > d_sqr then
+				best_d = d_sqr
+				best = b
+			end
+		end
+	end
+	return best
 end
 
 function render_balls()
@@ -94,8 +144,40 @@ function render_balls()
 	end
 end
 
+function new_ball_wheel()
+	local t = time.s()
+
+	if t - ihit_time > 0.5 then
+		sprsheet.draw_centered('editor_circle', 2, ihit_pos, 0.0, 1.3)
+
+		local n, i = 8, 1
+		for k,v in pairs(btype_dict) do
+			local p = ihit_pos + rotate(vec2(120, 0), (i / n) * math.pi * 2)
+			sprsheet.draw_centered(v, 2, p)
+			i = i + 1
+
+			if length_sq(p - ipos) < 32*32 then
+				draw_circle(3, p, 40)
+			end
+		end
+	end
+end
+
 function render()
 	sprsheet.draw('background', 0, rect(0, 0, scr_size.x, scr_size.y))
+
+	local mp = mouse.pos()
+	if touch.count() > 0 then
+		local t = touch.get(0)
+		mp = t.hit_pos
+	end
+
+	if idown then
+		local hot = selected_ball(mp)
+		if hot == nil then
+			new_ball_wheel()
+		end
+	end
 
 	render_balls()
 	return true

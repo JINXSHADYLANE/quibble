@@ -93,7 +93,7 @@ void gfx_draw_textured_rect(TexHandle tex, uint layer, const RectF* source,
 	assert(dest);
 
 	RectF src;
-	if(source) {
+	if(source && (source->right != 0.0f || source->bottom != 0.0f)) {
 		src = *source;
 	}
 	else {
