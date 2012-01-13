@@ -60,12 +60,11 @@ static void _parse_img(NodeIdx node) {
 	};
 
 	darray_append(&sprsheet_descs, &new);
-	SprDesc* descs = DARRAY_DATA_PTR(sprsheet_descs, SprDesc);
 
 #ifdef _DEBUG
-	assert(dict_insert(&sprsheet_dict, name, &descs[sprsheet_descs.size-1]));
+	assert(dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size-1)));
 #else
-	dict_insert(&sprsheet_dict, name, &descs[sprsheet_descs.size-1]);
+	dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size-1));
 #endif
 }
 
@@ -113,20 +112,21 @@ static void _parse_anim(NodeIdx node) {
 	};
 
 	darray_append(&sprsheet_descs, &new);
-	SprDesc* descs = DARRAY_DATA_PTR(sprsheet_descs, SprDesc);
 
 #ifdef _DEBUG
-	assert(dict_insert(&sprsheet_dict, name, &descs[sprsheet_descs.size-1]));
+	assert(dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size-1)));
 #else
-	dict_insert(&sprsheet_dict, name, &descs[sprsheet_descs.size-1]);
+	dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size-1));
 #endif
 }
 
 static SprDesc* _sprsheet_get(const char* name) {
 	assert(name);
 
-	SprDesc* desc = dict_get(&sprsheet_dict, name);
-	return desc;
+	void* desc = dict_get(&sprsheet_dict, name);
+	SprDesc* descs = DARRAY_DATA_PTR(sprsheet_descs, SprDesc);
+	assert((size_t)desc < sprsheet_descs.size);
+	return &descs[(size_t)desc];
 }
 
 static RectF _sprsheet_animframe(SprDesc* desc, uint i) {
@@ -270,7 +270,14 @@ SprHandle sprsheet_get_handle(const char* name) {
 	if(!desc)
 		LOG_ERROR("Sprite %s does not exist", name);
 
-	return desc;
+	return ((void*)desc - sprsheet_descs.data) / sizeof(SprDesc);
+}
+
+static SprDesc* _get_desc(SprHandle handle) {
+	assert(handle < sprsheet_descs.size);
+
+	SprDesc* descs = DARRAY_DATA_PTR(sprsheet_descs, SprDesc);
+	return &descs[handle];
 }
 
 void sprsheet_get(const char* name, TexHandle* tex, RectF* src) {
@@ -280,7 +287,7 @@ void sprsheet_get(const char* name, TexHandle* tex, RectF* src) {
 void sprsheet_get_h(SprHandle handle, TexHandle* tex, RectF* src) {
 	assert(handle && tex && src);
 
-	SprDesc* desc = (SprDesc*)handle;
+	SprDesc* desc = _get_desc(handle);
 	if(desc->frames > 1)
 		LOG_ERROR("Sprite is an animation");
 
@@ -298,7 +305,7 @@ void sprsheet_get_anim(const char* name, uint frame, TexHandle* tex, RectF* src)
 void sprsheet_get_anim_h(SprHandle handle, uint frame, TexHandle* tex, RectF* src) {
 	assert(handle && tex && src);
 
-	SprDesc* desc = (SprDesc*)handle;
+	SprDesc* desc = _get_desc(handle);
 	if(desc->frames < 2)
 		LOG_ERROR("Anim is a sprite");
 
@@ -315,7 +322,7 @@ uint sprsheet_get_anim_frames(const char* name) {
 
 uint sprsheet_get_anim_frames_h(SprHandle handle) {
 
-	SprDesc* desc = (SprDesc*)handle;
+	SprDesc* desc = _get_desc(handle);
 	if(desc->frames < 2)
 		LOG_ERROR("Anim is a sprite");
 

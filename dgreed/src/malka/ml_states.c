@@ -453,7 +453,7 @@ bool malka_states_step(void) {
 		float time = time_s();
 		float len = _get_transition_len(l);
 
-		if(states_transition_t + len < time) {
+		if(len <= 0.0f || states_transition_t + len <= time) {
 			// End transition
 			_call_state_func(l, _names_get(states_to), "enter", NULL);
 			states_from = states_to;
