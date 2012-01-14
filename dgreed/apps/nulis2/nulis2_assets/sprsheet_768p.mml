@@ -106,4 +106,8 @@
 	(img editor_circle
 		(tex "editor_circle.png")
 	)
+	(img x_button
+		(tex "editor_atlas.png")
+		(src 0,325,75,400)
+	)
 )
