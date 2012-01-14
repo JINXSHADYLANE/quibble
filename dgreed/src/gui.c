@@ -301,7 +301,7 @@ bool gui_switch(const Vector2* pos, const char* text) {
 	float width = rectf_width(&gui_style.src_switch_on_up);
 	float height = rectf_height(&gui_style.src_switch_on_up);
 	
-	bool text_inside = width > 64.0f;
+	bool text_inside = width > 80.0f;
 	float text_width = font_width(gui_style.font, text);
 
 	RectF widget_rect = rectf(pos->x, pos->y, pos->x + width, pos->y + height);
@@ -498,7 +498,7 @@ void gui_draw_switch(const Vector2* center, float scale,
 	assert(text);
 
 	float width = rectf_width(&gui_style.src_switch_on_up);
-	bool text_inside = width > 64.0f;
+	bool text_inside = width > 80.0f;
 
 	RectF* src = state ?
 		&gui_style.src_switch_on_up : &gui_style.src_switch_off_up;

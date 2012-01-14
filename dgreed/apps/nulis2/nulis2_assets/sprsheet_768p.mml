@@ -1,5 +1,8 @@
 (sprsheet nulis_ipad
 	(prefix "nulis2_assets/")
+	(img empty
+		(tex "empty.png")
+	)
 	(img title
 		(tex "nulis_title.png")
 	)
@@ -106,8 +109,40 @@
 	(img editor_circle
 		(tex "editor_circle.png")
 	)
+	(img button
+		(tex "editor_atlas.png")
+		(src 0,0,396,80)
+	)
+	(img button_pressed
+		(tex "editor_atlas.png")
+		(src 0,80,396,160)
+	)
+	(img slider
+		(tex "editor_atlas.png")
+		(src 0,160,512,240)
+	)
+	(img slider_button
+		(tex "editor_atlas.png")
+		(src 0,240,148,320)
+	)
+	(img slider_button_pressed
+		(tex "editor_atlas.png")
+		(src 148,240,296,320)
+	)
 	(img x_button
 		(tex "editor_atlas.png")
-		(src 0,325,75,400)
+		(src 0,320,74,400)
+	)
+	(img x_button_pressed
+		(tex "editor_atlas.png")
+		(src 74,320,148,400)
+	)
+	(img checkbox_off
+		(tex "editor_atlas.png")
+		(src 280,320,360,400)
+	)
+	(img checkbox_on
+		(tex "editor_atlas.png")
+		(src 360,320,440,400)
 	)
 )
