@@ -12,15 +12,21 @@ btype_dict = {
 	['x'] = 'x_button'
 }
 
+iphone_scr = rect(1024/2 - 240, 768/2 - 160, 1024/2 + 240, 768/2 + 160)
+snap_grid_size = 16
 
 grav_radius = 320
 time_radius = 160
 
 ui_color_dark = rgba(0.1, 0.1, 0.1)
 ui_color_light = rgba(0.4, 0.4, 0.5)
+ui_color_barely_visible = rgba(0.6, 0.6, 0.6, 0.8)
 
+-- level state
 balls = {
 }
+spawn_at = 0
+spawn_interval = 0.1
 
 no_touch_zone = nil
 
@@ -35,6 +41,8 @@ mdown = false
 mpos = nil
 mhit_pos = nil
 mhit_time = 0
+
+menu_visible = false
 
 function init()
 	scr_half = vec2(scr_size.x/2, scr_size.y/2)
@@ -79,75 +87,82 @@ function leave()
 end
 
 function update()
-	-- update input state
-	if not use_touch then
-		if mouse.down(mouse.primary) then
-			ihit_pos = mouse.pos()
-			ihit_time = time.s()
+	if char.up('m') or touch.count() == 4 then
+		menu_visible = true
+		selected = nil
+	end
+
+	if not menu_visible then	
+		-- update input state
+		if not use_touch then
+			if mouse.down(mouse.primary) then
+				ihit_pos = mouse.pos()
+				ihit_time = time.s()
+				idown = true
+			end
+
+			if mouse.down(mouse.secondary) then
+				mhit_pos = mouse.pos()
+				mhit_time = time.s()
+				mdown = true
+			end
+
+			if mouse.up(mouse.primary) then
+				idown = false
+			end
+
+			if mouse.up(mouse.secondary) then
+				mdown = false
+			end
+
+			ipos = mouse.pos()
+			mpos = mouse.pos()
+		end
+
+		if touch.count() > 0 then
+			use_touch = true
+			
+		end
+
+		if touch.count() == 1 then
+			local t = touch.get(0)
+			ipos = t.pos
+			ihit_pos = t.hit_pos
+			ihit_time = t.hit_time
 			idown = true
-		end
-
-		if mouse.down(mouse.secondary) then
-			mhit_pos = mouse.pos()
-			mhit_time = time.s()
-			mdown = true
-		end
-
-		if mouse.up(mouse.primary) then
-			idown = false
-		end
-
-		if mouse.up(mouse.secondary) then
-			mdown = false
-		end
-
-		ipos = mouse.pos()
-		mpos = mouse.pos()
-	end
-
-	if touch.count() > 0 then
-		use_touch = true
-		
-	end
-
-	if touch.count() == 1 then
-		local t = touch.get(0)
-		ipos = t.pos
-		ihit_pos = t.hit_pos
-		ihit_time = t.hit_time
-		idown = true
-	else
-		if use_touch then
-			idown = false
-		end
-	end
-
-	if touch.count() == 2 then
-		local ta, tb = touch.get(0), touch.get(1)
-		mpos = (ta.pos + tb.pos) * 0.5
-		mhit_pos = (ta.hit_pos + tb.hit_pos) * 0.5
-		mhit_time = math.max(ta.hit_time, tb.hit_time)
-	else
-		if use_touch then
-			mdown = false
-		end
-	end
-
-	if no_touch_zone then
-		if idown then
-			local ip = rect_point_collision(no_touch_zone, ipos)
-			local iph = rect_point_collision(no_touch_zone, ihit_pos)
-			if ip or iph then
+		else
+			if use_touch then
 				idown = false
 			end
 		end
 
-		if mdown and (mp or mph) then
-			local mp = rect_point_collision(no_touch_zone, mpos)
-			local mph = rect_point_collision(no_touch_zone, mhit_pos)
-			mdown = false
-			if mp or mph then
+		if touch.count() == 2 then
+			local ta, tb = touch.get(0), touch.get(1)
+			mpos = (ta.pos + tb.pos) * 0.5
+			mhit_pos = (ta.hit_pos + tb.hit_pos) * 0.5
+			mhit_time = math.max(ta.hit_time, tb.hit_time)
+		else
+			if use_touch then
 				mdown = false
+			end
+		end
+
+		if no_touch_zone then
+			if idown then
+				local ip = rect_point_collision(no_touch_zone, ipos)
+				local iph = rect_point_collision(no_touch_zone, ihit_pos)
+				if ip or iph then
+					idown = false
+				end
+			end
+
+			if mdown and (mp or mph) then
+				local mp = rect_point_collision(no_touch_zone, mpos)
+				local mph = rect_point_collision(no_touch_zone, mhit_pos)
+				mdown = false
+				if mp or mph then
+					mdown = false
+				end
 			end
 		end
 	end
@@ -277,7 +292,53 @@ function ball_wheel(pos, show_x)
 	return res
 end
 
+function snap(v)
+	v.x = math.floor(v.x/snap_grid_size) * snap_grid_size
+	v.y = math.floor(v.y/snap_grid_size) * snap_grid_size
+	return v
+end
+
+function round(x)
+	return math.floor(x*100)/100
+end
+
+function render_menu()
+	sprsheet.draw('empty', 4, rect(0, 0, scr_size.x, scr_size.y), rgba(0, 0, 0, 0.5))
+
+	gui.label(vec2(10, 10), '[nulis_ed]')
+
+	gui.slider_set_state(vec2(256, 100), spawn_at / 30)
+	local r = gui.slider(vec2(256, 100))
+	spawn_at = math.floor(r * 30)
+	gui.label(vec2(296, 115), 'Spawn when n < '..tostring(spawn_at))
+
+	gui.slider_set_state(vec2(256, 170), spawn_interval / 10)
+	local i = gui.slider(vec2(256, 170))
+	spawn_interval = i * 10
+	gui.label(vec2(296, 185), 'Spawn interval - '..tostring(round(spawn_interval))..'s')
+
+	gui.button(vec2(314, 300), "Play")
+	gui.button(vec2(314, 400), "Soft save")
+	gui.button(vec2(314, 500), "Hard save")
+
+	if gui.button(vec2(314, 650), 'Back') then
+		menu_visible = false
+	end
+end
+
 function render()
+	if menu_visible then
+		render_menu()
+	end
+
+	-- draw iphone screen size
+	local x1, y1 = iphone_scr.l, iphone_scr.t
+	local x2, y2 = iphone_scr.r, iphone_scr.b
+	video.draw_seg(1, vec2(x1, y1), vec2(x2, y1), ui_color_barely_visible)	
+	video.draw_seg(1, vec2(x2, y1), vec2(x2, y2), ui_color_barely_visible)	
+	video.draw_seg(1, vec2(x2, y2), vec2(x1, y2), ui_color_barely_visible)	
+	video.draw_seg(1, vec2(x1, y2), vec2(x1, y1), ui_color_barely_visible)	
+
 	sprsheet.draw('background', 0, rect(0, 0, scr_size.x, scr_size.y))
 
 	local mp = mouse.pos()
@@ -302,7 +363,7 @@ function render()
 
 		local new_ball = {
 			t=new_ball_type,
-			p=ihit_pos - scr_half,
+			p=snap(ihit_pos - scr_half),
 			v=vec2(0,0),
 			s=1,
 			time=1
@@ -351,7 +412,7 @@ function render()
 
 	if selected and mdown then
 		if length_sq(selected.p + scr_half - mpos) < 100*100 then
-			selected.p = mpos - scr_half
+			selected.p = snap(mpos - scr_half)
 		end
 	end
 
@@ -380,13 +441,13 @@ function render()
 
 
 		gui.slider_set_state(ts_pos, selected.time / 10)
-		gui.label(ts_pos + vec2(40, 12), 't = '..tostring(selected.time)) 
+		gui.label(ts_pos + vec2(40, 12), 't = '..tostring(round(selected.time))) 
 		selected.time = gui.slider(ts_pos) * 10
 
 		if edit_scale then
 			gui.slider_set_state(ss_pos, selected.s / 4)
-			gui.label(ss_pos + vec2(40, 12), 's = '..tostring(32+selected.s*4)) 
-			selected.s = math.floor(gui.slider(ss_pos) * 4)
+			gui.label(ss_pos + vec2(40, 12), 's = '..tostring(selected.s)) 
+			selected.s = math.floor(gui.slider(ss_pos) * 4 + 0.5)
 		end
 
 		sprsheet.draw('empty', 4, no_touch_zone, rgba(0, 0, 0, 0.5))
