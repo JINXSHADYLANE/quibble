@@ -285,7 +285,7 @@ void sprsheet_get(const char* name, TexHandle* tex, RectF* src) {
 }
 
 void sprsheet_get_h(SprHandle handle, TexHandle* tex, RectF* src) {
-	assert(handle && tex && src);
+	assert(tex && src);
 
 	SprDesc* desc = _get_desc(handle);
 	if(desc->frames > 1)
@@ -303,7 +303,7 @@ void sprsheet_get_anim(const char* name, uint frame, TexHandle* tex, RectF* src)
 }
 
 void sprsheet_get_anim_h(SprHandle handle, uint frame, TexHandle* tex, RectF* src) {
-	assert(handle && tex && src);
+	assert(tex && src);
 
 	SprDesc* desc = _get_desc(handle);
 	if(desc->frames < 2)

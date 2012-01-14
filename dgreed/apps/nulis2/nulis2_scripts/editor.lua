@@ -17,9 +17,12 @@ grav_radius = 320
 time_radius = 160
 
 ui_color_dark = rgba(0.1, 0.1, 0.1)
+ui_color_light = rgba(0.4, 0.4, 0.5)
 
 balls = {
 }
+
+no_touch_zone = nil
 
 -- input state
 use_touch = false
@@ -28,11 +31,43 @@ ipos = nil
 ihit_pos = nil
 ihit_time = 0
 
+mdown = false
+mpos = nil
+mhit_pos = nil
+mhit_time = 0
+
 function init()
 	scr_half = vec2(scr_size.x/2, scr_size.y/2)
+
+	-- gui style
+	gui_desc = {
+		texture = tex.load(pre..'editor_atlas.png'),
+		font = font.load(pre..'varela.bft'),
+		text_color = ui_color_dark,
+
+		first_layer = 5,
+		second_layer = 6,
+		text_layer = 7
+	}
+
+	local t
+	t, gui_desc.src_button_down = sprsheet.get('button_pressed')
+	t, gui_desc.src_button_up = sprsheet.get('button')
+	t, gui_desc.src_switch_on_up = sprsheet.get('checkbox_on')
+	t, gui_desc.src_switch_on_down = sprsheet.get('checkbox_on')
+	t, gui_desc.src_switch_off_up = sprsheet.get('checkbox_off')
+	t, gui_desc.src_switch_off_down = sprsheet.get('checkbox_off')
+	t, gui_desc.src_slider = sprsheet.get('slider')
+	t, gui_desc.src_slider_knob_up = sprsheet.get('slider_button')
+	t, gui_desc.src_slider_knob_down = sprsheet.get('slider_button_pressed')
+
+	gui.init(gui_desc)
 end
 
 function close()
+	gui.close()
+	tex.free(gui_desc.texture)
+	font.free(gui_desc.font)
 end
 
 function enter()
@@ -52,22 +87,68 @@ function update()
 			idown = true
 		end
 
+		if mouse.down(mouse.secondary) then
+			mhit_pos = mouse.pos()
+			mhit_time = time.s()
+			mdown = true
+		end
+
 		if mouse.up(mouse.primary) then
 			idown = false
 		end
 
+		if mouse.up(mouse.secondary) then
+			mdown = false
+		end
+
 		ipos = mouse.pos()
+		mpos = mouse.pos()
 	end
 
 	if touch.count() > 0 then
 		use_touch = true
+		
+	end
+
+	if touch.count() == 1 then
 		local t = touch.get(0)
+		ipos = t.pos
 		ihit_pos = t.hit_pos
 		ihit_time = t.hit_time
 		idown = true
 	else
 		if use_touch then
 			idown = false
+		end
+	end
+
+	if touch.count() == 2 then
+		local ta, tb = touch.get(0), touch.get(1)
+		mpos = (ta.pos + tb.pos) * 0.5
+		mhit_pos = (ta.hit_pos + tb.hit_pos) * 0.5
+		mhit_time = math.max(ta.hit_time, tb.hit_time)
+	else
+		if use_touch then
+			mdown = false
+		end
+	end
+
+	if no_touch_zone then
+		if idown then
+			local ip = rect_point_collision(no_touch_zone, ipos)
+			local iph = rect_point_collision(no_touch_zone, ihit_pos)
+			if ip or iph then
+				idown = false
+			end
+		end
+
+		if mdown and (mp or mph) then
+			local mp = rect_point_collision(no_touch_zone, mpos)
+			local mph = rect_point_collision(no_touch_zone, mhit_pos)
+			mdown = false
+			if mp or mph then
+				mdown = false
+			end
 		end
 	end
 
@@ -87,14 +168,18 @@ function draw_arrow(layer, s, e)
 	video.draw_seg(layer, e, e - h2 * 8, ui_color_dark)
 end
 
-function draw_circle(layer, p, r)
-	local segs = math.ceil(7 + r / 12)
+function draw_circle(layer, p, r, c)
+	local segs = math.ceil(7 + r / 10)
 	local d = vec2(r, 0)
+
+	if c == nil then
+		c = ui_color_dark
+	end
 
 	for i=1,segs do
 		local a = rotate(d, i / segs * 2 * math.pi)
 		local b = rotate(d, (i-1) / segs * 2 * math.pi)
-		video.draw_seg(layer, p+a, p+b, ui_color_dark)
+		video.draw_seg(layer, p+a, p+b, c)
 	end
 end
 
@@ -152,7 +237,7 @@ function ball_wheel(pos, show_x)
 	local res = nil
 
 
-	if t - ihit_time > 0.3 then
+	if t - ihit_time > 0.7 then
 		sprsheet.draw_centered('editor_circle', 4, pos, 0.0, 1.3)
 
 		local n, i = 8, 1
@@ -209,9 +294,11 @@ function render()
 		else	
 			local p = hot.p + scr_half
 			switch_ball_type = ball_wheel(p, true)
-			draw_circle(3, p, 40)
+			draw_circle(3, p, 45)
+			selected = hot
 		end
 	elseif new_ball_type ~= nil then
+		-- add new ball
 
 		local new_ball = {
 			t=new_ball_type,
@@ -225,6 +312,7 @@ function render()
 
 		table.insert(balls, new_ball) 
 	elseif switch_ball_type ~= nil then
+		-- change ball type/remove
 		if switch_ball_type == 'x' then
 			-- find position of ball to remove
 			local pos = nil
@@ -239,11 +327,71 @@ function render()
 			-- copy last ball to its place, shrink size
 			balls[pos] = balls[#balls]
 			table.remove(balls)
+			selected = nil
 		else
 			hot.t = switch_ball_type
 		end
 
 		switch_ball_type = nil
+	else
+		local t = time.s()
+		if ihit_time ~= nil and t - ihit_time > 0.3 and t - ihit_time < 0.7 then
+			if selected then
+				local v = ihit_pos - (selected.p + scr_half)
+				if length_sq(v) < 120*120 then
+					selected.v = v
+					if length_sq(v) < 10*10 then
+						selected.v = vec2(0, 0)
+					end
+				end
+			end
+		end
+		ihit_time = nil
+	end
+
+	if selected and mdown then
+		if length_sq(selected.p + scr_half - mpos) < 100*100 then
+			selected.p = mpos - scr_half
+		end
+	end
+
+	if selected then
+		local upper_ui = selected.p.y > 0
+		draw_circle(3, selected.p + scr_half, 40, ui_color_light)
+
+		local ts_pos = vec2(10, 10)
+		local ss_pos = vec2(10, 110)
+
+		local h = 100
+		local edit_scale = selected.t == 'gw' or selected.t == 'gb'
+		edit_scale = edit_scale or selected.t == 'tw' or selected.t == 'tb'
+
+		if edit_scale then
+			h = 200
+		end
+
+		if upper_ui then
+			no_touch_zone = rect(0, 0, 540, h)
+		else
+			no_touch_zone = rect(0, 768 - h, 540, 768)
+			ts_pos.y = ts_pos.y + 768 - h
+			ss_pos.y = ss_pos.y + 768 - h
+		end
+
+
+		gui.slider_set_state(ts_pos, selected.time / 10)
+		gui.label(ts_pos + vec2(40, 12), 't = '..tostring(selected.time)) 
+		selected.time = gui.slider(ts_pos) * 10
+
+		if edit_scale then
+			gui.slider_set_state(ss_pos, selected.s / 4)
+			gui.label(ss_pos + vec2(40, 12), 's = '..tostring(32+selected.s*4)) 
+			selected.s = math.floor(gui.slider(ss_pos) * 4)
+		end
+
+		sprsheet.draw('empty', 4, no_touch_zone, rgba(0, 0, 0, 0.5))
+	else
+		no_touch_zone = nil
 	end
 
 	render_balls()
