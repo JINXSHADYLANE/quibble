@@ -23,7 +23,9 @@ typedef struct {
 
 // Sprites
 static SprHandle spr_background;
-static SprHandle spr_balls[32] = { NULL };
+static SprHandle spr_balls[32];
+static SprHandle spr_grav_b_in;
+static SprHandle spr_grav_w_in;
 
 // Game state
 static float screen_widthf, screen_heightf;
@@ -76,32 +78,32 @@ static void _load_level(const char* level_name) {
 	level.spawns[0].pos = vec2(-200.0f, 0.0f);
 	level.spawns[0].vel = vec2(0.0f, 0.0f);
 	level.spawns[0].t = 0.0f;
-	level.spawns[0].type = BT_WHITE | BT_PAIR;
+	level.spawns[0].type = BT_WHITE;
 	
 	level.spawns[1].pos = vec2(-100.0f, 0.0f);
 	level.spawns[1].vel = vec2(0.0f, 0.0f);
-	level.spawns[1].t = 1.0f;
-	level.spawns[1].type = BT_WHITE | BT_PAIR;
+	level.spawns[1].t = 0.1f;
+	level.spawns[1].type = 0;
 
 	level.spawns[2].pos = vec2(100.0f, 0.0f);
 	level.spawns[2].vel = vec2(0.0f, 0.0f);
-	level.spawns[2].t = 2.0f;
-	level.spawns[2].type = BT_WHITE | BT_PAIR;
+	level.spawns[2].t = 0.2f;
+	level.spawns[2].type = BT_WHITE;
 
 	level.spawns[3].pos = vec2(200.0f, 0.0f);
 	level.spawns[3].vel = vec2(0.0f, 0.0f);
-	level.spawns[3].t = 3.0f;
-	level.spawns[3].type = BT_WHITE | BT_PAIR;
+	level.spawns[3].t = 0.3f;
+	level.spawns[3].type = 0;
 
-	level.spawns[4].pos = vec2(0.0f, 300.0f);
+	level.spawns[4].pos = vec2(-300.0f, -300.0f);
 	level.spawns[4].vel = vec2(0.0f, 0.0f);
-	level.spawns[4].t = 3.0f;
-	level.spawns[4].type = BT_WHITE | BT_PAIR;
+	level.spawns[4].t = 0.4f;
+	level.spawns[4].type = BT_GRAV | BT_WHITE;
 
-	level.spawns[5].pos = vec2(0.0f, 0.0f);
+	level.spawns[5].pos = vec2(300.0f, 300.0f);
 	level.spawns[5].vel = vec2(0.0f, 0.0f);
-	level.spawns[5].t = 5.0f;
-	level.spawns[5].type = BT_TIME | BT_WHITE;
+	level.spawns[5].t = 0.5f;
+	level.spawns[5].type = BT_GRAV;
 
 	level.spawn_random_at = 0;
 	level.spawn_random_interval = 0.0f;
@@ -135,6 +137,9 @@ void sim_init(uint screen_width, uint screen_height) {
 	spr_balls[BT_GRAV | BT_WHITE] = 	sprsheet_get_handle("gravity_w");
 	spr_balls[BT_TIME] = 				sprsheet_get_handle("time_b");
 	spr_balls[BT_TIME | BT_WHITE] = 	sprsheet_get_handle("time_w");
+
+	spr_grav_b_in = sprsheet_get_handle("gravity_b_inside");
+	spr_grav_w_in = sprsheet_get_handle("gravity_w_inside");
 }
 
 void sim_close(void) {
@@ -593,12 +598,16 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			}
 			return;
 		}
+		else {
+			if(!(normal->type & BT_GRAV)) {
+				if((fancy->type & BT_GRAV) && !(fancy->type & BT_WHITE)) {
+					_balls_join(ball_a, ball_b);
+					return;
+				}
+			}
+		}
 	}
 
-	if((ta | tb) & BT_GRAV & ~BT_WHITE) {
-		_balls_join(ball_a, ball_b);
-		return;
-	}
 
 	if((ta & BT_WHITE) == (tb & BT_WHITE)) {
 		// X + X = XX
@@ -886,10 +895,7 @@ static void _render_ball(Ball* b, float t) {
 	}
 
 	if(b->type & BT_GRAV) {
-		// Draw gravity balls on top
-		layer = 2;
-
-		scale *= b->radius / ball_radius;
+		scale *= b->radius / 24.0f;
 	}
 
 	if(b->type & BT_TIME) {
@@ -918,6 +924,29 @@ static void _render_ball(Ball* b, float t) {
 	// Draw virtual copies on screen boundries
 	WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->pos,
 		spr_draw_cntr_h(spr_balls[b->type], layer, npos, angle, scale, c));
+
+	if(b->type & BT_GRAV) {
+		SprHandle spr = b->type & BT_WHITE ? spr_grav_w_in : spr_grav_b_in;
+		float off = t + b->t;
+
+		const int n_rings = 4;
+		for(uint i = 0; i < n_rings; ++i) {
+			float sn = sinf(t + i*(PI*2.0f / n_rings))/ 2.0f + 0.5f;
+			float cn = cosf(t + i*(PI*2.0f / n_rings));
+
+			if(cn > 0.0f) {
+				float r = lerp(scale*0.4f, scale*0.8f, sn);
+				float a = off * (float)(i+1);
+				Color col = c & 0xFFFFFF;
+				col = color_lerp(col, c, cn);
+
+				spr_draw_cntr_h(spr, layer+1, b->pos, a, r, col);
+
+				WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->pos,
+					spr_draw_cntr_h(spr, layer+1, npos, a, r, col));
+			}
+		}
+	}
 }
 
 void sim_render(void) {

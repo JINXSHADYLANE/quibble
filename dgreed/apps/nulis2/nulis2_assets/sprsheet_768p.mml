@@ -50,13 +50,21 @@
 		(tex "bubbles_1_s.png")
 		(src 192,0,256,64)
 	)
-	(img gravity_b
-		(tex "bubbles_2_s.png")
-		(src 52,0,154,102)
-	)
 	(img gravity_w
 		(tex "bubbles_2_s.png")
-		(src 154,0,256,102)
+		(src 52,0,102,50)
+	)
+	(img gravity_w_inside
+		(tex "bubbles_2_s.png")
+		(src 102,0,152,50)
+	)
+	(img gravity_b
+		(tex "bubbles_2_s.png")
+		(src 52,50,102,100)
+	)
+	(img gravity_b_inside
+		(tex "bubbles_2_s.png")
+		(src 102,50,152,100)
 	)
 	(img circle
 		(tex "circle.png")
