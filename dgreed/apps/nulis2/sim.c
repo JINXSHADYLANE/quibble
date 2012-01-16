@@ -748,6 +748,9 @@ void sim_update(void) {
 	if(touches_count() == 4 || char_up('e'))
 		malka_states_push("editor");
 
+	if(key_up(KEY_QUIT))
+		malka_states_push("menu");
+
 	float t = time_s();
 
 	_update_level();

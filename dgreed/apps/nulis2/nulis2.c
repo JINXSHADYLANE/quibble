@@ -5,6 +5,7 @@
 
 #include "common.h"
 #include "game.h"
+#include "bind.h"
 
 void dgreed_init(int argc, const char** argv) {
 	log_init("nulis2.log", LOG_LEVEL_INFO);
@@ -14,6 +15,7 @@ void dgreed_init(int argc, const char** argv) {
 
 	malka_init();
 	malka_params(argc, argv);
+	malka_register(bind_open_nulis2);
 
 	sprsheet_init(ASSETS_PRE "sprsheet_768p.mml");
 
@@ -35,7 +37,7 @@ void dgreed_close(void) {
 }
 
 bool dgreed_update(void) {
-	if(key_up(KEY_QUIT))
+	if(char_up('q'))
 		malka_states_pop();
 
 	return true;
