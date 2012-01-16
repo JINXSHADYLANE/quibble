@@ -18,6 +18,8 @@ pos_replay = vec2(94, 174)
 pos_sound = vec2(94, 314)
 pos_music = vec2(94, 454)
 pos_score = vec2(94, 594)
+pos_levels = vec2(244, 174)
+off_levels = vec2(140, 140)
 
 -- ui state
 state_sound = true
@@ -103,6 +105,60 @@ function draw_options()
 	end
 end
 
+levels_off = 0
+levels_off_target = 0
+
+function draw_levels()
+	if touch_up then
+		local up_d = touch_up.pos.y - touch_up.hit_pos.y
+		levels_off = levels_off + up_d
+	end
+	local off = levels_off 
+
+	if not touch_current then
+		levels_off = lerp(levels_off, levels_off_target, 0.1)
+	end
+
+	local fadeoff = off_levels.y / 2
+
+	local d = 0
+	if touch_current then
+		d = touch_current.pos.y - touch_current.hit_pos.y
+	end
+	if touch_sliding and math.abs(d) > 8 then
+		off = off + d
+		levels_off_target = math.floor(0.5 + off / off_levels.y) * off_levels.y
+		levels_off_target = clamp(-off_levels.y*4, 0, levels_off_target)
+	end
+
+	for y=1,8 do
+		local y_pos = (y-1)*off_levels.y + off
+		local alpha = 1
+
+		-- fade out
+		if y_pos < 0 then
+			alpha = 1 + (y_pos / fadeoff)
+		elseif y_pos > off_levels.y * 3 then
+			alpha = 1 - ((y_pos - off_levels.y*3) / fadeoff)
+		end
+
+		if alpha > 0 then
+			local col = nil
+			if alpha ~= 1 then
+				col = rgba(1, 1, 1, alpha)
+			end
+			for x=1,5 do
+				local p = vec2(
+					pos_levels.x + (x-1)*off_levels.x,
+					pos_levels.y + y_pos
+				)
+
+				menu_icon(sprs.locked, nil, p, nil, col)
+			end
+		end
+	end
+end
+
 function update()
 	if key.up(key.quit) then
 		states.pop()
@@ -112,13 +168,13 @@ function update()
 	if touch.count() == 1 then
 		local t = touch.get(0)
 		if touch_current == nil then
-			touch_slide = false
+			touch_sliding = false
 		end
 		touch_current = t
 		touch_up = nil
 
-		if not touch_slide and length_sq(t.pos - t.hit_pos) > 8*8 then
-			touch_slide = true
+		if not touch_sliding and length_sq(t.pos - t.hit_pos) > 8*8 then
+			touch_sliding = true
 		end
 	end
 
@@ -143,6 +199,7 @@ function render(t)
 	sprsheet.draw(sprs.background, background_layer, rect(0, 0, scr_size.x, scr_size.y), c)
 
 	draw_options()
+	draw_levels()
 
 	return true
 end
