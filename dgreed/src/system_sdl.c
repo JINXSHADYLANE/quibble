@@ -1289,11 +1289,21 @@ Vector2 mouse_vec(void) {
 	return vec2((float)x, (float)y);
 }
 
+static Vector2 touch_hitpos;
+static float touch_hittime;
+static Touch touch;
+
 uint touches_count(void) {
-	return 0;
+	return mouse_pressed(MBTN_PRIMARY) ? 1 : 0;
 }
 
 Touch* touches_get(void) {
+	if(mouse_pressed(MBTN_PRIMARY)) {
+		touch.hit_pos = touch_hitpos;
+		touch.hit_time = touch_hittime;
+		touch.pos = mouse_vec();
+		return &touch;
+	}
 	return NULL;
 }
 
@@ -1367,6 +1377,9 @@ bool system_update(void) {
 		}
 		if(evt.type == SDL_MOUSEBUTTONDOWN) {
 			mousestate[_sdl_to_greed_mbtn(evt.button.button)] = 1;
+
+			touch_hitpos = mouse_vec();
+			touch_hittime = time_s();
 		}		
 		if(evt.type == SDL_QUIT)
 			return false;
