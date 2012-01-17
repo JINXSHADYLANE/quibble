@@ -3,8 +3,8 @@
 
 #include <utils.h>
 
-#define LEVEL_NAMELEN 16
-#define MAX_SPAWNS 16
+#define LEVEL_NAMELEN 4 
+#define MAX_SPAWNS 8 
 
 /*
 Example:
@@ -16,6 +16,7 @@ Example:
 		(spawns _
 			(b 100,100 (vel -1,-1) (t 2.1))
 			(w -100,100 (t 0.1))
+			(gw 0,0 (t 3) (s 2))
 		)
 	)
 )
@@ -48,6 +49,7 @@ typedef struct {
 } LevelDef;
 
 void levels_reset(const char* desc);
+void levels_parse_ed(const char* desc);
 void levels_get(const char* name, LevelDef* def);
 void levels_close(void);
 

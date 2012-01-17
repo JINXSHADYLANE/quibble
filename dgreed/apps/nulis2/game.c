@@ -1,5 +1,7 @@
 #include "game.h"
 
+#include "common.h"
+#include "levels.h"
 #include "sim.h"
 
 StateDesc game_state = {
@@ -12,12 +14,16 @@ StateDesc game_state = {
 };
 
 void game_init(void) {
+	levels_reset(ASSETS_PRE "levels.mml");
+
 	sim_init(1024, 768);
-	sim_reset("level");
+	sim_reset("l1");
 }
 
 void game_close(void) {
 	sim_close();
+
+	levels_close();
 }
 
 void game_enter(void) {

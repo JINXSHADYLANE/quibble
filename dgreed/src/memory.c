@@ -104,7 +104,11 @@ void* mem_realloc(void* p, size_t size, const char* file, int line) {
 void mem_free(const void* ptr) {
 	unsigned int i;
 
-	assert(ptr);
+	//assert(ptr);
+	if(ptr == NULL) {
+		//LOG_WARNING("Freeing a null!");
+		return;
+	}
 
 	// Find right MemAllocation struct
 	size_t header_size = sizeof(MemBlockHeader);
