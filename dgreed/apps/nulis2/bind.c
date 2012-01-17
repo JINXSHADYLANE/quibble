@@ -20,9 +20,17 @@ static int csim_reset(lua_State* l) {
 	return 0;
 }
 
+static int csim_level(lua_State* l) {
+	checkargs(0, "csim.level");
+
+	lua_pushstring(l, sim_level());
+	return 1;
+}
+
 static const luaL_Reg csim_fun[] = {
 	{"render", csim_render},
 	{"reset", csim_reset},
+	{"level", csim_level},
 	{NULL, NULL}
 };
 
