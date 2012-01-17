@@ -24,8 +24,8 @@ typedef struct {
 // Sprites
 static SprHandle spr_background;
 static SprHandle spr_balls[32];
-static SprHandle spr_grav_b_in;
-static SprHandle spr_grav_w_in;
+static SprHandle spr_grav_b_in, spr_grav_b_back;
+static SprHandle spr_grav_w_in, spr_grav_w_back;
 
 // Game state
 static float screen_widthf, screen_heightf;
@@ -34,6 +34,7 @@ static DArray spawns;
 static DArray ghosts;
 static CDWorld cd;
 static LevelDef level;
+static float start_t;
 static float last_spawn_t;
 
 static bool ffield_push;
@@ -104,7 +105,9 @@ void sim_init(uint screen_width, uint screen_height) {
 	spr_balls[BT_TIME | BT_WHITE] = 	sprsheet_get_handle("time_w");
 
 	spr_grav_b_in = sprsheet_get_handle("gravity_b_inside");
+	spr_grav_b_back = sprsheet_get_handle("gravity_b_back");
 	spr_grav_w_in = sprsheet_get_handle("gravity_w_inside");
+	spr_grav_w_back = sprsheet_get_handle("gravity_w_back");
 }
 
 void sim_close(void) {
@@ -116,6 +119,18 @@ void sim_close(void) {
 }
 
 void sim_reset(const char* level) {
+	start_t = last_spawn_t = time_s();
+	ghosts.size = 0;
+	spawns.size = 0;
+	if(balls.size != 0) {
+		Ball* b = DARRAY_DATA_PTR(balls, Ball);
+		for(uint i = 0; i < balls.size; ++i) {
+			if(b[i].collider)
+				coldet_remove_obj(&cd, b[i].collider);
+		}
+		balls.size = 0;
+	}
+
 	_load_level(level);
 
 	last_spawn_t = time_s();
@@ -129,13 +144,19 @@ static void _spawn_ex(Ball* b) {
 	darray_append(&spawns, b);
 }
 
-static void _spawn(Vector2 pos, Vector2 vel, BallType type, float a, float t) {
+static void _spawn(Vector2 pos, Vector2 vel, BallType type, float a, float t, float s) {
 
 	float angular_vel = rand_float_range(-spawn_maxrot, spawn_maxrot);
 	float radius = type & BT_PAIR ? ball_radius * pair_displacement : ball_radius; 
 	float mass = type & BT_PAIR ? ball_mass * 2.0f : ball_mass;
-	if(type & BT_GRAV)
+
+	if(type & BT_GRAV) {
 		mass = grav_mass;
+	}
+
+	if(type & BT_GRAV || type & BT_TIME) {
+		radius = 16.0f + s * 2.0f;
+	}
 
 	Ball new = {
 		.pos = pos,
@@ -222,7 +243,7 @@ static bool _do_balls_collide(const Ball* a, const Ball* b) {
 }
 
 static void _update_level(void) {
-	float t = time_s();
+	float t = time_s() - start_t;
 
 	// Spawn predefined balls
 	for(uint i = 0; i < level.n_spawns; ++i) {
@@ -232,7 +253,7 @@ static void _update_level(void) {
 					screen_widthf/2.0f + s->pos.x,
 					screen_heightf/2.0f + s->pos.y
 			);
-			_spawn(p, s->vel, s->type, 0.0f, t);
+			_spawn(p, s->vel, s->type, 0.0f, t, s->s);
 			last_spawn_t = t;
 
 			// Move last spawn here, decrease count
@@ -267,7 +288,7 @@ static void _update_level(void) {
 					sinf(a) * v
 			);
 
-			_spawn(pos, vel, type, 0.0f, t);
+			_spawn(pos, vel, type, 0.0f, t, 0.0f);
 			last_spawn_t = t;
 		}
 	}
@@ -543,7 +564,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 						);	
 						Vector2 pos = vec2_add(fancy->pos, offset);
 						Vector2 v = vec2_add(vec2_scale(offset, 0.5), vf);
-						_spawn(pos, v, ta & BT_WHITE, 0.0f, -1.0f);
+						_spawn(pos, v, ta & BT_WHITE, 0.0f, -1.0f, 0.0f);
 					}
 				}
 			}
@@ -558,7 +579,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 				// To small, become a normal ball
 				if(fancy->radius < 16.0f) {
 					fancy->remove = true;
-					_spawn(fancy->pos, vf, fancy->type & BT_WHITE, 0.0f, -1.0f);
+					_spawn(fancy->pos, vf, fancy->type & BT_WHITE, 0.0f, -1.0f, 0.0f);
 				}
 			}
 			return;
@@ -599,7 +620,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			if((ta & BT_PAIR) && (tb & BT_PAIR)) {
 				Vector2 vel = vec2_sub(new.old_pos, new.pos);
 				vel = vec2_scale(vel, 1.0f / DT);
-				_spawn(new.pos, vel, ta & BT_WHITE, 0.0f, -1.0f);
+				_spawn(new.pos, vel, ta & BT_WHITE, 0.0f, -1.0f, 0.0f);
 			}
 		}
 	}
@@ -630,7 +651,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 					);	
 					Vector2 pos = vec2_add(p, offset);
 					Vector2 v = vec2_add(vec2_scale(offset, 0.5), vab);
-					_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f);
+					_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f, 0.0f);
 				}
 			}
 			// XX + Y = X + X + Y + Y
@@ -644,7 +665,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 					);	
 					Vector2 pos = vec2_add(p, offset);
 					Vector2 v = vec2_add(vec2_scale(offset, 0.5f), vab);
-					_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f);
+					_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f, 0.);
 				}
 			}
 			return;
@@ -850,7 +871,7 @@ static void _render_ball(Ball* b, float t) {
 	float angle = (b->type & ~BT_WHITE) ? b->angle : 0.0f;
 
 	Color c = COLOR_WHITE;
-	uint layer = 1;
+	uint layer = 3;
 
 	float radius = b->radius;
 
@@ -897,21 +918,21 @@ static void _render_ball(Ball* b, float t) {
 		SprHandle spr = b->type & BT_WHITE ? spr_grav_w_in : spr_grav_b_in;
 		float off = t + b->t;
 
-		const int n_rings = 4;
+		const int n_rings = 6;
 		for(uint i = 0; i < n_rings; ++i) {
 			float sn = sinf(t + i*(PI*2.0f / n_rings))/ 2.0f + 0.5f;
 			float cn = cosf(t + i*(PI*2.0f / n_rings));
 
 			if(cn > 0.0f) {
-				float r = lerp(scale*0.4f, scale*0.8f, sn);
-				float a = off * (float)(i+1);
+				float r = lerp(scale*0.2f, scale, sn);
+				float a = off * (float)(i+1) / 6.0f;
 				Color col = c & 0xFFFFFF;
 				col = color_lerp(col, c, cn);
 
 				spr_draw_cntr_h(spr, layer+1, b->pos, a, r, col);
 
 				WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->pos,
-					spr_draw_cntr_h(spr, layer+1, npos, a, r, col));
+					spr_draw_cntr_h(spr, layer-1, npos, a, r, col));
 			}
 		}
 	}
