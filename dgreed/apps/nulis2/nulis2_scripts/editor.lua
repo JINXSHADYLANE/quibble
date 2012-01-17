@@ -232,6 +232,7 @@ function render_balls()
 			end
 
 			if b.t == 'gw' or b.t == 'gb' then
+				s = s * 32 / 48
 				-- quadratic gravity fallof makes forces
 				-- very small farther away from ball, so
 				--  show smaller influence circle

@@ -71,42 +71,7 @@ float ghost_maxrot = 7.0f;
 // Code
 
 static void _load_level(const char* level_name) {
-	// Todo
-	strcpy(level.name, "testlevel");
-	level.n_spawns = 6;
-
-	level.spawns[0].pos = vec2(-200.0f, 0.0f);
-	level.spawns[0].vel = vec2(0.0f, 0.0f);
-	level.spawns[0].t = 0.0f;
-	level.spawns[0].type = BT_WHITE;
-	
-	level.spawns[1].pos = vec2(-100.0f, 0.0f);
-	level.spawns[1].vel = vec2(0.0f, 0.0f);
-	level.spawns[1].t = 0.1f;
-	level.spawns[1].type = 0;
-
-	level.spawns[2].pos = vec2(100.0f, 0.0f);
-	level.spawns[2].vel = vec2(0.0f, 0.0f);
-	level.spawns[2].t = 0.2f;
-	level.spawns[2].type = BT_WHITE;
-
-	level.spawns[3].pos = vec2(200.0f, 0.0f);
-	level.spawns[3].vel = vec2(0.0f, 0.0f);
-	level.spawns[3].t = 0.3f;
-	level.spawns[3].type = 0;
-
-	level.spawns[4].pos = vec2(-300.0f, -300.0f);
-	level.spawns[4].vel = vec2(0.0f, 0.0f);
-	level.spawns[4].t = 0.4f;
-	level.spawns[4].type = BT_GRAV | BT_WHITE;
-
-	level.spawns[5].pos = vec2(300.0f, 300.0f);
-	level.spawns[5].vel = vec2(0.0f, 0.0f);
-	level.spawns[5].t = 0.5f;
-	level.spawns[5].type = BT_GRAV;
-
-	level.spawn_random_at = 0;
-	level.spawn_random_interval = 0.0f;
+	levels_get(level_name, &level);
 }
 
 static Ball* _get_ball(uint i) {

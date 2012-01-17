@@ -76,7 +76,7 @@ void levels_reset(const char* desc) {
 		LevelDef new;
 		memset(&new, 0, sizeof(new));
 
-		const char* name = mml_get_name(&level_mml, level);
+		const char* name = mml_getval_str(&level_mml, level);
 		assert(strlen(name) < LEVEL_NAMELEN);
 		strcpy(new.name, name);
 
@@ -89,10 +89,11 @@ void levels_reset(const char* desc) {
 			new.spawn_random_interval = mml_getval_float(&level_mml, n);
 
 		n = mml_get_child(&level_mml, level, "spawns");
-		new.n_spawns = mml_count_children(&level_mml, n);
+		new.n_spawns = 0; 
 		assert(new.n_spawns <= MAX_SPAWNS);
 
-		for(; n != 0; n = mml_get_next(&level_mml, level)) {
+		n = mml_get_first_child(&level_mml, n);
+		for(; n != 0; n = mml_get_next(&level_mml, n)) {
 			SpawnDef spawn = {
 				.pos = {0.0f, 0.0f},
 				.vel = {0.0f, 0.0f},
@@ -110,6 +111,7 @@ void levels_reset(const char* desc) {
 			if(m)
 				spawn.t = mml_getval_float(&level_mml, m);
 
+			assert(new.n_spawns < MAX_SPAWNS);
 			new.spawns[new.n_spawns++] = spawn;
 		}
 
