@@ -23,6 +23,7 @@ ui_color_light = rgba(0.4, 0.4, 0.5)
 ui_color_barely_visible = rgba(0.6, 0.6, 0.6, 0.8)
 
 -- level state
+level_name = 'l1'
 balls = {
 }
 spawn_at = 0
@@ -79,7 +80,33 @@ function close()
 end
 
 function enter()
-	log.info('Entering editor')
+	level_name = csim.level()
+	balls = {}
+
+	log.info('Entering editor, level: '..level_name)
+
+	if file.exists(pre..'edlevel.mml') then
+		local level_mml = mml.read(pre..'edlevel.mml')
+		assert(#level_mml.childs == 1)
+		local level = level_mml.childs[1]
+		if level.value == level_name then
+			load_level(level)
+			return
+		end
+	end
+
+	local levels_mml = mml.read(pre..'levels.mml')
+	local level = nil
+	for i,l in ipairs(levels_mml.childs) do
+		if l.value == level_name then
+			level = l
+			break
+		end
+	end
+
+	assert(level)
+
+	load_level(level)
 end
 
 function leave()
@@ -295,8 +322,15 @@ function render_menu()
 		play()
 	end
 
- 	gui.button(vec2(314, 400), "Soft save")
-	gui.button(vec2(314, 500), "Hard save")
+	if not in_fsdev() then
+		if gui.button(vec2(314, 400), "Soft save") then
+			soft_save()
+		end
+	end
+
+	if gui.button(vec2(314, 500), "Hard save") then
+		hard_save()
+	end
 
 	if gui.button(vec2(314, 650), 'Back') then
 		menu_visible = false
@@ -440,10 +474,59 @@ function vec2str(v)
 	return tostring(v.x)..','..tostring(v.y)
 end
 
+function str2vec(str)
+	local x, y = string.match(str, '(.+),(.+)')
+	return vec2(tonumber(x), tonumber(y))
+end
+
+function load_level(mml_node)
+	spawn_at = 0
+	spawn_interval = 0.1
+	for i,c in ipairs(mml_node.childs) do
+		if c.name == 'random_at' then
+			spawn_at = tonumber(c.value)
+		end
+
+		if c.name == 'random_interval' then
+			spawn_interval = tonumber(c.value)
+		end
+
+		if c.name == 'spawns' then
+			for j,s in ipairs(c.childs) do
+				local ball = {
+					t = s.name,
+					p = str2vec(s.value),
+					v = vec2(0, 0),
+					time = 0,
+					s = 0
+				}
+
+				if s.childs ~= nil then
+					for k,b in ipairs(s.childs) do
+						if b.name == 't' then
+							ball.time = tonumber(b.value)
+						end
+
+						if b.name == 's' then
+							ball.s = tonumber(b.value)
+						end
+
+						if b.name == 'v' then
+							ball.v = str2vec(b.value)
+						end
+					end
+				end
+
+				table.insert(balls, ball)
+			end
+		end
+	end
+end
+
 function make_mml_tree()
 	local level = {
 		name = 'level',
-		value = 'l1',
+		value = level_name,
 		childs = {}
 	}
 
@@ -516,3 +599,52 @@ function play()
 
 	states.pop()
 end
+
+fsdev = nil
+function in_fsdev()
+	if fsdev == nil then
+		fsdev = false
+		for i,p in ipairs(argv) do
+			if p == '-fsdev' then
+				fsdev = true
+				break
+			end
+		end
+	end
+
+	return fsdev
+end
+
+function soft_save()
+	if not in_fsdev() then
+		local path = pre..'levels.mml'
+		local levels_mml = mml.read(path)
+		save(levels_mml)
+		mml.write(levels_mml, path)
+	else
+		log.warning('Soft save does not work in fsdev!')
+	end
+end
+
+function hard_save()
+	local path = '../apps/nulis2/nulis2_assets/levels.mml'
+	if in_fsdev() then
+		path = pre..'levels.mml'
+	end
+
+	local levels_mml = mml.read(path)
+	save(levels_mml)
+	mml.write(levels_mml, path)
+end
+
+function save(levels_mml)
+	local level = nil
+	for i,l in ipairs(levels_mml.childs) do
+		if l.value == level_name then
+			local new = make_mml_tree()
+			l.childs = new.childs
+			break
+		end
+	end
+end
+

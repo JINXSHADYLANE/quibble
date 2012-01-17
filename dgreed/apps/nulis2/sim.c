@@ -133,7 +133,6 @@ void sim_reset(const char* level) {
 
 	_load_level(level);
 
-	last_spawn_t = time_s();
 }
 
 const char* sim_level(void) {
@@ -950,7 +949,7 @@ void sim_render(void) {
 	Ball* b = DARRAY_DATA_PTR(balls, Ball);
 	for(uint i = 0; i < balls.size; ++i) {
 		if(!b[i].remove)
-			_render_ball(&b[i], t);
+			_render_ball(&b[i], t - start_t);
 	}
 
 	// Render ghosts
