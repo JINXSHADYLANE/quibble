@@ -58,6 +58,10 @@
 		(tex "bubbles_2_s.png")
 		(src 102,0,152,50)
 	)
+	(img gravity_w_back
+		(tex "bubbles_2_s.png")
+		(src 152,0,202,50)
+	)
 	(img gravity_b
 		(tex "bubbles_2_s.png")
 		(src 52,50,102,100)
@@ -65,6 +69,10 @@
 	(img gravity_b_inside
 		(tex "bubbles_2_s.png")
 		(src 102,50,152,100)
+	)
+	(img gravity_b_back
+		(tex "bubbles_2_s.png")
+		(src 152,50,202,100)
 	)
 	(img circle
 		(tex "circle.png")

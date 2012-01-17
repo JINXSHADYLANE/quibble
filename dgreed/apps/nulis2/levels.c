@@ -32,6 +32,52 @@ static BallType _get_type(const char* typestr) {
 	return 0;
 }
 
+static void _parse_level(MMLObject* mml, NodeIdx node, LevelDef* dest) {
+	const char* name = mml_getval_str(mml, node);
+	assert(strlen(name) < LEVEL_NAMELEN);
+	strcpy(dest->name, name);
+
+	NodeIdx n = mml_get_child(mml, node, "random_at");
+	if(n)
+		dest->spawn_random_at = mml_getval_uint(mml, n);
+	
+	n = mml_get_child(mml, node, "random_interval");
+	if(n)
+		dest->spawn_random_interval = mml_getval_float(mml, n);
+
+	n = mml_get_child(mml, node, "spawns");
+	dest->n_spawns = 0; 
+	assert(dest->n_spawns <= MAX_SPAWNS);
+
+	n = mml_get_first_child(mml, n);
+	for(; n != 0; n = mml_get_next(mml, n)) {
+		SpawnDef spawn = {
+			.pos = {0.0f, 0.0f},
+			.vel = {0.0f, 0.0f},
+			.t = 0.0f,
+			.s = 0.0f,
+			.type = _get_type(mml_get_name(mml, n))
+		};
+
+		spawn.pos = mml_getval_vec2(mml, n);
+
+		NodeIdx m = mml_get_child(mml, n, "vel");
+		if(m)
+			spawn.vel = mml_getval_vec2(mml, m);
+		
+		m = mml_get_child(mml, n, "t");
+		if(m)
+			spawn.t = mml_getval_float(mml, m);
+
+		m = mml_get_child(mml, n, "s");
+		if(m)
+			spawn.s = mml_getval_float(mml, m);
+
+		assert(dest->n_spawns < MAX_SPAWNS);
+		dest->spawns[dest->n_spawns++] = spawn;
+	}
+}
+
 void levels_reset(const char* desc) {
 	assert(desc);
 
@@ -76,50 +122,54 @@ void levels_reset(const char* desc) {
 		LevelDef new;
 		memset(&new, 0, sizeof(new));
 
-		const char* name = mml_getval_str(&level_mml, level);
-		assert(strlen(name) < LEVEL_NAMELEN);
-		strcpy(new.name, name);
-
-		NodeIdx n = mml_get_child(&level_mml, level, "random_at");
-		if(n)
-			new.spawn_random_at = mml_getval_uint(&level_mml, n);
+		_parse_level(&level_mml, level, &new);
 		
-		n = mml_get_child(&level_mml, level, "random_interval");
-		if(n)
-			new.spawn_random_interval = mml_getval_float(&level_mml, n);
-
-		n = mml_get_child(&level_mml, level, "spawns");
-		new.n_spawns = 0; 
-		assert(new.n_spawns <= MAX_SPAWNS);
-
-		n = mml_get_first_child(&level_mml, n);
-		for(; n != 0; n = mml_get_next(&level_mml, n)) {
-			SpawnDef spawn = {
-				.pos = {0.0f, 0.0f},
-				.vel = {0.0f, 0.0f},
-				.t = 0.0f,
-				.type = _get_type(mml_get_name(&level_mml, n))
-			};
-
-			spawn.pos = mml_getval_vec2(&level_mml, n);
-
-			NodeIdx m = mml_get_child(&level_mml, n, "vel");
-			if(m)
-				spawn.vel = mml_getval_vec2(&level_mml, m);
-			
-			m = mml_get_child(&level_mml, n, "t");
-			if(m)
-				spawn.t = mml_getval_float(&level_mml, m);
-
-			assert(new.n_spawns < MAX_SPAWNS);
-			new.spawns[new.n_spawns++] = spawn;
-		}
-
 		darray_append(&level_defs, &new);
 	}
 
 	mml_free(&level_mml);
 	level_mml_loaded = true;
+}
+
+void levels_parse_ed(const char* desc) {
+	assert(desc);
+
+	MMLObject ed_mml;
+
+	// Parse mml
+	char* mml_text = txtfile_read(desc);
+	if(!mml_deserialize(&ed_mml, mml_text))
+		LOG_ERROR("Unable to parse editor level");
+	MEM_FREE(mml_text);
+
+	// Check root name
+	NodeIdx root = mml_root(&ed_mml);
+	if(strcmp(mml_get_name(&ed_mml, root), "edlevel") != 0)
+		LOG_ERROR("Invalid level desc");
+
+	// Check level count, there should be only one
+	int level_count = mml_count_children(&ed_mml, root);
+	if(level_count != 1)
+		LOG_ERROR("How many levels did you put in edlevel.mml?");
+
+	// Get level node, name
+	NodeIdx level = mml_get_first_child(&ed_mml, root);
+	const char* name = mml_getval_str(&ed_mml, level);
+
+	// Find old level
+	LevelDef* new = NULL;
+	LevelDef* defs = DARRAY_DATA_PTR(level_defs, LevelDef);
+	for(uint i = 0; i < level_defs.size; ++i) {
+		if(strcmp(defs[i].name, name) == 0) {
+			new = &defs[i];
+			break;
+		}
+	}
+
+	// Load the level
+	assert(new);
+	memset(new, 0, sizeof(LevelDef));
+	_parse_level(&ed_mml, level, new);
 }
 
 void levels_get(const char* name, LevelDef* def) {

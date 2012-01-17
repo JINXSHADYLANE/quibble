@@ -4,7 +4,7 @@
 #include <utils.h>
 
 #define LEVEL_NAMELEN 4 
-#define MAX_SPAWNS 8 
+#define MAX_SPAWNS 16 
 
 /*
 Example:
@@ -36,7 +36,7 @@ typedef enum {
 
 typedef struct {
 	Vector2 pos, vel;
-	float t;
+	float t, s;
 	BallType type;
 } SpawnDef;
 

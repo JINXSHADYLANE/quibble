@@ -94,57 +94,30 @@ function update()
 
 	if not menu_visible then	
 		-- update input state
-		if not use_touch then
-			if mouse.down(mouse.primary) then
-				ihit_pos = mouse.pos()
-				ihit_time = time.s()
-				idown = true
-			end
-
-			if mouse.down(mouse.secondary) then
-				mhit_pos = mouse.pos()
-				mhit_time = time.s()
-				mdown = true
-			end
-
-			if mouse.up(mouse.primary) then
-				idown = false
-			end
-
-			if mouse.up(mouse.secondary) then
-				mdown = false
-			end
-
-			ipos = mouse.pos()
-			mpos = mouse.pos()
-		end
-
-		if touch.count() > 0 then
-			use_touch = true
-			
-		end
-
-		if touch.count() == 1 then
+		if touch.count() == 1 and not char.pressed('a') then
 			local t = touch.get(0)
 			ipos = t.pos
 			ihit_pos = t.hit_pos
 			ihit_time = t.hit_time
 			idown = true
 		else
-			if use_touch then
-				idown = false
-			end
+			idown = false
 		end
 
-		if touch.count() == 2 then
-			local ta, tb = touch.get(0), touch.get(1)
+		if touch.count() == 2 or (char.pressed('a') and touch.count() == 1) then
+			local ta, tb
+			ta = touch.get(0)
+			if not char.pressed('a') then
+				tb = touch.get(1)
+			else
+				tb = ta
+			end
 			mpos = (ta.pos + tb.pos) * 0.5
 			mhit_pos = (ta.hit_pos + tb.hit_pos) * 0.5
 			mhit_time = math.max(ta.hit_time, tb.hit_time)
+			mdown = true
 		else
-			if use_touch then
-				mdown = false
-			end
+			mdown = false
 		end
 
 		if no_touch_zone then
@@ -318,8 +291,11 @@ function render_menu()
 	spawn_interval = i * 10
 	gui.label(vec2(296, 185), 'Spawn interval - '..tostring(round(spawn_interval))..'s')
 
-	gui.button(vec2(314, 300), "Play")
-	gui.button(vec2(314, 400), "Soft save")
+	if gui.button(vec2(314, 300), "Play") then
+		play()
+	end
+
+ 	gui.button(vec2(314, 400), "Soft save")
 	gui.button(vec2(314, 500), "Hard save")
 
 	if gui.button(vec2(314, 650), 'Back') then
@@ -366,7 +342,7 @@ function render()
 			t=new_ball_type,
 			p=snap(ihit_pos - scr_half),
 			v=vec2(0,0),
-			s=1,
+			s=0,
 			time=1
 		}
 
@@ -458,4 +434,85 @@ function render()
 
 	render_balls()
 	return true
+end
+
+function vec2str(v)
+	return tostring(v.x)..','..tostring(v.y)
+end
+
+function make_mml_tree()
+	local level = {
+		name = 'level',
+		value = 'l1',
+		childs = {}
+	}
+
+	if spawn_at > 0 and spawn_interval > 0 then
+		table.insert(level.childs, {
+			name = 'random_at',
+			value = tostring(spawn_at)
+		})
+
+		table.insert(level.childs, {
+			name = 'random_interval',
+			value = tostring(spawn_interval)
+		})
+	end
+
+	local spawns = {
+		name = 'spawns',
+		value = '_',
+		childs = {}
+	}
+
+	for i,b in ipairs(balls) do
+		local ball = {
+			name = b.t,
+			value = vec2str(b.p),
+			childs = {}
+		}
+
+		if length_sq(b.v) > 1 then
+			table.insert(ball.childs, {
+				name = 'vel',
+				value = vec2str(b.v)
+			})
+		end
+
+		if b.time ~= 0 then
+			table.insert(ball.childs, {
+				name = 't',
+				value = tostring(b.time)
+			})
+		end
+
+		if b.s ~= 0 then
+			table.insert(ball.childs, {
+				name = 's',
+				value = tostring(b.s)
+			})
+		end
+
+		table.insert(spawns.childs, ball)
+	end
+
+	table.insert(level.childs, spawns)
+
+	return level
+end
+
+function play()
+	local level = make_mml_tree()
+	local edlevel = {
+		name = 'edlevel',
+		value = '_',
+		childs = {level}
+	}
+
+	mml.write(edlevel, pre..'edlevel.mml')
+
+	clevels.parse_ed(pre..'edlevel.mml')
+	csim.reset(level.value)
+
+	states.pop()
 end
