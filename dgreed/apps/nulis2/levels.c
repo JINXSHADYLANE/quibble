@@ -170,6 +170,8 @@ void levels_parse_ed(const char* desc) {
 	assert(new);
 	memset(new, 0, sizeof(LevelDef));
 	_parse_level(&ed_mml, level, new);
+
+	mml_free(&ed_mml);
 }
 
 void levels_get(const char* name, LevelDef* def) {

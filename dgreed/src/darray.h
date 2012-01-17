@@ -9,7 +9,15 @@ typedef struct {
 } DArray;	
 
 // Creates new dynamic array.
-DArray darray_create(size_t item_size, unsigned int reserve);
+#ifdef TRACK_MEMORY
+DArray darray_create_tracked(size_t item_size, unsigned int reserve,
+		const char* file, int line);
+#define darray_create(item_size, reserve) darray_create_tracked(item_size, reserve, __FILE__, __LINE__)
+#else
+DArray darray_create_untracked(size_t item_size, unsigned int reserve);
+#define darray_create(item_size, reserve) darray_create_untracked(item_size, reserve)
+#endif
+
 // Frees all memory used by array. 
 void darray_free(DArray* array);
 
