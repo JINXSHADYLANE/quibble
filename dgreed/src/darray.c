@@ -24,7 +24,22 @@
 // TODO: remove this
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-DArray darray_create(size_t item_size, unsigned int reserve) {
+#ifdef TRACK_MEMORY
+DArray darray_create_tracked(size_t item_size, unsigned int reserve,
+		const char* file, int line) {
+	unsigned int initial_reserve = MINIMAL_CHUNK / item_size;
+	if(initial_reserve == 0)
+		initial_reserve = 1;
+
+	reserve = MAX(reserve, initial_reserve);	
+	DArray result = {NULL, item_size, 0, reserve};
+	
+	result.data = mem_alloc(item_size * reserve, file, line);
+
+	return result;
+}
+#else
+DArray darray_create_untracked(size_t item_size, unsigned int reserve) {
 	unsigned int initial_reserve = MINIMAL_CHUNK / item_size;
 	if(initial_reserve == 0)
 		initial_reserve = 1;
@@ -36,6 +51,7 @@ DArray darray_create(size_t item_size, unsigned int reserve) {
 
 	return result;
 }	
+#endif
 
 void darray_free(DArray* array) {
 	assert(array);
