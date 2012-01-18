@@ -48,6 +48,7 @@ static Ball* time_ball;
 static Ball* new_ball;
 
 // Tweaks
+float max_speed = 100.0f;
 float overlap_resolve_factor = 0.25f;
 float ball_mass = 2.0f;
 float grav_mass = 6.0f;
@@ -252,6 +253,16 @@ static bool _do_balls_collide(const Ball* a, const Ball* b) {
 	}
 }
 
+static uint _count_alive_balls(void) {
+	uint n_balls = 0;
+	Ball* b = DARRAY_DATA_PTR(balls, Ball);
+	for(uint i = 0; i < balls.size; ++i) {
+		if(!b[i].remove)
+			n_balls++;
+	}
+	return n_balls;
+}
+
 static void _update_level(void) {
 	float t = time_s() - start_t;
 
@@ -272,8 +283,10 @@ static void _update_level(void) {
 		}
 	}
 
+	// 
+
 	// Spawn random balls
-	if(balls.size < level.spawn_random_at) {
+	if(_count_alive_balls() < level.spawn_random_at) {
 		if(t > last_spawn_t + level.spawn_random_interval) {
 			BallType type = rand_uint() & BT_WHITE;
 
@@ -702,6 +715,10 @@ static void _update_ball(Ball* ball) {
 		.y = (1.0f+damp)*ball->pos.y - damp*ball->old_pos.y + acc.y * DT*DT 
 	};
 	Vector2 v = vec2_sub(new_pos, ball->pos);
+	float l = vec2_length_sq(v);
+	if(l > max_speed*max_speed) {
+		ball->ts = sqrtf(max_speed / l); 
+	}
 	ball->pos = vec2_add(ball->pos, vec2_scale(v, ball->ts));
 	ball->old_pos = vec2_sub(ball->pos, v);
 
@@ -741,12 +758,7 @@ static void _update_ball(Ball* ball) {
 }
 
 static bool _is_solved(void) {
-	// Count unremoved balls
-	uint n_balls = 0;
-	Ball* b = DARRAY_DATA_PTR(balls, Ball);
-	for(uint i = 0; i < balls.size; ++i)
-		if(!b[i].remove)
-			n_balls++;
+	uint n_balls = _count_alive_balls();
 
 	if(n_balls == 0 && spawns.size == 0 && level.n_spawns == 0)
 		return true;
