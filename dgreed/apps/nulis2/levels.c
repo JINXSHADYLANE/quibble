@@ -185,6 +185,17 @@ void levels_get(const char* name, LevelDef* def) {
 	assert(0 && "Level not found");
 }
 
+const char* levels_next(const char* current) {
+	LevelDef* defs = DARRAY_DATA_PTR(level_defs, LevelDef);
+	for(uint i = 0; i < level_defs.size; ++i) {
+		if(strcmp(defs[i].name, current) == 0) {
+			return defs[(i+1)%level_defs.size].name; 
+		}
+	}
+	assert(0 && "Level not found");
+	return NULL;
+}
+
 void levels_close(void) {
 	if(level_defs_allocated) {
 		darray_free(&level_defs);

@@ -7,6 +7,7 @@
 #include <coldet.h>
 #include <darray.h>
 #include <sprsheet.h>
+#include <async.h>
 #include <malka/ml_states.h>
 
 #define MAX_BALL_SIZE 51.2f
@@ -22,7 +23,7 @@ typedef struct {
 } Ball;
 
 // Sprites
-static SprHandle spr_background;
+static SprHandle spr_background, spr_vignette;
 static SprHandle spr_balls[32];
 static SprHandle spr_grav_b_in, spr_grav_b_back;
 static SprHandle spr_grav_w_in, spr_grav_w_back;
@@ -36,6 +37,9 @@ static CDWorld cd;
 static LevelDef level;
 static float start_t;
 static float last_spawn_t;
+static bool is_solved;
+static bool reset_level;
+static float reset_t;
 
 static bool ffield_push;
 static Vector2 ffield_pos;
@@ -68,6 +72,9 @@ float spawn_maxrot = 2.0f;
 float ghost_lifetime = 1.0f;
 float ghost_maxrot = 7.0f;
 
+float vignette_delay = 1.0f;
+float vignette_duration = 5.0f;
+
 
 // Code
 
@@ -92,6 +99,7 @@ void sim_init(uint screen_width, uint screen_height) {
 	coldet_init_ex(&cd, MAX_BALL_SIZE, screen_widthf, screen_heightf, true, true);
 
 	spr_background = sprsheet_get_handle("background");
+	spr_vignette = sprsheet_get_handle("vignette");
 
 	spr_balls[0] = 						sprsheet_get_handle("bubble_b");
 	spr_balls[BT_WHITE] = 				sprsheet_get_handle("bubble_w");
@@ -108,6 +116,8 @@ void sim_init(uint screen_width, uint screen_height) {
 	spr_grav_b_back = sprsheet_get_handle("gravity_b_back");
 	spr_grav_w_in = sprsheet_get_handle("gravity_w_inside");
 	spr_grav_w_back = sprsheet_get_handle("gravity_w_back");
+
+	reset_t = -100.0f;
 }
 
 void sim_close(void) {
@@ -119,6 +129,7 @@ void sim_close(void) {
 }
 
 void sim_reset(const char* level) {
+	is_solved = reset_level = false;
 	start_t = last_spawn_t = time_s();
 	ghosts.size = 0;
 	spawns.size = 0;
@@ -729,6 +740,49 @@ static void _update_ball(Ball* ball) {
 	}
 }
 
+static bool _is_solved(void) {
+	// Count unremoved balls
+	uint n_balls = 0;
+	Ball* b = DARRAY_DATA_PTR(balls, Ball);
+	for(uint i = 0; i < balls.size; ++i)
+		if(!b[i].remove)
+			n_balls++;
+
+	if(n_balls == 0 && spawns.size == 0 && level.n_spawns == 0)
+		return true;
+	return false;
+}
+
+static bool _is_unsolvable(void) {
+	if(spawns.size != 0 || level.n_spawns != 0)
+		return false;
+
+	uint n_white = 0, n_black = 0;
+
+	Ball* b = DARRAY_DATA_PTR(balls, Ball);
+	for(uint i = 0; i < balls.size; ++i) {
+		if(b[i].remove || (b[i].type & (BT_GRAV | BT_TIME)))
+			continue;
+		
+		uint n = (b[i].type & BT_PAIR) ? 2 : 1;
+		if(b[i].type & BT_WHITE)
+			n_white += n;
+		else
+			n_black += n;
+	}
+	
+	return n_white + n_black < 3;
+}
+
+void _next_level(void* userdata) {
+	const char* next = levels_next(level.name);
+	sim_reset(next);
+}
+
+void _reset_level(void* userdata) {
+	sim_reset(level.name);
+}
+
 void sim_update(void) {
 	if(touches_count() == 4 || char_up('e'))
 		malka_states_push("editor");
@@ -739,6 +793,20 @@ void sim_update(void) {
 	float t = time_s();
 
 	_update_level();
+
+	if(!is_solved && _is_solved()) {
+		is_solved = true;
+		// Level finished!
+		async_schedule(_next_level, lrintf(ghost_lifetime * 1000.0f) + 500, NULL);
+	}
+
+	if(!is_solved && !reset_level && _is_unsolvable()) {
+		// Unsolvable, fade in vignette and reset after some time
+		reset_level = true;
+		reset_t = time_s() + vignette_delay;
+		uint t_off = lrintf((vignette_delay + vignette_duration/2.0f) * 1000.0f);
+		async_schedule(_reset_level, t_off, NULL);
+	}
 
 	// Accumulate forces and time scale factors
 	
@@ -870,7 +938,7 @@ static void _render_ball(Ball* b, float t) {
 	float angle = (b->type & ~BT_WHITE) ? b->angle : 0.0f;
 
 	Color c = COLOR_WHITE;
-	uint layer = 3;
+	uint layer = 2;
 
 	float radius = b->radius;
 
@@ -928,7 +996,7 @@ static void _render_ball(Ball* b, float t) {
 				Color col = c & 0xFFFFFF;
 				col = color_lerp(col, c, cn);
 
-				spr_draw_cntr_h(spr, layer+1, b->pos, a, r, col);
+				spr_draw_cntr_h(spr, layer-1, b->pos, a, r, col);
 
 				WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->pos,
 					spr_draw_cntr_h(spr, layer-1, npos, a, r, col));
@@ -938,12 +1006,26 @@ static void _render_ball(Ball* b, float t) {
 }
 
 void sim_render(void) {
+	sim_render_ex(false);
+}
+
+void sim_render_ex(bool skip_vignette) {
 	float t = time_s();
 
+	RectF fullscr = rectf(0.0f, 0.0f, screen_widthf, screen_heightf);
+
 	// Render background
-	spr_draw_h(spr_background, 0, rectf(0.0f, 0.0f, screen_widthf, screen_heightf), COLOR_WHITE);
+	spr_draw_h(spr_background, 0, fullscr, COLOR_WHITE);
 	
 	// Render vignette
+	if(!skip_vignette) {
+		if(t - reset_t < vignette_duration) {
+			float tt = clamp(0.0f, 1.0f, (t - reset_t) / vignette_duration);
+			tt = sinf(tt * PI);
+			Color c = COLOR_FTRANSP(tt);
+			spr_draw_h(spr_vignette, 3, fullscr, c);
+		}
+	}
 	
 	// Render balls
 	Ball* b = DARRAY_DATA_PTR(balls, Ball);

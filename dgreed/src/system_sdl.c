@@ -1360,6 +1360,8 @@ uint _sdl_to_greed_mbtn(uint mbtn_id) {
 	return MBTN_COUNT;
 }
 
+extern void async_process_schedule(void);
+
 bool system_update(void) {
 	SDL_Event evt;
 	int n_keys;
@@ -1386,6 +1388,8 @@ bool system_update(void) {
 	}		
 	curr_keystate = SDL_GetKeyState(&n_keys);
 	memcpy(keystate, curr_keystate, n_keys);
+
+	async_process_schedule();
 
 	uint curr_time;	
 	do {

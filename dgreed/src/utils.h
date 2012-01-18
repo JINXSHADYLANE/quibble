@@ -192,6 +192,7 @@ float circle_circle_test(
 #define COLOR_WHITE COLOR_RGBA(255, 255, 255, 255)
 #define COLOR_BLACK COLOR_RGBA(0, 0, 0, 255)
 #define COLOR_TRANSPARENT COLOR_RGBA(255, 255, 255, 0)
+#define COLOR_FTRANSP(alpha) ((((byte)lrintf((alpha) * 255.0f)) << 24) | 0xFFFFFF)
 
 typedef uint Color;
 

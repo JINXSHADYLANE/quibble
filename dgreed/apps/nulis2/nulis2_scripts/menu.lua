@@ -102,7 +102,8 @@ end
 
 function draw_options()
 	if menu_icon(sprs.replay, nil, pos_replay) then
-		-- replay 
+		csim.reset('l'..tostring(current_level+1))
+		states.pop()
 	end
 
 	state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound, state_sound) 

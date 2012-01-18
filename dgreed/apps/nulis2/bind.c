@@ -7,7 +7,7 @@
 
 static int csim_render(lua_State* l) {
 	checkargs(0, "csim.render");
-	sim_render();
+	sim_render_ex(true);
 	return 0;
 }
 

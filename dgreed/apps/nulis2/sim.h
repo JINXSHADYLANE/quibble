@@ -10,5 +10,6 @@ void sim_reset(const char* level);
 const char* sim_level(void);
 void sim_update(void);
 void sim_render(void);
+void sim_render_ex(bool skip_vignette);
 
 #endif
