@@ -51,6 +51,7 @@ typedef struct {
 void levels_reset(const char* desc);
 void levels_parse_ed(const char* desc);
 void levels_get(const char* name, LevelDef* def);
+const char* levels_next(const char* current);
 void levels_close(void);
 
 #endif
