@@ -48,7 +48,7 @@ static Ball* time_ball;
 static Ball* new_ball;
 
 // Tweaks
-float max_speed = 100.0f;
+float max_speed = 20.0f;
 float overlap_resolve_factor = 0.25f;
 float ball_mass = 2.0f;
 float grav_mass = 6.0f;
@@ -131,7 +131,8 @@ void sim_close(void) {
 
 void sim_reset(const char* level) {
 	is_solved = reset_level = false;
-	start_t = last_spawn_t = time_s();
+	start_t = time_s();
+	last_spawn_t = -100.0f;
 	ghosts.size = 0;
 	spawns.size = 0;
 	if(balls.size != 0) {
@@ -717,7 +718,7 @@ static void _update_ball(Ball* ball) {
 	Vector2 v = vec2_sub(new_pos, ball->pos);
 	float l = vec2_length_sq(v);
 	if(l > max_speed*max_speed) {
-		ball->ts = sqrtf(max_speed / l); 
+		v = vec2_scale(vec2_normalize(v), max_speed); 
 	}
 	ball->pos = vec2_add(ball->pos, vec2_scale(v, ball->ts));
 	ball->old_pos = vec2_sub(ball->pos, v);
@@ -765,8 +766,11 @@ static bool _is_solved(void) {
 	return false;
 }
 
-static bool _is_unsolvable(void) {
+static bool _is_unsolvable(float t) {
 	if(spawns.size != 0 || level.n_spawns != 0)
+		return false;
+
+	if(level.spawn_random_at > 2)
 		return false;
 
 	uint n_white = 0, n_black = 0;
@@ -812,7 +816,7 @@ void sim_update(void) {
 		async_schedule(_next_level, lrintf(ghost_lifetime * 1000.0f) + 500, NULL);
 	}
 
-	if(!is_solved && !reset_level && _is_unsolvable()) {
+	if(!is_solved && !reset_level && _is_unsolvable(t)) {
 		// Unsolvable, fade in vignette and reset after some time
 		reset_level = true;
 		reset_t = time_s() + vignette_delay;

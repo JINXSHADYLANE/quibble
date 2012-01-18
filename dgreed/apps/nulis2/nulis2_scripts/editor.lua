@@ -44,6 +44,9 @@ mhit_pos = nil
 mhit_time = 0
 
 menu_visible = false
+draw_grid = false
+save_msg = nil
+save_msg_t = 1.0
 
 function init()
 	scr_half = vec2(scr_size.x/2, scr_size.y/2)
@@ -303,15 +306,60 @@ function round(x)
 	return math.floor(x*100)/100
 end
 
+function render_grid(layer, col)
+	vline = function(x)
+		video.draw_seg(layer, vec2(x, 0), vec2(x, 768), col)
+	end
+
+	hline = function(y)
+		video.draw_seg(layer, vec2(0, y), vec2(1024, y), col)
+	end
+
+	local w, h = 1024, 768
+
+	local x = w / 2
+	while x > 0 do
+		vline(x)
+		x = x - snap_grid_size
+	end
+	x = w / 2 
+	while x < w do
+		vline(x)
+		x = x + snap_grid_size
+	end
+
+	local y = h / 2
+	while y > 0 do
+		hline(y)
+		y = y - snap_grid_size
+	end
+	y = h / 2
+	while y < h do
+		hline(y)
+		y = y + snap_grid_size
+	end
+end
+
 function render_menu()
 	sprsheet.draw('empty', 4, rect(0, 0, scr_size.x, scr_size.y), rgba(0, 0, 0, 0.5))
 
-	gui.label(vec2(10, 10), '[nulis_ed]')
+	gui.label(vec2(10, 10), '['..csim.level()..']')
 
-	gui.slider_set_state(vec2(256, 100), spawn_at / 30)
-	local r = gui.slider(vec2(256, 100))
+	if save_msg then
+		gui.label(vec2(100, 10), save_msg)
+		save_msg_t = save_msg_t - 1/60
+		if save_msg_t < 0 then 
+			save_msg = nil
+		end
+	end
+
+	draw_grid = gui.switch(vec2(10, 60), "grid")
+	draw_iphone = gui.switch(vec2(10, 140), "iphone")
+
+	gui.slider_set_state(vec2(256, 60), spawn_at / 30)
+	local r = gui.slider(vec2(256, 60))
 	spawn_at = math.floor(r * 30)
-	gui.label(vec2(296, 115), 'Spawn when n < '..tostring(spawn_at))
+	gui.label(vec2(296, 75), 'Spawn when n < '..tostring(spawn_at))
 
 	gui.slider_set_state(vec2(256, 170), spawn_interval / 10)
 	local i = gui.slider(vec2(256, 170))
@@ -342,13 +390,25 @@ function render()
 		render_menu()
 	end
 
+	if draw_grid then
+		render_grid(1, ui_color_barely_visible)
+	end
+
 	-- draw iphone screen size
-	local x1, y1 = iphone_scr.l, iphone_scr.t
-	local x2, y2 = iphone_scr.r, iphone_scr.b
-	video.draw_seg(1, vec2(x1, y1), vec2(x2, y1), ui_color_barely_visible)	
-	video.draw_seg(1, vec2(x2, y1), vec2(x2, y2), ui_color_barely_visible)	
-	video.draw_seg(1, vec2(x2, y2), vec2(x1, y2), ui_color_barely_visible)	
-	video.draw_seg(1, vec2(x1, y2), vec2(x1, y1), ui_color_barely_visible)	
+	if draw_iphone then
+		local col = ui_color_barely_visible
+		if draw_grid then
+			col = ui_color_dark
+		end
+
+		local x1, y1 = iphone_scr.l, iphone_scr.t
+		local x2, y2 = iphone_scr.r, iphone_scr.b
+
+		video.draw_seg(1, vec2(x1, y1), vec2(x2, y1), col)	
+		video.draw_seg(1, vec2(x2, y1), vec2(x2, y2), col)	
+		video.draw_seg(1, vec2(x2, y2), vec2(x1, y2), col)	
+		video.draw_seg(1, vec2(x1, y2), vec2(x1, y1), col)	
+	end
 
 	sprsheet.draw('background', 0, rect(0, 0, scr_size.x, scr_size.y))
 
@@ -491,7 +551,7 @@ function load_level(mml_node)
 			spawn_interval = tonumber(c.value)
 		end
 
-		if c.name == 'spawns' then
+		if c.name == 'spawns' and c.childs ~= nil then
 			for j,s in ipairs(c.childs) do
 				local ball = {
 					t = s.name,
@@ -621,6 +681,8 @@ function soft_save()
 		local levels_mml = mml.read(path)
 		save(levels_mml)
 		mml.write(levels_mml, path)
+		save_msg = 'saved to '..path
+		save_msg_t = 1.0 
 	else
 		log.warning('Soft save does not work in fsdev!')
 	end
@@ -635,6 +697,8 @@ function hard_save()
 	local levels_mml = mml.read(path)
 	save(levels_mml)
 	mml.write(levels_mml, path)
+	save_msg = 'saved to '..path
+	save_msg_t = 1.0 
 end
 
 function save(levels_mml)
