@@ -412,7 +412,7 @@ function render()
 				local v = ihit_pos - (selected.p + scr_half)
 				if length_sq(v) < 120*120 then
 					selected.v = v
-					if length_sq(v) < 10*10 then
+					if length_sq(v) < 20*20 then
 						selected.v = vec2(0, 0)
 					end
 				end
@@ -511,7 +511,7 @@ function load_level(mml_node)
 							ball.s = tonumber(b.value)
 						end
 
-						if b.name == 'v' then
+						if b.name == 'vel' then
 							ball.v = str2vec(b.value)
 						end
 					end
