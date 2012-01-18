@@ -27,6 +27,7 @@ Example description:
 		(frames 12)
 		(src 0,0,32,48) # first frame
 		(offset 34,50) # offset for next frames
+		(grid 8,5) # frames grid size
 	)
 )
 

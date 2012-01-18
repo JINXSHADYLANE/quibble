@@ -161,4 +161,11 @@
 		(tex "editor_atlas.png")
 		(src 360,320,440,400)
 	)
+	(anim levels
+		(tex "ui_ipad.png")
+		(frames 40)
+		(src 0,200,100,300)
+		(offset 100,100)
+		(grid 8,5)
+	)
 )
