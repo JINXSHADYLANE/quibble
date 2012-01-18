@@ -15,6 +15,7 @@ typedef struct {
 
 	// Animation
 	uint frames;
+	uint grid_w, grid_h;
 	Vector2 tex_size;
 	Vector2 offset;
 } SprDesc;
@@ -55,6 +56,8 @@ static void _parse_img(NodeIdx node) {
 		.src = src,
 		.loaded = false,
 		.frames = 1,
+		.grid_w = 0,
+		.grid_h = 0,
 		.tex_size = {0.0f, 0.0f},
 		.offset = {0.0f, 0.0f}
 	};
@@ -75,6 +78,7 @@ static void _parse_anim(NodeIdx node) {
 	RectF src = rectf_null();
 	uint frames = 0;
 	Vector2 offset = {0.0f, 0.0f};
+	uint grid_w = 0, grid_h = 0;
 
 	NodeIdx child = mml_get_first_child(&sprsheet_mml, node);
 	for(; child != 0; child = mml_get_next(&sprsheet_mml, child)) {
@@ -91,6 +95,12 @@ static void _parse_anim(NodeIdx node) {
 
 		if(strcmp("offset", name) == 0) 
 			offset = mml_getval_vec2(&sprsheet_mml, child);
+
+		if(strcmp("grid", name) == 0) {
+			Vector2 temp = mml_getval_vec2(&sprsheet_mml, child);
+			grid_w = lrintf(temp.x);
+			grid_h = lrintf(temp.y);
+		}
 	}
 
 	if(!tex_name)
@@ -107,6 +117,8 @@ static void _parse_anim(NodeIdx node) {
 		.src = src,
 		.loaded = false,
 		.frames = frames,
+		.grid_w = grid_w,
+		.grid_h = grid_h,
 		.tex_size = {0.0f, 0.0f},
 		.offset = offset 
 	};
@@ -137,15 +149,23 @@ static RectF _sprsheet_animframe(SprDesc* desc, uint i) {
 	if(i >= desc->frames)
 		LOG_ERROR("Trying to get %u frame out of %u", i, desc->frames); 
 
-	float horiz_frames;
-	modff((desc->tex_size.x - desc->src.left) / desc->offset.x, &horiz_frames);
+	uint x, y;
+	if(desc->grid_w * desc->grid_h == 0) {
+		float horiz_frames;
+		modff((desc->tex_size.x - desc->src.left) / desc->offset.x, &horiz_frames);
 
-	if(horiz_frames < 1.0f)
-		LOG_ERROR("Anim in texture %s has a really weird size/place", desc->tex_name);
+		if(horiz_frames < 1.0f)
+			LOG_ERROR("Anim in texture %s has a really weird size/place", desc->tex_name);
 
-	uint hframes = lrintf(horiz_frames);
-	uint x = i % hframes;
-	uint y = i / hframes;
+		uint hframes = lrintf(horiz_frames);
+		x = i % hframes;
+		y = i / hframes;
+	}
+	else {
+		assert(desc->grid_w * desc->grid_h >= desc->frames);
+		x = i % desc->grid_w;
+		y = i / desc->grid_w;
+	}
 
 	float w = rectf_width(&desc->src);
 	float h = rectf_height(&desc->src);

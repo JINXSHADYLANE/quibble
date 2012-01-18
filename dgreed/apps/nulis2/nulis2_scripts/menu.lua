@@ -36,6 +36,7 @@ function init()
 	sprs.score = sprsheet.get_handle('score')
 	sprs.back = sprsheet.get_handle('back')
 	sprs.locked = sprsheet.get_handle('locked')
+	sprs.levels = sprsheet.get_handle('levels')
 
 	local t, icon_rect = sprsheet.get(sprs.locked)
 	half_icon_w, half_icon_h = (icon_rect.r - icon_rect.l)/2, (icon_rect.b - icon_rect.t)/2
@@ -45,12 +46,14 @@ function close()
 end
 
 function enter()
+	local l = string.match(csim.level(), 'l(%d+)')
+	current_level = tonumber(l) - 1
 end
 
 function leave()
 end
 
-function menu_icon(spr, alt_spr, pos, state, color, rot)
+function menu_icon(spr, alt_spr, pos, state, color, rot, frame)
 	local c = color
 	local hit = false, false
 
@@ -82,7 +85,12 @@ function menu_icon(spr, alt_spr, pos, state, color, rot)
 		sprite = alt_spr
 	end
 
-	sprsheet.draw_centered(sprite, icons_layer, pos, rot, 1.0, c) 
+	if frame == nil then
+		sprsheet.draw_centered(sprite, icons_layer, pos, rot, 1.0, c) 
+	else
+		sprsheet.draw_anim_centered(sprite, frame, icons_layer, pos, rot, 1.0, c)
+	end
+	
 
 	if state == nil then
 		return hit
@@ -153,7 +161,18 @@ function draw_levels()
 					pos_levels.y + y_pos
 				)
 
-				menu_icon(sprs.locked, nil, p, nil, col)
+				local level_n = ((y-1)*5) + (x-1)
+
+				if level_n ~= current_level then
+					if menu_icon(sprs.levels, nil, p, nil, col, 0.0, level_n) then
+						csim.reset('l'..tostring(level_n+1))
+						states.pop()
+					end
+				else
+					if menu_icon(sprs.resume, nil, p, nil, col) then
+						states.pop()
+					end
+				end
 			end
 		end
 	end
