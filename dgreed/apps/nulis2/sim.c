@@ -205,12 +205,9 @@ static void _spawn(Vector2 pos, Vector2 vel, BallType type, float a, float t, fl
 	float radius = type & BT_PAIR ? ball_radius * pair_displacement : ball_radius; 
 	float mass = type & BT_PAIR ? ball_mass * 2.0f : ball_mass;
 
-	if(type & BT_GRAV) {
-		mass = grav_mass;
-	}
-
 	if(type & BT_GRAV || type & BT_TIME) {
 		radius = 16.0f + s * 2.0f;
+		mass = powf(type & BT_GRAV ? grav_mass : ball_mass, s+1.0f);
 	}
 
 	Ball new = {
@@ -239,7 +236,11 @@ static float _distance(Vector2 start, Vector2 end, Vector2* out_path) {
 		{screen_widthf, 0.0f},
 		{-screen_widthf, 0.0f},
 		{0.0f, screen_heightf},
-		{0.0f, -screen_heightf}
+		{0.0f, -screen_heightf},
+		{screen_widthf, screen_heightf},
+		{-screen_widthf, screen_heightf},
+		{screen_widthf, -screen_heightf},
+		{-screen_widthf, -screen_heightf}
 	};
 
 	for(uint i = 0; i < ARRAY_SIZE(wrap_offsets); ++i) {
@@ -529,7 +530,12 @@ void _balls_bounce(Ball* a, Ball* b) {
 	// Trigger effect
 	Vector2 p = vec2_scale(vec2_add(a_pos, b_pos), 0.5f);
 	float dir = atan2f(ab.y, ab.x);
-	mfx_trigger_ex("a+b", p, dir);	
+	const char* t = "a+b";
+	if((a->type | b->type) & BT_GRAV)
+		t = "grav+b";
+	if((a->type | b->type) & BT_TIME)
+		t = "time+b"
+	mfx_trigger_ex(t, p, dir);	
 
 	// Normal and tangent vectors of collission space
 	Vector2 sn = vec2_normalize(vec2_sub(b_pos, a_pos));
