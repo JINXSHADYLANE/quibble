@@ -8,6 +8,7 @@
 #include <darray.h>
 #include <sprsheet.h>
 #include <async.h>
+#include <mfx.h>
 #include <malka/ml_states.h>
 
 #define MAX_BALL_SIZE 51.2f
@@ -87,6 +88,48 @@ static Ball* _get_ball(uint i) {
 	assert(i < balls.size);
 	Ball* b = DARRAY_DATA_PTR(balls, Ball);
 	return &b[i];
+}
+
+static uint _count_alive_balls(void) {
+	uint n_balls = 0;
+	Ball* b = DARRAY_DATA_PTR(balls, Ball);
+	for(uint i = 0; i < balls.size; ++i) {
+		if(!b[i].remove)
+			n_balls++;
+	}
+	return n_balls;
+}
+
+static bool _is_solved(void) {
+	uint n_balls = _count_alive_balls();
+
+	if(n_balls == 0 && spawns.size == 0 && level.n_spawns == 0)
+		return true;
+	return false;
+}
+
+static bool _is_unsolvable(float t) {
+	if(spawns.size != 0 || level.n_spawns != 0)
+		return false;
+
+	if(level.spawn_random_at > 2)
+		return false;
+
+	uint n_white = 0, n_black = 0;
+
+	Ball* b = DARRAY_DATA_PTR(balls, Ball);
+	for(uint i = 0; i < balls.size; ++i) {
+		if(b[i].remove || (b[i].type & (BT_GRAV | BT_TIME)))
+			continue;
+		
+		uint n = (b[i].type & BT_PAIR) ? 2 : 1;
+		if(b[i].type & BT_WHITE)
+			n_white += n;
+		else
+			n_black += n;
+	}
+	
+	return n_white + n_black < 3;
 }
 
 void sim_init(uint screen_width, uint screen_height) {
@@ -254,16 +297,6 @@ static bool _do_balls_collide(const Ball* a, const Ball* b) {
 	}
 }
 
-static uint _count_alive_balls(void) {
-	uint n_balls = 0;
-	Ball* b = DARRAY_DATA_PTR(balls, Ball);
-	for(uint i = 0; i < balls.size; ++i) {
-		if(!b[i].remove)
-			n_balls++;
-	}
-	return n_balls;
-}
-
 static void _update_level(void) {
 	float t = time_s() - start_t;
 
@@ -281,10 +314,10 @@ static void _update_level(void) {
 			// Move last spawn here, decrease count
 			level.spawns[i] = level.spawns[--level.n_spawns];
 			--i;
+
+			mfx_trigger_ex("spawn", p, 0.0f);
 		}
 	}
-
-	// 
 
 	// Spawn random balls
 	if(_count_alive_balls() < level.spawn_random_at) {
@@ -314,6 +347,8 @@ static void _update_level(void) {
 
 			_spawn(pos, vel, type, 0.0f, t, 0.0f);
 			last_spawn_t = t;
+
+			mfx_trigger_ex("random_spawn", pos, 0.0f);
 		}
 	}
 }
@@ -469,10 +504,15 @@ void _balls_join(Ball* a, Ball* b) {
 
 	a->old_pos = vec2_sub(a->pos, nv);
 	b->old_pos = vec2_sub(b->pos, nv);
+
+	Vector2 p = vec2_scale(vec2_add(a->pos, b->pos), 0.5f);
+	float dir = atan2f(b->pos.y - a->pos.y, b->pos.x - b->pos.y);
+	mfx_trigger_ex("grav_join", p, dir);
 }
 
 // Perfect elastic collission
 void _balls_bounce(Ball* a, Ball* b) {
+
 	// Velocities
 	Vector2 va = vec2_sub(a->pos, a->old_pos);
 	Vector2 vb = vec2_sub(b->pos, b->old_pos);
@@ -485,6 +525,11 @@ void _balls_bounce(Ball* a, Ball* b) {
 	Vector2 b_pos = vec2_add(a->pos, ab);
 	Vector2 a_old_pos = a->old_pos;
 	Vector2 b_old_pos = vec2_sub(b_pos, vb);
+	
+	// Trigger effect
+	Vector2 p = vec2_scale(vec2_add(a_pos, b_pos), 0.5f);
+	float dir = atan2f(ab.y, ab.x);
+	mfx_trigger_ex("a+b", p, dir);	
 
 	// Normal and tangent vectors of collission space
 	Vector2 sn = vec2_normalize(vec2_sub(b_pos, a_pos));
@@ -590,6 +635,17 @@ void _collission_cb(CDObj* a, CDObj* b) {
 						Vector2 v = vec2_add(vec2_scale(offset, 0.5), vf);
 						_spawn(pos, v, ta & BT_WHITE, 0.0f, -1.0f, 0.0f);
 					}
+
+					mfx_trigger_ex(
+							fancy->type & BT_TIME ? "time_explode" : "grav_explode",
+							fancy->pos, fancy->angle
+					);
+				}
+				else {
+					mfx_trigger_ex(
+							fancy->type & BT_TIME ? "time_grow" : "grav_grow", 
+							fancy->pos, fancy->angle
+					);
 				}
 			}
 			// Shrink
@@ -604,6 +660,17 @@ void _collission_cb(CDObj* a, CDObj* b) {
 				if(fancy->radius < 16.0f) {
 					fancy->remove = true;
 					_spawn(fancy->pos, vf, fancy->type & BT_WHITE, 0.0f, -1.0f, 0.0f);
+
+					mfx_trigger_ex(
+							fancy->type & BT_TIME ? "time_vanish" : "grav_vanish",
+							fancy->pos, fancy->angle
+					);
+				}
+				else {
+					mfx_trigger_ex(
+							fancy->type & BT_TIME ? "time_shrink" : "grav_shrink",
+							fancy->pos, fancy->angle
+					);
 				}
 			}
 			return;
@@ -624,6 +691,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 		if(((ta & ~BT_WHITE) == 0) && ((tb & ~BT_WHITE) == 0)) {
 			ball_a->remove = ball_b->remove = true;
 			Ball new = _balls_merge(ball_a, ball_b);
+			mfx_trigger_ex("a+a", new.pos, new.angle);
 			new.type = ta | BT_PAIR;
 			_spawn_ex(&new);
 			return;
@@ -644,8 +712,16 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			if((ta & BT_PAIR) && (tb & BT_PAIR)) {
 				Vector2 vel = vec2_sub(new.old_pos, new.pos);
 				vel = vec2_scale(vel, 1.0f / DT);
+				mfx_trigger_ex("aa+aa", new.pos, new.angle);
 				_spawn(new.pos, vel, ta & BT_WHITE, 0.0f, -1.0f, 0.0f);
 			}
+			else {
+				mfx_trigger_ex("aa+a", new.pos, new.angle);
+
+				if(_is_solved())
+					mfx_trigger_ex("win", new.pos, new.angle);
+			}
+			return;
 		}
 	}
 	else {
@@ -677,6 +753,8 @@ void _collission_cb(CDObj* a, CDObj* b) {
 					Vector2 v = vec2_add(vec2_scale(offset, 0.5), vab);
 					_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f, 0.0f);
 				}
+
+				mfx_trigger_ex("aa+b", p, a);
 			}
 			// XX + Y = X + X + Y + Y
 			else {
@@ -691,6 +769,8 @@ void _collission_cb(CDObj* a, CDObj* b) {
 					Vector2 v = vec2_add(vec2_scale(offset, 0.5f), vab);
 					_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f, 0.);
 				}
+
+				mfx_trigger_ex("aa+bb", p, a);
 			}
 			return;
 		}
@@ -758,37 +838,6 @@ static void _update_ball(Ball* ball) {
 	}
 }
 
-static bool _is_solved(void) {
-	uint n_balls = _count_alive_balls();
-
-	if(n_balls == 0 && spawns.size == 0 && level.n_spawns == 0)
-		return true;
-	return false;
-}
-
-static bool _is_unsolvable(float t) {
-	if(spawns.size != 0 || level.n_spawns != 0)
-		return false;
-
-	if(level.spawn_random_at > 2)
-		return false;
-
-	uint n_white = 0, n_black = 0;
-
-	Ball* b = DARRAY_DATA_PTR(balls, Ball);
-	for(uint i = 0; i < balls.size; ++i) {
-		if(b[i].remove || (b[i].type & (BT_GRAV | BT_TIME)))
-			continue;
-		
-		uint n = (b[i].type & BT_PAIR) ? 2 : 1;
-		if(b[i].type & BT_WHITE)
-			n_white += n;
-		else
-			n_black += n;
-	}
-	
-	return n_white + n_black < 3;
-}
 
 void _next_level(void* userdata) {
 	const char* next = levels_next(level.name);
@@ -796,6 +845,12 @@ void _next_level(void* userdata) {
 }
 
 void _reset_level(void* userdata) {
+	Ball* b = DARRAY_DATA_PTR(balls, Ball);
+	for(uint i = 0; i < balls.size; ++i) {
+		if(!b[i].remove)
+			mfx_trigger_ex("lose_vanish", b[i].pos, b[i].angle);
+	}
+
 	sim_reset(level.name);
 }
 
@@ -1012,10 +1067,10 @@ static void _render_ball(Ball* b, float t) {
 				Color col = c & 0xFFFFFF;
 				col = color_lerp(col, c, cn);
 
-				spr_draw_cntr_h(spr, layer-1, b->pos, a, r, col);
+				spr_draw_cntr_h(spr, layer+1, b->pos, a, r, col);
 
 				WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->pos,
-					spr_draw_cntr_h(spr, layer-1, npos, a, r, col));
+					spr_draw_cntr_h(spr, layer+1, npos, a, r, col));
 			}
 		}
 	}

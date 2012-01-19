@@ -1,0 +1,39 @@
+(mfx _
+	(prefix "nulis2_assets/")
+	(sounds _
+	)
+	(effects _
+		(e a+b
+			(particles collision0
+				(dir_offset 90)
+			)
+			(particles collision0
+				(dir_offset -90)
+			)
+		)
+
+		(e a+a)
+		(e aa+a)
+		(e aa+aa)
+
+		(e aa+b)
+		(e aa+bb)
+
+		(e grav_grow)
+		(e grav_shrink)
+		(e grav_vanish)
+		(e grav_explode)
+		(e grav_join)
+
+		(e time_grow)
+		(e time_shrink)
+		(e time_vanish)
+		(e time_explode)
+
+		(e lose_vanish)
+		(e win)
+		(e spawn)
+		(e random_spawn)
+	)
+)
+

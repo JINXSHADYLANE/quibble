@@ -253,7 +253,7 @@ static void _load_effects(NodeIdx node) {
 				}
 
 				if(strcmp("dir_offset", param_name) == 0) {
-					sub.dir_offset = mml_getval_float(&mfx_mml, param);
+					sub.dir_offset = mml_getval_float(&mfx_mml, param) * DEG_TO_RAD;
 				}
 
 				if(strcmp("pos_offset", param_name) == 0) {
@@ -339,6 +339,10 @@ void mfx_close(void) {
 	darray_free(&live_sub_effects);
 	darray_free(&sub_effects);
 	darray_free(&meta_effects);
+
+	heap_free(&live_sub_effects_pq);
+	dict_free(&snd_dict);
+	dict_free(&meta_effect_dict);
 }
 
 static void _snd_update(void);
@@ -348,7 +352,8 @@ void mfx_update(void) {
 	uint ms = lrintf(t * 1000.0f);
 
 	// Check live sub effects priority queue
-	while(heap_peek(&live_sub_effects_pq, NULL) <= ms) {
+	while(	heap_size(&live_sub_effects_pq) > 0 &&
+			heap_peek(&live_sub_effects_pq, NULL) <= ms) {
 		void* top;
 		heap_pop(&live_sub_effects_pq, &top);
 

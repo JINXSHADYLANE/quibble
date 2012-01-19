@@ -21,7 +21,7 @@ typedef struct {
 	float end_angle;
 } Particle;	
 
-#define PSYSTEM_DESC_NAME_LENGTH 16 
+#define PSYSTEM_DESC_NAME_LENGTH 32
 
 typedef struct {
 	char name[PSYSTEM_DESC_NAME_LENGTH+1];
@@ -80,7 +80,7 @@ typedef struct {
 const ParticleStats* particle_stats(void);
 #endif
 
-#define MAX_PSYSTEM_DESCS 16
+#define MAX_PSYSTEM_DESCS 32
 #define MAX_PSYSTEMS 48
 
 extern ParticleSystemDesc psystem_descs[MAX_PSYSTEM_DESCS];
