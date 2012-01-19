@@ -11,7 +11,7 @@
 #define VERT_WRAP(y, y_off) {\
 	int vert_cells = lrintf(world->height / world->cell_size); \
 	y_off = world->height * (float)(y / vert_cells); \
-	if(y < 0 && y % vert_cells != 0) y_off -= world->width; \
+	if(y < 0 && y % vert_cells != 0) y_off -= world->height; \
 	y = ((y % vert_cells) + vert_cells) % vert_cells; \
 }
 
