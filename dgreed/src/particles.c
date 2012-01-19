@@ -4,6 +4,7 @@
 
 static uint particles_layer;
 static const char* particles_file = "particles.mml";
+static const char* particles_prefix;
 
 #define APPEND_NODE(parent, name, value, type) { \
 	prop = mml_node(&mml, name, ""); \
@@ -36,6 +37,8 @@ const ParticleStats* particle_stats(void) {
 
 void particles_init(const char* assets_prefix, uint layer) {
 	particles_layer = layer;
+
+	particles_prefix = assets_prefix ? assets_prefix : "";
 
 	// Construct paths
 	char desc_path[256];
@@ -78,10 +81,15 @@ void particles_init(const char* assets_prefix, uint layer) {
 		// Get first propierty in a special way
 		NodeIdx prop = mml_get_child(&desc, psystem_desc, "texture");
 		if(!prop)
-			LOG_ERROR("Propierty texture is missing or in wrong place");
+			LOG_ERROR("Property texture is missing or in wrong place");
 		
 		// Load texture
-		particles_texture = tex_load(mml_getval_str(&desc, prop));
+		char path[128];
+		const char* file = mml_getval_str(&desc, prop);
+		assert(strlen(particles_prefix) + strlen(file) < 128);
+		strcpy(path, particles_prefix);
+		strcat(path, file);
+		particles_texture = tex_load(path);
 		psystem_descs[i].texture = particles_texture;	
 
 		const char* tex_source;

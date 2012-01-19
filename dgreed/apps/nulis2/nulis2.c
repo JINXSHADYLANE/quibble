@@ -2,6 +2,8 @@
 #include <malka/ml_states.h>
 #include <system.h>
 #include <sprsheet.h>
+#include <particles.h>
+#include <mfx.h>
 
 #include "common.h"
 #include "game.h"
@@ -12,6 +14,9 @@ void dgreed_init(int argc, const char** argv) {
 	rand_init(432);
 
 	video_init(1024, 768, "Nulis");
+
+	particles_init(ASSETS_PRE, 4);
+	mfx_init(ASSETS_PRE "effects.mml");
 
 	malka_init();
 	malka_params(argc, argv);
@@ -32,6 +37,10 @@ void dgreed_close(void) {
 	sprsheet_close();
 
 	malka_close();
+
+	mfx_close();
+	particles_close();
+
 	video_close();
 	log_close();
 }
@@ -40,10 +49,14 @@ bool dgreed_update(void) {
 	if(char_up('q'))
 		malka_states_pop();
 
+	mfx_update();
+	particles_update(time_s());
+
 	return true;
 }
 
 bool dgreed_render(void) {
+	particles_draw();
 	return malka_states_step();
 }
 
