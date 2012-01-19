@@ -1,8 +1,14 @@
 (mfx _
 	(prefix "nulis2_assets/")
 	(sounds _
-		(s Bounce.wav)
+		(s Bounce.wav
+			(volume 0.5)
+		)
 		(s Join2.wav)
+		(s Join2+1.wav)
+		(s Join3.wav)
+		(s GravityStick.wav)
+		(s Vanish.wav)
 	)
 	(effects _
 		(e a+b
@@ -14,31 +20,99 @@
 			)
 			(sound Bounce.wav)
 		)
-
 		(e a+a
+			(particles fusion)
+			(particles blast0)
 			(sound Join2.wav)
 		)
-		(e aa+a)
-		(e aa+aa)
+		(e aa+a
+			(particles wicked_blast0)
+			(sound Join3.wav)
+		)
+		(e aa+aa
+			(particles blast1)
+			(particles fusion)
+			(sound Join3.wav)
+		)
+		(e aa+b
+			(particles collision1
+				(dir_offset 0)
+			)
+			(particles collision1
+				(dir_offset 180)
+			)
+			(particles collision1
+				(dir_offset 90)
+			)
+			(particles collision1
+				(dir_offset -90)
+			)
+			(sound Join2+1.wav)
+		)
+		(e aa+bb
+			(particles collision2)
+			(particles collision2
+				(dir_offset 180)
+			)
+			(particles collision2
+				(dir_offset 90)
+			)
+			(particles collision2
+				(dir_offset -90)
+			)
+			(sound Join2+1.wav)
+		)
 
-		(e aa+b)
-		(e aa+bb)
+		(e grav_grow
+			(particles g_grow)
+		)
+		(e grav_shrink
+			(particles g_shrink)
+		)
+		(e grav_vanish
+			(particles g_shrink)
+		)
+		(e grav_explode
+			(particles g_blast_child)
+			(particles g_blast)
+		)
+		(e grav_join
+			(particles w_hit
+				(dir_offset 90)
+			)
+			(particles w_hit
+				(dir_offset -90)
+			)
+			(sound GravityStick.wav)
+		)
 
-		(e grav_grow)
-		(e grav_shrink)
-		(e grav_vanish)
-		(e grav_explode)
-		(e grav_join)
 
-		(e time_grow)
-		(e time_shrink)
-		(e time_vanish)
-		(e time_explode)
+		(e time_grow
+			(particles t_grow)
+		)
+		(e time_shrink
+			(particles t_shrink)
+		)
+		(e time_vanish
+			(particles t_shrink)
+			(sound Vanish.wav)
+		)
+		(e time_explode
+			(particles t_blast)
+		)
 
-		(e lose_vanish)
+
+		(e lose_vanish
+			(particles gameover)
+			(sound Vanish.wav)
+		)
 		(e win)
-		(e spawn)
-		(e random_spawn)
+		(e spawn
+			(particles blast1)
+		)
+		(e random_spawn
+			(particles blast1)
+		)
 	)
 )
 
