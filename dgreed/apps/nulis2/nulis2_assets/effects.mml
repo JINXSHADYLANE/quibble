@@ -1,6 +1,8 @@
 (mfx _
 	(prefix "nulis2_assets/")
 	(sounds _
+		(s Bounce.wav)
+		(s Join2.wav)
 	)
 	(effects _
 		(e a+b
@@ -10,9 +12,12 @@
 			(particles collision0
 				(dir_offset -90)
 			)
+			(sound Bounce.wav)
 		)
 
-		(e a+a)
+		(e a+a
+			(sound Join2.wav)
+		)
 		(e aa+a)
 		(e aa+aa)
 

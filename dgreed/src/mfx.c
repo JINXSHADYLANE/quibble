@@ -141,8 +141,8 @@ static void _load_sounds(NodeIdx node) {
 
 	// Iterate over all sounds
 	NodeIdx sound_node = mml_get_first_child(&mfx_mml, node);
-	for(; sound_node != 0; sound_node = mml_get_next(&mfx_mml, node)) {
-		assert(strcmp("s", mml_get_name(&mfx_mml, sound_node)));
+	for(; sound_node != 0; sound_node = mml_get_next(&mfx_mml, sound_node)) {
+		assert(strcmp("s", mml_get_name(&mfx_mml, sound_node)) == 0);
 		const char* snd_name = mml_getval_str(&mfx_mml, sound_node); 
 
 		SndDef new = {
@@ -315,6 +315,8 @@ void mfx_init(const char* desc) {
 	live_sub_effects = darray_create(sizeof(LiveSubEffect), 0);
 	snd_defs = darray_create(sizeof(SndDef), 0);
 	snd_live = darray_create(sizeof(LiveSnd), 0);
+
+	mfx_volume = 1.0f;
 
 	_load_desc(desc);
 }
