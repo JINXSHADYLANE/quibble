@@ -14,6 +14,7 @@ void dgreed_init(int argc, const char** argv) {
 	rand_init(432);
 
 	video_init(1024, 768, "Nulis");
+	sound_init();
 
 	particles_init(ASSETS_PRE, 4);
 	mfx_init(ASSETS_PRE "effects.mml");
@@ -41,6 +42,7 @@ void dgreed_close(void) {
 	mfx_close();
 	particles_close();
 
+	sound_close();
 	video_close();
 	log_close();
 }
@@ -50,6 +52,7 @@ bool dgreed_update(void) {
 		malka_states_pop();
 
 	mfx_update();
+	sound_update();
 	particles_update(time_s());
 
 	return true;
