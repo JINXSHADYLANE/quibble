@@ -20,6 +20,10 @@
 			)
 			(sound Bounce.wav)
 		)
+
+		(e grav+b)
+		(e time+b)
+
 		(e a+a
 			(particles fusion)
 			(particles blast0)

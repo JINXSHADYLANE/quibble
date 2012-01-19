@@ -145,10 +145,13 @@ function draw_levels()
 		local alpha = 1
 
 		-- fade out
-		if y_pos < 0 then
+		if y_pos < -0.1 then
 			alpha = 1 + (y_pos / fadeoff)
 		elseif y_pos > off_levels.y * 3 then
-			alpha = 1 - ((y_pos - off_levels.y*3) / fadeoff)
+			alpha = 1.01 - ((y_pos - off_levels.y*3) / fadeoff)
+			if alpha > 1 then
+				alpha = 1
+			end
 		end
 
 		if alpha > 0 then
