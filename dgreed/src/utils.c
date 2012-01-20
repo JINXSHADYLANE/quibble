@@ -845,7 +845,7 @@ void log_close(void) {
 	LOG_INFO("Log closed");
 	if(log_file != stderr)
 		fclose(log_file);
-	log_file = NULL;
+	log_file = stderr;
 }
 
 /* TODO: Display time */

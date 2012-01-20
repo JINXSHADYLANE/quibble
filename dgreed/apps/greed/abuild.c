@@ -334,7 +334,6 @@ void gen_precalc_data(void) {
 
 int dgreed_main(int argc, const char** argv) {
 	params_init(argc, argv);
-	log_init("abuild.log", LOG_LEVEL_INFO);
 	if(params_count() < 2) {
 		printf("Provide source and target files\n");
 		log_close();
@@ -372,7 +371,6 @@ int dgreed_main(int argc, const char** argv) {
 
 	save(params_get(1), final_walls_name);
 	deinit();
-	log_close();
 
 	return 0;
 }

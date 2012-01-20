@@ -15,7 +15,6 @@ float play_time;
 #define LOADING_TEXT "PATIENCE"
 
 int dgreed_main(int argc, const char** argv) {
-	log_init("keymingler.log", LOG_LEVEL_INFO);
 	params_init(argc, argv);
 	rand_init(time(NULL));
 	layouts_init();
@@ -57,7 +56,6 @@ int dgreed_main(int argc, const char** argv) {
 	game_close();
 	video_close();
 	layouts_close();
-	log_close();
 
 	return 0;
 }

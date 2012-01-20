@@ -25,9 +25,15 @@ extern void _async_close(void)
 int main(int argc, char *argv[]) {
     
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+
+	log_init(NULL, LOG_LEVEL_INFO);
+
 	_async_init();
     int retVal = UIApplicationMain(argc, argv, nil, @"DGreedAppDelegate");
 	_async_close();
+
+	log_close();
+
     [pool release];
     return retVal;
 }

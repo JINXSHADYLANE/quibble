@@ -10,7 +10,6 @@
 #include "bind.h"
 
 void dgreed_init(int argc, const char** argv) {
-	log_init("nulis2.log", LOG_LEVEL_INFO);
 	rand_init(432);
 
 	video_init(1024, 768, "Nulis");
@@ -44,7 +43,6 @@ void dgreed_close(void) {
 
 	sound_close();
 	video_close();
-	log_close();
 }
 
 bool dgreed_update(void) {

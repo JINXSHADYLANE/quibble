@@ -83,19 +83,33 @@ int SDL_main(int argc, char** argv) {
 #endif
 int main(int argc, char** argv) {
 #endif
+
+	// Construct log file name
+	assert(argc >= 1);
+	const char* prog_name = path_get_file(argv[0]);
+	const char* postfix = ".log";
+	char logfile[128];
+	assert(strlen(prog_name) + strlen(postfix) < 128);
+	strcpy(logfile, prog_name);
+	strcat(logfile, postfix);
+	
 	_async_init();
+	log_init(logfile, LOG_LEVEL_INFO);
+
 	int res = dgreed_main(argc, argv);
+
+	log_close();
 	_async_close();
 
 #ifdef TRACK_MEMORY
 	MemoryStats stats;
 	mem_stats(&stats);
-	printf("Memory usage stats:\n");
-	printf(" Total allocations: %u\n", stats.n_allocations);
-	printf(" Peak dynamic memory usage: %zuB\n", stats.peak_bytes_allocated);
+	LOG_INFO("Memory usage stats:");
+	LOG_INFO(" Total allocations: %u", stats.n_allocations);
+	LOG_INFO(" Peak dynamic memory usage: %zuB", stats.peak_bytes_allocated);
 	if(stats.bytes_allocated) {
-		printf(" Bytes still allocted: %zu\n", stats.bytes_allocated);
-		printf(" Dumping allocations info to memory.txt\n");
+		LOG_INFO(" Bytes still allocted: %zu", stats.bytes_allocated);
+		LOG_INFO(" Dumping allocations info to memory.txt");
 		mem_dump("memory.txt");
 	}	
 #endif

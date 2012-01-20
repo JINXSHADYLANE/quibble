@@ -131,7 +131,7 @@ static void _async_close_task_state(void) {
 	assert(async_task_state_initialized);
 
 	if(aatree_size(&async_unfinished_taskids) != 0) 
-		LOG_ERROR("Closing task state tracker with unfinished tasks!");
+		LOG_WARNING("Closing task state tracker with unfinished tasks!");
 
 	aatree_free(&async_unfinished_taskids);
 	async_task_state_initialized = false;

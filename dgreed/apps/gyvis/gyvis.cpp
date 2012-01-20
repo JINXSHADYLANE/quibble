@@ -284,8 +284,6 @@ public:
 	Game(int w, int h)
 		: last_move(0.0f), start_t(0.0f), game_over(false) {
 
-		Log::init("gyvis.log");
-
 		video = Video::init(w, h, "gyvis");	
 		audio = Audio::init();
 		input = Input::init();
@@ -314,7 +312,6 @@ public:
 		delete input;
 		delete audio;
 		delete video;
-		Log::close();
 	}
 
 	bool update() {

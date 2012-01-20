@@ -9,13 +9,14 @@
 
 bool highres = false;
 
+TexHandle tex_empty;
+
 GuiDesc style;
 #ifdef TRACK_MEMORY
 MemoryStats stats;
 #endif
 
 bool dgreed_init(void) {
-	log_init("greed.log", LOG_LEVEL_INFO);
 	rand_init(47891);
 	
 	if(highres)
@@ -24,8 +25,8 @@ bool dgreed_init(void) {
 		video_init(480, 320, "Greed");
 
 	// Load empty texture first, to make sure it has '0' handle
-	TexHandle empty = tex_load("greed_assets/empty.png");
-	assert(empty == 0);
+	tex_empty = tex_load("greed_assets/empty.png");
+	assert(tex_empty == 0);
 	
 	sounds_init();
 	
@@ -59,9 +60,8 @@ void dgreed_close(void) {
 	gui_close();
 	greed_gui_free();
 	sounds_close();
-	tex_free(0);
+	tex_free(tex_empty);
 	video_close();
-	log_close();
 }
 
 
