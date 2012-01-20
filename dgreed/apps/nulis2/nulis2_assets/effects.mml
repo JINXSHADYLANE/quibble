@@ -101,7 +101,7 @@
 		)
 		(e grav_vanish
 			(particles g_shrink)
-			(sound Vanish.wav)
+			(sound Vanish2.wav)
 		)
 		(e grav_explode
 			(particles g_blast_child)
@@ -121,11 +121,11 @@
 
 		(e time_grow
 			(particles t_grow)
-			(s Time_grow.wav)
+			(sound Time_grow.wav)
 		)
 		(e time_shrink
 			(particles t_shrink)
-			(s Time_shrink.wav)
+			(sound Time_shrink.wav)
 		)
 		(e time_vanish
 			(particles t_shrink)
