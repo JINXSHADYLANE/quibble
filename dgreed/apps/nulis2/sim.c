@@ -530,12 +530,12 @@ void _balls_bounce(Ball* a, Ball* b) {
 	// Trigger effect
 	Vector2 p = vec2_scale(vec2_add(a_pos, b_pos), 0.5f);
 	float dir = atan2f(ab.y, ab.x);
-	const char* t = "a+b";
+	const char* event = "a+b";
 	if((a->type | b->type) & BT_GRAV)
-		t = "grav+b";
+		event = "grav+b";
 	if((a->type | b->type) & BT_TIME)
-		t = "time+b"
-	mfx_trigger_ex(t, p, dir);	
+		event = "time+b";
+	mfx_trigger_ex(event, p, dir);	
 
 	// Normal and tangent vectors of collission space
 	Vector2 sn = vec2_normalize(vec2_sub(b_pos, a_pos));
