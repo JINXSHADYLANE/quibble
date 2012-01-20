@@ -62,7 +62,6 @@ void _apelsinas_reset(void) {
 
 void _apelsinas_update(void) {
 	float t = time_ms() / 1000.0f;
-	float dt = time_delta() / 1000.0f;
 
 	if(apelsinas.state == jumping && fabs(apelsinas.v.y) < 0.1f)
 		apelsinas.state = standing;

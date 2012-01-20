@@ -315,7 +315,7 @@ bool _render_slidemenu(float t, float* camera_lookat_x,
 		}	
 	}
 
-	Vector2 vdest = vec2(center.x, 295.0f);
+	//Vector2 vdest = vec2(center.x, 295.0f);
 	//if(_menu_button(&vdest, "Back", &center, t) && t==0.0f) {
 	//	menu_transition = back;
 	//	menu_transition_t = -time_ms() / 1000.0f;

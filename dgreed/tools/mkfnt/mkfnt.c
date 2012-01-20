@@ -118,7 +118,6 @@ void mkfnt_write_bft(const char* tex_path) {
 
 	// Atlas texture filename
 	file_write_uint16(f, strlen(tex_path));
-	printf("%d %s\n", strlen(tex_path), tex_path);
 	file_write(f, tex_path, strlen(tex_path));
 
 	// Number of glyphs 

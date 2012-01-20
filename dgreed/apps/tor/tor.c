@@ -7,7 +7,6 @@
 #include "game.h"
 
 int dgreed_main(int argc, const char** argv) {
-	log_init("tor.log", LOG_LEVEL_INFO);
 	saves_init();
 	video_init(SCREEN_WIDTH, SCREEN_HEIGHT, "Tor");
 	puzzles_init();
@@ -39,7 +38,6 @@ int dgreed_main(int argc, const char** argv) {
 	puzzles_close();
 	video_close();
 	saves_close();
-	log_close();
 
 	return 0;
 }
