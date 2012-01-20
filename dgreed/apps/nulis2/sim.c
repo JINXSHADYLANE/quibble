@@ -49,10 +49,12 @@ static Ball* time_ball;
 static Ball* new_ball;
 
 // Tweaks
+float collission_trigger_sqr_d = 40.0f;
 float max_speed = 20.0f;
-float overlap_resolve_factor = 0.25f;
+float overlap_resolve_factor = 0.5f;
 float ball_mass = 2.0f;
 float grav_mass = 6.0f;
+float mass_increase_factor = 1.3f;
 float ball_radius = 16.0f;
 float pair_displacement = 1.5f;
 float linear_damp = 0.997f;
@@ -61,11 +63,11 @@ float angular_damp = 0.99f;
 float ffield_strength = 1500.0f;
 float ffield_radius = 160.0f;
 
-float gravity_max_dist = 320.0f;
+float gravity_max_dist = 200.0f;
 float gravity_strength = 200000.0f;
 
 float time_max_dist = 160.0f;
-float time_strength = 3.0f;
+float time_strength = 2.0f;
 float time_pulse_speed = 8.0f;
 
 float spawn_anim_len = 0.5f;
@@ -207,7 +209,9 @@ static void _spawn(Vector2 pos, Vector2 vel, BallType type, float a, float t, fl
 
 	if(type & BT_GRAV || type & BT_TIME) {
 		radius = 16.0f + s * 2.0f;
-		mass = powf(type & BT_GRAV ? grav_mass : ball_mass, s+1.0f);
+
+		mass = powf(mass_increase_factor, s);
+		mass *= (type & BT_GRAV ? grav_mass : ball_mass);
 	}
 
 	Ball new = {
@@ -276,7 +280,7 @@ static void _ball_centers(const Ball* a, Vector2* c) {
 static bool _do_balls_collide(const Ball* a, const Ball* b) {
 	assert(a && b);
 
-	float r = ball_radius * 2.0f;
+	float rr = a->radius + b->radius;
 	if((a->type & BT_PAIR) || (b->type & BT_PAIR)) {
 		Vector2 a_centers[2];
 		Vector2 b_centers[2];
@@ -286,7 +290,7 @@ static bool _do_balls_collide(const Ball* a, const Ball* b) {
 
 		for(uint i = 0; i < 2; ++i) {
 			for(uint j = 0; j < 2; ++j) {
-				if(_distance(a_centers[i], b_centers[j], NULL) < r*r)
+				if(_distance(a_centers[i], b_centers[j], NULL) < rr*rr)
 					return true;
 			}
 		}
@@ -294,7 +298,7 @@ static bool _do_balls_collide(const Ball* a, const Ball* b) {
 		return false;
 	}
 	else {
-		return _distance(a->pos, b->pos, NULL) <= r*r;
+		return _distance(a->pos, b->pos, NULL) <= rr*rr;
 	}
 }
 
@@ -395,7 +399,7 @@ void _apply_gravity_cb(CDObj* obj) {
 
 		float g_r = grav_ball->radius; 
 		float b_r = ball->radius;
-		float r_lim = (g_r + b_r) * 1.1f;
+		float r_lim = (g_r + b_r) * 1.0f;
 		if(d <= r_lim)
 			return;
 
@@ -427,10 +431,10 @@ void _apply_timescale_cb(CDObj* obj) {
 		float sqr_d = _distance(time_ball->pos, ball->pos, NULL);
 		float f = clamp(0.0f, 1.0f, sqrtf(sqr_d) / time_max_dist);
 		float ts = time_strength;
+	
+		f = lerp(ts * m, 1.0f, f);
 		if(time_ball->type & BT_WHITE)
-			ts = 1.0f / time_strength;
-
-		f = lerp(powf(ts, m), 1.0f, f);
+			f = 1.0f / f;
 
 		ball->ts *= f;
 	}
@@ -465,26 +469,33 @@ Ball _balls_merge(Ball* a, Ball* b) {
 }
 
 // Returns a new position for ball a, for it not to collide with b
-static Vector2 _move_ball(Ball* a, Ball* b) {
+static Vector2 _move_ball_ex(Ball* a, Ball* b, Vector2* pba) {
 
+	/*
 	// Add a little randomness to solve cases where a and b perfectly overlap
 	Vector2 bpos = vec2_add(b->pos, vec2(
 				rand_float_range(-1.0f, 1.0f),
 				rand_float_range(-1.0f, 1.0f)
 	));
+	*/
 
 	Vector2 ba;
-	float d_sqr = _distance(bpos, a->pos, &ba);
+	float d_sqr = _distance(b->pos, a->pos, &ba);
+	if(pba) *pba = ba;
 	float rr = a->radius + b->radius;
 	if(d_sqr <= rr*rr) {
 		float d = sqrtf(d_sqr);
 		Vector2 dir = vec2_normalize(ba);
-		float f = (rr - d + 0.1f) * overlap_resolve_factor;
+		float f = (rr - d) * overlap_resolve_factor;
 		Vector2 offset = vec2_scale(dir, f); 
-		Vector2 new_pos = vec2_add(a->pos, offset);
+		Vector2 new_pos = vec2_add(a->pos, vec2_scale(offset, a->inv_mass));
 		return new_pos;
 	}
 	return a->pos;
+}
+
+static Vector2 _move_ball(Ball* a, Ball* b) {
+	return _move_ball_ex(a, b, NULL);
 }
 
 // Perfect inelastic collission
@@ -496,7 +507,17 @@ void _balls_join(Ball* a, Ball* b) {
 	float mb = 1.0f / b->inv_mass;
 	float inv_mab = 1.0f / (ma + mb);
 
-	a->pos = _move_ball(a, b);
+	Vector2 ba;
+	a->pos = _move_ball_ex(a, b, &ba);
+
+	Vector2 old_ba;
+	_distance(a->old_pos, b->old_pos, &old_ba);
+
+	if(fabsf(vec2_length_sq(ba) - vec2_length_sq(old_ba)) > collission_trigger_sqr_d) {
+		Vector2 p = vec2_add(b->pos, vec2_scale(ba, 0.5f));
+		float dir = atan2f(ba.y, ba.x);
+		mfx_trigger_ex("grav_join", p, dir);
+	}
 
 	Vector2 nv = vec2_add(
 			vec2_scale(va, ma * inv_mab),
@@ -505,10 +526,6 @@ void _balls_join(Ball* a, Ball* b) {
 
 	a->old_pos = vec2_sub(a->pos, nv);
 	b->old_pos = vec2_sub(b->pos, nv);
-
-	Vector2 p = vec2_scale(vec2_add(a->pos, b->pos), 0.5f);
-	float dir = atan2f(b->pos.y - a->pos.y, b->pos.x - b->pos.y);
-	mfx_trigger_ex("grav_join", p, dir);
 }
 
 // Perfect elastic collission
@@ -520,22 +537,25 @@ void _balls_bounce(Ball* a, Ball* b) {
 
 	// Calculate new position for ball, taking world 
 	// wrap-around into account
-	Vector2 ab;
+	Vector2 ab, old_ab;
 	_distance(a->pos, b->pos, &ab);
+	_distance(a->old_pos, b->old_pos, &old_ab);
 	Vector2 a_pos = a->pos;
 	Vector2 b_pos = vec2_add(a->pos, ab);
 	Vector2 a_old_pos = a->old_pos;
 	Vector2 b_old_pos = vec2_sub(b_pos, vb);
 	
 	// Trigger effect
-	Vector2 p = vec2_scale(vec2_add(a_pos, b_pos), 0.5f);
-	float dir = atan2f(ab.y, ab.x);
-	const char* event = "a+b";
-	if((a->type | b->type) & BT_GRAV)
-		event = "grav+b";
-	if((a->type | b->type) & BT_TIME)
-		event = "time+b";
-	mfx_trigger_ex(event, p, dir);	
+	if(fabsf(vec2_length_sq(ab) - vec2_length_sq(old_ab)) > collission_trigger_sqr_d) {
+		Vector2 p = vec2_scale(vec2_add(a_pos, b_pos), 0.5f);
+		float dir = atan2f(ab.y, ab.x);
+		const char* event = "a+b";
+		if((a->type | b->type) & BT_GRAV)
+			event = "grav+b";
+		if((a->type | b->type) & BT_TIME)
+			event = "time+b";
+		mfx_trigger_ex(event, p, dir);	
+	}
 
 	// Normal and tangent vectors of collission space
 	Vector2 sn = vec2_normalize(vec2_sub(b_pos, a_pos));
@@ -619,7 +639,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			// Same color, grow
 			if(~(ta ^ tb) & BT_WHITE) {
 				normal->remove = true;
-				fancy->inv_mass /= 2.0f;
+				fancy->inv_mass /= mass_increase_factor;
 				fancy->radius += 2.0f;
 				fancy->collider->size.radius += 2.0f;
 				fancy->collider->dirty = true;
@@ -657,7 +677,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			// Shrink
 			else {
 				normal->remove = true;
-				fancy->inv_mass *= 2.0f;
+				fancy->inv_mass *= mass_increase_factor;
 				fancy->radius -= 2.0f;
 				fancy->collider->size.radius -= 2.0f;
 				fancy->collider->dirty = true;
@@ -685,6 +705,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			if(!(normal->type & BT_GRAV)) {
 				if((fancy->type & BT_GRAV) && !(fancy->type & BT_WHITE)) {
 					_balls_join(ball_a, ball_b);
+					//_balls_bounce(ball_a, ball_b);
 					return;
 				}
 			}
