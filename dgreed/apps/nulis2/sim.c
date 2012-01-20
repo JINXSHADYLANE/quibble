@@ -49,9 +49,9 @@ static Ball* time_ball;
 static Ball* new_ball;
 
 // Tweaks
-float collission_trigger_sqr_d = 40.0f;
-float max_speed = 20.0f;
-float overlap_resolve_factor = 0.5f;
+float collission_trigger_sqr_d = 50.0f;
+float max_speed = 15.0f;
+float overlap_resolve_factor = 1.5f;
 float ball_mass = 2.0f;
 float grav_mass = 6.0f;
 float mass_increase_factor = 1.3f;
