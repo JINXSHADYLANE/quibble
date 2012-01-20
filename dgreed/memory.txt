@@ -1,0 +1,13 @@
+Memory allocations dump:
+ 1: apps/greed/ai_precalc.c:377:	1024	0x7fd0cc06d40008
+ 2: apps/greed/ai_precalc.c:318:	600	0x7fd0cbc47fa008
+ 3: apps/greed/ai_precalc.c:253:	768	0x7fd0cbc4820008
+ 4: apps/greed/ai_precalc.c:313:	264	0x7fd0cbc47b2008
+ 5: apps/greed/ai_precalc.c:315:	17424	0x7fd0cc06880008
+ 6: apps/greed/ai_precalc.c:316:	264	0x7fd0cbc47c3008
+ 7: apps/greed/ai_precalc.c:311:	528	0x7fd0cbc477f008
+ 8: apps/greed/ai_precalc.c:312:	264	0x7fd0cbc47a1008
+ 9: apps/greed/ai_precalc.c:317:	600	0x7fd0cbc47d4008
+ 10: src/gfx_utils.c:229:	2400	0x7fd0cc84780008
+ 11: apps/greed/ai_precalc.c:348:	1248	0x7fd0cc06ce0008
+Total memory allocated: 25384 bytes

@@ -8,7 +8,16 @@
 		(s Join2+1.wav)
 		(s Join3.wav)
 		(s GravityStick.wav)
+		(s Gravity_grow.wav)
+		(s Gravity_shrink.wav)
+		(s Vanish2.wav)
+		(s Explode.wav)
+		(s Time_grow.wav)
+		(s Time_shrink.wav)
 		(s Vanish.wav)
+		(s Win.wav)
+		(s Spawn.wav)
+
 	)
 	(effects _
 		(e a+b
@@ -21,8 +30,23 @@
 			(sound Bounce.wav)
 		)
 
-		(e grav+b)
-		(e time+b)
+		(e grav+b
+			(particles b_hit
+				(dir_offset 90)
+			)
+			(particles b_hit
+				(dir_offset -90)
+			)
+		)
+		(e time+b
+			(particles w_hit
+				(dir_offset 90)
+			)
+			(particles w_hit
+				(dir_offset -90)
+			)
+			(sound Bounce.wav)
+		)
 
 		(e a+a
 			(particles fusion)
@@ -69,16 +93,20 @@
 
 		(e grav_grow
 			(particles g_grow)
+			(sound Gravity_grow.wav)
 		)
 		(e grav_shrink
 			(particles g_shrink)
+			(sound Gravity_shrink.wav)
 		)
 		(e grav_vanish
 			(particles g_shrink)
+			(sound Vanish.wav)
 		)
 		(e grav_explode
 			(particles g_blast_child)
 			(particles g_blast)
+			(sound Explode.wav)
 		)
 		(e grav_join
 			(particles w_hit
@@ -93,16 +121,19 @@
 
 		(e time_grow
 			(particles t_grow)
+			(s Time_grow.wav)
 		)
 		(e time_shrink
 			(particles t_shrink)
+			(s Time_shrink.wav)
 		)
 		(e time_vanish
 			(particles t_shrink)
-			(sound Vanish.wav)
+			(sound Vanish2.wav)
 		)
 		(e time_explode
 			(particles t_blast)
+			(sound Explode.wav)
 		)
 
 
@@ -110,12 +141,16 @@
 			(particles gameover)
 			(sound Vanish.wav)
 		)
-		(e win)
+		(e win
+			(sound Win.wav)
+		)
 		(e spawn
 			(particles blast1)
+			(sound Spawn.wav)
 		)
 		(e random_spawn
 			(particles blast1)
+			(sound Spawn.wav)
 		)
 	)
 )
