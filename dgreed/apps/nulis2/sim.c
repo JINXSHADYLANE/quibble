@@ -28,6 +28,7 @@ static SprHandle spr_background, spr_vignette;
 static SprHandle spr_balls[32];
 static SprHandle spr_grav_b_in, spr_grav_b_back;
 static SprHandle spr_grav_w_in, spr_grav_w_back;
+static SprHandle spr_ffield;
 
 // Game state
 static float screen_widthf, screen_heightf;
@@ -47,6 +48,20 @@ static Vector2 ffield_pos;
 static Ball* grav_ball;
 static Ball* time_ball;
 static Ball* new_ball;
+
+// ffield state
+typedef struct {
+	Vector2 center;
+	float radius;
+	float birth_time;
+	bool shrink;
+	Color color;
+} FFieldCircle;
+
+#define MAX_FFIELD_CIRCLES 8
+FFieldCircle ffield_circles[MAX_FFIELD_CIRCLES];
+uint ffield_circle_count = 0;
+float ffield_last_spawn = 0.0f;
 
 // Tweaks
 float collission_trigger_sqr_d = 50.0f;
@@ -79,6 +94,8 @@ float ghost_maxrot = 7.0f;
 float vignette_delay = 1.0f;
 float vignette_duration = 5.0f;
 
+float ffield_freq = 0.2f;
+float ffield_lifetime = 0.5f;
 
 // Code
 
@@ -162,6 +179,8 @@ void sim_init(uint screen_width, uint screen_height) {
 	spr_grav_b_back = sprsheet_get_handle("gravity_b_back");
 	spr_grav_w_in = sprsheet_get_handle("gravity_w_inside");
 	spr_grav_w_back = sprsheet_get_handle("gravity_w_back");
+
+	spr_ffield = sprsheet_get_handle("circle");
 
 	reset_t = -100.0f;
 }
@@ -881,6 +900,66 @@ void _reset_level(void* userdata) {
 	sim_reset(level.name);
 }
 
+static void _show_ffield(Vector2 p, float r, bool push) {
+	const Color ffield_color_start = COLOR_RGBA(0, 129, 255, 255);
+	const Color ffield_color_end = COLOR_RGBA(255, 0, 236, 255);
+
+	float t = time_s();
+	if(t - ffield_last_spawn > ffield_freq) {
+		ffield_last_spawn = t;
+
+		FFieldCircle new = { p, r, t, !push, 0 };
+		new.color = color_lerp(
+				ffield_color_start, ffield_color_end, rand_float()
+		);
+
+		assert(ffield_circle_count < MAX_FFIELD_CIRCLES);
+		ffield_circles[ffield_circle_count++] = new;
+	}
+}
+
+static void _update_ffield(void) {
+	float t = time_s();
+	for(uint i = 0; i < ffield_circle_count; ++i) {
+		FFieldCircle* circle = &ffield_circles[i];
+
+		float ct = (t - circle->birth_time) / ffield_lifetime;
+		if(ct >= 1.0f) {
+			ffield_circles[i] = ffield_circles[--ffield_circle_count];
+			--i;
+			continue;
+		}
+	}
+}
+
+static void _render_ffield(void) {
+	float t = time_s();
+	for(uint i = 0; i < ffield_circle_count; ++i) {
+		FFieldCircle* circle = &ffield_circles[i];
+		float ct = (t - circle->birth_time) / ffield_lifetime;
+		ct = clamp(0.0f, 1.0f, ct);
+
+		float start_r = circle->shrink ? circle->radius : circle->radius * 0.5f;
+		float end_r = circle->shrink ? circle->radius * 0.5f : circle->radius;
+		float scale = lerp(start_r, end_r, ct) / 128.0f;
+
+		Color transparent = circle->color & 0xFFFFFF;
+		Color col = color_lerp(transparent, circle->color, sinf(ct * PI));
+
+		Vector2 pos = circle->center;
+
+		spr_draw_cntr_h(spr_ffield, 4, pos, 0.0f, scale, col);
+
+		float x_min = circle->radius;
+		float x_max = screen_widthf - x_min;
+		float y_min = x_min;
+		float y_max = screen_heightf - y_min;
+
+		WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, pos,
+			spr_draw_cntr_h(spr_ffield, 4, npos, 0.0f, scale, col));
+	}
+}
+
 void sim_update(void) {
 	if(touches_count() == 4 || char_up('e'))
 		malka_states_push("editor");
@@ -891,6 +970,7 @@ void sim_update(void) {
 	float t = time_s();
 
 	_update_level();
+	_update_ffield();
 
 	if(!is_solved && _is_solved()) {
 		is_solved = true;
@@ -929,6 +1009,8 @@ void sim_update(void) {
 		ffield_push = push;
 		coldet_query_circle(&cd, pos, ffield_radius, 1, 
 				_apply_force_field_cb);
+
+		_show_ffield(pos, ffield_radius, push);
 	}
 
 	// Gravity & time scale
@@ -1137,5 +1219,7 @@ void sim_render_ex(bool skip_vignette) {
 	for(uint i = 0; i < ghosts.size; ++i) {
 		_render_ball(&b[i], t);
 	}
+
+	_render_ffield();
 }
 
