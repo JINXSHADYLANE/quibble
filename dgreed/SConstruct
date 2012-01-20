@@ -20,7 +20,7 @@ default_arenacompr_tool = TOOL_DIR + '/' + 'greed_arena_compress.py $TARGET $TAR
 default_ogmo_tool = TOOL_DIR + '/' + 'ogmo2btm.py $SOURCES -o $TARGET'
 if str(Platform()) == 'win32':
 	Tool('mingw')(env)
-	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32'],
+	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32', 'pthread'],
 		DGREED_FONT_TOOL=default_font_tool.replace('/', '\\'),
 		DGREED_TEST_TOOL=default_test_tool.replace('/', '\\'),
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool.replace('/', '\\'),

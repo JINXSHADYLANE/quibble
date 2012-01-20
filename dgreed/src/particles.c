@@ -256,19 +256,21 @@ ParticleSystem* particles_spawn(const char* name, const Vector2* pos,
 	uint desc_idx = 0;
 	while(strcmp(psystem_descs[desc_idx].name, name) != 0) {
 		desc_idx++;
+		if(desc_idx == psystem_descs_count) 
+			LOG_ERROR("Trying to spawn psystem with non-existing description");
 	}	
-	if(desc_idx == psystem_descs_count) 
-		LOG_ERROR("Trying to spawn psystem with non-existing description");
+	
 		
 	// Find empty slot in psystems pool
 	uint psystem_idx = 0;
 	while(psystems[psystem_idx].active) {
 		psystem_idx++;
+		if(psystem_idx == MAX_PSYSTEMS) {
+			//LOG_INFO("too many psystems, skipping spawn");
+			return NULL;
+		}
 	}	
-	if(psystem_idx == MAX_PSYSTEMS) {
-		LOG_INFO("too many psystems, skipping spawn");
-		return NULL;
-	}	
+		
 		
 	// Fill struct
 	ParticleSystem* psystem = &(psystems[psystem_idx]);
