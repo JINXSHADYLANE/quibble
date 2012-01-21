@@ -50,19 +50,31 @@
 
 		(e a+a
 			(particles fusion)
-			(particles blast0)
+			(particles blast)
 			(sound Join2.wav)
 		)
 		(e aa+a
-			(particles wicked_blast0)
+			(particles wicked_blast)
 			(sound Join3.wav)
 		)
 		(e aa+aa
-			(particles blast1)
-			(particles fusion)
+			(particles wicked_blast)
+			(particles collision2
+				(dir_offset 0)
+			)
+			(particles collision2
+				(dir_offset 180)
+			)
+			(particles collision2
+				(dir_offset 90)
+			)
+			(particles collision2
+				(dir_offset -90)
+			)
 			(sound Join3.wav)
 		)
 		(e aa+b
+			(particles diffusion)
 			(particles collision1
 				(dir_offset 0)
 			)
@@ -78,6 +90,7 @@
 			(sound Join2+1.wav)
 		)
 		(e aa+bb
+			(particles diffusion)
 			(particles collision2)
 			(particles collision2
 				(dir_offset 180)
@@ -100,7 +113,8 @@
 			(sound Gravity_shrink.wav)
 		)
 		(e grav_vanish
-			(particles g_shrink)
+			(particles sparkles)
+			(particles g_vanish)
 			(sound Vanish2.wav)
 		)
 		(e grav_explode
@@ -128,11 +142,13 @@
 			(sound Time_shrink.wav)
 		)
 		(e time_vanish
-			(particles t_shrink)
+			(particles sparkles)
+			(particles t_vanish)
 			(sound Vanish2.wav)
 		)
 		(e time_explode
 			(particles t_blast)
+			(particles t_blast_parent)
 			(sound Explode.wav)
 		)
 
@@ -145,11 +161,11 @@
 			(sound Win.wav)
 		)
 		(e spawn
-			(particles blast1)
+			(particles appear)
 			(sound Spawn.wav)
 		)
 		(e random_spawn
-			(particles blast1)
+			(particles spawn)
 			(sound Spawn.wav)
 		)
 	)
