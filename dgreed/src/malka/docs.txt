@@ -193,8 +193,9 @@ releases texture
 font
 ----
 
-- font.load(filename, scale)
+- font.load(filename, scale, prefix)
 loads bft font, returns handle, optionally allows to provide scaling factor
+and/or asset prefix
 
 - font.size(fonthandle, text)
 returns width and height of text drawn using a font
@@ -294,6 +295,35 @@ draws centered sprite; rot, scale and tint are optional
 
 - sprsheet.draw_anim_centered(spr, frame, layer, dest, rot, scale, tint)
 same as sprsheet.draw_centered, for animations
+
+
+---
+mfx
+---
+
+Metaeffect system - a way to define events and what happens when they are
+triggered.
+
+- mfx.init(desc)
+initializes mfx, load events description
+
+- mfx.close()
+closes mfx system
+
+- mfx.update()
+must be called once per frame
+
+- mfx.trigger(name, pos, dir)
+triggers an event; pos and dir are optional
+
+- mfx.snd_volume(), mfx.snd_set_volume(volume)
+gets/sets sound volume
+
+- mfx.snd_play(name)
+plays sound
+
+- mfx.snd_ambient(name, volume)
+sets ambient sound intensity to specified volume
 
 
 -----
