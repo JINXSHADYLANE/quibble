@@ -5,6 +5,7 @@
 #include "ml_mml.h"
 #include "ml_states.h"
 #include "ml_sprsheet.h"
+#include "ml_mfx.h"
 
 #include "memory.h"
 
@@ -71,6 +72,7 @@ void malka_init(void) {
 	malka_open_states(l);
 	malka_open_system(l);
 	malka_open_sprsheet(l);
+	malka_open_mfx(l);
 
 	ml_states_init(l);
 }

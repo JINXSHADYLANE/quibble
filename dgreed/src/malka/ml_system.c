@@ -113,18 +113,30 @@ static void _new_fonthandle(lua_State* l, FontHandle h) {
 static int ml_font_load(lua_State* l) {
 	int n = lua_gettop(l);
 	double scale = 1.0;
-	if(n == 2) {
-		scale = luaL_checknumber(l, 2);
-		n--;
-	}
+	const char* prefix = NULL;
 
-	if(n != 1)
-		return luaL_error(l, "wrong number of arguments provided to font.load");
+	if(n == 2) {
+		if(lua_isnumber(l, 2)) {
+			scale = lua_tonumber(l, 2);
+		}
+		else {
+			prefix = luaL_checkstring(l, 2);		
+		}
+	}
+	else if(n == 3) {
+		scale = luaL_checknumber(l, 2);
+		prefix = luaL_checkstring(l, 3);
+	}
+	else
+		goto error;
 
 	const char* filename = luaL_checkstring(l, 1);
-	FontHandle h = font_load_ex(filename, (float)scale);
+	FontHandle h = font_load_exp(filename, (float)scale, prefix);
 	_new_fonthandle(l, h);
 	return 1;
+
+error:
+	return luaL_error(l, "wrong number of arguments provided to font.load");
 }
 
 static int ml_font_size(lua_State* l) {
