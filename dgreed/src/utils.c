@@ -5,10 +5,6 @@
 
 #include <ctype.h>
 
-#ifdef TARGET_IOS
-#define MACOSX_BUNDLE
-#endif
-
 #ifdef MACOSX_BUNDLE
 #include <CoreFoundation/CFBundle.h>
 
@@ -849,12 +845,12 @@ void log_close(void) {
 }
 
 /* TODO: Display time */
-void log_send(uint log_level, const char* format, va_list args) {
+void log_send(uint level, const char* format, va_list args) {
 	char msg_buffer[LOG_MSG_BUFFER_SIZE];
 
 	assert(log_file);
 
-	if(log_level < log_level)
+	if(level < log_level)
 			return;
 
 	vsnprintf(msg_buffer, LOG_MSG_BUFFER_SIZE, format, args);

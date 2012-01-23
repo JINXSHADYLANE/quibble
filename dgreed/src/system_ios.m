@@ -20,19 +20,19 @@
 // Main function
 
 extern void _async_init(void);
-extern void _async_close(void)
+extern void _async_close(void);
 
 int main(int argc, char *argv[]) {
     
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
-	log_init(NULL, LOG_LEVEL_INFO);
-
 	_async_init();
+    log_init(NULL, LOG_LEVEL_INFO);
+    
     int retVal = UIApplicationMain(argc, argv, nil, @"DGreedAppDelegate");
-	_async_close();
-
-	log_close();
+	
+    log_close();
+    _async_close();
 
     [pool release];
     return retVal;
@@ -73,7 +73,7 @@ typedef struct {
 // Globals
 
 #define bucket_count 16
-#define max_vertices 1024*4
+#define max_vertices 1024*8
 
 bool draw_gfx_debug = false;
 
@@ -89,6 +89,7 @@ static DArray rects_out;
 static DArray vertex_buffer;
 static uint16 index_buffer[max_vertices/4 * 6];
 static uint fps_count = 0;
+static bool video_retro_filtering = false;
 
 #ifndef NO_DEVMODE
 VideoStats v_stats;
@@ -169,8 +170,28 @@ void _sort_rects(DArray rects_in) {
 	memcpy(r_in, r_out, rects_in.size * rects_in.item_size);	
 }
 
+void video_get_native_resolution(uint* width, uint* height) {
+    UIUserInterfaceIdiom idiom = UI_USER_INTERFACE_IDIOM();
+    
+    if(idiom == UIUserInterfaceIdiomPhone) {
+        *width = 480;
+        *height = 320;
+    }
+    
+    if(idiom == UIUserInterfaceIdiomPad) {
+        *width = 1024;
+        *height = 768;
+    }
+}
+
 void video_init(uint width, uint height, const char* name) {
 	video_init_ex(width, height, width, height, name, false); 
+}
+
+void video_init_exr(uint width, uint height, uint v_width, uint v_height,
+				   const char* name, bool fullscreen) {
+    video_retro_filtering = true;
+    video_init_ex(width, height, v_width, v_height, name, fullscreen);
 }
 
 void video_init_ex(uint width, uint height, uint v_width, uint v_height,
@@ -184,6 +205,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glClearDepthf(1.0f);
 	glViewport(0, 0, height, width);
 	glEnable(GL_BLEND);
+    glDisable(GL_ALPHA_TEST);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glMatrixMode(GL_MODELVIEW);
@@ -470,7 +492,7 @@ TexHandle tex_load(const char* filename) {
 	new_tex.width = CGImageGetWidth(cg_image);
 	new_tex.height = CGImageGetHeight(cg_image);
 	bool has_alpha = CGImageGetAlphaInfo(cg_image) != kCGImageAlphaNone;
-	CGColorSpaceRef color_space = CGImageGetColorSpace(cg_image);
+    CGColorSpaceRef color_space = CGImageGetColorSpace(cg_image);
 	CGColorSpaceModel color_model = CGColorSpaceGetModel(color_space);
 	uint bits_per_component = CGImageGetBitsPerComponent(cg_image);
 	if(color_model != kCGColorSpaceModelRGB || bits_per_component != 8)
@@ -488,9 +510,14 @@ TexHandle tex_load(const char* filename) {
 	glTexImage2D(GL_TEXTURE_2D, 0, format, new_tex.width, new_tex.height, 0, 
 				 format, GL_UNSIGNED_BYTE, data);
 	CFRelease(image_data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
+    if(!video_retro_filtering) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+    else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
 	new_tex.gl_id = gl_id;
 	new_tex.file = strclone(filename);
 	new_tex.retain_count = 1;
@@ -1172,6 +1199,10 @@ static float t_s = 0.0f, t_d = 0.0f;
 static float last_frame_time = 0.0f, last_fps_update = 0.0f;
 static uint fps = 0;
 
+float time_s(void) {
+    return t_s / 1000.0f;
+}
+
 float time_ms(void) {
 	return t_s;
 }
@@ -1203,12 +1234,12 @@ uint time_ms_current(void) {
 	t *= info.numer;
 	t /= info.denom;
 
-	return t / 1000;
+	return t / 1000000;
 }
 
 static float _get_t(void) {
 	
-	return (float)time_ms_current() / 1000.0f;
+	return (float)time_ms_current();
 }	
 
 void _time_update(float current_time) {

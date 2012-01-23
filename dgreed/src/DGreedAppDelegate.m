@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "memory.h"
 
-extern bool dgreed_init(void);
+extern bool dgreed_init(int argc, const char** argv);
 extern void dgreed_close(void);
 
 const char* g_home_dir = NULL;
@@ -38,7 +38,7 @@ const char* g_storage_dir = NULL;
 	g_storage_dir = strclone([storage UTF8String]);
 	[fileManager release];
 	
-	if(!dgreed_init())
+	if(!dgreed_init(0, NULL))
 		return NO;
     
     return YES;

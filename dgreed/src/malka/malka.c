@@ -78,8 +78,6 @@ void malka_init(void) {
 }
 
 void malka_params(int argc, const char** argv) {
-	assert(argc && argv);
-
 	ml_argc = argc;
 	ml_argv = argv;
 }
@@ -101,7 +99,12 @@ static void _malka_prep(const char* luafile) {
 	char* real_folder = path_get_folder(real_path);
 	
 	// figure path to bundle resources
-	while(!_endswith(real_folder, "Resources/")) {
+#ifdef TARGET_IOS
+    const char* res_folder = "app/";
+#else
+    const char* res_folder = "Resources/";
+#endif
+	while(!_endswith(real_folder, res_folder)) {
 		if(!_stripdir(real_folder))
 			LOG_ERROR("Something horrible happened while trying to figure out"
 				"where bundle resources are kept!");

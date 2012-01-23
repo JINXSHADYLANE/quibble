@@ -344,11 +344,13 @@ void gfx_fill(Color* dest, uint dest_w, uint dest_h,
 extern int stbi_write_tga(const char*, int, int, int, void*);
 
 void gfx_save_tga(const char* filename, Color* img, uint w, uint h) {
+#ifndef TARGET_IOS
 	assert(filename);
 	assert(img);
 	assert(w && h);
 	assert(w <= 8192 && h <= 8192);
 
 	stbi_write_tga(filename, w, h, 4, img);
+#endif
 }
 

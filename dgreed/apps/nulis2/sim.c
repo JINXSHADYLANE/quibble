@@ -964,7 +964,7 @@ void sim_update(void) {
 	if(touches_count() == 4 || char_up('e'))
 		malka_states_push("editor");
 
-	if(key_up(KEY_QUIT))
+	if(touches_count() == 3 || key_up(KEY_QUIT))
 		malka_states_push("menu");
 
 	float t = time_s();
@@ -990,8 +990,12 @@ void sim_update(void) {
 	
 	// Force field
 	uint tcount = touches_count();
-	bool pull = tcount == 1 || mouse_pressed(MBTN_PRIMARY);
-	bool push = tcount == 2 || mouse_pressed(MBTN_SECONDARY);
+	bool pull = mouse_pressed(MBTN_PRIMARY);
+	bool push = mouse_pressed(MBTN_SECONDARY);
+    if(tcount) {
+        pull = tcount == 1;
+        push = tcount == 2;
+    }
 	if(push || pull) {
 		Vector2 pos;
 		if(tcount) {
@@ -1190,7 +1194,7 @@ void sim_render(void) {
 }
 
 void sim_render_ex(bool skip_vignette) {
-	float t = time_s();
+    float t = time_s();
 
 	RectF fullscr = rectf(0.0f, 0.0f, screen_widthf, screen_heightf);
 

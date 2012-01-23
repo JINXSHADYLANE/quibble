@@ -646,7 +646,7 @@ static bool _dict_insert(Dict* dict, const char* key, void* data, uint hash) {
 	while(free >= H) {
 		// Try H-1 candidates to fill free slot, starting from
 		// one farthest away
-		uint i, j;
+		int i, j;
 		DictEntry* c = NULL;
 		for(i = H-1; i >= 0; --i) {
 			c = _dict_get(dict, hash + free - i);

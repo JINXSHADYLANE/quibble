@@ -48,6 +48,8 @@ end
 function enter()
 	local l = string.match(csim.level(), 'l(%d+)')
 	current_level = tonumber(l) - 1
+	touch_current = nil
+	touch_up = nil
 end
 
 function leave()

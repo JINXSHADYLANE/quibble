@@ -115,6 +115,8 @@ static int ml_font_load(lua_State* l) {
 	double scale = 1.0;
 	const char* prefix = NULL;
 
+    const char* filename = luaL_checkstring(l, 1);
+    
 	if(n == 2) {
 		if(lua_isnumber(l, 2)) {
 			scale = lua_tonumber(l, 2);
@@ -127,10 +129,9 @@ static int ml_font_load(lua_State* l) {
 		scale = luaL_checknumber(l, 2);
 		prefix = luaL_checkstring(l, 3);
 	}
-	else
+	else if(n != 1)
 		goto error;
 
-	const char* filename = luaL_checkstring(l, 1);
 	FontHandle h = font_load_exp(filename, (float)scale, prefix);
 	_new_fonthandle(l, h);
 	return 1;
