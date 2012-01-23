@@ -108,8 +108,25 @@ function draw_options()
 		states.pop()
 	end
 
-	state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound, state_sound) 
-	state_music = menu_icon(sprs.music, sprs.music_off, pos_music, state_music) 
+	local new_state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound, state_sound) 
+	if state_sound ~= new_state_sound then
+		if new_state_sound then
+			mfx.snd_set_volume(1.0)
+		else
+			mfx.snd_set_volume(0.0)
+		end
+	end
+	state_sound = new_state_sound
+
+	local new_state_music = menu_icon(sprs.music, sprs.music_off, pos_music, state_music) 
+	if state_music ~= new_state_music then
+		if new_state_music then
+			sound.resume(music_source)
+		else
+			sound.pause(music_source)
+		end
+	end
+	state_music = new_state_music
 
 	if menu_icon(sprs.score, nil, pos_score) then
 		-- score

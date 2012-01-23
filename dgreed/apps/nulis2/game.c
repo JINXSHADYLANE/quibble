@@ -4,6 +4,10 @@
 #include "levels.h"
 #include "sim.h"
 
+#include <system.h>
+
+SoundHandle music;
+
 StateDesc game_state = {
 	.init = game_init,
 	.close = game_close,
@@ -15,7 +19,7 @@ StateDesc game_state = {
 
 void game_init(void) {
 	levels_reset(ASSETS_PRE "levels.mml");
-
+	
 	sim_init(1024, 768);
 	sim_reset("l1");
 }

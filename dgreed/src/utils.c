@@ -810,7 +810,7 @@ static const char* log_level_to_cstr(uint log_level) {
 	}
 }
 
-bool log_init(const char* log_path, uint log_level) {
+bool log_init(const char* log_path, uint level) {
 	// Log to stderr on iOS
 #ifdef TARGET_IOS
 	log_file = stderr;
@@ -820,14 +820,17 @@ bool log_init(const char* log_path, uint log_level) {
 		sprintf(bundle_log_path, "%s/Library/Logs/%s", g_home_dir, log_path);
 		log_file = fopen(bundle_log_path, "w");
 	#else
-		log_file = fopen(log_path, "w");
+		if(log_path)
+			log_file = fopen(log_path, "w");
+		else
+			log_file = stderr;
 	#endif
 #endif
 	
 	if(log_file == NULL)
 			return false;
 
-	log_level = log_level;	
+	log_level = level;	
 
 	log_cs = async_make_cs();
 
@@ -850,7 +853,7 @@ void log_send(uint level, const char* format, va_list args) {
 
 	assert(log_file);
 
-	if(level < log_level)
+	if(level > log_level)
 			return;
 
 	vsnprintf(msg_buffer, LOG_MSG_BUFFER_SIZE, format, args);
