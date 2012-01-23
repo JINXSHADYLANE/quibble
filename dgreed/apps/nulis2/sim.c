@@ -49,6 +49,9 @@ static Ball* grav_ball;
 static Ball* time_ball;
 static Ball* new_ball;
 
+static float time_volume;
+static float grav_volume;
+
 // ffield state
 typedef struct {
 	Vector2 center;
@@ -418,9 +421,12 @@ void _apply_gravity_cb(CDObj* obj) {
 
 		float g_r = grav_ball->radius; 
 		float b_r = ball->radius;
-		float r_lim = (g_r + b_r) * 1.0f;
+		float r_lim = (g_r + b_r);
 		if(d <= r_lim)
 			return;
+
+		float volume = 1.0f - clamp(0.0f, 1.0f, d / gravity_max_dist); 
+		grav_volume = MIN(1.0f, grav_volume + volume/2.0f); 
 
 		// Magic function to make force falloff to zero at max_dist,
 		// allows to calculate gravity interactions in nearly linear time
@@ -449,6 +455,8 @@ void _apply_timescale_cb(CDObj* obj) {
 		float m = (1.0f / time_ball->inv_mass) / ball_mass;
 		float sqr_d = _distance(time_ball->pos, ball->pos, NULL);
 		float f = clamp(0.0f, 1.0f, sqrtf(sqr_d) / time_max_dist);
+		float volume = 1.0f - f;
+		time_volume = MIN(1.0f, time_volume + volume/2.0f);
 		float ts = time_strength;
 	
 		f = lerp(ts * m, 1.0f, f);
@@ -1015,9 +1023,12 @@ void sim_update(void) {
 				_apply_force_field_cb);
 
 		_show_ffield(pos, ffield_radius, push);
+		mfx_trigger_ex("force_field", pos, 0.0f);
 	}
 
 	// Gravity & time scale
+	time_volume = 0.0f;
+	grav_volume = 0.0f;
 	for(uint i = 0; i < balls.size; ++i) {
 		Ball* b = _get_ball(i);
 		if(b->remove)
@@ -1034,6 +1045,10 @@ void sim_update(void) {
 					_apply_timescale_cb);
 		}
 	}
+	if(grav_volume > 0.1f)
+		mfx_snd_set_ambient("GravityField.wav", grav_volume);
+	if(time_volume > 0.1f)
+		mfx_snd_set_ambient("TimeWarp.wav", time_volume);
 
 	// Calculate next state using verlet integration
 	for(uint i = 0; i < balls.size; ++i) {
