@@ -730,14 +730,12 @@ static int ml_sound_close(lua_State* l) {
 }
 
 static int ml_sound_update(lua_State* l) {
-	checksoundinit();
 	checkargs(0, "sound.update");
 	sound_update();
 	return 0;
 }
 
 static int ml_sound_load_stream(lua_State* l) {
-	checksoundinit();
 	checkargs(1, "sound.load_stream");
 	const char* filename = luaL_checkstring(l, 1);
 	SoundHandle h = sound_load_stream(filename);
@@ -746,7 +744,6 @@ static int ml_sound_load_stream(lua_State* l) {
 }
 
 static int ml_sound_load_sample(lua_State* l) {
-	checksoundinit();
 	checkargs(1, "sound.load_sample");
 	const char* filename = luaL_checkstring(l, 1);
 	SoundHandle h = sound_load_sample(filename);
@@ -756,7 +753,6 @@ static int ml_sound_load_sample(lua_State* l) {
 }
 
 static int ml_sound_free(lua_State* l) {
-	checksoundinit();
 	checkargs(1, "sound.free");
 	SoundHandle* h = checksoundhandle(l, 1);
 	sound_free(*h);
@@ -764,7 +760,6 @@ static int ml_sound_free(lua_State* l) {
 }
 
 static int ml_sound_set_volume(lua_State* l) {
-	checksoundinit();
 	checkargs(2, "sound.set_volume");
 	SoundHandle* h = checksoundhandle(l, 1);
 	double vol = luaL_checknumber(l, 2);
@@ -775,7 +770,6 @@ static int ml_sound_set_volume(lua_State* l) {
 }
 
 static int ml_sound_volume(lua_State* l) {
-	checksoundinit();
 	checkargs(1, "sound.volume");
 	SoundHandle* h = checksoundhandle(l, 1);
 	lua_pushnumber(l, sound_get_volume(*h));
@@ -783,7 +777,6 @@ static int ml_sound_volume(lua_State* l) {
 }
 
 static int ml_sound_length(lua_State* l) {
-	checksoundinit();
 	checkargs(1, "sound.length");
 	SoundHandle* h = checksoundhandle(l, 1);
 	lua_pushnumber(l, sound_get_length(*h));
@@ -791,7 +784,6 @@ static int ml_sound_length(lua_State* l) {
 }
 
 static int ml_sound_play(lua_State* l) {
-	checksoundinit();	
 	int n = lua_gettop(l);
 	bool loop = false;
 	if(n == 2) {
@@ -814,7 +806,6 @@ static int ml_sound_play(lua_State* l) {
 }
 
 static int ml_sound_pause(lua_State* l) {
-	checksoundinit();
 	checkargs(1, "sound.pause");
 	SourceHandle* s = checksourcehandle(l, 1);
 	sound_pause_ex(*s);
@@ -822,7 +813,6 @@ static int ml_sound_pause(lua_State* l) {
 }
 
 static int ml_sound_resume(lua_State* l) {
-	checksoundinit();
 	checkargs(1, "sound.resume");
 	SourceHandle* s = checksourcehandle(l, 1);
 	sound_resume_ex(*s);
@@ -830,7 +820,6 @@ static int ml_sound_resume(lua_State* l) {
 }
 
 static int ml_sound_stop(lua_State* l) {
-	checksoundinit();
 	checkargs(1, "sound.stop");
 	SourceHandle* s = checksourcehandle(l, 1);
 	sound_stop_ex(*s);
@@ -838,7 +827,6 @@ static int ml_sound_stop(lua_State* l) {
 }
 
 static int ml_sound_set_src_volume(lua_State* l) {
-	checksoundinit();
 	checkargs(2, "sound.set_src_volume");
 	SourceHandle* h = checksourcehandle(l, 1);
 	double vol = luaL_checknumber(l, 2);
@@ -847,7 +835,6 @@ static int ml_sound_set_src_volume(lua_State* l) {
 }
 
 static int ml_sound_src_volume(lua_State* l) {
-	checksoundinit();
 	checkargs(1, "sound.src_volume");
 	SourceHandle* h = checksourcehandle(l, 1);
 	lua_pushnumber(l, sound_get_volume_ex(*h));
@@ -855,7 +842,6 @@ static int ml_sound_src_volume(lua_State* l) {
 }
 
 static int ml_sound_set_pos(lua_State* l) {
-	checksoundinit();
 	checkargs(2, "sound.set_pos");
 	SourceHandle* h = checksourcehandle(l, 1);
 	double pos = luaL_checknumber(l, 2);
@@ -864,7 +850,6 @@ static int ml_sound_set_pos(lua_State* l) {
 }
 
 static int ml_sound_pos(lua_State* l) {
-	checksoundinit();
 	checkargs(1, "sound.pos");
 	SourceHandle* h = checksourcehandle(l, 1);
 	lua_pushnumber(l, sound_get_pos_ex(*h));

@@ -84,6 +84,8 @@ int SDL_main(int argc, char** argv) {
 int main(int argc, char** argv) {
 #endif
 
+	// Log to stderr on windows since it can't provide sane args
+#ifndef _WIN32
 	// Construct log file name
 	assert(argc >= 1);
 	const char* prog_name = path_get_file(argv[0]);
@@ -92,9 +94,15 @@ int main(int argc, char** argv) {
 	assert(strlen(prog_name) + strlen(postfix) < 128);
 	strcpy(logfile, prog_name);
 	strcat(logfile, postfix);
+#endif
 	
 	_async_init();
+
+#ifndef _WIN32
 	log_init(logfile, LOG_LEVEL_INFO);
+#else
+	log_init(NULL, LOG_LEVEL_INFO);
+#endif
 
 	int res = dgreed_main(argc, argv);
 
