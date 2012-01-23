@@ -491,15 +491,19 @@ void mfx_snd_play(const char* name) {
 			live->trigger_t = time_s();
 		}
 		else {
-			// Play
-			LiveSnd new = {
-				.handle = sound_play_ex(def->handle, true),
-				.volume = 0.0f,
-				.trigger_t = time_s(),
-				.def = idx
-			};
-			sound_set_volume_ex(new.handle, 0.0f);
-			darray_append(&snd_live, &new);
+			if(mfx_volume > 0.01f) {
+				// Play
+				LiveSnd new = {
+					.handle = sound_play_ex(def->handle, true),
+					.volume = 0.0f,
+					.trigger_t = time_s(),
+					.def = idx
+				};
+				if(new.handle) {
+					sound_set_volume_ex(new.handle, 0.0f);
+					darray_append(&snd_live, &new);
+				}
+			}
 		}
 	}
 	else {
@@ -522,15 +526,20 @@ void mfx_snd_set_ambient(const char* name, float volume) {
 		live->volume = volume;
 	}
 	else {
-		// Play
-		LiveSnd new = {
-			.handle = sound_play_ex(def->handle, true),
-			.volume = volume,
-			.trigger_t = -100.0f,
-			.def = idx
-		};
-		sound_set_volume_ex(new.handle, volume);
-		darray_append(&snd_live, &new);
+		if(mfx_volume > 0.01f) {
+			// Play
+			LiveSnd new = {
+				.handle = sound_play_ex(def->handle, true),
+				.volume = volume,
+				.trigger_t = -100.0f,
+				.def = idx
+			};
+			float vol = volume * mfx_volume;
+			if(new.handle && vol > 0.01f) {
+				sound_set_volume_ex(new.handle, vol);
+				darray_append(&snd_live, &new);
+			}
+		}
 	}
 }
 

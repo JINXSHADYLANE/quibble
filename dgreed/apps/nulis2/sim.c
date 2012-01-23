@@ -540,8 +540,15 @@ void _balls_join(Ball* a, Ball* b) {
 	Vector2 old_ba;
 	_distance(a->old_pos, b->old_pos, &old_ba);
 
-	if(fabsf(vec2_length_sq(ba) - vec2_length_sq(old_ba)) > collission_trigger_sqr_d) {
-		Vector2 p = vec2_add(b->pos, vec2_scale(ba, 0.5f));
+	// Due to time effects, we need higher effect
+	// trigger threshold for time balls
+	float trigger_sqr_d = collission_trigger_sqr_d;
+	if((a->type | b->type) & BT_TIME) {
+		trigger_sqr_d *= 6.0f;
+	}
+
+	if(fabsf(vec2_length_sq(ba) - vec2_length_sq(old_ba)) > trigger_sqr_d) {
+		Vector2 p = vec2_add(b->pos, vec2_scale(ba, a->radius / (a->radius + b->radius)));
 		float dir = atan2f(ba.y, ba.x);
 		mfx_trigger_ex("grav_join", p, dir);
 	}
@@ -648,16 +655,27 @@ void _collission_cb(CDObj* a, CDObj* b) {
 	if(ball_a->remove || ball_b->remove)
 		return;
 
-	if(!_do_balls_collide(ball_a, ball_b))
-		return;
 
 	BallType ta = ball_a->type, tb = ball_b->type;
+
+	if((ta | tb) & BT_PAIR)
+		if(!_do_balls_collide(ball_a, ball_b))
+			return;
 
 	if(((ta | tb) & (BT_GRAV | BT_TIME))) {
 		// Gravity/time shrinking and growing
 
 		Ball* normal = (ta & (BT_GRAV | BT_TIME)) ? ball_b : ball_a;
 		Ball* fancy = (ta & (BT_GRAV | BT_TIME)) ? ball_a : ball_b;
+
+		// Swap if time & grav, to make time ball stick to grav
+		if(normal->type & BT_GRAV) {
+			if(fancy->type & BT_TIME) {
+				Ball* temp = normal;
+				normal = fancy;
+				fancy = temp;
+			}
+		}
 
 		if(normal->type & BT_PAIR) {
 			Vector2 vf = vec2_sub(fancy->pos, fancy->old_pos);
@@ -1133,8 +1151,10 @@ static void _render_ball(Ball* b, float t) {
 		scale = nt * (sinf(nt*4.0f*PI)*(1.0f-nt)+1.0f);
 	}
 
-	// Simple balls are always at 0 angle
+	// Simple balls, grav and time are always at 0 angle
 	float angle = (b->type & ~BT_WHITE) ? b->angle : 0.0f;
+	if(b->type & (BT_TIME | BT_GRAV))
+		angle = 0.0f;
 
 	Color c = COLOR_WHITE;
 	uint layer = 2;
