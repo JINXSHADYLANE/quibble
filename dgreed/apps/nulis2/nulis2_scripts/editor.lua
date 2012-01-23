@@ -662,7 +662,7 @@ end
 
 fsdev = nil
 function in_fsdev()
-	if fsdev == nil then
+	if argv and fsdev == nil then
 		fsdev = false
 		for i,p in ipairs(argv) do
 			if p == '-fsdev' then

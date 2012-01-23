@@ -85,12 +85,15 @@ extern bool dgreed_update(void);
 extern bool dgreed_render(void);
 extern void system_update(void);
 
+extern void async_process_schedule(void);
+
 - (void) drawView {
 	system_update();
 	
 	bool res = dgreed_update();
 	res = res && dgreed_render();
-	
+	async_process_schedule();
+    
 	if(!res) {
 		// Quit, somehow..
 	}
