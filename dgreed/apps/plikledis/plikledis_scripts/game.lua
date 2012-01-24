@@ -48,6 +48,7 @@ function level_reset()
 	)
 
 	moves = {}
+	player_on_slot = false
 end
 
 function is_door_open()
@@ -91,9 +92,11 @@ function undo_move()
 		local from = last_move.box_from
 		local to = last_move.box_to
 
-		level.tiles[from] = bit.band(level.tiles[from], bit.bnot(levels.b_box))
-		if level.tiles[from] == 0 then
-			level.tiles[from] = nil
+		if level.tiles[from] then
+			level.tiles[from] = bit.band(level.tiles[from], bit.bnot(levels.b_box))
+			if level.tiles[from] == 0 then
+				level.tiles[from] = nil
+			end
 		end
 
 		level.tiles[to] = level.tiles[to] or 0
