@@ -660,9 +660,7 @@ void tweaks_render(Tweaks* tweaks) {
 	}
 
 	// Get mouse pos
-	uint x, y;
-	mouse_pos(&x, &y);
-	Vector2 mpos = vec2((float)x, (float)y);
+	Vector2 mpos = mouse_vec();
 
 	// Draw page name
 	cursor.x = tweaks->dest.left;
@@ -693,7 +691,7 @@ void tweaks_render(Tweaks* tweaks) {
 			curr_idx = idx;
 		}
 
-		if(j < tweaks->vars.size-1 
+		if(idx < tweaks->vars.size-1 
 			&& strcmp(vars[idx+1].group, vars[idx].group) == 0
 			&& strcmp(vars[idx+1].name, vars[idx].name) == 0)
 			continue;
@@ -753,7 +751,7 @@ void tweaks_render(Tweaks* tweaks) {
 		}
 		curr_idx = def_idx = ~0;
 		
-		cursor.x += tweaks->widest_name + 8.0f;
+		cursor.x += tweaks->widest_name + 28.0f;
 		// Set value for slider, incase something changed var 
 		float slider_val = _pack_var(var);
 		gui_setstate_slider(&cursor, slider_val);	
