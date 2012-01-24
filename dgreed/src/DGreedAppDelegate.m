@@ -19,7 +19,11 @@ const char* g_storage_dir = NULL;
     CGRect screen_bounds = [[UIScreen mainScreen] bounds];
 	
 	window = [[UIWindow alloc] initWithFrame:screen_bounds];
-	gl_view = [[GLESView alloc] initWithFrame:screen_bounds];
+	
+    controller = [GLESViewController alloc];
+    [window addSubview:controller.view];
+    gl_view = [controller.gl_view retain];
+    
 	if(gl_view == nil)
 		return NO;
 	
@@ -79,7 +83,7 @@ const char* g_storage_dir = NULL;
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
 	LOG_INFO("iOS: applicationDidBecomeActive");
-	[gl_view startAnimation];
+	//[gl_view startAnimation];
 }
 
 
@@ -104,6 +108,7 @@ const char* g_storage_dir = NULL;
 
 - (void)dealloc {
 	[gl_view release];
+    [controller release];
     [window release];
     [super dealloc];
 }
