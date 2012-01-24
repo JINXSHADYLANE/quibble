@@ -51,7 +51,6 @@ bool dgreed_update(void) {
 
 	mfx_update();
 	sound_update();
-	particles_update(time_s());
 
 	return true;
 }

@@ -20,6 +20,8 @@ static CState c_states[max_states];
 static uint n_c_states;
 
 static char state_names[max_states][max_state_name_len];
+static float states_enter_t[max_states];
+static float states_acc_t[max_states];
 static uint n_state_names;
 
 static uint state_stack[max_state_stack_depth];
@@ -237,6 +239,7 @@ static void _states_push(lua_State* l, uint idx) {
 		// Leave old state
 		top = _stack_get(_stack_size()-1);
 		_call_state_func(l, _names_get(top), "leave", NULL);
+		states_acc_t[top] += time_s() - states_enter_t[top];
 	}
 
 	_stack_push(idx);
@@ -269,6 +272,7 @@ static void _state_pop(lua_State* l) {
 	// Leave old state
 	int top = _stack_get(_stack_size()-1);
 	_call_state_func(l, _names_get(top), "leave", NULL);
+	states_acc_t[top] += time_s() - states_enter_t[top];
 
 	_stack_pop();
 
@@ -296,6 +300,7 @@ static void _states_replace(lua_State* l, uint idx) {
 	// Leave old state
 	int top = _stack_get(_stack_size()-1);
 	_call_state_func(l, _names_get(top), "leave", NULL);
+	states_acc_t[top] += time_s() - states_enter_t[top];
 
 	_stack_pop();
 	_stack_push(idx);
@@ -329,6 +334,9 @@ void ml_states_init(lua_State* l) {
 	n_state_names = 0;
 	state_stack_size = 0;
 	states_in_mainloop = false;
+
+	memset(states_enter_t, 0, sizeof(states_enter_t));
+	memset(states_acc_t, 0, sizeof(states_acc_t));
 }
 
 void ml_states_close(lua_State* l) {
@@ -422,7 +430,8 @@ void malka_states_start(void) {
 	states_from = states_to = _stack_get(_stack_size()-1);	
 
 	// Enter top state
-	top_name = _names_get(_stack_get(_stack_size()-1));
+	top_name = _names_get(states_from);
+	states_enter_t[states_from] = time_s();
 	_call_state_func(l, top_name, "enter", NULL);
 
 	// Prep for main loop
@@ -455,6 +464,7 @@ bool malka_states_step(void) {
 
 		if(len <= 0.0f || states_transition_t + len <= time) {
 			// End transition
+			states_enter_t[states_to] = time_s();
 			_call_state_func(l, _names_get(states_to), "enter", NULL);
 			states_from = states_to;
 		}
@@ -488,5 +498,22 @@ bool malka_states_step(void) {
 		breakout = true;
 
 	return !breakout && (_stack_size() || _in_transition());
+}
+
+float malka_state_time(const char* name) {
+	assert(_stack_size());
+
+	uint top = _stack_get(_stack_size()-1);
+
+	if(name) {
+		uint idx = _names_find(name);
+		float t = 0.0f;
+		if(idx == top)
+			t = time_s() - states_enter_t[idx];
+		return t + states_acc_t[idx];
+	}
+	else {
+		return time_s() - states_enter_t[top] + states_acc_t[top];
+	}
 }
 

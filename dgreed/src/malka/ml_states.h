@@ -31,5 +31,6 @@ float malka_states_transition_len(void);
 void malka_states_start(void);
 void malka_states_end(void);
 bool malka_states_step(void);
+float malka_state_time(const char* name);
 
 #endif

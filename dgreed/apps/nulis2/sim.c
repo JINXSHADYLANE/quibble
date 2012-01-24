@@ -9,6 +9,7 @@
 #include <sprsheet.h>
 #include <async.h>
 #include <mfx.h>
+#include <particles.h>
 #include <malka/ml_states.h>
 
 #define MAX_BALL_SIZE 51.2f
@@ -198,7 +199,7 @@ void sim_close(void) {
 
 void sim_reset(const char* level) {
 	is_solved = reset_level = false;
-	start_t = time_s();
+	start_t = malka_state_time("game");
 	last_spawn_t = -100.0f;
 	ghosts.size = 0;
 	spawns.size = 0;
@@ -325,7 +326,7 @@ static bool _do_balls_collide(const Ball* a, const Ball* b) {
 }
 
 static void _update_level(void) {
-	float t = time_s() - start_t;
+	float t = malka_state_time("game") - start_t;
 
 	// Spawn predefined balls
 	for(uint i = 0; i < level.n_spawns; ++i) {
@@ -776,7 +777,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			new.type = (ta & BT_WHITE) | BT_TRIPLE;
 			float rot = rand_float_range(-ghost_maxrot, ghost_maxrot);
 			new.old_angle = new.angle - rot * DT;
-			new.t = time_s();
+			new.t = malka_state_time("game");
 			new.collider = NULL;
 			darray_append(&ghosts, &new);
 
@@ -930,7 +931,7 @@ static void _show_ffield(Vector2 p, float r, bool push) {
 	const Color ffield_color_start = COLOR_RGBA(0, 129, 255, 255);
 	const Color ffield_color_end = COLOR_RGBA(255, 0, 236, 255);
 
-	float t = time_s();
+	float t = malka_state_time("game");
 	if(t - ffield_last_spawn > ffield_freq) {
 		ffield_last_spawn = t;
 
@@ -945,7 +946,7 @@ static void _show_ffield(Vector2 p, float r, bool push) {
 }
 
 static void _update_ffield(void) {
-	float t = time_s();
+	float t = malka_state_time("game");
 	for(uint i = 0; i < ffield_circle_count; ++i) {
 		FFieldCircle* circle = &ffield_circles[i];
 
@@ -959,7 +960,7 @@ static void _update_ffield(void) {
 }
 
 static void _render_ffield(void) {
-	float t = time_s();
+	float t = malka_state_time("game");
 	for(uint i = 0; i < ffield_circle_count; ++i) {
 		FFieldCircle* circle = &ffield_circles[i];
 		float ct = (t - circle->birth_time) / ffield_lifetime;
@@ -993,7 +994,9 @@ void sim_update(void) {
 	if(touches_count() == 3 || key_up(KEY_QUIT))
 		malka_states_push("menu");
 
-	float t = time_s();
+	float t = malka_state_time("game");
+
+	particles_update(t);
 
 	_update_level();
 	_update_ffield();
@@ -1007,7 +1010,7 @@ void sim_update(void) {
 	if(!is_solved && !reset_level && _is_unsolvable(t)) {
 		// Unsolvable, fade in vignette and reset after some time
 		reset_level = true;
-		reset_t = time_s() + vignette_delay;
+		reset_t = t + vignette_delay;
 		uint t_off = lrintf((vignette_delay + vignette_duration/2.0f) * 1000.0f);
 		async_schedule(_reset_level, t_off, NULL);
 	}
@@ -1229,7 +1232,7 @@ void sim_render(void) {
 }
 
 void sim_render_ex(bool skip_vignette) {
-    float t = time_s();
+    float t = malka_state_time("game");
 
 	RectF fullscr = rectf(0.0f, 0.0f, screen_widthf, screen_heightf);
 
