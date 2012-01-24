@@ -10,6 +10,7 @@
 #include <async.h>
 #include <mfx.h>
 #include <particles.h>
+#include <tweakables.h>
 #include <malka/ml_states.h>
 
 #define MAX_BALL_SIZE 51.2f
@@ -32,6 +33,9 @@ static SprHandle spr_grav_w_in, spr_grav_w_back;
 static SprHandle spr_ffield;
 
 // Game state
+static Tweaks* tweaks;
+static bool show_tweaks = false;
+static FontHandle tweaks_font;
 static float screen_widthf, screen_heightf;
 static DArray balls;
 static DArray spawns;
@@ -68,9 +72,7 @@ uint ffield_circle_count = 0;
 float ffield_last_spawn = 0.0f;
 
 // Tweaks
-float collission_trigger_sqr_d = 50.0f;
 float max_speed = 15.0f;
-float overlap_resolve_factor = 1.5f;
 float ball_mass = 2.0f;
 float grav_mass = 6.0f;
 float mass_increase_factor = 1.3f;
@@ -78,6 +80,8 @@ float ball_radius = 16.0f;
 float pair_displacement = 1.5f;
 float linear_damp = 0.997f;
 float angular_damp = 0.99f;
+float collission_trigger_sqr_d = 50.0f;
+float overlap_resolve_factor = 1.5f;
 
 float ffield_strength = 1500.0f;
 float ffield_radius = 160.0f;
@@ -102,6 +106,38 @@ float ffield_freq = 0.2f;
 float ffield_lifetime = 0.5f;
 
 // Code
+
+#define GAME_TWEAK(name, min, max) \
+	tweaks_float(tweaks, #name, &name, min, max)
+
+static void _register_tweaks(void) {
+	tweaks_group(tweaks, "sim");
+
+	GAME_TWEAK(max_speed, 5.0f, 50.0f);
+	GAME_TWEAK(ball_mass, 0.5f, 10.0f);
+	GAME_TWEAK(grav_mass, 0.5f, 10.0f);
+	GAME_TWEAK(linear_damp, 0.99f, 0.999f);
+	GAME_TWEAK(angular_damp, 0.90f, 0.99f);
+	GAME_TWEAK(mass_increase_factor, 1.0f, 3.0f);
+	GAME_TWEAK(collission_trigger_sqr_d, 10.0f, 100.0f);
+	GAME_TWEAK(overlap_resolve_factor, 0.5f, 4.0f);
+	GAME_TWEAK(ffield_strength, 500.0f, 5000.0f);
+	GAME_TWEAK(ffield_radius, 50.0f, 300.0f);
+	GAME_TWEAK(ffield_freq, 0.05f, 1.0f);
+	GAME_TWEAK(ffield_lifetime, 0.1f, 1.0f);
+	GAME_TWEAK(gravity_max_dist, 50.0f, 300.0f);
+	GAME_TWEAK(gravity_strength, 100000.0f, 500000.0f);
+	GAME_TWEAK(time_max_dist, 50.0f, 300.0f);
+	GAME_TWEAK(time_strength, 1.1f, 3.0f);
+	GAME_TWEAK(time_pulse_speed, 1.0f, 20.0f);
+	GAME_TWEAK(spawn_anim_len, 0.1f, 1.0f);
+	GAME_TWEAK(spawn_maxspeed, 10.0f, 100.0f);
+	GAME_TWEAK(spawn_maxrot, 0.0f, 5.0f);
+	GAME_TWEAK(ghost_lifetime, 0.1f, 3.0f);
+	GAME_TWEAK(ghost_maxrot, 0.0f, 10.0f);
+	GAME_TWEAK(vignette_delay, 0.0f, 3.0f);
+	GAME_TWEAK(vignette_duration, 1.0f, 10.0f);
+}
 
 static void _load_level(const char* level_name) {
 	levels_get(level_name, &level);
@@ -187,9 +223,18 @@ void sim_init(uint screen_width, uint screen_height) {
 	spr_ffield = sprsheet_get_handle("circle");
 
 	reset_t = -100.0f;
+
+	tweaks_font = font_load(ASSETS_PRE "varela.bft");
+	tweaks = tweaks_init(ASSETS_PRE "tweaks.mml", rectf(10.0f, 40.0f, 1000.0f, 700.0f), 9, 0);
+	tweaks->y_spacing = 90.0f;
+	tweaks->items_per_page = 7;
+	_register_tweaks();
 }
 
 void sim_close(void) {
+	font_free(tweaks_font);
+	tweaks_close(tweaks);
+
 	coldet_close(&cd);
 
 	darray_free(&spawns);
@@ -991,8 +1036,16 @@ void sim_update(void) {
 	if(touches_count() == 4 || char_up('e'))
 		malka_states_push("editor");
 
-	if(touches_count() == 3 || key_up(KEY_QUIT))
+	if(touches_count() == 3 || key_up(KEY_QUIT)) {
+		show_tweaks = false;
 		malka_states_push("menu");
+	}
+
+	if(show_tweaks && char_up('t'))
+		show_tweaks = false;
+
+	if(touches_count() == 5 || char_up('t'))
+		show_tweaks = true;
 
 	float t = malka_state_time("game");
 
@@ -1228,6 +1281,8 @@ static void _render_ball(Ball* b, float t) {
 }
 
 void sim_render(void) {
+	if(show_tweaks)
+		tweaks_render(tweaks);
 	sim_render_ex(false);
 }
 
