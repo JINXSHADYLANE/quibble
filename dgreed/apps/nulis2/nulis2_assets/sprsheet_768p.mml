@@ -15,64 +15,52 @@
 		(src 2,164,242,324)
 	)
 	(img bubble_w
-		(tex "bubbles_1_s.png")
+		(tex "bubbles_s.png")
 		(src 0,0,32,32)
 	)
 	(img bubble_b
-		(tex "bubbles_1_s.png")
+		(tex "bubbles_s.png")
 		(src 0,32,32,64)
 	)
 	(img double_bubble_w
-		(tex "bubbles_1_s.png")
+		(tex "bubbles_s.png")
 		(src 64,0,116,32)
 	)
 	(img double_bubble_b
-		(tex "bubbles_1_s.png")
+		(tex "bubbles_s.png")
 		(src 64,32,116,64)
 	)
 	(img triple_bubble_w
-		(tex "bubbles_2_s.png")
-		(src 0,0,52,52)
+		(tex "bubbles_s.png")
+		(src 0,64,52,116)
 	)
 	(img triple_bubble_b
-		(tex "bubbles_2_s.png")
-		(src 0,52,52,104)
+		(tex "bubbles_s.png")
+		(src 52,64,104,116)
 	)
 	(img beacon
-		(tex "bubbles_1_s.png")
+		(tex "bubbles_s.png")
 		(src 32,0,64,32)
 	)
 	(img time_w
-		(tex "bubbles_1_s.png")
+		(tex "bubbles_s.png")
 		(src 128,0,192,64)
 	)
 	(img time_b
-		(tex "bubbles_1_s.png")
+		(tex "bubbles_s.png")
 		(src 192,0,256,64)
 	)
 	(img gravity_w
-		(tex "bubbles_2_s.png")
-		(src 52,0,102,50)
-	)
-	(img gravity_w_inside
-		(tex "bubbles_2_s.png")
-		(src 102,0,152,50)
-	)
-	(img gravity_w_back
-		(tex "bubbles_2_s.png")
-		(src 152,0,202,50)
+		(tex "bubbles_s.png")
+		(src 104,64,154,114)
 	)
 	(img gravity_b
-		(tex "bubbles_2_s.png")
-		(src 52,50,102,100)
+		(tex "bubbles_s.png")
+		(src 154,64,204,114)
 	)
-	(img gravity_b_inside
-		(tex "bubbles_2_s.png")
-		(src 102,50,152,100)
-	)
-	(img gravity_b_back
-		(tex "bubbles_2_s.png")
-		(src 152,50,202,100)
+	(img g_sparkles
+		(tex "bubbles_s.png")
+		(src 204,64,254,114)
 	)
 	(img circle
 		(tex "circle.png")
