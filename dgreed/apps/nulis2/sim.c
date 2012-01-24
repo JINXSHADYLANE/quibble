@@ -28,8 +28,7 @@ typedef struct {
 // Sprites
 static SprHandle spr_background, spr_vignette;
 static SprHandle spr_balls[32];
-static SprHandle spr_grav_b_in, spr_grav_b_back;
-static SprHandle spr_grav_w_in, spr_grav_w_back;
+static SprHandle spr_grav_in;
 static SprHandle spr_ffield;
 
 // Game state
@@ -215,10 +214,7 @@ void sim_init(uint screen_width, uint screen_height) {
 	spr_balls[BT_TIME] = 				sprsheet_get_handle("time_b");
 	spr_balls[BT_TIME | BT_WHITE] = 	sprsheet_get_handle("time_w");
 
-	spr_grav_b_in = sprsheet_get_handle("gravity_b_inside");
-	spr_grav_b_back = sprsheet_get_handle("gravity_b_back");
-	spr_grav_w_in = sprsheet_get_handle("gravity_w_inside");
-	spr_grav_w_back = sprsheet_get_handle("gravity_w_back");
+	spr_grav_in = sprsheet_get_handle("g_sparkles");
 
 	spr_ffield = sprsheet_get_handle("circle");
 
@@ -1257,7 +1253,7 @@ static void _render_ball(Ball* b, float t) {
 		spr_draw_cntr_h(spr_balls[b->type], layer, npos, angle, scale, c));
 
 	if(b->type & BT_GRAV) {
-		SprHandle spr = b->type & BT_WHITE ? spr_grav_w_in : spr_grav_b_in;
+		SprHandle spr = spr_grav_in;
 		float off = t + b->t;
 
 		const int n_rings = 6;
@@ -1268,6 +1264,7 @@ static void _render_ball(Ball* b, float t) {
 			if(cn > 0.0f) {
 				float r = lerp(scale*0.2f, scale, sn);
 				float a = off * (float)(i+1) / 6.0f;
+				Color c = (b->type & BT_WHITE ? COLOR_BLACK : COLOR_WHITE); 
 				Color col = c & 0xFFFFFF;
 				col = color_lerp(col, c, cn);
 
