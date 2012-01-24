@@ -175,4 +175,7 @@ extern void _touch_up(float old_x, float old_y);
 	}	
 }
 
+- (void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+    [self touchesEnded:touches withEvent:event];
+}
 @end

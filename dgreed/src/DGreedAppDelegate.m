@@ -6,9 +6,14 @@
 
 extern bool dgreed_init(int argc, const char** argv);
 extern void dgreed_close(void);
+extern uint time_ms_current(void);
+extern float inactive_time;
 
 const char* g_home_dir = NULL;
 const char* g_storage_dir = NULL;
+
+bool did_resign_active = false;
+float resign_active_t;
 
 @implementation DGreedAppDelegate
 
@@ -56,6 +61,11 @@ const char* g_storage_dir = NULL;
      */
 	LOG_INFO("iOS: applicationWillResignActive");
 	[gl_view stopAnimation];
+    
+    // Starting from now, do not count time
+    did_resign_active = true;
+    resign_active_t = time_ms_current();
+    
 }
 
 
@@ -83,7 +93,13 @@ const char* g_storage_dir = NULL;
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
 	LOG_INFO("iOS: applicationDidBecomeActive");
-	//[gl_view startAnimation];
+	[gl_view startAnimation];
+    
+    // Update time counters
+    if(did_resign_active) {
+        did_resign_active = false;
+        inactive_time += time_ms_current() - resign_active_t;
+    }
 }
 
 

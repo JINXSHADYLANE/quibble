@@ -1210,13 +1210,20 @@ void _touch_down(float x, float y) {
 }
 
 void _touch_move(float old_x, float old_y, float new_x, float new_y) {
-	for(uint i = 0; i < touch_count; ++i) {
-		if(touches[i].pos.x == old_x && touches[i].pos.y == old_y) {
-			touches[i].pos = vec2(new_x, new_y);
-			return;
+    uint count = touch_count;
+    assert(count);
+	float min_d = 10000.0f;
+	uint min_i = 0;
+	for(uint i = 0; i < count; ++i) {
+		float dx = touches[i].pos.x - old_x;
+		float dy = touches[i].pos.y - old_y;
+		float d = dx*dx + dy*dy;
+		if(dx*dx + dy*dy < min_d) {
+			min_d = d;
+			min_i = i;
 		}
 	}
-	assert(0 && "Unable to find the right touch to move!");
+    touches[min_i].pos = vec2(new_x, new_y);
 }
 
 void _touch_up(float old_x, float old_y) {
@@ -1252,6 +1259,7 @@ Touch* touches_get(void) {
 static float t_s = 0.0f, t_d = 0.0f;
 static float last_frame_time = 0.0f, last_fps_update = 0.0f;
 static uint fps = 0;
+float inactive_time = 0.0f;
 
 float time_s(void) {
     return t_s / 1000.0f;
@@ -1297,14 +1305,14 @@ static float _get_t(void) {
 }	
 
 void _time_update(float current_time) {
-	t_s = current_time;
-	t_d = current_time - last_frame_time;
-	if(last_fps_update + 1000.0f < current_time) {
+	t_s = current_time - inactive_time;
+	t_d = t_s - last_frame_time;
+	if(last_fps_update + 1000.0f < t_s) {
 		fps = fps_count;
 		fps_count = 0;
-		last_fps_update = current_time;
+		last_fps_update = t_s;
 	}
-	last_frame_time = current_time;
+	last_frame_time = t_s;
 }
 
 /*
