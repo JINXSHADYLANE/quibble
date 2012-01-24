@@ -55,7 +55,8 @@ typedef struct {
 
 typedef struct {
 	TexHandle tex;
-	RectF source, dest;
+	uint16 src_l, src_t, src_r, src_b;
+	RectF dest;
 	Color tint;
 	float rotation;
 } TexturedRectDesc;
@@ -66,9 +67,10 @@ typedef struct {
 } LineDesc;
 
 typedef struct {
-	float x, y, u, v;
-	float r, g, b, a;
-} Vertex;	
+	float x, y;
+	uint32 color;
+	uint16 u, v;
+} Vertex;
 
 // Globals
 
@@ -90,6 +92,8 @@ static DArray vertex_buffer;
 static uint16 index_buffer[max_vertices/4 * 6];
 static uint fps_count = 0;
 static bool video_retro_filtering = false;
+
+const float tex_mul = 32767.0f;
 
 #ifndef NO_DEVMODE
 VideoStats v_stats;
@@ -207,7 +211,9 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glEnable(GL_BLEND);
     glDisable(GL_ALPHA_TEST);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	
+
+	glMatrixMode(GL_TEXTURE);
+	glScalef(1.0f/tex_mul, 1.0f/tex_mul, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glMatrixMode(GL_PROJECTION);
@@ -253,7 +259,6 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 		index_buffer[i*6 + 5] = i*4 + 3; 
 	}
 	
-	assert(sizeof(Vertex) == sizeof(float) * 8);
 	vertex_buffer = darray_create(sizeof(Vertex), max_vertices);
 	
 	LOG_INFO("Video initialized");
@@ -285,6 +290,8 @@ void video_close(void) {
 	LOG_INFO("Video closed");
 }
 
+static bool rect_draw_state = false;
+
 void video_present(void) {
 	uint i, j;
 	
@@ -313,18 +320,22 @@ void video_present(void) {
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	
-	glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vb[0].x);
-	glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vb[0].u);
-	glColorPointer(4, GL_FLOAT, sizeof(Vertex), &vb[0].r);
+	if(!rect_draw_state) {
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vb[0].x);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vb[0].color);
+		glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), &vb[0].u);
+		rect_draw_state = true;
+	}
 	
 	// Render loop
 	Texture* texs = DARRAY_DATA_PTR(textures, Texture);
 	uint active_tex = ~0;
-	float r, g, b, a;
+	byte r, g, b, a;
+	Color c;
 	for(i = 0; i < bucket_count; ++i) {
 		// Draw rects
 		TexturedRectDesc* rects = DARRAY_DATA_PTR(rect_buckets[i], TexturedRectDesc);
@@ -348,8 +359,10 @@ void video_present(void) {
 			}
 			
 			COLOR_DECONSTRUCT(rects[j].tint, r, g, b, a);
-			r /= 255.0f; g /= 255.0f; b /= 255.0f; a /= 255.0f;
-            r *= a; g *= a; b *= a;
+			r = (r * a) >> 8;
+			g = (g * a) >> 8;
+			b = (b * a) >> 8;
+			c = COLOR_RGBA(r, g, b, a);
 			
 			size_t k = vertex_buffer.size;
 			vertex_buffer.size += 4;
@@ -362,38 +375,62 @@ void video_present(void) {
 			
 			if(rects[j].rotation != 0.0f) {
 				float rot = rects[j].rotation;
-				Vector2 cnt = vec2((rects[j].dest.left + rects[j].dest.right) / 2.0f,
-								   (rects[j].dest.top + rects[j].dest.bottom) / 2.0f);
+				Vector2 cnt = vec2((rects[j].dest.left + rects[j].dest.right) * 0.5f,
+								   (rects[j].dest.top + rects[j].dest.bottom) * 0.5f);
 				
+#if 0
 				tl = vec2_add(vec2_rotate(vec2_sub(tl, cnt), rot), cnt);
 				tr = vec2_add(vec2_rotate(vec2_sub(tr, cnt), rot), cnt);
 				br = vec2_add(vec2_rotate(vec2_sub(br, cnt), rot), cnt);
 				bl = vec2_add(vec2_rotate(vec2_sub(bl, cnt), rot), cnt);
+#else
+				// Inlining this by hand yields noticable perf improvement
+				float dx, dy;
+				float s = sinf(rot);
+				float c = cosf(rot);
+
+				dx = tl.x - cnt.x; dy = tl.y - cnt.y;
+				tl.x = c * dx - s * dy + cnt.x;
+				tl.y = s * dx + c * dy + cnt.y;
+
+				dx = tr.x - cnt.x; dy = tr.y - cnt.y;
+				tr.x = c * dx - s * dy + cnt.x;
+				tr.y = s * dx + c * dy + cnt.y;
+
+				dx = br.x - cnt.x; dy = br.y - cnt.y;
+				br.x = c * dx - s * dy + cnt.x;
+				br.y = s * dx + c * dy + cnt.y;
+
+				dx = bl.x - cnt.x; dy = bl.y - cnt.y;
+				bl.x = c * dx - s * dy + cnt.x;
+				bl.y = s * dx + c * dy + cnt.y;
+#endif
 			}
+			
 			
 			vb[k+0].x = tl.x;
 			vb[k+0].y = tl.y;
-			vb[k+0].u = rects[j].source.left;
-			vb[k+0].v = rects[j].source.top;
-			vb[k+0].r = r; vb[k+0].g = g; vb[k+0].b = b; vb[k+0].a = a;
+			vb[k+0].color = c;
+			vb[k+0].u = rects[j].src_l;
+			vb[k+0].v = rects[j].src_t;
 			
 			vb[k+1].x = tr.x;
 			vb[k+1].y = tr.y;
-			vb[k+1].u = rects[j].source.right;
-			vb[k+1].v = rects[j].source.top;
-			vb[k+1].r = r; vb[k+1].g = g; vb[k+1].b = b; vb[k+1].a = a;
+			vb[k+1].color = c;
+			vb[k+1].u = rects[j].src_r;
+			vb[k+1].v = rects[j].src_t;
 			
 			vb[k+2].x = br.x;
 			vb[k+2].y = br.y;
-			vb[k+2].u = rects[j].source.right;
-			vb[k+2].v = rects[j].source.bottom;
-			vb[k+2].r = r; vb[k+2].g = g; vb[k+2].b = b; vb[k+2].a = a;
+			vb[k+2].color = c;
+			vb[k+2].u = rects[j].src_r;
+			vb[k+2].v = rects[j].src_b;
 			
 			vb[k+3].x = bl.x;
 			vb[k+3].y = bl.y;
-			vb[k+3].u = rects[j].source.left;
-			vb[k+3].v = rects[j].source.bottom;
-			vb[k+3].r = r; vb[k+3].g = g; vb[k+3].b = b; vb[k+3].a = a;
+			vb[k+3].color = c;
+			vb[k+3].u = rects[j].src_l;
+			vb[k+3].v = rects[j].src_b;
 		}
 
 		if(vertex_buffer.size > 0) {
@@ -415,31 +452,36 @@ void video_present(void) {
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 			
 			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vb[0].x);
-			glColorPointer(4, GL_FLOAT, sizeof(Vertex), &vb[0].r);
+			glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vb[0].color);
 			
 			LineDesc* lines = DARRAY_DATA_PTR(line_buckets[i], LineDesc);
 			vertex_buffer.size += line_buckets[i].size * 2;
 			size_t k = 0;
 			for(j = 0; j < line_buckets[i].size; ++j) {
 				COLOR_DECONSTRUCT(lines[j].color, r, g, b, a);
-				r /= 255.0f; g /= 255.0f; b /= 255.0f; a /= 255.0f;
+				r = (r * a) << 8;
+				g = (g * a) << 8;
+				b = (b * a) << 8;
+				c = COLOR_RGBA(r, g, b, a);
+
 				vb[k].x = lines[j].start.x;
 				vb[k].y = lines[j].start.y;
-				vb[k].r = r; vb[k].g = g; vb[k].b = b; vb[k].a = a;
+				vb[k].color = c;
 				k++;
 				vb[k].x = lines[j].end.x;
 				vb[k].y = lines[j].end.y;
-				vb[k].r = r; vb[k].g = g; vb[k].b = b; vb[k].a = a;
+				vb[k].color = c;
 				k++;
 			}
 			glDrawArrays(GL_LINES, 0, k);
 			vertex_buffer.size = 0;
+
 			glEnable(GL_TEXTURE_2D);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			
 			glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vb[0].x);
-			glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vb[0].u);
-			glColorPointer(4, GL_FLOAT, sizeof(Vertex), &vb[0].r);
+			glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vb[0].color);
+			glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), &vb[0].u);
 		}	
 		
 	#ifndef NO_DEVOMDE
@@ -507,6 +549,7 @@ TexHandle tex_load(const char* filename) {
 	uint format = has_alpha ? GL_RGBA : GL_RGB;
 	glGenTextures(1, &gl_id);
 	glBindTexture(GL_TEXTURE_2D, gl_id);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage2D(GL_TEXTURE_2D, 0, format, new_tex.width, new_tex.height, 0, 
 				 format, GL_UNSIGNED_BYTE, data);
 	CFRelease(image_data);
@@ -560,32 +603,43 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 	uint texture_width, texture_height;
 	tex_size(tex, &texture_width, &texture_height);
 	
-	RectF real_source = rectf(0.0f, 0.0f, (float)texture_width,
-							  (float)texture_height);
-	if(source != NULL)
-		real_source = *source;
+	int16 real_src_l = 0;
+	int16 real_src_t = 0;
+	int16 real_src_r = texture_width;
+	int16 real_src_b = texture_height;
+
+	if(source != NULL) {
+		real_src_l = lrintf(source->left);
+		real_src_t = lrintf(source->top);
+		real_src_r = lrintf(source->right);
+		real_src_b = lrintf(source->bottom);
+	}
 	
 	bool full_dest = dest->right == 0.0f && dest->bottom == 0.0f; 
 	RectF real_dest = *dest;
 	
 	if(full_dest) {
-		float width = real_source.right - real_source.left;
-		float height = real_source.bottom - real_source.top;
+		float width = (float)(real_src_r - real_src_l);
+		float height = (float)(real_src_b - real_src_t);
 		real_dest.right = real_dest.left + width;
 		real_dest.bottom = real_dest.top + height;
 	}	
-	
-	real_source.left /= (float)texture_width;
-	real_source.top /= (float)texture_height;
-	real_source.right /= (float)texture_width;
-	real_source.bottom /= (float)texture_height;
-	
-	TexturedRectDesc new_rect;
-	new_rect.tex = tex;
-	new_rect.source = real_source;
-	new_rect.dest = real_dest;
-	new_rect.tint = tint;
-	new_rect.rotation = rotation;
+
+	real_src_l = ((real_src_l << 15) - 1) / texture_width;
+	real_src_t = ((real_src_t << 15) - 1) / texture_height;
+	real_src_r = ((real_src_r << 15) - 1) / texture_width;
+	real_src_b = ((real_src_b << 15) - 1) / texture_height;
+
+	TexturedRectDesc new_rect = {
+		.tex = tex,
+		.src_l = real_src_l,
+		.src_t = real_src_t,
+		.src_r = real_src_r,
+		.src_b = real_src_b,
+		.dest = real_dest,
+		.tint = tint,
+		.rotation = rotation
+	};
 	
 	darray_append(&rect_buckets[layer], &new_rect);
 }	

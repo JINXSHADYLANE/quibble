@@ -54,11 +54,20 @@ char* path_to_resource(const char* _file) {
 		filename = file;
 		file = NULL;
 	}
+    
+    CFStringRef filename_cfstring = CFStringCreateWithCString(NULL, filename, kCFStringEncodingASCII);
+    CFStringRef extension_cfstring = CFStringCreateWithCString(NULL, extension, kCFStringEncodingASCII);
+    CFStringRef file_cfstring = CFStringCreateWithCString(NULL, file, kCFStringEncodingASCII);
 
-	CFURLRef resource_url = CFBundleCopyResourceURL(main_bundle,
-		CFStringCreateWithCString(NULL, filename, kCFStringEncodingASCII),
-		CFStringCreateWithCString(NULL, extension, kCFStringEncodingASCII),
-		CFStringCreateWithCString(NULL, file, kCFStringEncodingASCII));
+	CFURLRef resource_url = CFBundleCopyResourceURL(main_bundle, 
+                                                    filename_cfstring,
+                                                    extension_cfstring,
+                                                    file_cfstring
+                                                    );
+    
+    CFRelease(filename_cfstring);
+    CFRelease(extension_cfstring);
+    CFRelease(file_cfstring);
 
 	if(!resource_url) {
 		LOG_WARNING("Unable to get url to file %s in a bundle", file);
@@ -69,6 +78,8 @@ char* path_to_resource(const char* _file) {
 	char* path = MEM_ALLOC(sizeof(char) * 512);
 	if(!CFURLGetFileSystemRepresentation(resource_url, true, (UInt8*)path, 512))
 		LOG_ERROR("Unable to turn url into path");
+    
+    CFRelease(resource_url);
 
 	MEM_FREE(file);
 	return path;	

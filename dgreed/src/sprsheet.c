@@ -239,15 +239,17 @@ static void _sprsheet_load_desc(const char* desc) {
 		const char* sprite = strtok(pre_list, ",");
 		while(sprite) {
 			SprDesc* desc = _sprsheet_get(sprite);
-			if(!desc) 
+			if(!desc) {
 				LOG_ERROR("Item %s in preload list is undefined!", sprite);
-
-			// Load
-			if(!desc->loaded) 
-				_sprsheet_load(desc);
+            }
+            else {
+                // Load
+                if(!desc->loaded) 
+                    _sprsheet_load(desc);
 			
-			// Continue to next preload list item
-			sprite = strtok(NULL, ",");
+                // Continue to next preload list item
+                sprite = strtok(NULL, ",");
+            }
 		}
 		MEM_FREE(pre_list);
 	}

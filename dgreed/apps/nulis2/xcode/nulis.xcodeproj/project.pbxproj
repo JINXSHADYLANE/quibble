@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		212518DA14CE9FCE000E8BD2 /* icon 57x57.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518D914CE9FCE000E8BD2 /* icon 57x57.png */; };
+		212518DC14CE9FD4000E8BD2 /* icon 114x114.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518DB14CE9FD4000E8BD2 /* icon 114x114.png */; };
+		212518DE14CE9FE7000E8BD2 /* icon 72x72.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518DD14CE9FE7000E8BD2 /* icon 72x72.png */; };
+		212518E014CEA20E000E8BD2 /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518DF14CEA20E000E8BD2 /* Default-Landscape~ipad.png */; };
+		212518E214CEA2B6000E8BD2 /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518E114CEA2B6000E8BD2 /* Default-Portrait~ipad.png */; };
+		212518E414CEA319000E8BD2 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518E314CEA319000E8BD2 /* Default.png */; };
+		212518E614CEA31C000E8BD2 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518E514CEA31C000E8BD2 /* Default@2x.png */; };
+		212518E914CEC1C9000E8BD2 /* GLESViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 212518E814CEC1C9000E8BD2 /* GLESViewController.m */; };
 		213776DB14CD5A58004F01D2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213776DA14CD5A58004F01D2 /* UIKit.framework */; };
 		213776DD14CD5A58004F01D2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213776DC14CD5A58004F01D2 /* Foundation.framework */; };
 		213776DF14CD5A58004F01D2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213776DE14CD5A58004F01D2 /* CoreGraphics.framework */; };
@@ -88,6 +96,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		212518D914CE9FCE000E8BD2 /* icon 57x57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 57x57.png"; sourceTree = "<group>"; };
+		212518DB14CE9FD4000E8BD2 /* icon 114x114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 114x114.png"; sourceTree = "<group>"; };
+		212518DD14CE9FE7000E8BD2 /* icon 72x72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 72x72.png"; sourceTree = "<group>"; };
+		212518DF14CEA20E000E8BD2 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape~ipad.png"; sourceTree = "<group>"; };
+		212518E114CEA2B6000E8BD2 /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
+		212518E314CEA319000E8BD2 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		212518E514CEA31C000E8BD2 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		212518E714CEC1C9000E8BD2 /* GLESViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GLESViewController.h; path = ../../../src/GLESViewController.h; sourceTree = "<group>"; };
+		212518E814CEC1C9000E8BD2 /* GLESViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GLESViewController.m; path = ../../../src/GLESViewController.m; sourceTree = "<group>"; };
 		213776D614CD5A58004F01D2 /* nulis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = nulis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		213776DA14CD5A58004F01D2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		213776DC14CD5A58004F01D2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -252,6 +269,13 @@
 		213776CB14CD5A58004F01D2 = {
 			isa = PBXGroup;
 			children = (
+				212518E514CEA31C000E8BD2 /* Default@2x.png */,
+				212518E314CEA319000E8BD2 /* Default.png */,
+				212518E114CEA2B6000E8BD2 /* Default-Portrait~ipad.png */,
+				212518DF14CEA20E000E8BD2 /* Default-Landscape~ipad.png */,
+				212518DD14CE9FE7000E8BD2 /* icon 72x72.png */,
+				212518DB14CE9FD4000E8BD2 /* icon 114x114.png */,
+				212518D914CE9FCE000E8BD2 /* icon 57x57.png */,
 				213777CE14CD5CC3004F01D2 /* Resources */,
 				213776F114CD5AAB004F01D2 /* dgreed */,
 				213776E014CD5A58004F01D2 /* nulis2 */,
@@ -323,6 +347,8 @@
 				213776FF14CD5AFB004F01D2 /* gfx_utils.h */,
 				2137770014CD5AFB004F01D2 /* GLESView.h */,
 				2137770114CD5AFB004F01D2 /* GLESView.m */,
+				212518E714CEC1C9000E8BD2 /* GLESViewController.h */,
+				212518E814CEC1C9000E8BD2 /* GLESViewController.m */,
 				2137770214CD5AFB004F01D2 /* gui.c */,
 				2137770314CD5AFB004F01D2 /* gui.h */,
 				2137770414CD5AFB004F01D2 /* memory.c */,
@@ -503,6 +529,13 @@
 				2137781B14CD5D42004F01D2 /* nulis2_assets in Resources */,
 				2137781D14CD5D4C004F01D2 /* nulis2_scripts in Resources */,
 				2137782614CD5E34004F01D2 /* nulis-Info.plist in Resources */,
+				212518DA14CE9FCE000E8BD2 /* icon 57x57.png in Resources */,
+				212518DC14CE9FD4000E8BD2 /* icon 114x114.png in Resources */,
+				212518DE14CE9FE7000E8BD2 /* icon 72x72.png in Resources */,
+				212518E014CEA20E000E8BD2 /* Default-Landscape~ipad.png in Resources */,
+				212518E214CEA2B6000E8BD2 /* Default-Portrait~ipad.png in Resources */,
+				212518E414CEA319000E8BD2 /* Default.png in Resources */,
+				212518E614CEA31C000E8BD2 /* Default@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -578,6 +611,7 @@
 				213777B314CD5B98004F01D2 /* levels.c in Sources */,
 				213777B414CD5B98004F01D2 /* nulis2.c in Sources */,
 				213777B514CD5B98004F01D2 /* sim.c in Sources */,
+				212518E914CEC1C9000E8BD2 /* GLESViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
