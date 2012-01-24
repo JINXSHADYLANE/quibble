@@ -65,10 +65,9 @@ typedef struct {
 	Color color;
 } FFieldCircle;
 
-#define MAX_FFIELD_CIRCLES 8
+#define MAX_FFIELD_CIRCLES 32 
 FFieldCircle ffield_circles[MAX_FFIELD_CIRCLES];
 uint ffield_circle_count = 0;
-float ffield_last_spawn = 0.0f;
 
 // Tweaks
 float max_speed = 15.0f;
@@ -104,6 +103,8 @@ float vignette_duration = 5.0f;
 float ffield_freq = 0.2f;
 float ffield_lifetime = 0.5f;
 
+float touch_push_dist = 100.0f;
+
 // Code
 
 #define GAME_TWEAK(name, min, max) \
@@ -136,6 +137,7 @@ static void _register_tweaks(void) {
 	GAME_TWEAK(ghost_maxrot, 0.0f, 10.0f);
 	GAME_TWEAK(vignette_delay, 0.0f, 3.0f);
 	GAME_TWEAK(vignette_duration, 1.0f, 10.0f);
+	GAME_TWEAK(touch_push_dist, 10.0f, 200.0f);
 }
 
 static void _load_level(const char* level_name) {
@@ -973,17 +975,21 @@ static void _show_ffield(Vector2 p, float r, bool push) {
 	const Color ffield_color_end = COLOR_RGBA(255, 0, 236, 255);
 
 	float t = malka_state_time("game");
-	if(t - ffield_last_spawn > ffield_freq) {
-		ffield_last_spawn = t;
 
-		FFieldCircle new = { p, r, t, !push, 0 };
-		new.color = color_lerp(
-				ffield_color_start, ffield_color_end, rand_float()
-		);
-
-		assert(ffield_circle_count < MAX_FFIELD_CIRCLES);
-		ffield_circles[ffield_circle_count++] = new;
+	for(uint i = 0; i < ffield_circle_count; ++i) {
+		float d_sqr = _distance(p, ffield_circles[i].center, NULL);
+		if(d_sqr < touch_push_dist*touch_push_dist)
+			if(t - ffield_circles[i].birth_time < ffield_freq)
+				return;
 	}
+
+	FFieldCircle new = { p, r, t, !push, 0 };
+	new.color = color_lerp(
+			ffield_color_start, ffield_color_end, rand_float()
+	);
+
+	assert(ffield_circle_count < MAX_FFIELD_CIRCLES);
+	ffield_circles[ffield_circle_count++] = new;
 }
 
 static void _update_ffield(void) {
@@ -1028,11 +1034,82 @@ static void _render_ffield(void) {
 	}
 }
 
+static void _process_touch(void) {
+	uint tcount = touches_count();
+
+	if(tcount && tcount < 5) {
+		bool processed[4] = {false, false, false, false};
+		Touch* t = touches_get();	
+
+		for(uint i = 0; i < tcount; ++i) {
+			if(processed[i])
+				continue;
+
+			bool push = false;
+			float min_sq_dist = touch_push_dist * touch_push_dist;
+			uint min_j = ~0;
+			Vector2 pos;
+
+			// Find a touch close to this one
+			for(uint j = i+1; j < tcount; ++j) {
+				if(processed[j])
+					continue;
+
+				float sq_dist = vec2_length_sq(vec2_sub(t[i].pos, t[j].pos));
+				if(sq_dist < touch_push_dist * touch_push_dist) {
+					// Touches are close, let's push
+					push = true;
+					min_sq_dist = sq_dist;
+					min_j = j;
+					pos = vec2_scale(vec2_add(t[i].pos, t[j].pos), 0.5f);
+				}
+			}
+
+			if(push) {
+				assert(tcount >= 2);
+				assert(min_j < tcount);
+				processed[i] = processed[min_j] = true;
+			}
+			else {
+				processed[i] = true;
+				pos = t[i].pos;
+			}
+
+			ffield_pos = pos; 
+			ffield_push = push;
+			
+			coldet_query_circle(&cd, pos, ffield_radius, 1,
+					_apply_force_field_cb);
+
+			_show_ffield(pos, ffield_radius, push);
+			mfx_trigger_ex("force_field", pos, 0.0f);
+		}
+	}
+}
+
+static void _process_mouse(void) {
+	bool pull = mouse_pressed(MBTN_PRIMARY);
+	bool push = mouse_pressed(MBTN_SECONDARY);
+
+	if(push || pull) {
+		Vector2 pos = mouse_vec();
+
+		ffield_pos = pos;
+		ffield_push = push;
+
+		coldet_query_circle(&cd, pos, ffield_radius, 1,
+			_apply_force_field_cb);
+
+		_show_ffield(pos, ffield_radius, push);
+		mfx_trigger_ex("force_field", pos, 0.0f);
+	}
+}
+
 void sim_update(void) {
-	if(touches_count() == 4 || char_up('e'))
+	if(touches_count() == 6 || char_up('e'))
 		malka_states_push("editor");
 
-	if(touches_count() == 3 || key_up(KEY_QUIT)) {
+	if(touches_count() == 5 || key_up(KEY_QUIT)) {
 		show_tweaks = false;
 		malka_states_push("menu");
 	}
@@ -1040,7 +1117,7 @@ void sim_update(void) {
 	if(show_tweaks && char_up('t'))
 		show_tweaks = false;
 
-	if(touches_count() == 5 || char_up('t'))
+	if(touches_count() == 7 || char_up('t'))
 		show_tweaks = true;
 
 	float t = malka_state_time("game");
@@ -1067,34 +1144,11 @@ void sim_update(void) {
 	// Accumulate forces and time scale factors
 	
 	// Force field
-	uint tcount = touches_count();
-	bool pull = mouse_pressed(MBTN_PRIMARY);
-	bool push = mouse_pressed(MBTN_SECONDARY);
-    if(tcount) {
-        pull = tcount == 1;
-        push = tcount == 2;
-    }
-	if(push || pull) {
-		Vector2 pos;
-		if(tcount) {
-			Touch* t = touches_get();
-			assert(t);
-			pos = t[0].pos;
-			if(tcount == 2)
-				pos = vec2_scale(vec2_add(pos, t[1].pos), 0.5f);
-		}
-		else {
-			pos = mouse_vec();
-		}
-
-		ffield_pos = pos;
-		ffield_push = push;
-		coldet_query_circle(&cd, pos, ffield_radius, 1, 
-				_apply_force_field_cb);
-
-		_show_ffield(pos, ffield_radius, push);
-		mfx_trigger_ex("force_field", pos, 0.0f);
-	}
+#ifdef TARGET_IOS
+	_process_touch();
+#else
+	_process_mouse();
+#endif
 
 	// Gravity & time scale
 	time_volume = 0.0f;
