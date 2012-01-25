@@ -1,5 +1,7 @@
 module(..., package.seeall)
 
+require 'tutorials'
+
 background_layer = 6
 icons_layer = 7
 
@@ -105,6 +107,7 @@ end
 function draw_options()
 	if menu_icon(sprs.replay, nil, pos_replay) then
 		csim.reset('l'..tostring(current_level+1))
+		tutorials.last_level = nil
 		states.pop()
 	end
 
@@ -236,6 +239,7 @@ function render(t)
 	local a = 1 - math.abs(t)
 	local c = rgba(1, 1, 1, a)
 	
+	tutorials.render(csim.level())
 	csim.render()
 
 	sprsheet.draw(sprs.background, background_layer, rect(0, 0, scr_size.x, scr_size.y), c)
