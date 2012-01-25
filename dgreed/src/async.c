@@ -4,24 +4,50 @@
 #include "system.h"
 
 #include <pthread.h>
+#include <semaphore.h>
 #include <errno.h>
 
 static bool async_initialized = false;
 
 #define MAX_CRITICAL_SECTIONS 16
 static pthread_mutex_t critical_sections[MAX_CRITICAL_SECTIONS];
-static uint n_critical_sections = 3; // Critical sections 0, 1 & 2 are used for async system
+static uint n_critical_sections = 4; // Critical sections 0..5 are used for async system
 
 #define ASYNC_MKCS_CS 0
 #define ASYNC_TASK_STATE_CS 1
 #define ASYNC_SCHED_CS 2
+#define ASYNC_THREAD_CS 3
+
+#define THREAD_NAME_LEN 8
+#define MAX_THREADS 4
+#define ASYNC_THREADS 1
+#define IO_THREAD 0
+
+typedef struct {
+	char name[THREAD_NAME_LEN];
+	bool alive;
+	pthread_t thread;
+	CriticalSection* queue_cs;
+	sem_t* queue_semaphore;
+	ListHead* task_queue;
+} WorkerThread;
+
+static bool async_threads_created;
+static bool io_thread_created;
+
+static WorkerThread threads[MAX_THREADS];
+static uint n_threads;
 
 static void _async_init_task_state(void);
 static void _async_close_task_state(void);
 static void _async_init_queues(void);
 static void _async_close_queues(void);
+static void _async_stop_queues(void);
 static void _async_init_scheduler(void);
 static void _async_close_scheduler(void);
+
+static void _check_async_threads(void);
+static void _check_io_thread(void);
 
 void _async_init(void) {
 	assert(!async_initialized);
@@ -38,8 +64,11 @@ void _async_init(void) {
 		pthread_mutex_init(&critical_sections[i], NULL);
 #endif
 	}
-	n_critical_sections = 3;
 	async_initialized = true;
+
+	n_threads = 0;
+	async_threads_created = false;
+	io_thread_created = false;
 
 	_async_init_task_state();
 	_async_init_queues();
@@ -49,11 +78,11 @@ void _async_init(void) {
 void _async_close(void) {
 	assert(async_initialized);
 
+	_async_stop_queues();
+
 	_async_close_scheduler();
 	_async_close_queues();
 	_async_close_task_state();
-
-	// TODO: Wait for threads to finish
 
 	for(uint i = 0; i > MAX_CRITICAL_SECTIONS; ++i) {
 		pthread_mutex_destroy(&critical_sections[i]);
@@ -61,8 +90,18 @@ void _async_close(void) {
 }
 
 const char* _async_thread_name(void) {
-	// TODO
-	return "unnamed";
+	pthread_t self = pthread_self();
+
+	async_enter_cs(ASYNC_THREAD_CS);
+	for(uint i = 0; i < n_threads; ++i) {
+		if(self == threads[i].thread) {
+			async_leave_cs(ASYNC_THREAD_CS);
+			return threads[i].name;
+		}
+	}
+	async_leave_cs(ASYNC_THREAD_CS);
+
+	return "main";
 }
 
 CriticalSection async_make_cs(void) {
@@ -79,11 +118,8 @@ void async_enter_cs(CriticalSection cs) {
 	assert(async_initialized);
 	assert(cs < MAX_CRITICAL_SECTIONS);
 #ifdef _DEBUG
-	if(pthread_mutex_trylock(&critical_sections[cs]) == EBUSY) {
-		LOG_WARNING("Busy lock in thread %s", _async_thread_name());
-		if(pthread_mutex_lock(&critical_sections[cs]) == EDEADLK) {
-			LOG_ERROR("Deadlock in thread %s", _async_thread_name());
-		}
+	if(pthread_mutex_lock(&critical_sections[cs]) == EDEADLK) {
+		LOG_ERROR("Deadlock in thread %s", _async_thread_name());
 	}
 #else
 	pthread_mutex_lock(&critical_sections[cs]);
@@ -216,55 +252,82 @@ bool async_is_finished(TaskId id) {
 	return result;
 }
 
-TaskId async_run(Task task, void* userdata) {
-	TaskId id = _async_new_taskid();
-
-	// Run synchronously
-	(*task)(userdata);
-
-	_async_finish_taskid(id);
-
-	return id;
-}
-
-TaskId async_run_io(Task task, void* userdata) {
-	TaskId id = _async_new_taskid();
-
-	// Run synchronously
-	(*task)(userdata);
-
-	_async_finish_taskid(id);
-
-	return id;
-}
-
 
 // Task queues
 
 typedef struct {
 	Task task;
+	TaskId id;
 	void* userdata;
 	ListHead list;
 } TaskDef;
 
-ListHead async_queue;
-uint async_queue_count;
-ListHead async_io_queue;
-uint async_io_queue_count;
+typedef struct {
+	ListHead queue;
+	sem_t queue_sem;
+	CriticalSection queue_cs;
+} TaskQueue;
+
+TaskQueue tq_async;
+TaskQueue tq_io;
 
 DArray taskdef_pool;
 Heap taskdef_pool_freecells;
 
+static void _async_init_task_queue(TaskQueue* tq) {
+	assert(tq);
+
+	list_init(&tq->queue);
+	sem_init(&tq->queue_sem, 0, 0);
+	tq->queue_cs = async_make_cs();
+}
+
+static void _async_close_task_queue(TaskQueue* tq) {
+	assert(tq);
+	assert(list_empty(&tq->queue));
+
+	sem_destroy(&tq->queue_sem);
+}
+
 static void _async_init_queues(void) {
-	list_init(&async_queue);
-	list_init(&async_io_queue);
+	_async_init_task_queue(&tq_async);
+	_async_init_task_queue(&tq_io);
+
 	taskdef_pool = darray_create(sizeof(TaskDef), 0);
 	heap_init(&taskdef_pool_freecells);
-	async_queue_count = 0;
-	async_io_queue_count = 0;
+}
+
+static void _async_stop_queues(void) {
+	LOG_INFO("Stopping worker threads...");
+
+	async_enter_cs(ASYNC_THREAD_CS);
+
+	// Just increment semaphores without adding any work,
+	// threads will quit when they see that 
+
+	if(io_thread_created)
+		sem_post(&tq_io.queue_sem);
+	
+	if(async_threads_created) {
+		for(uint i = 0; i < ASYNC_THREADS; ++i) {
+			sem_post(&tq_async.queue_sem);
+		}
+	}
+	
+	// Join all threads
+	for(uint i = 0; i < n_threads; ++i) {
+		int res = pthread_join(threads[i].thread, NULL);
+		if(res != 0)
+			LOG_ERROR("Unable to join thread %s", threads[i].name);
+	}
+
+	async_leave_cs(ASYNC_THREAD_CS);
 }
 
 static void _async_close_queues(void) {
+	_async_close_task_queue(&tq_io);
+	_async_close_task_queue(&tq_async);
+
 	darray_free(&taskdef_pool);
 	heap_free(&taskdef_pool_freecells);
 }
@@ -276,24 +339,42 @@ static void _async_rebase_lists(ptrdiff_t delta) {
 	void* range_start = taskdef_pool.data - delta;
 	void* range_end = range_start + taskdef_pool.item_size * taskdef_pool.size;
 
-	async_queue.next += delta;
-	async_queue.prev += delta;
-	async_io_queue.next += delta;
-	async_io_queue.prev += delta;
+	void* prev;
+	void* next;
+
+	if(!list_empty(&tq_io.queue)) {
+		prev = (void*)tq_io.queue.prev;
+		next = (void*)tq_io.queue.next;
+		assert(range_start <= prev && prev < range_end);
+		assert(range_start <= next && next < range_end);
+		
+		tq_io.queue.prev = (void*)(prev + delta);
+		tq_io.queue.next = (void*)(next + delta);
+	}
+
+	if(!list_empty(&tq_async.queue)) {
+		prev = (void*)tq_async.queue.prev;
+		next = (void*)tq_async.queue.next;
+		assert(range_start <= prev && prev < range_end);
+		assert(range_start <= next && next < range_end);
+		
+		tq_async.queue.prev = (void*)(prev + delta);
+		tq_async.queue.next = (void*)(next + delta);
+	}
 
 	TaskDef* list_nodes = DARRAY_DATA_PTR(taskdef_pool, TaskDef);
 	for(uint i = 0; i < taskdef_pool.size; ++i) {
 		TaskDef* def = &list_nodes[i];
-		void* prev = (void*)def->list.prev;
-		void* next = (void*)def->list.next;
+		prev = (void*)def->list.prev;
+		next = (void*)def->list.next;
 		if(range_start <= prev && prev < range_end)
-			def->list.prev += delta;
+			def->list.prev = (ListHead*)(prev + delta);
 		if(range_start <= next && next < range_end)
-			def->list.next += delta;
+			def->list.next = (ListHead*)(next + delta);
 	}
 }
 
-static void _async_enqueue(ListHead* head, Task task, void* userdata) {
+static void _async_enqueue(ListHead* head, Task task, TaskId id, void* userdata) {
 	assert(head);
 	assert(taskdef_pool.item_size == sizeof(TaskDef));
 
@@ -305,7 +386,7 @@ static void _async_enqueue(ListHead* head, Task task, void* userdata) {
 	else {
 		// We have to append new cell, which might trigger realloc
 		void* old_data = taskdef_pool.data;
-		TaskDef dummy = {NULL, NULL, {NULL, NULL}};
+		TaskDef dummy = {NULL, 0, NULL, {NULL, NULL}};
 		i = taskdef_pool.size;
 		darray_append(&taskdef_pool, &dummy);
 		void* new_data = taskdef_pool.data;
@@ -319,6 +400,7 @@ static void _async_enqueue(ListHead* head, Task task, void* userdata) {
 	TaskDef* new = &defs[i];
 
 	new->task = task;
+	new->id = id;
 	new->userdata = userdata;
 
 	list_push_back(head, &new->list);
@@ -339,7 +421,6 @@ static TaskDef* _async_dequeue(ListHead* head) {
 
 	return first;
 }
-
 
 // Scheduler
 
@@ -427,7 +508,9 @@ void async_process_schedule(void) {
 		ScheduledTaskDef* def = &defs[i];
 
 		// Do it
+		async_leave_cs(ASYNC_SCHED_CS);
 		(*def->task)(def->userdata);
+		async_enter_cs(ASYNC_SCHED_CS);
 
 		// Remove it from schedule task pool
 		heap_push(&async_sched_freecells, i, NULL);
@@ -437,5 +520,109 @@ void async_process_schedule(void) {
 	}
 
 	async_leave_cs(ASYNC_SCHED_CS);
+}
+
+// Threads
+
+static void* _worker(void* userdata) {
+	WorkerThread* self = (WorkerThread*)userdata;
+
+	LOG_INFO("Thread %s starting work", self->name);
+	self->alive = true;
+	while(true) {
+		// Wait till there's a task available
+		sem_wait(self->queue_semaphore);
+
+		// Get the task
+		async_enter_cs(*self->queue_cs);
+		TaskDef* task = _async_dequeue(self->task_queue);
+		async_leave_cs(*self->queue_cs);
+
+		if(task == NULL) {
+			// We got signal, but there's no tasks - exit
+			LOG_INFO("Thread %s exiting", self->name);
+			break;
+		}
+
+		// Do the task
+		(*task->task)(task->userdata);
+
+		// Mark finished
+		_async_finish_taskid(task->id);
+	}
+	self->alive = false;
+	return NULL;
+}
+
+static void _create_thread(const char* name, TaskQueue* queue) {
+	assert(async_initialized);
+		
+	WorkerThread* thread = &threads[n_threads];
+	n_threads++;
+	assert(n_threads < MAX_THREADS);
+
+	assert(strlen(name) < THREAD_NAME_LEN);
+	strcpy(thread->name, name);
+
+	thread->alive = false;
+	thread->queue_cs = &queue->queue_cs;
+	thread->queue_semaphore = &queue->queue_sem;
+	thread->task_queue = &queue->queue;
+
+	int ret = pthread_create(&thread->thread, NULL, _worker, (void*)thread);
+	if(ret != 0)
+		LOG_ERROR("Unable to create worker thread");
+
+	LOG_INFO("Created thread %s", name);
+}
+
+static void _check_io_thread(void) {
+	async_enter_cs(ASYNC_THREAD_CS);
+	if(!io_thread_created) {
+		_create_thread("io", &tq_io);
+		io_thread_created = true;
+	}
+	async_leave_cs(ASYNC_THREAD_CS);
+}
+
+static void _check_async_threads(void) {
+	async_enter_cs(ASYNC_THREAD_CS);
+	if(!async_threads_created) {
+		char name[8];
+		for(uint i = 0; i < ASYNC_THREADS; ++i) {
+			sprintf(name, "async %d", i);
+			_create_thread(name, &tq_async);
+		}
+		async_threads_created = true;
+	}
+	async_leave_cs(ASYNC_THREAD_CS);
+}
+
+TaskId async_run(Task task, void* userdata) {
+	_check_async_threads();
+
+	TaskId id = _async_new_taskid();
+
+	async_enter_cs(tq_async.queue_cs);
+	_async_enqueue(&tq_async.queue, task, id, userdata);
+	async_leave_cs(tq_async.queue_cs);
+
+	sem_post(&tq_async.queue_sem);
+
+	return id;
+}
+
+TaskId async_run_io(Task task, void* userdata) {
+	_check_io_thread();
+
+	TaskId id = _async_new_taskid();
+
+	async_enter_cs(tq_io.queue_cs);
+	_async_enqueue(&tq_io.queue, task, id, userdata);
+	async_leave_cs(tq_io.queue_cs);
+
+	sem_post(&tq_io.queue_sem);
+
+	return id;
 }
 

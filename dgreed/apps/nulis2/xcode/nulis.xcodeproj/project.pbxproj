@@ -79,7 +79,6 @@
 		213777A514CD5B65004F01D2 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 2137778414CD5B65004F01D2 /* lzio.c */; };
 		213777A614CD5B65004F01D2 /* print.c in Sources */ = {isa = PBXBuildFile; fileRef = 2137778614CD5B65004F01D2 /* print.c */; };
 		213777B114CD5B98004F01D2 /* bind.c in Sources */ = {isa = PBXBuildFile; fileRef = 213777A714CD5B98004F01D2 /* bind.c */; };
-		213777B214CD5B98004F01D2 /* game.c in Sources */ = {isa = PBXBuildFile; fileRef = 213777AA14CD5B98004F01D2 /* game.c */; };
 		213777B314CD5B98004F01D2 /* levels.c in Sources */ = {isa = PBXBuildFile; fileRef = 213777AC14CD5B98004F01D2 /* levels.c */; };
 		213777B414CD5B98004F01D2 /* nulis2.c in Sources */ = {isa = PBXBuildFile; fileRef = 213777AE14CD5B98004F01D2 /* nulis2.c */; };
 		213777B514CD5B98004F01D2 /* sim.c in Sources */ = {isa = PBXBuildFile; fileRef = 213777AF14CD5B98004F01D2 /* sim.c */; };
@@ -226,8 +225,6 @@
 		213777A714CD5B98004F01D2 /* bind.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bind.c; path = ../../bind.c; sourceTree = "<group>"; };
 		213777A814CD5B98004F01D2 /* bind.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bind.h; path = ../../bind.h; sourceTree = "<group>"; };
 		213777A914CD5B98004F01D2 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = ../../common.h; sourceTree = "<group>"; };
-		213777AA14CD5B98004F01D2 /* game.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = game.c; path = ../../game.c; sourceTree = "<group>"; };
-		213777AB14CD5B98004F01D2 /* game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game.h; path = ../../game.h; sourceTree = "<group>"; };
 		213777AC14CD5B98004F01D2 /* levels.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = levels.c; path = ../../levels.c; sourceTree = "<group>"; };
 		213777AD14CD5B98004F01D2 /* levels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = levels.h; path = ../../levels.h; sourceTree = "<group>"; };
 		213777AE14CD5B98004F01D2 /* nulis2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = nulis2.c; path = ../../nulis2.c; sourceTree = "<group>"; };
@@ -315,8 +312,6 @@
 				213777A714CD5B98004F01D2 /* bind.c */,
 				213777A814CD5B98004F01D2 /* bind.h */,
 				213777A914CD5B98004F01D2 /* common.h */,
-				213777AA14CD5B98004F01D2 /* game.c */,
-				213777AB14CD5B98004F01D2 /* game.h */,
 				213777AC14CD5B98004F01D2 /* levels.c */,
 				213777AD14CD5B98004F01D2 /* levels.h */,
 				213777AE14CD5B98004F01D2 /* nulis2.c */,
@@ -607,7 +602,6 @@
 				213777A514CD5B65004F01D2 /* lzio.c in Sources */,
 				213777A614CD5B65004F01D2 /* print.c in Sources */,
 				213777B114CD5B98004F01D2 /* bind.c in Sources */,
-				213777B214CD5B98004F01D2 /* game.c in Sources */,
 				213777B314CD5B98004F01D2 /* levels.c in Sources */,
 				213777B414CD5B98004F01D2 /* nulis2.c in Sources */,
 				213777B514CD5B98004F01D2 /* sim.c in Sources */,
