@@ -644,6 +644,9 @@ file you provided through interpreter, calls global game_init() method if such
 exists (init subsystems, register states and push initial state there), runs
 game up to the point when stack becomes empty, calls game_close() and exits.
 
+- states.time(name)
+returns current time for a state, or active state if no name provided
+
 - states.register(name, state)
 registers a state
 

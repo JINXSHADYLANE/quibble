@@ -6,7 +6,6 @@
 #include <mfx.h>
 
 #include "common.h"
-#include "game.h"
 #include "bind.h"
 
 void dgreed_init(int argc, const char** argv) {
@@ -24,8 +23,6 @@ void dgreed_init(int argc, const char** argv) {
 
 	sprsheet_init(ASSETS_PRE "sprsheet_768p.mml");
 
-	malka_states_register("game", &game_state);
-	malka_states_push("game");
 	malka_states_init(SCRIPTS_PRE "main.lua");
 	malka_states_start();
 }

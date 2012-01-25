@@ -1034,6 +1034,7 @@ static void _render_ffield(void) {
 	}
 }
 
+#ifdef TARGET_IOS
 static void _process_touch(void) {
 	uint tcount = touches_count();
 
@@ -1086,7 +1087,7 @@ static void _process_touch(void) {
 		}
 	}
 }
-
+#else
 static void _process_mouse(void) {
 	bool pull = mouse_pressed(MBTN_PRIMARY);
 	bool push = mouse_pressed(MBTN_SECONDARY);
@@ -1104,6 +1105,7 @@ static void _process_mouse(void) {
 		mfx_trigger_ex("force_field", pos, 0.0f);
 	}
 }
+#endif
 
 void sim_update(void) {
 	if(touches_count() == 6 || char_up('e'))

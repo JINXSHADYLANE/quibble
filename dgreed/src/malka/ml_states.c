@@ -216,6 +216,20 @@ static uint _names_find(const char* name) {
 	return ~0;
 }
 
+static int ml_states_time(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n == 0) {
+		lua_pushnumber(l, malka_state_time(NULL));
+		return 1;
+	}
+	if(n == 1) {
+		const char* name = luaL_checkstring(l, 1);
+		lua_pushnumber(l, malka_state_time(name));
+		return 1;
+	}
+	return luaL_error(l, "bad args to states.time");
+}
+
 static int ml_states_register(lua_State* l) {
 	checkargs(2, "states.register");
 		
@@ -360,6 +374,7 @@ void ml_states_run(lua_State* l) {
 }
 
 static const luaL_Reg states_fun[] = {
+	{"time", ml_states_time},
 	{"register", ml_states_register},
 	{"push", ml_states_push},
 	{"pop", ml_states_pop},
