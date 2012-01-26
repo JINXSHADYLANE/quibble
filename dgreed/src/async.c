@@ -285,7 +285,7 @@ static void _async_init_task_queue(TaskQueue* tq) {
 static void _async_close_task_queue(TaskQueue* tq) {
 	assert(tq);
 	assert(list_empty(&tq->queue));
-	assert(tq->count == -1);
+	assert(tq->count == -1 || tq->count == 0);
 
 	pthread_mutex_destroy(&tq->mutex);
 	pthread_cond_destroy(&tq->cond);
