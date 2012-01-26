@@ -1,11 +1,16 @@
 module(..., package.seeall)
 
-image_layer = 4
+image_layer = 1
 image_show_len = 5
 
 images = {
 	['l1'] = {'', 'title', 'tut_one_finger'},
-	['l2'] = {'tut_two_fingers'}
+	['l2'] = {'tut_two_fingers'},
+	['l10'] = {'clock'},
+	['l14'] = {'clock'},
+	['l20'] = {'magnet'},
+	['l24'] = {'magnet'},
+	['l29'] = {'stopwatch'}
 }
 
 tut_fingers = {
