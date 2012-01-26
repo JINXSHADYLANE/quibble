@@ -94,15 +94,13 @@ int main(int argc, char** argv) {
 	assert(strlen(prog_name) + strlen(postfix) < 128);
 	strcpy(logfile, prog_name);
 	strcat(logfile, postfix);
+#else
+	const char* logfile = "dgreed.log";
 #endif
 	
 	_async_init();
 
-#ifndef _WIN32
 	log_init(logfile, LOG_LEVEL_INFO);
-#else
-	log_init(NULL, LOG_LEVEL_INFO);
-#endif
 
 	int res = dgreed_main(argc, argv);
 

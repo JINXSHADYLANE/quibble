@@ -21,6 +21,44 @@ SETUP_{
 	cs = async_make_cs();
 }
 
+void task_a(void* userdata) {
+	int* dest = userdata;
+	*dest = fib(10);
+}
+
+void task_b(void* userdata) {
+	int* dest = userdata;
+	*dest = fib(11);
+}
+
+TEST_(simple) {
+	int ar = 0;
+	int br = 0;
+
+	TaskId a = async_run(task_a, &ar);
+	TaskId b = async_run(task_b, &br);
+
+	int res_a = fib(10);
+	int res_b = fib(11);
+
+	ASSERT_(fib(32) == 3524578);
+
+	bool all_finished;
+	do {
+		all_finished = async_is_finished(a) && async_is_finished(b);
+	} while(!all_finished);
+
+	ASSERT_(ar == res_a && br == res_b);
+
+	a = async_run(task_a, &br);
+	while(!async_is_finished(a));
+	ASSERT_(br = res_a);
+
+	b = async_run(task_b, &ar);
+	while(!async_is_finished(b));
+	ASSERT_(ar = res_b);
+}
+
 TEST_(stress) {
 	TaskId taskids[1000];
 	int counter = 0;

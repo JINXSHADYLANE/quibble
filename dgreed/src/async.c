@@ -11,7 +11,7 @@ static bool async_initialized = false;
 
 #define MAX_CRITICAL_SECTIONS 16
 static pthread_mutex_t critical_sections[MAX_CRITICAL_SECTIONS];
-static uint n_critical_sections = 4; // Critical sections 0..5 are used for async system
+static uint n_critical_sections = 4; // Critical sections 0..3 are used for async system
 
 #define ASYNC_MKCS_CS 0
 #define ASYNC_TASK_STATE_CS 1
@@ -24,12 +24,24 @@ static uint n_critical_sections = 4; // Critical sections 0..5 are used for asyn
 #define IO_THREAD 0
 
 typedef struct {
+	Task task;
+	TaskId id;
+	void* userdata;
+	ListHead list;
+} TaskDef;
+
+typedef struct {
+	ListHead queue;
+	pthread_cond_t cond;
+	pthread_mutex_t mutex;
+	int count;
+} TaskQueue;
+
+typedef struct {
 	char name[THREAD_NAME_LEN];
 	bool alive;
 	pthread_t thread;
-	CriticalSection* queue_cs;
-	sem_t* queue_semaphore;
-	ListHead* task_queue;
+	TaskQueue* tq;
 } WorkerThread;
 
 static bool async_threads_created;
@@ -94,7 +106,7 @@ const char* _async_thread_name(void) {
 
 	async_enter_cs(ASYNC_THREAD_CS);
 	for(uint i = 0; i < n_threads; ++i) {
-		if(self == threads[i].thread) {
+		if(pthread_equal(self, threads[i].thread)) {
 			async_leave_cs(ASYNC_THREAD_CS);
 			return threads[i].name;
 		}
@@ -255,19 +267,6 @@ bool async_is_finished(TaskId id) {
 
 // Task queues
 
-typedef struct {
-	Task task;
-	TaskId id;
-	void* userdata;
-	ListHead list;
-} TaskDef;
-
-typedef struct {
-	ListHead queue;
-	sem_t queue_sem;
-	CriticalSection queue_cs;
-} TaskQueue;
-
 TaskQueue tq_async;
 TaskQueue tq_io;
 
@@ -278,15 +277,18 @@ static void _async_init_task_queue(TaskQueue* tq) {
 	assert(tq);
 
 	list_init(&tq->queue);
-	sem_init(&tq->queue_sem, 0, 0);
-	tq->queue_cs = async_make_cs();
+	pthread_cond_init(&tq->cond, NULL);
+	pthread_mutex_init(&tq->mutex, NULL);
+	tq->count = 0;
 }
 
 static void _async_close_task_queue(TaskQueue* tq) {
 	assert(tq);
 	assert(list_empty(&tq->queue));
+	assert(tq->count == -1);
 
-	sem_destroy(&tq->queue_sem);
+	pthread_mutex_destroy(&tq->mutex);
+	pthread_cond_destroy(&tq->cond);
 }
 
 static void _async_init_queues(void) {
@@ -302,16 +304,21 @@ static void _async_stop_queues(void) {
 
 	async_enter_cs(ASYNC_THREAD_CS);
 
-	// Just increment semaphores without adding any work,
-	// threads will quit when they see that 
+	// Just set count to -1 and signal workers,
+	// they will quit
 
-	if(io_thread_created)
-		sem_post(&tq_io.queue_sem);
+	if(io_thread_created) {
+		pthread_mutex_lock(&tq_io.mutex);
+		tq_io.count = -1;
+		pthread_mutex_unlock(&tq_io.mutex);
+		pthread_cond_broadcast(&tq_io.cond);
+	}
 	
 	if(async_threads_created) {
-		for(uint i = 0; i < ASYNC_THREADS; ++i) {
-			sem_post(&tq_async.queue_sem);
-		}
+		pthread_mutex_lock(&tq_async.mutex);
+		tq_async.count = -1;
+		pthread_mutex_unlock(&tq_async.mutex);
+		pthread_cond_broadcast(&tq_async.cond);
 	}
 	
 	// Join all threads
@@ -406,9 +413,9 @@ static void _async_enqueue(ListHead* head, Task task, TaskId id, void* userdata)
 	list_push_back(head, &new->list);
 }
 
-static TaskDef* _async_dequeue(ListHead* head) {
+static bool _async_dequeue(ListHead* head, TaskDef* dest) {
 	if(list_empty(head))
-		return NULL;
+		return false;
 
 	TaskDef* first = list_entry(list_pop_front(head), TaskDef, list); 
 
@@ -419,7 +426,8 @@ static TaskDef* _async_dequeue(ListHead* head) {
 	// Mark cell as free
 	heap_push(&taskdef_pool_freecells, i, NULL);
 
-	return first;
+	*dest = *first;
+	return true;
 }
 
 // Scheduler
@@ -527,28 +535,38 @@ void async_process_schedule(void) {
 static void* _worker(void* userdata) {
 	WorkerThread* self = (WorkerThread*)userdata;
 
-	LOG_INFO("Thread %s starting work", self->name);
+	LOG_INFO("Thread %s starting work\n", self->name);
 	self->alive = true;
 	while(true) {
-		// Wait till there's a task available
-		sem_wait(self->queue_semaphore);
+		TaskDef task;
+		bool have_task = false;
 
-		// Get the task
-		async_enter_cs(*self->queue_cs);
-		TaskDef* task = _async_dequeue(self->task_queue);
-		async_leave_cs(*self->queue_cs);
+		pthread_mutex_lock(&self->tq->mutex);
+again:
+		if(self->tq->count == 0) {
+			// Wait till there's a task available
+			pthread_cond_wait(&self->tq->cond, &self->tq->mutex);
+			goto again;
+		}
+		if(self->tq->count > 0) {
+				// Get the task
+				have_task = _async_dequeue(&self->tq->queue, &task);
+				self->tq->count--;
+		}
 
-		if(task == NULL) {
+		pthread_mutex_unlock(&self->tq->mutex);
+
+		if(!have_task) {
 			// We got signal, but there's no tasks - exit
 			LOG_INFO("Thread %s exiting", self->name);
 			break;
 		}
 
 		// Do the task
-		(*task->task)(task->userdata);
+		(*task.task)(task.userdata);
 
 		// Mark finished
-		_async_finish_taskid(task->id);
+		_async_finish_taskid(task.id);
 	}
 	self->alive = false;
 	return NULL;
@@ -563,11 +581,8 @@ static void _create_thread(const char* name, TaskQueue* queue) {
 
 	assert(strlen(name) < THREAD_NAME_LEN);
 	strcpy(thread->name, name);
-
+	thread->tq = queue;
 	thread->alive = false;
-	thread->queue_cs = &queue->queue_cs;
-	thread->queue_semaphore = &queue->queue_sem;
-	thread->task_queue = &queue->queue;
 
 	int ret = pthread_create(&thread->thread, NULL, _worker, (void*)thread);
 	if(ret != 0)
@@ -603,11 +618,11 @@ TaskId async_run(Task task, void* userdata) {
 
 	TaskId id = _async_new_taskid();
 
-	async_enter_cs(tq_async.queue_cs);
+	pthread_mutex_lock(&tq_async.mutex);
 	_async_enqueue(&tq_async.queue, task, id, userdata);
-	async_leave_cs(tq_async.queue_cs);
-
-	sem_post(&tq_async.queue_sem);
+	tq_async.count++;
+	pthread_mutex_unlock(&tq_async.mutex);
+	pthread_cond_signal(&tq_async.cond);  
 
 	return id;
 }
@@ -617,11 +632,11 @@ TaskId async_run_io(Task task, void* userdata) {
 
 	TaskId id = _async_new_taskid();
 
-	async_enter_cs(tq_io.queue_cs);
+	pthread_mutex_lock(&tq_io.mutex);
 	_async_enqueue(&tq_io.queue, task, id, userdata);
-	async_leave_cs(tq_io.queue_cs);
-
-	sem_post(&tq_io.queue_sem);
+	tq_io.count++;
+	pthread_mutex_unlock(&tq_io.mutex);
+	pthread_cond_signal(&tq_io.cond);
 
 	return id;
 }
