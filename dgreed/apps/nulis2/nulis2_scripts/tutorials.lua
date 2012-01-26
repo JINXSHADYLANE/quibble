@@ -31,10 +31,6 @@ start_t = nil
 freeze_t = nil
 unfreeze_t = nil
 
-last_frame_img_a = nil
-last_frame_img = nil
-last_frame_img_pos = nil
-
 function render(level)
 
 	if last_level ~= level then

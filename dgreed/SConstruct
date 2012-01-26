@@ -27,13 +27,13 @@ if str(Platform()) == 'win32':
 		DGREED_OGMO_TOOL=default_ogmo_tool.replace('/', '\\'),
 		DGREED_DIR_SEPARATOR='\\', LINKFLAGS=' -mwindows')
 elif str(Platform()) == 'darwin':
-	env.Append(DGREED_LIBS=[], DGREED_FONT_TOOL=default_font_tool,
+	env.Append(DGREED_LIBS=['curl'], DGREED_FONT_TOOL=default_font_tool,
 		DGREED_TEST_TOOL=default_test_tool,
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool,
 		DGREED_OGMO_TOOL=default_ogmo_tool,
 		DGREED_DIR_SEPARATOR='/',
 		FRAMEWORKS=['SDL', 'OpenGL', 'OpenAL', 'Cocoa'])
-	
+
 	AddOption('--bundle', dest='bundle', action='store_true', 
 		help='compile apps to be placed in Mac OS X bundles')
 	if GetOption('bundle'):
@@ -46,13 +46,13 @@ elif str(Platform()) == 'darwin':
 		env.Append(CCFLAGS=newflags, CXXFLAGS=newflags, 
 			LINKFLAGS=newflags)
 else:
-	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal'],
+	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal', 'curl', 'pthread'],
 		DGREED_FONT_TOOL=default_font_tool, 
 		DGREED_TEST_TOOL=default_test_tool,
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool,
 		DGREED_OGMO_TOOL=default_ogmo_tool,
 		DGREED_DIR_SEPARATOR='/')
-	
+
 dbg_flags = '-D_DEBUG -g '
 rel_flags = '-DNDEBUG -O2 '
 
