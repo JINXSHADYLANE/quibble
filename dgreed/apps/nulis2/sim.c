@@ -227,6 +227,7 @@ void sim_init(uint screen_width, uint screen_height) {
 	tweaks->y_spacing = 90.0f;
 	tweaks->items_per_page = 7;
 	_register_tweaks();
+
 }
 
 void sim_close(void) {
