@@ -74,6 +74,15 @@
 	(img tut_three_fingers
 		(tex "tut_three_fingers.png")
 	)
+	(img clock
+		(tex "clock.png")
+	)
+	(img magnet
+		(tex "magnet.png")
+	)
+	(img stopwatch
+		(tex "stopwatch.png")
+	)
 	(img resume
 		(tex "ui_ipad.png")
 		(src 0,0,100,100)
