@@ -30,13 +30,32 @@ scenario = nil
 start_t = nil
 freeze_t = nil
 unfreeze_t = nil
+
+last_frame_img_a = nil
+last_frame_img = nil
+last_frame_img_pos = nil
+
 function render(level)
+
 	if last_level ~= level then
 		last_level = level
-		scenario = images[level]
-		start_t = time.s()
-		freeze_t = nil
-		unfreeze_t = nil
+		if scenario == nil then
+			-- old scenario finished, start a new one
+			scenario = images[level]
+			start_t = states.time('game') 
+			freeze_t = nil
+			unfreeze_t = nil
+		else
+			if images[level] then
+				if freeze_t and not unfreeze_t then
+					unfreeze_t = states.time('game') - start_t
+				end
+				-- append images to old scenario
+				for i,img in ipairs(images[level]) do
+					table.insert(scenario, img)
+				end
+			end
+		end
 	end
 
 	if scenario then
@@ -65,6 +84,7 @@ function render(level)
 			local tt = (t - i * image_show_len) / image_show_len
 			local color = rgba(1, 1, 1, math.sin(tt * math.pi)) 
 
+		
 			-- finger image hacks
 			
 			if img:find('tut') == 1 then
