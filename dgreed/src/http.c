@@ -23,13 +23,13 @@ static HttpCallback shr_req_cb;
 static CriticalSection shr_data_cs;
 static MemBuffer shr_header;
 static MemBuffer shr_data;
-static int shr_resp_code;
+static long shr_resp_code;
 
 // io thread data
-CURL* io_curl;
-MemBuffer io_header;
-MemBuffer io_data;
-int io_resp_code;
+static CURL* io_curl;
+static MemBuffer io_header;
+static MemBuffer io_data;
+static long io_resp_code;
 
 static void _http_invoke_callback(void* userdata);
 
@@ -121,7 +121,7 @@ static void _io_http_get(void* userdata) {
 	// Set up curl request
 	curl_easy_setopt(io_curl, CURLOPT_HTTPGET, 1);
 	curl_easy_setopt(io_curl, CURLOPT_URL, shr_req_addr);
-	curl_easy_setopt(io_curl, CURLOPT_HEADER, shr_req_get_header);
+	curl_easy_setopt(io_curl, CURLOPT_HEADER, shr_req_get_header ? 1 : 0);
 	curl_easy_setopt(io_curl, CURLOPT_WRITEDATA, &io_data);
 	curl_easy_setopt(io_curl, CURLOPT_WRITEFUNCTION, _io_write_data);
 	if(shr_req_get_header) {
