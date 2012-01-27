@@ -58,7 +58,7 @@
 {
     // Return YES for supported orientations
     //return (interfaceOrientation == UIInterfaceOrientationPortrait);
-    return NO;
+    return YES;
 }
 
 @end
