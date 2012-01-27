@@ -100,7 +100,7 @@ static bool _call_state_func(lua_State* l, const char* name,
 	if(!lua_istable(l, state))
 		LOG_ERROR("Unable to call state func %s.%s! No such state.", name, func);
 	
-		lua_getfield(l, state, func);
+	lua_getfield(l, state, func);
 	int f = lua_gettop(l);
 	if(!lua_isfunction(l, f)) {
 		lua_pop(l, 4);
