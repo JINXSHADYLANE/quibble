@@ -103,7 +103,7 @@ float vignette_duration = 5.0f;
 float ffield_freq = 0.2f;
 float ffield_lifetime = 0.5f;
 
-float touch_push_dist = 100.0f;
+float touch_push_dist = 130.0f;
 
 // Code
 
@@ -137,7 +137,7 @@ static void _register_tweaks(void) {
 	GAME_TWEAK(ghost_maxrot, 0.0f, 10.0f);
 	GAME_TWEAK(vignette_delay, 0.0f, 3.0f);
 	GAME_TWEAK(vignette_duration, 1.0f, 10.0f);
-	GAME_TWEAK(touch_push_dist, 10.0f, 200.0f);
+	GAME_TWEAK(touch_push_dist, 50.0f, 250.0f);
 }
 
 static void _load_level(const char* level_name) {
@@ -1058,7 +1058,7 @@ static void _process_touch(void) {
 					continue;
 
 				float sq_dist = vec2_length_sq(vec2_sub(t[i].pos, t[j].pos));
-				if(sq_dist < touch_push_dist * touch_push_dist) {
+				if(sq_dist < min_sq_dist) {
 					// Touches are close, let's push
 					push = true;
 					min_sq_dist = sq_dist;
