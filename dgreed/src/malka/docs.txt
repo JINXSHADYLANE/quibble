@@ -525,7 +525,7 @@ converts between screen-space and tilemap world-space
 
 
 ------
-coldet (not implemented)
+coldet
 ------
 
 Collission detection system.
@@ -566,8 +566,7 @@ does a circle query, returns number of objects within circle; arguments:
 - coldet.query_aabb(cdhandle, rect, mask, callback)
 does a aabb query, returns number of objects within aabb; arguments:
 	cdhandle:	coldet world handle
-	center:		vector, circle center
-	radius:		number, circle radius
+	rect:		aabb
 	mask:		optional, filtering bitmask
 	callback:	optional, unary function, called once for each object within
 
@@ -577,6 +576,9 @@ cdobjhandle of intersection point; in case no object was hit - returns end
 
 - coldet.process(cdhandle, callback)
 moves objects, invokes callback once for each colliding object pair
+
+- cdobj.is_circle(cdobjhandle), cdobj.is_aabb(cdobjhandle)
+return boolean, indicating object type
 
 - cdobj.pos(cdobjhandle), cdobj.set_pos(cdobjhandle, pos)
 gets/sets position of object; use cdobj.move for simple continous movement!
@@ -591,9 +593,6 @@ gets/sets radius of circle or width and height for aabb
 
 - cdobj.rect(cdobjhandle)
 returns aabb object rectangle or circle bounding box
-
-- cdobj.is_circle(cdobjhandle), cdobj.is_aabb(cdobjhandle)
-return boolean, indicating object type
 
 - cdobj.userdata(cdobjhandle), cdobj.set_userdata(cdobjhandle, data)
 gets/sets object userdata
