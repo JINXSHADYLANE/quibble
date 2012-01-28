@@ -209,6 +209,16 @@ function update()
 	return true
 end
 
+function raycast_move(pass_a, pass_b, left, right) 
+	if not pass_a then
+		cat.v = cat.v + left * cat.move_acc / 3
+	end
+
+	if not pass_b then
+		cat.v = cat.v + right * cat.move_acc / 3
+	end
+end
+
 function update_cat()
 	local up = -gravity_dir
 	local down = gravity_dir
@@ -256,6 +266,54 @@ function update_cat()
 	cat.v = right * dot(right, cat.v) * cat.move_damp + down * dot(down, cat.v)
 
 	local hw, hh = cat.width / (2 * world_scale), cat.height / (2 * world_scale)
+
+	if cat.ground then
+		-- fall from edge check
+		local lr = cat.p + left * hw/2 + down * hh	
+		local ll = cat.p + right * hw/2 + down * hh 
+		local lrd = lr + down
+		local lld = ll + down
+		local ray_a = tilemap.raycast(level, lr, lrd)
+		local ray_b = tilemap.raycast(level, ll, lld)
+		local pass_a = length_sq(ray_a - lrd) < 0.1
+		local pass_b = length_sq(ray_b - lld) < 0.1
+
+		if pass_a or pass_b then
+			if not (pass_a and pass_b) then
+				hw = hw / 2
+				raycast_move(pass_b, pass_a, left, right)
+			end
+		end
+
+		if pass_a and pass_b then
+			-- stand on very edge check
+			local lr = cat.p + left * hw + down * hh	
+			local ll = cat.p + right * hw + down * hh 
+			local lrd = lr + down
+			local lld = ll + down
+			local ray_a = tilemap.raycast(level, lr, lrd)
+			local ray_b = tilemap.raycast(level, ll, lld)
+			local pass_a = length_sq(ray_a - lrd) < 0.1
+			local pass_b = length_sq(ray_b - lld) < 0.1
+			raycast_move(pass_b, pass_a, left, right)
+		end
+	elseif dot(down, cat.v) > 0.1 then
+		-- push from wall when falling
+		local lr = cat.p + left * hw + down * hh	
+		local ll = cat.p + right * hw + down * hh 
+		local lrr = lr + right
+		local lll = ll + left
+		local ray_a = tilemap.raycast(level, lr, lrr)
+		local ray_b = tilemap.raycast(level, ll, lll)
+		local pass_a = length_sq(ray_a - lrr) < 0.1
+		local pass_b = length_sq(ray_b - lll) < 0.1
+		raycast_move(pass_a, pass_b, left, right)
+	end
+
+
+	--if not cat.ground or cat.animation == cat.animations.stand then
+	--	hw = hw / 2
+	--end
 
 	local bbox_tl = cat.p + left * hw + down * hh
 	local bbox_br = cat.p + right * hw + up * hh
