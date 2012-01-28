@@ -334,6 +334,26 @@ function collide_objs(bbox)
 	end
 end
 
+function render_background()
+	-- lower
+	local w = 512 + 1024
+	local h = 384 + 768
+	local x = w + math.fmod(-camera.center.x / 3, w) 
+	local y = 192 + (camera.center.y / world_rect.b) * 384
+
+	sprsheet.draw_centered('background1', 0, vec2(x, y), 0, 2)
+	sprsheet.draw_centered('background1', 0, vec2(x-1024, y), 0, 2)
+
+	-- higher
+	local x = w + math.fmod(-camera.center.x / 1.5, w)
+	local y = h + math.fmod(-camera.center.y / 1.5, h)
+
+	sprsheet.draw_centered('background2', 0, vec2(x, y), 0, 2)
+	sprsheet.draw_centered('background2', 0, vec2(x-1024, y), 0, 2)
+	sprsheet.draw_centered('background2', 0, vec2(x, y-768), 0, 2)
+	sprsheet.draw_centered('background2', 0, vec2(x-1024, y-768), 0, 2)
+end
+
 function render_cat()
 	local screen_pos = tilemap.world2screen(level, screen, cat.p)
 	--screen_pos.x = math.floor(screen_pos.x)
@@ -398,15 +418,17 @@ function render_fadeout()
 end
 
 function render(t)
-	if level then
-		tilemap.render(level, screen)
-	end
 
+	render_background()
 	render_cat()
 	render_objs()
 
 	if levelend_fadeout_t then
 		render_fadeout()
+	end
+
+	if level then
+		tilemap.render(level, screen)
 	end
 
 	return true
