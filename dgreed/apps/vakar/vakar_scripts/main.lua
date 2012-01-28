@@ -13,14 +13,16 @@ function game_init()
 
 	mfx.init(pre..'effects.mml')
 	sprsheet.init(pre..'sprsheet.mml')
-	--mus = sound.load_stream(pre..'Lightless Dawn.ogg')
+	mus = sound.load_stream(pre..'Cool Vibes.ogg')
+	sound.set_volume(mus, 0.7)
+	sound.play(mus, true)
 
 	states.register('game', game)
 	states.push('game')
 end
 
 function game_close()
-	--sound.free(mus)
+	sound.free(mus)
 	sprsheet.close()
 	mfx.close()
 	sound.close()
