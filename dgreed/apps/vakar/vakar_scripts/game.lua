@@ -22,7 +22,7 @@ levels = {
 	'twister.btm'
 }
 
-current_level = 2
+current_level = 1
 
 objt = {
 	start = 0,
@@ -356,7 +356,7 @@ function update_cat()
 	if cat.animation ~= cat.animations.jump_down 
 		and cat.animation ~= cat.animations.jump_down_vert
 		and dot(down, cat.v) > 0.1 then
-		if math.abs(dot(right, cat.v)) > 1 then
+		if math.abs(dot(right, cat.v)) > 3 then
 			cat.play('jump_down')
 		else
 			cat.play('jump_down_vert')
