@@ -11,10 +11,10 @@
 	<objects>
 		<object name="start" image="obj_start.png" width="16" height="16" />
 		<object name="end" image="obj_end.png" width="16" height="16" />
-		<object name="star_left" image="obj.png" width="16" height="16" />
-		<object name="star_right" image="obj.png" width="16" height="16" />
-		<object name="star_grow" image="obj.png" width="16" height="16" />
-		<object name="star_shrink" image="obj.png" width="16" height="16" />
+		<object name="star_left" image="star_left.png" width="16" height="16" />
+		<object name="star_right" image="star_right.png" width="16" height="16" />
+		<object name="star_grow" image="star_grow.png" width="16" height="16" />
+		<object name="star_shrink" image="star_shrink.png" width="16" height="16" />
 	</objects>
 	<layers>
 		<tiles name="background" gridSize="16" />
