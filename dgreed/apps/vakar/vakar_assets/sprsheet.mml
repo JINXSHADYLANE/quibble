@@ -32,9 +32,9 @@
 	)
 	(anim cat_walk
 		(tex "catwalk_sprtsheet.png")
-		(frames 14)
+		(frames 19)
 		(src 0,0,64,64)
 		(offset 64,64)
-		(grid 8,2)
+		(grid 8,3)
 	)
 )

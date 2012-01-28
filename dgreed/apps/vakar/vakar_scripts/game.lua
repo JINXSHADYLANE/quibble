@@ -21,6 +21,7 @@ levels = {
 	'first.btm',
 	'twister.btm'
 }
+
 current_level = 2
 
 objt = {
@@ -45,7 +46,7 @@ cat = {
 	dir = false,
 	ground = false,
 
-	width = 32,
+	width = 16,
 	height = 16,
 
 	move_acc = 0.8,
@@ -58,12 +59,20 @@ cat = {
 
 cat.animations = {
 	stand = {
-		frames = {0},
-		on_finish="loop"
+		frames = {15, 14},
+		on_finish="stop"
 	},
 	walk = {
 		frames = {0, 1, 2, 3, 4, 5},
 		on_finish="loop"
+	},
+	jump_up_vert = {
+		frames = {16},
+		on_finish="stop"
+	},
+	jump_down_vert = {
+		frames = {17},
+		on_finish="stop"
 	},
 	jump_up = {
 		frames = {6, 7, 8},
@@ -76,6 +85,10 @@ cat.animations = {
 	land = {
 		frames = {6},
 		on_finish="play walk"
+	},
+	land_vert = {
+		frames = {18},
+		on_finish="play stand"
 	}
 }
 
@@ -161,6 +174,9 @@ function update()
 		states.pop()
 	end
 
+	sound.update()
+	mfx.update()
+
 	-- devmode world manipulation
 	if char.down('j') then
 		world_scale = world_scale / 2
@@ -200,23 +216,40 @@ function update_cat()
 	local right = -left 
 
 	if key.pressed(key._left) then
-		if length_sq(cat.v) < 1 then
+		if length_sq(cat.v) > 0 
+			and cat.animation ~= cat.animations.walk
+			and cat.animation ~= cat.animations.jump_down
+			and cat.animation ~= cat.animations.jump_up then
 			cat.play('walk')
 		end
 		cat.v = cat.v + left * cat.move_acc
 		cat.dir = true
+		if cat.ground then
+			mfx.trigger('walk')
+		end
 	end
 	if key.pressed(key._right) then
-		if length_sq(cat.v) < 1 then
+		if length_sq(cat.v) > 0
+			and cat.animation ~= cat.animations.walk 
+			and cat.animation ~= cat.animations.jump_down
+			and cat.animation ~= cat.animations.jump_up then 
 			cat.play('walk')
 		end
 		cat.v = cat.v + right * cat.move_acc
 		cat.dir = false
+		if cat.ground then
+			mfx.trigger('walk')
+		end
 	end
 	if (key.down(key._up) or key.down(key.a)) and cat.ground then
 		cat.ground = false
 		cat.v = (right * dot(cat.v, right)) + (up * cat.jump_acc)
-		cat.play('jump_up')
+		if math.abs(dot(right, cat.v)) > 1 then
+			cat.play('jump_up')
+		else
+			cat.play('jump_up_vert')
+		end
+		mfx.trigger('jump')
 	end
 
 	cat.v = cat.v + down * cat.gravity
@@ -250,16 +283,27 @@ function update_cat()
 	if fall then
 		local l = length_sq(dy)
 		if not cat.ground and l == 0 then
-			cat.play('land')
+			if math.abs(dot(right, cat.v)) > 1 then
+				cat.play('land')
+			else
+				cat.play('land_vert')
+			end
+			mfx.trigger('land')
 		end
 		cat.ground = length_sq(dy) == 0
 	end
 	cat.p = cat.p + dy
 	cat.v = dx * world_scale + dy * world_scale
 
-	if cat.animation ~= cat.animations.jump_down and dot(down, cat.v) > 0.1 then
-		cat.play('jump_down')
-	elseif cat.animation ~= cat.animations.stand 
+	if cat.animation ~= cat.animations.jump_down 
+		and cat.animation ~= cat.animations.jump_down_vert
+		and dot(down, cat.v) > 0.1 then
+		if math.abs(dot(right, cat.v)) > 1 then
+			cat.play('jump_down')
+		else
+			cat.play('jump_down_vert')
+		end
+	elseif cat.ground and cat.animation ~= cat.animations.stand 
 		and cat.animation ~= cat.animations.jump_down
 		and math.abs(dot(right, cat.v)) < 0.1 then
 		cat.play('stand')
@@ -336,22 +380,26 @@ end
 
 function render_background()
 	-- lower
-	local w = 512 + 1024
-	local h = 384 + 768
+	local sw = scr_size.x / 2
+	local sh = scr_size.y / 2
+	local w = 1024 
+	local h = 768 
 	local x = w + math.fmod(-camera.center.x / 3, w) 
 	local y = 192 + (camera.center.y / world_rect.b) * 384
 
-	sprsheet.draw_centered('background1', 0, vec2(x, y), 0, 2)
-	sprsheet.draw_centered('background1', 0, vec2(x-1024, y), 0, 2)
+	sprsheet.draw_centered('background1', 0, vec2(sw + x, y), 0, 2)
+	sprsheet.draw_centered('background1', 0, vec2(sw + x-w,  y), 0, 2)
 
 	-- higher
+	w = 512 
+	h = 384 
 	local x = w + math.fmod(-camera.center.x / 1.5, w)
 	local y = h + math.fmod(-camera.center.y / 1.5, h)
 
-	sprsheet.draw_centered('background2', 0, vec2(x, y), 0, 2)
-	sprsheet.draw_centered('background2', 0, vec2(x-1024, y), 0, 2)
-	sprsheet.draw_centered('background2', 0, vec2(x, y-768), 0, 2)
-	sprsheet.draw_centered('background2', 0, vec2(x-1024, y-768), 0, 2)
+	sprsheet.draw_centered('background2', 0, vec2(sw + x, sh + y), 0, 1)
+	sprsheet.draw_centered('background2', 0, vec2(sw + x-w, sh + y), 0, 1)
+	sprsheet.draw_centered('background2', 0, vec2(sw + x, sh + y-h), 0, 1)
+	sprsheet.draw_centered('background2', 0, vec2(sw + x-w, sh + y-h), 0, 1)
 end
 
 function render_cat()
@@ -360,9 +408,9 @@ function render_cat()
 	--screen_pos.y = math.floor(screen_pos.y)
 	local hw, hh = cat.width / 2, cat.height / 2
 	local screen_bbox = rect(
-		screen_pos.x - hw,
+		screen_pos.x - hw*2,
 		screen_pos.y - hh*3,
-		screen_pos.x + hw,
+		screen_pos.x + hw*2,
 		screen_pos.y + hh
 	)
 
@@ -370,8 +418,14 @@ function render_cat()
 		screen_bbox.l, screen_bbox.r = screen_bbox.r, screen_bbox.l
 	end
 
+	local frame = cat.frame()
+	if frame == 16 then
+		screen_bbox.t = screen_bbox.t + hh
+		screen_bbox.b = screen_bbox.b + hh
+	end
+
 	local col = rgba(0.5, 0.5, 0.5, 1)
-	sprsheet.draw_anim('cat_walk', cat.frame(), 1, screen_bbox, col)
+	sprsheet.draw_anim('cat_walk', frame, 1, screen_bbox, col)
 end
 
 function render_objs()
