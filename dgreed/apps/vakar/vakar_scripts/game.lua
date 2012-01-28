@@ -3,6 +3,7 @@ module(..., package.seeall)
 screen = rect(0, 0, scr_size.x, scr_size.y)
 
 world_rect = rect(0, 0, 1600, 1600)
+shrunk_world_rect = rect(100, 100, 1500, 1500)
 
 gravity_dir = vec2(0, 1)
 world_rot = 0 
@@ -10,6 +11,17 @@ world_scale = 1
 
 tile_size = 16
 star_size = 6
+star_respawn_t = 5
+
+levelend_fadeout_t = nil
+levelend_fadeout_len = 3
+levelend_did_reset = false
+
+levels = {
+	'first.btm',
+	'twister.btm'
+}
+current_level = 2
 
 objt = {
 	start = 0,
@@ -39,8 +51,64 @@ cat = {
 	move_acc = 0.8,
 	move_damp = 0.8,
 	jump_acc = 6,
-	gravity = 0.5
+	gravity = 0.5,
+
+	fps = 10
 }
+
+cat.animations = {
+	stand = {
+		frames = {0},
+		on_finish="loop"
+	},
+	walk = {
+		frames = {0, 1, 2, 3, 4, 5},
+		on_finish="loop"
+	},
+	jump_up = {
+		frames = {6, 7, 8},
+		on_finish="stop"
+	},
+	jump_down = {
+		frames = {11, 12, 13},
+		on_finish="stop"
+	},
+	land = {
+		frames = {6},
+		on_finish="play walk"
+	}
+}
+
+function cat.play(name)
+	if cat.animations[name] ~= nil then
+		cat.animation = cat.animations[name]
+		cat.animation_t = time.s()
+	end
+end
+
+function cat.frame()
+	local i = 0
+	local delta = time.s() - cat.animation_t
+	local n_frames = #cat.animation.frames
+	local frame = delta * cat.fps
+	if cat.animation.on_finish == "stop" then
+		i =  math.min(n_frames, math.floor(frame) + 1)
+	elseif cat.animation.on_finish == "loop" then
+		frame = frame - math.floor(frame / n_frames) * n_frames 
+		i = math.floor(frame) + 1
+	elseif string.find(cat.animation.on_finish, "play") ~= nil then
+		if frame < n_frames then
+			i = math.floor(frame) + 1
+		else
+			frame = frame - n_frames 
+			local anim_name = string.sub(cat.animation.on_finish, 6)
+			cat.play(anim_name)
+			cat.animation_t = cat.animation_t - frame  / cat.fps
+			return cat.frame()
+		end
+	end
+	return cat.animation.frames[i] 
+end
 
 camera = {
 	center = vec2()
@@ -53,6 +121,16 @@ function reset(level_name)
 
 	level = tilemap.load(pre..level_name)
 	objects = tilemap.objects(level)
+	
+	reset_level()
+end
+
+function reset_level()
+	world_rot = 0
+	world_scale = 1
+	gravity_dir = vec2(0, 1)
+	cat.v = vec2(0, 0)
+	cat.play('stand')
 	for i,obj in ipairs(objects) do
 		-- find start obj, center camera on it
 		if obj.id == objt.start then
@@ -63,7 +141,7 @@ function reset(level_name)
 end
 
 function init()
-	reset('testlevel.btm')
+	reset(levels[current_level])
 end
 
 function close()
@@ -106,8 +184,8 @@ function update()
 	pos = vec2(camera.center)
 	pos.x = math.floor(pos.x * world_scale) / world_scale
 	pos.y = math.floor(pos.y * world_scale) / world_scale
-	scale = lerp(scale, world_scale, 0.1)
-	rot = lerp(rot, world_rot, 0.1)
+	scale = lerp(scale, world_scale, 0.2)
+	rot = lerp(rot, world_rot, 0.2)
 	tilemap.set_camera(level, pos, scale, rot)
 
 	update_cat()
@@ -122,22 +200,29 @@ function update_cat()
 	local right = -left 
 
 	if key.pressed(key._left) then
+		if length_sq(cat.v) < 1 then
+			cat.play('walk')
+		end
 		cat.v = cat.v + left * cat.move_acc
 		cat.dir = true
 	end
 	if key.pressed(key._right) then
+		if length_sq(cat.v) < 1 then
+			cat.play('walk')
+		end
 		cat.v = cat.v + right * cat.move_acc
 		cat.dir = false
 	end
 	if (key.down(key._up) or key.down(key.a)) and cat.ground then
 		cat.ground = false
 		cat.v = (right * dot(cat.v, right)) + (up * cat.jump_acc)
+		cat.play('jump_up')
 	end
 
 	cat.v = cat.v + down * cat.gravity
 	cat.v = right * dot(right, cat.v) * cat.move_damp + down * dot(down, cat.v)
-	
-	local hw, hh = cat.width/2 / world_scale, cat.height/2 / world_scale
+
+	local hw, hh = cat.width / (2 * world_scale), cat.height / (2 * world_scale)
 
 	local bbox_tl = cat.p + left * hw + down * hh
 	local bbox_br = cat.p + right * hw + up * hh
@@ -163,53 +248,87 @@ function update_cat()
 	local fall = dot(dy, up) < 0
 	local dy = tilemap.collide_swept(level, bbox, dy)
 	if fall then
+		local l = length_sq(dy)
+		if not cat.ground and l == 0 then
+			cat.play('land')
+		end
 		cat.ground = length_sq(dy) == 0
 	end
 	cat.p = cat.p + dy
 	cat.v = dx * world_scale + dy * world_scale
+
+	if cat.animation ~= cat.animations.jump_down and dot(down, cat.v) > 0.1 then
+		cat.play('jump_down')
+	elseif cat.animation ~= cat.animations.stand 
+		and cat.animation ~= cat.animations.jump_down
+		and math.abs(dot(right, cat.v)) < 0.1 then
+		cat.play('stand')
+	end
+
 	bbox.l = bbox.l + dx.x
 	bbox.t = bbox.t + dx.y
 	bbox.r = bbox.r + dx.x
 	bbox.b = bbox.b + dx.y
 
+	if not rect_rect_collision(shrunk_world_rect, bbox) then
+		-- death, reset pos to start
+		reset_level()
+	end
+
 	collide_objs(bbox)
 end
 
 function collide_objs(bbox)
+	local t = time.s()
 	local hs = tile_size/2
 	for i,obj in ipairs(objects) do
+		local center = vec2(obj.pos.x + hs, obj.pos.y + hs)
 		if not obj.taken then
 			local r = rect(
-				obj.pos.x + hs - star_size, obj.pos.y + hs - star_size,
-				obj.pos.x + hs + star_size, obj.pos.y + hs + star_size
+				center.x - star_size, center.y + hs - star_size,
+				center.x + star_size, center.y + star_size
 			)
 
 			if rect_rect_collision(bbox, r) then
-				if obj.id == objt.finish then
-					-- end game
+				if levelend_fadeout_t == nil and obj.id == objt.finish then
+					levelend_fadeout_t = time.s()	
+					levelend_did_reset = false
 				end
 
 				if obj.id == objt.star_right then
 					world_rot = world_rot + math.pi/2
 					gravity_dir = vec2(gravity_dir.y, -gravity_dir.x)
+					mfx.trigger('star_take', center)
 					obj.taken = true
+					obj.t = t
 				end
 
 				if obj.id == objt.star_left then
 					world_rot = world_rot - math.pi/2
 					gravity_dir = vec2(-gravity_dir.y, gravity_dir.x)
+					mfx.trigger('star_take', center)
 					obj.taken = true
+					obj.t = t
 				end
 
 				if obj.id == objt.star_shrink then
 					world_scale = world_scale / 2
+					mfx.trigger('star_take', center)
 					obj.taken = true
+					obj.t = t
 				end
 
 				if obj.id == objt.star_grow then
-					world_scale = world_scale / 2
+					world_scale = world_scale * 2
+					mfx.trigger('star_take', center)
 					obj.taken = true
+					obj.t = t
 				end
+			end
+		else
+			if t - obj.t > star_respawn_t then
+				mfx.trigger('star_respawn', center)
+				obj.taken = false
 			end
 		end
 	end
@@ -222,19 +341,26 @@ function render_cat()
 	local hw, hh = cat.width / 2, cat.height / 2
 	local screen_bbox = rect(
 		screen_pos.x - hw,
-		screen_pos.y - hh,
+		screen_pos.y - hh*3,
 		screen_pos.x + hw,
 		screen_pos.y + hh
 	)
 
+	if cat.dir then
+		screen_bbox.l, screen_bbox.r = screen_bbox.r, screen_bbox.l
+	end
+
 	local col = rgba(0.5, 0.5, 0.5, 1)
-	sprsheet.draw('empty', 1, screen_bbox, col)
-		
+	sprsheet.draw_anim('cat_walk', cat.frame(), 1, screen_bbox, col)
 end
 
 function render_objs()
 	local hs = tile_size/2
-	local world_screen = tilemap.screen2world(level, screen, screen)
+	local ext_screen = rect(
+		screen.l - 64, screen.t - 64,
+		screen.r + 64, screen.b + 64
+	)
+	local world_screen = tilemap.screen2world(level, screen, ext_screen)
 	for i,obj in ipairs(objects) do
 		if not obj.taken and obj.id >= objt.star_left and obj.id <= objt.star_shrink then
 			local p = vec2(obj.pos.x + hs, obj.pos.y + hs)
@@ -248,6 +374,29 @@ function render_objs()
 	end
 end
 
+function render_fadeout()
+	local t = (time.s() - levelend_fadeout_t) / levelend_fadeout_len
+	local col = rgba(0, 0, 0, math.sin(t * math.pi))
+
+	if t >= 1 then
+		levelend_fadeout_t = nil
+		levelend_did_reset = false
+		return
+	end
+
+	sprsheet.draw('empty', 4, screen, col)
+
+	if not levelend_did_reset and t > 0.5 then
+		current_level = current_level + 1
+		if current_level > #levels then
+			current_level = 1
+		end
+		levelend_did_reset = true
+		reset(levels[current_level])
+	end
+
+end
+
 function render(t)
 	if level then
 		tilemap.render(level, screen)
@@ -255,6 +404,10 @@ function render(t)
 
 	render_cat()
 	render_objs()
+
+	if levelend_fadeout_t then
+		render_fadeout()
+	end
 
 	return true
 end

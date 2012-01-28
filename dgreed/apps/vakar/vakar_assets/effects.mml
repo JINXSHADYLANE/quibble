@@ -1,0 +1,10 @@
+(mfx _
+	(prefix "plikledis_assets/")
+	(sounds _
+	)
+	(effects _
+		(e star_take)
+		(e star_respawn)
+	)
+)
+

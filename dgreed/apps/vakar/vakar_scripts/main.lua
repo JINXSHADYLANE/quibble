@@ -11,7 +11,7 @@ function game_init()
 	video.init_exr(real_size.x, real_size.y, scr_size.x, scr_size.y, 'vakar', false)
 	sound.init()
 
-	--mfx.init(pre..'effects.mml')
+	mfx.init(pre..'effects.mml')
 	sprsheet.init(pre..'sprsheet.mml')
 	--mus = sound.load_stream(pre..'Lightless Dawn.ogg')
 
@@ -22,7 +22,7 @@ end
 function game_close()
 	--sound.free(mus)
 	sprsheet.close()
-	--mfx.close()
+	mfx.close()
 	sound.close()
 	video.close()
 end
