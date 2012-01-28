@@ -4,4 +4,20 @@
 		(tex "atlas.png")
 		(src 32,0,48,16)
 	)
+	(img star_left
+		(tex "atlas.png")
+		(src 48,0,64,16)
+	)
+	(img star_right
+		(tex "atlas.png")
+		(src 64,0,80,16)
+	)
+	(img star_grow
+		(tex "atlas.png")
+		(src 80,0,96,16)
+	)
+	(img star_shrink
+		(tex "atlas.png")
+		(src 96,0,112,16)
+	)
 )

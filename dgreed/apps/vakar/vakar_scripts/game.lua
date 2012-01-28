@@ -8,6 +8,9 @@ gravity_dir = vec2(0, 1)
 world_rot = 0 
 world_scale = 1 
 
+tile_size = 16
+star_size = 6
+
 objt = {
 	start = 0,
 	finish = 1,
@@ -15,6 +18,13 @@ objt = {
 	star_right = 3,
 	star_grow = 4,
 	star_shrink = 5
+}
+
+star_imgs = {
+	[objt.star_left] = 'star_left',
+	[objt.star_right] = 'star_right',
+	[objt.star_grow] = 'star_grow',
+	[objt.star_shrink] = 'star_shrink'
 }
 
 cat = {
@@ -157,8 +167,52 @@ function update_cat()
 	end
 	cat.p = cat.p + dy
 	cat.v = dx * world_scale + dy * world_scale
-	--bbox_tl = bbox_tl + dy
-	--bbox_br = bbox_br + dy
+	bbox.l = bbox.l + dx.x
+	bbox.t = bbox.t + dx.y
+	bbox.r = bbox.r + dx.x
+	bbox.b = bbox.b + dx.y
+
+	collide_objs(bbox)
+end
+
+function collide_objs(bbox)
+	local hs = tile_size/2
+	for i,obj in ipairs(objects) do
+		if not obj.taken then
+			local r = rect(
+				obj.pos.x + hs - star_size, obj.pos.y + hs - star_size,
+				obj.pos.x + hs + star_size, obj.pos.y + hs + star_size
+			)
+
+			if rect_rect_collision(bbox, r) then
+				if obj.id == objt.finish then
+					-- end game
+				end
+
+				if obj.id == objt.star_right then
+					world_rot = world_rot + math.pi/2
+					gravity_dir = vec2(gravity_dir.y, -gravity_dir.x)
+					obj.taken = true
+				end
+
+				if obj.id == objt.star_left then
+					world_rot = world_rot - math.pi/2
+					gravity_dir = vec2(-gravity_dir.y, gravity_dir.x)
+					obj.taken = true
+				end
+
+				if obj.id == objt.star_shrink then
+					world_scale = world_scale / 2
+					obj.taken = true
+				end
+
+				if obj.id == objt.star_grow then
+					world_scale = world_scale / 2
+					obj.taken = true
+				end
+			end
+		end
+	end
 end
 
 function render_cat()
@@ -174,8 +228,24 @@ function render_cat()
 	)
 
 	local col = rgba(0.5, 0.5, 0.5, 1)
-	sprsheet.draw('empty', 15, screen_bbox, col)
+	sprsheet.draw('empty', 1, screen_bbox, col)
 		
+end
+
+function render_objs()
+	local hs = tile_size/2
+	local world_screen = tilemap.screen2world(level, screen, screen)
+	for i,obj in ipairs(objects) do
+		if not obj.taken and obj.id >= objt.star_left and obj.id <= objt.star_shrink then
+			local p = vec2(obj.pos.x + hs, obj.pos.y + hs)
+			local r = rect(obj.pos.x, obj.pos.y, p.x + hs, p.y + hs)
+			if rect_rect_collision(world_screen, r) then
+				local sp = tilemap.world2screen(level, screen, p)
+				local img = star_imgs[obj.id]
+				sprsheet.draw_centered(img, 1, sp, world_rot, world_scale)
+			end
+		end
+	end
 end
 
 function render(t)
@@ -184,6 +254,7 @@ function render(t)
 	end
 
 	render_cat()
+	render_objs()
 
 	return true
 end

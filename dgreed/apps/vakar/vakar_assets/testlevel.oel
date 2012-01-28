@@ -196,5 +196,7 @@
   <objs>
     <start x="544" y="640"/>
     <end x="912" y="640"/>
+    <star_left x="640" y="624"/>
+    <star_grow x="544" y="576"/>
   </objs>
 </level>
