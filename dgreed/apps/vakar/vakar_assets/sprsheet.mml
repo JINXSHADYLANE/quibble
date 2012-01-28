@@ -1,0 +1,7 @@
+(sprsheet vakar 
+	(prefix "vakar_assets/")
+	(img empty
+		(tex "atlas.png")
+		(src 32,0,48,16)
+	)
+)
