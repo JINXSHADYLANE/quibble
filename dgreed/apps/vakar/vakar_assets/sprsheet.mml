@@ -20,4 +20,19 @@
 		(tex "atlas.png")
 		(src 96,0,112,16)
 	)
+	(img background1
+		(tex "background1.png")
+		(src 0,0,512,384)
+	)
+	(img background2
+		(tex "background2.png")
+		(src 0,0,512,384)
+	)
+	(anim cat_walk
+		(tex "catwalk_sprtsheet.png")
+		(frames 14)
+		(src 0,0,64,64)
+		(offset 64,64)
+		(grid 8,2)
+	)
 )
