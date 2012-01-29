@@ -216,6 +216,14 @@ function update()
 		reset(levels[current_level])
 	end
 
+	-- level skip cheat
+	if char.pressed('c') and char.pressed('a') and char.pressed('t') then
+		if current_level < #levels then
+			levelend_fadeout_t = time.s()
+			levelend_did_reset = false
+		end
+	end
+
 	-- set camera
 	local pos, scale, rot = tilemap.camera(level)
 	local d = camera.center - cat.p
