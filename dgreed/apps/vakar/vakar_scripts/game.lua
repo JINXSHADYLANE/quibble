@@ -193,6 +193,7 @@ function update()
 
 	sound.update()
 	mfx.update()
+	particles.update()
 
 	-- devmode world manipulation
 	--[[
@@ -420,6 +421,7 @@ function collide_objs(bbox)
 	local hs = tile_size/2
 	for i,obj in ipairs(objects) do
 		local center = vec2(obj.pos.x + hs, obj.pos.y + hs)
+		local sp = tilemap.world2screen(level, screen, center)
 		if not obj.taken then
 			local r = rect(
 				center.x - star_size, center.y + hs - star_size,
@@ -441,7 +443,7 @@ function collide_objs(bbox)
 				if obj.id == objt.star_right then
 					world_rot = world_rot + math.pi/2
 					gravity_dir = vec2(gravity_dir.y, -gravity_dir.x)
-					mfx.trigger('star_take', center)
+					mfx.trigger('star_take', sp)
 					obj.taken = true
 					obj.t = t
 				end
@@ -449,28 +451,28 @@ function collide_objs(bbox)
 				if obj.id == objt.star_left then
 					world_rot = world_rot - math.pi/2
 					gravity_dir = vec2(-gravity_dir.y, gravity_dir.x)
-					mfx.trigger('star_take', center)
+					mfx.trigger('star_take', sp)
 					obj.taken = true
 					obj.t = t
 				end
 
 				if obj.id == objt.star_shrink then
 					world_scale = world_scale / 2
-					mfx.trigger('star_take', center)
+					mfx.trigger('star_take', sp)
 					obj.taken = true
 					obj.t = t
 				end
 
 				if obj.id == objt.star_grow then
 					world_scale = world_scale * 2
-					mfx.trigger('star_take', center)
+					mfx.trigger('star_take', sp)
 					obj.taken = true
 					obj.t = t
 				end
 			end
 		else
 			if t - obj.t > star_respawn_t then
-				mfx.trigger('star_respawn', center)
+				mfx.trigger('star_respawn', sp)
 				obj.taken = false
 			end
 		end
@@ -603,6 +605,7 @@ function render(t)
 	end
 
 	render_text()
+	particles.draw()
 
 	return true
 end

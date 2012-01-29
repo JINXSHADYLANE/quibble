@@ -19,11 +19,14 @@ function game_init()
 
 	fnt = font.load(pre..'lucida_grande_30px.bft', 0.5)
 
+	particles.init('vakar_assets/', 6)
+
 	states.register('game', game)
 	states.push('game')
 end
 
 function game_close()
+	particles.close()
 	font.free(fnt)
 	sound.free(mus)
 	sprsheet.close()

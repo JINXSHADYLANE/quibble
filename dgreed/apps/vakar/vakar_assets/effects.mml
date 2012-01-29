@@ -24,9 +24,11 @@
 	(effects _
 		(e star_take
 			(sound shift.wav)
+			(particles get_star)
 		)
 		(e star_respawn
 			(sound spawn.wav)
+			(particles spawn_star)
 		)
 		(e jump
 			(sound jump.wav)
