@@ -1,0 +1,168 @@
+(sprsheet nulis_ipad
+	(prefix "nulis2_assets/")
+	(img empty
+		(tex "empty.png")
+	)
+	(img title
+		(tex "nulis_title.png")
+	)
+	(img background
+		(tex "background.png")
+		(src 2,2,242,162)
+	)
+	(img vignette
+		(tex "background.png")
+		(src 2,164,242,324)
+	)
+	(img bubble_w
+		(tex "bubbles_s.png")
+		(src 0,0,32,32)
+	)
+	(img bubble_b
+		(tex "bubbles_s.png")
+		(src 0,32,32,64)
+	)
+	(img double_bubble_w
+		(tex "bubbles_s.png")
+		(src 64,0,116,32)
+	)
+	(img double_bubble_b
+		(tex "bubbles_s.png")
+		(src 64,32,116,64)
+	)
+	(img triple_bubble_w
+		(tex "bubbles_s.png")
+		(src 0,64,52,116)
+	)
+	(img triple_bubble_b
+		(tex "bubbles_s.png")
+		(src 52,64,104,116)
+	)
+	(img beacon
+		(tex "bubbles_s.png")
+		(src 32,0,64,32)
+	)
+	(img time_w
+		(tex "bubbles_s.png")
+		(src 128,0,192,64)
+	)
+	(img time_b
+		(tex "bubbles_s.png")
+		(src 192,0,256,64)
+	)
+	(img gravity_w
+		(tex "bubbles_s.png")
+		(src 104,64,154,114)
+	)
+	(img gravity_b
+		(tex "bubbles_s.png")
+		(src 154,64,204,114)
+	)
+	(img g_sparkles
+		(tex "bubbles_s.png")
+		(src 204,64,254,114)
+	)
+	(img circle
+		(tex "circle.png")
+	)
+	(img tut_one_finger
+		(tex "tut_one_finger.png")
+	)
+	(img tut_two_fingers
+		(tex "tut_two_fingers.png")
+	)
+	(img tut_three_fingers
+		(tex "tut_three_fingers.png")
+	)
+	(img clock
+		(tex "clock.png")
+	)
+	(img magnet
+		(tex "magnet.png")
+	)
+	(img stopwatch
+		(tex "stopwatch.png")
+	)
+	(img resume
+		(tex "ui_ipad.png")
+		(src 0,0,100,100)
+	)
+	(img replay
+		(tex "ui_ipad.png")
+		(src 100,0,200,100)
+	)
+	(img sound
+		(tex "ui_ipad.png")
+		(src 200,0,300,100)
+	)
+	(img music
+		(tex "ui_ipad.png")
+		(src 300,0,400,100)
+	)
+	(img score
+		(tex "ui_ipad.png")
+		(src 400,0,500,100)
+	)
+	(img sound_mute
+		(tex "ui_ipad.png")
+		(src 500,0,600,100)
+	)
+	(img music_mute
+		(tex "ui_ipad.png")
+		(src 600,0,700,100)
+	)
+	(img back
+		(tex "ui_ipad.png")
+		(src 700,0,800,100)
+	)
+	(img locked
+		(tex "ui_ipad.png")
+		(src 0,100,100,200)
+	)
+	(img editor_circle
+		(tex "editor_circle.png")
+	)
+	(img button
+		(tex "editor_atlas.png")
+		(src 0,0,396,80)
+	)
+	(img button_pressed
+		(tex "editor_atlas.png")
+		(src 0,80,396,160)
+	)
+	(img slider
+		(tex "editor_atlas.png")
+		(src 0,160,512,240)
+	)
+	(img slider_button
+		(tex "editor_atlas.png")
+		(src 0,240,148,320)
+	)
+	(img slider_button_pressed
+		(tex "editor_atlas.png")
+		(src 148,240,296,320)
+	)
+	(img x_button
+		(tex "editor_atlas.png")
+		(src 0,320,74,400)
+	)
+	(img x_button_pressed
+		(tex "editor_atlas.png")
+		(src 74,320,148,400)
+	)
+	(img checkbox_off
+		(tex "editor_atlas.png")
+		(src 280,320,360,400)
+	)
+	(img checkbox_on
+		(tex "editor_atlas.png")
+		(src 360,320,440,400)
+	)
+	(anim levels
+		(tex "ui_ipad.png")
+		(frames 40)
+		(src 0,200,100,300)
+		(offset 100,100)
+		(grid 8,5)
+	)
+)
