@@ -1,0 +1,42 @@
+(mfx _
+	(prefix "vakar_assets/")
+	(sounds _
+		(s hit.wav
+			(volume 0.3)
+		)
+		(s shift.wav
+			(volume 0.5)
+		)
+		(s jump.wav
+			(volume 1)
+		)
+		(s spawn.wav
+			(volume 0.3)
+		)
+		(s walk.wav
+			(type ambient)
+			(volume 0.7)
+			(attack 0.5)
+			(decay 1)
+			(trigger 0.1)
+		)
+	)
+	(effects _
+		(e star_take
+			(sound shift.wav)
+		)
+		(e star_respawn
+			(sound spawn.wav)
+		)
+		(e jump
+			(sound jump.wav)
+		)
+		(e land
+			(sound hit.wav)
+		)
+		(e walk
+	#		(sound walk.wav)
+		)
+	)
+)
+
