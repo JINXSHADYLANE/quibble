@@ -19,6 +19,7 @@ levelend_did_reset = false
 
 levels = {
 	'first.btm',
+	'curiouser.btm',
 	'twister.btm'
 }
 
@@ -500,7 +501,10 @@ function render_objs()
 			if rect_rect_collision(world_screen, r) then
 				local sp = tilemap.world2screen(level, screen, p)
 				local img = star_imgs[obj.id]
-				sprsheet.draw_centered(img, 1, sp, world_rot, world_scale)
+				local alpha = (math.sin(time.s() + p.x*2 + p.y) + 1) / 2
+				alpha = 0.5 + alpha / 2
+				local col = rgba(1, 1, 1, alpha)
+				sprsheet.draw_centered(img, 1, sp, world_rot, world_scale, col)
 			end
 		end
 	end
