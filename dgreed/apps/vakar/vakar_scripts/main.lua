@@ -17,11 +17,14 @@ function game_init()
 	sound.set_volume(mus, 0.7)
 	sound.play(mus, true)
 
+	fnt = font.load(pre..'lucida_grande_30px.bft', 0.5)
+
 	states.register('game', game)
 	states.push('game')
 end
 
 function game_close()
+	font.free(fnt)
 	sound.free(mus)
 	sprsheet.close()
 	mfx.close()

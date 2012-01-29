@@ -17,12 +17,25 @@ levelend_fadeout_t = nil
 levelend_fadeout_len = 3
 levelend_did_reset = false
 
+text_t = nil
+text_i = 1
+text_len = 3
+
 levels = {
 	'first.btm',
 	'curiouser.btm',
 	'twister.btm',
 	'drinkme.btm',
 	'moon.btm'
+}
+
+texts = {
+	'I spent yesterday at home.',
+	'Like all other days.',
+	'There\'s just me and my cat Lucy.',
+	'She goes to wander the streets every night.',
+	'I\'m really happy for her, because I can\'t go outside.',
+	'I can only sit and imagine what kind of adventures she has...'
 }
 
 current_level = 1
@@ -158,6 +171,7 @@ end
 
 function init()
 	reset(levels[current_level])
+	text_t = time.s() + 2
 end
 
 function close()
@@ -181,6 +195,7 @@ function update()
 	mfx.update()
 
 	-- devmode world manipulation
+	--[[
 	if char.down('j') then
 		world_scale = world_scale / 2
 	end
@@ -195,6 +210,7 @@ function update()
 		world_rot = world_rot - math.pi/2
 		gravity_dir = vec2(-gravity_dir.y, gravity_dir.x)
 	end
+	]]
 
 	if char.up('r') then
 		reset(levels[current_level])
@@ -232,41 +248,43 @@ function update_cat()
 	local left = vec2(up.y, -up.x) 
 	local right = -left 
 
-	if key.pressed(key._left) then
-		if length_sq(cat.v) > 0 
-			and cat.animation ~= cat.animations.walk
-			and cat.animation ~= cat.animations.jump_down
-			and cat.animation ~= cat.animations.jump_up then
-			cat.play('walk')
+	if not no_control then
+		if key.pressed(key._left) then
+			if length_sq(cat.v) > 0 
+				and cat.animation ~= cat.animations.walk
+				and cat.animation ~= cat.animations.jump_down
+				and cat.animation ~= cat.animations.jump_up then
+				cat.play('walk')
+			end
+			cat.v = cat.v + left * cat.move_acc
+			cat.dir = true
+			if cat.ground then
+				mfx.trigger('walk')
+			end
 		end
-		cat.v = cat.v + left * cat.move_acc
-		cat.dir = true
-		if cat.ground then
-			mfx.trigger('walk')
+		if key.pressed(key._right) then
+			if length_sq(cat.v) > 0
+				and cat.animation ~= cat.animations.walk 
+				and cat.animation ~= cat.animations.jump_down
+				and cat.animation ~= cat.animations.jump_up then 
+				cat.play('walk')
+			end
+			cat.v = cat.v + right * cat.move_acc
+			cat.dir = false
+			if cat.ground then
+				mfx.trigger('walk')
+			end
 		end
-	end
-	if key.pressed(key._right) then
-		if length_sq(cat.v) > 0
-			and cat.animation ~= cat.animations.walk 
-			and cat.animation ~= cat.animations.jump_down
-			and cat.animation ~= cat.animations.jump_up then 
-			cat.play('walk')
+		if (key.down(key._up) or key.down(key.a)) and cat.ground then
+			cat.ground = false
+			cat.v = (right * dot(cat.v, right)) + (up * cat.jump_acc)
+			if math.abs(dot(right, cat.v)) > 1 then
+				cat.play('jump_up')
+			else
+				cat.play('jump_up_vert')
+			end
+			mfx.trigger('jump')
 		end
-		cat.v = cat.v + right * cat.move_acc
-		cat.dir = false
-		if cat.ground then
-			mfx.trigger('walk')
-		end
-	end
-	if (key.down(key._up) or key.down(key.a)) and cat.ground then
-		cat.ground = false
-		cat.v = (right * dot(cat.v, right)) + (up * cat.jump_acc)
-		if math.abs(dot(right, cat.v)) > 1 then
-			cat.play('jump_up')
-		else
-			cat.play('jump_up_vert')
-		end
-		mfx.trigger('jump')
 	end
 
 	cat.v = cat.v + down * cat.gravity
@@ -402,8 +420,14 @@ function collide_objs(bbox)
 
 			if rect_rect_collision(bbox, r) then
 				if levelend_fadeout_t == nil and obj.id == objt.finish then
-					levelend_fadeout_t = time.s()	
-					levelend_did_reset = false
+					if current_level < #levels then
+						levelend_fadeout_t = time.s()	
+						levelend_did_reset = false
+					elseif not no_control then
+						no_control = true
+						text_i = text_i + 1
+						text_t = time.s() + 1
+					end
 				end
 
 				if obj.id == objt.star_right then
@@ -525,6 +549,8 @@ function render_fadeout()
 	if t >= 1 then
 		levelend_fadeout_t = nil
 		levelend_did_reset = false
+		text_i = text_i + 1
+		text_t = time.s() + 1
 		return
 	end
 
@@ -538,7 +564,20 @@ function render_fadeout()
 		levelend_did_reset = true
 		reset(levels[current_level])
 	end
+end
 
+function render_text()
+	local t = time.s()
+	if text_t then
+		local dt = t - text_t
+		if dt > 0 and dt < text_len then
+			dt = clamp(0, 1, dt / text_len)
+			local col = rgba(1, 1, 1, math.sin(dt * math.pi))
+			local pos = vec2(scr_size.x / 2, 330)
+			
+			video.draw_text_centered(fnt, 6, texts[text_i], pos, 1, col)
+		end
+	end
 end
 
 function render(t)
@@ -554,6 +593,8 @@ function render(t)
 	if level then
 		tilemap.render(level, screen)
 	end
+
+	render_text()
 
 	return true
 end
