@@ -21,7 +21,8 @@ levels = {
 	'first.btm',
 	'curiouser.btm',
 	'twister.btm',
-	'drinkme.btm'
+	'drinkme.btm',
+	'moon.btm'
 }
 
 current_level = 1
@@ -193,6 +194,10 @@ function update()
 	if char.down('l') then
 		world_rot = world_rot - math.pi/2
 		gravity_dir = vec2(-gravity_dir.y, gravity_dir.x)
+	end
+
+	if char.up('r') then
+		reset(levels[current_level])
 	end
 
 	-- set camera
