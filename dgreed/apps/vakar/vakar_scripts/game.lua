@@ -20,7 +20,8 @@ levelend_did_reset = false
 levels = {
 	'first.btm',
 	'curiouser.btm',
-	'twister.btm'
+	'twister.btm',
+	'drinkme.btm'
 }
 
 current_level = 1
@@ -296,7 +297,9 @@ function update_cat()
 			local ray_b = tilemap.raycast(level, ll, lld)
 			local pass_a = length_sq(ray_a - lrd) < 0.1
 			local pass_b = length_sq(ray_b - lld) < 0.1
-			raycast_move(pass_b, pass_a, left, right)
+			if not (pass_a and pass_b) then
+				raycast_move(pass_b, pass_a, left, right)
+			end
 		end
 	elseif dot(down, cat.v) > 0.1 then
 		-- push from wall when falling
