@@ -4,7 +4,6 @@
 #include "system.h"
 
 #include <pthread.h>
-#include <semaphore.h>
 #include <errno.h>
 
 static bool async_initialized = false;
@@ -66,7 +65,7 @@ void _async_init(void) {
 
 	// Init critical sections
 	for(uint i = 0; i < MAX_CRITICAL_SECTIONS; ++i) {
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(PTHREAD_MUTEX_ERRORCHECK)
 		pthread_mutexattr_t attr;
 		pthread_mutexattr_init(&attr);
 		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
