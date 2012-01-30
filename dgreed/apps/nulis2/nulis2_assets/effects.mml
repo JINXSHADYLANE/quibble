@@ -4,9 +4,15 @@
 		(s Bounce.wav
 			(volume 0.5)
 		)
-		(s Join2.wav)
-		(s Join2+1.wav)
-		(s Join3.wav)
+		(s Join2.wav
+			(volume 0.5)
+		)
+		(s Join2+1.wav
+			(volume 0.5)
+		)
+		(s Join3.wav
+			(volume 0.5)
+		)
 		(s GravityStick.wav)
 		(s Gravity_grow.wav)
 		(s Gravity_shrink.wav)
@@ -16,11 +22,16 @@
 		(s Time_shrink.wav)
 		(s Vanish.wav)
 		(s Win.wav)
-		(s Spawn.wav)
+		(s Spawn.wav
+			(volume 0.8)
+		)
+		(s Spawn2.wav
+			(volume 0.8)
+		)
 
 		(s field.wav
 			(type ambient)
-			(volume 1)
+			(volume 0.3)
 			(decay 2)
 			(attack 1)
 			(trigger 0.2)
@@ -28,7 +39,7 @@
 
 		(s GravityField.wav
 			(type ambient)
-			(volume 1)
+			(volume 0.3)
 			(decay 1)
 			(attack 1)
 			(trigger 0.2)
@@ -36,7 +47,7 @@
 		
 		(s TimeWarp.wav
 			(type ambient)
-			(volume 1)
+			(volume 0.3)
 			(decay 1)
 			(attack 1)
 			(trigger 0.2)
@@ -189,7 +200,7 @@
 		)
 		(e random_spawn
 			(particles spawn)
-			(sound Spawn.wav)
+			(sound Spawn2.wav)
 		)
 
 		(e force_field
