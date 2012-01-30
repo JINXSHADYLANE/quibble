@@ -1,10 +1,14 @@
 #ifndef LDRB_H
 #define LDRB_H
 
+#include <time.h>
+
+#include "utils.h"
+
 // ldrb - leaderboards database
 
 // Init callback type
-typedef void (*LdrbInitCallback)(success);
+typedef void (*LdrbInitCallback)(bool success);
 
 // Initializes ldrb and tries to connect to server.
 // gid - game id, uid - user id. cb is called either
@@ -17,7 +21,7 @@ void ldrb_init(const char* server, const char* gid, const char* uid,
 void ldrb_close();
 
 // You don't always know uid on startup - get/set gid anytime using these
-const char* ldrb_uid(void);
+const char* ldrb_get_uid(void);
 void ldrb_set_uid(const char* uid);
 
 typedef struct {
@@ -39,10 +43,10 @@ typedef struct {
 void ldrb_put(const LdrbEntry* entry);
 
 // Request callback type
-typedef void (*LdrbCallback)(const LdrbEntry* entries, int n_entries);
+typedef void (*LdrbQueryCallback)(const LdrbEntry* entries, int n_entries);
 
 // Makes a query for ordered list of entries
-void ldrb_query(const LdrbQuery* query, LdrbCallback* cb);
+void ldrb_query(const LdrbQuery* query, LdrbQueryCallback cb);
 
 #endif
 
