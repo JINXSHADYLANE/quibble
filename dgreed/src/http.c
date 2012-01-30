@@ -24,7 +24,8 @@ static bool http_initialized = false;
 static bool shr_live_req = false;
 static const char* shr_req_addr;
 static bool shr_req_get_header;
-static const char* shr_req_data;
+static const void* shr_req_data;
+static size_t shr_req_data_size;
 static const char* shr_req_content_type;
 static HttpCallback shr_req_cb;
 
@@ -232,6 +233,90 @@ static void _io_http_post(void* userdata) {
 	async_schedule(_http_invoke_callback, 0, shr_req_cb);
 }
 
+static void _io_http_put(void* userdata) {
+	assert(http_initialized && shr_live_req);
+
+	// Reset buffer write pointers
+	io_header.cursor_ptr = io_header.data;
+	io_data.cursor_ptr = io_data.data;
+
+	// Set up read buffer
+	io_readbuf.data = shr_req_data;
+	io_readbuf.cursor_ptr = io_readbuf.data;
+	io_readbuf.size = shr_req_data_size;
+
+	// Set up curl request
+	curl_easy_setopt(io_curl, CURLOPT_UPLOAD, 1);
+	curl_easy_setopt(io_curl, CURLOPT_PUT, 1);
+	curl_easy_setopt(io_curl, CURLOPT_URL, shr_req_addr);
+	curl_easy_setopt(io_curl, CURLOPT_HEADER, shr_req_get_header ? 1 : 0);
+	curl_easy_setopt(io_curl, CURLOPT_WRITEDATA, &io_data);
+	curl_easy_setopt(io_curl, CURLOPT_WRITEFUNCTION, _io_write_data);
+	if(shr_req_get_header) {
+		curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, &io_header);
+		curl_easy_setopt(io_curl, CURLOPT_HEADERFUNCTION, _io_write_data);
+	}
+	else {
+		curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, 0);
+	}
+	curl_easy_setopt(io_curl, CURLOPT_READDATA, &io_readbuf);
+	curl_easy_setopt(io_curl, CURLOPT_READFUNCTION, _io_read_data);
+	curl_easy_setopt(io_curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)io_readbuf.size);
+
+	// Perform request
+	CURLcode res = curl_easy_perform(io_curl);
+	if(res != 0) {
+		LOG_WARNING("http put request to %s did not complete", shr_req_addr);
+		io_resp_code = -1;
+	}
+	else {
+		curl_easy_getinfo(io_curl, CURLINFO_RESPONSE_CODE, &io_resp_code);
+	}
+
+	_io_move_data();
+
+	// Schedule callback to be executed on the main thread
+	async_schedule(_http_invoke_callback, 0, shr_req_cb);
+}
+
+static void _io_http_delete(void* userdata) {
+	assert(http_initialized && shr_live_req);
+	
+	// Reset buffer write pointers
+	io_header.cursor_ptr = io_header.data;
+	io_data.cursor_ptr = io_data.data;
+
+	// Set up curl request
+	curl_easy_setopt(io_curl, CURLOPT_HTTPGET, 1);
+	curl_easy_setopt(io_curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+	curl_easy_setopt(io_curl, CURLOPT_URL, shr_req_addr);
+	curl_easy_setopt(io_curl, CURLOPT_HEADER, shr_req_get_header ? 1 : 0);
+	curl_easy_setopt(io_curl, CURLOPT_WRITEDATA, &io_data);
+	curl_easy_setopt(io_curl, CURLOPT_WRITEFUNCTION, _io_write_data);
+	if(shr_req_get_header) {
+		curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, &io_header);
+		curl_easy_setopt(io_curl, CURLOPT_HEADERFUNCTION, _io_write_data);
+	}
+	else {
+		curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, 0);
+	}
+
+	// Perform request
+	CURLcode res = curl_easy_perform(io_curl);
+	if(res != 0) {
+		LOG_WARNING("http delete request to %s did not complete", shr_req_addr);
+		io_resp_code = -1;
+	}
+	else {
+		curl_easy_getinfo(io_curl, CURLINFO_RESPONSE_CODE, &io_resp_code);
+	}
+
+	_io_move_data();
+
+	// Schedule callback to be executed on the main thread
+	async_schedule(_http_invoke_callback, 0, shr_req_cb);
+}
+
 // Stuff happening on main thread
 
 static void _http_invoke_callback(void* userdata) {
@@ -323,5 +408,35 @@ void http_post(
 	shr_req_cb = cb;
 
 	async_run_io(_io_http_post, NULL);
+}
+
+void http_put(const char* addr, void* data, size_t size,
+		bool get_header, HttpCallback cb) {
+	assert(addr && cb);
+	assert(!shr_live_req);
+
+	// Pass data to io task
+	shr_live_req = true;
+	shr_req_addr = addr;
+	shr_req_get_header = get_header;
+	shr_req_data = data;
+	shr_req_data_size = size;
+	shr_req_cb = cb;
+
+	async_run_io(_io_http_put, NULL);
+}
+
+void http_delete(const char* addr, bool get_header, HttpCallback cb) {
+	assert(addr && cb);
+	assert(!shr_live_req);
+	_http_check_init();
+
+	// Pass data to io task
+	shr_live_req = true;
+	shr_req_addr = addr;
+	shr_req_get_header = get_header;
+	shr_req_cb = cb;
+
+	async_run_io(_io_http_delete, NULL);
 }
 
