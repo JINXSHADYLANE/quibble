@@ -13,7 +13,8 @@
 #include <tweakables.h>
 #include <malka/ml_states.h>
 
-#define MAX_BALL_SIZE 51.2f
+#define MAX_BALL_SIZE_IPAD 51.2f
+#define MAX_BALL_SIZE_IPHONE 53.3333333333f
 #define DT (1.0f / 60.0f)
 
 typedef struct {
@@ -36,6 +37,8 @@ static Tweaks* tweaks;
 static bool show_tweaks = false;
 static FontHandle tweaks_font;
 static float screen_widthf, screen_heightf;
+static float sim_widthf, sim_heightf;
+static Vector2 screen_offset;
 static DArray balls;
 static DArray spawns;
 static DArray ghosts;
@@ -192,15 +195,23 @@ static bool _is_unsolvable(float t) {
 	return n_white + n_black < 3;
 }
 
-void sim_init(uint screen_width, uint screen_height) {
+void sim_init(uint screen_width, uint screen_height, uint sim_width, uint sim_height) {
 	screen_widthf = (float)screen_width;
 	screen_heightf = (float)screen_height;
+	sim_widthf = (float)sim_width;
+	sim_heightf = (float)sim_height;
+	screen_offset = vec2(
+			(screen_widthf - sim_widthf) / 2.0f, 
+			(screen_heightf - sim_heightf) / 2.0f
+	);
 
 	balls = darray_create(sizeof(Ball), 0);
 	ghosts = darray_create(sizeof(Ball), 0);
 	spawns = darray_create(sizeof(Ball), 0);
 
-	coldet_init_ex(&cd, MAX_BALL_SIZE, screen_widthf, screen_heightf, true, true);
+	float max_size = sim_widthf < 1024.0f ? 
+		MAX_BALL_SIZE_IPHONE : MAX_BALL_SIZE_IPAD;
+	coldet_init_ex(&cd, max_size, sim_widthf, sim_heightf, true, true);
 
 	spr_background = sprsheet_get_handle("background");
 	spr_vignette = sprsheet_get_handle("vignette");
@@ -304,14 +315,14 @@ static float _distance(Vector2 start, Vector2 end, Vector2* out_path) {
 	float min_d = vec2_length_sq(path);
 
 	const Vector2 wrap_offsets[] = {
-		{screen_widthf, 0.0f},
-		{-screen_widthf, 0.0f},
-		{0.0f, screen_heightf},
-		{0.0f, -screen_heightf},
-		{screen_widthf, screen_heightf},
-		{-screen_widthf, screen_heightf},
-		{screen_widthf, -screen_heightf},
-		{-screen_widthf, -screen_heightf}
+		{sim_widthf, 0.0f},
+		{-sim_widthf, 0.0f},
+		{0.0f, sim_heightf},
+		{0.0f, -sim_heightf},
+		{sim_widthf, sim_heightf},
+		{-sim_widthf, sim_heightf},
+		{sim_widthf, -sim_heightf},
+		{-sim_widthf, -sim_heightf}
 	};
 
 	for(uint i = 0; i < ARRAY_SIZE(wrap_offsets); ++i) {
@@ -377,9 +388,13 @@ static void _update_level(void) {
 		if(level.spawns[i].t <= t) {
 			SpawnDef* s = &level.spawns[i];
 			Vector2 p = vec2(
-					screen_widthf/2.0f + s->pos.x,
-					screen_heightf/2.0f + s->pos.y
+					sim_widthf/2.0f + s->pos.x,
+					sim_heightf/2.0f + s->pos.y
 			);
+
+			if(p.x < 0.0f || p.x >= sim_widthf || p.y < 0.0f || p.y >= sim_heightf)
+				continue;
+
 			_spawn(p, s->vel, s->type, 0.0f, t, s->s);
 			last_spawn_t = t;
 
@@ -387,7 +402,7 @@ static void _update_level(void) {
 			level.spawns[i] = level.spawns[--level.n_spawns];
 			--i;
 
-			mfx_trigger_ex("spawn", p, 0.0f);
+			mfx_trigger_ex("spawn", vec2_add(p, screen_offset), 0.0f);
 		}
 	}
 
@@ -402,8 +417,8 @@ static void _update_level(void) {
 			
 			do {
 				pos = vec2(
-						rand_float_range(0.0f, screen_widthf),
-						rand_float_range(0.0f, screen_heightf)
+						rand_float_range(0.0f, sim_widthf),
+						rand_float_range(0.0f, sim_heightf)
 				);
 
 				hits = coldet_query_circle(&cd, pos, ball_radius, 1, NULL);
@@ -420,7 +435,7 @@ static void _update_level(void) {
 			_spawn(pos, vel, type, 0.0f, t, 0.0f);
 			last_spawn_t = t;
 
-			mfx_trigger_ex("random_spawn", pos, 0.0f);
+			mfx_trigger_ex("random_spawn", vec2_add(pos, screen_offset), 0.0f);
 		}
 	}
 }
@@ -595,7 +610,7 @@ void _balls_join(Ball* a, Ball* b) {
 	if(fabsf(vec2_length_sq(ba) - vec2_length_sq(old_ba)) > trigger_sqr_d) {
 		Vector2 p = vec2_add(b->pos, vec2_scale(ba, a->radius / (a->radius + b->radius)));
 		float dir = atan2f(ba.y, ba.x);
-		mfx_trigger_ex("grav_join", p, dir);
+		mfx_trigger_ex("grav_join", vec2_add(p, screen_offset), dir);
 	}
 
 	Vector2 nv = vec2_add(
@@ -633,7 +648,7 @@ void _balls_bounce(Ball* a, Ball* b) {
 			event = "grav+b";
 		if((a->type | b->type) & BT_TIME)
 			event = "time+b";
-		mfx_trigger_ex(event, p, dir);	
+		mfx_trigger_ex(event, vec2_add(p, screen_offset), dir);	
 	}
 
 	// Normal and tangent vectors of collission space
@@ -754,13 +769,13 @@ void _collission_cb(CDObj* a, CDObj* b) {
 
 					mfx_trigger_ex(
 							fancy->type & BT_TIME ? "time_explode" : "grav_explode",
-							fancy->pos, fancy->angle
+							vec2_add(fancy->pos, screen_offset), fancy->angle
 					);
 				}
 				else {
 					mfx_trigger_ex(
 							fancy->type & BT_TIME ? "time_grow" : "grav_grow", 
-							fancy->pos, fancy->angle
+							vec2_add(fancy->pos, screen_offset), fancy->angle
 					);
 				}
 			}
@@ -779,13 +794,13 @@ void _collission_cb(CDObj* a, CDObj* b) {
 
 					mfx_trigger_ex(
 							fancy->type & BT_TIME ? "time_vanish" : "grav_vanish",
-							fancy->pos, fancy->angle
+							vec2_add(fancy->pos, screen_offset), fancy->angle
 					);
 				}
 				else {
 					mfx_trigger_ex(
 							fancy->type & BT_TIME ? "time_shrink" : "grav_shrink",
-							fancy->pos, fancy->angle
+							vec2_add(fancy->pos, screen_offset), fancy->angle
 					);
 				}
 			}
@@ -808,7 +823,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 		if(((ta & ~BT_WHITE) == 0) && ((tb & ~BT_WHITE) == 0)) {
 			ball_a->remove = ball_b->remove = true;
 			Ball new = _balls_merge(ball_a, ball_b);
-			mfx_trigger_ex("a+a", new.pos, new.angle);
+			mfx_trigger_ex("a+a", vec2_add(new.pos, screen_offset), new.angle);
 			new.type = ta | BT_PAIR;
 			_spawn_ex(&new);
 			return;
@@ -829,14 +844,14 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			if((ta & BT_PAIR) && (tb & BT_PAIR)) {
 				Vector2 vel = vec2_sub(new.old_pos, new.pos);
 				vel = vec2_scale(vel, 1.0f / DT);
-				mfx_trigger_ex("aa+aa", new.pos, new.angle);
+				mfx_trigger_ex("aa+aa", vec2_add(new.pos, screen_offset), new.angle);
 				_spawn(new.pos, vel, ta & BT_WHITE, 0.0f, -1.0f, 0.0f);
 			}
 			else {
-				mfx_trigger_ex("aa+a", new.pos, new.angle);
+				mfx_trigger_ex("aa+a", vec2_add(new.pos, screen_offset), new.angle);
 
 				if(_is_solved())
-					mfx_trigger_ex("win", new.pos, new.angle);
+					mfx_trigger_ex("win", vec2_add(new.pos, screen_offset), new.angle);
 			}
 			return;
 		}
@@ -871,7 +886,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 					_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f, 0.0f);
 				}
 
-				mfx_trigger_ex("aa+b", p, a);
+				mfx_trigger_ex("aa+b", vec2_add(p, screen_offset), a);
 			}
 			// XX + Y = X + X + Y + Y
 			else {
@@ -887,7 +902,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 					_spawn(pos, v, i%2 ? BT_WHITE : 0, 0.0f, -1.0f, 0.);
 				}
 
-				mfx_trigger_ex("aa+bb", p, a);
+				mfx_trigger_ex("aa+bb", vec2_add(p, screen_offset), a);
 			}
 			return;
 		}
@@ -921,19 +936,19 @@ static void _update_ball(Ball* ball) {
 	ball->old_pos = vec2_sub(ball->pos, v);
 
 	// Wrap around
-	if(ball->pos.x < 0.0f || ball->pos.x >= screen_widthf) {
+	if(ball->pos.x < 0.0f || ball->pos.x >= sim_widthf) {
 		float new_x = ball->pos.x;
 		while(new_x < 0.0f)
-			new_x += screen_widthf;
-		new_x = fmodf(new_x, screen_widthf);
+			new_x += sim_widthf;
+		new_x = fmodf(new_x, sim_widthf);
 		ball->old_pos.x += new_x - ball->pos.x;
 		ball->pos.x = new_x;
 	}
-	if(ball->pos.y < 0.0f || ball->pos.y >= screen_heightf) {
+	if(ball->pos.y < 0.0f || ball->pos.y >= sim_heightf) {
 		float new_y = ball->pos.y;
 		while(new_y < 0.0f)
-			new_y += screen_heightf;
-		new_y = fmodf(new_y, screen_heightf);
+			new_y += sim_heightf;
+		new_y = fmodf(new_y, sim_heightf);
 		ball->old_pos.y += new_y - ball->pos.y;
 		ball->pos.y = new_y;
 	}
@@ -965,7 +980,7 @@ void _reset_level(void* userdata) {
 	Ball* b = DARRAY_DATA_PTR(balls, Ball);
 	for(uint i = 0; i < balls.size; ++i) {
 		if(!b[i].remove)
-			mfx_trigger_ex("lose_vanish", b[i].pos, b[i].angle);
+			mfx_trigger_ex("lose_vanish", vec2_add(b[i].pos, screen_offset), b[i].angle);
 	}
 
 	sim_reset(level.name);
@@ -1023,15 +1038,16 @@ static void _render_ffield(void) {
 
 		Vector2 pos = circle->center;
 
-		spr_draw_cntr_h(spr_ffield, 4, pos, 0.0f, scale, col);
+		spr_draw_cntr_h(spr_ffield, 4, vec2_add(pos, screen_offset), 0.0f, scale, col);
 
 		float x_min = circle->radius;
-		float x_max = screen_widthf - x_min;
+		float x_max = sim_widthf - x_min;
 		float y_min = x_min;
-		float y_max = screen_heightf - y_min;
+		float y_max = sim_heightf - y_min;
 
 		WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, pos,
-			spr_draw_cntr_h(spr_ffield, 4, npos, 0.0f, scale, col));
+			spr_draw_cntr_h(spr_ffield, 4, vec2_add(npos, screen_offset),
+			0.0f, scale, col));
 	}
 }
 
@@ -1077,14 +1093,18 @@ static void _process_touch(void) {
 				pos = t[i].pos;
 			}
 
-			ffield_pos = pos; 
+			ffield_pos = vec2_sub(pos, screen_offset); 
+			if(ffield_pos.x < 0.0f || ffield_pos.x >= sim_widthf 
+					|| ffield_pos.y < 0.0f || ffiel_pos.y >= sim_heightf)
+				continue;
+
 			ffield_push = push;
 			
 			coldet_query_circle(&cd, pos, ffield_radius, 1,
 					_apply_force_field_cb);
 
 			_show_ffield(pos, ffield_radius, push);
-			mfx_trigger_ex("force_field", pos, 0.0f);
+			mfx_trigger_ex("force_field", vec2_add(pos, screen_offset), 0.0f);
 		}
 	}
 }
@@ -1094,7 +1114,10 @@ static void _process_mouse(void) {
 	bool push = mouse_pressed(MBTN_SECONDARY);
 
 	if(push || pull) {
-		Vector2 pos = mouse_vec();
+		Vector2 pos = vec2_sub(mouse_vec(), screen_offset);
+
+		if(pos.x < 0.0f || pos.x >= sim_widthf || pos.y < 0.0f || pos.x >= sim_heightf)
+			return;
 
 		ffield_pos = pos;
 		ffield_push = push;
@@ -1103,7 +1126,7 @@ static void _process_mouse(void) {
 			_apply_force_field_cb);
 
 		_show_ffield(pos, ffield_radius, push);
-		mfx_trigger_ex("force_field", pos, 0.0f);
+		mfx_trigger_ex("force_field", vec2_add(pos, screen_offset), 0.0f);
 	}
 }
 #endif
@@ -1298,16 +1321,18 @@ static void _render_ball(Ball* b, float t) {
 	}
 
 	// Draw
-	spr_draw_cntr_h(spr_balls[b->type], layer, b->pos, angle, scale, c);
+	spr_draw_cntr_h(spr_balls[b->type], layer, vec2_add(b->pos, screen_offset),
+			angle, scale, c);
 
 	float x_min = radius * scale;
-	float x_max = screen_widthf - x_min;
+	float x_max = sim_widthf - x_min;
 	float y_min = x_min;
-	float y_max = screen_heightf - x_min;
+	float y_max = sim_heightf - x_min;
 
 	// Draw virtual copies on screen boundries
 	WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->pos,
-		spr_draw_cntr_h(spr_balls[b->type], layer, npos, angle, scale, c));
+		spr_draw_cntr_h(spr_balls[b->type], layer, vec2_add(npos, screen_offset),
+		angle, scale, c));
 
 	if(b->type & BT_GRAV) {
 		SprHandle spr = spr_grav_in;
@@ -1325,10 +1350,12 @@ static void _render_ball(Ball* b, float t) {
 				Color col = c & 0xFFFFFF;
 				col = color_lerp(col, c, cn);
 
-				spr_draw_cntr_h(spr, layer+1, b->pos, a, r, col);
+				spr_draw_cntr_h(spr, layer+1, vec2_add(screen_offset, b->pos),
+					a, r, col);
 
 				WRAPAROUND_DRAW(x_min, x_max, y_min, y_max, b->pos,
-					spr_draw_cntr_h(spr, layer+1, npos, a, r, col));
+					spr_draw_cntr_h(spr, layer+1, vec2_add(npos, screen_offset),
+					a, r, col));
 			}
 		}
 	}

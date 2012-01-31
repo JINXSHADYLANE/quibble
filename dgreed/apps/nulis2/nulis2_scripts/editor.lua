@@ -98,7 +98,7 @@ function enter()
 		end
 	end
 
-	local levels_mml = mml.read(pre..'levels.mml')
+	local levels_mml = mml.read(pre..levels_file)
 	local level = nil
 	for i,l in ipairs(levels_mml.childs) do
 		if l.value == level_name then
@@ -677,7 +677,7 @@ end
 
 function soft_save()
 	if not in_fsdev() then
-		local path = pre..'levels.mml'
+		local path = pre..levels_file
 		local levels_mml = mml.read(path)
 		save(levels_mml)
 		mml.write(levels_mml, path)
@@ -689,9 +689,9 @@ function soft_save()
 end
 
 function hard_save()
-	local path = '../apps/nulis2/nulis2_assets/levels.mml'
+	local path = '../apps/nulis2/nulis2_assets/'..levels_file
 	if in_fsdev() then
-		path = pre..'levels.mml'
+		path = pre..levels_file
 	end
 
 	local levels_mml = mml.read(path)
