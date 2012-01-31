@@ -1,5 +1,6 @@
 (sprsheet nulis_640p
 	(prefix "nulis2_assets/")
+	(scale 0.5)
 	(img empty
 		(tex "empty.png")
 	)

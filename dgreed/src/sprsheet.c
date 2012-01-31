@@ -25,6 +25,7 @@ typedef struct {
 
 static bool sprsheet_initialized = false;
 static char sprsheet_prefix[SPRSHEET_PREFIX_MAXLEN];
+static float sprsheet_scale;
 static Dict sprsheet_dict;
 static MMLObject sprsheet_mml;
 static DArray sprsheet_descs;
@@ -217,6 +218,9 @@ static void _sprsheet_load_desc(const char* desc) {
 	for(; child != 0; child = mml_get_next(&sprsheet_mml, child)) {
 		const char* name = mml_get_name(&sprsheet_mml, child);
 
+		if(strcmp("scale", name) == 0)
+			sprsheet_scale = mml_getval_float(&sprsheet_mml, child);
+
 		if(strcmp("img", name) == 0) 
 			_parse_img(child);
 
@@ -262,6 +266,7 @@ void sprsheet_init(const char* desc) {
 	dict_init(&sprsheet_dict);
 	sprsheet_descs = darray_create(sizeof(SprDesc), 0);
 	sprsheet_prefix[0] = '\0';
+	sprsheet_scale = 1.0f;
 	_sprsheet_load_desc(desc);
 
 	sprsheet_initialized = true;
@@ -367,6 +372,10 @@ void spr_draw_h(SprHandle handle, uint layer, RectF dest, Color tint) {
 	RectF src;
 
 	sprsheet_get_h(handle, &tex, &src);
+	if(dest.right == 0.0f && dest.bottom == 0.0f) {
+		dest.right = dest.left + rectf_width(&src) * sprsheet_scale;
+		dest.bottom = dest.top + rectf_height(&src) * sprsheet_scale;
+	}
 	video_draw_rect(tex, layer, &src, &dest, tint);
 }
 
@@ -375,6 +384,10 @@ void spr_draw_anim(const char* name, uint frame, uint layer, RectF dest, Color t
 	RectF src;
 
 	sprsheet_get_anim(name, frame, &tex, &src);
+	if(dest.right == 0.0f && dest.bottom == 0.0f) {
+		dest.right = dest.left + rectf_width(&src) * sprsheet_scale;
+		dest.bottom = dest.top + rectf_height(&src) * sprsheet_scale;
+	}
 	video_draw_rect(tex, layer, &src, &dest, tint);
 }
 
@@ -383,6 +396,10 @@ void spr_draw_anim_h(SprHandle handle, uint frame, uint layer, RectF dest, Color
 	RectF src;
 
 	sprsheet_get_anim_h(handle, frame, &tex, &src);
+	if(dest.right == 0.0f && dest.bottom == 0.0f) {
+		dest.right = dest.left + rectf_width(&src) * sprsheet_scale;
+		dest.bottom = dest.top + rectf_height(&src) * sprsheet_scale;
+	}
 	video_draw_rect(tex, layer, &src, &dest, tint);
 }
 
@@ -392,7 +409,7 @@ void spr_draw_cntr(const char* name, uint layer, Vector2 dest, float rot,
 	RectF src;
 
 	sprsheet_get(name, &tex, &src);
-	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale, tint); 
+	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale * sprsheet_scale, tint); 
 }
 
 void spr_draw_cntr_h(SprHandle handle, uint layer, Vector2 dest, float rot,
@@ -401,7 +418,7 @@ void spr_draw_cntr_h(SprHandle handle, uint layer, Vector2 dest, float rot,
 	RectF src;
 
 	sprsheet_get_h(handle, &tex, &src);
-	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale, tint);
+	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale * sprsheet_scale, tint);
 }
 
 void spr_draw_anim_cntr(const char* name, uint frame, uint layer, Vector2 dest, 
@@ -410,7 +427,7 @@ void spr_draw_anim_cntr(const char* name, uint frame, uint layer, Vector2 dest,
 	RectF src;
 
 	sprsheet_get_anim(name, frame, &tex, &src);
-	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale, tint);
+	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale * sprsheet_scale, tint);
 }
 
 void spr_draw_anim_cntr_h(SprHandle handle, uint frame, uint layer, Vector2 dest, 
@@ -419,6 +436,6 @@ void spr_draw_anim_cntr_h(SprHandle handle, uint frame, uint layer, Vector2 dest
 	RectF src;
 
 	sprsheet_get_anim_h(handle, frame, &tex, &src);
-	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale, tint);
+	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale * sprsheet_scale, tint);
 }
 
