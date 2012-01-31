@@ -1,0 +1,46 @@
+(mfx _
+	(prefix "plikledis_assets/")
+	(sounds _
+		(s move.wav
+			(volume 0.2)
+		)
+		(s wall.wav
+			(volume 1.0)
+		)
+		(s push.wav
+			(volume 0.5)
+		)
+		(s fiend.wav
+			(volume 0.5)
+		)
+		(s win.wav
+			(volume 0.5)
+		)
+		(s door_open.wav)
+		(s door_close.wav)
+	)
+	(effects _
+		(e move
+			(sound move.wav)
+		)
+		(e push
+			(sound push.wav)
+		)
+		(e wall
+			(sound wall.wav)
+		)
+		(e fiend
+			(sound fiend.wav)
+		)
+		(e door_open
+			(sound door_open.wav)
+		)
+		(e door_close
+			(sound door_close.wav)
+		)
+		(e win
+			(sound win.wav)
+		)
+	)
+)
+
