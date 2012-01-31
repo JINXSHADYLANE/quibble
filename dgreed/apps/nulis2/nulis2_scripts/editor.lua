@@ -224,7 +224,7 @@ function render_balls()
 
 		if b.t == 'gw' or b.t == 'gb' or b.t == 'tw' or b.t == 'tb' then
 			-- radius
-			local r = 16 + (b.s-1)*2 
+			local r = 16 + b.s*4 
 			assert(r <= 24)
 
 			-- scale
@@ -520,9 +520,9 @@ function render()
 		selected.time = gui.slider(ts_pos) * 10
 
 		if edit_scale then
-			gui.slider_set_state(ss_pos, selected.s / 4)
+			gui.slider_set_state(ss_pos, selected.s / 2)
 			gui.label(ss_pos + vec2(40, 12), 's = '..tostring(selected.s)) 
-			selected.s = math.floor(gui.slider(ss_pos) * 4 + 0.5)
+			selected.s = math.floor(gui.slider(ss_pos) * 2 + 0.5)
 		end
 
 		sprsheet.draw('empty', 4, no_touch_zone, rgba(0, 0, 0, 0.5))
@@ -573,6 +573,7 @@ function load_level(mml_node)
 
 						if b.name == 's' then
 							ball.s = tonumber(b.value)
+							ball.s = clamp(0, 2, ball.s)
 						end
 
 						if b.name == 'vel' then

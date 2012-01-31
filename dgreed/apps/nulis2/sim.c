@@ -289,7 +289,8 @@ static void _spawn(Vector2 pos, Vector2 vel, BallType type, float a, float t, fl
 	float mass = type & BT_PAIR ? ball_mass * 2.0f : ball_mass;
 
 	if(type & BT_GRAV || type & BT_TIME) {
-		radius = 16.0f + s * 2.0f;
+		s = clamp(0.0f, 2.0f, s);
+		radius = 16.0f + s * 4.0f;
 
 		mass = powf(mass_increase_factor, s);
 		mass *= (type & BT_GRAV ? grav_mass : ball_mass);
@@ -748,8 +749,8 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			if(~(ta ^ tb) & BT_WHITE) {
 				normal->remove = true;
 				fancy->inv_mass /= mass_increase_factor;
-				fancy->radius += 2.0f;
-				fancy->collider->size.radius += 2.0f;
+				fancy->radius += 4.0f;
+				fancy->collider->size.radius += 4.0f;
 				fancy->collider->dirty = true;
 
 				// Too big, explode into 5 balls
@@ -786,8 +787,8 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			else {
 				normal->remove = true;
 				fancy->inv_mass *= mass_increase_factor;
-				fancy->radius -= 2.0f;
-				fancy->collider->size.radius -= 2.0f;
+				fancy->radius -= 4.0f;
+				fancy->collider->size.radius -= 4.0f;
 				fancy->collider->dirty = true;
 
 				// To small, become a normal ball
