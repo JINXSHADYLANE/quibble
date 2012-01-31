@@ -15,14 +15,6 @@ touch_up = nil
 touch_current = nil
 touch_sliding = false
 
--- positions
-pos_replay = vec2(94, 174)
-pos_sound = vec2(94, 314)
-pos_music = vec2(94, 454)
-pos_score = vec2(94, 594)
-pos_levels = vec2(244, 174)
-off_levels = vec2(140, 140)
-
 -- ui state
 state_sound = true
 state_music = true
@@ -42,6 +34,23 @@ function init()
 
 	local t, icon_rect = sprsheet.get(sprs.locked)
 	half_icon_w, half_icon_h = (icon_rect.r - icon_rect.l)/2, (icon_rect.b - icon_rect.t)/2
+
+	-- positions
+	if scr_type == 'ipad' then
+		pos_replay = vec2(94, 174)
+		pos_sound = vec2(94, 314)
+		pos_music = vec2(94, 454)
+		pos_score = vec2(94, 594)
+		pos_levels = vec2(244, 174)
+		off_levels = vec2(140, 140)
+	elseif scr_type == 'iphone' then
+		pos_replay = vec2(36, 37)
+		pos_sound = vec2(36, 119)
+		pos_music = vec2(36, 201)
+		pos_score = vec2(36, 283)
+		pos_levels = vec2(116, 37)
+		off_levels = vec2(80, 82)
+	end
 end
 
 function close()

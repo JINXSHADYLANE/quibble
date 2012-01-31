@@ -884,8 +884,6 @@ uint largc = 0;
 const char** largv = NULL;
 
 void params_init(uint argc, const char** argv) {
-	assert(argv);
-
 	largc = argc;
 	largv = argv;
 }
@@ -902,8 +900,6 @@ const char* params_get(uint n) {
 
 uint params_find(const char* param) {
 	uint i;
-
-	assert(largv);
 
 	for(i = 1; i < largc; ++i) {
 		if(strcmp(largv[i], param) == 0) return i-1;
