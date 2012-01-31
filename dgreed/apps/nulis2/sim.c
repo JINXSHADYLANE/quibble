@@ -234,7 +234,10 @@ void sim_init(uint screen_width, uint screen_height, uint sim_width, uint sim_he
 	reset_t = -100.0f;
 
 	tweaks_font = font_load(ASSETS_PRE "varela.bft");
-	tweaks = tweaks_init(ASSETS_PRE "tweaks.mml", rectf(10.0f, 40.0f, 1000.0f, 700.0f), 9, 0);
+	static char* tweaks_file = ASSETS_PRE "tweaks.mml";
+	if(scr_size == SCR_IPHONE || screen_width > sim_width)
+		tweaks_file = ASSETS_PRE "tweaks_small.mml";
+	tweaks = tweaks_init(tweaks_file, rectf(10.0f, 40.0f, 1000.0f, 700.0f), 9, 0);
 	tweaks->y_spacing = 90.0f;
 	tweaks->items_per_page = 7;
 	_register_tweaks();
@@ -1132,7 +1135,9 @@ static void _process_mouse(void) {
 #endif
 
 void sim_update(void) {
-	if(touches_count() == 5 || key_up(KEY_QUIT)) {
+	if((scr_size == SCR_IPAD && touches_count() == 5)
+		|| (scr_size == SCR_IPHONE && touches_count() == 3)
+		|| key_up(KEY_QUIT)) {
 		show_tweaks = false;
 		malka_states_push("menu");
 	}
