@@ -20,6 +20,12 @@ tut_fingers = {
 
 function init()
 	screen_center = vec2(scr_size.x/2, scr_size.y/2)
+
+	if scr_type == 'ipad' then
+		tut_offset = vec2(0, 150)
+	elseif scr_type == 'iphone' then
+		tut_offset = vec2(0, 60)
+	end
 end
 
 function close()
@@ -99,7 +105,7 @@ function render(level)
 				end
 
 				local tut_anim = tut_fingers[img]
-				pos = pos + vec2(0, 150)
+				pos = pos + tut_offset 
 				if tut_anim == 1 or tut_anim == 2 then
 					local ttt = gt / image_show_len * 2
 					if tut_anim == 2 then

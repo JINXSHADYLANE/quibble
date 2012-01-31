@@ -1031,7 +1031,7 @@ static void _render_ffield(void) {
 
 		float start_r = circle->shrink ? circle->radius : circle->radius * 0.5f;
 		float end_r = circle->shrink ? circle->radius * 0.5f : circle->radius;
-		float scale = lerp(start_r, end_r, ct) / 128.0f;
+		float scale = lerp(start_r, end_r, ct) / (scr_size == SCR_IPAD ? 128.0f : 64.0f);
 
 		Color transparent = circle->color & 0xFFFFFF;
 		Color col = color_lerp(transparent, circle->color, sinf(ct * PI));
@@ -1132,19 +1132,21 @@ static void _process_mouse(void) {
 #endif
 
 void sim_update(void) {
-	if(touches_count() == 6 || char_up('e'))
-		malka_states_push("editor");
-
 	if(touches_count() == 5 || key_up(KEY_QUIT)) {
 		show_tweaks = false;
 		malka_states_push("menu");
 	}
 
-	if(show_tweaks && char_up('t'))
-		show_tweaks = false;
+	if(scr_size == SCR_IPAD) {
+		if(touches_count() == 6 || char_up('e'))
+			malka_states_push("editor");
 
-	if(touches_count() == 7 || char_up('t'))
-		show_tweaks = true;
+		if(show_tweaks && char_up('t'))
+			show_tweaks = false;
+
+		if(touches_count() == 7 || char_up('t'))
+			show_tweaks = true;
+	}
 
 	float t = malka_state_time("game");
 
