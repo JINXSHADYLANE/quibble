@@ -24,6 +24,14 @@ function game_init()
 				scr_type = 'iphone'
 			end
 		end
+	else
+		local w, h = video.native_resolution()
+		if w ~= 1024 and h ~= 768 then
+			sim_size = { x = 480, y = 320 }
+			levels_file = 'levels_small.mml'
+			scr_size = sim_size
+			scr_type = 'iphone'
+		end
 	end
 	
 	states.register('game', game)
