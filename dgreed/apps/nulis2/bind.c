@@ -6,10 +6,12 @@
 #include <malka/ml_common.h>
 
 static int csim_init(lua_State* l) {
-	checkargs(2, "csim.init");
+	checkargs(4, "csim.init");
 	double x = luaL_checknumber(l, 1);
 	double y = luaL_checknumber(l, 2);	
-	sim_init(x, y);
+	double off_x = luaL_checknumber(l, 3);
+	double off_y = luaL_checknumber(l, 4);
+	sim_init(x, y, off_x, off_y);
 	return 0;
 }
 

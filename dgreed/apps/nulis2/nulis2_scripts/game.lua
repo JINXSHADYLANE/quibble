@@ -3,9 +3,12 @@ module(..., package.seeall)
 require 'tutorials'
 
 function init()
-	clevels.reset(pre.."levels.mml")
+	clevels.reset(pre..levels_file)
 	tutorials.init()
-	csim.init(scr_size.x, scr_size.y)
+	csim.init(
+		scr_size.x, scr_size.y,
+		sim_size.x, sim_size.y
+	)
 	csim.reset('l1')
 end
 
