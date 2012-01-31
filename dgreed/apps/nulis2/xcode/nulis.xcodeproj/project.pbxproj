@@ -90,7 +90,6 @@
 		213777CD14CD5CB7004F01D2 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213777CB14CD5CA4004F01D2 /* CoreData.framework */; };
 		2137781B14CD5D42004F01D2 /* nulis2_assets in Resources */ = {isa = PBXBuildFile; fileRef = 2137781A14CD5D42004F01D2 /* nulis2_assets */; };
 		2137781D14CD5D4C004F01D2 /* nulis2_scripts in Resources */ = {isa = PBXBuildFile; fileRef = 2137781C14CD5D4C004F01D2 /* nulis2_scripts */; };
-		2137782614CD5E34004F01D2 /* nulis-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2137782514CD5E34004F01D2 /* nulis-Info.plist */; };
 		2137782714CD61B5004F01D2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213777BB14CD5C01004F01D2 /* QuartzCore.framework */; };
 		2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 2194F0C414D7FF5900147A0C /* ml_coldet.c */; };
 /* End PBXBuildFile section */
@@ -528,7 +527,6 @@
 			files = (
 				2137781B14CD5D42004F01D2 /* nulis2_assets in Resources */,
 				2137781D14CD5D4C004F01D2 /* nulis2_scripts in Resources */,
-				2137782614CD5E34004F01D2 /* nulis-Info.plist in Resources */,
 				212518DA14CE9FCE000E8BD2 /* icon 57x57.png in Resources */,
 				212518DC14CE9FD4000E8BD2 /* icon 114x114.png in Resources */,
 				212518DE14CE9FE7000E8BD2 /* icon 72x72.png in Resources */,
@@ -679,9 +677,15 @@
 		213776EF14CD5A59004F01D2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					armv6,
+					armv7,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
+				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = "nulis/nulis-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -691,9 +695,15 @@
 		213776F014CD5A59004F01D2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					armv6,
+					armv7,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
+				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = "nulis/nulis-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
