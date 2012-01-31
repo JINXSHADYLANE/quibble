@@ -84,6 +84,7 @@ static DArray line_buckets[bucket_count];
 static DArray textures;
 
 static uint frame;
+static float screen_widthf, screen_heightf;
 static float x_size_factor, y_size_factor;
 
 static uint radix_counts[256];
@@ -200,6 +201,9 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	assert(width >= 480 && width <= 1024);
 	assert(height >= 320 && height <= 768);
 	assert(v_width != 0 && v_height != 0);
+    
+    screen_widthf = v_width;
+    screen_heightf = v_height;
 	
 	glEnable(GL_TEXTURE_2D);
 	glShadeModel(GL_FLAT);
@@ -486,8 +490,12 @@ void video_present(void) {
 		v_stats.frame_lines += line_buckets[i].size;
 	#endif
 	}
+    
+    [[GLESView singleton] present];
 	
-	[[GLESView singleton] present];
+    const GLenum discards[]  = {GL_COLOR_ATTACHMENT0_OES, GL_DEPTH_ATTACHMENT_OES};
+    glDiscardFramebufferEXT(GL_FRAMEBUFFER_OES, 2, discards);
+  
 	frame++;
 	fps_count++;
 	
@@ -592,6 +600,17 @@ void tex_free(TexHandle tex) {
 	}
 }
 
+// Fast integer log2 when n is a power of two
+static uint _ilog2(uint v) {
+	static const uint b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0, 0xFF00FF00, 0xFFFF0000}; 
+	uint r = (v & b[0]) != 0;
+	for (uint i = 4; i > 0; i--) 
+	{
+	  r |= ((v & b[i]) != 0) << i;
+	}
+	return r;
+}
+
 void video_draw_rect_rotated(TexHandle tex, uint layer,
 							 const RectF* source, const RectF* dest, float rotation, Color tint) {
 	assert(layer < bucket_count);
@@ -611,21 +630,43 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 		real_src_r = lrintf(source->right);
 		real_src_b = lrintf(source->bottom);
 	}
-	
-	bool full_dest = dest->right == 0.0f && dest->bottom == 0.0f; 
+
+	// This is faster than comparing floats
+	bool full_dest = (*((uint*)&dest->right) | *((uint*)&dest->bottom)) == 0U; 
 	RectF real_dest = *dest;
 	
-	if(full_dest) {
-		float width = (float)(real_src_r - real_src_l);
-		float height = (float)(real_src_b - real_src_t);
+    int w = real_src_r - real_src_l;
+    int h = real_src_b - real_src_t;
+    
+    if(full_dest) {
+		float width = (float)w;
+		float height = (float)h;
 		real_dest.right = real_dest.left + width;
 		real_dest.bottom = real_dest.top + height;
-	}	
+	}
+	
+    // Don't draw rect if it's not inside screen rect
+    float center_x = (real_dest.left + real_dest.right) * 0.5f;
+    float center_y = (real_dest.top + real_dest.bottom) * 0.5f;
+    float half_sqr_diag = (float)(w*w / 4 + h*h / 4);
+    float out_x = center_x;
+    float out_y = center_y;
+    if((center_x < 0.0f && out_x*out_x < half_sqr_diag) 
+       || (center_y < 0.0f && out_y*out_y < half_sqr_diag))
+        return;
+    out_x = center_x - screen_widthf;
+    out_y = center_y - screen_heightf;
+    if((center_x >= screen_widthf && out_x*out_x > half_sqr_diag) 
+       || (center_y >= screen_heightf && out_y*out_y > half_sqr_diag))
+        return;
 
-	real_src_l = ((real_src_l << 15) - 1) / texture_width;
-	real_src_t = ((real_src_t << 15) - 1) / texture_height;
-	real_src_r = ((real_src_r << 15) - 1) / texture_width;
-	real_src_b = ((real_src_b << 15) - 1) / texture_height;
+	uint wlog2 = _ilog2(texture_width);
+	uint hlog2 = _ilog2(texture_height);
+
+	real_src_l = ((real_src_l << 15) - 1) >> wlog2;
+	real_src_t = ((real_src_t << 15) - 1) >> hlog2;
+	real_src_r = ((real_src_r << 15) - 1) >> wlog2;
+	real_src_b = ((real_src_b << 15) - 1) >> hlog2;
 
 	TexturedRectDesc new_rect = {
 		.tex = tex,
@@ -638,7 +679,19 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 		.rotation = rotation
 	};
 	
-	darray_append(&rect_buckets[layer], &new_rect);
+    // Do something uglier instead of darray_append, saving a memcpy here is worth it
+	//darray_append(&rect_buckets[layer], &new_rect);
+    
+    
+    DArray* bucket = &rect_buckets[layer];
+    if(bucket->reserved - bucket->size < 1) {
+        bucket->reserved *= 2;
+        bucket->data = MEM_REALLOC(bucket->data, bucket->item_size * bucket->reserved);
+    }
+    
+    TexturedRectDesc* rects = DARRAY_DATA_PTR(*bucket, TexturedRectDesc);
+    rects[bucket->size] = new_rect;
+    bucket->size++;
 }	
 
 void video_draw_rect(TexHandle tex, uint layer,
