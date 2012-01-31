@@ -12,6 +12,7 @@ Example description:
 (sprsheet bulb
 	(prefix "bulb_assets/")
 	(preload background,title,robot)
+	(scale 1)	# scale all sprites by this factor when rendering
 	
 	(img background
 		(tex "background.png")
