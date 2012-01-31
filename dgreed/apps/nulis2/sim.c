@@ -1095,7 +1095,7 @@ static void _process_touch(void) {
 
 			ffield_pos = vec2_sub(pos, screen_offset); 
 			if(ffield_pos.x < 0.0f || ffield_pos.x >= sim_widthf 
-					|| ffield_pos.y < 0.0f || ffiel_pos.y >= sim_heightf)
+					|| ffield_pos.y < 0.0f || ffield_pos.y >= sim_heightf)
 				continue;
 
 			ffield_push = push;

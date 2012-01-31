@@ -175,17 +175,14 @@ void _sort_rects(DArray rects_in) {
 }
 
 void video_get_native_resolution(uint* width, uint* height) {
-    UIUserInterfaceIdiom idiom = UI_USER_INTERFACE_IDIOM();
+    CGRect screen_rect = [[UIScreen mainScreen] bounds];
+    *width = MAX(screen_rect.size.width, screen_rect.size.height);
+    *height = MIN(screen_rect.size.width, screen_rect.size.height);
     
-    if(idiom == UIUserInterfaceIdiomPhone) {
-        *width = 480;
-        *height = 320;
-    }
+    CGFloat screen_scale = [[UIScreen mainScreen] scale];
     
-    if(idiom == UIUserInterfaceIdiomPad) {
-        *width = 1024;
-        *height = 768;
-    }
+    *width *= screen_scale;
+    *height *= screen_scale;
 }
 
 void video_init(uint width, uint height, const char* name) {
@@ -207,7 +204,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glEnable(GL_TEXTURE_2D);
 	glShadeModel(GL_FLAT);
 	glClearDepthf(1.0f);
-	glViewport(0, 0, height, width);
+	glViewport(0, 0, v_height, v_width);
 	glEnable(GL_BLEND);
     glDisable(GL_ALPHA_TEST);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);

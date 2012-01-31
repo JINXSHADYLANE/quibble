@@ -24,6 +24,9 @@ static GLESView* global_gles_view = NULL;
 			[self release];
 			return nil;
 		}	
+        
+        CGFloat screen_scale = [[UIScreen mainScreen] scale];
+        //self.contentScaleFactor = screen_scale;
 		
 		// Create framebuffer and renderbuffer
 		GLuint framebuffer, renderbuffer;
@@ -34,7 +37,10 @@ static GLESView* global_gles_view = NULL;
 		[context renderbufferStorage:GL_RENDERBUFFER_OES 
 						fromDrawable:eagl_layer];
 		glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, renderbuffer);
-		glViewport(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame));
+        
+		float w = CGRectGetWidth(frame) * screen_scale;
+        float h = CGRectGetHeight(frame) * screen_scale;
+        glViewport(0, 0, w, h);
 		
 		// See if CADisplayLink is supported
 		NSString *reqSysVer = @"3.1";

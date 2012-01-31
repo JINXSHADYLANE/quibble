@@ -24,16 +24,19 @@ void dgreed_init(int argc, const char** argv) {
 	uint height = 768;
 	uint v_width = 1024;
 	uint v_height = 768;
+    
+    uint n_width, n_height;
+    video_get_native_resolution(&n_width, &n_height);
 
 	// Select screen size
 	scr_size = SCR_IPAD;
-	if(params_find("-iphone") != ~0) {
+	if(params_find("-iphone") != ~0 || (n_width < 960 || n_height < 640)) {
 		sprsheet = ASSETS_PRE "sprsheet_320p.mml";
 		scr_size = SCR_IPHONE;
 		v_width = width = 480;
 		v_height = height = 320;
 	}
-	if(params_find("-retina") != ~0) {
+	else if(params_find("-retina") != ~0 || (n_width < 1024 || n_height < 768)) {
 		sprsheet = ASSETS_PRE "sprsheet_640p.mml";
 		scr_size = SCR_IPHONE;
 		v_width = 480;
