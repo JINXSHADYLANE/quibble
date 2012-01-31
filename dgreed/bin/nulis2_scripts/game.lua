@@ -1,6 +1,7 @@
 module(..., package.seeall)
 
 require 'tutorials'
+require 'editor'
 
 function init()
 	clevels.reset(pre..levels_file)
@@ -30,6 +31,10 @@ function update()
 end
 
 function render()
+	if sim_size.x < scr_size.x then
+		editor.render_iphone_screen()
+	end
+
 	tutorials.render(csim.level())
 	csim.render(true)
 	return true

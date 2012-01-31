@@ -385,6 +385,21 @@ function render_menu()
 	end
 end
 
+function render_iphone_screen()
+	local col = ui_color_barely_visible
+	if draw_grid then
+		col = ui_color_dark
+	end
+
+	local x1, y1 = iphone_scr.l, iphone_scr.t
+	local x2, y2 = iphone_scr.r, iphone_scr.b
+
+	video.draw_seg(1, vec2(x1, y1), vec2(x2, y1), col)	
+	video.draw_seg(1, vec2(x2, y1), vec2(x2, y2), col)	
+	video.draw_seg(1, vec2(x2, y2), vec2(x1, y2), col)	
+	video.draw_seg(1, vec2(x1, y2), vec2(x1, y1), col)	
+end
+
 function render()
 	if menu_visible then
 		render_menu()
@@ -396,18 +411,7 @@ function render()
 
 	-- draw iphone screen size
 	if draw_iphone then
-		local col = ui_color_barely_visible
-		if draw_grid then
-			col = ui_color_dark
-		end
-
-		local x1, y1 = iphone_scr.l, iphone_scr.t
-		local x2, y2 = iphone_scr.r, iphone_scr.b
-
-		video.draw_seg(1, vec2(x1, y1), vec2(x2, y1), col)	
-		video.draw_seg(1, vec2(x2, y1), vec2(x2, y2), col)	
-		video.draw_seg(1, vec2(x2, y2), vec2(x1, y2), col)	
-		video.draw_seg(1, vec2(x1, y2), vec2(x1, y1), col)	
+		render_iphone_screen()	
 	end
 
 	sprsheet.draw('background', 0, rect(0, 0, scr_size.x, scr_size.y))

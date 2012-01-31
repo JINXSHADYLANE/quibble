@@ -1116,7 +1116,7 @@ static void _process_mouse(void) {
 	if(push || pull) {
 		Vector2 pos = vec2_sub(mouse_vec(), screen_offset);
 
-		if(pos.x < 0.0f || pos.x >= sim_widthf || pos.y < 0.0f || pos.x >= sim_heightf)
+		if(pos.x < 0.0f || pos.x >= sim_widthf || pos.y < 0.0f || pos.y >= sim_heightf)
 			return;
 
 		ffield_pos = pos;
