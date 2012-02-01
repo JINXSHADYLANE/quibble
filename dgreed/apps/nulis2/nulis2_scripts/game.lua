@@ -33,12 +33,14 @@ function update()
 	return true
 end
 
-function render()
-	if sim_size.x < scr_size.x then
-		editor.render_iphone_screen()
-	end
+function render(t)
+	if t == 0 then
+		if sim_size.x < scr_size.x then
+			editor.render_iphone_screen()
+		end
 
-	tutorials.render(csim.level())
-	csim.render(true)
+		tutorials.render(csim.level())
+		csim.render(true)
+	end
 	return true
 end

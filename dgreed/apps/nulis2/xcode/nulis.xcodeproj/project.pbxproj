@@ -15,6 +15,7 @@
 		212518E414CEA319000E8BD2 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518E314CEA319000E8BD2 /* Default.png */; };
 		212518E614CEA31C000E8BD2 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518E514CEA31C000E8BD2 /* Default@2x.png */; };
 		212518E914CEC1C9000E8BD2 /* GLESViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 212518E814CEC1C9000E8BD2 /* GLESViewController.m */; };
+		212D961D14D975ED003FE79C /* keyval.c in Sources */ = {isa = PBXBuildFile; fileRef = 212D961B14D975ED003FE79C /* keyval.c */; };
 		213776DB14CD5A58004F01D2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213776DA14CD5A58004F01D2 /* UIKit.framework */; };
 		213776DD14CD5A58004F01D2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213776DC14CD5A58004F01D2 /* Foundation.framework */; };
 		213776DF14CD5A58004F01D2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213776DE14CD5A58004F01D2 /* CoreGraphics.framework */; };
@@ -104,6 +105,8 @@
 		212518E514CEA31C000E8BD2 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		212518E714CEC1C9000E8BD2 /* GLESViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GLESViewController.h; path = ../../../src/GLESViewController.h; sourceTree = "<group>"; };
 		212518E814CEC1C9000E8BD2 /* GLESViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GLESViewController.m; path = ../../../src/GLESViewController.m; sourceTree = "<group>"; };
+		212D961B14D975ED003FE79C /* keyval.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = keyval.c; path = ../../../src/keyval.c; sourceTree = "<group>"; };
+		212D961C14D975ED003FE79C /* keyval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = keyval.h; path = ../../../src/keyval.h; sourceTree = "<group>"; };
 		213776D614CD5A58004F01D2 /* nulis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = nulis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		213776DA14CD5A58004F01D2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		213776DC14CD5A58004F01D2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -348,6 +351,8 @@
 				212518E814CEC1C9000E8BD2 /* GLESViewController.m */,
 				2137770214CD5AFB004F01D2 /* gui.c */,
 				2137770314CD5AFB004F01D2 /* gui.h */,
+				212D961B14D975ED003FE79C /* keyval.c */,
+				212D961C14D975ED003FE79C /* keyval.h */,
 				2137770414CD5AFB004F01D2 /* memory.c */,
 				2137770514CD5AFB004F01D2 /* memory.h */,
 				2137770614CD5AFB004F01D2 /* mempool.c */,
@@ -610,6 +615,7 @@
 				213777B514CD5B98004F01D2 /* sim.c in Sources */,
 				212518E914CEC1C9000E8BD2 /* GLESViewController.m in Sources */,
 				2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */,
+				212D961D14D975ED003FE79C /* keyval.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

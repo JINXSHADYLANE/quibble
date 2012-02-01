@@ -651,8 +651,8 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
     float half_sqr_diag = (float)(w*w / 4 + h*h / 4);
     float out_x = center_x;
     float out_y = center_y;
-    if((center_x < 0.0f && out_x*out_x < half_sqr_diag) 
-       || (center_y < 0.0f && out_y*out_y < half_sqr_diag))
+    if((center_x < 0.0f && out_x*out_x > half_sqr_diag) 
+       || (center_y < 0.0f && out_y*out_y > half_sqr_diag))
         return;
     out_x = center_x - screen_widthf;
     out_y = center_y - screen_heightf;

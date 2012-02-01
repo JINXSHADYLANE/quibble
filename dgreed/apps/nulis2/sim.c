@@ -813,7 +813,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 		else {
 			if(!(normal->type & BT_GRAV)) {
 				if((fancy->type & BT_GRAV) && !(fancy->type & BT_WHITE)) {
-					_balls_join(ball_a, ball_b);
+					_balls_join(normal, fancy);
 					//_balls_bounce(ball_a, ball_b);
 					return;
 				}

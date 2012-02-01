@@ -252,16 +252,20 @@ try_again:
 
 	n = world->reserved_cells;
 
-	CDCell* cell = &world->cells[_hash(x, y, 0) % n];
-	if(!list_empty(&cell->objs) && (cell->x != x || cell->y != y))
-		cell = &world->cells[_hash(x, y, 1) % n];
+	CDCell* cell_a = &world->cells[_hash(x, y, 0) % n];
+	CDCell* cell_b = &world->cells[_hash(x, y, 1) % n];
+
+	CDCell* cell;
+
+	if(cell_b->x == x && cell_b->y == y)
+		cell = cell_b;
+	else
+		cell = cell_a;
 
 	if(!_coldet_cell_insert(world, cell, obj, x, y)) {
 		CDCell* start = cell;
 
-		CDCell* alt1 = &world->cells[_hash(x, y, 0) % n];
-		CDCell* alt2 = &world->cells[_hash(x, y, 1) % n];
-		CDCell* alternative = (cell == alt1) ? alt2 : alt1;
+		CDCell* alternative = (cell == cell_a) ? cell_b : cell_a;
 
 		// Perform cuckoo swapping
 		if(!list_empty(&alternative->objs)) {
@@ -939,16 +943,16 @@ void coldet_process(CDWorld* cd, CDCollissionCallback callback) {
 			float local_y = obj->pos.y - (float)cell->y * cd->cell_size;
 
 			if(obj->type == CD_CIRCLE) {
-				if(local_x + obj->size.radius > cd->cell_size)
+				if(local_x + obj->size.radius >= cd->cell_size)
 					crosses_x = true;
-				if(local_y + obj->size.radius > cd->cell_size)
+				if(local_y + obj->size.radius >= cd->cell_size)
 					crosses_y = true;
 			}
 
 			if(obj->type == CD_AABB) {
-				if(local_x + obj->size.size.x > cd->cell_size)
+				if(local_x + obj->size.size.x >= cd->cell_size)
 					crosses_x = true;
-				if(local_y + obj->size.size.y > cd->cell_size)
+				if(local_y + obj->size.size.y >= cd->cell_size)
 					crosses_y = true;
 			}
 
