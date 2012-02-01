@@ -75,7 +75,7 @@ void _expand_by_one(DArray* array) {
 	darray_reserve(array, new_reservation);	
 }
 
-void darray_append(DArray* array, void* item_ptr) {
+void darray_append(DArray* array, const void* item_ptr) {
 	assert(array);
 	assert(array->data);
 	assert(item_ptr);
@@ -92,7 +92,7 @@ void darray_append(DArray* array, void* item_ptr) {
 	array->size++;	
 }
 
-void darray_insert(DArray* array, unsigned int index, void* item_ptr) {
+void darray_insert(DArray* array, unsigned int index, const void* item_ptr) {
 	assert(array);
 	assert(array->data);
 	assert(index <= array->size);
@@ -134,7 +134,7 @@ static void _expand_by_count(DArray* array, unsigned int count) {
 	darray_reserve(array, new_reservation);	
 }
 
-void darray_append_multi(DArray* array, void* item_ptr, unsigned int count) {
+void darray_append_multi(DArray* array, const void* item_ptr, unsigned int count) {
 	assert(array);
 	assert(array->data);
 	assert(item_ptr);
@@ -225,6 +225,4 @@ void darray_shrink(DArray* array) {
 
 	array->reserved = size;
 }
-	
-
 

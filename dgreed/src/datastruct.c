@@ -619,7 +619,7 @@ static DictEntry* _dict_get(Dict* dict, uint i) {
 	return &dict->map[i & dict->mask];
 }
 
-static bool _dict_insert(Dict* dict, const char* key, void* data, uint hash) {
+static bool _dict_insert(Dict* dict, const char* key, const void* data, uint hash) {
 	assert(dict && dict->mask);
 	assert(key);
 
@@ -737,7 +737,7 @@ static void _dict_resize(Dict* dict) {
 	MEM_FREE(old_map);
 }
 
-bool dict_insert(Dict* dict, const char* key, void* data) {
+bool dict_insert(Dict* dict, const char* key, const void* data) {
 	size_t size = dict->mask + 1;
 
 	// Resize if neccessary
@@ -753,7 +753,7 @@ bool dict_insert(Dict* dict, const char* key, void* data) {
 	return _dict_insert(dict, key, data, hash);
 }
 
-void* dict_delete(Dict* dict, const char* key) {
+const void* dict_delete(Dict* dict, const char* key) {
 	assert(dict);
 	assert(key);
 
@@ -766,7 +766,7 @@ void* dict_delete(Dict* dict, const char* key) {
 			DictEntry* entry = _dict_get(dict, hash + i);
 			if(hash == entry->hash && strcmp(key, entry->key) == 0) {
 				e->hopinfo &= ~(1 << i);
-				void* data = entry->data;
+				const void* data = entry->data;
 				entry->data = NULL;
 				entry->key = NULL;
 				entry->hash = 0;
@@ -778,9 +778,9 @@ void* dict_delete(Dict* dict, const char* key) {
 	return NULL;
 }
 
-void dict_set(Dict* dict, const char* key, void* data) {
+void dict_set(Dict* dict, const char* key, const void* data) {
 	assert(dict);
-	assert(key && data);
+	assert(key);
 
 	uint hash = hash_murmur(key, strlen(key), 7);
 
@@ -798,6 +798,16 @@ void dict_set(Dict* dict, const char* key, void* data) {
 	}
 
 	// Apparently, item doesn't exist - insert a new one
+	
+	// Resize if neccessary
+	size_t size = dict->mask + 1;
+	dict->items++;
+	if(dict->items*4 > size * 3)
+		_dict_resize(dict);
+
+	size = dict->mask + 1;
+	assert(dict->items*4 <= size * 3);
+
 #ifdef _DEBUG
 	assert(_dict_insert(dict, key, data, hash));
 #else
@@ -805,7 +815,7 @@ void dict_set(Dict* dict, const char* key, void* data) {
 #endif
 }
 
-void* dict_get(Dict* dict, const char* key) {
+const void* dict_get(Dict* dict, const char* key) {
 	assert(dict);
 	assert(key);
 

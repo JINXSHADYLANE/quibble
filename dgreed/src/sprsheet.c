@@ -136,7 +136,7 @@ static void _parse_anim(NodeIdx node) {
 static SprDesc* _sprsheet_get(const char* name) {
 	assert(name);
 
-	void* desc = dict_get(&sprsheet_dict, name);
+	const void* desc = dict_get(&sprsheet_dict, name);
 	SprDesc* descs = DARRAY_DATA_PTR(sprsheet_descs, SprDesc);
 	assert((size_t)desc < sprsheet_descs.size);
 	return &descs[(size_t)desc];

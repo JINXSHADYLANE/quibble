@@ -22,13 +22,13 @@ DArray darray_create_untracked(size_t item_size, unsigned int reserve);
 void darray_free(DArray* array);
 
 // Inserts new item to the end of array.
-void darray_append(DArray* array, void* item_ptr);
+void darray_append(DArray* array, const void* item_ptr);
 // Inserts multiple new items to the end of array
-void darray_append_multi(DArray* array, void* item_ptr, unsigned int count);
+void darray_append_multi(DArray* array, const void* item_ptr, unsigned int count);
 // Inserts multiple new items to the end of array, fills them with nulls
 void darray_append_nulls(DArray* arra, unsigned int count);
 // Inserts new item at specified index, shifts trailing items back
-void darray_insert(DArray* array, unsigned int index, void* item_ptr);
+void darray_insert(DArray* array, unsigned int index, const void* item_ptr);
 // Removes item and preserves array order.
 void darray_remove(DArray* array, unsigned int index);
 // Quickly removes item by copying last item to its place.

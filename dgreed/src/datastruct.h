@@ -77,7 +77,7 @@ void* aatree_remove(AATree* tree, int key);				// O(n log n)
 
 typedef struct {
 	const char* key;
-	void* data;
+	const void* data;
 	uint32 hash;
 	uint32 hopinfo;
 } DictEntry;
@@ -90,9 +90,9 @@ typedef struct {
 
 void dict_init(Dict* dict);
 void dict_free(Dict* dict);
-bool dict_insert(Dict* dict, const char* key, void* data);
-void* dict_delete(Dict* dict, const char* key);
-void dict_set(Dict* dict, const char* key, void* data);
-void* dict_get(Dict* dict, const char* key);
+bool dict_insert(Dict* dict, const char* key, const void* data);
+const void* dict_delete(Dict* dict, const char* key);
+void dict_set(Dict* dict, const char* key, const void* data);
+const void* dict_get(Dict* dict, const char* key);
 
 #endif

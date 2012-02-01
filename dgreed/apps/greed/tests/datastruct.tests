@@ -373,3 +373,42 @@ TEST_(dict_stress) {
 	dict_free(&d);
 }
 
+TEST_(set_stress) {
+	Dict d;
+
+	char numbers[1024*1024];
+	char* p = numbers;	
+
+	dict_init(&d);
+
+	for(size_t i = 0; i < 10000; ++i) {
+		sprintf(p, "%zd", i);
+		dict_set(&d, p, (void*)i);
+		p += strlen(p)+1;
+	}
+
+	char scratch[10];
+	for(size_t i = 0; i < 10000; ++i) {
+		sprintf(scratch, "%zd", i);
+		ASSERT_(dict_get(&d, scratch) == (void*)i);	
+	}
+
+	for(size_t i = 0; i < 10000; ++i) {
+		if(!is_prime(i)) {
+			sprintf(scratch, "%zd", i);
+			ASSERT_(dict_delete(&d, scratch) == (void*)i);
+		}
+	}
+
+	for(size_t i = 0; i < 10000; ++i) {
+		sprintf(scratch, "%zd", i);
+		if(is_prime(i)) {
+			ASSERT_(dict_get(&d, scratch) == (void*)i);	
+		}
+		sprintf(scratch, "%zd", (i+2)*7);
+		ASSERT_(dict_get(&d, scratch) == NULL);	
+	}
+
+	dict_free(&d);
+}
+
