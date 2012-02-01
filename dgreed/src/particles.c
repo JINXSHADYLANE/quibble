@@ -36,6 +36,10 @@ const ParticleStats* particle_stats(void) {
 #endif
 
 void particles_init(const char* assets_prefix, uint layer) {
+	particles_init_ex(assets_prefix, particles_file, layer);
+}
+
+void particles_init_ex(const char* assets_prefix, const char* filename, uint layer) {
 	particles_layer = layer;
 
 	particles_prefix = assets_prefix ? assets_prefix : "";
@@ -48,7 +52,7 @@ void particles_init(const char* assets_prefix, uint layer) {
 	else {
 		desc_path[0] = '\0';
 	}
-	strcat(desc_path, particles_file);
+	strcat(desc_path, filename);
 
 	char* desc_text = txtfile_read(desc_path);
 	if(!desc_text)
