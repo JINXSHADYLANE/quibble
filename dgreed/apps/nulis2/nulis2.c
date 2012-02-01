@@ -20,6 +20,7 @@ void dgreed_init(int argc, const char** argv) {
 	rand_init(432);
 
 	const char* sprsheet = ASSETS_PRE "sprsheet_768p.mml";
+	const char* particles = "particles.mml";
 	uint width = 1024;
 	uint height = 768;
 	uint v_width = 1024;
@@ -32,12 +33,14 @@ void dgreed_init(int argc, const char** argv) {
 	scr_size = SCR_IPAD;
 	if(params_find("-iphone") != ~0 || (n_width < 960 || n_height < 640)) {
 		sprsheet = ASSETS_PRE "sprsheet_320p.mml";
+		particles = "particles_small.mml";
 		scr_size = SCR_IPHONE;
 		v_width = width = 480;
 		v_height = height = 320;
 	}
 	else if(params_find("-retina") != ~0 || (n_width < 1024 || n_height < 768)) {
 		sprsheet = ASSETS_PRE "sprsheet_640p.mml";
+		particles = "particles_small.mml";
 		scr_size = SCR_IPHONE;
 		v_width = 480;
 		v_height = 320;
@@ -48,7 +51,7 @@ void dgreed_init(int argc, const char** argv) {
 	video_init_ex(width, height, v_width, v_height, "nulis", false);
 	sound_init();
 
-	particles_init(ASSETS_PRE, 4);
+	particles_init_ex(ASSETS_PRE, particles, 4);
 	mfx_init(ASSETS_PRE "effects.mml");
 
 	malka_init();
