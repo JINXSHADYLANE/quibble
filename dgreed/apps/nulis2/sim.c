@@ -411,7 +411,7 @@ static void _update_level(void) {
 	}
 
 	// Spawn random balls
-	if(_count_alive_balls() < level.spawn_random_at) {
+	if(!level.n_spawns && !is_solved && _count_alive_balls() < level.spawn_random_at) {
 		if(t > last_spawn_t + level.spawn_random_interval) {
 			BallType type = rand_uint() & BT_WHITE;
 
