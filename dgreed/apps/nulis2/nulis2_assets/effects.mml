@@ -71,6 +71,7 @@
 			(particles b_hit
 				(dir_offset -90)
 			)
+			(sound Bounce.wav)
 		)
 		(e time+b
 			(particles w_hit
