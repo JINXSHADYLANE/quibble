@@ -3,7 +3,7 @@ module(..., package.seeall)
 screen = rect(0, 0, scr_size.x, scr_size.y)
 
 world_rect = rect(0, 0, 1600, 1600)
-shrunk_world_rect = rect(100, 100, 1500, 1500)
+shrunk_world_rect = rect(50, 50, 1550, 1550)
 
 gravity_dir = vec2(0, 1)
 world_rot = 0 
@@ -165,6 +165,10 @@ function reset_level()
 		if obj.id == objt.start then
 			camera.center = vec2(obj.pos)
 			cat.p = vec2(obj.pos)
+		end
+
+		if obj.taken then
+			obj.taken = nil
 		end
 	end
 end
@@ -408,7 +412,7 @@ function update_cat()
 	bbox.r = bbox.r + dx.x
 	bbox.b = bbox.b + dx.y
 
-	if not rect_rect_collision(shrunk_world_rect, bbox) then
+	if not is_rect_inside(bbox, shrunk_world_rect) then
 		-- death, reset pos to start
 		reset_level()
 	end
@@ -460,18 +464,16 @@ function collide_objs(bbox)
 					world_scale = world_scale / 2
 					mfx.trigger('star_take', sp)
 					obj.taken = true
-					obj.t = t
 				end
 
 				if obj.id == objt.star_grow then
 					world_scale = world_scale * 2
 					mfx.trigger('star_take', sp)
 					obj.taken = true
-					obj.t = t
 				end
 			end
 		else
-			if t - obj.t > star_respawn_t then
+			if obj.t and t - obj.t > star_respawn_t then
 				mfx.trigger('star_respawn', sp)
 				obj.taken = false
 			end
@@ -586,6 +588,13 @@ function render_text()
 			local pos = vec2(scr_size.x / 2, 330)
 			
 			video.draw_text_centered(fnt, 6, texts[text_i], pos, 1, col)
+		end
+
+		if no_control then
+			local alpha = clamp(0, 1, (dt - 3) / 5)
+			sound.set_volume(mus, 0.7 * (1 - alpha)) 
+			local col = rgba(1, 1, 1, alpha)
+			sprsheet.draw('empty', 4, screen, col) 
 		end
 	end
 end
