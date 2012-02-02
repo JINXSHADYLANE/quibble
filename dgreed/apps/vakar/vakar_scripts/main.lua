@@ -5,6 +5,16 @@ scr_size = vec2(512, 384)
 
 require 'game'
 
+-- is rect a completely inside rect b ?
+function is_rect_inside(a, b)
+	if a.l >= b.l and a.r <= b.r then
+		if a.t >= b.t and a.b <= b.b then
+			return true
+		end
+	end
+	return false
+end
+
 function game_init()
 	local scale = 2
 	local real_size = scr_size * scale
