@@ -1,10 +1,12 @@
 #import <UIKit/UIKit.h>
 #import "GLESView.h"
 #import "GLESViewController.h"
+#import "AutoRotateViewController.h"
 
 @interface DGreedAppDelegate : NSObject <UIApplicationDelegate> {
     UIWindow* window;
-    GLESViewController* controller;
+    AutoRotateViewController* controller;
+    GLESViewController* gl_controller;
 	GLESView* gl_view;
 }
 
