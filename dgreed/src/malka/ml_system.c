@@ -1057,6 +1057,92 @@ static const char* mbtn_names[] = {
 };	
 
 
+// orientation
+
+static int ml_orientation_current(lua_State* l) {
+	checkargs(0, "orientation.current");
+	lua_pushinteger(l, orientation_current());
+	return 1;
+}
+
+static int ml_orientation_did_change(lua_State* l) {
+	checkargs(0, "orientation.did_change");
+
+	DevOrient new;
+	float anim_start;
+	float anim_len;
+	bool res = orientation_change(&new, &anim_start, &anim_len);
+
+	if(res) {
+		lua_pushinteger(l, new);
+		lua_pushnumber(l, anim_start);
+		lua_pushnumber(l, anim_len);
+		return 3;
+	}
+	else {
+		lua_pushnil(l);
+		return 1;
+	}
+}
+
+static int ml_orientation_angle(lua_State* l) {
+	checkargs(1, "orientation.angle");
+	DevOrient orient = luaL_checkinteger(l, 1);
+	switch(orient) {
+		case ORIENT_LANDSCAPE_RIGHT:
+			lua_pushnumber(l, 0.0);
+			break;
+		case ORIENT_PORTRAIT_UPSIDE_DOWN:
+			lua_pushnumber(l, M_PI / 2.0);
+			break;
+		case ORIENT_LANDSCAPE_LEFT:
+			lua_pushnumber(l, M_PI);
+			break;
+		case ORIENT_PORTRAIT:
+			lua_pushnumber(l, M_PI / 2.0 * 3.0);
+			break;
+		default:
+			return luaL_error(l, "unknown orientation");
+	}
+	return 1;
+}
+
+extern void _new_vec2(lua_State* l, double x, double y);
+
+static int ml_orientation_basis(lua_State* l) {
+	checkargs(1, "orientation.angle");
+	DevOrient orient = luaL_checkinteger(l, 1);
+	switch(orient) {
+		case ORIENT_LANDSCAPE_RIGHT:
+			_new_vec2(l, 1.0, 0.0);
+			_new_vec2(l, 0.0, 1.0);
+			break;
+		case ORIENT_PORTRAIT_UPSIDE_DOWN:
+			_new_vec2(l, 0.0, -1.0);
+			_new_vec2(l, 1.0, 0.0);
+			break;
+		case ORIENT_LANDSCAPE_LEFT:
+			_new_vec2(l, -1.0, 0.0);
+			_new_vec2(l, 0.0, -1.0);
+			break;
+		case ORIENT_PORTRAIT:
+			_new_vec2(l, 0.0, 1.0);
+			_new_vec2(l, -1.0, 0.0);
+			break;
+		default:
+			return luaL_error(l, "unknown orientation");
+	}
+	return 2;
+}
+
+static const luaL_Reg orientation_fun[] = {
+	{"current", ml_orientation_current},
+	{"did_change", ml_orientation_did_change},
+	{"angle", ml_orientation_angle},
+	{"basis", ml_orientation_basis},
+	{NULL, NULL}
+};
+
 // gui
 
 static void _push_rect(lua_State* l, RectF rect) {
@@ -1552,6 +1638,25 @@ int malka_open_system(lua_State* l) {
 		lua_pushinteger(l, i);
 		lua_setfield(l, tbl, mbtn_names[i]);
 	}
+
+	
+	luaL_register(l, "orientation", orientation_fun);
+		
+	//lua_getglobal(l, "orientation");
+	/*
+	tbl = lua_gettop(l);
+	lua_pushinteger(l, ORIENT_LANDSCAPE_LEFT);
+	lua_setfield(l, tbl, "landscape_left");
+	*/
+	/*
+	lua_pushinteger(l, ORIENT_LANDSCAPE_RIGHT);
+	lua_setfield(l, tbl, "landscale_right");
+	lua_pushinteger(l, ORIENT_PORTRAIT);
+	lua_setfield(l, tbl, "portrait");
+	lua_pushinteger(l, ORIENT_PORTRAIT_UPSIDE_DOWN);
+	lua_setfield(l, tbl, "portrait_upside_down");
+	*/
+	
 
 	luaL_register(l, "gui", gui_fun);
 
