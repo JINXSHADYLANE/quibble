@@ -1,0 +1,129 @@
+( tweakables _
+    ( group sim
+        ( float max_speed
+            ( = 15.000000 )
+            ( min 5.000000 )
+            ( max 50.000000 )
+        )
+        ( float ball_mass
+            ( = 2.000000 )
+            ( min 0.500000 )
+            ( max 10.000000 )
+        )
+        ( float grav_mass
+            ( = 6.000000 )
+            ( min 0.500000 )
+            ( max 10.000000 )
+        )
+        ( float linear_damp
+            ( = 0.997000 )
+            ( min 0.990000 )
+            ( max 0.999000 )
+        )
+        ( float angular_damp
+            ( = 0.990000 )
+            ( min 0.900000 )
+            ( max 0.990000 )
+        )
+        ( float mass_increase_factor
+            ( = 1.300000 )
+            ( min 1.000000 )
+            ( max 3.000000 )
+        )
+        ( float collission_trigger_sqr_d
+            ( = 50.000000 )
+            ( min 10.000000 )
+            ( max 100.000000 )
+        )
+        ( float overlap_resolve_factor
+            ( = 1.500000 )
+            ( min 0.500000 )
+            ( max 4.000000 )
+        )
+        ( float ffield_strength
+            ( = 1500.000000 )
+            ( min 500.000000 )
+            ( max 5000.000000 )
+        )
+        ( float ffield_radius
+            ( = 90.000000 )
+            ( min 50.000000 )
+            ( max 300.000000 )
+        )
+        ( float ffield_freq
+            ( = 0.200000 )
+            ( min 0.050000 )
+            ( max 1.000000 )
+        )
+        ( float ffield_lifetime
+            ( = 0.500000 )
+            ( min 0.100000 )
+            ( max 1.000000 )
+        )
+        ( float gravity_max_dist
+            ( = 100.000000 )
+            ( min 50.000000 )
+            ( max 300.000000 )
+        )
+        ( float gravity_strength
+            ( = 100000.000000 )
+            ( min 100000.000000 )
+            ( max 500000.000000 )
+        )
+        ( float time_max_dist
+            ( = 80.000000 )
+            ( min 50.000000 )
+            ( max 300.000000 )
+        )
+        ( float time_strength
+            ( = 1.000000 )
+            ( min 1.100000 )
+            ( max 3.000000 )
+        )
+        ( float time_pulse_speed
+            ( = 8.000000 )
+            ( min 1.000000 )
+            ( max 20.000000 )
+        )
+        ( float spawn_anim_len
+            ( = 0.500000 )
+            ( min 0.100000 )
+            ( max 1.000000 )
+        )
+        ( float spawn_maxspeed
+            ( = 30.000000 )
+            ( min 10.000000 )
+            ( max 100.000000 )
+        )
+        ( float spawn_maxrot
+            ( = 2.000000 )
+            ( min 0.000000 )
+            ( max 5.000000 )
+        )
+        ( float ghost_lifetime
+            ( = 1.000000 )
+            ( min 0.100000 )
+            ( max 3.000000 )
+        )
+        ( float ghost_maxrot
+            ( = 7.000000 )
+            ( min 0.000000 )
+            ( max 10.000000 )
+        )
+        ( float vignette_delay
+            ( = 1.000000 )
+            ( min 0.000000 )
+            ( max 3.000000 )
+        )
+        ( float vignette_duration
+            ( = 5.000000 )
+            ( min 1.000000 )
+            ( max 10.000000 )
+        )
+        ( float touch_push_dist
+            ( = 130.000000 )
+            ( min 50.000000 )
+            ( max 250.000000 )
+        )
+    )
+)
