@@ -1187,6 +1187,61 @@ void sound_set_pos_ex(SourceHandle handle, float pos) {
 }
 
 /*
+--------------------------
+--- Device orientation ---
+--------------------------
+*/
+
+static DevOrient current_orientation;
+static bool orientation_transition_start = false;
+static DevOrient orientation_next;
+static float orientation_transition_start_t = 0.0f;
+static float orientation_transition_len = 0.0f;
+
+DevOrient _uikit_to_dev_orient(UIInterfaceOrientation orient) {
+    switch(orient) {
+        case UIInterfaceOrientationLandscapeLeft:
+            return ORIENT_LANDSCAPE_LEFT;
+        case UIInterfaceOrientationLandscapeRight:
+            return ORIENT_LANDSCAPE_RIGHT;
+        case UIInterfaceOrientationPortrait:
+            return ORIENT_PORTRAIT;
+        case UIInterfaceOrientationPortraitUpsideDown:
+            return ORIENT_PORTRAIT_UPSIDE_DOWN;
+    }
+    assert(0 && "Bad device orientation");
+    return ORIENT_LANDSCAPE_LEFT;
+}
+
+void _orientation_set_current(UIInterfaceOrientation orient) {
+    current_orientation = _uikit_to_dev_orient(orient);
+}
+
+void _orientation_start_transition(UIInterfaceOrientation next, float len) {
+    orientation_transition_start = true;
+    orientation_next = _uikit_to_dev_orient(next);
+    orientation_transition_len = len;
+    orientation_transition_start_t = time_ms_current() / 1000.0f;
+}
+
+
+DevOrient orientation_current(void) {
+    return current_orientation;
+}
+
+bool orientation_change(DevOrient* new, float* anim_start, float* anim_len) {
+    if(orientation_transition_start) {
+        if(new)
+            *new = orientation_next;
+        if(anim_start)
+            *anim_start = orientation_transition_start_t;
+        if(anim_len)
+            *anim_len = orientation_transition_len;
+    }
+    return orientation_transition_start;
+}
+
+/*
 ------------- 
 --- Input ---
 -------------

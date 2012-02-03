@@ -24,16 +24,14 @@ float resign_active_t;
     CGRect screen_bounds = [[UIScreen mainScreen] bounds];
 	
 	window = [[UIWindow alloc] initWithFrame:screen_bounds];
-	
-    controller = [GLESViewController alloc];
-    [window addSubview:controller.view];
-    gl_view = [controller.gl_view retain];
+    gl_controller = [[GLESViewController alloc] init];
+    controller = [[AutoRotateViewController alloc] init];
     
-	if(gl_view == nil)
-		return NO;
-	
-	[window addSubview:gl_view];
+    [window addSubview:controller.view];
+    [window addSubview:gl_controller.view];	
     [window makeKeyAndVisible];
+    
+    gl_view = [gl_controller.gl_view retain];
 	
 	[application setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
 	
@@ -124,6 +122,7 @@ float resign_active_t;
 
 - (void)dealloc {
 	[gl_view release];
+    [gl_controller release];
     [controller release];
     [window release];
     [super dealloc];

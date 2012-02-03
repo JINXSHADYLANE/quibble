@@ -1226,6 +1226,20 @@ void sound_set_pos_ex(SourceHandle source, float pos) {
 		alSourcef(src->al_source, AL_SEC_OFFSET, pos);
 	}	
 }
+
+/*
+--------------------------
+--- Device orientation ---
+--------------------------
+*/
+
+DevOrient orientation_current(void) {
+	return ORIENT_LANDSCAPE_LEFT;
+}
+
+bool orientation_change(DevOrient* new, float* anim_start, float* anim_len) {
+	return false;
+}
 	
 /*
 -------------

@@ -93,6 +93,7 @@
 		2137781D14CD5D4C004F01D2 /* nulis2_scripts in Resources */ = {isa = PBXBuildFile; fileRef = 2137781C14CD5D4C004F01D2 /* nulis2_scripts */; };
 		2137782714CD61B5004F01D2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213777BB14CD5C01004F01D2 /* QuartzCore.framework */; };
 		2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 2194F0C414D7FF5900147A0C /* ml_coldet.c */; };
+		21A6736714DC0D3700665A26 /* AutoRotateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 21A6736614DC0D3700665A26 /* AutoRotateViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -245,6 +246,8 @@
 		2137782514CD5E34004F01D2 /* nulis-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "nulis-Info.plist"; path = "nulis/nulis-Info.plist"; sourceTree = "<group>"; };
 		2194F0C414D7FF5900147A0C /* ml_coldet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_coldet.c; path = ../../../src/malka/ml_coldet.c; sourceTree = "<group>"; };
 		2194F0C514D7FF5900147A0C /* ml_coldet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_coldet.h; path = ../../../src/malka/ml_coldet.h; sourceTree = "<group>"; };
+		21A6736514DC0D3700665A26 /* AutoRotateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AutoRotateViewController.h; path = ../../../src/AutoRotateViewController.h; sourceTree = "<group>"; };
+		21A6736614DC0D3700665A26 /* AutoRotateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AutoRotateViewController.m; path = ../../../src/AutoRotateViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -349,6 +352,8 @@
 				2137770114CD5AFB004F01D2 /* GLESView.m */,
 				212518E714CEC1C9000E8BD2 /* GLESViewController.h */,
 				212518E814CEC1C9000E8BD2 /* GLESViewController.m */,
+				21A6736514DC0D3700665A26 /* AutoRotateViewController.h */,
+				21A6736614DC0D3700665A26 /* AutoRotateViewController.m */,
 				2137770214CD5AFB004F01D2 /* gui.c */,
 				2137770314CD5AFB004F01D2 /* gui.h */,
 				212D961B14D975ED003FE79C /* keyval.c */,
@@ -616,6 +621,7 @@
 				212518E914CEC1C9000E8BD2 /* GLESViewController.m in Sources */,
 				2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */,
 				212D961D14D975ED003FE79C /* keyval.c in Sources */,
+				21A6736714DC0D3700665A26 /* AutoRotateViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
