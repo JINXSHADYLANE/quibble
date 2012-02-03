@@ -141,6 +141,26 @@ float sound_get_pos_ex(SourceHandle source);
 void sound_set_pos_ex(SourceHandle source, float pos);
 
 /*
+--------------------------
+--- Device orientation ---
+--------------------------
+*/
+
+typedef enum {
+	ORIENT_LANDSCAPE_LEFT = 1,
+	ORIENT_LANDSCAPE_RIGHT = 2,
+	ORIENT_PORTRAIT = 4,
+	ORIENT_PORTRAIT_UPSIDE_DOWN = 8
+} DevOrient;
+
+// Returns current device orientation
+DevOrient orientation_current(void);
+
+// Returns true if orientation did just change, outputs
+// new orientation, animation start time and length.
+bool orientation_change(DevOrient* new, float* anim_start, float* anim_len);
+
+/*
 -------------
 --- Input ---
 -------------
@@ -215,7 +235,7 @@ float time_ms(void);
 float time_delta(void);
 uint time_fps(void);
 
-// This returns precise current time, updated continously
+// This returns precise current time, updated continiously
 uint time_ms_current(void);
 
 /*
