@@ -1237,6 +1237,9 @@ bool orientation_change(DevOrient* new, float* anim_start, float* anim_len) {
             *anim_start = orientation_transition_start_t;
         if(anim_len)
             *anim_len = orientation_transition_len;
+        
+        orientation_transition_start = false;
+        return true;
     }
     return orientation_transition_start;
 }
@@ -1437,6 +1440,8 @@ bool system_update(void) {
 	
 	cmouse_up = false;
 	cmouse_down = false;
+    
+    //orientation_transition_start = false;
 	
 	return true;
 }

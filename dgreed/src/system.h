@@ -158,7 +158,7 @@ DevOrient orientation_current(void);
 
 // Returns true if orientation did just change, outputs
 // new orientation, animation start time and length.
-bool orientation_change(DevOrient* new, float* anim_start, float* anim_len);
+bool orientation_change(DevOrient* _new, float* anim_start, float* anim_len);
 
 /*
 -------------

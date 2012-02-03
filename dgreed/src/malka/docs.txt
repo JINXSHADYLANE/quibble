@@ -408,6 +408,31 @@ returns i-th touch object, which is a table with fields pos, hit_pos and
 hit_time
 
 
+-----------
+orientation
+-----------
+
+constants:
+	orientation.landscape_left
+	orientation.landscape_right
+	orientation.portrait
+	orientation.portrait_upside_down
+
+- orientation.current()
+current device orientation
+
+- orientation.did_change()
+returns next device orientation, animation start and length if device was
+rotated; otherwise returns nil
+
+- orientation.angle(orient)
+returns angle by which you have to rotate items in order for them to be
+upside-up
+
+- orientation.basis(orient)
+returns right and down vectors in screenspace for provided orientation
+
+
 ---
 gui
 ---
