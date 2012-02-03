@@ -19,6 +19,9 @@ touch_sliding = false
 state_sound = true
 state_music = true
 
+-- icon angle
+angle = nil
+
 function init()
 	sprs.background = sprsheet.get_handle('vignette')
 	sprs.resume = sprsheet.get_handle('resume')
@@ -114,13 +117,14 @@ function menu_icon(spr, alt_spr, pos, state, color, rot, frame)
 end
 
 function draw_options()
-	if menu_icon(sprs.replay, nil, pos_replay) then
+
+	if menu_icon(sprs.replay, nil, pos_replay, nil, nil, angle) then
 		csim.reset('l'..tostring(current_level+1))
 		tutorials.last_level = nil
 		states.pop()
 	end
 
-	local new_state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound, state_sound) 
+	local new_state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound, state_sound, nil, angle) 
 	if state_sound ~= new_state_sound then
 		if new_state_sound then
 			mfx.snd_set_volume(1.0)
@@ -130,7 +134,7 @@ function draw_options()
 	end
 	state_sound = new_state_sound
 
-	local new_state_music = menu_icon(sprs.music, sprs.music_off, pos_music, state_music) 
+	local new_state_music = menu_icon(sprs.music, sprs.music_off, pos_music, state_music, nil, angle) 
 	if state_music ~= new_state_music then
 		if new_state_music then
 			sound.resume(music_source)
@@ -140,9 +144,10 @@ function draw_options()
 	end
 	state_music = new_state_music
 
-	if menu_icon(sprs.score, nil, pos_score) then
+	if menu_icon(sprs.score, nil, pos_score, nil, nil, angle) then
 		-- score
 	end
+
 end
 
 levels_off = 0
@@ -199,12 +204,12 @@ function draw_levels()
 				local level_n = ((y-1)*5) + (x-1)
 
 				if level_n ~= current_level then
-					if menu_icon(sprs.levels, nil, p, nil, col, 0.0, level_n) then
+					if menu_icon(sprs.levels, nil, p, nil, col, angle, level_n) then
 						csim.reset('l'..tostring(level_n+1))
 						states.pop()
 					end
 				else
-					if menu_icon(sprs.resume, nil, p, nil, col) then
+					if menu_icon(sprs.resume, nil, p, nil, col, angle) then
 						states.pop()
 					end
 				end
@@ -216,6 +221,43 @@ end
 function update()
 	if key.up(key.quit) then
 		states.pop()
+	end
+
+	-- update orientation angle
+	prev_angle = angle
+	local next_orientation, transition_t, transition_len = orientation.did_change() 	
+	if next_orientation then
+		orientation_anim = true
+
+		orientation_transition_t = transition_t
+		orientation_transition_len = transition_len
+		orientation_next = next_orientation
+	end
+
+	if orientation_anim then
+		local ct = time.s() 
+		local t = (ct - orientation_transition_t) / orientation_transition_len
+		if t > 1 then
+			orientation_anim = nil
+		else	
+			local curr_orientation = orientation.current()
+			local curr_angle = orientation.angle(curr_orientation)
+			local next_angle = orientation.angle(orientation_next)
+			if math.abs(curr_angle - next_angle) > math.pi then
+				if math.abs(curr_angle - (next_angle+math.pi*2)) < math.pi then
+					next_angle = next_angle+math.pi*2
+				end
+				if math.abs(curr_angle - (next_angle-math.pi*2)) < math.pi then
+					next_angle = next_angle-math.pi*2
+				end
+			end
+			angle = smoothstep(curr_angle, next_angle, t)
+		end
+	else
+		angle = orientation.angle(orientation.current())
+	end
+	if angle and prev_angle and math.abs(angle - prev_angle) > math.pi/4 then
+		angle = prev_angle
 	end
 
 	-- update touch state
