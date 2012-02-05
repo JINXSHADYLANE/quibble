@@ -1,4 +1,4 @@
-#include "ai_precalc.h"
+#include "../../apps/greed/ai_precalc.h"
 
 TEST_(wall_distance) {
 	DArray geometry = darray_create(sizeof(Segment), 7);

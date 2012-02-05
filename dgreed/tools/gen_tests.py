@@ -52,7 +52,9 @@ def build_test_data(tests_list, outfile):
 
 	final_text = '#define GROUP_COUNT ' + str(len(tests_list)) + '\n'
 	final_text += '#define TEST_COUNT ' + str(len(all_tests)) + '\n\n'
-	final_text = include_text + '\n' + final_text + group_text + test_text
+	final_text += 'uint group_count = ' + str(len(tests_list)) + ';\n'
+	final_text += 'uint test_count = ' + str(len(all_tests)) + ';\n\n'
+	final_text = '#include <test.h>\n' + include_text + '\n' + final_text + group_text + test_text
 
 	out = open(outfile, 'w')
 	out.write(final_text)

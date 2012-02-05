@@ -5,7 +5,7 @@ chipmunk = SConscript('chipmunk/SConscript', exports='env')
 NAME='greed'
 ARENA_BUILDER_NAME='abuild'
 PARTICLE_VIEWER_NAME='pview'
-TEST_RUNNER_NAME='test'
+TEST_RUNNER_NAME='greed_test'
 DEST_ASSETS_DIR = NAME + '_assets'
 ASSETS_DIR = 'assets'
 ARENAS_DIR = 'arenas'
@@ -42,9 +42,17 @@ particle_viewer_sources = Split("""
 particle_viewer_objects = env.Object(particle_viewer_sources) + \
 	['gui_style.o']
 
-test_sources = Split("""
-	test_runner.c
-""")	
+test_sources = None
+if env['DGREED_POSTFIX'] == '':
+	test_sources = Split("""
+		../tests/test_runner.c
+		test_data.c
+	""")	
+else:
+	test_sources = Split("""
+		../tests/test_runner.c
+		test_datad.c
+	""")
 # Include polygonize.o and ai_precalc.o too
 test_objects = env.Object(test_sources) + \
 	['polygonize.o', 'ai_precalc.o']
@@ -70,7 +78,7 @@ particle_viewer = env.Program(PARTICLE_VIEWER_NAME + postfix,
 env.Install('#'+env['DGREED_BIN_DIR'], particle_viewer)	
 
 # Test runner
-test_data = env.Command('test_data' + postfix + '.h', Glob(TESTS_DIR + '/*.tests'),
+test_data = env.Command('test_data' + postfix + '.c', Glob(TESTS_DIR + '/*.c'),
 	env['DGREED_TEST_TOOL'])
 test_data = env.Install('#apps/greed', test_data)
 test_runner = env.Program(TEST_RUNNER_NAME + postfix,
