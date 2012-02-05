@@ -1,38 +1,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "test.h"
 #include "memory.h"
 #include "utils.h"
-
-// #define STOP_ON_ERROR
-#define MAX_FAILED_ASSERTS 5
-
-#ifdef STOP_ON_ERROR
-#define STOP return;
-#else
-#define STOP
-#endif
-
-#define ASSERT__(group_name, test_name, file, line, expr) { \
-	if(!can_assert) { \
-		printf(" Unexpected assertion in %s:%d\n", file, line); \
-	} \
-	if(!(expr)) { \
-		failed_asserts++; \
-		if(failed_asserts > MAX_FAILED_ASSERTS) { \
-			printf(" Too many failed asserts in %s::%s, skipping the rest.\n", \
-				#group_name, #test_name); \
-			return; \
-		} \
-		if(first_fail) \
-			printf("\n"); \
-		printf(" Assert failed in %s::%s, line %d\n", #group_name, \
-			#test_name, line); \
-		test_failed = true; \
-		first_fail = false; \
-		STOP \
-	} \
-}	
 
 int failed_asserts;
 bool test_failed;
@@ -40,31 +11,17 @@ bool first_fail;
 int passed_tests;
 bool can_assert = false;
 
-typedef void (*fun_ptr)(void);
-
-typedef struct {
-	const char* name;
-	fun_ptr setup;
-	fun_ptr teardown;
-	int first_test_idx;
-	int test_count;
-} TestGroup;	
-
-// TestGroup groups[GROUP_COUNT];
-// fun_ptr tests[TEST_COUNT];
-
-#ifdef _DEBUG
-#include "test_datad.h"
-#else
-#include "test_data.h"
-#endif
+extern TestGroup groups[];
+extern uint group_count;
+extern fun_ptr tests[];
+extern uint test_count;
 
 void run_tests(void)
 {
 	TestGroup* current_group;
 	int i, j;
 	
-	for(i = 0; i < GROUP_COUNT; ++i) {
+	for(i = 0; i < group_count; ++i) {
 		current_group = &groups[i];
 		printf("Testing group %s ...", current_group->name);
 
@@ -116,17 +73,17 @@ void run_tests(void)
 				current_group->test_count);
 	}
 
-	if(passed_tests == TEST_COUNT) 
-		printf("All %d tests passed.\n", TEST_COUNT);
+	if(passed_tests == test_count) 
+		printf("All %d tests passed.\n", test_count);
 	else
 		printf("There were failures. %d out of %d total tests passed\n",
-			passed_tests, TEST_COUNT);
+			passed_tests, test_count);
 }
 
 int dgreed_main(int argc, const char** argv) {
 	run_tests();
 
-	if(passed_tests == TEST_COUNT)
+	if(passed_tests == test_count)
 		return 0;
 	else
 		return -1;
