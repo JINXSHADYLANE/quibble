@@ -49,6 +49,7 @@ static float last_spawn_t;
 static bool is_solved;
 static bool reset_level;
 static float reset_t;
+static bool sim_active = false;
 
 static bool ffield_push;
 static Vector2 ffield_pos;
@@ -253,6 +254,14 @@ void sim_close(void) {
 	darray_free(&spawns);
 	darray_free(&ghosts);
 	darray_free(&balls);
+}
+
+void sim_enter(void) {
+	sim_active = true;
+}
+
+void sim_leave(void) {
+	sim_active = false;
 }
 
 void sim_reset(const char* level) {
@@ -976,18 +985,23 @@ static void _update_ball(Ball* ball) {
 
 
 void _next_level(void* userdata) {
-	const char* next = levels_next(level.name);
-	sim_reset(next);
+	if(sim_active) {
+		level_solve(level.name);
+		const char* next = levels_next(level.name);
+		sim_reset(next);
+	}
 }
 
 void _reset_level(void* userdata) {
-	Ball* b = DARRAY_DATA_PTR(balls, Ball);
-	for(uint i = 0; i < balls.size; ++i) {
-		if(!b[i].remove)
-			mfx_trigger_ex("lose_vanish", vec2_add(b[i].pos, screen_offset), b[i].angle);
-	}
+	if(sim_active) {
+		Ball* b = DARRAY_DATA_PTR(balls, Ball);
+		for(uint i = 0; i < balls.size; ++i) {
+			if(!b[i].remove)
+				mfx_trigger_ex("lose_vanish", vec2_add(b[i].pos, screen_offset), b[i].angle);
+		}
 
-	sim_reset(level.name);
+		sim_reset(level.name);
+	}
 }
 
 static void _show_ffield(Vector2 p, float r, bool push) {
