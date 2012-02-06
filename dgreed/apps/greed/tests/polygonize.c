@@ -1,4 +1,4 @@
-#include "polygonize.h"
+#include "../../apps/greed/polygonize.h"
 #include "darray.h"
 #include "memory.h"
 
