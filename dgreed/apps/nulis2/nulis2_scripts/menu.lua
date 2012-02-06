@@ -66,6 +66,11 @@ function enter()
 	touch_up = nil
 
 	touch_released = false
+
+	unlocked = {}
+	for i=1,40 do
+		unlocked[i] = clevels.is_unlocked_n(i)	
+	end
 end
 
 function leave()
@@ -148,6 +153,10 @@ function draw_options()
 
 	if menu_icon(sprs.score, nil, pos_score, nil, nil, angle) then
 		-- score
+
+		for i=1,40 do
+			unlocked[i] = true
+		end
 	end
 
 end
@@ -206,9 +215,14 @@ function draw_levels()
 				local level_n = ((y-1)*5) + (x-1)
 
 				if level_n ~= current_level then
-					if menu_icon(sprs.levels, nil, p, nil, col, angle, level_n) then
-						csim.reset('l'..tostring(level_n+1))
-						states.pop()
+					local is_unlocked = unlocked[level_n+1] 
+					if is_unlocked then
+						if menu_icon(sprs.levels, nil, p, nil, col, angle, level_n) then
+							csim.reset('l'..tostring(level_n+1))
+							states.pop()
+						end
+					else
+						menu_icon(sprs.locked, nil, p, nil, col, angle)
 					end
 				else
 					if menu_icon(sprs.resume, nil, p, nil, col, angle) then
@@ -256,14 +270,6 @@ function update_orientation()
 	else
 		angle = orientation.angle(orientation.current())
 	end
-	--[[
-	if angle then
-		angle = math.fmod(math.pi * 2 + angle, math.pi * 2)
-	end
-	if angle and prev_angle and math.abs(angle - prev_angle) > math.pi/4 then
-		angle = prev_angle
-	end
-	]]
 end
 
 function update()

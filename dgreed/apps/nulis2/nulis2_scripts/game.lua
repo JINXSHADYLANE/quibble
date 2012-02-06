@@ -20,14 +20,16 @@ function close()
 end
 
 function enter()
+	csim.enter()
 end
 
 function leave()
+	csim.leave()
 end
 
 function update()
 	if not first_frame then
-		csim.reset('l1')
+		csim.reset(clevels.first_unsolved())
 		first_frame = true
 	end
 

@@ -4,6 +4,7 @@
 #include <sprsheet.h>
 #include <particles.h>
 #include <mfx.h>
+#include <keyval.h>
 
 #include "common.h"
 #include "bind.h"
@@ -51,6 +52,8 @@ void dgreed_init(int argc, const char** argv) {
 	video_init_ex(width, height, v_width, v_height, "nulis", false);
 	sound_init();
 
+	keyval_init("nulis2_progress.db");
+
 	particles_init_ex(ASSETS_PRE, particles, 4);
 	mfx_init(ASSETS_PRE "effects.mml");
 
@@ -74,6 +77,8 @@ void dgreed_close(void) {
 
 	mfx_close();
 	particles_close();
+
+	keyval_close();
 
 	sound_close();
 	video_close();

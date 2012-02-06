@@ -54,4 +54,10 @@ void levels_get(const char* name, LevelDef* def);
 const char* levels_next(const char* current);
 void levels_close(void);
 
+bool level_is_unlocked(const char* name);
+bool level_is_unlocked_n(uint n);
+bool level_is_solved(const char* name);
+void level_solve(const char* name);
+const char* level_first_unsolved(void);
+
 #endif

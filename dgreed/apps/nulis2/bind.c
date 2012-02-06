@@ -21,6 +21,18 @@ static int csim_close(lua_State* l) {
 	return 0;
 }
 
+static int csim_enter(lua_State* l) {
+	checkargs(0, "csim.enter");
+	sim_enter();
+	return 0;
+}
+
+static int csim_leave(lua_State* l) {
+	checkargs(0, "csim.leave");
+	sim_leave();
+	return 0;
+}
+
 static int csim_render(lua_State* l) {
 	int n = lua_gettop(l);
 	if(n == 0)
@@ -56,6 +68,8 @@ static int csim_level(lua_State* l) {
 static const luaL_Reg csim_fun[] = {
 	{"init", csim_init},
 	{"close", csim_close},
+	{"enter", csim_enter},
+	{"leave", csim_leave},
 	{"update", csim_update},
 	{"render", csim_render},
 	{"reset", csim_reset},
@@ -85,10 +99,36 @@ static int clevels_parse_ed(lua_State* l) {
 	return 0;
 }
 
+static int clevels_is_unlocked(lua_State* l) {
+	checkargs(1, "clevels.is_unlocked");
+
+	const char* name = luaL_checkstring(l, 1);
+	lua_pushboolean(l, level_is_unlocked(name));
+	return 1;
+}
+
+static int clevels_is_unlocked_n(lua_State* l) {
+	checkargs(1, "clevels.is_unlocked_n");
+
+	uint level = luaL_checkinteger(l, 1);
+	lua_pushboolean(l, level_is_unlocked_n(level));
+	return 1;
+}
+
+static int clevels_first_unsolved(lua_State* l) {
+	checkargs(0, "clevels.first_unsolved");
+
+	lua_pushstring(l, level_first_unsolved());
+	return 1;
+}
+
 static const luaL_Reg clevels_fun[] = {
 	{"reset", clevels_reset},
 	{"close", clevels_close},
 	{"parse_ed", clevels_parse_ed},
+	{"is_unlocked", clevels_is_unlocked},
+	{"is_unlocked_n", clevels_is_unlocked_n},
+	{"first_unsolved", clevels_first_unsolved},
 	{NULL, NULL}
 };
 

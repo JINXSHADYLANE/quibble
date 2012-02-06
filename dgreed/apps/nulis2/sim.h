@@ -6,6 +6,8 @@
 
 void sim_init(uint screen_width, uint screen_height, uint sim_width, uint sim_height);
 void sim_close(void);
+void sim_enter(void);
+void sim_leave(void);
 void sim_reset(const char* level);
 const char* sim_level(void);
 void sim_update(void);

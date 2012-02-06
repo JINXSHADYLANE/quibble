@@ -3,6 +3,9 @@
 #include <mml.h>
 #include <darray.h>
 #include <memory.h>
+#include <keyval.h>
+
+const int max_levels = 40;
 
 static bool level_defs_allocated = false;
 static bool level_mml_loaded = false;
@@ -204,3 +207,61 @@ void levels_close(void) {
 	}
 }
 
+bool level_is_unlocked(const char* name) {
+	char key_name[32] = "ulck_";
+	assert(strlen(key_name) + strlen(name) < 32);
+	strcat(key_name, name);
+
+	return strcmp(name, "l1") == 0 || keyval_get_bool(key_name, false);
+}
+
+bool level_is_unlocked_n(uint n) {
+	char key_name[32];
+	sprintf(key_name, "ulck_l%u", n);
+
+	return n == 1 || keyval_get_bool(key_name, false);
+}
+
+bool level_is_solved(const char* name) {
+	char key_name[32] = "slvd_";
+	assert(strlen(key_name) + strlen(name) < 32);
+	strcat(key_name, name);
+
+	return keyval_get_bool(key_name, false);
+}
+
+void level_solve(const char* name) {
+	char key_name[32];
+
+	int levelnum;
+	sscanf(name, "l%d", &levelnum);
+
+	// Mark level solved
+	sprintf(key_name, "slvd_%s", name);
+	keyval_set_bool(key_name, true);
+
+	// Unlock next 2 levels
+	for(uint i = 1; i <= 2; ++i) {
+		if(levelnum + i <= max_levels) {
+			sprintf(key_name, "ulck_l%u", levelnum + i);
+			keyval_set_bool(key_name, true);
+		}
+	}
+}
+
+const char* level_first_unsolved(void) {
+	static char level_name[16];
+	char key_name[16];
+	for(uint i = 1; i <= max_levels; ++i) {
+		sprintf(level_name, "l%d", i);	
+
+		sprintf(key_name, "slvd_%s", level_name);
+		if(!keyval_get_bool(key_name, false)) {
+			sprintf(key_name, "ulck_%s", level_name);
+			if(i == 1 || keyval_get_bool(key_name, false))
+				return level_name;
+		}
+	}
+	assert(0 && "Unable to determine next level to solve!");
+	return "l1";
+}
