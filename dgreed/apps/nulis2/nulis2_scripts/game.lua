@@ -2,6 +2,7 @@ module(..., package.seeall)
 
 require 'tutorials'
 require 'editor'
+require 'menu'
 
 function init()
 	clevels.reset(pre..levels_file)
@@ -19,16 +20,18 @@ function close()
 end
 
 function enter()
-	if not first_enter then
-		csim.reset('l1')
-		first_enter = true
-	end
 end
 
 function leave()
 end
 
 function update()
+	if not first_frame then
+		csim.reset('l1')
+		first_frame = true
+	end
+
+	menu.update_orientation()
 	csim.update()
 	return true
 end
