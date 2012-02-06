@@ -1240,6 +1240,23 @@ DevOrient orientation_current(void) {
 bool orientation_change(DevOrient* new, float* anim_start, float* anim_len) {
 	return false;
 }
+
+/*
+---------------------
+--- Running state ---
+---------------------
+*/
+
+RunStateCallback enter_background_cb = NULL;
+RunStateCallback enter_foreground_cb = NULL;
+
+void runstate_background_cb(RunStateCallback cb) {
+	enter_background_cb = cb;
+}
+
+void runstate_foreground_cb(RunStateCallback cb) {
+	enter_foreground_cb = cb;
+}
 	
 /*
 -------------
