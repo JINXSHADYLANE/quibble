@@ -71,8 +71,8 @@
 	(img tut_two_fingers
 		(tex "tut_two_fingers_s.png")
 	)
-	(img tut_three_fingers
-		(tex "tut_three_fingers_s.png")
+	(img tut_menu_fingers
+		(tex "tut_menu_fingers_s.png")
 	)
 	(img resume
 		(tex "ui_s.png")

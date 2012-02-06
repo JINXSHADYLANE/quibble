@@ -6,6 +6,7 @@ image_show_len = 5
 images = {
 	['l1'] = {'', 'title', 'tut_one_finger'},
 	['l2'] = {'tut_two_fingers'},
+	['l3'] = {'tut_menu_fingers'},
 	['l10'] = {'clock'},
 	['l14'] = {'clock'},
 	['l20'] = {'magnet'},
