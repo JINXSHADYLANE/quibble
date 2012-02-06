@@ -57,7 +57,7 @@ char* path_to_resource(const char* _file) {
     
     CFStringRef filename_cfstring = CFStringCreateWithCString(NULL, filename, kCFStringEncodingASCII);
     CFStringRef extension_cfstring = CFStringCreateWithCString(NULL, extension, kCFStringEncodingASCII);
-    CFStringRef file_cfstring = CFStringCreateWithCString(NULL, file, kCFStringEncodingASCII);
+    CFStringRef file_cfstring = file ? CFStringCreateWithCString(NULL, file, kCFStringEncodingASCII) : NULL;
 
 	CFURLRef resource_url = CFBundleCopyResourceURL(main_bundle, 
                                                     filename_cfstring,
@@ -67,7 +67,8 @@ char* path_to_resource(const char* _file) {
     
     CFRelease(filename_cfstring);
     CFRelease(extension_cfstring);
-    CFRelease(file_cfstring);
+    if(file)
+        CFRelease(file_cfstring);
 
 	if(!resource_url) {
 		LOG_WARNING("Unable to get url to file %s in a bundle", file);
@@ -921,10 +922,14 @@ const char* fs_devmode_prefix = "../../bin/";
 static FILE* _storage_fopen(const char* name, const char* mode) {
 	char storage_path[256];
 	const char* file = path_get_file(name);
-	assert(strlen(g_storage_dir) + strlen(file) < 254);
-	// TODO: Do we need to strip directories from name ?
-	sprintf(storage_path, "%s/%s", g_storage_dir, file);
-	return fopen(storage_path, mode);
+    if(file) {
+        assert(strlen(g_storage_dir) + strlen(file) < 254);
+        sprintf(storage_path, "%s/%s", g_storage_dir, file);
+        return fopen(storage_path, mode);
+    }
+    else {
+        return NULL;
+    }
 }
 #endif
 
@@ -940,8 +945,13 @@ bool file_exists(const char* name) {
 	}
 
 	char* path = path_to_resource(name);
-	file = fopen(path, "rb");
-	MEM_FREE(path);
+    if(path) {
+        file = fopen(path, "rb");
+        MEM_FREE(path);
+    }
+    else {
+        file = NULL;
+    }
 #else	
 	FILE* file = fopen(name, "rb");
 #endif
@@ -1214,10 +1224,13 @@ char* path_get_folder(const char* path) {
 
 const char* path_get_file(const char* path) {
 	assert(path);
-	uint i = strlen(path);
-	while(i && !_is_delim(path[--i]));
+	int len = strlen(path);
+	int i = len;
+	while(i > 0 && !_is_delim(path[--i]));
+	if(i == 0)
+		return path;
 	if(_is_delim(path[i]))
-	   return &path[i+1];
+	   return i+1 < len ? &path[i+1] : NULL;
 	else
 	   return NULL;
 }
