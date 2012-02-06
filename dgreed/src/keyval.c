@@ -11,6 +11,7 @@ static const char* keyval_file;
 static Dict keyval_dict;
 static DArray keyval_strs;
 static uint n_writes;
+static bool keyval_initialized = false;
 
 static void _rebase_ptrs(const void* old_base, const void* new_base, size_t strs_size) {
 	const void* minp = old_base;
@@ -154,6 +155,8 @@ void keyval_init(const char* file) {
 		dict_init(&keyval_dict);
 		keyval_strs = darray_create(sizeof(char), 0);
 	}
+
+	keyval_initialized = true;
 }
 
 void keyval_close(void) {
@@ -164,6 +167,8 @@ void keyval_close(void) {
 
 	dict_free(&keyval_dict);
 	darray_free(&keyval_strs);
+
+	keyval_initialized = true;
 }
 
 const char* keyval_get(const char* key, const char* def) {
@@ -259,5 +264,12 @@ void keyval_flush(void) {
 
 void keyval_gc(void) {
 	_gc();
+}
+
+void keyval_app_suspend(void) {
+	if(keyval_initialized) {
+		_gc();
+		_flush();
+	}
 }
 

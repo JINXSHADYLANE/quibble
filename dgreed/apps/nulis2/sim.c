@@ -50,6 +50,7 @@ static bool is_solved;
 static bool reset_level;
 static float reset_t;
 static bool sim_active = false;
+static BallType spawn_color;
 
 static bool ffield_push;
 static Vector2 ffield_pos;
@@ -926,8 +927,10 @@ void _collission_cb(CDObj* a, CDObj* b) {
 
 static void _spawn_cb(CDObj* obj) {
 	Ball* a = _get_ball((size_t)obj->userdata);
-	if(!a->remove && !(a->type & BT_GRAV)) {
-		a->pos = _move_ball(a, new_ball);
+	if(((a->type & BT_WHITE) != spawn_color) || (a->type & (BT_GRAV | BT_TIME))) {
+		if(!a->remove && !(a->type & BT_GRAV)) {
+			a->pos = _move_ball(a, new_ball);
+		}
 	}
 }
 
@@ -1262,6 +1265,7 @@ void sim_update(void) {
 	b = DARRAY_DATA_PTR(spawns, Ball);
 	for(uint i = 0; i < spawns.size; ++i) {
 		new_ball = &b[i];
+		spawn_color = new_ball->type & BT_WHITE;
 		coldet_query_circle(&cd, b[i].pos, b[i].radius, 1, _spawn_cb);
 
 		// Find a ball which was removed (can be made O(log n))
