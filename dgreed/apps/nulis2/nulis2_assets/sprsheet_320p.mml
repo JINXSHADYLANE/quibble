@@ -1,0 +1,120 @@
+(sprsheet nulis_320p
+	(prefix "nulis2_assets/")
+	(img empty
+		(tex "empty.png")
+	)
+	(img title
+		(tex "nulis_title_s.png")
+	)
+	(img background
+		(tex "background.png")
+		(src 2,2,242,162)
+	)
+	(img vignette
+		(tex "background.png")
+		(src 2,164,242,324)
+	)
+	(img bubble_w
+		(tex "bubbles_s.png")
+		(src 0,0,32,32)
+	)
+	(img bubble_b
+		(tex "bubbles_s.png")
+		(src 0,32,32,64)
+	)
+	(img double_bubble_w
+		(tex "bubbles_s.png")
+		(src 64,0,116,32)
+	)
+	(img double_bubble_b
+		(tex "bubbles_s.png")
+		(src 64,32,116,64)
+	)
+	(img triple_bubble_w
+		(tex "bubbles_s.png")
+		(src 0,64,52,116)
+	)
+	(img triple_bubble_b
+		(tex "bubbles_s.png")
+		(src 52,64,104,116)
+	)
+	(img beacon
+		(tex "bubbles_s.png")
+		(src 32,0,64,32)
+	)
+	(img time_w
+		(tex "bubbles_s.png")
+		(src 128,0,192,64)
+	)
+	(img time_b
+		(tex "bubbles_s.png")
+		(src 192,0,256,64)
+	)
+	(img gravity_w
+		(tex "bubbles_s.png")
+		(src 104,64,154,114)
+	)
+	(img gravity_b
+		(tex "bubbles_s.png")
+		(src 154,64,204,114)
+	)
+	(img g_sparkles
+		(tex "bubbles_s.png")
+		(src 204,64,254,114)
+	)
+	(img circle
+		(tex "circle_s.png")
+	)
+	(img tut_one_finger
+		(tex "tut_one_finger_s.png")
+	)
+	(img tut_two_fingers
+		(tex "tut_two_fingers_s.png")
+	)
+	(img tut_menu_fingers
+		(tex "tut_menu_fingers_s.png")
+	)
+	(img resume
+		(tex "ui_s.png")
+		(src 0,0,64,64)
+	)
+	(img replay
+		(tex "ui_s.png")
+		(src 64,0,128,64)
+	)
+	(img sound
+		(tex "ui_s.png")
+		(src 128,0,192,64)
+	)
+	(img music
+		(tex "ui_s.png")
+		(src 192,0,256,64)
+	)
+	(img score
+		(tex "ui_s.png")
+		(src 256,0,320,64)
+	)
+	(img sound_mute
+		(tex "ui_s.png")
+		(src 320,0,384,64)
+	)
+	(img music_mute
+		(tex "ui_s.png")
+		(src 384,0,448,64)
+	)
+	(img back
+		(tex "ui_s.png")
+		(src 448,0,512,64)
+	)
+	(img locked
+		(tex "ui_s.png")
+		(src 0,64,64,128)
+	)
+	(anim levels
+		(tex "ui_s.png")
+		(frames 40)
+		(src 0,128,64,192)
+		(offset 64,64)
+		(grid 8,5)
+	)
+)
