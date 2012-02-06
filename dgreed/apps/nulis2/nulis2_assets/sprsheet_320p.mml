@@ -74,6 +74,15 @@
 	(img tut_menu_fingers
 		(tex "tut_menu_fingers_s.png")
 	)
+	(img clock
+		(tex "clock_s.png")
+	)
+	(img magnet
+		(tex "magnet_s.png")
+	)
+	(img stopwatch
+		(tex "stopwatch_s.png")
+	)
 	(img resume
 		(tex "ui_s.png")
 		(src 0,0,64,64)
