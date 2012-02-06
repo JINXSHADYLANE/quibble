@@ -1234,7 +1234,7 @@ void sound_set_pos_ex(SourceHandle source, float pos) {
 */
 
 DevOrient orientation_current(void) {
-	return ORIENT_LANDSCAPE_LEFT;
+	return ORIENT_LANDSCAPE_RIGHT;
 }
 
 bool orientation_change(DevOrient* new, float* anim_start, float* anim_len) {

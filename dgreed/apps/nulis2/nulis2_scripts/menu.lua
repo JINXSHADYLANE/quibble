@@ -64,6 +64,8 @@ function enter()
 	current_level = tonumber(l) - 1
 	touch_current = nil
 	touch_up = nil
+
+	touch_released = false
 end
 
 function leave()
@@ -218,11 +220,7 @@ function draw_levels()
 	end
 end
 
-function update()
-	if key.up(key.quit) then
-		states.pop()
-	end
-
+function update_orientation()
 	-- update orientation angle
 	prev_angle = angle
 	local next_orientation, transition_t, transition_len = orientation.did_change() 	
@@ -237,12 +235,14 @@ function update()
 	if orientation_anim then
 		local ct = time.s() 
 		local t = (ct - orientation_transition_t) / orientation_transition_len
-		if t > 1 then
+		if t > 1.1 then
 			orientation_anim = nil
 		else	
 			local curr_orientation = orientation.current()
 			local curr_angle = orientation.angle(curr_orientation)
 			local next_angle = orientation.angle(orientation_next)
+			
+			-- make sure to rotate along a shortest path between two angles
 			if math.abs(curr_angle - next_angle) > math.pi then
 				if math.abs(curr_angle - (next_angle+math.pi*2)) < math.pi then
 					next_angle = next_angle+math.pi*2
@@ -256,12 +256,25 @@ function update()
 	else
 		angle = orientation.angle(orientation.current())
 	end
+	--[[
+	if angle then
+		angle = math.fmod(math.pi * 2 + angle, math.pi * 2)
+	end
 	if angle and prev_angle and math.abs(angle - prev_angle) > math.pi/4 then
 		angle = prev_angle
 	end
+	]]
+end
+
+function update()
+	if key.up(key.quit) then
+		states.pop()
+	end
+
+	update_orientation()
 
 	-- update touch state
-	if touch.count() == 1 then
+	if touch_released and touch.count() == 1 then
 		local t = touch.get(0)
 		if touch_current == nil then
 			touch_sliding = false
@@ -275,6 +288,7 @@ function update()
 	end
 
 	if touch.count() == 0 then
+		touch_released = true
 		if touch_current ~= nil then
 			touch_up = touch_current
 		else
