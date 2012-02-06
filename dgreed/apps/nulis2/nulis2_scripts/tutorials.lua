@@ -91,9 +91,7 @@ function render(level)
 			local img_alpha = math.sin(tt * math.pi)
 			local color = rgba(1, 1, 1, img_alpha) 
 
-		
 			-- finger image hacks
-			
 			if img:find('tut') == 1 then
 				
 				if not tut and not freeze_t and tt > 0.5 then

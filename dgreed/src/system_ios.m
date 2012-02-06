@@ -950,7 +950,8 @@ Sound* _get_sound(SoundHandle handle, uint* index) {
 			return &sound[i];
 		}	
 	}
-	return NULL;
+	assert(0 && "Unable to find sound handle");
+	return &sound[0];
 }
 
 
@@ -961,7 +962,8 @@ Source* _get_source(SourceHandle handle) {
 			return &source[i];
 		}	
 	}
-	return NULL;
+	assert(0 && "Unable to find source handle");
+	return &source[0];
 }
 
 void sound_free(SoundHandle handle) {
@@ -1339,7 +1341,7 @@ void _touch_move(float old_x, float old_y, float new_x, float new_y) {
     assert(count);
 	float min_d = 10000.0f;
 	uint min_i = 0;
-	for(uint i = 0; i < count; ++i) {
+	for(uint i = 0; i < count && i < max_touches; ++i) {
 		float dx = touches[i].pos.x - old_x;
 		float dy = touches[i].pos.y - old_y;
 		float d = dx*dx + dy*dy;
@@ -1355,7 +1357,7 @@ void _touch_up(float old_x, float old_y) {
 	uint count = touch_count;
 	float min_d = 10000.0f;
 	uint min_i = 0;
-	for(uint i = 0; i < count; ++i) {
+	for(uint i = 0; i < count && i < max_touches; ++i) {
 		float dx = touches[i].pos.x - old_x;
 		float dy = touches[i].pos.y - old_y;
 		float d = dx*dx + dy*dy;

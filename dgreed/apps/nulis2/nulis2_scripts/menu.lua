@@ -249,7 +249,7 @@ function update_orientation()
 	if orientation_anim then
 		local ct = time.s() 
 		local t = (ct - orientation_transition_t) / orientation_transition_len
-		if t > 1.1 then
+		if t > 1.2 then
 			orientation_anim = nil
 		else	
 			local curr_orientation = orientation.current()
