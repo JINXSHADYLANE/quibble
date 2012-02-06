@@ -161,6 +161,24 @@ DevOrient orientation_current(void);
 bool orientation_change(DevOrient* _new, float* anim_start, float* anim_len);
 
 /*
+---------------------
+--- Running state ---
+---------------------
+*/
+
+typedef void (*RunStateCallback)(void);
+
+// Sets a callback which will be invoked when
+// app enters background state. Can be NULL
+// if you want to disable previous callback.
+void runstate_background_cb(RunStateCallback cb);
+
+// Sets a callback which will be invoked when
+// app enters foreground state. Can be NULL
+// if you want to disable previous callback.
+void runstate_foreground_cb(RunStateCallback cb);
+
+/*
 -------------
 --- Input ---
 -------------

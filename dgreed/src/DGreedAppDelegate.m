@@ -3,11 +3,15 @@
 
 #include "utils.h"
 #include "memory.h"
+#include "system.h"
 
 extern bool dgreed_init(int argc, const char** argv);
 extern void dgreed_close(void);
 extern uint time_ms_current(void);
 extern float inactive_time;
+
+extern RunStateCallback enter_background_cb;
+extern RunStateCallback enter_foreground_cb;
 
 const char* g_home_dir = NULL;
 const char* g_storage_dir = NULL;
@@ -74,6 +78,9 @@ float resign_active_t;
      */
 	LOG_INFO("iOS: applicationDidEnterBackground");
 	[gl_view stopAnimation];
+    
+    if(enter_background_cb)
+        (*enter_background_cb)();
 }
 
 
@@ -83,6 +90,9 @@ float resign_active_t;
      */
 	LOG_INFO("iOS: applicationWillEnterForeground");
 	[gl_view startAnimation];
+    
+    if(enter_foreground_cb)
+        (*enter_foreground_cb)();
 }
 
 
