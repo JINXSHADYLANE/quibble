@@ -1,5 +1,7 @@
 module(..., package.seeall)
 
+require 'menu'
+
 image_layer = 1
 image_show_len = 5
 
@@ -105,7 +107,7 @@ function render(level)
 				end
 
 				local tut_anim = tut_fingers[img]
-				pos = pos + tut_offset 
+				pos = pos + rotate(tut_offset, menu.angle) 
 				if tut_anim == 1 or tut_anim == 2 then
 					local ttt = gt / image_show_len * 2
 					if tut_anim == 2 then
@@ -120,7 +122,7 @@ function render(level)
 				end
 			end
 
-			sprsheet.draw_centered(img, image_layer, pos, color) 
+			sprsheet.draw_centered(img, image_layer, pos, menu.angle, 1.0, color) 
 		else
 			scenario = nil
 		end
