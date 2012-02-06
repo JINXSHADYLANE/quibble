@@ -8,6 +8,7 @@
 extern bool dgreed_init(int argc, const char** argv);
 extern void dgreed_close(void);
 extern uint time_ms_current(void);
+extern void keyval_app_suspend(void);
 extern float inactive_time;
 
 extern RunStateCallback enter_background_cb;
@@ -81,6 +82,8 @@ float resign_active_t;
     
     if(enter_background_cb)
         (*enter_background_cb)();
+    
+    keyval_app_suspend();
 }
 
 

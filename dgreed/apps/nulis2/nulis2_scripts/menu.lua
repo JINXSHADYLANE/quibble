@@ -54,6 +54,8 @@ function init()
 		pos_levels = vec2(116, 37)
 		off_levels = vec2(80, 82)
 	end
+
+	angle = orientation.angle(orientation.current())
 end
 
 function close()
