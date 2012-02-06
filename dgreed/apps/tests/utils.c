@@ -232,6 +232,13 @@ TEST_(path_change_ext) {
 	MEM_FREE(p7);
 }
 
+TEST_(path_get_file) {
+	ASSERT_(strcmp(path_get_file("file.txt"), "file.txt") == 0);
+	ASSERT_(strcmp(path_get_file("/dev/null"), "null") == 0);
+	ASSERT_(strcmp(path_get_file("C:\\Program files\\data.db"), "data.db") == 0);
+	ASSERT_(path_get_file("/usr/local/bin/") == NULL);
+}
+
 TEST_(is_pow2) {
 	uint positive[] = {1, 2, 4, 8, 1024, 64, 262144, 2147483648};
 	uint negative[] = {0, 3, 7, 255, 4097, 458290, 9851754, 4294967295};
