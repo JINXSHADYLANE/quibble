@@ -247,7 +247,7 @@ function update_orientation()
 	end
 
 	if orientation_anim then
-		local ct = time.s() 
+		local ct = time.ms_current() / 1000
 		local t = (ct - orientation_transition_t) / orientation_transition_len
 		if t > 1.2 then
 			orientation_anim = nil

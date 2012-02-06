@@ -22,6 +22,14 @@ tut_fingers = {
 	['tut_menu_fingers'] = 5 
 }
 
+tut_menu_offsets = {
+	vec2(0, 0),
+	vec2(-100, 20),
+	vec2(-170, 180),
+	vec2(80, 20),
+	vec2(170, 100)
+}
+
 function init()
 	screen_center = vec2(scr_size.x/2, scr_size.y/2)
 
@@ -109,7 +117,7 @@ function render(level)
 
 				local tut_anim = tut_fingers[img]
 				pos = pos + rotate(tut_offset, menu.angle) 
-				if tut_anim == 1 or tut_anim == 2 then
+				if tut_anim == 1 or tut_anim == 2 or tut_anim == 5 then
 					local ttt = gt / image_show_len * 2
 					if tut_anim == 2 then
 						ttt = 1 - ttt
@@ -118,8 +126,22 @@ function render(level)
 					local circle_color = rgba(0.7, 0.7, 0.7, alpha)
 					local size = ttt - math.floor(ttt)
 					local circle_size = lerp(1.5, 0.4, size)
-					sprsheet.draw_centered('circle', image_layer, screen_center, 
-						0, circle_size, circle_color)
+
+					if tut_anim == 5 then
+						circle_size = lerp(0.3, 1, size)
+					end
+
+					if tut_fingers[img] ~= 5 then
+						-- draw 5 circles for menu tutorial
+						sprsheet.draw_centered('circle', image_layer, screen_center, 
+							0, circle_size, circle_color)
+					else
+						for i=1,5 do
+							local pos = screen_center + rotate(tut_menu_offsets[i], menu.angle)
+							sprsheet.draw_centered('circle', image_layer, pos, 
+								0, circle_size, circle_color)
+						end
+					end
 				end
 			end
 

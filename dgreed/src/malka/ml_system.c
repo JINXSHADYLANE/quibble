@@ -21,6 +21,12 @@ extern void _new_rgba(lua_State* l, double r, double g,
 
 // time
 
+static int ml_time_ms_current(lua_State* l) {
+	checkargs(0, "time.ms_current");
+	lua_pushnumber(l, time_ms_current());
+	return 1;
+}
+
 static int ml_time_ms(lua_State* l) {
 	checkargs(0, "time.ms");
 	lua_pushnumber(l, time_ms());
@@ -46,6 +52,7 @@ static int ml_time_fps(lua_State* l) {
 }
 
 static const luaL_Reg time_fun[] = {
+	{"ms_current", ml_time_ms_current},
 	{"ms", ml_time_ms},
 	{"s", ml_time_s},
 	{"dt", ml_time_dt},
