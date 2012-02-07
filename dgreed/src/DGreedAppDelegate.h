@@ -10,5 +10,7 @@
 	GLESView* gl_view;
 }
 
+@property(nonatomic,readonly) AutoRotateViewController* controller;
+
 @end
 

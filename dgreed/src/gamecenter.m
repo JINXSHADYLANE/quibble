@@ -2,6 +2,7 @@
 
 #include "memory.h"
 
+#import "DGreedAppDelegate.h"
 #import <GameKit/GameKit.h>
 
 #define QUEUE_STR_LEN 32
@@ -18,12 +19,17 @@ typedef struct {
     float progress;
 } QueuedAchievement;
 
+static DGreedAppDelegate* app_delegate = nil;
 static bool gamecenter_active = false;
 static DArray score_queue;
 static DArray achievement_queue;
 static int live_requests = 0;
 
 static NSMutableDictionary* achievement_dict;
+
+void _set_gamecenter_app_delegate(DGreedAppDelegate* _app_delegate) {
+    app_delegate = _app_delegate;
+}
 
 static bool is_gamecenter_supported(void) {
     BOOL found_local_player_class = (NSClassFromString(@"GKLocalPlayer")) != nil;
@@ -302,7 +308,12 @@ void gamecenter_get_scores(uint start, uint len, TimeScope ts,
 }
 
 void gamecenter_show_leaderboard(const char* category, TimeScope ts) {
-    // TODO
+    GKLeaderboardViewController *leaderboardController = [[GKLeaderboardViewController alloc] init];
+    if(leaderboardController != nil) {
+        leaderboardController.leaderboardDelegate = app_delegate.controller;
+        [app_delegate.controller presentModalViewController: leaderboardController animated: YES];
+    }
+    [leaderboardController release];
 }
 
 void gamecenter_report_achievement(const char* identifier, float percent) {
@@ -340,7 +351,12 @@ void gamecenter_get_achievements(GameCenterCallback callback) {
 }
 
 void gamecenter_show_achievements(void) {
-    // TODO
+    GKAchievementViewController *achievements = [[GKAchievementViewController alloc] init];
+    if (achievements != nil) {
+        achievements.achievementDelegate = app_delegate.controller;
+        [app_delegate.controller presentModalViewController: achievements animated: YES];
+    }
+    [achievements release];
 }
 
 void gamecenter_app_suspend(void) {

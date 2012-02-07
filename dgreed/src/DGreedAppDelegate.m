@@ -10,6 +10,7 @@ extern void dgreed_close(void);
 extern uint time_ms_current(void);
 extern void keyval_app_suspend(void);
 extern void gamecenter_app_suspend(void);
+extern void _set_gamecenter_app_delegate(DGreedAppDelegate* _app_delegate);
 extern float inactive_time;
 
 extern RunStateCallback enter_background_cb;
@@ -22,6 +23,8 @@ bool did_resign_active = false;
 float resign_active_t;
 
 @implementation DGreedAppDelegate
+
+@synthesize controller;
 
 #pragma mark -
 #pragma mark Application lifecycle
@@ -50,6 +53,8 @@ float resign_active_t;
 	NSString* storage = [fileManager applicationSupportDirectory];
 	g_storage_dir = strclone([storage UTF8String]);
 	[fileManager release];
+    
+    _set_gamecenter_app_delegate(self);
 	
 	if(!dgreed_init(0, NULL))
 		return NO;
