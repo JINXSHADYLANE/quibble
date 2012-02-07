@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <GameKit/GameKit.h>
 
-@interface AutoRotateViewController : UIViewController
+@interface AutoRotateViewController : UIViewController <GKLeaderboardViewControllerDelegate, GKAchievementViewControllerDelegate>
 
 @end
