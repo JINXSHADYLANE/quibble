@@ -74,4 +74,14 @@ extern void _orientation_start_transition(UIInterfaceOrientation next, float len
     _orientation_set_current(current);
 }
 
+- (void)leaderboardViewControllerDidFinish:(GKLeaderboardViewController *)viewController
+{
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+- (void)achievementViewControllerDidFinish:(GKAchievementViewController *)viewController
+{
+    [self dismissModalViewControllerAnimated:YES];
+}
+
 @end

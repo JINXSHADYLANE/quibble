@@ -641,6 +641,32 @@ serializes node into text, writes it to a file or returns as a string
 
 
 ------
+keyval (not implemented)
+------
+
+Persistent key-value storage.
+
+- keyval.init(filename)
+initializes keyval, loads previous data if there is any
+
+- keyval.close()
+closes keyval, flushes cached data to disk
+
+- keyval.get(key, default)
+returns value for key, converted to same type as default;
+if key does not exist - returns default
+
+- keyval.set(key, value)
+sets a key's value
+
+- keyval.flush()
+flushes data to disk
+
+- keyval.gc()
+performs garbage collection on in-memory data 
+
+
+------
 states
 ------
 
@@ -707,4 +733,43 @@ displays state system stats and time spent in lua code
 
 - devmode.video_debug(flag)
 turns video debug mode on/off, flag is bool
+
+
+----------
+gamecenter (not implemented)
+----------
+
+Available only in iOS 4.2 or higher, gamecenter == nil
+if not on iOS or version is too low.
+
+- gamecenter.init()
+initializes gamecenter
+
+- gamecenter.close()
+closes gamecenter
+
+- gamecenter.report_score(category, context, value)
+reports score
+
+- gamecenter.get_scores(start, len, timescope, playerscope, callback)
+gets score table, params:
+	start: 		the n-th score to start at
+	len:		how many scores to return
+	timescope:	'day', 'week' or 'all'
+	playerscope:'friends' or 'everyone'
+	callback:	function which takes a list 
+		of {category, context, value, player} tables
+
+- gamecenter.show_leaderboard(category, timescope)
+pauses game, shows default gamecenter leaderboard ui
+
+- gamecenter.report_achievement(id, progress)
+reports achievement, id is name, progress is number in range 0 - 100
+
+- gamecenter.get_achievements(callback)
+gets all achievements and calls callback with a list of
+{id, desc, title, progress, completed} tables
+
+- gamecenter.show_achievements()
+pauses game, shows default gamecenter achievement ui
 
