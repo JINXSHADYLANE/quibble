@@ -24,7 +24,9 @@ float resign_active_t;
 
 @implementation DGreedAppDelegate
 
+@synthesize window;
 @synthesize controller;
+@synthesize gl_controller;
 
 #pragma mark -
 #pragma mark Application lifecycle
@@ -148,5 +150,16 @@ float resign_active_t;
     [super dealloc];
 }
 
+- (void)leaderboardViewControllerDidFinish:(GKLeaderboardViewController *)viewController
+{
+    [controller dismissModalViewControllerAnimated:YES];
+    [self.window bringSubviewToFront:gl_controller.view];
+}
+
+- (void)achievementViewControllerDidFinish:(GKAchievementViewController *)viewController
+{
+    [controller dismissModalViewControllerAnimated:YES];
+    [self.window bringSubviewToFront:gl_controller.view];
+}
 
 @end

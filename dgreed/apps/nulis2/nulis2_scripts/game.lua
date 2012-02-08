@@ -11,9 +11,17 @@ function init()
 		scr_size.x, scr_size.y,
 		sim_size.x, sim_size.y
 	)
+
+	if gamecenter then
+		gamecenter.init()
+	end
 end
 
 function close()
+	if gamecenter then
+		gamecenter.close()
+	end
+
 	tutorials.close()
 	csim.close()
 	clevels.close()

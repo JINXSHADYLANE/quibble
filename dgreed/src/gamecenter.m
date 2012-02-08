@@ -76,7 +76,7 @@ static void _load_queues(void) {
 }
 
 static void _flush_queues(void) {
-    FileHandle f = file_open(QUEUE_FILE);
+    FileHandle f = file_create(QUEUE_FILE);
     
     file_write_uint32(f, FOURCC('G', 'S', 'Q', '0'));
     file_write(f, &score_queue, sizeof(score_queue));
@@ -310,7 +310,10 @@ void gamecenter_get_scores(uint start, uint len, TimeScope ts,
 void gamecenter_show_leaderboard(const char* category, TimeScope ts) {
     GKLeaderboardViewController *leaderboardController = [[GKLeaderboardViewController alloc] init];
     if(leaderboardController != nil) {
-        leaderboardController.leaderboardDelegate = app_delegate.controller;
+        leaderboardController.category = [NSString stringWithUTF8String:category];
+        leaderboardController.timeScope = _dgreed_to_gk_time_scope(ts);
+        leaderboardController.leaderboardDelegate = app_delegate;
+        [app_delegate.window bringSubviewToFront:app_delegate.controller.view];
         [app_delegate.controller presentModalViewController: leaderboardController animated: YES];
     }
     [leaderboardController release];
@@ -353,7 +356,8 @@ void gamecenter_get_achievements(GameCenterCallback callback) {
 void gamecenter_show_achievements(void) {
     GKAchievementViewController *achievements = [[GKAchievementViewController alloc] init];
     if (achievements != nil) {
-        achievements.achievementDelegate = app_delegate.controller;
+        achievements.achievementDelegate = app_delegate;
+        [app_delegate.window bringSubviewToFront:app_delegate.controller.view];
         [app_delegate.controller presentModalViewController: achievements animated: YES];
     }
     [achievements release];

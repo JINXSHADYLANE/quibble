@@ -153,11 +153,10 @@ function draw_options()
 	end
 	state_music = new_state_music
 
-	if menu_icon(sprs.score, nil, pos_score, nil, nil, angle) then
-		-- score
-
-		for i=1,40 do
-			unlocked[i] = true
+	if gamecenter and gamecenter.is_active() then
+		if menu_icon(sprs.score, nil, pos_score, nil, nil, angle) then
+			-- score
+			gamecenter.show_leaderboard('default', 'all')
 		end
 	end
 
