@@ -98,7 +98,6 @@
 		21A6736714DC0D3700665A26 /* AutoRotateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 21A6736614DC0D3700665A26 /* AutoRotateViewController.m */; };
 		21D150D314E1541B00870D7A /* gamecenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D150D214E1541A00870D7A /* gamecenter.m */; };
 		21D150D914E1715000870D7A /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21D150D714E1713D00870D7A /* GameKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		21D150DC14E171DB00870D7A /* libSystem.B.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 21D150DA14E171CA00870D7A /* libSystem.B.dylib */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -279,7 +278,6 @@
 				213776DD14CD5A58004F01D2 /* Foundation.framework in Frameworks */,
 				213776DF14CD5A58004F01D2 /* CoreGraphics.framework in Frameworks */,
 				21D150D914E1715000870D7A /* GameKit.framework in Frameworks */,
-				21D150DC14E171DB00870D7A /* libSystem.B.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

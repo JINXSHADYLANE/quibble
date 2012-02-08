@@ -94,7 +94,8 @@ static void _close_queues(void) {
 
 static void _report_score(const char* category, int64 score, int64 context) {
     NSString* ns_category = [NSString stringWithUTF8String:category];
-    GKScore* score_reporter = [[[GKScore alloc] initWithCategory:ns_category] autorelease];
+    //GKScore* score_reporter = [[[GKScore alloc] initWithCategory:ns_category] autorelease];
+    GKScore* score_reporter = [[GKScore alloc] initWithCategory:ns_category];
     score_reporter.value = score;
     score_reporter.context = context;
     [score_reporter reportScoreWithCompletionHandler:^(NSError *error) {
@@ -105,6 +106,7 @@ static void _report_score(const char* category, int64 score, int64 context) {
         else {
             // Success
             // Find score queue item and remove it
+            LOG_INFO("Score reported to game center successfully: %lld", score);
             QueuedScore* scores = DARRAY_DATA_PTR(score_queue, QueuedScore);
             for(uint i = 0; i < score_queue.size; ++i) {
                 if(scores[i].value == score && scores[i].context == context) {

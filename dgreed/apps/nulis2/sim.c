@@ -51,6 +51,7 @@ static bool reset_level;
 static float reset_t;
 static bool sim_active = false;
 static BallType spawn_color;
+static uint reactions;
 
 static bool ffield_push;
 static Vector2 ffield_pos;
@@ -267,6 +268,7 @@ void sim_leave(void) {
 
 void sim_reset(const char* level) {
 	is_solved = reset_level = false;
+	reactions = 0;
 	start_t = malka_state_time("game");
 	last_spawn_t = -100.0f;
 	ghosts.size = 0;
@@ -756,6 +758,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 			vf = vec2_scale(vf, 1.0f / DT);
 
 			// Same color, grow
+			reactions++;
 			if(~(ta ^ tb) & BT_WHITE) {
 				normal->remove = true;
 				fancy->inv_mass /= mass_increase_factor;
@@ -835,6 +838,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 	if((ta & BT_WHITE) == (tb & BT_WHITE)) {
 		// X + X = XX
 		if(((ta & ~BT_WHITE) == 0) && ((tb & ~BT_WHITE) == 0)) {
+			reactions++;
 			ball_a->remove = ball_b->remove = true;
 			Ball new = _balls_merge(ball_a, ball_b);
 			mfx_trigger_ex("a+a", vec2_add(new.pos, screen_offset), new.angle);
@@ -845,6 +849,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 
 		if((ta & BT_PAIR) || (tb & BT_PAIR)) {
 			// XX + X = 0
+			reactions++;
 			ball_a->remove = ball_b->remove = true;
 			Ball new = _balls_merge(ball_a, ball_b);
 			new.type = (ta & BT_WHITE) | BT_TRIPLE;
@@ -872,6 +877,7 @@ void _collission_cb(CDObj* a, CDObj* b) {
 	}
 	else {
 		if((ta & BT_PAIR) || (tb & BT_PAIR)) {
+			reactions++;
 			ball_a->remove = ball_b->remove = true;
 			Vector2 path;
 			_distance(ball_a->pos, ball_b->pos, &path);
@@ -989,7 +995,7 @@ static void _update_ball(Ball* ball) {
 
 void _next_level(void* userdata) {
 	if(sim_active) {
-		level_solve(level.name);
+		level_solve(level.name, reactions);
 		const char* next = levels_next(level.name);
 		sim_reset(next);
 	}
