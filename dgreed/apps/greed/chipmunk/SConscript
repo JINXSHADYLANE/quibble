@@ -1,0 +1,9 @@
+Import('env')
+
+sources = Glob('*.c', strings=True)
+
+chipmunk = env.Library('chipmunk' + env['DGREED_POSTFIX'], sources)
+env.Install('#'+env['DGREED_BIN_DIR'], chipmunk)
+
+Return('chipmunk')
+
