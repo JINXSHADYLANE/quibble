@@ -1663,6 +1663,7 @@ int malka_open_system(lua_State* l) {
 	lua_setfield(l, tbl, "portrait");
 	lua_pushinteger(l, ORIENT_PORTRAIT_UPSIDE_DOWN);
 	lua_setfield(l, tbl, "portrait_upside_down");
+	
 
 	luaL_register(l, "gui", gui_fun);
 

@@ -641,7 +641,7 @@ serializes node into text, writes it to a file or returns as a string
 
 
 ------
-keyval (not implemented)
+keyval
 ------
 
 Persistent key-value storage.
@@ -736,7 +736,7 @@ turns video debug mode on/off, flag is bool
 
 
 ----------
-gamecenter (not implemented)
+gamecenter
 ----------
 
 Available only in iOS 4.2 or higher, gamecenter == nil
@@ -748,12 +748,16 @@ initializes gamecenter
 - gamecenter.close()
 closes gamecenter
 
+- gamecenter.is_active()
+returns false if you can't use gamecenter - there's no internet
+connection or some other horrible thing happened
+
 - gamecenter.report_score(category, context, value)
 reports score
 
 - gamecenter.get_scores(start, len, timescope, playerscope, callback)
 gets score table, params:
-	start: 		the n-th score to start at
+	start: 		n-th position to start listing scores from	
 	len:		how many scores to return
 	timescope:	'day', 'week' or 'all'
 	playerscope:'friends' or 'everyone'
