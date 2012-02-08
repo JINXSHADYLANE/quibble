@@ -92,6 +92,8 @@
 		2137781B14CD5D42004F01D2 /* nulis2_assets in Resources */ = {isa = PBXBuildFile; fileRef = 2137781A14CD5D42004F01D2 /* nulis2_assets */; };
 		2137781D14CD5D4C004F01D2 /* nulis2_scripts in Resources */ = {isa = PBXBuildFile; fileRef = 2137781C14CD5D4C004F01D2 /* nulis2_scripts */; };
 		2137782714CD61B5004F01D2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213777BB14CD5C01004F01D2 /* QuartzCore.framework */; };
+		2183CA2114E285BF00ECDC45 /* ml_gamecenter.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */; };
+		2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1F14E285BF00ECDC45 /* ml_keyval.c */; };
 		2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 2194F0C414D7FF5900147A0C /* ml_coldet.c */; };
 		21A6736714DC0D3700665A26 /* AutoRotateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 21A6736614DC0D3700665A26 /* AutoRotateViewController.m */; };
 		21D150D314E1541B00870D7A /* gamecenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D150D214E1541A00870D7A /* gamecenter.m */; };
@@ -247,6 +249,10 @@
 		2137781A14CD5D42004F01D2 /* nulis2_assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = nulis2_assets; path = ../nulis2_assets; sourceTree = "<group>"; };
 		2137781C14CD5D4C004F01D2 /* nulis2_scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = nulis2_scripts; path = ../nulis2_scripts; sourceTree = "<group>"; };
 		2137782514CD5E34004F01D2 /* nulis-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "nulis-Info.plist"; path = "nulis/nulis-Info.plist"; sourceTree = "<group>"; };
+		2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_gamecenter.c; path = ../../../src/malka/ml_gamecenter.c; sourceTree = "<group>"; };
+		2183CA1E14E285BF00ECDC45 /* ml_gamecenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_gamecenter.h; path = ../../../src/malka/ml_gamecenter.h; sourceTree = "<group>"; };
+		2183CA1F14E285BF00ECDC45 /* ml_keyval.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_keyval.c; path = ../../../src/malka/ml_keyval.c; sourceTree = "<group>"; };
+		2183CA2014E285BF00ECDC45 /* ml_keyval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_keyval.h; path = ../../../src/malka/ml_keyval.h; sourceTree = "<group>"; };
 		2194F0C414D7FF5900147A0C /* ml_coldet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_coldet.c; path = ../../../src/malka/ml_coldet.c; sourceTree = "<group>"; };
 		2194F0C514D7FF5900147A0C /* ml_coldet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_coldet.h; path = ../../../src/malka/ml_coldet.h; sourceTree = "<group>"; };
 		21A6736514DC0D3700665A26 /* AutoRotateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AutoRotateViewController.h; path = ../../../src/AutoRotateViewController.h; sourceTree = "<group>"; };
@@ -413,6 +419,10 @@
 				2137773D14CD5B27004F01D2 /* ml_mfx.h */,
 				2137773E14CD5B27004F01D2 /* ml_mml.c */,
 				2137773F14CD5B27004F01D2 /* ml_mml.h */,
+				2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */,
+				2183CA1E14E285BF00ECDC45 /* ml_gamecenter.h */,
+				2183CA1F14E285BF00ECDC45 /* ml_keyval.c */,
+				2183CA2014E285BF00ECDC45 /* ml_keyval.h */,
 				2137774014CD5B27004F01D2 /* ml_sprsheet.c */,
 				2137774114CD5B27004F01D2 /* ml_sprsheet.h */,
 				2137774214CD5B27004F01D2 /* ml_states.c */,
@@ -636,6 +646,8 @@
 				212D961D14D975ED003FE79C /* keyval.c in Sources */,
 				21A6736714DC0D3700665A26 /* AutoRotateViewController.m in Sources */,
 				21D150D314E1541B00870D7A /* gamecenter.m in Sources */,
+				2183CA2114E285BF00ECDC45 /* ml_gamecenter.c in Sources */,
+				2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
