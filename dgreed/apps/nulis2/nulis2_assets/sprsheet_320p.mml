@@ -119,6 +119,18 @@
 		(tex "ui_s.png")
 		(src 0,64,64,128)
 	)
+	(img high_score
+		(tex "ui_s.png")
+		(src 64,64,128,128)
+	)
+	(img level_stats
+		(tex "ui_s.png")
+		(src 128,64,192,128)
+	)
+	(img achievements
+		(tex "ui_s.png")
+		(src 192,64,256,128)
+	)
 	(anim levels
 		(tex "ui_s.png")
 		(frames 40)

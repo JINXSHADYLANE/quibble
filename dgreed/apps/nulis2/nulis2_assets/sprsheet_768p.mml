@@ -119,6 +119,18 @@
 		(tex "ui_ipad.png")
 		(src 0,100,100,200)
 	)
+	(img high_score
+		(tex "ui_ipad.png")
+		(src 100,100,200,200)
+	)
+	(img level_stats
+		(tex "ui_ipad.png")
+		(src 200,100,300,200)
+	)
+	(img achievements
+		(tex "ui_ipad.png")
+		(src 300,100,400,200)
+	)
 	(img editor_circle
 		(tex "editor_circle.png")
 	)
