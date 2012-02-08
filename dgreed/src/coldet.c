@@ -143,6 +143,14 @@ static void _coldet_hashmap_init(CDWorld* world, uint size) {
 	assert(world);
 
 	world->cells = MEM_ALLOC(sizeof(CDCell) * size);
+
+	// Set cell x and y so that we won't be reading uninitialized values in
+	// future
+	for(uint i = 0; i < size; ++i) {
+		world->cells[i].x = MAX_INT32;
+		world->cells[i].y = MAX_INT32;
+	}
+
 	world->occupied_cells = 0;
 	world->reserved_cells = size;
 

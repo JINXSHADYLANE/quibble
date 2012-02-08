@@ -1522,11 +1522,11 @@ static void _base64_decode_chunk(const char* in, byte* out, uint padding) {
 	byte* inp = (byte*)in;
 	switch(padding) {
 		default:
-			out[0] = base64_inv[inp[0]] | base64_inv[inp[1]] << 6;
+			out[2] = base64_inv[inp[2]] >> 4 | base64_inv[inp[3]] << 2;
 		case 1:
 			out[1] = base64_inv[inp[1]] >> 2 | base64_inv[inp[2]] << 4;
 		case 2:
-			out[2] = base64_inv[inp[2]] >> 4 | base64_inv[inp[3]] << 2;
+			out[0] = base64_inv[inp[0]] | base64_inv[inp[1]] << 6;
 	}		
 }
 
@@ -1572,10 +1572,11 @@ void* base64_decode(const char* input, uint input_size, uint* output_size) {
 	*output_size = input_size / 4 * 3 - padding;
 	byte* output = MEM_ALLOC(*output_size);
 
-	for(uint i = 0, o = 0; i < input_size - padding; i += 4, o += 3)
+	size_t isize = input_size - padding;
+	for(uint i = 0, o = 0; i < isize; i += 4, o += 3)
 		_base64_decode_chunk(
 			&input[i], &output[o], 
-			(input_size - i) < 4 ? 4 - (input_size - i) : 0
+			(isize - i) < 4 ? 4 - (isize - i) : 0
 		);
 
 	return output;
