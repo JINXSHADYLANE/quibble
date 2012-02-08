@@ -386,6 +386,8 @@ int malka_open_states(lua_State* l) {
 	luaL_register(l, "states", states_fun);
 	_set_transition_len(l, 0.0f);
 
+	lua_pop(l, 1);
+
 	return 1;
 }
 

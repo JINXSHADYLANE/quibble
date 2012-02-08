@@ -489,5 +489,7 @@ int malka_open_coldet(lua_State* l) {
 	luaL_newmetatable(l, "_CDObj.mt");
 	luaL_register(l, "cdobj", cdobj_fun);
 
+	lua_pop(l, 4);
+
 	return 1;
 }

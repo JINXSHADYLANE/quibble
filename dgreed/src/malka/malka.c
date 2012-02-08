@@ -7,6 +7,7 @@
 #include "ml_sprsheet.h"
 #include "ml_mfx.h"
 #include "ml_coldet.h"
+#include "ml_keyval.h"
 
 #include "memory.h"
 
@@ -75,6 +76,7 @@ void malka_init(void) {
 	malka_open_sprsheet(l);
 	malka_open_mfx(l);
 	malka_open_coldet(l);
+	malka_open_keyval(l);
 
 	ml_states_init(l);
 }

@@ -316,6 +316,8 @@ int malka_open_sprsheet(lua_State* l) {
 	luaL_newmetatable(l, "_SprHandle.mt");
 	luaL_register(l, "sprsheet", sprsheet_fun);
 
+	lua_pop(l, 2);
+
 	return 1;
 }
 

@@ -1632,6 +1632,8 @@ int malka_open_system(lua_State* l) {
 	luaL_register(l, "mouse", mouse_fun);
 	luaL_register(l, "touch", touch_fun);
 
+	lua_pop(l, 13);
+
 	lua_getglobal(l, "key");
 	int tbl = lua_gettop(l);
 	for(int i = 0; i < ARRAY_SIZE(key_names); ++i) {
@@ -1646,24 +1648,21 @@ int malka_open_system(lua_State* l) {
 		lua_setfield(l, tbl, mbtn_names[i]);
 	}
 
+	lua_pop(l, 2);
+
 	
 	luaL_register(l, "orientation", orientation_fun);
 		
-	//lua_getglobal(l, "orientation");
-	/*
+	lua_getglobal(l, "orientation");
 	tbl = lua_gettop(l);
 	lua_pushinteger(l, ORIENT_LANDSCAPE_LEFT);
 	lua_setfield(l, tbl, "landscape_left");
-	*/
-	/*
 	lua_pushinteger(l, ORIENT_LANDSCAPE_RIGHT);
 	lua_setfield(l, tbl, "landscale_right");
 	lua_pushinteger(l, ORIENT_PORTRAIT);
 	lua_setfield(l, tbl, "portrait");
 	lua_pushinteger(l, ORIENT_PORTRAIT_UPSIDE_DOWN);
 	lua_setfield(l, tbl, "portrait_upside_down");
-	*/
-	
 
 	luaL_register(l, "gui", gui_fun);
 
@@ -1671,6 +1670,8 @@ int malka_open_system(lua_State* l) {
 
 	luaL_newmetatable(l, "_TilemapHandle.mt");
 	luaL_register(l, "tilemap", tilemap_fun);
+
+	lua_pop(l, 5);
 
 	return 1;
 }

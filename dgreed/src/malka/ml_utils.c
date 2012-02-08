@@ -248,6 +248,8 @@ int malka_open_vec2(lua_State* l) {
 	//lua_setfield(l, -2, "__index");
 	luaL_register(l, NULL, vec2_mt);
 
+	lua_pop(l, 1);
+
 	// functions
 	// register manually, to appear globally
 	int i = 0;
@@ -624,6 +626,8 @@ int malka_open_rect(lua_State* l) {
 	// metatable
 	luaL_newmetatable(l, "_rect.mt");
 	luaL_register(l, NULL, rect_mt);
+
+	lua_pop(l, 1);
 
 	//functions
 	int i = 0;
@@ -1047,6 +1051,8 @@ int malka_open_colors(lua_State* l) {
 	luaL_register(l, NULL, color_rgba_mt);
 	luaL_newmetatable(l, "_color_hsva.mt");
 	luaL_register(l, NULL, color_hsva_mt);
+	
+	lua_pop(l, 2);
 
 	// functions
 	int i = 0;
@@ -1297,8 +1303,8 @@ static const luaL_Reg rand_fun[] = {
 
 int malka_open_rand(lua_State* l) {
 	rand_init(time(NULL));
-
 	luaL_register(l, "rand", rand_fun);
+	lua_pop(l, 1);
 	return 1;
 }
 
@@ -1344,6 +1350,7 @@ static const luaL_Reg log_fun[] = {
 
 int malka_open_log(lua_State* l) {
 	luaL_register(l, "log", log_fun);
+	lua_pop(l, 1);
 	return 1;
 }
 
@@ -1398,6 +1405,7 @@ static const luaL_Reg file_fun[] = {
 
 int malka_open_file(lua_State* l) {
 	luaL_register(l, "file", file_fun);
+	lua_pop(l, 1);
 	return 1;
 }
 
