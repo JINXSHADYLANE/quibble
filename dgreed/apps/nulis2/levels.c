@@ -5,6 +5,10 @@
 #include <memory.h>
 #include <keyval.h>
 
+#ifdef TARGET_IOS
+#include <gamecenter.h>
+#endif
+
 const int max_levels = 40;
 
 static bool level_defs_allocated = false;
@@ -230,7 +234,7 @@ bool level_is_solved(const char* name) {
 	return keyval_get_bool(key_name, false);
 }
 
-void level_solve(const char* name) {
+void level_solve(const char* name, uint reactions) {
 	char key_name[32];
 
 	int levelnum;
@@ -247,6 +251,45 @@ void level_solve(const char* name) {
 			keyval_set_bool(key_name, true);
 		}
 	}
+
+	// Update score
+	int score = MAX(0, 30 - reactions);
+	sprintf(key_name, "score_%s", name);
+	uint old_score = keyval_get_int(key_name, 0);
+	if(score > old_score) {
+		keyval_set_int(key_name, score);
+
+		// Submit score to gamecenter
+#ifdef TARGET_IOS
+		uint total_score = levels_total_score();
+		GameCenterScore s = {
+			.category = "default",
+			.context = 42,
+			.value = total_score,
+			.player = NULL
+		};
+
+		gamecenter_report_score(&s);
+#endif
+	}
+}
+
+float level_score(const char* name) {
+	char key_name[32] = "score_";
+	assert(strlen(key_name) + strlen(name) < 32);
+	return (float)keyval_get_int(key_name, 0) / 30.0f;
+}
+
+uint levels_total_score(void) {
+	uint score = 0;
+	static char level_name[16];
+	char key_name[16];
+	for(uint i = 1; i <= max_levels; ++i) {
+		sprintf(level_name, "l%d", i);	
+		sprintf(key_name, "score_%s", level_name);
+		score += keyval_get_int(key_name, 0);
+	}
+	return score;
 }
 
 const char* level_first_unsolved(void) {
