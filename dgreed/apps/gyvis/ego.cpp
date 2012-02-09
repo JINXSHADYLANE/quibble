@@ -1,12 +1,12 @@
 #include "ego.hpp"
 
 extern "C" {
-		#include "utils.h"
-		#include "system.h"
-		#include "font.h"
-		#include "gui.h"
-		#include "gfx_utils.h"
-		#include "memory.h"
+		#include <utils.h>
+		#include <system.h>
+		#include <font.h>
+		#include <gui.h>
+		#include <gfx_utils.h>
+		#include <memory.h>
 }
 
 // --- Log ---
