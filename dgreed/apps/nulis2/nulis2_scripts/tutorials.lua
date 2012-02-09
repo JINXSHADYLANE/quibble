@@ -55,7 +55,16 @@ function render(level)
 		last_level = level
 		if scenario == nil then
 			-- old scenario finished, start a new one
-			scenario = images[level]
+
+			-- clone table rather than copy reference
+			scenario = nil
+			if images[level] and #images[level] > 0 then
+				scenario = {}
+				for i,img in ipairs(images[level]) do
+					table.insert(scenario, img)
+				end
+			end
+
 			start_t = states.time('game') 
 			freeze_t = nil
 			unfreeze_t = nil
@@ -108,7 +117,8 @@ function render(level)
 				end
 
 				if freeze_t then
-					if touch.count() == tut or (tut == 2 and mouse.down(mouse.secondary)) then
+					if touch.count() == tut or (tut == 2 and mouse.down(mouse.secondary)) or
+						(tut == 5 and key.pressed(key.quit)) then
 						local unfreeze_t = gt - start_t 
 						start_t = start_t + (unfreeze_t - freeze_t)
 						freeze_t = nil
