@@ -150,23 +150,31 @@ function menu_icon(spr, alt_spr, pos, state, color, rot, frame, fill)
 	end
 end
 
-function draw_options(t)
-	if show_scores then
-		if gamecenter and gamecenter.is_active() then
-			if menu_icon(sprs.leaderboards, nil, pos_replay, nil, nil, angle) then
-				-- show game center leaderboard
-				gamecenter.show_leaderboard('default', 'all')
-			end
-		end
+function animate_menu(t)
+	local off, c
+	if t then
+		t = smoothstep(0, 1, t)
+		off = vec2(64 * t, 0)
+		c = rgba(1, 1, 1, clamp(0, 1, (1 - math.abs(t))))
 	else
-		if menu_icon(sprs.replay, nil, pos_replay, nil, nil, angle) then
-			csim.reset('l'..tostring(current_level+1))
-			tutorials.last_level = nil
-			states.pop()
-		end
+		off = vec2(0, 0)
+		c = nil 
 	end
 
-	local new_state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound, state_sound, nil, angle) 
+	return off, c
+end
+
+function draw_competitive(t)
+	local off, c = animate_menu(t)
+	if gamecenter and gamecenter.is_active() then
+		if menu_icon(sprs.leaderboards, nil, pos_replay + off, nil, c, angle) then
+			-- show game center leaderboard
+			gamecenter.show_leaderboard('default', 'all')
+		end
+	end
+	
+	--[[
+	local new_state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound + off, state_sound, c, angle) 
 	if state_sound ~= new_state_sound then
 		if new_state_sound then
 			mfx.snd_set_volume(1.0)
@@ -176,7 +184,44 @@ function draw_options(t)
 	end
 	state_sound = new_state_sound
 
-	local new_state_music = menu_icon(sprs.music, sprs.music_off, pos_music, state_music, nil, angle) 
+	local new_state_music = menu_icon(sprs.music, sprs.music_off, pos_music + off, state_music, c, angle) 
+	if state_music ~= new_state_music then
+		if new_state_music then
+			sound.resume(music_source)
+		else
+			sound.pause(music_source)
+		end
+	end
+	state_music = new_state_music
+	]]
+
+
+	if menu_icon(sprs.back, nil, pos_score + off, nil, c, angle) then
+		show_scores = false
+		touch_released = false
+		score_transition_t = states.time()
+	end
+end
+
+function draw_options(t)
+	local off, c = animate_menu(t)
+	if menu_icon(sprs.replay, nil, pos_replay - off, nil, c, angle) then
+		csim.reset('l'..tostring(current_level+1))
+		tutorials.last_level = nil
+		states.pop()
+	end
+
+	local new_state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound - off, state_sound, c, angle) 
+	if state_sound ~= new_state_sound then
+		if new_state_sound then
+			mfx.snd_set_volume(1.0)
+		else
+			mfx.snd_set_volume(0.0)
+		end
+	end
+	state_sound = new_state_sound
+
+	local new_state_music = menu_icon(sprs.music, sprs.music_off, pos_music - off, state_music, c, angle) 
 	if state_music ~= new_state_music then
 		if new_state_music then
 			sound.resume(music_source)
@@ -186,17 +231,11 @@ function draw_options(t)
 	end
 	state_music = new_state_music
 
-	if not show_scores then
-		if menu_icon(sprs.score, nil, pos_score, nil, nil, angle) then
-			-- score
-			show_scores = true
-			touch_released = false
-		end
-	else
-		if menu_icon(sprs.back, nil, pos_score, nil, nil, angle) then
-			show_scores = false
-			touch_released = false
-		end
+	if menu_icon(sprs.score, nil, pos_score - off, nil, c, angle) then
+		-- score
+		show_scores = true
+		touch_released = false
+		score_transition_t = states.time()
 	end
 end
 
@@ -362,8 +401,26 @@ function render(t)
 
 	sprsheet.draw(sprs.background, background_layer, rect(0, 0, scr_size.x, scr_size.y), c)
 
-	draw_options()
+	local t = states.time()
+	local score_t = nil
+	if score_transition_t and t - score_transition_t < 0.3 then
+		score_t = 1 - (t - score_transition_t) / 0.3
+	end
+
+	if not show_scores then
+		draw_options(score_t)
+		if score_t then
+			draw_competitive(1 - score_t)
+		end
+	else
+		draw_competitive(score_t)
+		if score_t then
+			draw_options(1 - score_t)
+		end
+	end
+
 	draw_levels(show_scores)
 
 	return true
 end
+
