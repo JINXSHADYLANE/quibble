@@ -34,6 +34,7 @@ function init()
 	sprs.back = sprsheet.get_handle('back')
 	sprs.locked = sprsheet.get_handle('locked')
 	sprs.levels = sprsheet.get_handle('levels')
+	sprs.leaderboards = sprsheet.get_handle('achievements')
 
 	local t, icon_rect = sprsheet.get(sprs.locked)
 	half_icon_w, half_icon_h = (icon_rect.r - icon_rect.l)/2, (icon_rect.b - icon_rect.t)/2
@@ -70,15 +71,35 @@ function enter()
 	touch_released = false
 
 	unlocked = {}
+	score = {}
 	for i=1,40 do
 		unlocked[i] = clevels.is_unlocked_n(i)	
+		score[i] = clevels.score_n(i)
 	end
 end
 
 function leave()
 end
 
-function menu_icon(spr, alt_spr, pos, state, color, rot, frame)
+function split_rect(r, ratio, w)
+	local a = rect(r.l, r.t, r.l + ratio * w, r.b)
+	local b = rect(a.r, r.t, a.r + (1-ratio) * w, r.b)
+	return a, b
+end
+
+function draw_filled_anim(spr, frame, layer, pos, rot, col, fill)
+	local tex, src = sprsheet.get_anim(spr, frame)
+	local half_width, half_height = half_icon_w, half_icon_h
+	local src_filled, src_empty = split_rect(src, fill, half_width * 2)
+	local pf = pos + rotate(vec2(lerp(-half_width, 0, fill), 0), rot)
+	local pe = pos + rotate(vec2(lerp(0, half_width,  fill), 0), rot) 
+	local empty_col = col * 0.5 
+
+	video.draw_rect_centered(tex, layer, src_filled, pf, rot, 1.0, col)
+	video.draw_rect_centered(tex, layer, src_empty, pe, rot, 1.0, empty_col)
+end
+
+function menu_icon(spr, alt_spr, pos, state, color, rot, frame, fill)
 	local c = color
 	local hit = false, false
 
@@ -110,10 +131,14 @@ function menu_icon(spr, alt_spr, pos, state, color, rot, frame)
 		sprite = alt_spr
 	end
 
-	if frame == nil then
-		sprsheet.draw_centered(sprite, icons_layer, pos, rot, 1.0, c) 
+	if not fill then
+		if frame == nil then
+			sprsheet.draw_centered(sprite, icons_layer, pos, rot, 1.0, c) 
+		else
+			sprsheet.draw_anim_centered(sprite, frame, icons_layer, pos, rot, 1.0, c)
+		end
 	else
-		sprsheet.draw_anim_centered(sprite, frame, icons_layer, pos, rot, 1.0, c)
+		draw_filled_anim(sprite, frame, icons_layer, pos, rot, c, fill)	
 	end
 	
 
@@ -125,12 +150,20 @@ function menu_icon(spr, alt_spr, pos, state, color, rot, frame)
 	end
 end
 
-function draw_options()
-
-	if menu_icon(sprs.replay, nil, pos_replay, nil, nil, angle) then
-		csim.reset('l'..tostring(current_level+1))
-		tutorials.last_level = nil
-		states.pop()
+function draw_options(t)
+	if show_scores then
+		if gamecenter and gamecenter.is_active() then
+			if menu_icon(sprs.leaderboards, nil, pos_replay, nil, nil, angle) then
+				-- show game center leaderboard
+				gamecenter.show_leaderboard('default', 'all')
+			end
+		end
+	else
+		if menu_icon(sprs.replay, nil, pos_replay, nil, nil, angle) then
+			csim.reset('l'..tostring(current_level+1))
+			tutorials.last_level = nil
+			states.pop()
+		end
 	end
 
 	local new_state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound, state_sound, nil, angle) 
@@ -153,19 +186,42 @@ function draw_options()
 	end
 	state_music = new_state_music
 
-	if gamecenter and gamecenter.is_active() then
+	if not show_scores then
 		if menu_icon(sprs.score, nil, pos_score, nil, nil, angle) then
 			-- score
-			gamecenter.show_leaderboard('default', 'all')
+			show_scores = true
+			touch_released = false
+		end
+	else
+		if menu_icon(sprs.back, nil, pos_score, nil, nil, angle) then
+			show_scores = false
+			touch_released = false
 		end
 	end
-
 end
 
 levels_off = 0
 levels_off_target = 0
 
-function draw_levels()
+function draw_level_icon(p, col, angle, n, score)
+	if level_n ~= current_level then
+		local is_unlocked = unlocked[n+1] 
+		if is_unlocked then
+			if menu_icon(sprs.levels, nil, p, nil, col, angle, n, score) then
+				csim.reset('l'..tostring(n+1))
+				states.pop()
+			end
+		else
+			menu_icon(sprs.locked, nil, p, nil, col, angle)
+		end
+	else
+		if menu_icon(sprs.resume, nil, p, nil, col, angle) then
+			states.pop()
+		end
+	end
+end
+
+function draw_levels(scores)
 	if touch_up then
 		local up_d = touch_up.pos.y - touch_up.hit_pos.y
 		levels_off = levels_off + up_d
@@ -214,22 +270,12 @@ function draw_levels()
 				)
 
 				local level_n = ((y-1)*5) + (x-1)
-
-				if level_n ~= current_level then
-					local is_unlocked = unlocked[level_n+1] 
-					if is_unlocked then
-						if menu_icon(sprs.levels, nil, p, nil, col, angle, level_n) then
-							csim.reset('l'..tostring(level_n+1))
-							states.pop()
-						end
-					else
-						menu_icon(sprs.locked, nil, p, nil, col, angle)
-					end
-				else
-					if menu_icon(sprs.resume, nil, p, nil, col, angle) then
-						states.pop()
-					end
+				
+				local s = nil
+				if scores then
+					s = score[level_n+1]
 				end
+				draw_level_icon(p, col, angle, level_n, s)
 			end
 		end
 	end
@@ -317,7 +363,7 @@ function render(t)
 	sprsheet.draw(sprs.background, background_layer, rect(0, 0, scr_size.x, scr_size.y), c)
 
 	draw_options()
-	draw_levels()
+	draw_levels(show_scores)
 
 	return true
 end

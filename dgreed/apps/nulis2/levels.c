@@ -10,6 +10,7 @@
 #endif
 
 const int max_levels = 40;
+const int solve_bonus = 11;
 
 static bool level_defs_allocated = false;
 static bool level_mml_loaded = false;
@@ -58,11 +59,23 @@ static void _parse_level(MMLObject* mml, NodeIdx node, LevelDef* dest) {
 	else
 		dest->par_time = 0;
 
+	n = mml_get_child(mml, node, "min_time");
+	if(n)
+		dest->min_time = mml_getval_uint(mml, n);
+	else
+		dest->min_time = dest->par_time/2;
+
 	n = mml_get_child(mml, node, "par_reactions");
 	if(n)
 		dest->par_reactions = mml_getval_uint(mml, n);
 	else
 		dest->par_reactions = 0;
+
+	n = mml_get_child(mml, node, "min_reactions");
+	if(n)
+		dest->min_reactions = mml_getval_uint(mml, n);
+	else
+		dest->min_reactions = dest->par_reactions/2;
 
 	n = mml_get_child(mml, node, "spawns");
 	dest->n_spawns = 0; 
@@ -267,7 +280,7 @@ void level_solve(const char* name, uint reactions, uint time) {
 	// Update score
 	LevelDef def;
 	levels_get(name, &def);
-	int score = 0;
+	int score = solve_bonus;
 	if(def.par_time)
 		score += MAX(0, (int)def.par_time - (int)time);
 	if(def.par_reactions)
@@ -298,18 +311,22 @@ float level_score(const char* name) {
 
 	LevelDef def;
 	levels_get(name, &def);
-	uint max_score = def.par_time + def.par_reactions;
-	return (float)keyval_get_int(key_name, 0) / (float)max_score;
+	uint max_score = def.par_time - def.min_time;
+	max_score += (def.par_reactions - def.min_reactions) + solve_bonus;
+	return clamp(0.0f, 1.0f, (float)keyval_get_int(key_name, 0) / (float)max_score);
 }
 
 float level_score_n(uint n) {
 	char key_name[32];
-	sprintf(key_name, "score_%u", n);
+	sprintf(key_name, "score_l%u", n);
 
 	assert(n >= 1 && n <= max_levels);
 	LevelDef* defs = DARRAY_DATA_PTR(level_defs, LevelDef);
-	uint max_score = defs[n-1].par_time + defs[n-1].par_reactions;
-	return (float)keyval_get_int(key_name, 0) / (float)max_score;
+	uint max_score = defs[n-1].par_time - defs[n-1].min_time;
+	max_score += defs[n-1].par_reactions - defs[n-1].min_reactions;
+	max_score += solve_bonus;
+
+	return clamp(0.0f, 1.0f, (float)keyval_get_int(key_name, 0) / (float)max_score);
 }
 
 uint levels_total_score(void) {
@@ -340,3 +357,4 @@ const char* level_first_unsolved(void) {
 	assert(0 && "Unable to determine next level to solve!");
 	return "l1";
 }
+
