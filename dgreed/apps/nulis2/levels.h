@@ -63,6 +63,7 @@ bool level_is_unlocked_n(uint n);
 bool level_is_solved(const char* name);
 void level_solve(const char* name, uint reactions, uint time);
 float level_score(const char* name);
+float level_score_n(uint n);
 uint levels_total_score(void);
 const char* level_first_unsolved(void);
 
