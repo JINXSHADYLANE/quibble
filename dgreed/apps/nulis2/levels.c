@@ -52,6 +52,18 @@ static void _parse_level(MMLObject* mml, NodeIdx node, LevelDef* dest) {
 	if(n)
 		dest->spawn_random_interval = mml_getval_float(mml, n);
 
+	n = mml_get_child(mml, node, "par_time");
+	if(n)
+		dest->par_time = mml_getval_uint(mml, n);
+	else
+		dest->par_time = 0;
+
+	n = mml_get_child(mml, node, "par_reactions");
+	if(n)
+		dest->par_reactions = mml_getval_uint(mml, n);
+	else
+		dest->par_reactions = 0;
+
 	n = mml_get_child(mml, node, "spawns");
 	dest->n_spawns = 0; 
 	assert(dest->n_spawns <= MAX_SPAWNS);
@@ -234,7 +246,7 @@ bool level_is_solved(const char* name) {
 	return keyval_get_bool(key_name, false);
 }
 
-void level_solve(const char* name, uint reactions) {
+void level_solve(const char* name, uint reactions, uint time) {
 	char key_name[32];
 
 	int levelnum;
@@ -253,7 +265,13 @@ void level_solve(const char* name, uint reactions) {
 	}
 
 	// Update score
-	int score = MAX(0, 30 - reactions);
+	LevelDef def;
+	levels_get(name, &def);
+	int score = 0;
+	if(def->par_time)
+		score += MAX(0, (int)def->par_time - (int)time);
+	if(def->par_reactions)
+		score += MAX(0, (int)def->par_reactions - (int)reactions);
 	sprintf(key_name, "score_%s", name);
 	uint old_score = keyval_get_int(key_name, 0);
 	if(score > old_score) {

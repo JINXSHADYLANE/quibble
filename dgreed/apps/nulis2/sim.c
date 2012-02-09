@@ -995,7 +995,9 @@ static void _update_ball(Ball* ball) {
 
 void _next_level(void* userdata) {
 	if(sim_active) {
-		level_solve(level.name, reactions);
+		uint t = lrintf(malka_state_time("game") - start_t);
+		level_solve(level.name, reactions, t);
+		printf("Solved level %s: time = %d, reactions = %d\n", level.name, t, reactions);
 		const char* next = levels_next(level.name);
 		sim_reset(next);
 	}

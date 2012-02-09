@@ -11,6 +11,8 @@ Example:
 
 (levels _
 	(level l1
+		(par_time 200)
+		(par_reactions 20)
 		(random_at 5)
 		(random_interval 1.0)
 		(spawns _
@@ -46,6 +48,8 @@ typedef struct {
 	SpawnDef spawns[MAX_SPAWNS];
 	uint spawn_random_at;
 	float spawn_random_interval;
+	uint par_time;
+	uint par_reactions;
 } LevelDef;
 
 void levels_reset(const char* desc);
@@ -57,7 +61,7 @@ void levels_close(void);
 bool level_is_unlocked(const char* name);
 bool level_is_unlocked_n(uint n);
 bool level_is_solved(const char* name);
-void level_solve(const char* name, uint reactions);
+void level_solve(const char* name, uint reactions, uint time);
 float level_score(const char* name);
 uint levels_total_score(void);
 const char* level_first_unsolved(void);
