@@ -268,10 +268,10 @@ void level_solve(const char* name, uint reactions, uint time) {
 	LevelDef def;
 	levels_get(name, &def);
 	int score = 0;
-	if(def->par_time)
-		score += MAX(0, (int)def->par_time - (int)time);
-	if(def->par_reactions)
-		score += MAX(0, (int)def->par_reactions - (int)reactions);
+	if(def.par_time)
+		score += MAX(0, (int)def.par_time - (int)time);
+	if(def.par_reactions)
+		score += MAX(0, (int)def.par_reactions - (int)reactions);
 	sprintf(key_name, "score_%s", name);
 	uint old_score = keyval_get_int(key_name, 0);
 	if(score > old_score) {
@@ -295,7 +295,21 @@ void level_solve(const char* name, uint reactions, uint time) {
 float level_score(const char* name) {
 	char key_name[32] = "score_";
 	assert(strlen(key_name) + strlen(name) < 32);
-	return (float)keyval_get_int(key_name, 0) / 30.0f;
+
+	LevelDef def;
+	levels_get(name, &def);
+	uint max_score = def.par_time + def.par_reactions;
+	return (float)keyval_get_int(key_name, 0) / (float)max_score;
+}
+
+float level_score_n(uint n) {
+	char key_name[32];
+	sprintf(key_name, "score_%u", n);
+
+	assert(n >= 1 && n <= max_levels);
+	LevelDef* defs = DARRAY_DATA_PTR(level_defs, LevelDef);
+	uint max_score = defs[n-1].par_time + defs[n-1].par_reactions;
+	return (float)keyval_get_int(key_name, 0) / (float)max_score;
 }
 
 uint levels_total_score(void) {
