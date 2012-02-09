@@ -34,7 +34,7 @@ function init()
 	sprs.back = sprsheet.get_handle('back')
 	sprs.locked = sprsheet.get_handle('locked')
 	sprs.levels = sprsheet.get_handle('levels')
-	sprs.leaderboards = sprsheet.get_handle('achievements')
+	sprs.leaderboards = sprsheet.get_handle('high_score')
 
 	local t, icon_rect = sprsheet.get(sprs.locked)
 	half_icon_w, half_icon_h = (icon_rect.r - icon_rect.l)/2, (icon_rect.b - icon_rect.t)/2
@@ -95,8 +95,13 @@ function draw_filled_anim(spr, frame, layer, pos, rot, col, fill)
 	local pe = pos + rotate(vec2(lerp(0, half_width,  fill), 0), rot) 
 	local empty_col = col * 0.5 
 
-	video.draw_rect_centered(tex, layer, src_filled, pf, rot, 1.0, col)
-	video.draw_rect_centered(tex, layer, src_empty, pe, rot, 1.0, empty_col)
+	if fill > 0.01 then
+		video.draw_rect_centered(tex, layer, src_filled, pf, rot, 1.0, col)
+	end
+
+	if fill < 0.99 then
+		video.draw_rect_centered(tex, layer, src_empty, pe, rot, 1.0, empty_col)
+	end
 end
 
 function menu_icon(spr, alt_spr, pos, state, color, rot, frame, fill)
@@ -207,7 +212,7 @@ function draw_options(t)
 	local off, c = animate_menu(t)
 	if menu_icon(sprs.replay, nil, pos_replay - off, nil, c, angle) then
 		csim.reset('l'..tostring(current_level+1))
-		tutorials.last_level = nil
+		tutorials.start_t = states.time('game')
 		states.pop()
 	end
 
@@ -243,7 +248,7 @@ levels_off = 0
 levels_off_target = 0
 
 function draw_level_icon(p, col, angle, n, score)
-	if level_n ~= current_level then
+	if n ~= current_level then
 		local is_unlocked = unlocked[n+1] 
 		if is_unlocked then
 			if menu_icon(sprs.levels, nil, p, nil, col, angle, n, score) then
@@ -260,7 +265,7 @@ function draw_level_icon(p, col, angle, n, score)
 	end
 end
 
-function draw_levels(scores)
+function draw_levels(scores, t)
 	if touch_up then
 		local up_d = touch_up.pos.y - touch_up.hit_pos.y
 		levels_off = levels_off + up_d
@@ -313,6 +318,14 @@ function draw_levels(scores)
 				local s = nil
 				if scores then
 					s = score[level_n+1]
+					if t then
+						s = smoothstep(s, 1, t)
+					end
+				else
+					if t then
+						s = score[level_n+1]
+						s = smoothstep(1, s, t)
+					end
 				end
 				draw_level_icon(p, col, angle, level_n, s)
 			end
@@ -407,6 +420,8 @@ function render(t)
 		score_t = 1 - (t - score_transition_t) / 0.3
 	end
 
+	draw_levels(show_scores, score_t)
+
 	if not show_scores then
 		draw_options(score_t)
 		if score_t then
@@ -419,7 +434,6 @@ function render(t)
 		end
 	end
 
-	draw_levels(show_scores)
 
 	return true
 end

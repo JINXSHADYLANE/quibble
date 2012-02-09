@@ -52,6 +52,8 @@ static float reset_t;
 static bool sim_active = false;
 static BallType spawn_color;
 static uint reactions;
+static bool did_not_reset = false;
+static bool did_not_next = false;
 
 static bool ffield_push;
 static Vector2 ffield_pos;
@@ -267,6 +269,7 @@ void sim_leave(void) {
 }
 
 void sim_reset(const char* level) {
+	did_not_reset = did_not_next = false;
 	is_solved = reset_level = false;
 	reactions = 0;
 	start_t = malka_state_time("game");
@@ -398,6 +401,7 @@ static bool _do_balls_collide(const Ball* a, const Ball* b) {
 
 static void _update_level(void) {
 	float t = malka_state_time("game") - start_t;
+
 
 	// Spawn predefined balls
 	for(uint i = 0; i < level.n_spawns; ++i) {
@@ -995,11 +999,11 @@ static void _update_ball(Ball* ball) {
 
 void _next_level(void* userdata) {
 	if(sim_active) {
-		uint t = lrintf(malka_state_time("game") - start_t);
-		level_solve(level.name, reactions, t);
-		printf("Solved level %s: time = %d, reactions = %d\n", level.name, t, reactions);
 		const char* next = levels_next(level.name);
 		sim_reset(next);
+	}
+	else {
+		did_not_next = true;
 	}
 }
 
@@ -1012,6 +1016,9 @@ void _reset_level(void* userdata) {
 		}
 
 		sim_reset(level.name);
+	}
+	else {
+		did_not_reset = true;
 	}
 }
 
@@ -1181,6 +1188,16 @@ void sim_update(void) {
 
 	float t = malka_state_time("game");
 
+	if(did_not_reset) {
+		did_not_reset = false;
+		_reset_level(NULL);
+	}
+
+	if(did_not_next) {
+		did_not_next = false;
+		_next_level(NULL);
+	}
+
 	particles_update(t);
 
 	_update_level();
@@ -1190,6 +1207,10 @@ void sim_update(void) {
 		is_solved = true;
 		// Level finished!
 		async_schedule(_next_level, lrintf(ghost_lifetime * 1000.0f) + 500, NULL);
+
+		uint t = lrintf(malka_state_time("game") - start_t);
+		level_solve(level.name, reactions, t);
+		printf("Solved level %s: time = %d, reactions = %d\n", level.name, t, reactions);
 	}
 
 	if(!is_solved && !reset_level && _is_unsolvable(t)) {
