@@ -48,8 +48,8 @@ typedef struct {
 	SpawnDef spawns[MAX_SPAWNS];
 	uint spawn_random_at;
 	float spawn_random_interval;
-	uint par_time;
-	uint par_reactions;
+	uint par_time, min_time;
+	uint par_reactions, min_reactions;
 } LevelDef;
 
 void levels_reset(const char* desc);
