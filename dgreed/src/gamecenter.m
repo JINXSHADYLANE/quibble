@@ -94,8 +94,7 @@ static void _close_queues(void) {
 
 static void _report_score(const char* category, int64 score, int64 context) {
     NSString* ns_category = [NSString stringWithUTF8String:category];
-    //GKScore* score_reporter = [[[GKScore alloc] initWithCategory:ns_category] autorelease];
-    GKScore* score_reporter = [[GKScore alloc] initWithCategory:ns_category];
+    GKScore* score_reporter = [[[GKScore alloc] initWithCategory:ns_category] autorelease];
     score_reporter.value = score;
     score_reporter.context = context;
     [score_reporter reportScoreWithCompletionHandler:^(NSError *error) {
@@ -206,6 +205,9 @@ void gamecenter_init(void) {
                 _get_achievements();
                 _process_score_queue();
                 _process_achievement_queue();
+            }
+            else {
+                LOG_INFO("GameCenter not working!");
             }
         }];
     }
