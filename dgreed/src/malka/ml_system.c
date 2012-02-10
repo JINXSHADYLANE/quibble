@@ -279,6 +279,38 @@ static int ml_video_close(lua_State* l) {
 	return 0;
 }	
 
+bool _check_color(lua_State* l, int i, Color* c) {
+	lua_getfield(l, i, "r");
+	lua_getfield(l, i, "g");
+	lua_getfield(l, i, "b");
+	lua_getfield(l, i, "a");
+
+	if(lua_isnumber(l, -1) && lua_isnumber(l, -2) 
+		&& lua_isnumber(l, -3) && lua_isnumber(l, -4)) {
+		uint r = lrintf(lua_tonumber(l, -4)*255.0) & 0xFF;
+		uint g = lrintf(lua_tonumber(l, -3)*255.0) & 0xFF;
+		uint b = lrintf(lua_tonumber(l, -2)*255.0) & 0xFF;
+		uint a = lrintf(lua_tonumber(l, -1)*255.0) & 0xFF;
+		*c = COLOR_RGBA(r, g, b, a);
+		lua_pop(l, 4);
+		return true;
+	}
+	else {
+		lua_pop(l, 4);
+		return false;
+	}
+}
+
+static int ml_video_clear_color(lua_State* l) {
+	checkargs(1, "video.clear_color");
+
+	Color c;
+	_check_color(l, 1, &c);
+	video_clear_color(c);
+
+	return 0;
+}
+
 static int ml_video_present(lua_State* l) {
 	checkargs(0, "video.present");
 	bool res = system_update();
@@ -316,28 +348,6 @@ bool _check_rect(lua_State* l, int i, RectF* r) {
 		r->top = lua_tonumber(l, -3);
 		r->right = lua_tonumber(l, -2);
 		r->bottom = lua_tonumber(l, -1);
-		lua_pop(l, 4);
-		return true;
-	}
-	else {
-		lua_pop(l, 4);
-		return false;
-	}
-}
-
-bool _check_color(lua_State* l, int i, Color* c) {
-	lua_getfield(l, i, "r");
-	lua_getfield(l, i, "g");
-	lua_getfield(l, i, "b");
-	lua_getfield(l, i, "a");
-
-	if(lua_isnumber(l, -1) && lua_isnumber(l, -2) 
-		&& lua_isnumber(l, -3) && lua_isnumber(l, -4)) {
-		uint r = lrintf(lua_tonumber(l, -4)*255.0) & 0xFF;
-		uint g = lrintf(lua_tonumber(l, -3)*255.0) & 0xFF;
-		uint b = lrintf(lua_tonumber(l, -2)*255.0) & 0xFF;
-		uint a = lrintf(lua_tonumber(l, -1)*255.0) & 0xFF;
-		*c = COLOR_RGBA(r, g, b, a);
 		lua_pop(l, 4);
 		return true;
 	}
@@ -678,6 +688,7 @@ static const luaL_Reg video_fun[] = {
 	{"init_ex", ml_video_init_ex},
 	{"init_exr", ml_video_init_exr},
 	{"close", ml_video_close},
+	{"clear_color", ml_video_clear_color},
 	{"present", ml_video_present},
 	{"draw_rect", ml_video_draw_rect},
 	{"draw_rect_centered", ml_video_draw_rect_centered},

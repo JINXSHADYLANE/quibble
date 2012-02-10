@@ -86,6 +86,7 @@ static DArray textures;
 static uint frame;
 static float screen_widthf, screen_heightf;
 static float x_size_factor, y_size_factor;
+Color clear_color = 0;
 
 static uint radix_counts[256];
 static DArray rects_out;
@@ -299,6 +300,24 @@ void video_close(void) {
 	}
 	
 	LOG_INFO("Video closed");
+}
+
+static void _color_to_4f(Color c, float* red, float* green,
+	float* blue, float* alpha) {
+	*red = (float)(c&0xFF) / 255.0f;
+	c >>= 8;
+	*green = (float)(c&0xFF) / 255.0f;
+	c >>= 8;
+	*blue = (float)(c&0xFF) / 255.0f;
+	c >>= 8;
+	*alpha = (float)(c&0xFF) / 255.0f;
+}	
+
+void video_clear_color(Color c) {
+	float r, g, b, a;
+	clear_color = c;
+	_color_to_4f(c, &r, &g, &b, &a);
+	glClearColor(r, g, b, a);
 }
 
 static bool rect_draw_state = false;

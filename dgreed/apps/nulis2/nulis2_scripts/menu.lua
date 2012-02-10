@@ -259,6 +259,7 @@ function draw_level_icon(p, col, angle, n, score)
 			menu_icon(sprs.locked, nil, p, nil, col, angle)
 		end
 	else
+		menu_icon(sprs.levels, nil, p, nil, col, angle, n, score)
 		if menu_icon(sprs.resume, nil, p, nil, col, angle) then
 			states.pop()
 		end

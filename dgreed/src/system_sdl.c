@@ -63,6 +63,7 @@ static bool retro = false;
 
 static bool sdl_initialized = false;
 static uint native_width, native_height;
+static Color clear_color = 0;
 
 #ifndef NO_DEVMODE
 VideoStats v_stats;
@@ -255,6 +256,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 	glViewport(0, 0, width, height);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	video_clear_color(clear_color);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -329,6 +331,15 @@ void _color_to_4f(Color c, float* red, float* green,
 	c >>= 8;
 	*alpha = (float)(c&0xFF) / 255.0f;
 }	
+
+void video_clear_color(Color c) {
+	float r, g, b, a;
+	clear_color = c;
+	if(sdl_initialized) { 
+		_color_to_4f(c, &r, &g, &b, &a);
+		glClearColor(r, g, b, a);
+	}
+}
 
 // Forward def for video_present
 uint _get_gl_id(TexHandle tex);

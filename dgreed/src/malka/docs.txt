@@ -226,6 +226,9 @@ same as init_ex, does no texture filtering for retro look
 - video.close()
 closes rendering window, it is polite to call this when your app exits
 
+- video.clear_color(c)
+sets background color, default is black
+
 - video.present()
 presents current frame to the screen, returns boolean indicating if app should
 continue running
