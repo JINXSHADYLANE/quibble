@@ -1,7 +1,7 @@
 ( levels _
     ( level l1
-        (min_reactions 2)
-        (par_reactions 2)
+        ( min_reactions 2 )
+        ( par_reactions 2 )
         ( spawns _
             ( w -128,96
                 ( t 9.9 )
@@ -15,8 +15,8 @@
         )
     )
     ( level l2
-        (min_reactions 2)
-        (par_reactions 2)
+        ( min_reactions 2 )
+        ( par_reactions 2 )
         ( spawns _
             ( b -128,96
                 ( t 1.3 )
@@ -30,8 +30,8 @@
         )
     )
     ( level l3
-        (min_reactions 9)
-        (par_reactions 12)
+        ( min_reactions 9 )
+        ( par_reactions 12 )
         ( spawns _
             ( w -128,96
                 ( t 3.3 )
@@ -45,8 +45,8 @@
         )
     )
     ( level l4
-        (min_reactions 7)
-        (par_reactions 10)
+        ( min_reactions 7 )
+        ( par_reactions 10 )
         ( spawns _
             ( b -144,0
                 ( t 0.3 )
@@ -63,8 +63,8 @@
         )
     )
     ( level l5
-        (min_reactions 8)
-        (par_reactions 11)
+        ( min_reactions 8 )
+        ( par_reactions 11 )
         ( spawns _
             ( b -144,0
                 ( t 0.3 )
@@ -81,8 +81,8 @@
         )
     )
     ( level l6
-        (min_reactions 10)
-        (par_reactions 13)
+        ( min_reactions 10 )
+        ( par_reactions 13 )
         ( spawns _
             ( w -304,240
                 ( vel 29,-15 )
@@ -115,8 +115,8 @@
         )
     )
     ( level l7
-        (min_reactions 4)
-        (par_reactions 17)
+        ( min_reactions 4 )
+        ( par_reactions 17 )
         ( spawns _
             ( db -96,0
                 ( vel 112,0 )
@@ -143,8 +143,8 @@
         )
     )
     ( level l8
-        (min_reactions 15)
-        (par_reactions 18)
+        ( min_reactions 15 )
+        ( par_reactions 18 )
         ( spawns _
             ( dw 0,0
                 ( vel -3,-84 )
@@ -184,8 +184,8 @@
         )
     )
     ( level l9
-        (min_reactions 24)
-        (par_reactions 27)
+        ( min_reactions 24 )
+        ( par_reactions 27 )
         ( spawns _
             ( w -240,-160
                 ( t 2.98828125 )
@@ -286,8 +286,8 @@
         )
     )
     ( level l10
-        (min_reactions 4)
-        (par_reactions 7)
+        ( min_reactions 4 )
+        ( par_reactions 7 )
         ( spawns _
             ( tw 0,-112
                 ( t 1.0000000149012 )
@@ -305,8 +305,8 @@
         )
     )
     ( level l11
-        (min_reactions 16)
-        (par_reactions 19)
+        ( min_reactions 16 )
+        ( par_reactions 19 )
         ( spawns _
             ( w -144,0 )
             ( w 144,0 )
@@ -354,8 +354,8 @@
         )
     )
     ( level l12
-        (min_reactions 16)
-        (par_reactions 19)
+        ( min_reactions 16 )
+        ( par_reactions 19 )
         ( spawns _
             ( b -176,0
                 ( vel 116,0 )
@@ -400,8 +400,8 @@
         )
     )
     ( level l13
-        (min_reactions 26)
-        (par_reactions 29)
+        ( min_reactions 26 )
+        ( par_reactions 29 )
         ( spawns _
             ( tw -64,-16
                 ( t 1.11328125 )
@@ -426,8 +426,8 @@
         )
     )
     ( level l14
-        (min_reactions 17)
-        (par_reactions 20)
+        ( min_reactions 17 )
+        ( par_reactions 20 )
         ( spawns _
             ( b 0,-176
                 ( t 5.5078125 )
@@ -448,8 +448,8 @@
         )
     )
     ( level l15
-        (min_reactions 16)
-        (par_reactions 19)
+        ( min_reactions 16 )
+        ( par_reactions 19 )
         ( spawns _
             ( w -144,-32
                 ( t 0.21484375 )
@@ -470,8 +470,8 @@
         )
     )
     ( level l16
-        (min_reactions 29)
-        (par_reactions 32)
+        ( min_reactions 29 )
+        ( par_reactions 32 )
         ( spawns _
             ( w -240,-64
                 ( vel 109,0 )
@@ -555,8 +555,8 @@
         )
     )
     ( level l17
-        (min_reactions 12)
-        (par_reactions 15)
+        ( min_reactions 12 )
+        ( par_reactions 15 )
         ( spawns _
             ( w 0,-144
                 ( vel 0,113 )
@@ -580,8 +580,8 @@
         )
     )
     ( level l18
-        (min_reactions 12)
-        (par_reactions 15)
+        ( min_reactions 12 )
+        ( par_reactions 15 )
         ( spawns _
             ( tw -224,0 )
             ( tb 208,0 )
@@ -612,8 +612,8 @@
         )
     )
     ( level l19
-        (min_reactions 17)
-        (par_reactions 20)
+        ( min_reactions 17 )
+        ( par_reactions 20 )
         ( spawns _
             ( b -100,50
                 ( vel 100,-48 )
@@ -637,8 +637,8 @@
         )
     )
     ( level l20
-        (min_reactions 4)
-        (par_reactions 7)
+        ( min_reactions 4 )
+        ( par_reactions 7 )
         ( spawns _
             ( w -32,32
                 ( t 0.25390625 )
@@ -658,8 +658,8 @@
         )
     )
     ( level l21
-        (min_reactions 15)
-        (par_reactions 18)
+        ( min_reactions 15 )
+        ( par_reactions 18 )
         ( spawns _
             ( b -112,-144
                 ( t 1.30859375 )
@@ -694,8 +694,8 @@
         )
     )
     ( level l22
-        (min_reactions 12)
-        (par_reactions 15)
+        ( min_reactions 12 )
+        ( par_reactions 15 )
         ( spawns _
             ( w -100,50
                 ( vel 100,-1 )
@@ -727,8 +727,8 @@
         )
     )
     ( level l23
-        (min_reactions 23)
-        (par_reactions 39)
+        ( min_reactions 23 )
+        ( par_reactions 39 )
         ( spawns _
             ( b -176,0
                 ( vel 116,0 )
@@ -769,8 +769,8 @@
         )
     )
     ( level l24
-        (min_reactions 4)
-        (par_reactions 7)
+        ( min_reactions 4 )
+        ( par_reactions 7 )
         ( spawns _
             ( gb 0,0
                 ( t 1.0546875 )
@@ -790,8 +790,8 @@
         )
     )
     ( level l25
-        (min_reactions 6)
-        (par_reactions 9)
+        ( min_reactions 6 )
+        ( par_reactions 9 )
         ( spawns _
             ( gb 0,32
                 ( t 1.50390625 )
@@ -806,8 +806,8 @@
         )
     )
     ( level l26
-        (min_reactions 16)
-        (par_reactions 19)
+        ( min_reactions 16 )
+        ( par_reactions 19 )
         ( spawns _
             ( b -224,0 )
             ( b -176,-176
@@ -837,8 +837,8 @@
         )
     )
     ( level l27
-        (min_reactions 8)
-        (par_reactions 11)
+        ( min_reactions 8 )
+        ( par_reactions 11 )
         ( spawns _
             ( w -160,-112
                 ( t 2.5 )
@@ -859,8 +859,8 @@
         )
     )
     ( level l28
-        (min_reactions 17)
-        (par_reactions 20)
+        ( min_reactions 17 )
+        ( par_reactions 20 )
         ( spawns _
             ( w -320,0
                 ( vel -97,-1 )
@@ -880,8 +880,8 @@
         )
     )
     ( level l29
-        (min_time 19)
-        (par_time 38)
+        ( min_time 19 )
+        ( par_time 38 )
         ( random_at 3 )
         ( random_interval 10 )
         ( spawns _
@@ -892,8 +892,8 @@
         )
     )
     ( level l30
-        (min_time 12)
-        (par_time 27)
+        ( min_time 12 )
+        ( par_time 27 )
         ( random_at 10 )
         ( random_interval 5 )
         ( spawns _
@@ -940,8 +940,8 @@
         )
     )
     ( level l31
-        (min_time 50)
-        (par_time 72)
+        ( min_time 50 )
+        ( par_time 72 )
         ( random_at 15 )
         ( random_interval 7.01171875 )
         ( spawns _
@@ -1041,37 +1041,32 @@
         )
     )
     ( level l32
-        (min_time 7)
-        (par_time 45)
         ( random_at 3 )
         ( random_interval 8.0078125 )
         ( spawns _
-            ( w -112,-48
+            ( w -128,-48
                 ( vel 111,0 )
             )
-            ( b -48,-48
+            ( b -32,-48
                 ( vel 62,1 )
                 ( t 1.0000000149012 )
             )
-            ( w -80,-48
+            ( w -64,-48
                 ( vel 78,0 )
                 ( t 0.41015625 )
             )
             ( w -224,-48
                 ( t 1.54296875 )
             )
-            ( b -32,0
-                ( t 3.203125 )
-            )
             ( gb 0,16
                 ( t 4.609375 )
-                ( s 4 )
+                ( s 2 )
             )
         )
     )
     ( level l33
-        (min_time 7)
-        (par_time 11)
+        ( min_time 7 )
+        ( par_time 11 )
         ( spawns _
             ( tw -240,-288
                 ( vel 0,93 )
@@ -1138,8 +1133,8 @@
         )
     )
     ( level l34
-        (min_reactions 13)
-        (par_reactions 16)
+        ( min_reactions 13 )
+        ( par_reactions 16 )
         ( spawns _
             ( gw -112,16
                 ( t 2.08984375 )
@@ -1171,8 +1166,8 @@
         )
     )
     ( level l35
-        (min_reactions 27)
-        (par_reactions 30)
+        ( min_reactions 27 )
+        ( par_reactions 30 )
         ( spawns _
             ( w 128,128
                 ( vel -85,63 )
@@ -1241,8 +1236,8 @@
         )
     )
     ( level l36
-        (min_time 49)
-        (par_time 57)
+        ( min_time 49 )
+        ( par_time 57 )
         ( random_at 20 )
         ( random_interval 3.0 )
         ( spawns _
@@ -1337,8 +1332,8 @@
         )
     )
     ( level l37
-        (min_time 32)
-        (par_time 60)
+        ( min_time 32 )
+        ( par_time 60 )
         ( random_at 10 )
         ( random_interval 4.00390625 )
         ( spawns _
@@ -1421,8 +1416,8 @@
         )
     )
     ( level l38
-        (min_time 22)
-        (par_time 35)
+        ( min_time 22 )
+        ( par_time 35 )
         ( random_at 5 )
         ( random_interval 3.3203125 )
         ( spawns _
@@ -1469,8 +1464,8 @@
         )
     )
     ( level l39
-        (min_time 5)
-        (par_time 14)
+        ( min_time 5 )
+        ( par_time 14 )
         ( random_at 5 )
         ( random_interval 2.5 )
         ( spawns _
@@ -1490,7 +1485,7 @@
         )
     )
     ( level l40
-        (par_time 2^30)
+        ( par_time 1073741824 )
         ( random_at 30 )
         ( random_interval 0.859375 )
         ( spawns _
