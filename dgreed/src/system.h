@@ -45,6 +45,8 @@ void video_init_exr(uint width, uint height, uint v_width, uint v_height, const
 	char* name, bool fullscreen);
 // Deinitializes video
 void video_close(void);
+// Sets clear color, black by default
+void video_clear_color(Color c);
 // Flips backbuffer and frontbuffer, sleeps to hit 60fps.
 // Returns false if app is closed, true otherwise.
 void video_present(void);

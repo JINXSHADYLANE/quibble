@@ -86,6 +86,7 @@ static DArray textures;
 static uint frame;
 static float screen_widthf, screen_heightf;
 static float x_size_factor, y_size_factor;
+Color clear_color = 0;
 
 static uint radix_counts[256];
 static DArray rects_out;
@@ -93,6 +94,7 @@ static DArray vertex_buffer;
 static uint16 index_buffer[max_vertices/4 * 6];
 static uint fps_count = 0;
 static bool video_retro_filtering = false;
+static bool has_discard_extension = false;
 
 const float tex_mul = 32767.0f;
 
@@ -196,6 +198,13 @@ void video_init_exr(uint width, uint height, uint v_width, uint v_height,
     video_init_ex(width, height, v_width, v_height, name, fullscreen);
 }
 
+static bool _check_extension(const char* name) {
+    const char* exts = NULL;
+    if(exts == NULL)
+        exts = (char*)glGetString(GL_EXTENSIONS);
+    return strfind(name, exts) != -1;
+}
+
 void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 				   const char* name, bool fullscreen) {
 	assert(width >= 480 && width <= 1024);
@@ -204,6 +213,8 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
     
     screen_widthf = v_width;
     screen_heightf = v_height;
+    
+    has_discard_extension = _check_extension("GL_EXT_discard_framebuffer");
 	
 	glEnable(GL_TEXTURE_2D);
 	glShadeModel(GL_FLAT);
@@ -289,6 +300,24 @@ void video_close(void) {
 	}
 	
 	LOG_INFO("Video closed");
+}
+
+static void _color_to_4f(Color c, float* red, float* green,
+	float* blue, float* alpha) {
+	*red = (float)(c&0xFF) / 255.0f;
+	c >>= 8;
+	*green = (float)(c&0xFF) / 255.0f;
+	c >>= 8;
+	*blue = (float)(c&0xFF) / 255.0f;
+	c >>= 8;
+	*alpha = (float)(c&0xFF) / 255.0f;
+}	
+
+void video_clear_color(Color c) {
+	float r, g, b, a;
+	clear_color = c;
+	_color_to_4f(c, &r, &g, &b, &a);
+	glClearColor(r, g, b, a);
 }
 
 static bool rect_draw_state = false;
@@ -493,8 +522,10 @@ void video_present(void) {
     
     [[GLESView singleton] present];
 	
-    const GLenum discards[]  = {GL_COLOR_ATTACHMENT0_OES, GL_DEPTH_ATTACHMENT_OES};
-    glDiscardFramebufferEXT(GL_FRAMEBUFFER_OES, 2, discards);
+    if(has_discard_extension) {
+        const GLenum discards[]  = {GL_COLOR_ATTACHMENT0_OES, GL_DEPTH_ATTACHMENT_OES};
+        glDiscardFramebufferEXT(GL_FRAMEBUFFER_OES, 2, discards);
+    }
   
 	frame++;
 	fps_count++;

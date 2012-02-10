@@ -11,6 +11,10 @@
 
 ScreenSize scr_size;
 
+void dgreed_preinit(void) {
+	video_clear_color(COLOR_RGBA(188, 188, 188, 255));
+}
+
 void dgreed_init(int argc, const char** argv) {
 #ifndef _WIN32
 	params_init(argc, argv);
@@ -103,6 +107,7 @@ bool dgreed_render(void) {
 int dgreed_main(int argc, const char** argv) {
 	params_init(argc, argv);
 
+	dgreed_preinit();
 	dgreed_init(argc, argv);
 	while(true) {
 		if(!dgreed_update())
