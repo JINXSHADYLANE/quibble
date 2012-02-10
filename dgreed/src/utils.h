@@ -382,6 +382,9 @@ bool feql(float a, float b);
 // Returns true if integer is a power of two
 bool is_pow2(uint n);
 
+// Finds a needle in the haystask.
+int strfind(const char* needle, const char* haystack);
+
 /*
 -------------------
 --- Compression ---
