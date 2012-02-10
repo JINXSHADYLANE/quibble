@@ -1362,8 +1362,63 @@ bool feql(float a, float b) {
 }
 
 bool is_pow2(uint n) {
-	while(n && !(n & 1)) n >>= 1;
-	return n == 1;
+	return n && !(n & (n - 1));
+}
+
+// Knuth-Morris-Pratt with stack allocated partial match table
+int strfind(const char* needle, const char* haystack) {
+	assert(needle && haystack);
+
+	// Special cases when needle is shorter than 2 symbols
+	int needle_len = strlen(needle);
+	if(needle_len < 1)
+		return 0;
+	if(needle_len == 1) {
+		for(uint i = 0; haystack[i] != '\0'; ++i)
+			if(haystack[i] == needle[0])
+				return i;
+		return -1;
+	}
+	
+	// Special cases when haystack is not longer than needle
+	int haystack_len = strlen(haystack);
+	if(haystack_len < needle_len)
+		return -1;
+	if(haystack_len == needle_len)
+		return strcmp(needle, haystack) == 0 ? 0 : -1;
+
+	// Build partial match table
+	int* t = alloca(needle_len * sizeof(int));
+	t[0] = -1; t[1] = 0;
+	for(int i = 2, j = 0; i < needle_len; ++i) {
+		if(needle[i-1] == needle[j]) {
+			j++;
+			t[i] = j;
+		}
+		else if(j > 0) {
+			j = t[j];
+			i--;
+		}
+		else {
+			t[i] = 0;
+		}
+	}
+	
+	// Search
+	int m = 0, i = 0;
+	while(m + i < haystack_len) {
+		if(needle[i] == haystack[m + i]) {
+			if(i == needle_len - 1)
+				return m;
+			++i;
+		}
+		else {
+			m = m + i - t[i];
+			i = MAX(0, t[i]);
+		}
+	}
+
+	return -1;
 }
 
 /*

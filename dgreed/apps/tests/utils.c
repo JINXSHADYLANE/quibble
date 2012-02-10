@@ -391,3 +391,18 @@ TEST_(rectf_raycast) {
 	ASSERT_(h.x == s.x && feql(h.y, 18.41f));
 }
 
+TEST_(strfind) {
+	ASSERT_(strfind("", "test") == 0);
+	ASSERT_(strfind("t", "test") == 0);
+	ASSERT_(strfind("e", "test") == 1);
+	ASSERT_(strfind("test", "test") == 0);
+	ASSERT_(strfind("u", "test") == -1);
+	ASSERT_(strfind("test", "") == -1);
+	ASSERT_(strfind("test", "tes") == -1);
+	ASSERT_(strfind("test", "u") == -1);
+	ASSERT_(strfind("opap", "opa opa opapa") == 8);
+	ASSERT_(strfind("opop", "opa opa opapa") == -1);
+	ASSERT_(strfind(" opa", "opa opa opapa") == 3);
+	ASSERT_(strfind("ABCDABD", "ABC ABCDAB ABCDABCDABDE") == 15);
+}
+

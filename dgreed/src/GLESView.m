@@ -12,6 +12,7 @@ static GLESView* global_gles_view = NULL;
 - (id)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
 		view_frame = frame;
+
         // Aquire EAGL layer
 		CAEAGLLayer* eagl_layer = (CAEAGLLayer*)super.layer;
 		eagl_layer.opaque = YES;

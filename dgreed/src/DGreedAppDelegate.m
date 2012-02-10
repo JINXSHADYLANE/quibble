@@ -5,6 +5,7 @@
 #include "memory.h"
 #include "system.h"
 
+extern void dgreed_preinit(void);
 extern bool dgreed_init(int argc, const char** argv);
 extern void dgreed_close(void);
 extern uint time_ms_current(void);
@@ -12,6 +13,7 @@ extern void keyval_app_suspend(void);
 extern void gamecenter_app_suspend(void);
 extern void _set_gamecenter_app_delegate(DGreedAppDelegate* _app_delegate);
 extern float inactive_time;
+extern Color clear_color;
 
 extern RunStateCallback enter_background_cb;
 extern RunStateCallback enter_foreground_cb;
@@ -58,7 +60,17 @@ float resign_active_t;
     
     _set_gamecenter_app_delegate(self);
 	
-	if(!dgreed_init(0, NULL))
+	dgreed_preinit();
+    
+    // Set view color to clear color
+    byte r, g, b, a;
+    COLOR_DECONSTRUCT(clear_color, r, g, b, a);
+    gl_controller.view.backgroundColor = [UIColor colorWithRed:(float)r/255.0f 
+                                                         green:(float)r/255.0f
+                                                          blue:(float)b/255.0f 
+                                                         alpha:1.0f];
+
+    if(!dgreed_init(0, NULL))
 		return NO;
     
     return YES;
