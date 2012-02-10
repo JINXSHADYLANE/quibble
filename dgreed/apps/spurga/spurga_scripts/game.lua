@@ -19,6 +19,12 @@ function game.leave()
 end
 
 function game.update()
+	if touch.count() > 0 then
+		current_grid:touch(touch.get(0))
+	else
+		current_grid:touch(nil)
+	end
+
 	return true
 end
 
