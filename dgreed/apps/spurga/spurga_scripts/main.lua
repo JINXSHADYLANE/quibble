@@ -1,5 +1,5 @@
 pre = 'spurga_assets/'
-scr_size = { x = 320, y = 480 }
+scr_size = vec2(320, 480) 
 
 local game = require('game')
 local puzzles = require('puzzles')
