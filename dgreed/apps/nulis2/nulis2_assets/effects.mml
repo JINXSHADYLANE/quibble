@@ -18,14 +18,9 @@
 		(s Gravity_shrink.wav)
 		(s Vanish2.wav)
 		(s Explode.wav)
-		(s Time_grow.wav)
-		(s Time_shrink.wav)
 		(s Vanish.wav)
 		(s Win.wav)
 		(s Spawn.wav
-			(volume 0.8)
-		)
-		(s Spawn2.wav
 			(volume 0.8)
 		)
 
@@ -170,11 +165,11 @@
 
 		(e time_grow
 			(particles t_grow)
-			(sound Time_grow.wav)
+			(sound Gravity_grow.wav)
 		)
 		(e time_shrink
 			(particles t_shrink)
-			(sound Time_shrink.wav)
+			(sound Gravity_shrink.wav)
 		)
 		(e time_vanish
 			(particles sparkles)
@@ -201,7 +196,7 @@
 		)
 		(e random_spawn
 			(particles spawn)
-			(sound Spawn2.wav)
+			(sound Spawn.wav)
 		)
 
 		(e force_field
