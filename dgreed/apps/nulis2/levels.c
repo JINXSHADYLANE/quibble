@@ -292,15 +292,17 @@ void level_solve(const char* name, uint reactions, uint time) {
 
 		// Submit score to gamecenter
 #ifdef TARGET_IOS
-		uint total_score = levels_total_score();
-		GameCenterScore s = {
-			.category = "default",
-			.context = 42,
-			.value = total_score,
-			.player = NULL
-		};
+		if(gamecenter_is_active()) {
+			uint total_score = levels_total_score();
+			GameCenterScore s = {
+				.category = "default",
+				.context = 42,
+				.value = total_score,
+				.player = NULL
+			};
 
-		gamecenter_report_score(&s);
+			gamecenter_report_score(&s);
+		}
 #endif
 	}
 }

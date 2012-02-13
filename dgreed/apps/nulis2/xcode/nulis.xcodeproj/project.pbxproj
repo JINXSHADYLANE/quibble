@@ -92,6 +92,7 @@
 		2137781B14CD5D42004F01D2 /* nulis2_assets in Resources */ = {isa = PBXBuildFile; fileRef = 2137781A14CD5D42004F01D2 /* nulis2_assets */; };
 		2137781D14CD5D4C004F01D2 /* nulis2_scripts in Resources */ = {isa = PBXBuildFile; fileRef = 2137781C14CD5D4C004F01D2 /* nulis2_scripts */; };
 		2137782714CD61B5004F01D2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213777BB14CD5C01004F01D2 /* QuartzCore.framework */; };
+		214AB17314E57D1A0074C84F /* libSystem.B.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 21D150DA14E171CA00870D7A /* libSystem.B.dylib */; };
 		2183CA2114E285BF00ECDC45 /* ml_gamecenter.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */; };
 		2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1F14E285BF00ECDC45 /* ml_keyval.c */; };
 		2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 2194F0C414D7FF5900147A0C /* ml_coldet.c */; };
@@ -278,6 +279,7 @@
 				213776DD14CD5A58004F01D2 /* Foundation.framework in Frameworks */,
 				213776DF14CD5A58004F01D2 /* CoreGraphics.framework in Frameworks */,
 				21D150D914E1715000870D7A /* GameKit.framework in Frameworks */,
+				214AB17314E57D1A0074C84F /* libSystem.B.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
