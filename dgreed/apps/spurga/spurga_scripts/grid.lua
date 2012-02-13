@@ -59,6 +59,36 @@ function grid:precalc_src()
 	self.half_size = vec2(width / 2, height / 2)
 end
 
+-- when we're shifting/animating a single tile might be visible in two
+-- places at once, this draws such tile
+function grid:draw_shifted_tile(tex, layer, src, pos, offset, r, p)
+	if rect_point_collision(r, pos) then
+		video.draw_rect(tex, layer, src, pos)
+	else
+		local alpha, ghost_offset
+		if offset.x < 0 then
+			alpha = (pos.x - r.r) / p.tile_w
+			ghost_offset = vec2(-self.half_size.x * 2, 0)
+		elseif offset.x > 0 then
+			alpha = (r.l - pos.x) / p.tile_w
+			ghost_offset = vec2(self.half_size.x * 2, 0)
+		elseif offset.y < 0 then
+			alpha = (pos.y - r.b) / p.tile_h
+			ghost_offset = vec2(0, -self.half_size.y * 2)
+		elseif offset.y > 0 then
+			alpha = (r.t - pos.y) / p.tile_h
+			ghost_offset = vec2(0, self.half_size.y * 2)
+		end
+
+		alpha = clamp(0, 1, alpha)
+		local ghost_color = rgba(1, 1, 1, alpha)
+		local color = rgba(1, 1, 1, 1 - alpha)
+
+		video.draw_rect(tex, layer, src, pos, color)
+		video.draw_rect(tex, layer, src, pos + ghost_offset, ghost_color)
+	end
+end
+
 function grid:draw(pos, layer)
 	local p = self.puzzle
 	
@@ -96,6 +126,15 @@ function grid:draw(pos, layer)
 	-- top left corner coordinates
 	local cursor = pos - self.half_size
 
+	-- rectangle containing all centers of tiles which
+	-- will certainly be ghostless
+	local r = rect(
+		cursor.x,
+		cursor.y,
+		cursor.x + self.half_size.x * 2 - p.tile_w,
+		cursor.y + self.half_size.y * 2 - p.tile_h 
+	)
+
 	-- draw current grid state
 	local t
 	for y = 0, p.h-1 do
@@ -107,11 +146,17 @@ function grid:draw(pos, layer)
 					video.draw_rect(p.tex, layer, p.tile_src[t], cursor)
 				else
 					-- animated tile
-					video.draw_rect(p.tex, layer, p.tile_src[t], cursor - anim_offset)
+					self:draw_shifted_tile(
+						p.tex, layer, p.tile_src[t], 
+						cursor - anim_offset, anim_offset, r, p
+					)
 				end
 			else
 				-- moved tile
-				video.draw_rect(p.tex, layer, p.tile_src[t], cursor - self.move_offset)
+				self:draw_shifted_tile(
+					p.tex, layer, p.tile_src[t], 
+					cursor - self.move_offset, self.move_offset, r, p
+				)
 			end
 			cursor.x = cursor.x + p.tile_w
 		end
@@ -207,36 +252,46 @@ function grid:touch(t)
 
 	local off_x = t.hit_pos.x - t.pos.x
 	local off_y = t.hit_pos.y - t.pos.y
-	local move_x = math.abs(off_x) > touch_move_dist
-	local move_y = math.abs(off_y) > touch_move_dist
+	local move_x = self.move_mask_x == nil
+	local move_y = self.move_mask_y == nil
+	if move_x and move_y then
+		move_x = math.abs(off_x) > touch_move_dist
+		move_y = math.abs(off_y) > touch_move_dist
+	end
 
-	if (move_x or move_y) and move_x ~= move_y then
-		-- touch hit pos in tile space
-		local tile_pos = t.hit_pos - (scr_size / 2 - self.half_size)
-		tile_pos.x = math.floor(tile_pos.x / p.tile_w)
-		tile_pos.y = math.floor(tile_pos.y / p.tile_h)
+	if not (self.move_mask_x or self.move_mask_y) then
+		if (move_x or move_y) and move_x ~= move_y then
+			-- touch hit pos in tile space
+			local tile_pos = t.hit_pos - (scr_size / 2 - self.half_size)
+			tile_pos.x = math.floor(tile_pos.x / p.tile_w)
+			tile_pos.y = math.floor(tile_pos.y / p.tile_h)
 
-		-- touch is outside puzzle grid, back out 
-		if  tile_pos.x < 0 or tile_pos.x >= p.w or
-			tile_pos.y < 0 or tile_pos.y >= p.h then
-			return
+			-- touch is outside puzzle grid, back out 
+			if  tile_pos.x < 0 or tile_pos.x >= p.w or
+				tile_pos.y < 0 or tile_pos.y >= p.h then
+				return
+			end
+
+			-- mask out moving row/column from regular rendering
+			if move_x then
+				self.move_mask_x = nil
+				self.move_mask_y = tile_pos.y
+			else
+				self.move_mask_x = tile_pos.x
+				self.move_mask_y = nil
+			end
 		end
+	end	
 
-		-- calculate move offset
-		if not self.move_offset then
-			self.move_offset = vec2(0, 0)
-		end
+	-- calculate move offset
+	if not self.move_offset then
+		self.move_offset = vec2(0, 0)
+	end
 
-		-- mask out moving row/column from regular rendering
-		if move_x then
-			self.move_mask_x = nil
-			self.move_mask_y = tile_pos.y
-			self.move_offset = vec2(off_x, 0) 
-		else
-			self.move_mask_x = tile_pos.x
-			self.move_mask_y = nil
-			self.move_offset = vec2(0, off_y)
-		end
+	if move_x then
+		self.move_offset = vec2(off_x, 0) 
+	else
+		self.move_offset = vec2(0, off_y)
 	end
 end
 
