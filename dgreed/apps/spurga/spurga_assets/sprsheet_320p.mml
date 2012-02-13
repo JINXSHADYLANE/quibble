@@ -3,5 +3,9 @@
 	(img first
 		(tex first.png)
 	)
+	(img third 
+		(tex third.png)
+		(src 0,0,320,320)
+	)
 )
 

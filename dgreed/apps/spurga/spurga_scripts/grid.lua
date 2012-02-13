@@ -210,8 +210,7 @@ function grid:touch(t)
 	if not t then
 		-- finger might have been lifted up, 
 		-- process a move if one was made
-		if self.move_offset ~= nil then
-
+		if self.move_offset ~= nil and length_sq(self.move_offset) > 1 then
 			-- animate offset
 			self.start_anim_t = time.s()
 			self.start_anim_offset = self.move_offset
@@ -247,6 +246,7 @@ function grid:touch(t)
 
 			self.move_offset = nil
 		end
+
 		return
 	end
 
@@ -272,6 +272,21 @@ function grid:touch(t)
 				return
 			end
 
+			-- also back out if row/column has immovable tiles
+			local x, y, dx, dy = 0, 0, 0, 0
+			if move_x then
+				y, dx = tile_pos.y, 1
+			else
+				x, dy = tile_pos.x, 1
+			end
+			while x < p.w and y < p.h do
+				local t = self.state[y * p.w + x + 1] 
+				if p.solved[t] == '#' then
+					return
+				end
+				x, y = x + dx, y + dy
+			end
+	
 			-- mask out moving row/column from regular rendering
 			if move_x then
 				self.move_mask_x = nil
@@ -290,7 +305,7 @@ function grid:touch(t)
 
 	if move_x then
 		self.move_offset = vec2(off_x, 0) 
-	else
+	elseif move_y then
 		self.move_offset = vec2(0, off_y)
 	end
 end
