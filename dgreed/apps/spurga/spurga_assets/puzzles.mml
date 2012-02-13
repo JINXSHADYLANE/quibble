@@ -1,0 +1,31 @@
+(puzzles _
+	(puzzle first
+		(img first)
+		(def "
+			0 0 0 0
+			0 1 1 0
+			0 1 1 0
+			0 0 0 0
+		")
+	)
+	(puzzle second
+		(img second)
+		(def "
+			1 1 @ 0 0
+			1 1 1 0 0
+			1 1 @ 0 0
+			1 1 0 0 0
+			1 1 @ 0 0
+		")
+	)
+	(puzzle third
+		(img third)
+		(def "
+			0 0 0 0 0
+			1 # 1 # 1
+			2 2 2 2 2
+			1 # 1 # 1
+			0 0 0 0 0
+		")
+	)
+)

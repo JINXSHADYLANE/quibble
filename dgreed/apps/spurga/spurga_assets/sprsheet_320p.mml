@@ -1,0 +1,7 @@
+(sprsheet spurga_320p
+	(prefix "spurga_assets/")
+	(img first
+		(tex first.png)
+	)
+)
+
