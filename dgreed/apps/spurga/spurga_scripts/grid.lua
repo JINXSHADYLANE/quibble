@@ -87,6 +87,19 @@ function grid:draw_shifted_tile(tex, layer, src, pos, offset, r, p)
 		video.draw_rect(tex, layer, src, pos, color)
 		video.draw_rect(tex, layer, src, pos + ghost_offset, ghost_color)
 	end
+
+--[[
+	-- pos in grid space
+	local gpos = vec2(
+		(pos.x - self.half_size.x) / p.tile_w,
+		(pos.y - self.half_size.y) / p.tile_h
+	)
+
+	-- at any given point in time, shifted tile is intersecting with two
+	-- grid cells, let's calculate them
+	local ax, ay = x, y 
+	local bx, by = ...
+]]
 end
 
 function grid:draw(pos, layer)
@@ -140,7 +153,10 @@ function grid:draw(pos, layer)
 	for y = 0, p.h-1 do
 		for x = 0, p.w-1 do
 			t = self.state[y * p.w + x + 1] 
-			if x ~= self.move_mask_x and y ~= self.move_mask_y then
+			if p.solved[t] == '@' then
+				-- portal tile
+				video.draw_rect(p.tex, layer-1, p.tile_src[t], cursor)
+			elseif x ~= self.move_mask_x and y ~= self.move_mask_y then
 				if x ~= self.anim_mask_x and y ~= self.anim_mask_y then
 					-- plain tile
 					video.draw_rect(p.tex, layer, p.tile_src[t], cursor)
@@ -181,26 +197,31 @@ function grid:shift(column_x, row_y, offset)
 	-- fill a table with previuos row/column values
 	local prev, cx, cy = {}, x, y
 	while cx < p.w and cy < p.h do
-		table.insert(prev, self.state[cy * p.w + cx + 1])
+		local t = self.state[cy * p.w + cx + 1]
+		if p.solved[t] ~= '@' then
+			table.insert(prev, t)
+		end
 		cx, cy = cx + dx, cy + dy
 	end
+
+	-- make a new, rotated row/column table
+	local new = {}
+	local off = math.fmod(offset, #prev)
+	for i = 1, #prev do
+		new[i] = prev[math.fmod(#prev - off + (i-1), #prev) + 1]
+	end
 	
-	local dest_x, dest_y
+	-- update current state with rotated row/column
 	local i = 1
-	while x < p.w and y < p.h do
-		-- calculate destination cell
-		if column_x then
-			dest_x = x 
-			dest_y = math.fmod(p.h + y + offset, p.h)	
-		else
-			dest_x = math.fmod(p.w + x + offset, p.w)
-			dest_y = y
+	cx, cy = x, y
+	while cx < p.w and cy < p.h do
+		local idx = cy * p.w + cx + 1
+		local t = self.state[idx]
+		if p.solved[t] ~= '@' then
+			self.state[idx] = new[i]
+			i = i + 1
 		end
-
-		-- perform rotation 
-		self.state[dest_y * p.w + dest_x + 1] = prev[i]
-
-		x, y, i = x + dx, y + dy, i + 1
+		cx, cy = cx + dx, cy + dy
 	end
 end
 
