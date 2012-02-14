@@ -20,6 +20,8 @@ function grid:reset_state()
 	for i = 1, p.w * p.h do
 		table.insert(self.state, i)
 	end
+
+	self:shuffle(100)
 end
 
 function grid:precalc_src()
@@ -185,7 +187,7 @@ function grid:draw(pos, layer)
 				if x ~= self.anim_mask_x and y ~= self.anim_mask_y then
 					-- plain tile
 					video.draw_rect(p.tex, layer, p.tile_src[t], cursor)
-				else
+				elseif anim_offset then
 					-- animated tile
 					self:draw_shifted_tile(
 						p.tex, layer, p.tile_src[t], 
@@ -248,6 +250,49 @@ function grid:shift(column_x, row_y, offset)
 		end
 		cx, cy = cx + dx, cy + dy
 	end
+end
+
+function grid:shuffle(n)
+	local p = self.puzzle
+
+	self.start_anim_t = time.s()
+	self.start_anim_offset = vec2(0, 0)
+	self.end_anim_offset = vec2(0, 0)
+	self.anim_len = 0.01
+
+	local mask_x, mask_y, shift_offset
+
+	local cb = function()
+		if shift_offset then
+			self:shift(mask_x, mask_y, -shift_offset)
+		end
+
+		if n > 0 then
+			n = n - 1
+
+			if rand.int(0, 2) == 0 then
+				shift_offset = -1
+			else
+				shift_offset = 1
+			end
+
+			if rand.int(0, 2) == 0 then
+				mask_x, mask_y = rand.int(0, p.w), nil
+				self.end_anim_offset = vec2(0, shift_offset * p.tile_w)
+			else	
+				mask_x, mask_y = nil, rand.int(0, p.h)
+				self.end_anim_offset = vec2(shift_offset * p.tile_h, 0)
+			end
+
+			self.anim_mask_x, self.anim_mask_y = mask_x, mask_y
+
+			self.start_anim_offset = vec2(0, 0)
+			self.start_anim_t = time.s()
+			self.anim_len = 0.1
+		end	
+	end
+	
+	self.anim_end_callback = cb 
 end
 
 function grid:touch(t)
