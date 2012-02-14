@@ -61,45 +61,79 @@ end
 
 -- when we're shifting/animating a single tile might be visible in two
 -- places at once, this draws such tile
-function grid:draw_shifted_tile(tex, layer, src, pos, offset, r, p)
-	if rect_point_collision(r, pos) then
-		video.draw_rect(tex, layer, src, pos)
-	else
-		local alpha, ghost_offset
-		if offset.x < 0 then
-			alpha = (pos.x - r.r) / p.tile_w
-			ghost_offset = vec2(-self.half_size.x * 2, 0)
-		elseif offset.x > 0 then
-			alpha = (r.l - pos.x) / p.tile_w
-			ghost_offset = vec2(self.half_size.x * 2, 0)
-		elseif offset.y < 0 then
-			alpha = (pos.y - r.b) / p.tile_h
-			ghost_offset = vec2(0, -self.half_size.y * 2)
-		elseif offset.y > 0 then
-			alpha = (r.t - pos.y) / p.tile_h
-			ghost_offset = vec2(0, self.half_size.y * 2)
-		end
+function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p)
+	local abs_offset = vec2(math.abs(offset.x), math.abs(offset.y))
+	local steps = vec2(
+		math.floor(abs_offset.x / p.tile_w),
+		math.floor(abs_offset.y / p.tile_h)
+	)
+	local top_left = scr_size * 0.5 - self.half_size
 
-		alpha = clamp(0, 1, alpha)
+	local dx, dy = 0, 0
+	if offset.x > 0 then
+		dx = -1
+	elseif offset.x < 0 then
+		dx = 1
+	elseif offset.y > 0 then
+		dy = -1
+	elseif offset.y < 0 then
+		dy = 1
+	end
+
+	-- at any given point in time, shifted tile is intersecting with two
+	-- grid cells; let's calculate them, taking portals into account
+
+	local ax, ay = x, y
+	for i=1,steps.x do
+		ax = math.fmod(p.w + ax + dx, p.w)
+		while p.solved[self.state[ay * p.w + ax + 1]] == '@' do
+			ax, ay = math.fmod(p.w + ax + dx, p.w), math.fmod(p.h + ay + dy, p.h)
+		end
+	end
+	for i=1,steps.y do
+		ay = math.fmod(p.h + ay + dy, p.h)
+		while p.solved[self.state[ay * p.w + ax + 1]] == '@' do
+			ax, ay = math.fmod(p.w + ax + dx, p.w), math.fmod(p.h + ay + dy, p.h)
+		end
+	end
+
+	local bx = math.fmod(p.w + ax + dx, p.w)
+	local by = math.fmod(p.h + ay + dy, p.h)
+	while p.solved[self.state[by * p.w + bx + 1]] == '@' do
+		bx, by = math.fmod(p.w + bx + dx, p.w), math.fmod(p.h + by + dy, p.h)
+	end
+
+	-- shift offset from grid cells
+	local real_offset = abs_offset - vec2(steps.x * p.tile_w, steps.y * p.tile_h)
+	local neg_offset = vec2(
+		(p.tile_w - real_offset.x) * dx * dx, 
+		(p.tile_h - real_offset.y) * dy * dy
+	)
+
+	-- positions of two grid cells
+	local pos_a = vec2(ax * p.tile_w + top_left.x, ay * p.tile_h + top_left.y)
+	local pos_b = vec2(bx * p.tile_w + top_left.x, by * p.tile_h + top_left.y)
+
+	if dy > 0 or dx > 0 then
+		real_offset = -real_offset
+		neg_offset = -neg_offset
+	end
+	if bx-ax == dx and by-ay == dy then
+		-- draw
+		video.draw_rect(tex, layer, src, pos_a - real_offset)
+	else
+		local alpha = clamp(0, 1, math.max(
+			math.abs(real_offset.x) / p.tile_h, 
+			math.abs(real_offset.y) / p.tile_w
+		))
+
 		local ghost_color = rgba(1, 1, 1, alpha)
 		local color = rgba(1, 1, 1, 1 - alpha)
 
-		video.draw_rect(tex, layer, src, pos, color)
-		video.draw_rect(tex, layer, src, pos + ghost_offset, ghost_color)
+		-- draw with ghost
+		video.draw_rect(tex, layer, src, pos_a - real_offset, color)
+		video.draw_rect(tex, layer, src, pos_b + neg_offset, ghost_color)
 	end
-
---[[
-	-- pos in grid space
-	local gpos = vec2(
-		(pos.x - self.half_size.x) / p.tile_w,
-		(pos.y - self.half_size.y) / p.tile_h
-	)
-
-	-- at any given point in time, shifted tile is intersecting with two
-	-- grid cells, let's calculate them
-	local ax, ay = x, y 
-	local bx, by = ...
-]]
 end
 
 function grid:draw(pos, layer)
@@ -139,15 +173,6 @@ function grid:draw(pos, layer)
 	-- top left corner coordinates
 	local cursor = pos - self.half_size
 
-	-- rectangle containing all centers of tiles which
-	-- will certainly be ghostless
-	local r = rect(
-		cursor.x,
-		cursor.y,
-		cursor.x + self.half_size.x * 2 - p.tile_w,
-		cursor.y + self.half_size.y * 2 - p.tile_h 
-	)
-
 	-- draw current grid state
 	local t
 	for y = 0, p.h-1 do
@@ -164,14 +189,14 @@ function grid:draw(pos, layer)
 					-- animated tile
 					self:draw_shifted_tile(
 						p.tex, layer, p.tile_src[t], 
-						cursor - anim_offset, anim_offset, r, p
+						x, y, anim_offset, p
 					)
 				end
 			else
 				-- moved tile
 				self:draw_shifted_tile(
 					p.tex, layer, p.tile_src[t], 
-					cursor - self.move_offset, self.move_offset, r, p
+					x, y, self.move_offset, p
 				)
 			end
 			cursor.x = cursor.x + p.tile_w
