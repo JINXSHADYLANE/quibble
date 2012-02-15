@@ -21,7 +21,7 @@ function grid:reset_state()
 		table.insert(self.state, i)
 	end
 
-	self:shuffle(100)
+	self:shuffle(300)
 end
 
 function grid:precalc_src()
@@ -187,7 +187,10 @@ function grid:draw(pos, layer)
 				if x ~= self.anim_mask_x and y ~= self.anim_mask_y then
 					-- plain tile
 					video.draw_rect(p.tex, layer, p.tile_src[t], cursor)
-				elseif anim_offset then
+				else
+					if anim_offset == nil then
+						anim_offset = vec2(0, 0)
+					end
 					-- animated tile
 					self:draw_shifted_tile(
 						p.tex, layer, p.tile_src[t], 
@@ -254,11 +257,12 @@ end
 
 function grid:shuffle(n)
 	local p = self.puzzle
+	self.shuffling = true
 
 	self.start_anim_t = time.s()
 	self.start_anim_offset = vec2(0, 0)
 	self.end_anim_offset = vec2(0, 0)
-	self.anim_len = 0.01
+	self.anim_len = 1
 
 	local mask_x, mask_y, shift_offset
 
@@ -276,27 +280,55 @@ function grid:shuffle(n)
 				shift_offset = 1
 			end
 
-			if rand.int(0, 2) == 0 then
-				mask_x, mask_y = rand.int(0, p.w), nil
-				self.end_anim_offset = vec2(0, shift_offset * p.tile_w)
-			else	
-				mask_x, mask_y = nil, rand.int(0, p.h)
-				self.end_anim_offset = vec2(shift_offset * p.tile_h, 0)
-			end
+			repeat	
+				if rand.int(0, 2) == 0 then
+					mask_x, mask_y = rand.int(0, p.w), nil
+					self.end_anim_offset = vec2(0, shift_offset * p.tile_w)
+				else	
+					mask_x, mask_y = nil, rand.int(0, p.h)
+					self.end_anim_offset = vec2(shift_offset * p.tile_h, 0)
+				end
+			until self:can_move(mask_y ~= nil, mask_x ~= nil, mask_x or 0, mask_y or 0, p)
 
 			self.anim_mask_x, self.anim_mask_y = mask_x, mask_y
 
 			self.start_anim_offset = vec2(0, 0)
 			self.start_anim_t = time.s()
-			self.anim_len = 0.1
-		end	
+			self.anim_len = 0.000001 * n*n
+		else
+			self.shuffling = false
+		end
 	end
 	
 	self.anim_end_callback = cb 
 end
 
+-- rows/columns with immovable tiles cannot be moved
+function grid:can_move(move_x, move_y, tx, ty, p)
+	local x, y, dx, dy = 0, 0, 0, 0
+
+	if move_x then
+		y, dx = ty, 1
+	else
+		x, dy = tx, 1
+	end
+	while x < p.w and y < p.h do
+		local t = self.state[y * p.w + x + 1] 
+		if p.solved[t] == '#' then
+			return false
+		end
+		x, y = x + dx, y + dy
+	end
+
+	return true
+end
+
 function grid:touch(t)
 	local p = self.puzzle
+
+	if self.shuffling then
+		return
+	end
 
 	if not t then
 		-- finger might have been lifted up, 
@@ -364,20 +396,10 @@ function grid:touch(t)
 			end
 
 			-- also back out if row/column has immovable tiles
-			local x, y, dx, dy = 0, 0, 0, 0
-			if move_x then
-				y, dx = tile_pos.y, 1
-			else
-				x, dy = tile_pos.x, 1
+			if not self:can_move(move_x, move_y, tile_pos.x, tile_pos.y, p) then
+				return
 			end
-			while x < p.w and y < p.h do
-				local t = self.state[y * p.w + x + 1] 
-				if p.solved[t] == '#' then
-					return
-				end
-				x, y = x + dx, y + dy
-			end
-	
+		
 			-- mask out moving row/column from regular rendering
 			if move_x then
 				self.move_mask_x = nil
