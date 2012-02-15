@@ -694,3 +694,36 @@ TEST_(count_children) {
 	mml_free(&mml);
 }
 
+TEST_(long_string) {
+	MMLObject mml;
+	mml_empty(&mml);
+
+	char str[1000];
+	for(uint i = 0; i < 999; ++i)
+		str[i] = 'a';
+	str[999] = '\0';
+
+	NodeIdx root_idx = mml_root(&mml);
+
+	NodeIdx node1_idx = mml_node(&mml, "foo", str);
+	NodeIdx node2_idx = mml_node(&mml, "bar", "foo");
+	NodeIdx node3_idx = mml_node(&mml, "bar", str);
+	NodeIdx node4_idx = mml_node(&mml, "baz", "bar");
+
+	mml_append(&mml, node2_idx, node4_idx);
+	mml_append(&mml, root_idx, node1_idx);
+	mml_append(&mml, root_idx, node2_idx);
+	mml_append(&mml, root_idx, node3_idx);
+
+	char* out = NULL;
+	char correct_out[3000];
+	sprintf(correct_out, "(root _(foo %s)(bar foo(baz bar))(bar %s))", str, str);
+	out = mml_serialize_compact(&mml);
+	ASSERT_(out);
+	ASSERT_(strcmp(out, correct_out) == 0);
+
+	MEM_FREE(out);
+
+	mml_free(&mml);
+}
+
