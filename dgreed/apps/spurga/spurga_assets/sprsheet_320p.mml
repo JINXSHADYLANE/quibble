@@ -11,5 +11,9 @@
 		(tex third.png)
 		(src 0,0,320,320)
 	)
+	(img tulip
+		(tex tulip.png)
+		(src 0,0,320,480)
+	)
 )
 

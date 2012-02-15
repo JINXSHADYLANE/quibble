@@ -33,8 +33,9 @@ StrIdx _alloc_str(MMLObject* mml, uint length) {
 	if(req_size <= mml->str_pool.reserved)
 		goto end;
 
+	new_size = mml->str_pool.size;
 	do {
-		new_size = (mml->str_pool.size * 3) / 2;
+		new_size = (new_size * 3) / 2;
 	} while(new_size <= req_size);
 
 	darray_reserve(&(mml->str_pool), new_size);
