@@ -6,7 +6,7 @@ local puzzles = require('puzzles')
 local current_grid
 
 function game.init()
-	current_grid = grid:new(puzzles[1])	
+	current_grid = grid:new(puzzles[2])	
 end
 
 function game.close()

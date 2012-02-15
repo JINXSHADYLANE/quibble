@@ -682,6 +682,27 @@ static int ml_video_draw_text_centered(lua_State* l) {
 		return luaL_error(l, "wrong number of arguments provided to video.draw_text");
 }
 
+static int ml_video_set_blendmode(lua_State* l) {
+	checkargs(2, "video.set_blendmode");
+
+	uint layer = luaL_checkinteger(l, 1);
+	const char* mode = luaL_checkstring(l, 2);
+
+	BlendMode bmode = BM_NORMAL;
+	if(strcmp(mode, "add") == 0)
+		bmode = BM_ADD;
+	else if(strcmp(mode, "multiply") == 0)
+		bmode = BM_MULTIPLY;
+	else if(strcmp(mode, "normal") == 0)
+		bmode = BM_NORMAL;
+	else
+		return luaL_error(l, "unrecognised blending mode");
+
+	video_set_blendmode(layer, bmode);
+
+	return 0;
+}
+
 static const luaL_Reg video_fun[] = {
 	{"native_resolution", ml_video_native_resolution},
 	{"init", ml_video_init},
@@ -695,6 +716,7 @@ static const luaL_Reg video_fun[] = {
 	{"draw_seg", ml_video_draw_seg},
 	{"draw_text", ml_video_draw_text},
 	{"draw_text_centered", ml_video_draw_text_centered},
+	{"set_blendmode", ml_video_set_blendmode},
 	{NULL, NULL}
 };
 
