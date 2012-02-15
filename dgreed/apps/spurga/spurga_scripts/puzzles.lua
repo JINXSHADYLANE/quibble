@@ -41,14 +41,61 @@ local function parse_puzzle(node)
 	return new
 end
 
-function puzzles.load(filename)
-	puzzles_mml = mml.read(filename)
-
+function puzzles.load(descs_filename, slices_filename)
+	local puzzles_mml = mml.read(descs_filename)
 	assert(puzzles_mml.name == 'puzzles')
-
 	for i,puzzle in ipairs(puzzles_mml.childs) do
 		table.insert(puzzles, parse_puzzle(puzzle))
 	end
+
+	-- also parse puzzle slices
+	local slices = {}
+	local slices_mml = mml.read(slices_filename)
+	assert(slices_mml.name == 'puzzle_tiles')
+	for i,puzzle in ipairs(slices_mml.childs) do
+		local sliced_puzzle = {}	
+		for j,slice in ipairs(puzzle.childs) do
+			local t = slice.name
+			if t ~= '#' and t ~= '@' then
+				t = tonumber(t)
+			end
+
+			local _l, _t, _r, _b = slice.value:match('(%d+),(%d+),(%d+),(%d+)')
+			sliced_puzzle[t] = rect(
+				tonumber(_l), tonumber(_t), 
+				tonumber(_r), tonumber(_b)
+			)
+
+			if not sliced_puzzle.tile_w then
+				sliced_puzzle.tile_w = width(sliced_puzzle[t])
+				sliced_puzzle.tile_h = height(sliced_puzzle[t])
+			end
+		end
+
+		sliced_puzzle.texture = puzzle.value
+		slices[puzzle.name] = sliced_puzzle
+	end
+
+	puzzles.slices = slices
+end
+
+function puzzles.free()
+	for i,puzzle in ipairs(puzzles) do
+		if puzzle.tex then
+			tex.free(puzzle.tex)
+		end
+	end
+end
+
+function puzzles.preload(puzzle)
+	-- figures out puzzle.tex and puzzle.tile_src
+	local slices = puzzles.slices[puzzle.name]
+	assert(slices)
+
+	puzzle.tex = tex.load(pre..slices.texture)
+	puzzle.tile_src = slices
+	puzzle.tile_w = slices.tile_w
+	puzzle.tile_h = slices.tile_h
 end
 
 return puzzles

@@ -9,8 +9,9 @@ function game_init()
 
 	states.push('game')
 
-	puzzles.load(pre..'puzzles.mml')
+	puzzles.load(pre..'puzzles.mml', pre..'slices.mml')
 end
 
 function game_close()
+	puzzles.free()
 end
