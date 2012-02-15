@@ -147,13 +147,13 @@ def process(string):
 
 	strfind = lambda x, y: x.find(y) != -1
 	quote = True if (strfind(string, ' ') or strfind(string, '\n') \
-			or strfind(string, '\t') or strfind(string, '"')) else False
+			or strfind(string, '\t') or strfind(string, '"')) or strfind(string, '#') else False
 	return '"' + insert_escape(string) + '"' if quote else string
 
 def serialize(tree, prefix=''):
 	'''Converts tree of nodes to mml string'''
 
-	result = prefix + '( ' + tree.name + ' ' + process(tree.value)
+	result = prefix + '( ' + process(tree.name) + ' ' + process(tree.value)
 	if len(tree.children) == 0:
 		return result + ' )\n'
 	result += '\n'

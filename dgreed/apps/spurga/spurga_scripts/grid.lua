@@ -1,6 +1,8 @@
 local grid = {}
 grid.__index = grid
 
+local puzzles = require('puzzles')
+
 -- tweaks
 -- do not move row/column if touch move distance is less than this
 local touch_move_dist = 5 
@@ -21,42 +23,16 @@ function grid:reset_state()
 		table.insert(self.state, i)
 	end
 
-	self:shuffle(300)
+	--self:shuffle(300)
 end
 
 function grid:precalc_src()
 	local p = self.puzzle
 
-	local width, height = width(p.src), height(p.src)
+	puzzles.preload(p)
 
-	-- 0 width or height means 'up to the edge'
-	if width == 0 or height == 0 then
-		local tex_size = tex.size(p.tex)
-		if width == 0 then
-			width = tex_size.x - p.src.l
-		end
-		if height == 0 then
-			height = tex_size.y - p.src.t
-		end
-	end
-
-	p.tile_w = width / p.w
-	p.tile_h = height / p.h
-
-	-- precalc source rect for each tile
-	p.tile_src = {}
-	for y = 0, p.h-1 do
-		for x = 0, p.w-1 do
-			local n = y * p.w + x
-
-			p.tile_src[n+1] = rect(
-				p.src.l + x * p.tile_w,
-				p.src.t + y * p.tile_h, 
-				p.src.l + (x+1) * p.tile_w,
-				p.src.t + (y+1) * p.tile_h
-			)
-		end
-	end
+	local width = p.tile_w * p.w
+	local height = p.tile_h * p.h
 
 	self.half_size = vec2(width / 2, height / 2)
 end
@@ -180,27 +156,28 @@ function grid:draw(pos, layer)
 	for y = 0, p.h-1 do
 		for x = 0, p.w-1 do
 			t = self.state[y * p.w + x + 1] 
+			local r = p.tile_src[p.solved[t]]
 			if p.solved[t] == '@' then
 				-- portal tile
-				video.draw_rect(p.tex, layer-1, p.tile_src[t], cursor)
+				video.draw_rect(p.tex, layer-1, r, cursor)
 			elseif x ~= self.move_mask_x and y ~= self.move_mask_y then
 				if x ~= self.anim_mask_x and y ~= self.anim_mask_y then
 					-- plain tile
-					video.draw_rect(p.tex, layer, p.tile_src[t], cursor)
+					video.draw_rect(p.tex, layer, r, cursor)
 				else
 					if anim_offset == nil then
 						anim_offset = vec2(0, 0)
 					end
 					-- animated tile
 					self:draw_shifted_tile(
-						p.tex, layer, p.tile_src[t], 
+						p.tex, layer, r, 
 						x, y, anim_offset, p
 					)
 				end
 			else
 				-- moved tile
 				self:draw_shifted_tile(
-					p.tex, layer, p.tile_src[t], 
+					p.tex, layer, r, 
 					x, y, self.move_offset, p
 				)
 			end

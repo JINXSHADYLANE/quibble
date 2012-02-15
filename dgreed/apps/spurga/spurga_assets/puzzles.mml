@@ -1,6 +1,6 @@
 (puzzles _
 	(puzzle first
-		(img first)
+		(img first.png)
 		(def "
 			0 0 0 0
 			0 1 1 0
@@ -9,7 +9,7 @@
 		")
 	)
 	(puzzle second
-		(img second)
+		(img second.png)
 		(def "
 			1 1 @ 0 0
 			1 1 1 0 0
@@ -19,7 +19,7 @@
 		")
 	)
 	(puzzle third
-		(img third)
+		(img third.png)
 		(def "
 			0 0 0 0 0
 			1 # 1 # 1
@@ -29,7 +29,7 @@
 		")
 	)
 	(puzzle fourth
-		(img third)
+		(img third.png)
 		(def "
 			0 0 0 0 0 0 0 0 0 0
 			0 0 0 0 0 0 0 0 0 0
@@ -44,7 +44,7 @@
 		")
 	)
 	(puzzle fifth 
-		(img second)
+		(img second.png)
 		(def "
 			1 1 1 1 @ @ 0 0 0 0
 			1 1 1 1 @ @ 0 0 0 0
@@ -59,7 +59,7 @@
 		")
 	)
 	(puzzle tulip
-		(img tulip)
+		(img tulip.png)
 		(def "
 			0  0  0  0  0  0  0  0  0  0
 			0  0  0  0  0  0  0  0  0  0
@@ -69,9 +69,9 @@
 			0  5  6  0  7  8  0  9 10  0
 			0 11 12 13 14 14 15 16 17  0
 			0  0 18 19 14 14 20 21  0  0
-			0  0 22 14 14 14 14 23  0  0
-			0  0 24 14 14 14 14 25  0  0
-			0  0  0 26 14 14 27  0  0  0
+			0  0 22 14 14 14 33 23  0  0
+			0  0 24 32 14 14 31 25  0  0
+			0  0  0 26 14 30 27  0  0  0
 			0  0  0  0 28 29  0  0  0  0
 			0  0  0  0  0  0  0  0  0  0
 			0  0  0  0  0  0  0  0  0  0
