@@ -23,7 +23,7 @@ function grid:reset_state()
 		table.insert(self.state, i)
 	end
 
-	--self:shuffle(300)
+	self:shuffle(200)
 end
 
 function grid:precalc_src()
@@ -116,14 +116,9 @@ end
 
 function grid:draw(pos, layer)
 	local p = self.puzzle
-	
-	-- cache texture handle and source rectangle
-	if not p.tex then
-		p.tex, p.src = sprsheet.get(p.spr)
-	end
 
-	-- cache tile source rectangles
-	if not p.tile_src then
+	-- cache texture handle and tile source rectangles
+	if not p.tex then
 		self:precalc_src()
 	end
 

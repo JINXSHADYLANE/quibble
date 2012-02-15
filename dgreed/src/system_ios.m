@@ -79,6 +79,8 @@ typedef struct {
 
 bool draw_gfx_debug = false;
 
+static BlendMode last_blend_mode;
+static BlendMode blend_modes[bucket_count];
 static DArray rect_buckets[bucket_count];
 static DArray line_buckets[bucket_count];
 static DArray textures;
@@ -188,6 +190,20 @@ void video_get_native_resolution(uint* width, uint* height) {
     *height *= screen_scale;
 }
 
+static void _set_blendmode(BlendMode mode) {
+	switch(mode) {
+		case BM_NORMAL:
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		case BM_ADD:
+			glBlendFunc(GL_ONE, GL_ONE);
+			break;
+		case BM_MULTIPLY:
+			glBlendFunc(GL_DST_COLOR, GL_ZERO);
+			break;
+	}
+}
+
 void video_init(uint width, uint height, const char* name) {
 	video_init_ex(width, height, width, height, name, false); 
 }
@@ -222,7 +238,8 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glViewport(0, 0, v_height, v_width);
 	glEnable(GL_BLEND);
     glDisable(GL_ALPHA_TEST);
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	_set_blendmode(BM_NORMAL);
+	last_blend_mode = BM_NORMAL;
 
 	glMatrixMode(GL_TEXTURE);
 	glScalef(1.0f/tex_mul, 1.0f/tex_mul, 1.0f);
@@ -250,10 +267,11 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	v_stats.layer_lines = (uint*)MEM_ALLOC(sizeof(uint) * bucket_count);
 #endif
 	
-	// Init render buckets
+	// Init render buckets & blend modes
 	for(uint i = 0; i < bucket_count; ++i) {
 		rect_buckets[i] = darray_create(sizeof(TexturedRectDesc), 32);
 		line_buckets[i] = darray_create(sizeof(LineDesc), 32);
+		blend_modes[i] = BM_NORMAL;	
 	}
 	
 	// Temp bucket for sorting
@@ -367,6 +385,22 @@ void video_present(void) {
 	byte r, g, b, a;
 	Color c;
 	for(i = 0; i < bucket_count; ++i) {
+		// Switch blend modes if neccessary
+		if(rect_buckets[i].size > 0 && blend_modes[i] != last_blend_mode) {
+			if(vertex_buffer.size > 0) {
+				assert(vertex_buffer.size % 4 == 0);
+				uint tri_count = vertex_buffer.size / 2;
+				glDrawElements(GL_TRIANGLES, tri_count*3, GL_UNSIGNED_SHORT, index_buffer);
+				vertex_buffer.size = 0;
+				#ifndef NO_DEVMODE
+				v_stats.frame_batches++;
+				#endif
+			}
+
+			_set_blendmode(blend_modes[i]);
+			last_blend_mode = blend_modes[i];
+		}
+
 		// Draw rects
 		TexturedRectDesc* rects = DARRAY_DATA_PTR(rect_buckets[i], TexturedRectDesc);
 		for(j = 0; j < rect_buckets[i].size; ++j) {
@@ -538,6 +572,11 @@ void video_present(void) {
 
 uint video_get_frame(void) {
 	return frame;
+}
+
+void video_set_blendmode(uint layer, BlendMode bmode) {
+	assert(layer < bucket_count);
+	blend_modes[layer] = bmode;
 }
 
 TexHandle tex_load(const char* filename) {

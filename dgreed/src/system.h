@@ -32,6 +32,12 @@ typedef struct {
 const VideoStats* video_stats(void);
 #endif
 
+typedef enum {
+	BM_NORMAL,
+	BM_ADD,
+	BM_MULTIPLY
+} BlendMode;
+
 // Returns native screen resolution, video does not need 
 // to be initialized for this
 void video_get_native_resolution(uint* width, uint* height);
@@ -52,6 +58,8 @@ void video_clear_color(Color c);
 void video_present(void);
 // Returns number of frame which is currently being rendered
 uint video_get_frame(void);
+// Sets a blendmode for layer
+void video_set_blendmode(uint layer, BlendMode bmode);
 
 typedef uint TexHandle;
 

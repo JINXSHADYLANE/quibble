@@ -49,6 +49,8 @@ typedef struct {
 
 bool draw_gfx_debug = false;
 
+static BlendMode last_blend_mode;
+static BlendMode blend_modes[BUCKET_COUNT];
 static DArray rect_buckets[BUCKET_COUNT];
 static DArray line_buckets[BUCKET_COUNT];
 static DArray textures;
@@ -221,6 +223,20 @@ void video_get_native_resolution(uint* width, uint* height) {
 	*height = native_height;
 }
 
+static void _set_blendmode(BlendMode mode) {
+	switch(mode) {
+		case BM_NORMAL:
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		case BM_ADD:
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			break;
+		case BM_MULTIPLY:
+			glBlendFunc(GL_DST_COLOR, GL_ZERO);
+			break;
+	}
+}
+
 void video_init(uint width, uint height, const char* name) {
 	video_init_ex(width, height, width, height, name, false);
 }	
@@ -255,7 +271,8 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 	glClearDepth(1.0f);
 	glViewport(0, 0, width, height);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	_set_blendmode(BM_NORMAL);
+	last_blend_mode = BM_NORMAL;
 	video_clear_color(clear_color);
 
 	glMatrixMode(GL_MODELVIEW);
@@ -282,6 +299,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 	for(uint i = 0; i < BUCKET_COUNT; ++i) {
 		rect_buckets[i] = darray_create(sizeof(TexturedRectDesc), 32);
 		line_buckets[i] = darray_create(sizeof(LineDesc), 32);
+		blend_modes[i] = BM_NORMAL;
 	}
 
 	LOG_INFO("Video initialized");
@@ -375,6 +393,21 @@ void video_present(void) {
 	bool drawing = false;
 	float r, g, b, a;	
 	for(i = 0; i < BUCKET_COUNT; ++i) {
+		// Switch blend modes if neccessary
+		if(rect_buckets[i].size > 0 && blend_modes[i] != last_blend_mode) {
+			if(drawing) {
+				glEnd();
+				drawing = false;
+
+				#ifndef NO_DEVMODE
+				v_stats.frame_batches++;
+				#endif
+			}
+
+			_set_blendmode(blend_modes[i]);
+			last_blend_mode = blend_modes[i];
+		}
+
 		TexturedRectDesc* rects = DARRAY_DATA_PTR(rect_buckets[i], TexturedRectDesc);
 		// Draw rects
 		for(j = 0; j < rect_buckets[i].size; ++j) {
@@ -520,6 +553,12 @@ void video_present(void) {
 uint video_get_frame(void) {
 	return frame;
 }	
+
+void video_set_blendmode(uint layer, BlendMode bmode) {
+	assert(layer < BUCKET_COUNT);
+
+	blend_modes[layer] = bmode;
+}
 
 TexHandle tex_load(const char* filename) {
 	assert(filename);
