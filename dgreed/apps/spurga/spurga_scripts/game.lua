@@ -11,10 +11,11 @@ local grid_pos = vec2(scr_size.x / 2, 32 + 384/2)
 function game.init()
 	hud.init()
 	hud.set_title('spurga')
-	current_grid = grid:new(puzzles[1])	
+	current_grid = grid:new(puzzles[2])	
 end
 
 function game.close()
+	current_grid:save_state()
 	hud.close()
 end
 
