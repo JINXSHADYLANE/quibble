@@ -8,6 +8,7 @@ local current_grid
 
 function game.init()
 	hud.init()
+	hud.set_title('spurga')
 	current_grid = grid:new(puzzles[2])	
 end
 
