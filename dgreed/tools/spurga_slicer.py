@@ -46,8 +46,6 @@ def fits_into_atlas(slices):
 		freespace_y = atlas.size[1] - atlas_cursor_y
 		nw = atlas.size[0] / sw
 		nh = len(slices) / nw
-		if nw * nh != len(slices):
-			nh += 1
 
 		ph = nh * sh
 		return freespace_y >= ph

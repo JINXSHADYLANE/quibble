@@ -39,13 +39,12 @@ end
 
 -- when we're shifting/animating a single tile might be visible in two
 -- places at once, this draws such tile
-function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p)
+function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left)
 	local abs_offset = vec2(math.abs(offset.x), math.abs(offset.y))
 	local steps = vec2(
 		math.floor(abs_offset.x / p.tile_w),
 		math.floor(abs_offset.y / p.tile_h)
 	)
-	local top_left = scr_size * 0.5 - self.half_size
 
 	local dx, dy = 0, 0
 	if offset.x > 0 then
@@ -99,6 +98,10 @@ function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p)
 	if bx-ax == dx and by-ay == dy then
 		-- draw
 		video.draw_rect(tex, layer, src, pos_a - real_offset)
+	elseif math.abs(bx-ax) == p.w-1 or math.abs(by-ay) == p.h-1 then
+		-- draw with wrap around
+		video.draw_rect(tex, layer, src, pos_a - real_offset)
+		video.draw_rect(tex, layer, src, pos_b + neg_offset)
 	else
 		local alpha = clamp(0, 1, math.max(
 			math.abs(real_offset.x) / p.tile_h, 
@@ -144,7 +147,8 @@ function grid:draw(pos, layer)
 	end
 
 	-- top left corner coordinates
-	local cursor = pos - self.half_size
+	local top_left = pos - self.half_size
+	local cursor = vec2(top_left)
 
 	-- draw current grid state
 	local t
@@ -166,14 +170,14 @@ function grid:draw(pos, layer)
 					-- animated tile
 					self:draw_shifted_tile(
 						p.tex, layer, r, 
-						x, y, anim_offset, p
+						x, y, anim_offset, p, top_left
 					)
 				end
 			else
 				-- moved tile
 				self:draw_shifted_tile(
 					p.tex, layer, r, 
-					x, y, self.move_offset, p
+					x, y, self.move_offset, p, top_left
 				)
 			end
 			cursor.x = cursor.x + p.tile_w
@@ -295,7 +299,7 @@ function grid:can_move(move_x, move_y, tx, ty, p)
 	return true
 end
 
-function grid:touch(t)
+function grid:touch(t, pos)
 	local p = self.puzzle
 
 	if self.shuffling then
@@ -357,7 +361,7 @@ function grid:touch(t)
 	if not (self.move_mask_x or self.move_mask_y) then
 		if (move_x or move_y) and move_x ~= move_y then
 			-- touch hit pos in tile space
-			local tile_pos = t.hit_pos - (scr_size / 2 - self.half_size)
+			local tile_pos = t.hit_pos - (pos - self.half_size)
 			tile_pos.x = math.floor(tile_pos.x / p.tile_w)
 			tile_pos.y = math.floor(tile_pos.y / p.tile_h)
 
