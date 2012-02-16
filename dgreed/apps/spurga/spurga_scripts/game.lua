@@ -6,10 +6,12 @@ local hud = require('hud')
 
 local current_grid
 
+local grid_pos = vec2(scr_size.x / 2, 32 + 384/2)
+
 function game.init()
 	hud.init()
 	hud.set_title('spurga')
-	current_grid = grid:new(puzzles[2])	
+	current_grid = grid:new(puzzles[1])	
 end
 
 function game.close()
@@ -24,17 +26,16 @@ end
 
 function game.update()
 	if touch.count() > 0 then
-		current_grid:touch(touch.get(0))
+		current_grid:touch(touch.get(0), grid_pos)
 	else
-		current_grid:touch(nil)
+		current_grid:touch(nil, grid_pos)
 	end
 
 	return true
 end
 
 function game.render(t)
-	local pos = vec2(scr_size.x / 2, scr_size.y / 2)
-	current_grid:draw(pos, 1)
+	current_grid:draw(grid_pos, 1)
 
 	hud.render()
 

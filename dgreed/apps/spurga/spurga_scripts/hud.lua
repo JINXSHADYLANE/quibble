@@ -7,7 +7,8 @@ local title_crossfade_len = 0.5
 
 function hud.init()
 	hud.paper_spr = sprsheet.get_handle('paper')
-	hud.tile = sprsheet.get_handle('tile_reflect')
+	hud.tile = sprsheet.get_handle('menu_block')
+	hud.tile_small = sprsheet.get_handle('menu_block')
 	hud.shadow = sprsheet.get_handle('m_shadow')
 
 	video.set_blendmode(paper_layer, 'multiply')
@@ -31,11 +32,15 @@ function hud.render()
 
 	-- bottom menu tiles
 	for i=1,5 do
-		sprsheet.draw(hud.tile, hud_layer, vec2((i-1)*64, scr_size.y - 64))
+		local p = vec2((i-1)*64, scr_size.y - 64)
+		sprsheet.draw(hud.tile, hud_layer, p)
 	end
 
 	-- bottom shadow
 	sprsheet.draw(hud.shadow, hud_layer, rect(0, scr_size.y - 74, scr_size.x, scr_size.y - 64))
+
+	-- top background
+	sprsheet.draw(hud.tile_small, hud_layer, rect(0, 0, scr_size.x, 32))
 
 	-- top shadow
 	sprsheet.draw(hud.shadow, hud_layer, rect(0, 32 + 10, scr_size.x, 32))

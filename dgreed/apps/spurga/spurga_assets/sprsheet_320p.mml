@@ -52,6 +52,10 @@
 		(tex atlas_s.png)
 		(src 0,192,64,256)
 	)
+	(img white_block
+		(tex atlas_s.png)
+		(src 10,202,54,246)
+	)
 	(img tile_reflect
 		(tex atlas_s.png)
 		(src 64,192,128,256)
