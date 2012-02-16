@@ -2,14 +2,17 @@ local game = {}
 
 local grid = require('grid')
 local puzzles = require('puzzles')
+local hud = require('hud')
 
 local current_grid
 
 function game.init()
+	hud.init()
 	current_grid = grid:new(puzzles[2])	
 end
 
 function game.close()
+	hud.close()
 end
 
 function game.enter()
@@ -31,6 +34,8 @@ end
 function game.render(t)
 	local pos = vec2(scr_size.x / 2, scr_size.y / 2)
 	current_grid:draw(pos, 1)
+
+	hud.render()
 
 	return true
 end
