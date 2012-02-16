@@ -46,7 +46,7 @@
 	)
 	(img m_shadow
 		(tex atlas_s.png)
-		(src 246,42,256,69)
+		(src 247,42,255,69)
 	)
 	(img menu_block
 		(tex atlas_s.png)
@@ -55,6 +55,10 @@
 	(img tile_reflect
 		(tex atlas_s.png)
 		(src 64,192,128,256)
+	)
+	(img paper
+		(tex paper_320p.png)
+		(src 0,0,320,480)
 	)
 )
 
