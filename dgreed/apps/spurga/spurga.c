@@ -9,7 +9,7 @@
 #define SCRIPTS_PRE "spurga_scripts/"
 
 void dgreed_preinit(void) {
-	//video_clear_color(COLOR_RGBA(188, 188, 188, 255));
+	video_clear_color(COLOR_RGBA(255, 255, 255, 255));
 }
 
 void dgreed_init(int argc, const char** argv) {

@@ -1,19 +1,60 @@
 (sprsheet spurga_320p
 	(prefix "spurga_assets/")
-	(img first
-		(tex first.png)
+	(img cup
+		(tex atlas_s.png)
+		(src 0,0,35,35)
 	)
-	(img second
-		(tex second.png)
-		(src 0,0,320,320)
+	(img arrow
+		(tex atlas_s.png)
+		(src 35,0,70,35)
 	)
-	(img third 
-		(tex third.png)
-		(src 0,0,320,320)
+	(img play
+		(tex atlas_s.png)
+		(src 70,0,105,35)
 	)
-	(img tulip
-		(tex tulip.png)
-		(src 0,0,320,480)
+	(img reset
+		(tex atlas_s.png)
+		(src 105,0,140,35)
+	)
+	(img star
+		(tex atlas_s.png)
+		(src 140,0,175,35)
+	)
+	(img quit
+		(tex atlas_s.png)
+		(src 210,0,256,35)
+	)
+	(img query
+		(tex atlas_s.png)
+		(src 0,35,35,70)
+	)
+	(img sound
+		(tex atlas_s.png)
+		(src 121,35,164,78)
+	)
+	(img sound_off
+		(tex atlas_s.png)
+		(src 35,35,78,78)
+	)
+	(img music
+		(tex atlas_s.png)
+		(src 164,78,207,78)
+	)
+	(img music_off
+		(tex atlas_s.png)
+		(src 78,35,121,78)
+	)
+	(img m_shadow
+		(tex atlas_s.png)
+		(src 246,42,256,69)
+	)
+	(img menu_block
+		(tex atlas_s.png)
+		(src 0,192,64,256)
+	)
+	(img tile_reflect
+		(tex atlas_s.png)
+		(src 64,192,128,256)
 	)
 )
 
