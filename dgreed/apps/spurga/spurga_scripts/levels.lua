@@ -10,7 +10,9 @@ local levels_grid
 local levels_map = {
 	[0] = 3,
 	[1] = 4,
-	[2] = 5
+	[2] = 5,
+	[3] = 6,
+	[4] = 7
 }
 
 function levels.init()
