@@ -96,7 +96,7 @@ static void _report_score(const char* category, int64 score, int64 context) {
     NSString* ns_category = [NSString stringWithUTF8String:category];
     GKScore* score_reporter = [[[GKScore alloc] initWithCategory:ns_category] autorelease];
     score_reporter.value = score;
-    score_reporter.context = context;
+    //score_reporter.context = context;
     [score_reporter reportScoreWithCompletionHandler:^(NSError *error) {
         if (error != nil) {
             // Fail
@@ -261,7 +261,7 @@ static GKLeaderboardTimeScope _dgreed_to_gk_time_scope(TimeScope ts) {
 static GameCenterScore _gk_to_dgreed_score(GKScore* score) {
     GameCenterScore s = {
         .category = [score.category UTF8String],
-        .context = score.context,
+        .context = /*score.context*/0,
         .value = score.value,
         .player = [score.playerID UTF8String]
     };
