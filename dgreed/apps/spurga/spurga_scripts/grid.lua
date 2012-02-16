@@ -12,7 +12,7 @@ local release_anim_speed = 80
 function grid:new(puzzle) 
 	local obj = {['puzzle'] = puzzle}
 	setmetatable(obj, self) 
-	obj:reset_state()
+	obj:load_state()
 	return obj
 end
 
@@ -24,6 +24,29 @@ function grid:reset_state()
 	end
 
 	self:shuffle(200)
+end
+
+function grid:save_state()
+	local state = {}
+	for i,s in ipairs(self.state) do
+		state[i] = tostring(s)
+	end
+
+	local state_str = table.concat(state, ',')
+	keyval.set('pstate:'..self.puzzle.name, state_str)
+end
+
+function grid:load_state()
+	local state_str = keyval.get('pstate:'..self.puzzle.name, '')
+	if state_str == '' then
+		self:reset_state()
+	else
+		local state = {}
+		for s in state_str:gmatch('(%d+)') do
+			table.insert(state, tonumber(s))
+		end
+		self.state = state
+	end
 end
 
 function grid:precalc_src()
@@ -344,6 +367,11 @@ function grid:touch(t, pos)
 			self.move_mask_x, self.move_mask_y = nil, nil
 
 			self.move_offset = nil
+		else
+			if self.touched_tile then
+				-- do something with touched tile here
+				self.touched_tile = nil
+			end
 		end
 
 		return
@@ -359,18 +387,19 @@ function grid:touch(t, pos)
 	end
 
 	if not (self.move_mask_x or self.move_mask_y) then
+		-- touch hit pos in tile space
+		local tile_pos = t.hit_pos - (pos - self.half_size)
+		tile_pos.x = math.floor(tile_pos.x / p.tile_w)
+		tile_pos.y = math.floor(tile_pos.y / p.tile_h)
+		-- touch is outside puzzle grid, back out 
+		if  tile_pos.x < 0 or tile_pos.x >= p.w or
+			tile_pos.y < 0 or tile_pos.y >= p.h then
+			return
+		end
+
 		if (move_x or move_y) and move_x ~= move_y then
-			-- touch hit pos in tile space
-			local tile_pos = t.hit_pos - (pos - self.half_size)
-			tile_pos.x = math.floor(tile_pos.x / p.tile_w)
-			tile_pos.y = math.floor(tile_pos.y / p.tile_h)
-
-			-- touch is outside puzzle grid, back out 
-			if  tile_pos.x < 0 or tile_pos.x >= p.w or
-				tile_pos.y < 0 or tile_pos.y >= p.h then
-				return
-			end
-
+			self.touched_tile = nil	
+		
 			-- also back out if row/column has immovable tiles
 			if not self:can_move(move_x, move_y, tile_pos.x, tile_pos.y, p) then
 				return
@@ -384,6 +413,8 @@ function grid:touch(t, pos)
 				self.move_mask_x = tile_pos.x
 				self.move_mask_y = nil
 			end
+		else
+			self.touched_tile = tile_pos
 		end
 	end	
 
