@@ -6,23 +6,20 @@ local hud = require('hud')
 
 local current_grid
 
-local grid_pos = vec2(scr_size.x / 2, 32 + 384/2)
-
 function game.init()
-	hud.init()
-	hud.set_title('spurga')
-	current_grid = grid:new(puzzles[2])	
 end
 
 function game.close()
-	current_grid:save_state()
-	hud.close()
 end
 
 function game.enter()
+	assert(game.current_grid)
+	current_grid = game.current_grid	
+	hud.set_title(current_grid.puzzle.name)
 end
 
 function game.leave()
+	current_grid:save_state()
 end
 
 function game.update()

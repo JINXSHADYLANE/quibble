@@ -38,17 +38,16 @@ tiles_mml = None
 
 atlas = None
 atlas_name = None
-atlas_cursor_y = 0 
+atlas_used = 0 
 atlas_name_counter = 0
+cursor_x = 0
+cursor_y = 0
 def fits_into_atlas(slices):
 	sw, sh = slices[0].size[0]+2, slices[0].size[1]+2
 	if atlas != None:
-		freespace_y = atlas.size[1] - atlas_cursor_y
-		nw = atlas.size[0] / sw
-		nh = len(slices) / nw
-
-		ph = nh * sh
-		return freespace_y >= ph
+		fits = (atlas.size[0] / sw) * (atlas.size[1] / sh)
+		freespace = fits - atlas_used
+		return freespace >= len(slices) / 2
 	return False
 
 def save_current_atlas():
@@ -56,20 +55,22 @@ def save_current_atlas():
 		atlas.save(atlas_name)
 
 def make_new_atlas():
-	global atlas, atlas_cursor_y, atlas_name, atlas_name_counter
+	global atlas, atlas_used, atlas_name, atlas_name_counter
+	global cursor_x, cursor_y
 	atlas = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
-	atlas_cursor_y = 0
+	atlas_used = 0
 	atlas_name = 'p_atlas' + str(atlas_name_counter) + '.png'
 	atlas_name_counter += 1
+	cursor_x = 0
+	cursor_y = 0 
 
 def add_to_atlas(slices, puzzle_name):
-	global atlas, atlas_cursor_y
+	global atlas, atlas_used
+	global cursor_x, cursor_y
 	if not fits_into_atlas(slices):
 		save_current_atlas()
 		make_new_atlas()
 
-	cursor_x = 0
-	cursor_y = atlas_cursor_y
 	node = mml.Node(puzzle_name, atlas_name)
 	sw, sh = slices[0].size[0], slices[0].size[1]
 	for tile in sorted(slices.keys()):
@@ -86,10 +87,7 @@ def add_to_atlas(slices, puzzle_name):
 		atlas.paste(slices['s'+str(tile)], (cursor_x, cursor_y))
 		atlas.paste(slices[tile], (cursor_x+1, cursor_y+1))
 		cursor_x += sw+2
-
-	atlas_cursor_y = cursor_y
-	if cursor_x != 0:
-		atlas_cursor_y += sh+2
+		atlas_used += 1
 
 	tiles_mml.children.append(node)
 

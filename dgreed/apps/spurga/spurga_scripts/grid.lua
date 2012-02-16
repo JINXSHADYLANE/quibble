@@ -8,6 +8,10 @@ local puzzles = require('puzzles')
 local touch_move_dist = 5 
 -- how fast is sliding animation, when finger is lifted up (px/s)
 local release_anim_speed = 80
+-- higher values correspond to slower shuffling speeds
+local shuffle_speed = 0.000005
+-- color of currently pressed tile
+local active_color = rgba(1, 1, 1, 0.9)
 
 function grid:new(puzzle) 
 	local obj = {['puzzle'] = puzzle}
@@ -16,30 +20,41 @@ function grid:new(puzzle)
 	return obj
 end
 
-function grid:reset_state()
+function grid:reset_state(shuffle)
 	local p = self.puzzle
 	self.state = {}
 	for i = 1, p.w * p.h do
 		table.insert(self.state, i)
 	end
 
-	self:shuffle(200)
+	if shuffle then
+		self:shuffle(140)
+	end
 end
 
 function grid:save_state()
-	local state = {}
-	for i,s in ipairs(self.state) do
-		state[i] = tostring(s)
-	end
+	local name = self.puzzle.name
+	if not self.shuffling then
+		local state = {}
+		for i,s in ipairs(self.state) do
+			state[i] = tostring(s)
+		end
 
-	local state_str = table.concat(state, ',')
-	keyval.set('pstate:'..self.puzzle.name, state_str)
+		local state_str = table.concat(state, ',')
+		keyval.set('pstate:'..name, state_str)
+	end
 end
 
 function grid:load_state()
+	local name = self.puzzle.name
+	
 	local state_str = keyval.get('pstate:'..self.puzzle.name, '')
 	if state_str == '' then
-		self:reset_state()
+		if name == 'menu' or name == 'levels' then
+			self:reset_state()
+		else	
+			self:reset_state(true)
+		end
 	else
 		local state = {}
 		for s in state_str:gmatch('(%d+)') do
@@ -49,20 +64,9 @@ function grid:load_state()
 	end
 end
 
-function grid:precalc_src()
-	local p = self.puzzle
-
-	puzzles.preload(p)
-
-	local width = p.tile_w * p.w
-	local height = p.tile_h * p.h
-
-	self.half_size = vec2(width / 2, height / 2)
-end
-
 -- when we're shifting/animating a single tile might be visible in two
 -- places at once, this draws such tile
-function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left)
+function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left, c)
 	local abs_offset = vec2(math.abs(offset.x), math.abs(offset.y))
 	local steps = vec2(
 		math.floor(abs_offset.x / p.tile_w),
@@ -120,7 +124,11 @@ function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left)
 	end
 	if bx-ax == dx and by-ay == dy then
 		-- draw
-		video.draw_rect(tex, layer, src, pos_a - real_offset)
+		if c then
+			video.draw_rect(tex, layer, src, pos_a - real_offset, c)
+		else
+			video.draw_rect(tex, layer, src, pos_a - real_offset)
+		end
 	elseif math.abs(bx-ax) == p.w-1 or math.abs(by-ay) == p.h-1 then
 		-- draw with wrap around
 		video.draw_rect(tex, layer, src, pos_a - real_offset)
@@ -145,7 +153,14 @@ function grid:draw(pos, layer)
 
 	-- cache texture handle and tile source rectangles
 	if not p.tex then
-		self:precalc_src()
+		puzzles.preload(p)
+	end
+
+	if not self.half_size then
+		self.half_size = vec2(
+			p.tile_w * p.w / 2, 
+			p.tile_h * p.h / 2
+		)
 	end
 
 	-- precalc animation parameter
@@ -174,18 +189,32 @@ function grid:draw(pos, layer)
 	local cursor = vec2(top_left)
 
 	-- draw current grid state
-	local t
+	local t, r, c
 	for y = 0, p.h-1 do
 		for x = 0, p.w-1 do
 			t = self.state[y * p.w + x + 1] 
-			local r = p.tile_src[p.solved[t]]
+			r = p.tile_src[p.solved[t]]
+
+			c = nil
+			if self.touched_tile then
+				if x == self.touched_tile.x and y == self.touched_tile.y then
+					c = active_color
+				else
+					c = nil
+				end
+			end
+
 			if p.solved[t] == '@' then
 				-- portal tile
 				video.draw_rect(p.tex, layer-1, r, cursor)
 			elseif x ~= self.move_mask_x and y ~= self.move_mask_y then
 				if x ~= self.anim_mask_x and y ~= self.anim_mask_y then
 					-- plain tile
-					video.draw_rect(p.tex, layer, r, cursor)
+					if c then
+						video.draw_rect(p.tex, layer, r, cursor, c)
+				 	else
+						video.draw_rect(p.tex, layer, r, cursor)
+					end
 				else
 					if anim_offset == nil then
 						anim_offset = vec2(0, 0)
@@ -200,7 +229,7 @@ function grid:draw(pos, layer)
 				-- moved tile
 				self:draw_shifted_tile(
 					p.tex, layer, r, 
-					x, y, self.move_offset, p, top_left
+					x, y, self.move_offset, p, top_left, c
 				)
 			end
 			cursor.x = cursor.x + p.tile_w
@@ -293,7 +322,7 @@ function grid:shuffle(n)
 
 			self.start_anim_offset = vec2(0, 0)
 			self.start_anim_t = time.s()
-			self.anim_len = 0.000001 * n*n
+			self.anim_len = shuffle_speed * n*n
 		else
 			self.shuffling = false
 		end
@@ -322,7 +351,7 @@ function grid:can_move(move_x, move_y, tx, ty, p)
 	return true
 end
 
-function grid:touch(t, pos)
+function grid:touch(t, pos, touch_cb)
 	local p = self.puzzle
 
 	if self.shuffling then
@@ -368,12 +397,19 @@ function grid:touch(t, pos)
 
 			self.move_offset = nil
 		else
-			if self.touched_tile then
+			local tile = self.touched_tile
+			if tile and self.anim_mask_x == nil 
+				and self.anim_mask_y == nil then
+
 				-- do something with touched tile here
-				self.touched_tile = nil
+				if touch_cb then
+					local t = p.solved[self.state[tile.y * p.w + tile.x + 1]]
+					touch_cb(t)
+				end
 			end
 		end
 
+		self.touched_tile = nil
 		return
 	end
 
@@ -413,9 +449,8 @@ function grid:touch(t, pos)
 				self.move_mask_x = tile_pos.x
 				self.move_mask_y = nil
 			end
-		else
-			self.touched_tile = tile_pos
 		end
+		self.touched_tile = tile_pos
 	end	
 
 	-- calculate move offset
