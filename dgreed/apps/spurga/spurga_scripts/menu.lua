@@ -16,6 +16,8 @@ end
 
 function menu.enter()
 	hud.set_title('spurga')
+	hud.set_buttons({nil, hud.music, hud.sound, hud.help, nil})
+	hud.delegate = menu
 end
 
 function menu.leave()
@@ -32,6 +34,8 @@ function menu.update()
 			end
 		end)
 	end
+
+	hud.update()
 
 	return true
 end

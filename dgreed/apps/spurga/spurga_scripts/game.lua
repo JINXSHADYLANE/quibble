@@ -13,8 +13,11 @@ function game.close()
 end
 
 function game.enter()
-	assert(game.current_grid)
 	hud.set_title(game.current_grid.puzzle.name)
+	hud.set_buttons({hud.replay, nil, hud.hint, nil, hud.back})
+	hud.delegate = game
+
+	assert(game.current_grid)
 	game.current_grid.can_shuffle = true
 end
 
@@ -23,12 +26,19 @@ function game.leave()
 	game.current_grid:save_state()
 end
 
+function game.replay()
+	game.current_grid:reset_state()
+	game.current_grid:shuffle()
+end
+
 function game.update()
 	if touch.count() > 0 then
 		game.current_grid:touch(touch.get(0), grid_pos)
 	else
 		game.current_grid:touch(nil, grid_pos)
 	end
+
+	hud.update()
 
 	return true
 end

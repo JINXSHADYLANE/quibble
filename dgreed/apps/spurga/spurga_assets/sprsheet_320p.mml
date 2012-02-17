@@ -38,7 +38,7 @@
 	)
 	(img music
 		(tex atlas_s.png)
-		(src 164,78,207,78)
+		(src 164,35,207,78)
 	)
 	(img music_off
 		(tex atlas_s.png)

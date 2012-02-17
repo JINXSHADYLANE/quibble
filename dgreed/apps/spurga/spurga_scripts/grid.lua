@@ -31,7 +31,7 @@ function grid:reset_state(shuffle)
 	end
 
 	if shuffle then
-		self:shuffle(140)
+		self:shuffle()
 	end
 end
 
@@ -309,7 +309,8 @@ function grid:shift(column_x, row_y, offset)
 	end
 end
 
-function grid:shuffle(n)
+function grid:shuffle()
+	local n = 140
 	if not self.can_shuffle then
 		self.must_shuffle = n
 		return
