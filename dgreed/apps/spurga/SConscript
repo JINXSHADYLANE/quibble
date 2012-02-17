@@ -14,9 +14,11 @@ env.Install('#'+env['DGREED_BIN_DIR'], app)
 if env['DGREED_POSTFIX'] == 'd':
 	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + ASSETS_DIR
 	for asset in Glob(ASSETS_DIR + '/*', strings=True):
-		if asset.endswith('.png') or asset.endswith('.wav') or \
+		if asset.endswith('.wav') or \
 			asset.endswith('.ogg') or asset.endswith('.mml') or \
 			asset.endswith('.bft'):
+			env.Install(dest_dir, asset)
+		if asset.endswith('.png') and asset.find('lvl_') == -1:
 			env.Install(dest_dir, asset)
 	
 	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + SCRIPTS_DIR
