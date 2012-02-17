@@ -14,28 +14,31 @@ end
 
 function game.enter()
 	assert(game.current_grid)
-	current_grid = game.current_grid	
-	hud.set_title(current_grid.puzzle.name)
+	hud.set_title(game.current_grid.puzzle.name)
+	game.current_grid.can_shuffle = true
 end
 
 function game.leave()
-	current_grid:save_state()
+	game.current_grid.can_shuffle = false
+	game.current_grid:save_state()
 end
 
 function game.update()
 	if touch.count() > 0 then
-		current_grid:touch(touch.get(0), grid_pos)
+		game.current_grid:touch(touch.get(0), grid_pos)
 	else
-		current_grid:touch(nil, grid_pos)
+		game.current_grid:touch(nil, grid_pos)
 	end
 
 	return true
 end
 
 function game.render(t)
-	current_grid:draw(grid_pos, 1)
+	game.current_grid:draw(grid_pos, 1, t)
 
-	hud.render()
+	if t == 0 then
+		hud.render()
+	end
 
 	return true
 end

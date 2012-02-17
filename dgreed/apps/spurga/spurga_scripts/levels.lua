@@ -29,7 +29,9 @@ function levels.update()
 		levels_grid:touch(nil, grid_pos, function (t)
 			local lvl = levels_grid.puzzle.map[t]
 			if lvl then
-				game.current_grid = grid:new(puzzles[lvl])
+				local puzzle = puzzles[lvl]
+				game.current_grid = grid:new(puzzle)
+				new_transition_mask(puzzle.w * puzzle.h)
 				states.push('game')
 			end
 		end)
@@ -38,9 +40,11 @@ function levels.update()
 	return true
 end
 
-function levels.render()
-	levels_grid:draw(grid_pos, 1)
+function levels.render(t)
+	levels_grid:draw(grid_pos, 1, t)
+
 	hud.render()
+
 	return true
 end
 
