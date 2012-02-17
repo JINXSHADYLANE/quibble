@@ -16,10 +16,17 @@ end
 
 function levels.enter()
 	hud.set_title('choose a puzzle')
+	hud.set_buttons({hud.play, hud.music, hud.sound, hud.help, hud.back})
+	hud.delegate = levels
 end
 
 function levels.leave()
 	levels_grid:save_state()
+end
+
+function levels.play()
+	game.current_grid = grid:new(puzzles[levels.last or 'square'])
+	states.push('game')
 end
 
 function levels.update()
@@ -29,6 +36,7 @@ function levels.update()
 		levels_grid:touch(nil, grid_pos, function (t)
 			local lvl = levels_grid.puzzle.map[t]
 			if lvl then
+				levels.last = lvl
 				local puzzle = puzzles[lvl]
 				game.current_grid = grid:new(puzzle)
 				new_transition_mask(puzzle.w * puzzle.h)
@@ -36,6 +44,8 @@ function levels.update()
 			end
 		end)
 	end
+
+	hud.update()
 
 	return true
 end
