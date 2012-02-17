@@ -53,7 +53,7 @@ function grid:load_state()
 	
 	local state_str = keyval.get('pstate:'..self.puzzle.name, '')
 	if state_str == '' then
-		if name == 'menu' or name == 'levels' then
+		if name == 'menu' or name == 'levels' or name == 'score' then
 			self:reset_state()
 		else	
 			self:reset_state(true)
@@ -65,6 +65,20 @@ function grid:load_state()
 		end
 		self.state = state
 	end
+end
+
+function grid:is_solved()
+	if not self.shuffling and self.can_shuffle and not self.must_shuffle then
+		local p = self.puzzle
+		for i,t in ipairs(self.state) do
+			if p.solved[t] ~= p.solved[i] then
+				return false
+			end
+		end
+		print('solved!')
+		return true
+	end
+	return false
 end
 
 -- when we're shifting/animating a single tile might be visible in two

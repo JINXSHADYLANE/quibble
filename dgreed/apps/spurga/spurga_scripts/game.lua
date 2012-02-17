@@ -30,8 +30,7 @@ function game.leave()
 end
 
 function game.replay()
-	game.current_grid:reset_state()
-	game.current_grid:shuffle()
+	game.current_grid:reset_state(true)
 end
 
 function game.hint()
@@ -51,6 +50,10 @@ function game.update()
 	end
 
 	hud.update()
+
+	if game.current_grid:is_solved() then
+		states.replace('scores')
+	end
 
 	return true
 end

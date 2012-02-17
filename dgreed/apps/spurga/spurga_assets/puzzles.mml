@@ -34,6 +34,17 @@
 			4 = heart
 		")
 	)
+	(puzzle score
+		(img lvl_score.png)
+		(def "
+			10 11 12 13 14
+			15 16 17 18 19
+			20 1 2 3 21
+			22 23 24 25 26
+			4 5 6 7 8
+			9 0 27 27 27
+		")
+	)
 	(puzzle square
 		(img lvl_square.png)
 		(def "
