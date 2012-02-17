@@ -151,7 +151,7 @@ function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left, c)
 	end
 end
 
-function grid:draw(pos, layer, transition)
+function grid:draw(pos, layer, transition, hint)
 	local p = self.puzzle
 
 	-- do delayed shuffling
@@ -218,6 +218,7 @@ function grid:draw(pos, layer, transition)
 			end
 
 			-- transition color
+			local skip = false
 			if transition and transition ~= 0 then
 				t = 1 - math.abs(transition)
 
@@ -228,35 +229,53 @@ function grid:draw(pos, layer, transition)
 				end
 				local alpha = smoothstep(0, 1, (t - start_t) / tile_transition_len)
 				c = rgba(1, 1, 1, alpha)
+
+				-- draw hint
+				if hint then
+					if p.solved[idx] ~= p.solved[tile] then
+						local hint_r = p.tile_src[p.solved[idx]]
+						if alpha < 1 then
+						local hint_color = rgba(1, 1, 1, 1 - alpha)
+							video.draw_rect(p.tex, layer, hint_r, cursor, hint_color)
+							if alpha == 0 then
+								skip = true	
+							end
+						end
+					else
+						c = nil
+					end
+				end
 			end
 
-			if p.solved[t] == '@' then
-				-- portal tile
-				video.draw_rect(p.tex, layer-1, r, cursor)
-			elseif x ~= self.move_mask_x and y ~= self.move_mask_y then
-				if x ~= self.anim_mask_x and y ~= self.anim_mask_y then
-					-- plain tile
-					if c then
-						video.draw_rect(p.tex, layer, r, cursor, c)
-				 	else
-						video.draw_rect(p.tex, layer, r, cursor)
+			if not skip then
+				if p.solved[t] == '@' then
+					-- portal tile
+					video.draw_rect(p.tex, layer-1, r, cursor)
+				elseif x ~= self.move_mask_x and y ~= self.move_mask_y then
+					if x ~= self.anim_mask_x and y ~= self.anim_mask_y then
+						-- plain tile
+						if c then
+							video.draw_rect(p.tex, layer, r, cursor, c)
+						else
+							video.draw_rect(p.tex, layer, r, cursor)
+						end
+					else
+						if anim_offset == nil then
+							anim_offset = vec2(0, 0)
+						end
+						-- animated tile
+						self:draw_shifted_tile(
+							p.tex, layer, r, 
+							x, y, anim_offset, p, top_left
+						)
 					end
 				else
-					if anim_offset == nil then
-						anim_offset = vec2(0, 0)
-					end
-					-- animated tile
+					-- moved tile
 					self:draw_shifted_tile(
 						p.tex, layer, r, 
-						x, y, anim_offset, p, top_left
+						x, y, self.move_offset, p, top_left, c
 					)
 				end
-			else
-				-- moved tile
-				self:draw_shifted_tile(
-					p.tex, layer, r, 
-					x, y, self.move_offset, p, top_left, c
-				)
 			end
 			cursor.x = cursor.x + p.tile_w
 		end
