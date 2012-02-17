@@ -5,15 +5,10 @@ local puzzles = require('puzzles')
 local hud = require('hud')
 local levels = require('levels')
 
-local play_btn = 1
-local relax_btn = 2
-local scores_btn = 3
-local missions_btn = 4
-
 local menu_grid
 
 function menu.init()
-	menu_grid = grid:new(puzzles[1])
+	menu_grid = grid:new(puzzles['menu'])
 end
 
 function menu.close()
@@ -32,7 +27,7 @@ function menu.update()
 		menu_grid:touch(touch.get(0), grid_pos)
 	else
 		menu_grid:touch(nil, grid_pos, function (t)
-			if t == play_btn then
+			if menu_grid.puzzle.map[t] == 'play' then
 				states.push('levels')
 			end
 		end)
