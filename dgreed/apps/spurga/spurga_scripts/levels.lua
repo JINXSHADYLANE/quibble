@@ -7,16 +7,8 @@ local game = require('game')
 
 local levels_grid
 
-local levels_map = {
-	[0] = 3,
-	[1] = 4,
-	[2] = 5,
-	[3] = 6,
-	[4] = 7
-}
-
 function levels.init()
-	levels_grid = grid:new(puzzles[2])
+	levels_grid = grid:new(puzzles['levels'])
 end
 
 function levels.close()
@@ -35,7 +27,7 @@ function levels.update()
 		levels_grid:touch(touch.get(0), grid_pos)
 	else
 		levels_grid:touch(nil, grid_pos, function (t)
-			local lvl = levels_map[t]
+			local lvl = levels_grid.puzzle.map[t]
 			if lvl then
 				game.current_grid = grid:new(puzzles[lvl])
 				states.push('game')

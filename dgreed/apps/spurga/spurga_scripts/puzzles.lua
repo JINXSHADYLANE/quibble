@@ -35,6 +35,12 @@ local function parse_puzzle(node)
 			assert(math.floor(new.h) == new.h)
 			assert(math.floor(new.w) == new.w)
 			assert(tile_count == new.w * new.h)
+		elseif child.name == 'map' then
+			local map = {}
+			for key,val in child.value:gmatch('(%d+) = (%a+)') do
+				map[tonumber(key)] = val
+			end
+			new.map = map
 		end
 	end
 
@@ -45,7 +51,8 @@ function puzzles.load(descs_filename, slices_filename)
 	local puzzles_mml = mml.read(descs_filename)
 	assert(puzzles_mml.name == 'puzzles')
 	for i,puzzle in ipairs(puzzles_mml.childs) do
-		table.insert(puzzles, parse_puzzle(puzzle))
+		local p = parse_puzzle(puzzle)
+		puzzles[p.name] = p
 	end
 
 	-- also parse puzzle slices
@@ -80,8 +87,8 @@ function puzzles.load(descs_filename, slices_filename)
 end
 
 function puzzles.free()
-	for i,puzzle in ipairs(puzzles) do
-		if puzzle.tex then
+	for name,puzzle in pairs(puzzles) do
+		if type(puzzle) == 'table' and puzzle.tex then
 			tex.free(puzzle.tex)
 		end
 	end
