@@ -36,9 +36,13 @@ function menu.update()
 	return true
 end
 
-function menu.render()
-	menu_grid:draw(grid_pos, 1)
-	hud.render()
+function menu.render(t)
+	menu_grid:draw(grid_pos, 1, t)
+
+	if t == 0 then
+		hud.render()
+	end
+
 	return true
 end
 

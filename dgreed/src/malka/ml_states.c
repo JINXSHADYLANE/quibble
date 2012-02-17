@@ -488,6 +488,9 @@ bool malka_states_step(void) {
 		else {
 			// Render transition
 			float t = (time - states_transition_t) / len;
+			// t is never zero when transitioning
+			if(t == 0.0f)
+				t += 0.00001f;
 			float tt = -1.0f + t;
 			assert(t >= 0.0f && t <= 1.0f);
 			_call_state_func(l, _names_get(states_from), "render", &t);

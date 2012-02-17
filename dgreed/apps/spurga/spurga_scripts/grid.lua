@@ -12,6 +12,9 @@ local release_anim_speed = 80
 local shuffle_speed = 0.000005
 -- color of currently pressed tile
 local active_color = rgba(1, 1, 1, 0.9)
+-- length of single tile transition phase, in normalized time
+local tile_transition_len = 0.2
+
 
 function grid:new(puzzle) 
 	local obj = {['puzzle'] = puzzle}
@@ -148,8 +151,16 @@ function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left, c)
 	end
 end
 
-function grid:draw(pos, layer)
+function grid:draw(pos, layer, transition)
 	local p = self.puzzle
+
+	-- do delayed shuffling
+	if self.must_shuffle then
+		if self.can_shuffle then
+			self:shuffle(self.must_shuffle)
+			self.must_shuffle = nil
+		end
+	end
 
 	-- cache texture handle and tile source rectangles
 	if not p.tex then
@@ -189,12 +200,14 @@ function grid:draw(pos, layer)
 	local cursor = vec2(top_left)
 
 	-- draw current grid state
-	local t, r, c
+	local idx, tile, r, c
 	for y = 0, p.h-1 do
 		for x = 0, p.w-1 do
-			t = self.state[y * p.w + x + 1] 
-			r = p.tile_src[p.solved[t]]
+			idx = y * p.w + x + 1
+			tile = self.state[idx] 
+			r = p.tile_src[p.solved[tile]]
 
+			-- pressed color
 			c = nil
 			if self.touched_tile then
 				if x == self.touched_tile.x and y == self.touched_tile.y then
@@ -202,6 +215,19 @@ function grid:draw(pos, layer)
 				else
 					c = nil
 				end
+			end
+
+			-- transition color
+			if transition and transition ~= 0 then
+				t = 1 - math.abs(transition)
+
+				local mask = (transition_mask[idx] - 1) / (p.w * p.h-1)
+				local start_t = mask * (1 - tile_transition_len) 
+				if transition > 0 then
+					start_t = tile_transition_len - start_t
+				end
+				local alpha = smoothstep(0, 1, (t - start_t) / tile_transition_len)
+				c = rgba(1, 1, 1, alpha)
 			end
 
 			if p.solved[t] == '@' then
@@ -284,6 +310,11 @@ function grid:shift(column_x, row_y, offset)
 end
 
 function grid:shuffle(n)
+	if not self.can_shuffle then
+		self.must_shuffle = n
+		return
+	end
+
 	local p = self.puzzle
 	self.shuffling = true
 
@@ -321,7 +352,7 @@ function grid:shuffle(n)
 			self.anim_mask_x, self.anim_mask_y = mask_x, mask_y
 
 			self.start_anim_offset = vec2(0, 0)
-			self.start_anim_t = time.s()
+			self.start_anim_t = time.s() 
 			self.anim_len = shuffle_speed * n*n
 		else
 			self.shuffling = false
@@ -354,8 +385,18 @@ end
 function grid:touch(t, pos, touch_cb)
 	local p = self.puzzle
 
-	if self.shuffling then
+	-- do not do anything if we're shuffling or in animation
+	if self.shuffling or self.start_anim_t then
+		self.blocked_touch = t
 		return
+	end
+
+	-- prevent touches which started during shuffle or animation
+	-- from doing anything
+	if t and self.blocked_touch then
+		if t.hit_time == self.blocked_touch.hit_time then
+			return
+		end
 	end
 
 	if not t then
@@ -363,7 +404,7 @@ function grid:touch(t, pos, touch_cb)
 		-- process a move if one was made
 		if self.move_offset ~= nil and length_sq(self.move_offset) > 1 then
 			-- animate offset
-			self.start_anim_t = time.s()
+			self.start_anim_t = time.s() 
 			self.start_anim_offset = self.move_offset
 			self.end_anim_offset = vec2(
 				math.floor(self.move_offset.x / p.tile_w + 0.5) * p.tile_w,
