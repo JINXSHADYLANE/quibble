@@ -284,7 +284,7 @@ function grid:draw(pos, layer, transition, hint)
 			end
 
 			if not skip then
-				if p.solved[t] == '@' then
+				if p.solved[tile] == '@' then
 					-- portal tile
 					video.draw_rect(p.tex, layer-1, r, cursor)
 				elseif x ~= self.move_mask_x and y ~= self.move_mask_y then
@@ -641,10 +641,12 @@ function grid:touch(t, pos, touch_cb)
 		self.move_offset = vec2(0, 0)
 	end
 
-	if move_x then
-		self.move_offset = vec2(off_x, 0) 
-	elseif move_y then
-		self.move_offset = vec2(0, off_y)
+	if move_x ~= move_y then
+		if move_x then
+			self.move_offset = vec2(off_x, 0) 
+		elseif move_y then
+			self.move_offset = vec2(0, off_y)
+		end
 	end
 end
 

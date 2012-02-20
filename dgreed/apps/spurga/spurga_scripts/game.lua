@@ -63,6 +63,7 @@ function game.update()
 
 	if game.current_grid:is_solved() then
 		scores.bake(score)
+		scores.render_hud = true
 		states.replace('scores')
 	end
 
