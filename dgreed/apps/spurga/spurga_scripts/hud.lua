@@ -163,6 +163,10 @@ local function render_button(btn, pos, col)
 		if render_stateless_button(hud.spr_back, pos, r, col) then
 			states.pop()
 			hud.touch_up = nil
+
+			if hud.delegate and hud.delegate.back then
+				hud.delegate.back()
+			end
 		end
 	elseif btn == hud.replay then
 		if render_stateless_button(hud.spr_replay, pos, r, col) then

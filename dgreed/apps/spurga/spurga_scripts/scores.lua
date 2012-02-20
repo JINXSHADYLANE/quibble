@@ -51,6 +51,10 @@ function scores.replay()
 	scores.old_delegate.replay()
 end
 
+function scores.back()
+	scores.render_hud = false
+end
+
 function scores.update()
 	if touch.count() > 0 then
 		scores_grid:touch(touch.get(0), grid_pos)
@@ -66,7 +70,9 @@ end
 function scores.render(t)
 	scores_grid:draw(grid_pos, 1, t)
 
-	hud.render()
+	if scores.render_hud then
+		hud.render()
+	end
 
 	return true
 end
