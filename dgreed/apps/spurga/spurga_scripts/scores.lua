@@ -18,6 +18,7 @@ function scores.enter()
 	hud.set_buttons({hud.replay, nil, nil, nil, hud.back})
 	scores.old_delegate = hud.delegate
 	hud.delegate = scores
+	scores_grid.can_shuffle = true
 end
 
 function scores.bake(score)
@@ -36,9 +37,13 @@ function scores.bake(score)
 	for i=21,30 do
 		p[i] = rand.int(0, 10)
 	end
+
+	scores_grid:scramble()
+	scores_grid:unscramble()
 end
 
 function scores.leave()
+	scores_grid.can_shuffle = false
 end
 
 function scores.replay()
