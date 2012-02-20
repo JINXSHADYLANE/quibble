@@ -33,6 +33,10 @@ function grid:reset_state(shuffle)
 	if shuffle then
 		self:shuffle()
 	end
+
+	self.moves = 0
+	self.last_move_x = nil
+	self.last_move_y = nil
 end
 
 function grid:save_state()
@@ -45,6 +49,7 @@ function grid:save_state()
 
 		local state_str = table.concat(state, ',')
 		keyval.set('pstate:'..name, state_str)
+		keyval.set('pmoves:'..name, self.moves)
 	end
 end
 
@@ -64,7 +69,13 @@ function grid:load_state()
 			table.insert(state, tonumber(s))
 		end
 		self.state = state
+		self.moves = keyval.get('pmoves:'..self.puzzle.name, 0)
 	end
+end
+
+function grid:score()
+	local score = math.max(0, self.puzzle.par - self.moves)
+	return score
 end
 
 function grid:is_solved()
@@ -75,7 +86,6 @@ function grid:is_solved()
 				return false
 			end
 		end
-		print('solved!')
 		return true
 	end
 	return false
@@ -84,7 +94,11 @@ end
 -- when we're shifting/animating a single tile might be visible in two
 -- places at once, this draws such tile
 function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left, c)
-	local abs_offset = vec2(math.abs(offset.x), math.abs(offset.y))
+	local fmod = math.fmod
+	local abs = math.abs
+
+
+	local abs_offset = vec2(abs(offset.x), abs(offset.y))
 	local steps = vec2(
 		math.floor(abs_offset.x / p.tile_w),
 		math.floor(abs_offset.y / p.tile_h)
@@ -106,22 +120,22 @@ function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left, c)
 
 	local ax, ay = x, y
 	for i=1,steps.x do
-		ax = math.fmod(p.w + ax + dx, p.w)
+		ax = fmod(p.w + ax + dx, p.w)
 		while p.solved[self.state[ay * p.w + ax + 1]] == '@' do
-			ax, ay = math.fmod(p.w + ax + dx, p.w), math.fmod(p.h + ay + dy, p.h)
+			ax, ay = fmod(p.w + ax + dx, p.w), fmod(p.h + ay + dy, p.h)
 		end
 	end
 	for i=1,steps.y do
-		ay = math.fmod(p.h + ay + dy, p.h)
+		ay = fmod(p.h + ay + dy, p.h)
 		while p.solved[self.state[ay * p.w + ax + 1]] == '@' do
-			ax, ay = math.fmod(p.w + ax + dx, p.w), math.fmod(p.h + ay + dy, p.h)
+			ax, ay = fmod(p.w + ax + dx, p.w), fmod(p.h + ay + dy, p.h)
 		end
 	end
 
-	local bx = math.fmod(p.w + ax + dx, p.w)
-	local by = math.fmod(p.h + ay + dy, p.h)
+	local bx = fmod(p.w + ax + dx, p.w)
+	local by = fmod(p.h + ay + dy, p.h)
 	while p.solved[self.state[by * p.w + bx + 1]] == '@' do
-		bx, by = math.fmod(p.w + bx + dx, p.w), math.fmod(p.h + by + dy, p.h)
+		bx, by = fmod(p.w + bx + dx, p.w), fmod(p.h + by + dy, p.h)
 	end
 
 	-- shift offset from grid cells
@@ -146,14 +160,14 @@ function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left, c)
 		else
 			video.draw_rect(tex, layer, src, pos_a - real_offset)
 		end
-	elseif math.abs(bx-ax) == p.w-1 or math.abs(by-ay) == p.h-1 then
+	elseif abs(bx-ax) == p.w-1 or abs(by-ay) == p.h-1 then
 		-- draw with wrap around
 		video.draw_rect(tex, layer, src, pos_a - real_offset)
 		video.draw_rect(tex, layer, src, pos_b + neg_offset)
 	else
 		local alpha = clamp(0, 1, math.max(
-			math.abs(real_offset.x) / p.tile_h, 
-			math.abs(real_offset.y) / p.tile_w
+			abs(real_offset.x) / p.tile_h, 
+			abs(real_offset.y) / p.tile_w
 		))
 
 		local ghost_color = rgba(1, 1, 1, alpha)
@@ -301,6 +315,15 @@ end
 function grid:shift(column_x, row_y, offset)
 	assert(column_x ~= nil or row_y ~= nil)
 	assert(column_x == nil or row_y == nil)
+
+	-- count a move
+	if not self.shuffling then
+		if not (self.last_move_x == column_x and self.last_move_y == row_y) then
+			self.moves = self.moves + 1
+			self.last_move_x, self.last_move_y = column_x, row_y
+		end
+	end
+
 	local p = self.puzzle
 
 	-- calc step offset and start pos

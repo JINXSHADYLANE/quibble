@@ -48,6 +48,7 @@
 		")
 	)
 	(puzzle square
+		(par 32)
 		(img lvl_square.png)
 		(def "
 			0 0 0 0 0
@@ -59,6 +60,7 @@
 		")
 	)
 	(puzzle circle
+		(par 32)
 		(img lvl_circle.png)
 		(def "
 			0 0 0 0 0
@@ -70,6 +72,7 @@
 		")
 	)
 	(puzzle tulip
+		(par 64)
 		(img lvl_tulip.png)
 		(def "
 			0  0  0  0  0
@@ -81,6 +84,7 @@
 		")
 	)
 	(puzzle umbrella
+		(par 50)
 		(img lvl_umbrella.png)
 		(def "
 			0  0  0  0  0
@@ -92,6 +96,7 @@
 		")
 	)
 	(puzzle heart
+		(par 128)
 		(img lvl_heart.png)
 		(def "
 			0  0  0  0  0
@@ -103,6 +108,7 @@
 		")
 	)
 	(puzzle vine
+		(par 256)
 		(img lvl_vine.png)
 		(def "
 			0  0  0  0   0
@@ -114,6 +120,7 @@
 		")
 	)
 	(puzzle wallpaper
+		(par 999)
 		(img lvl_wallpaper.png)
 		(def "
 			0  2  3  4   5

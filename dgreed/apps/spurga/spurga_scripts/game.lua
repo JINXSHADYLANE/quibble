@@ -3,6 +3,7 @@ local game = {}
 local grid = require('grid')
 local puzzles = require('puzzles')
 local hud = require('hud')
+local scores = require('scores')
 
 local current_grid
 
@@ -30,6 +31,7 @@ function game.leave()
 end
 
 function game.replay()
+	--states.replace('game')
 	game.current_grid:reset_state(true)
 end
 
@@ -49,9 +51,18 @@ function game.update()
 		game.current_grid:touch(nil, grid_pos)
 	end
 
+	local score = game.current_grid:score()
+		if game.current_grid.moves > 0 then
+		local score_text = 'score: '..tostring(score)
+		if hud.title ~= score_text then
+			hud.set_title(score_text)	
+		end
+	end
+
 	hud.update()
 
 	if game.current_grid:is_solved() then
+		scores.bake(score)
 		states.replace('scores')
 	end
 

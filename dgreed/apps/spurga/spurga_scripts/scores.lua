@@ -2,7 +2,6 @@ local scores = {}
 
 local grid = require('grid')
 local puzzles = require('puzzles')
-local game = require('game')
 local hud = require('hud')
 
 local scores_grid
@@ -17,7 +16,26 @@ end
 function scores.enter()
 	hud.set_title('score')
 	hud.set_buttons({hud.replay, nil, nil, nil, hud.back})
+	scores.old_delegate = hud.delegate
 	hud.delegate = scores
+end
+
+function scores.bake(score)
+	scores_grid:reset_state()
+
+	-- extract digits
+	local score_d0 = math.fmod(score, 10)
+	local score_d1 = math.fmod(score - score_d0, 100) / 10
+	local score_d2 = (score - score_d1*10 - score_d0) / 100
+
+	local p = scores_grid.puzzle.solved
+	p[12] = score_d2
+	p[13] = score_d1
+	p[14] = score_d0
+
+	for i=21,30 do
+		p[i] = rand.int(0, 10)
+	end
 end
 
 function scores.leave()
@@ -25,7 +43,7 @@ end
 
 function scores.replay()
 	states.replace('game')
-	game.replay()
+	scores.old_delegate.replay()
 end
 
 function scores.update()
