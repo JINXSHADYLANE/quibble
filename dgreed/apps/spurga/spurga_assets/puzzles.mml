@@ -32,7 +32,8 @@
 			2 = tulip
 			3 = umbrella
 			4 = heart
-			5 = wall
+			5 = vine
+			6 = wallpaper
 		")
 	)
 	(puzzle score
@@ -101,8 +102,19 @@
 			0  0  0  0  0
 		")
 	)
-	(puzzle wall
-		(img lvl_wall.png)
+	(puzzle vine
+		(img lvl_vine.png)
+		(def "
+			0  0  0  0   0
+			1  2  3  4   0
+			5  6  7  8   9
+		    10 11 12 13 14
+			0  15 16 0   0
+			0  0  0  0   0
+		")
+	)
+	(puzzle wallpaper
+		(img lvl_wallpaper.png)
 		(def "
 			0  2  3  4   5
 			6  7  8  9  10
