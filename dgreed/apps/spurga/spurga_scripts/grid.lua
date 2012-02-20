@@ -190,6 +190,14 @@ function grid:draw(pos, layer, transition, hint)
 		end
 	end
 
+	-- do delayed unscrambling
+	if self.must_unscramble then
+		if self.can_shuffle then
+			self:unscramble()
+			self.must_unscramble = nil
+		end
+	end
+
 	-- cache texture handle and tile source rectangles
 	if not p.tex then
 		puzzles.preload(p)
@@ -365,6 +373,29 @@ function grid:shift(column_x, row_y, offset)
 	end
 end
 
+function grid:random_move()
+	local p = self.puzzle
+	local shift_offset, mask_x, mask_y
+
+	if rand.int(0, 2) == 0 then
+		shift_offset = -1
+	else
+		shift_offset = 1
+	end
+
+	repeat	
+		if rand.int(0, 2) == 0 then
+			mask_x, mask_y = rand.int(0, p.w), nil
+			self.end_anim_offset = vec2(0, shift_offset * p.tile_w)
+		else	
+			mask_x, mask_y = nil, rand.int(0, p.h)
+			self.end_anim_offset = vec2(shift_offset * p.tile_h, 0)
+		end
+	until self:can_move(mask_y ~= nil, mask_x ~= nil, mask_x or 0, mask_y or 0, p)
+
+	return shift_offset, mask_x, mask_y
+end
+
 function grid:shuffle()
 	local n = 140
 	if not self.can_shuffle then
@@ -372,7 +403,6 @@ function grid:shuffle()
 		return
 	end
 
-	local p = self.puzzle
 	self.shuffling = true
 
 	self.start_anim_t = time.s()
@@ -390,25 +420,9 @@ function grid:shuffle()
 		if n > 0 then
 			n = n - 1
 
-			if rand.int(0, 2) == 0 then
-				shift_offset = -1
-			else
-				shift_offset = 1
-			end
-
-			repeat	
-				if rand.int(0, 2) == 0 then
-					mask_x, mask_y = rand.int(0, p.w), nil
-					self.end_anim_offset = vec2(0, shift_offset * p.tile_w)
-				else	
-					mask_x, mask_y = nil, rand.int(0, p.h)
-					self.end_anim_offset = vec2(shift_offset * p.tile_h, 0)
-				end
-			until self:can_move(mask_y ~= nil, mask_x ~= nil, mask_x or 0, mask_y or 0, p)
-
+			shift_offset, mask_x, mask_y = self:random_move()
 			self.anim_mask_x, self.anim_mask_y = mask_x, mask_y
 
-			self.start_anim_offset = vec2(0, 0)
 			self.start_anim_t = time.s() 
 			self.anim_len = shuffle_speed * n*n
 		else
@@ -418,6 +432,77 @@ function grid:shuffle()
 	
 	self.anim_end_callback = cb 
 end
+
+function grid:scramble()
+	local n = 40
+	local moves_x = {}
+	local moves_y = {}
+	local moves_offset = {}
+
+	local p = self.puzzle
+
+	if not p.tile_w then
+		puzzles.preload(p)
+	end
+	
+	local offset, move_x, move_y
+	for i=1,n do
+		offset, move_x, move_y = self:random_move()	
+
+		self:shift(move_x, move_y, -offset)
+
+		moves_x[i] = move_x
+		moves_y[i] = move_y
+		moves_offset[i] = offset
+	end
+
+	self.scramble_x = moves_x
+	self.scramble_y = moves_y
+	self.scramble_offset = moves_offset
+end
+
+function grid:unscramble()
+	if not self.can_shuffle then
+		self.must_unscramble = true
+		return
+	end
+
+	local p = self.puzzle
+	self.shuffling = true
+
+	self.start_anim_t = time.s()
+	self.start_anim_offset = vec2(0, 0)
+	self.end_anim_offset = vec2(0, 0)
+	self.anim_len = 1
+
+	local n = #self.scramble_offset
+	local mask_x, mask_y, offset
+
+	local cb = function()
+		if offset then
+			self:shift(mask_x, mask_y, offset)
+		end
+
+		if n > 0 then
+			offset, mask_x, mask_y = self.scramble_offset[n], self.scramble_x[n], self.scramble_y[n]
+			n = n - 1
+
+			self.anim_mask_x, self.anim_mask_y = mask_x, mask_y
+			if mask_x then
+				self.end_anim_offset = vec2(0, -offset * p.tile_h)
+			else
+				self.end_anim_offset = vec2(-offset * p.tile_w, 0)
+			end
+			self.start_anim_t = time.s()
+			self.anim_len = 0.07 
+		else
+			self.shuffling = false
+		end
+	end
+
+	self.anim_end_callback = cb
+end
+
 
 -- rows/columns with immovable tiles cannot be moved
 function grid:can_move(move_x, move_y, tx, ty, p)
