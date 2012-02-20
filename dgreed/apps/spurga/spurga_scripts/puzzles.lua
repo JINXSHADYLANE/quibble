@@ -8,6 +8,8 @@ local function parse_puzzle(node)
 	for i,child in ipairs(node.childs) do
 		if child.name == 'img' then
 			new.spr = child.value
+		elseif child.name == 'par' then
+			new.par = tonumber(child.value)
 		elseif child.name == 'def' then
 			-- count newlines to determine height
 			local line_count = 0
