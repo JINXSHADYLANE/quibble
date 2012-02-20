@@ -34,7 +34,8 @@
 			4 = heart
 			5 = bird
 			6 = vine
-			7 = wallpaper
+			7 = target
+			8 = wallpaper
 		")
 	)
 	(puzzle score
@@ -129,6 +130,18 @@
 			5  6  7  8   9
 		    10 11 12 13 14
 			0  15 16 0   0
+			0  0  0  0   0
+		")
+	)
+	(puzzle target
+		(par 256)
+		(img lvl_target.png)
+		(def "
+			1  2  3  4   5
+			6  7  8  9  10
+			11 12 @ 13  14
+		    15 16 17 18 19
+			20 21 22 23 24
 			0  0  0  0   0
 		")
 	)
