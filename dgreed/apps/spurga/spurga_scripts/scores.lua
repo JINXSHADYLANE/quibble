@@ -30,12 +30,21 @@ function scores.bake(score)
 	local score_d2 = (score - score_d1*10 - score_d0) / 100
 
 	local p = scores_grid.puzzle.solved
-	p[12] = score_d2
-	p[13] = score_d1
-	p[14] = score_d0
 
-	for i=21,30 do
-		p[i] = rand.int(0, 10)
+	-- restructure the puzzle - move sign to the middle, add score
+	for i=26,6,-1 do
+		p[i] = p[i-5]
+	end
+
+	p[12+5] = score_d2
+	p[13+5] = score_d1
+	p[14+5] = score_d0
+
+	for i=1,5 do
+		p[i] = 27
+	end
+	for i=26,30 do
+		p[i] = 27 
 	end
 
 	scores_grid:scramble()

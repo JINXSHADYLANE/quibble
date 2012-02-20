@@ -14,8 +14,11 @@ def parse_puzzle_def(defstr):
 	assert(w * h == len(grid))
 
 	def f(c):
-		if c == '#' or c == '@':
-			return c
+		if len(c) == 1:
+			if ord('a') <= ord(c) <= ord('z'):
+				return c
+			if ord('A') <= ord(c) <= ord('Z'):
+				return c
 		return int(c)
 
 	return w, h, map(f, grid)
