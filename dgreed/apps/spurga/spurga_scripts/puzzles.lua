@@ -19,10 +19,10 @@ local function parse_puzzle(node)
 
 			-- parse individual tiles, put them in a table
 			new.solved = {}
-			for token in child.value:gmatch('([%d@#]+)%s+') do
+			for token in child.value:gmatch('([%d%a]+)%s+') do
 				local parsed_token = tonumber(token)
 				if not parsed_token then
-					assert(token == '#' or token == '@')
+					assert(is_wall(token) or is_portal(token))
 					parsed_token = token
 				end
 				table.insert(new.solved, parsed_token)
@@ -65,7 +65,7 @@ function puzzles.load(descs_filename, slices_filename)
 		local sliced_puzzle = {}	
 		for j,slice in ipairs(puzzle.childs) do
 			local t = slice.name
-			if t ~= '#' and t ~= '@' then
+			if not is_wall(t) and not is_portal(t) then
 				t = tonumber(t)
 			end
 

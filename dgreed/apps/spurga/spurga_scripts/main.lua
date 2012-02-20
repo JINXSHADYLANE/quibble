@@ -25,6 +25,16 @@ function new_transition_mask(n)
 	end
 end
 
+function is_portal(c)
+	local n = string.byte(c)
+	return n >= string.byte('a') and n <= string.byte('z')
+end
+
+function is_wall(c)
+	local n = string.byte(c)
+	return n >= string.byte('A') and n <= string.byte('Z')
+end
+
 function game_init()
 	states.register('game', game)
 	states.register('menu', menu)

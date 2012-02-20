@@ -121,20 +121,20 @@ function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left, c)
 	local ax, ay = x, y
 	for i=1,steps.x do
 		ax = fmod(p.w + ax + dx, p.w)
-		while p.solved[self.state[ay * p.w + ax + 1]] == '@' do
+		while is_portal(p.solved[self.state[ay * p.w + ax + 1]]) do
 			ax, ay = fmod(p.w + ax + dx, p.w), fmod(p.h + ay + dy, p.h)
 		end
 	end
 	for i=1,steps.y do
 		ay = fmod(p.h + ay + dy, p.h)
-		while p.solved[self.state[ay * p.w + ax + 1]] == '@' do
+		while is_portal(p.solved[self.state[ay * p.w + ax + 1]]) do
 			ax, ay = fmod(p.w + ax + dx, p.w), fmod(p.h + ay + dy, p.h)
 		end
 	end
 
 	local bx = fmod(p.w + ax + dx, p.w)
 	local by = fmod(p.h + ay + dy, p.h)
-	while p.solved[self.state[by * p.w + bx + 1]] == '@' do
+	while is_portal(p.solved[self.state[by * p.w + bx + 1]]) do
 		bx, by = fmod(p.w + bx + dx, p.w), fmod(p.h + by + dy, p.h)
 	end
 
@@ -284,7 +284,7 @@ function grid:draw(pos, layer, transition, hint)
 			end
 
 			if not skip then
-				if p.solved[tile] == '@' then
+				if is_portal(p.solved[tile]) then
 					-- portal tile
 					video.draw_rect(p.tex, layer-1, r, cursor)
 				elseif x ~= self.move_mask_x and y ~= self.move_mask_y then
@@ -346,7 +346,7 @@ function grid:shift(column_x, row_y, offset)
 	local prev, cx, cy = {}, x, y
 	while cx < p.w and cy < p.h do
 		local t = self.state[cy * p.w + cx + 1]
-		if p.solved[t] ~= '@' then
+		if not is_portal(p.solved[t]) then
 			table.insert(prev, t)
 		end
 		cx, cy = cx + dx, cy + dy
@@ -365,7 +365,7 @@ function grid:shift(column_x, row_y, offset)
 	while cx < p.w and cy < p.h do
 		local idx = cy * p.w + cx + 1
 		local t = self.state[idx]
-		if p.solved[t] ~= '@' then
+		if not is_portal(p.solved[t]) then
 			self.state[idx] = new[i]
 			i = i + 1
 		end
@@ -515,7 +515,7 @@ function grid:can_move(move_x, move_y, tx, ty, p)
 	end
 	while x < p.w and y < p.h do
 		local t = self.state[y * p.w + x + 1] 
-		if p.solved[t] == '#' then
+		if is_wall(p.solved[t]) then
 			return false
 		end
 		x, y = x + dx, y + dy
