@@ -44,6 +44,7 @@
 			14 = snakes
 			15 = fishes
 			16 = diamond
+			17 = stairs
 		")
 	)
 	(puzzle score
@@ -256,9 +257,21 @@
 			a  b  0  0  0
 			c  1  2  3  0
 			0  4  5  6  0
-			0  7  8  9  0
+			0  7  5  9  0
 			0  10 11 12 d
 			0  0  0  e  a
+		")
+	)
+	(puzzle stairs
+		(par 64)
+		(img lvl_stairs.png)
+		(def "
+			0  0  0  0  0
+			0  1  2  0  0
+			0  3  4  0  a
+			0  5  6  a  a
+			0  7  a  a  a
+			0  a  a  a  a
 		")
 	)
 )
