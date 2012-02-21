@@ -18,6 +18,11 @@ typedef int (*bind_fun_ptr)(lua_State* l);
 void malka_init(void);
 void malka_close(void);
 
+// Inits malka with mempools for most common allocation types.
+// Can actually slow program down if you pay no attention to
+// your lua code memory usage!
+void malka_init_ex(bool use_pools);
+
 // Call this to expose params to lua code, also handle -fsdev
 void malka_params(int argc, const char** argv);
 // Binds some of your code to lua

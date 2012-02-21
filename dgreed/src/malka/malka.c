@@ -29,6 +29,7 @@ extern bool fs_devmode;
 static MemPool table_pool;
 static MemPool vector_pool;
 static MemPool rect_pool;
+static bool pools_allocated = false;
 
 bool _endswith(const char* str, const char* tail) {
 	assert(str && tail);
@@ -68,7 +69,6 @@ extern int luaopen_bit(lua_State* l);
 
 static void* malka_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
     (void)ud;
-    (void)osize;
     if (osize == 0 && nsize != 0) {
         if(nsize == sizeof(Table))
             return mempool_alloc(&table_pool);
@@ -89,16 +89,29 @@ static void* malka_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
         return NULL;
     }
     else {
+		MemPool* pool = NULL;
         if(osize == sizeof(Table) && mempool_owner(&table_pool, ptr)) {
-            // Promote pool allocated chunk to heap
-            void* new = malloc(nsize);
-            memcpy(new, ptr, MIN(sizeof(Table), nsize));
-            mempool_free(&table_pool, ptr);
-            return new;
-        }
-        else {
-            return realloc(ptr, nsize);
-        }
+			pool = &table_pool;
+			goto promote;
+		}
+		if(osize == sizeof(Node) * 2 && mempool_owner(&vector_pool, ptr)) {
+			pool = &vector_pool;
+			goto promote;
+		}
+		if(osize == sizeof(Node) * 4 && mempool_owner(&rect_pool, ptr)) {
+			pool = &rect_pool;
+			goto promote;
+		}
+
+        return realloc(ptr, nsize);
+
+promote:
+		// Promote pool allocated chunk to heap
+		assert(pool);
+		void* new = malloc(nsize);
+		memcpy(new, ptr, MIN(osize, nsize));
+		mempool_free(pool, ptr);
+		return new;
     }
 }
 
@@ -117,11 +130,22 @@ lua_State* malka_newstate (void) {
 }
 
 void malka_init(void) {
-    mempool_init_ex(&table_pool, sizeof(Table), 128*1024);
-    mempool_init_ex(&vector_pool, sizeof(Node)*2, 128*1024);
-    mempool_init_ex(&rect_pool, sizeof(Node)*4, 256*1024);
-    
-	l = malka_newstate();
+	malka_init_ex(false);
+}
+
+void malka_init_ex(bool use_pools) {
+	if(use_pools) {
+		mempool_init_ex(&table_pool, sizeof(Table), 128*1024);
+		mempool_init_ex(&vector_pool, sizeof(Node)*2, 128*1024);
+		mempool_init_ex(&rect_pool, sizeof(Node)*4, 256*1024);
+		
+		l = malka_newstate();
+		pools_allocated = true;
+	}
+	else {
+		l = luaL_newstate();
+	}
+
 	luaL_openlibs(l);
 	luaopen_bit(l);
 
@@ -154,9 +178,12 @@ void malka_close(void) {
 
 	lua_close(l);
     
-    mempool_drain(&rect_pool);
-    mempool_drain(&vector_pool);
-    mempool_drain(&table_pool);
+	if(pools_allocated) {
+		mempool_drain(&rect_pool);
+		mempool_drain(&vector_pool);
+		mempool_drain(&table_pool);
+		pools_allocated = false;
+	}
 }
 
 int malka_register(bind_fun_ptr fun) {
