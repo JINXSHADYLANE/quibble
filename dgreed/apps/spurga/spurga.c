@@ -28,7 +28,7 @@ void dgreed_init(int argc, const char** argv) {
 	sprsheet_init(ASSETS_PRE "sprsheet_320p.mml");
 	mfx_init(ASSETS_PRE "effects.mml");
 
-	malka_init();
+	malka_init_ex(true);
 	malka_params(argc, argv);
 
 
