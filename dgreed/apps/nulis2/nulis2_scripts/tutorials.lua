@@ -24,10 +24,10 @@ tut_fingers = {
 
 tut_menu_offsets = {
 	vec2(0, 0),
-	vec2(-100, 20),
-	vec2(-170, 180),
+	vec2(-80, 20),
+	vec2(-180, 200),
 	vec2(80, 20),
-	vec2(170, 100)
+	vec2(155, 100)
 }
 
 function init()
