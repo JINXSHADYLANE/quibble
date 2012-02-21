@@ -14,6 +14,8 @@
 	CGRect view_frame;
 }
 
+@property(nonatomic) BOOL rotate_touches;
+
 - (void) startAnimation;
 - (void) stopAnimation;
 - (void) drawView;

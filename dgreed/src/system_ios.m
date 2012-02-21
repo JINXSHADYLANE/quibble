@@ -86,7 +86,7 @@ static DArray line_buckets[bucket_count];
 static DArray textures;
 
 static uint frame;
-static float screen_widthf, screen_heightf;
+float screen_widthf, screen_heightf;
 static float x_size_factor, y_size_factor;
 Color clear_color = 0;
 

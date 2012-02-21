@@ -14,6 +14,7 @@ extern void gamecenter_app_suspend(void);
 extern void _set_gamecenter_app_delegate(DGreedAppDelegate* _app_delegate);
 extern float inactive_time;
 extern Color clear_color;
+extern float screen_widthf, screen_heightf;
 
 extern RunStateCallback enter_background_cb;
 extern RunStateCallback enter_foreground_cb;
@@ -72,6 +73,10 @@ float resign_active_t;
 
     if(!dgreed_init(0, NULL))
 		return NO;
+    
+    printf("%f, %f\n", screen_widthf,  screen_heightf);
+    if(screen_widthf > screen_heightf)
+        gl_view.rotate_touches = YES;
     
     return YES;
 }

@@ -3,6 +3,8 @@
 
 @implementation GLESView
 
+@synthesize rotate_touches;
+
 static GLESView* global_gles_view = NULL;
 
 + (Class) layerClass {
@@ -26,7 +28,7 @@ static GLESView* global_gles_view = NULL;
 			return nil;
 		}	
         
-        CGFloat screen_scale = [[UIScreen mainScreen] scale];
+        //CGFloat screen_scale = [[UIScreen mainScreen] scale];
         //self.contentScaleFactor = screen_scale;
 		
 		// Create framebuffer and renderbuffer
@@ -39,9 +41,8 @@ static GLESView* global_gles_view = NULL;
 						fromDrawable:eagl_layer];
 		glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, renderbuffer);
         
-		float w = CGRectGetWidth(frame) * screen_scale;
-        float h = CGRectGetHeight(frame) * screen_scale;
-        rotate_touches = w > h;
+		//float w = CGRectGetWidth(frame) * screen_scale;
+        //float h = CGRectGetHeight(frame) * screen_scale;
 		
 		// See if CADisplayLink is supported
 		NSString *reqSysVer = @"3.1";

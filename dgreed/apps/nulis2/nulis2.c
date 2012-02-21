@@ -15,7 +15,7 @@ void dgreed_preinit(void) {
 	video_clear_color(COLOR_RGBA(188, 188, 188, 255));
 }
 
-void dgreed_init(int argc, const char** argv) {
+bool dgreed_init(int argc, const char** argv) {
 #ifndef _WIN32
 	params_init(argc, argv);
 #else
@@ -69,6 +69,8 @@ void dgreed_init(int argc, const char** argv) {
 
 	malka_states_init(SCRIPTS_PRE "main.lua");
 	malka_states_start();
+    
+    return true;
 }
 
 void dgreed_close(void) {
