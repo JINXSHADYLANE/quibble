@@ -33,14 +33,17 @@
 			3 = square
 			4 = circle
 			5 = tulip
-			6 = umbrella
-			7 = heart
-			8 = bird
-			9 = vine
-			10 = chameleon
-			11 = target
-			12 = wallpaper
-			13 = snakes
+			6 = plane
+			7 = umbrella
+			8 = heart
+			9 = bird
+			10 = vine
+			11 = chameleon
+			12 = target
+			13 = wallpaper
+			14 = snakes
+			15 = fishes
+			16 = diamond
 		")
 	)
 	(puzzle score
@@ -123,6 +126,30 @@
 			2  3  4  5  6
 			0  7  8  9  0
 			0  10 11 12 0
+			0  0  0  0  0
+		")
+	)
+	(puzzle plane
+		(par 64)
+		(img lvl_plane.png)
+		(def "
+			0  0  1  0  0
+			0  0  2  0  0
+			0  3  4  5  0
+			6  7  8  9 10
+			0  11 12 13 0
+			0  0  0  0  0
+		")
+	)
+	(puzzle fishes
+		(par 64)
+		(img lvl_fishes.png)
+		(def "
+			0  0  0  0  0
+			0  1  2  3  0
+			4  5  6  7  8
+			9 10 11 12 13
+			0  14 15 16 0
 			0  0  0  0  0
 		")
 	)
@@ -220,6 +247,18 @@
 		    9 10 11 10  13
 			0  8  9  b  14
 			0 15  2 16   0
+		")
+	)
+	(puzzle diamond
+		(par 64)
+		(img lvl_diamond.png)
+		(def "
+			a  b  0  0  0
+			c  1  2  3  0
+			0  4  5  6  0
+			0  7  8  9  0
+			0  10 11 12 d
+			0  0  0  e  a
 		")
 	)
 )
