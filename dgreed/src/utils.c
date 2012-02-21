@@ -5,6 +5,11 @@
 
 #include <ctype.h>
 
+// For alloca
+#ifdef _WIN32
+#include <malloc.h>
+#endif
+
 #ifdef MACOSX_BUNDLE
 #include <CoreFoundation/CFBundle.h>
 
