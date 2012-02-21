@@ -223,8 +223,8 @@ static bool _check_extension(const char* name) {
 
 void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 				   const char* name, bool fullscreen) {
-	assert(width >= 480 && width <= 1024);
-	assert(height >= 320 && height <= 768);
+	assert(width >= 320 && width <= 1024);
+	assert(height >= 320 && height <= 1024);
 	assert(v_width != 0 && v_height != 0);
     
     screen_widthf = v_width;
@@ -235,7 +235,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glEnable(GL_TEXTURE_2D);
 	glShadeModel(GL_FLAT);
 	glClearDepthf(1.0f);
-	glViewport(0, 0, v_height, v_width);
+	
 	glEnable(GL_BLEND);
     glDisable(GL_ALPHA_TEST);
 	_set_blendmode(BM_NORMAL);
@@ -248,12 +248,21 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 		
-	// Some tricky transformations to properly turn view sideways 
-	glOrthof(0.0f, (float)v_width, (float)v_height, 0.0f, -1.0f, 1.0f);
-	glTranslatef((float)v_width/2.0f, (float)v_height/2.0f, 0.0f);
-	glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
-	glTranslatef((float)v_height/-2.0f, (float)v_width/-2.0f, 0.0f);
-	glScalef((float)v_height/(float)v_width, (float)v_width/(float)v_height, 1.0f);
+	if(width > height) {
+        glViewport(0, 0, v_height, v_width);
+        // Some tricky transformations to properly turn view sideways 
+        glOrthof(0.0f, (float)v_width, (float)v_height, 0.0f, -1.0f, 1.0f);
+        glTranslatef((float)v_width/2.0f, (float)v_height/2.0f, 0.0f);
+        glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+        glTranslatef((float)v_height/-2.0f, (float)v_width/-2.0f, 0.0f);
+        glScalef((float)v_height/(float)v_width, (float)v_width/(float)v_height, 1.0f);
+    }
+    else {
+        glViewport(0, 0, v_width, v_height);
+        glOrthof(0.0f, (float)v_width, (float)v_height, 0.0f, -1.0f, 1.0f);
+        //glScalef((float)v_width/(float)v_height, (float)v_height/(float)v_width, 1.0f);
+        //glTranslatef(0.0f, (float)v_width/-2.0f, 0.0f);
+    }
 	
 	frame = 0;
 	

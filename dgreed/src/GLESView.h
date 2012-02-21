@@ -9,6 +9,7 @@
 	NSTimer* animation_timer;
 	BOOL running;
 	BOOL display_link_supported;
+    BOOL rotate_touches;
 	id display_link;
 	CGRect view_frame;
 }

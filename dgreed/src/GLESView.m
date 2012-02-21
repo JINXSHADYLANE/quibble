@@ -41,7 +41,7 @@ static GLESView* global_gles_view = NULL;
         
 		float w = CGRectGetWidth(frame) * screen_scale;
         float h = CGRectGetHeight(frame) * screen_scale;
-        glViewport(0, 0, w, h);
+        rotate_touches = w > h;
 		
 		// See if CADisplayLink is supported
 		NSString *reqSysVer = @"3.1";
@@ -130,6 +130,7 @@ extern void _touch_move(float old_x, float old_y, float new_x, float new_y);
 extern void _touch_up(float old_x, float old_y);
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    float x, y;
 	UITouch* touch = [touches anyObject];
 	CGPoint location = [touch locationInView: self];
 	cmouse_x = (uint)(location.y);
@@ -139,13 +140,20 @@ extern void _touch_up(float old_x, float old_y);
 	for(id t in [touches allObjects]) {
 		UITouch* touch = t;
 		CGPoint pos = [touch locationInView: self];
-		float x = pos.y;
-		float y = CGRectGetWidth(view_frame) - pos.x;
+        if(rotate_touches) {
+            x = pos.y;
+            y = CGRectGetWidth(view_frame) - pos.x;
+        }
+        else {
+            x = pos.x;
+            y = pos.y;
+        }
 		_touch_down(x, y);
 	}
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    float x, y;
 	UITouch* touch = [touches anyObject];
 	CGPoint location = [touch locationInView: self];
 	cmouse_x = (uint)(location.y);
@@ -156,13 +164,20 @@ extern void _touch_up(float old_x, float old_y);
 	for(id t in [touches allObjects]) {
 		UITouch* touch = t;
 		CGPoint pos = [touch previousLocationInView: self];
-		float x = pos.y;
-		float y = CGRectGetWidth(view_frame) - pos.x;
+		if(rotate_touches) {
+            x = pos.y;
+            y = CGRectGetWidth(view_frame) - pos.x;
+        }
+        else {
+            x = pos.x;
+            y = pos.y;
+        }
 		_touch_up(x, y);
 	}
 }
 
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    float x, y, new_x, new_y;
 	UITouch* touch = [touches anyObject];
 	CGPoint location = [touch locationInView: self];
 	cmouse_x = (uint)(location.y);
@@ -172,12 +187,24 @@ extern void _touch_up(float old_x, float old_y);
 	for(id t in [touches allObjects]) {
 		UITouch* touch = t;
 		CGPoint pos = [touch previousLocationInView: self];
-		float x = pos.y;
-		float y = CGRectGetWidth(view_frame) - pos.x;
+		if(rotate_touches) {
+            x = pos.y;
+            y = CGRectGetWidth(view_frame) - pos.x;
+        }
+        else {
+            x = pos.x;
+            y = pos.y;
+        }
 		
 		pos = [touch locationInView: self];
-		float new_x = pos.y;
-		float new_y = CGRectGetWidth(view_frame) - pos.x;
+		if(rotate_touches) {
+            new_x = pos.y;
+            new_y = CGRectGetWidth(view_frame) - pos.x;
+        }
+        else {
+            new_x = pos.x;
+            new_y = pos.y;
+        }
 		_touch_move(x, y, new_x, new_y);
 	}	
 }
