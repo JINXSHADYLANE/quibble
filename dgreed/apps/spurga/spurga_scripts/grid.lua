@@ -20,6 +20,7 @@ function grid:new(puzzle)
 	local obj = {['puzzle'] = puzzle}
 	setmetatable(obj, self) 
 	obj:load_state()
+	obj.color_map = {}
 	return obj
 end
 
@@ -86,6 +87,18 @@ function grid:is_solved()
 				return false
 			end
 		end
+
+		-- solved, remember score
+		local keyname = 'pscore:'..p.name
+		local old_score = keyval.get(keyname, -1)
+		local new_score = self:score()
+		if old_score < new_score then
+			keyval.set(keyname, new_score)
+		end
+
+		-- unlock next two levels
+		puzzles.unlock_next(p)
+
 		return true
 	end
 	return false
@@ -96,7 +109,6 @@ end
 function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left, c)
 	local fmod = math.fmod
 	local abs = math.abs
-
 
 	local abs_offset = vec2(abs(offset.x), abs(offset.y))
 	local steps = vec2(
@@ -162,8 +174,13 @@ function grid:draw_shifted_tile(tex, layer, src, x, y, offset, p, top_left, c)
 		end
 	elseif abs(bx-ax) == p.w-1 or abs(by-ay) == p.h-1 then
 		-- draw with wrap around
-		video.draw_rect(tex, layer, src, pos_a - real_offset)
-		video.draw_rect(tex, layer, src, pos_b + neg_offset)
+		if c then
+			video.draw_rect(tex, layer, src, pos_a - real_offset, c)
+			video.draw_rect(tex, layer, src, pos_b + neg_offset, c)
+		else
+			video.draw_rect(tex, layer, src, pos_a - real_offset)
+			video.draw_rect(tex, layer, src, pos_b + neg_offset)
+		end
 	else
 		local alpha = clamp(0, 1, math.max(
 			abs(real_offset.x) / p.tile_h, 
@@ -236,12 +253,13 @@ function grid:draw(pos, layer, transition, hint)
 	local cursor = vec2(top_left)
 
 	-- draw current grid state
-	local idx, tile, r, c
+	local idx, tile, solved_tile, r, c
 	for y = 0, p.h-1 do
 		for x = 0, p.w-1 do
 			idx = y * p.w + x + 1
 			tile = self.state[idx] 
-			r = p.tile_src[p.solved[tile]]
+			solved_tile = p.solved[tile]
+			r = p.tile_src[solved_tile]
 
 			-- pressed color
 			c = nil
@@ -268,7 +286,7 @@ function grid:draw(pos, layer, transition, hint)
 
 				-- draw hint
 				if hint then
-					if p.solved[idx] ~= p.solved[tile] then
+					if p.solved[idx] ~= solved_tile then
 						local hint_r = p.tile_src[p.solved[idx]]
 						if alpha < 1 then
 						local hint_color = rgba(1, 1, 1, 1 - alpha)
@@ -283,8 +301,18 @@ function grid:draw(pos, layer, transition, hint)
 				end
 			end
 
+			-- colorize
+			local colorized = self.color_map[solved_tile]
+			if colorized then
+				if c then
+					c = c * colorized
+				else
+					c = colorized
+				end
+			end
+
 			if not skip then
-				if is_portal(p.solved[tile]) then
+				if is_portal(solved_tile) then
 					-- portal tile
 					video.draw_rect(p.tex, layer-1, r, cursor)
 				elseif x ~= self.move_mask_x and y ~= self.move_mask_y then
@@ -302,7 +330,7 @@ function grid:draw(pos, layer, transition, hint)
 						-- animated tile
 						self:draw_shifted_tile(
 							p.tex, layer, r, 
-							x, y, anim_offset, p, top_left
+							x, y, anim_offset, p, top_left, c
 						)
 					end
 				else
@@ -434,7 +462,7 @@ function grid:shuffle()
 end
 
 function grid:scramble()
-	local n = 40
+	local n = 20
 	local moves_x = {}
 	local moves_y = {}
 	local moves_offset = {}
@@ -494,7 +522,7 @@ function grid:unscramble()
 				self.end_anim_offset = vec2(-offset * p.tile_w, 0)
 			end
 			self.start_anim_t = time.s()
-			self.anim_len = 0.07 
+			self.anim_len = 0.05 
 		else
 			self.shuffling = false
 		end

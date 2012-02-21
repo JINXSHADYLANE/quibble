@@ -107,4 +107,23 @@ function puzzles.preload(puzzle)
 	puzzle.tile_h = slices.tile_h
 end
 
+function puzzles.unlock_next(puzzle)
+	local levels_puzzle = puzzles['levels']
+
+	local m = levels_puzzle.map
+	for i,p in pairs(m) do
+		if p == puzzle.name then
+			if m[i+1] then 
+				keyval.set('pulock:'..m[i+1], true)
+			end
+
+			if m[i+2] then 
+				keyval.set('pulock:'..m[i+2], true)
+			end
+
+			break
+		end
+	end
+end
+
 return puzzles
