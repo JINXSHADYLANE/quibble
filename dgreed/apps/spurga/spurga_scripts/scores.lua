@@ -15,7 +15,7 @@ end
 
 function scores.enter()
 	hud.set_title('score')
-	hud.set_buttons({hud.replay, nil, nil, nil, hud.back})
+	hud.set_buttons({hud.back, nil, hud.play, nil, hud.replay})
 	scores.old_delegate = hud.delegate
 	hud.delegate = scores
 	scores_grid.can_shuffle = true
@@ -62,9 +62,14 @@ function scores.leave()
 	scores_grid.can_shuffle = false
 end
 
-function scores.replay()
+function scores.play()
+	scores.old_delegate.play()
 	states.replace('game')
+end
+
+function scores.replay()
 	scores.old_delegate.replay()
+	states.replace('game')
 end
 
 function scores.back()

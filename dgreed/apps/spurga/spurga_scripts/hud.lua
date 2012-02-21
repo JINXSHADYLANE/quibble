@@ -33,7 +33,7 @@ function hud.init()
 	hud.spr_help = sprsheet.get_handle('query')
 	hud.spr_back = sprsheet.get_handle('quit')
 	hud.spr_replay = sprsheet.get_handle('reset')
-	hud.spr_hint = sprsheet.get_handle('query')
+	hud.spr_hint = sprsheet.get_handle('hint')
 	hud.spr_play = sprsheet.get_handle('play')
 
 	video.set_blendmode(paper_layer, 'multiply')

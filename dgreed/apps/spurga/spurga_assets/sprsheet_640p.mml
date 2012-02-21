@@ -20,6 +20,10 @@
 		(tex atlas.png)
 		(src 280,0,350,70)
 	)
+	(img hint
+		(tex atlas.png)
+		(src 420,70,490,154)
+	)
 	(img quit
 		(tex atlas.png)
 		(src 420,0,512,70)

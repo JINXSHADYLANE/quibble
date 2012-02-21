@@ -17,7 +17,7 @@ end
 
 function game.enter()
 	hud.set_title(levels.current_grid.puzzle.name)
-	hud.set_buttons({hud.replay, nil, hud.hint, nil, hud.back})
+	hud.set_buttons({hud.back, nil, hud.hint, nil, hud.replay})
 	hud.delegate = game
 
 	assert(levels.current_grid)
@@ -28,6 +28,12 @@ function game.leave()
 	levels.current_grid.can_shuffle = false
 	levels.current_grid:save_state()
 	levels.prep_colors()
+end
+
+function game.play()
+	-- play next level
+	local p = levels.current_grid.puzzle
+	levels.current_grid = grid:new(puzzles.get_next(p))
 end
 
 function game.replay()

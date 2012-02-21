@@ -107,6 +107,21 @@ function puzzles.preload(puzzle)
 	puzzle.tile_h = slices.tile_h
 end
 
+function puzzles.get_next(puzzle)
+	local levels_puzzle = puzzles['levels']
+	local m = levels_puzzle.map
+	for i,p in pairs(m) do
+		if p == puzzle.name then
+			if m[i+1] then 
+				return puzzles[m[i+1]]
+			else
+				-- finished last puzzle !
+				return puzzles[m[0]]
+			end
+		end
+	end
+end
+
 function puzzles.unlock_next(puzzle)
 	local levels_puzzle = puzzles['levels']
 

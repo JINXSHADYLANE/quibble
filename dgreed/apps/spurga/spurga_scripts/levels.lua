@@ -77,7 +77,7 @@ end
 
 function levels.enter()
 	hud.set_title('choose a puzzle')
-	hud.set_buttons({hud.play, hud.music, hud.sound, hud.help, hud.back})
+	hud.set_buttons({hud.back, hud.music, hud.sound, hud.help, hud.play})
 	hud.delegate = levels
 end
 
