@@ -102,3 +102,13 @@ void mempool_free(MemPool* pool, void* ptr) {
 	chunk->freelist_head = idx;
 }
 
+bool mempool_owner(MemPool* pool, void* ptr) {
+	// Find the right chunk
+	MemPoolChunk* chunk;
+	list_for_each_entry(chunk, &pool->chunks, list) {
+		if(chunk->data <= ptr && ptr < chunk->data + pool->chunk_size)
+			return true;
+	}
+	return false;
+}
+

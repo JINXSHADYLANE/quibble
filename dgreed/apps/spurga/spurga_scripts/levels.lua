@@ -5,12 +5,13 @@ local puzzles = require('puzzles')
 local hud = require('hud')
 
 local levels_grid
-
-local first_level = 'square'
+local first_level
 
 function levels.init()
 	levels_grid = grid:new(puzzles['levels'])
+	first_level = levels_grid.puzzle.map[0]
 	keyval.set('pulock:'..first_level, true)
+
 	levels.unlock = {}
 	levels.prep_colors()
 end
@@ -56,6 +57,16 @@ function levels.is_locked(lvl)
 	return not levels.unlock[lvl] and not keyval.get('pulock:'..lvl, false)
 end
 
+function levels.first_unsolved()
+	for i,puzzle in pairs(levels_grid.puzzle.map) do
+		local score = keyval.get('pscore:'..puzzle, -1)
+		if not levels.is_locked(puzzle) and score == -1 then
+			return puzzle
+		end
+	end
+	return levels_grid.puzzle.map[#levels_grid.puzzle.map]
+end
+
 function levels.help()
 	-- a cheat, unlocks all levels
 	for i,puzzle in ipairs(levels_grid.puzzle.map) do
@@ -77,7 +88,7 @@ function levels.leave()
 end
 
 function levels.play()
-	game.current_grid = grid:new(puzzles[levels.last or first_level])
+	levels.current_grid = grid:new(puzzles[levels.last or levels.first_unsolved()])
 	states.push('game')
 end
 
