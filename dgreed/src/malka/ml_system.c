@@ -1133,13 +1133,13 @@ static int ml_orientation_angle(lua_State* l) {
 			lua_pushnumber(l, 0.0);
 			break;
 		case ORIENT_PORTRAIT_UPSIDE_DOWN:
-			lua_pushnumber(l, M_PI / 2.0);
+			lua_pushnumber(l, PI / 2.0);
 			break;
 		case ORIENT_LANDSCAPE_LEFT:
-			lua_pushnumber(l, M_PI);
+			lua_pushnumber(l, PI);
 			break;
 		case ORIENT_PORTRAIT:
-			lua_pushnumber(l, M_PI / 2.0 * 3.0);
+			lua_pushnumber(l, PI / 2.0 * 3.0);
 			break;
 		default:
 			return luaL_error(l, "unknown orientation");
