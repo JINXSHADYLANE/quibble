@@ -29,11 +29,18 @@ function scores.bake(score)
 	local score_d1 = math.fmod(score - score_d0, 100) / 10
 	local score_d2 = (score - score_d1*10 - score_d0) / 100
 
-	local p = scores_grid.puzzle.solved
+	local puzzle = scores_grid.puzzle
+	if not puzzle.solved_original then
+		puzzle.solved_original = puzzle.solved
+		puzzle.solved = {}
+	end
+
+	local o = puzzle.solved_original
+	local p = puzzle.solved
 
 	-- restructure the puzzle - move sign to the middle, add score
 	for i=26,6,-1 do
-		p[i] = p[i-5]
+		p[i] = o[i-5]
 	end
 
 	p[12+5] = score_d2
