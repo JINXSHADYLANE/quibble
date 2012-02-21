@@ -19,5 +19,6 @@ void mempool_drain(MemPool* pool);
 
 void* mempool_alloc(MemPool* pool);
 void mempool_free(MemPool* pool, void* ptr);
+bool mempool_owner(MemPool* pool, void* ptr);
 
 #endif

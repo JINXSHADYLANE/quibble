@@ -11,10 +11,13 @@
 #include "ml_gamecenter.h"
 
 #include "memory.h"
+#include "mempool.h"
 
 #ifdef MACOSX_BUNDLE
 #include <unistd.h>
 #endif
+
+#include "lua/ltable.h"
 
 static lua_State* l;
 static int ml_argc = 0;
@@ -22,6 +25,10 @@ static const char** ml_argv = NULL;
 static bool ml_prepped = false;
 
 extern bool fs_devmode;
+
+static MemPool table_pool;
+static MemPool vector_pool;
+static MemPool rect_pool;
 
 bool _endswith(const char* str, const char* tail) {
 	assert(str && tail);
@@ -59,8 +66,62 @@ int malka_run(const char* luafile) {
 
 extern int luaopen_bit(lua_State* l);
 
+static void* malka_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+    (void)ud;
+    (void)osize;
+    if (osize == 0 && nsize != 0) {
+        if(nsize == sizeof(Table))
+            return mempool_alloc(&table_pool);
+        if(nsize == sizeof(Node) * 2)
+            return mempool_alloc(&vector_pool);
+        if(nsize == sizeof(Node) * 4)
+            return mempool_alloc(&rect_pool);
+    }    
+    if (nsize == 0) {
+        if(osize == sizeof(Table) && mempool_owner(&table_pool, ptr))
+            mempool_free(&table_pool, ptr);
+        else if(osize == sizeof(Node) * 2 && mempool_owner(&vector_pool, ptr))
+            mempool_free(&vector_pool, ptr);
+        else if(osize == sizeof(Node) * 4 && mempool_owner(&rect_pool, ptr))
+            mempool_free(&rect_pool, ptr);
+        else
+            free(ptr);
+        return NULL;
+    }
+    else {
+        if(osize == sizeof(Table) && mempool_owner(&table_pool, ptr)) {
+            // Promote pool allocated chunk to heap
+            void* new = malloc(nsize);
+            memcpy(new, ptr, MIN(sizeof(Table), nsize));
+            mempool_free(&table_pool, ptr);
+            return new;
+        }
+        else {
+            return realloc(ptr, nsize);
+        }
+    }
+}
+
+static int malka_panic (lua_State *L) {
+    (void)L;  /* to avoid warnings */
+    fprintf(stderr, "PANIC: unprotected error in call to Lua API (%s)\n",
+            lua_tostring(L, -1));
+    return 0;
+}
+
+
+lua_State* malka_newstate (void) {
+    lua_State *L = lua_newstate(malka_alloc, NULL);
+    if (L) lua_atpanic(L, malka_panic);
+    return L;
+}
+
 void malka_init(void) {
-	l = luaL_newstate();
+    mempool_init_ex(&table_pool, sizeof(Table), 128*1024);
+    mempool_init_ex(&vector_pool, sizeof(Node)*2, 128*1024);
+    mempool_init_ex(&rect_pool, sizeof(Node)*4, 256*1024);
+    
+	l = malka_newstate();
 	luaL_openlibs(l);
 	luaopen_bit(l);
 
@@ -92,6 +153,10 @@ void malka_close(void) {
 	ml_states_close(l);
 
 	lua_close(l);
+    
+    mempool_drain(&rect_pool);
+    mempool_drain(&vector_pool);
+    mempool_drain(&table_pool);
 }
 
 int malka_register(bind_fun_ptr fun) {

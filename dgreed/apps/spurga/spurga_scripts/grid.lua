@@ -7,7 +7,7 @@ local puzzles = require('puzzles')
 -- do not move row/column if touch move distance is less than this
 local touch_move_dist = 5 
 -- how fast is sliding animation, when finger is lifted up (px/s)
-local release_anim_speed = 80
+local release_anim_speed = 120 
 -- higher values correspond to slower shuffling speeds
 local shuffle_speed = 0.000005
 -- color of currently pressed tile
