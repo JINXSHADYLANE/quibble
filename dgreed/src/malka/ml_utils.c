@@ -922,34 +922,72 @@ static int ml_color_sub_hsva(lua_State* l) {
 }
 
 static int ml_color_mul_rgba(lua_State* l) {
-	double k = luaL_checknumber(l, 2);
+	double r, g, b, a;
 
-	lua_getfield(l, 1, "r");
-	lua_getfield(l, 1, "g");
-	lua_getfield(l, 1, "b");
-	lua_getfield(l, 1, "a");
+	if(lua_istable(l, 2)) {
+		lua_getfield(l, 1, "r");
+		lua_getfield(l, 1, "g");
+		lua_getfield(l, 1, "b");
+		lua_getfield(l, 1, "a");
+		lua_getfield(l, 2, "r");
+		lua_getfield(l, 2, "g");
+		lua_getfield(l, 2, "b");
+		lua_getfield(l, 2, "a");
 
-	double r = luaL_checknumber(l, 3) * k;
-	double g = luaL_checknumber(l, 4) * k;
-	double b = luaL_checknumber(l, 5) * k;
-	double a = luaL_checknumber(l, 6) * k;
+		r = luaL_checknumber(l, 3) * luaL_checknumber(l, 7);
+		g = luaL_checknumber(l, 4) * luaL_checknumber(l, 8);
+		b = luaL_checknumber(l, 5) * luaL_checknumber(l, 9);
+		a = luaL_checknumber(l, 6) * luaL_checknumber(l, 10);
+	}
+	else {
+		double k = luaL_checknumber(l, 2);
+
+		lua_getfield(l, 1, "r");
+		lua_getfield(l, 1, "g");
+		lua_getfield(l, 1, "b");
+		lua_getfield(l, 1, "a");
+
+		r = luaL_checknumber(l, 3) * k;
+		g = luaL_checknumber(l, 4) * k;
+		b = luaL_checknumber(l, 5) * k;
+		a = luaL_checknumber(l, 6) * k;
+	}
 
 	_new_rgba(l, r, g, b, a);
 	return 1;
 }
 
 static int ml_color_mul_hsva(lua_State* l) {
-	double k = luaL_checknumber(l, 2);
+	double h, s, v, a;
 
-	lua_getfield(l, 1, "h");
-	lua_getfield(l, 1, "s");
-	lua_getfield(l, 1, "v");
-	lua_getfield(l, 1, "a");
+	if(lua_istable(l, 2)) {
+		lua_getfield(l, 1, "h");
+		lua_getfield(l, 1, "s");
+		lua_getfield(l, 1, "v");
+		lua_getfield(l, 1, "a");
+		lua_getfield(l, 2, "h");
+		lua_getfield(l, 2, "s");
+		lua_getfield(l, 2, "v");
+		lua_getfield(l, 2, "a");
 
-	double h = luaL_checknumber(l, 3) * k;
-	double s = luaL_checknumber(l, 4) * k;
-	double v = luaL_checknumber(l, 5) * k;
-	double a = luaL_checknumber(l, 6) * k;
+		h = luaL_checknumber(l, 3) * luaL_checknumber(l, 7);
+		s = luaL_checknumber(l, 4) * luaL_checknumber(l, 8);
+		v = luaL_checknumber(l, 5) * luaL_checknumber(l, 9);
+		a = luaL_checknumber(l, 6) * luaL_checknumber(l, 10);
+	}
+	else {
+		double k = luaL_checknumber(l, 2);
+
+		lua_getfield(l, 1, "h");
+		lua_getfield(l, 1, "s");
+		lua_getfield(l, 1, "v");
+		lua_getfield(l, 1, "a");
+
+		h = luaL_checknumber(l, 3) * k;
+		s = luaL_checknumber(l, 4) * k;
+		v = luaL_checknumber(l, 5) * k;
+		a = luaL_checknumber(l, 6) * k;
+	}
 
 	_new_hsva(l, h, s, v, a);
 	return 1;
