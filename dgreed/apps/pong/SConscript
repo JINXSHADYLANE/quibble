@@ -1,0 +1,14 @@
+Import('env')
+
+NAME='pong'
+ASSETS_DIR = NAME + '_assets'
+
+sources = Glob('*.c', strings=True)
+app = env.Program(NAME + env['DGREED_POSTFIX'], sources, LIBS=env['DGREED_LIBS'])
+env.Install('#'+env['DGREED_BIN_DIR'], app)
+
+# Copy assets only in debug build
+if env['DGREED_POSTFIX'] == 'd':
+	for asset in Glob(ASSETS_DIR + '/*', strings=True):
+		env.Install('#'+env['DGREED_BIN_DIR'] + '/' + ASSETS_DIR, asset)
+
