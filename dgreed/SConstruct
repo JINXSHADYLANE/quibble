@@ -23,6 +23,24 @@ AddOption('--luac', dest='luac', action='store_true',
 	help='compile lua scripts')
 luac = './luac-32bit -s -o $TARGET $SOURCE' if GetOption('luac') else None
 
+AddOption('--clang', dest='clang', action='store_true',
+	help='use clang compiler')
+
+AddOption('--gcc', dest='gcc', action='store_true',
+	help='use gnu gcc compiler')
+
+# clang by default on OS X, gcc everywhere else
+if str(Platform()) != 'darwin':
+	if GetOption('clang'):
+		env['CC'] = 'clang'
+		env['CXX'] = 'clang++'
+else:
+	env['CC'] = 'clang'
+	env['CXX'] = 'clang++'
+	if GetOption('gcc'):
+		env['CC'] = 'gcc'
+		env['CXX'] = 'g++'
+
 if str(Platform()) == 'win32':
 	Tool('mingw')(env)
 	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32', 'curl', 'pthread'],
