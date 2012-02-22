@@ -72,6 +72,8 @@ bool dgreed_update(void) {
 	mfx_update();
 	sound_update();
 
+	malka_gc(1);
+
 	return true;
 }
 

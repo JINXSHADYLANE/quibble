@@ -492,7 +492,7 @@ function grid:shuffle()
 end
 
 function grid:scramble()
-	local n = 20
+	local n = 18 
 	local moves_x = {}
 	local moves_y = {}
 	local moves_offset = {}
@@ -520,6 +520,8 @@ function grid:scramble()
 end
 
 function grid:unscramble()
+	self.start_anim_t = nil
+
 	if not self.can_shuffle then
 		self.must_unscramble = true
 		return
