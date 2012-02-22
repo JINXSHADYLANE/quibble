@@ -63,6 +63,10 @@
 	)
 	(img paper
 		(tex paper_768p.png)
-		(src 0,0,640,960)
+		(src 0,0,768,1024)
+	)
+	(img border
+		(tex atlas.png)
+		(src 509,153,511,155)
 	)
 )
