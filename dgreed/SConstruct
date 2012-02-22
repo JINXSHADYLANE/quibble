@@ -18,6 +18,11 @@ default_font_tool = TOOL_DIR + '/' + 'fnt2bft.py $SOURCE $TARGET'
 default_test_tool = TOOL_DIR + '/' + 'gen_tests.py -o $TARGET $SOURCES'
 default_arenacompr_tool = TOOL_DIR + '/' + 'greed_arena_compress.py $TARGET $TARGET'
 default_ogmo_tool = TOOL_DIR + '/' + 'ogmo2btm.py $SOURCES -o $TARGET'
+
+AddOption('--luac', dest='luac', action='store_true',
+	help='compile lua scripts')
+luac = './luac-32bit -s -o $TARGET $SOURCE' if GetOption('luac') else None
+
 if str(Platform()) == 'win32':
 	Tool('mingw')(env)
 	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32', 'curl', 'pthread'],
@@ -25,12 +30,15 @@ if str(Platform()) == 'win32':
 		DGREED_TEST_TOOL=default_test_tool.replace('/', '\\'),
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool.replace('/', '\\'),
 		DGREED_OGMO_TOOL=default_ogmo_tool.replace('/', '\\'),
+		DGREED_LUA=luac,
 		DGREED_DIR_SEPARATOR='\\', LINKFLAGS=' -mwindows')
 elif str(Platform()) == 'darwin':
-	env.Append(DGREED_LIBS=['curl'], DGREED_FONT_TOOL=default_font_tool,
+	env.Append(DGREED_LIBS=['curl'], 
+		DGREED_FONT_TOOL=default_font_tool,
 		DGREED_TEST_TOOL=default_test_tool,
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool,
 		DGREED_OGMO_TOOL=default_ogmo_tool,
+		DGREED_LUA=luac,
 		DGREED_DIR_SEPARATOR='/',
 		FRAMEWORKS=['SDL', 'OpenGL', 'OpenAL', 'Cocoa'])
 
@@ -62,6 +70,7 @@ else:
 		DGREED_TEST_TOOL=default_test_tool,
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool,
 		DGREED_OGMO_TOOL=default_ogmo_tool,
+		DGREED_LUA=luac,
 		DGREED_DIR_SEPARATOR='/')
 
 	conf = Configure(env)

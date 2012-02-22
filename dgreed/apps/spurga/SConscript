@@ -23,5 +23,9 @@ if env['DGREED_POSTFIX'] == 'd':
 	
 	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + SCRIPTS_DIR
 	for script in Glob(SCRIPTS_DIR + '/*.lua', strings=True):
-		env.Install(dest_dir, script)
+		if env['DGREED_LUA']:
+			env.Command('#' + env['DGREED_BIN_DIR']+'/' + script.replace('.lua', '.lc'),
+			script, env['DGREED_LUA'])
+		else:
+			env.Install(dest_dir, script)
 
