@@ -55,9 +55,9 @@ end
 
 function game.play()
 	local p = levels.current_grid.puzzle
+	levels.current_grid:save_state()
 	if not levels.relax then
 		-- play next level
-		levels.current_grid:save_state()
 		levels.current_grid = grid:new(puzzles.get_next(p), false)
 	else
 		-- relax mode, do manual transition to next level
