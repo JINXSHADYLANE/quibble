@@ -45,6 +45,9 @@
 			15 = fishes
 			16 = diamond
 			17 = stairs
+			18 = button
+			19 = snowman
+			20 = pattern
 		")
 	)
 	(puzzle score
@@ -272,6 +275,42 @@
 			0  5  6  a  a
 			0  7  a  a  a
 			0  a  a  a  a
+		")
+	)
+	(puzzle button
+		(par 64)
+		(img lvl_button.png)
+		(def "
+			0  0  0  0  0
+			0  1  2  3  0
+			0  4  A  5  0
+			0  6  A  7  0
+			0  8  9 10  0
+			0  0  0  0  0
+		")
+	)
+	(puzzle snowman
+		(par 64)
+		(img lvl_snowman.png)
+		(def "
+			0  1  2  3  0
+			0  4  A  6  0
+			0  7  8  9  0
+			0 10 11 12 13
+			0 14 11 16 17
+			0  0 18 19  0
+		")
+	)
+	(puzzle pattern
+		(par 64)
+		(img lvl_pattern.png)
+		(def "
+			0  1  0  1  0
+			1  0  1  0  1
+			0  1  0  1  0
+			1  0  1  0  1
+			0  1  0  1  0
+			1  0  1  0  1
 		")
 	)
 )
