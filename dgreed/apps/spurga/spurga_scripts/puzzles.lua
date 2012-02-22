@@ -109,11 +109,16 @@ function puzzles.preload(puzzle)
 		tex.scale(puzzle.tex, 0.5)
 	else
 		puzzle.tex = tex.load(pre..slices.texture)
-	
 	end
 
 	puzzle.tile_w = slices.tile_w
 	puzzle.tile_h = slices.tile_h
+
+	puzzles.lru_list_front(puzzle)
+
+	if #puzzles.lru > 5 then
+		puzzles.lru_remove_last()
+	end
 end
 
 function puzzles.get_next(puzzle)
@@ -146,6 +151,47 @@ function puzzles.unlock_next(puzzle)
 			end
 
 			break
+		end
+	end
+end
+
+-- move puzzle to front of lru list
+function puzzles.lru_list_front(puzzle)
+	if not puzzles.lru then
+		puzzles.lru = {}
+	end
+	
+	local lru = puzzles.lru
+
+	-- remove puzzle from list, if it's there
+	for i,p in ipairs(lru) do
+		if p.name == puzzle.name then
+			table.remove(lru, i)
+			break
+		end
+	end
+
+	-- insert it to the front
+	table.insert(lru, 1, puzzle)
+end
+
+function puzzles.lru_remove_last()
+	local lru = puzzles.lru
+	if lru and #lru > 4 then
+		local last, last_i = nil, nil
+		-- check last three puzzles
+		for i=#lru,#lru-2,-1 do
+			-- don't ever remove menu and levels textures
+			if lru[i].name ~= 'menu' and lru[i].name ~= 'levels' then
+				last, last_i = lru[i], i
+				break
+			end
+		end
+		
+		if last then
+			tex.free(last.tex)
+			last.tex = nil
+			table.remove(puzzles.lru, last_i)
 		end
 	end
 end
