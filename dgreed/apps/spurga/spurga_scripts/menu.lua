@@ -30,6 +30,12 @@ function menu.update()
 	else
 		menu_grid:touch(nil, grid_pos, function (t)
 			if menu_grid.puzzle.map[t] == 'play' then
+				levels.relax = false
+				levels.prep_colors()
+				states.push('levels')
+			elseif menu_grid.puzzle.map[t] == 'relax' then
+				levels.relax = true
+				levels.prep_colors()
 				states.push('levels')
 			end
 		end)

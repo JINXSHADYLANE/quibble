@@ -13,13 +13,13 @@ function levels.init()
 	keyval.set('pulock:'..first_level, true)
 
 	levels.unlock = {}
-	levels.prep_colors()
 end
 
 function levels.close()
 end
 
 function levels.prep_colors()
+	local c_white = rgba(1, 1, 1, 1)
 	local c_locked = rgba(1, 1, 1, 0.1)
 	local c_unlocked = rgba(122/255, 160/255, 211/255, 1)
 	local c_solved = rgba(236/255, 207/255, 14/255, 1)
@@ -33,21 +33,27 @@ function levels.prep_colors()
 	end
 
 	for i,puzzle in pairs(levels_grid.puzzle.map) do
-		local score = keyval.get('pscore:'..puzzle, -1)
-		local pro_score = puzzles[puzzle].par / 2
-		local wizard_score = pro_score * 3 / 2
+		if not levels.relax then
+			local score = keyval.get('pscore:'..puzzle, -1)
+			local pro_score = puzzles[puzzle].par / 2
+			local wizard_score = pro_score * 3 / 2
 
-		if score > 0 then
-			if score >= wizard_score then
-				m[i] = c_wizard
-			elseif score >= pro_score then
-				m[i] = c_pro
+			if score > 0 then
+				if score >= wizard_score then
+					m[i] = c_wizard
+				elseif score >= pro_score then
+					m[i] = c_pro
+				else
+					m[i] = c_solved
+				end
 			else
-				m[i] = c_solved
+				if not levels.is_locked(puzzle) then
+					m[i] = c_unlocked
+				end
 			end
 		else
 			if not levels.is_locked(puzzle) then
-				m[i] = c_unlocked
+				m[i] = c_white
 			end
 		end
 	end
@@ -102,7 +108,7 @@ function levels.update()
 				if not levels.is_locked(lvl) then
 					levels.last = lvl
 					local puzzle = puzzles[lvl]
-					levels.current_grid = grid:new(puzzle)
+					levels.current_grid = grid:new(puzzle, levels.relax)
 					new_transition_mask(puzzle.w * puzzle.h)
 					states.push('game')
 				end

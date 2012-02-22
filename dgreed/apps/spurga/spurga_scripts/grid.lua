@@ -16,8 +16,8 @@ local active_color = rgba(1, 1, 1, 0.9)
 local tile_transition_len = 0.2
 
 
-function grid:new(puzzle) 
-	local obj = {['puzzle'] = puzzle}
+function grid:new(puzzle, relax) 
+	local obj = {['puzzle'] = puzzle, ['relax'] = relax}
 	setmetatable(obj, self) 
 	obj:load_state()
 	obj.color_map = {}
@@ -42,22 +42,41 @@ end
 
 function grid:save_state()
 	local name = self.puzzle.name
+	
 	if not self.shuffling then
+
+		local state_key 
+		if self.relax then
+			state_key = 'rstate:'..name
+		else
+			state_key = 'pstate:'..name
+		end
+
 		local state = {}
 		for i,s in ipairs(self.state) do
 			state[i] = tostring(s)
 		end
 
 		local state_str = table.concat(state, ',')
-		keyval.set('pstate:'..name, state_str)
-		keyval.set('pmoves:'..name, self.moves)
+		keyval.set(state_key, state_str)
+
+		if not relax then
+			keyval.set('pmoves:'..name, self.moves)
+		end
 	end
 end
 
 function grid:load_state()
 	local name = self.puzzle.name
+
+	local state_key 
+	if self.relax then
+		state_key = 'rstate:'..name
+	else
+		state_key = 'pstate:'..name
+	end
 	
-	local state_str = keyval.get('pstate:'..self.puzzle.name, '')
+	local state_str = keyval.get(state_key, '')
 	if state_str == '' then
 		if name == 'menu' or name == 'levels' or name == 'score' then
 			self:reset_state()
@@ -88,16 +107,18 @@ function grid:is_solved()
 			end
 		end
 
-		-- solved, remember score
-		local keyname = 'pscore:'..p.name
-		local old_score = keyval.get(keyname, -1)
-		local new_score = self:score()
-		if old_score < new_score then
-			keyval.set(keyname, new_score)
-		end
+		if not self.relax then
+			-- solved, remember score
+			local keyname = 'pscore:'..p.name
+			local old_score = keyval.get(keyname, -1)
+			local new_score = self:score()
+			if old_score < new_score then
+				keyval.set(keyname, new_score)
+			end
 
-		-- unlock next two levels
-		puzzles.unlock_next(p)
+			-- unlock next two levels
+			puzzles.unlock_next(p)
+		end
 
 		return true
 	end
@@ -429,6 +450,12 @@ function grid:shuffle()
 	if not self.can_shuffle then
 		self.must_shuffle = n
 		return
+	end
+
+	if self.relax then
+		rand.seed(time.ms())
+	else
+		rand.seed(hash(self.puzzle.name))
 	end
 
 	self.shuffling = true
