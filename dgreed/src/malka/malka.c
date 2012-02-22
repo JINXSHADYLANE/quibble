@@ -219,7 +219,7 @@ static void _malka_prep(const char* luafile) {
 	char* module_path = path_get_folder(luafile);
 	lua_getglobal(l, "package"); 
 	int package = lua_gettop(l);
-	lua_pushfstring(l, "./%s?.lua", module_path);
+	lua_pushfstring(l, "./%s?.lc;./%s?.lua", module_path, module_path);
 	lua_setfield(l, package, "path");
 	lua_pop(l, 1);
 	MEM_FREE(module_path);
@@ -246,13 +246,21 @@ static void _malka_prep(const char* luafile) {
 int malka_run_ex(const char* luafile) {
 	assert(luafile);
 
-	_malka_prep(luafile);
+	char* file = path_change_ext(luafile, "lc");
+	if(!file_exists(file)) {
+		MEM_FREE(file);
+		file = strclone(luafile);
+	}
 
-	if(luaL_dofile(l, luafile)) {
+	_malka_prep(file);
+
+	if(luaL_dofile(l, file)) {
 		const char* err = luaL_checkstring(l, -1);
 		LOG_WARNING("error in lua script:\n%s\n", err);
 		printf("An error occured:\n%s\n", err);
 	}
+
+	MEM_FREE(file);
 
 	return 0;
 }
