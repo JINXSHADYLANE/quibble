@@ -69,6 +69,8 @@ TexHandle tex_load(const char* filename);
 void tex_size(TexHandle tex, uint* width, uint* height); 
 // Frees texture which was loaded with tex_load
 void tex_free(TexHandle tex);
+// Pretend that texture is s times bigger than it actually is
+void tex_scale(TexHandle tex, float s);
 
 // Draws textured rectangle. Source can be null rectangle,
 // destination can have 0 for right and bottom.

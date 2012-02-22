@@ -1,6 +1,29 @@
+function params_find(param)
+	if argv then
+		for i,p in ipairs(argv) do
+			if p == param then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function setup_screen()
+	local w, h = video.native_resolution()
+	if params_find('-retina') or (w == 960 and h == 640) then
+		retina = true
+	end	
+end
+
 pre = 'spurga_assets/'
 scr_size = vec2(320, 480) 
 grid_pos = vec2(scr_size.x / 2, 32 + 384/2)
+
+retina = nil
+ipad = nil
+
+setup_screen()
 
 local hud = require('hud')
 local game = require('game')
@@ -25,14 +48,20 @@ function new_transition_mask(n)
 	end
 end
 
+local string_byte = string.byte
+local string_byte_a = string_byte('a')
+local string_byte_z = string_byte('z')
+local string_byte_A = string_byte('A')
+local string_byte_Z = string_byte('Z')
+
 function is_portal(c)
-	local n = string.byte(c)
-	return n >= string.byte('a') and n <= string.byte('z')
+	local n = string_byte(c)
+	return n >= string_byte_a and n <= string_byte_z
 end
 
 function is_wall(c)
-	local n = string.byte(c)
-	return n >= string.byte('A') and n <= string.byte('Z')
+	local n = string_byte(c)
+	return n >= string_byte_A and n <= string_byte_Z
 end
 
 function game_init()
@@ -43,7 +72,12 @@ function game_init()
 
 	hud.init()
 	puzzles.load(pre..'puzzles.mml', pre..'slices.mml')
-	fnt = font.load(pre..'HelveticaNeueLTCom-Md_14px.bft', 1.0, pre)
+
+	if retina then
+		fnt = font.load(pre..'HelveticaNeueLTCom-Md_29px.bft', 0.5, pre)
+	else
+		fnt = font.load(pre..'HelveticaNeueLTCom-Md_14px.bft', 1.0, pre)
+	end
 
 	new_transition_mask(6*5)
 	

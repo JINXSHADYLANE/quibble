@@ -97,10 +97,19 @@ static int ml_tex_free(lua_State* l) {
 	return 0;
 }
 
+static int ml_tex_scale(lua_State* l) {
+	checkargs(2, "tex.scale");
+	TexHandle* h = checktexhandle(l, 1);
+	float s = luaL_checknumber(l, 2);
+	tex_scale(*h, s);
+	return 0;
+}
+
 static const luaL_Reg tex_fun[] = {
 	{"load", ml_tex_load},
 	{"size", ml_tex_size},
 	{"free", ml_tex_free},
+	{"scale", ml_tex_scale},
 	{NULL, NULL}
 };	
 

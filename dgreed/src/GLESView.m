@@ -28,8 +28,8 @@ static GLESView* global_gles_view = NULL;
 			return nil;
 		}	
         
-        //CGFloat screen_scale = [[UIScreen mainScreen] scale];
-        //self.contentScaleFactor = screen_scale;
+        CGFloat screen_scale = [[UIScreen mainScreen] scale];
+        self.contentScaleFactor = screen_scale;
 		
 		// Create framebuffer and renderbuffer
 		GLuint framebuffer, renderbuffer;

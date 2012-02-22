@@ -30,6 +30,7 @@ typedef struct {
 	uint retain_count;
 	uint width, height;
 	uint gl_id;
+	float scale;
 	bool active;
 } Texture;	
 
@@ -628,6 +629,7 @@ TexHandle tex_load(const char* filename) {
 	new.gl_id = gl_id;
 	new.file = strclone(filename);
 	new.retain_count = 1;
+	new.scale = 1.0f;
 	new.active = true;
 
 	if(inactive_found) {
@@ -667,6 +669,14 @@ void tex_free(TexHandle tex) {
 	}
 }	
 
+void tex_scale(TexHandle tex, float s) {
+	assert(tex < textures.size);
+	Texture* t = DARRAY_DATA_PTR(textures, Texture);
+	assert(t[tex].active);
+
+	t[tex].scale = s;
+}
+
 uint _get_gl_id(TexHandle tex) {
 	assert(tex < textures.size);
 	Texture* t = DARRAY_DATA_PTR(textures, Texture);
@@ -681,8 +691,12 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 	assert(layer < BUCKET_COUNT);
 	assert(dest);
 
-	uint texture_width, texture_height;
-	tex_size(tex, &texture_width, &texture_height);
+	assert(tex < textures.size);
+	Texture* t = DARRAY_DATA_PTR(textures, Texture);
+	assert(t[tex].active);
+	float scale = t[tex].scale;
+	uint texture_width = t[tex].width;
+	uint texture_height = t[tex].height;
 
 	RectF real_source = rectf(0.0f, 0.0f, (float)texture_width,
 		(float)texture_height);
@@ -699,10 +713,10 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 		real_dest.bottom = real_dest.top + height;
 	}	
 
-	real_source.left /= (float)texture_width;
-	real_source.top /= (float)texture_height;
-	real_source.right /= (float)texture_width;
-	real_source.bottom /= (float)texture_height;
+	real_source.left /= (float)texture_width * scale;
+	real_source.top /= (float)texture_height * scale;
+	real_source.right /= (float)texture_width * scale;
+	real_source.bottom /= (float)texture_height * scale;
 
 	TexturedRectDesc new = {tex, real_source, real_dest, tint, rotation};
 	darray_append(&rect_buckets[layer], &new);

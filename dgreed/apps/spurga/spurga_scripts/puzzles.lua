@@ -70,11 +70,12 @@ function puzzles.load(descs_filename, slices_filename)
 			end
 
 			local _l, _t, _r, _b = slice.value:match('(%d+),(%d+),(%d+),(%d+)')
+
 			sliced_puzzle[t] = rect(
 				tonumber(_l), tonumber(_t), 
 				tonumber(_r), tonumber(_b)
 			)
-
+	
 			if not sliced_puzzle.tile_w then
 				sliced_puzzle.tile_w = width(sliced_puzzle[t])
 				sliced_puzzle.tile_h = height(sliced_puzzle[t])
@@ -101,8 +102,16 @@ function puzzles.preload(puzzle)
 	local slices = puzzles.slices[puzzle.name]
 	assert(slices)
 
-	puzzle.tex = tex.load(pre..slices.texture)
 	puzzle.tile_src = slices
+
+	if retina then
+		puzzle.tex = tex.load(pre..(slices.texture:gsub('.png', 'hd.png')))
+		tex.scale(puzzle.tex, 0.5)
+	else
+		puzzle.tex = tex.load(pre..slices.texture)
+	
+	end
+
 	puzzle.tile_w = slices.tile_w
 	puzzle.tile_h = slices.tile_h
 end

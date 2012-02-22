@@ -50,6 +50,7 @@ typedef struct {
 	char* file;
 	uint retain_count, width, height;
 	uint gl_id;
+	float scale;
 	bool active;
 } Texture;
 
@@ -249,7 +250,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glLoadIdentity();
 		
 	if(width > height) {
-        glViewport(0, 0, v_height, v_width);
+        glViewport(0, 0, height, width);
         // Some tricky transformations to properly turn view sideways 
         glOrthof(0.0f, (float)v_width, (float)v_height, 0.0f, -1.0f, 1.0f);
         glTranslatef((float)v_width/2.0f, (float)v_height/2.0f, 0.0f);
@@ -258,7 +259,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
         glScalef((float)v_height/(float)v_width, (float)v_width/(float)v_height, 1.0f);
     }
     else {
-        glViewport(0, 0, v_width, v_height);
+        glViewport(0, 0, width, height);
         glOrthof(0.0f, (float)v_width, (float)v_height, 0.0f, -1.0f, 1.0f);
         //glScalef((float)v_width/(float)v_height, (float)v_height/(float)v_width, 1.0f);
         //glTranslatef(0.0f, (float)v_width/-2.0f, 0.0f);
@@ -649,6 +650,7 @@ TexHandle tex_load(const char* filename) {
 	new_tex.file = strclone(filename);
 	new_tex.retain_count = 1;
 	new_tex.active = true;
+	new_tex.scale = 1.0f;
 	
 	darray_append(&textures, &new_tex);
 	
@@ -679,6 +681,14 @@ void tex_free(TexHandle tex) {
 	}
 }
 
+void tex_scale(TexHandle tex, float s) {
+	assert(tex < textures.size);
+	Texture* t = DARRAY_DATA_PTR(textures, Texture);
+	assert(t[tex].active);
+
+	t[tex].scale = s;
+}
+
 // Fast integer log2 when n is a power of two
 static uint _ilog2(uint v) {
 	static const uint b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0, 0xFF00FF00, 0xFFFF0000}; 
@@ -695,9 +705,13 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 	assert(layer < bucket_count);
 	assert(dest);
 	
-	uint texture_width, texture_height;
-	tex_size(tex, &texture_width, &texture_height);
-	
+	assert(tex < textures.size);
+	Texture* t = DARRAY_DATA_PTR(textures, Texture);
+	assert(t[tex].active);
+	uint fixed_scale = lrintf(t[tex].scale * (tex_mul+1.0f));
+	uint texture_width = t[tex].width;
+	uint texture_height = t[tex].height;
+
 	int16 real_src_l = 0;
 	int16 real_src_t = 0;
 	int16 real_src_r = texture_width;
@@ -739,8 +753,11 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
        || (center_y >= screen_heightf && out_y*out_y > half_sqr_diag))
         return;
 
-	uint wlog2 = _ilog2(texture_width);
-	uint hlog2 = _ilog2(texture_height);
+	assert(is_pow2((texture_width * fixed_scale) >> 15));
+	assert(is_pow2((texture_height * fixed_scale) >> 15));
+
+	uint wlog2 = _ilog2((texture_width * fixed_scale) >> 15);
+	uint hlog2 = _ilog2((texture_height * fixed_scale) >> 15);
 
 	real_src_l = ((real_src_l << 15) - 1) >> wlog2;
 	real_src_t = ((real_src_t << 15) - 1) >> hlog2;

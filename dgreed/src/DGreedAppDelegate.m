@@ -74,7 +74,6 @@ float resign_active_t;
     if(!dgreed_init(0, NULL))
 		return NO;
     
-    printf("%f, %f\n", screen_widthf,  screen_heightf);
     if(screen_widthf > screen_heightf)
         gl_view.rotate_touches = YES;
     

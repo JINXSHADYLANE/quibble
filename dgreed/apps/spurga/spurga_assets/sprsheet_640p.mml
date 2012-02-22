@@ -1,5 +1,6 @@
 (sprsheet spurga_640p
 	(prefix "spurga_assets/")
+	(scale 0.5)
 	(img cup
 		(tex atlas.png)
 		(src 0,0,70,70)
@@ -50,7 +51,7 @@
 	)
 	(img m_shadow
 		(tex atlas.png)
-		(src 492,85,512,138)
+		(src 493,85,511,138)
 	)
 	(img menu_block
 		(tex atlas.png)
@@ -59,5 +60,9 @@
 	(img tile_reflect
 		(tex atlas.png)
 		(src 128,384,256,512)
+	)
+	(img paper
+		(tex paper_640p.png)
+		(src 0,0,640,960)
 	)
 )

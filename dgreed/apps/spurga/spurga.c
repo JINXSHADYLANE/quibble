@@ -21,16 +21,32 @@ void dgreed_init(int argc, const char** argv) {
 
 	rand_init(433);
 
-	video_init_ex(320, 480, 320, 480, "spurga", false);
+	uint width = 320, height = 480;
+	uint v_width = 320, v_height = 480;
+	const char* sprsheet = ASSETS_PRE "sprsheet_320p.mml";
+
+	uint n_width, n_height;
+	video_get_native_resolution(&n_width, &n_height);
+
+	if(params_find("-ipad") != ~0 || (n_width == 1024 && n_height == 768)) {
+		// Ipad
+	}
+	else if(params_find("-retina") != ~0 || (n_width == 960 && n_height == 640)) {
+		// Retina
+		width = 640;
+		height = 960;
+		sprsheet = ASSETS_PRE "sprsheet_640p.mml";
+	}
+
+	video_init_ex(width, height, v_width, v_height, "spurga", false);
 	sound_init();
 
 	keyval_init("spurga.db");
-	sprsheet_init(ASSETS_PRE "sprsheet_320p.mml");
+	sprsheet_init(sprsheet);
 	mfx_init(ASSETS_PRE "effects.mml");
 
 	malka_init_ex(true);
 	malka_params(argc, argv);
-
 
 	malka_states_init(SCRIPTS_PRE "main.lua");
 	malka_states_start();
