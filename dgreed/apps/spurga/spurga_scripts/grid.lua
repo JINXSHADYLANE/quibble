@@ -241,6 +241,9 @@ function grid:draw(pos, layer, transition, hint)
 		puzzles.preload(p)
 	end
 
+	-- move puzzle to lru list front
+	puzzles.lru_list_front(p)
+
 	if not self.half_size then
 		self.half_size = vec2(
 			p.tile_w * p.w / 2, 
