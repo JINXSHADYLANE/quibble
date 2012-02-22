@@ -12,12 +12,14 @@
 
 #include "memory.h"
 #include "mempool.h"
+#include "system.h"
 
 #ifdef MACOSX_BUNDLE
 #include <unistd.h>
 #endif
 
 #include "lua/ltable.h"
+#include "lua/lstate.h"
 
 static lua_State* l;
 static int ml_argc = 0;
@@ -288,6 +290,18 @@ int malka_states_run(const char* luafile) {
 	ml_states_run(l);
 	malka_states_close();
 	return 0;
+}
+
+void malka_gc(uint ms) {
+	uint t = time_ms_current();
+	//lua_gc(l, LUA_GCSETSTEPMUL, 40);
+
+	uint before_mem, after_mem;
+	do {
+		before_mem = l->l_G->totalbytes;
+		lua_gc(l, LUA_GCSTEP, 0);	
+		after_mem = l->l_G->totalbytes;
+	} while(after_mem < before_mem && time_ms_current() < t + ms);
 }
 
 lua_State* malka_lua_state(void) {

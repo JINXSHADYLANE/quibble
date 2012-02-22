@@ -37,4 +37,8 @@ void malka_states_init(const char* luafile);
 void malka_states_close(void);
 extern bool malka_states_step(void);
 
+// Collects garbage for specified number of milliseconds,
+// or less if there's no more garbage
+void malka_gc(uint ms);
+
 #endif
