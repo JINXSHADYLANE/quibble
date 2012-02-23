@@ -22,9 +22,10 @@ hud.music_state = true
 hud.sound_state = true
 
 function hud.init()
+	hud.spr_border = sprsheet.get_handle('border')
+	hud.spr_empty = sprsheet.get_handle('empty')
 	hud.spr_paper = sprsheet.get_handle('paper')
 	hud.spr_tile = sprsheet.get_handle('menu_block')
-	hud.spr_tile_small = sprsheet.get_handle('menu_block')
 	hud.spr_shadow = sprsheet.get_handle('m_shadow')
 	hud.spr_music = sprsheet.get_handle('music')
 	hud.spr_music_off = sprsheet.get_handle('music_off')
@@ -43,21 +44,40 @@ function hud.init()
 
 	hud.buttons = {}
 	hud.last_buttons = {}
+
+	hud.score = nil
+	hud.last_score = nil
+
+	if ipad then
+		hud.render = hud.render_ipad
+	else
+		hud.render = hud.render_iphone
+	end
 end
 
 function hud.close()
 end
 
 function hud.set_title(str)
-	hud.last_title = hud.title
-	hud.title = str
-	hud.title_t = time.s()
+	if str ~= hud.title then
+		hud.last_title = hud.title
+		hud.title = str
+		hud.title_t = time.s()
+	end
 end
 
 function hud.set_buttons(buttons)
 	hud.last_buttons = hud.buttons
 	hud.buttons = buttons
 	hud.buttons_t = time.s()
+end
+
+function hud.set_score(score)
+	if score ~= hud.score then
+		hud.last_score = hud.score
+		hud.score = score
+		hud.score_t = time.s()
+	end
 end
 
 function hud.update()
@@ -135,13 +155,7 @@ local function render_stateful_button(spr_on, spr_off, pos, state, r, col)
 	return result
 end
 
-
-local function render_button(btn, pos, col)
-	local r = rect(
-		pos.x - half_button_width, pos.y - half_button_height,
-		pos.x + half_button_width, pos.y + half_button_height
-	)
-
+local function render_button(btn, pos, r, col)
 	if btn == hud.music then
 		hud.music_state = render_stateful_button(
 			hud.spr_music, hud.spr_music_off, pos, 
@@ -192,24 +206,92 @@ local function render_button(btn, pos, col)
 	end
 end
 
-function hud.render()
+local vec2_zero = vec2(0, 0)
+local color_white = rgba(1, 1, 1, 1)
+
+local bottom_shadow_dest = rect(0, scr_size.y - 74, scr_size.x, scr_size.y - 64)
+local top_background_dest = rect(0, 0, scr_size.x, 32)
+local top_shadow_dest = rect(0, 32 + 10, scr_size.x, 32)
+local title_pos = vec2(scr_size.x / 2, 24)
+
+local button_pos = {nil, nil, nil, nil, nil}
+local button_rect = {nil, nil, nil, nil, nil}
+if ipad then
+	for i=1,5 do
+		local pos = vec2(scr_size.x - 64, i*128+64)
+		button_pos[6-i] = pos
+		button_rect[6-i] = rect(
+			pos.x - half_button_width, pos.y - half_button_height,
+			pos.x + half_button_width, pos.y + half_button_height
+		)
+	end
+else
+	for i=1,5 do
+		local pos = vec2((i-1)*64+32, scr_size.y - 64 + 32)
+		button_pos[i] = pos
+		button_rect[i] = rect(
+			pos.x - half_button_width, pos.y - half_button_height,
+			pos.x + half_button_width, pos.y + half_button_height
+		)
+	end
+end
+
+
+local tile_pos = {nil, nil, nil, nil, nil}
+if ipad then
+	for i=1,6 do
+		tile_pos[i] = vec2(scr_size.x - 128, (i-1)*128)
+	end
+else
+	for i=1,5 do
+		tile_pos[i] = vec2((i-1)*64, scr_size.y - 64)
+	end
+end
+
+local function render_buttons(t)
+	if hud.buttons_t and t - hud.buttons_t < hud_crossfade_len then
+		local tt = clamp(0, 1, (t - hud.buttons_t) / hud_crossfade_len)
+		local c_last = rgba(1, 1, 1, 1 - tt)
+		local c_current = rgba(1, 1, 1, tt)
+		
+		for i=1,5 do
+			local p = button_pos[i] 
+			local r = button_rect[i]
+			if hud.buttons[i] == hud.last_buttons[i] then
+				render_button(hud.buttons[i], p, r, color_white)
+			else
+				if hud.last_buttons[i] then
+					render_button(hud.last_buttons[i], p, r, c_last)
+				end
+				if hud.buttons[i] then
+					render_button(hud.buttons[i], p, r, c_current)
+				end
+			end
+		end
+	else
+		for i=1,5 do
+			render_button(hud.buttons[i], button_pos[i], button_rect[i])
+		end
+	end
+end
+
+function hud.render_iphone()
 	-- paper
-	sprsheet.draw(hud.spr_paper, paper_layer, vec2(0, 0))
+	sprsheet.draw(hud.spr_paper, paper_layer, vec2_zero)
 
 	-- bottom menu tiles
 	for i=1,5 do
-		local p = vec2((i-1)*64, scr_size.y - 64)
-		sprsheet.draw(hud.spr_tile, hud_layer, p)
+		sprsheet.draw(hud.spr_tile, hud_layer, tile_pos[i])
 	end
 
 	-- bottom shadow
-	sprsheet.draw(hud.spr_shadow, hud_layer, rect(0, scr_size.y - 74, scr_size.x, scr_size.y - 64))
+	sprsheet.draw(hud.spr_shadow, hud_layer, bottom_shadow_dest)
 
 	-- top background
-	sprsheet.draw(hud.spr_tile_small, hud_layer, rect(0, 0, scr_size.x, 32))
+	sprsheet.draw(hud.spr_empty, hud_layer, top_background_dest)
 
 	-- top shadow
-	sprsheet.draw(hud.spr_shadow, hud_layer, rect(0, 32 + 10, scr_size.x, 32))
+	sprsheet.draw(hud.spr_shadow, hud_layer, top_shadow_dest)
 
 	local t = time.s()
 
@@ -217,39 +299,42 @@ function hud.render()
 	if hud.title_t and t - hud.title_t < hud_crossfade_len then
 		local tt = clamp(0, 1, (t - hud.title_t) / hud_crossfade_len)
 		text_color.a = tt 
-		video.draw_text_centered(fnt, hud_layer, hud.title, vec2(scr_size.x / 2, 24), 1.0, text_color)
+		video.draw_text_centered(fnt, hud_layer, hud.title, title_pos, 1.0, text_color)
 		text_color.a = 1 - tt
-		video.draw_text_centered(fnt, hud_layer, hud.last_title, vec2(scr_size.x / 2, 24), 1.0, text_color)
+		video.draw_text_centered(fnt, hud_layer, hud.last_title, title_pos, 1.0, text_color)
 		text_color.a = 1
 	else	
-		video.draw_text_centered(fnt, hud_layer, hud.title, vec2(scr_size.x / 2, 24), 1.0, text_color)
+		video.draw_text_centered(fnt, hud_layer, hud.title, title_pos, 1.0, text_color)
 	end
 
-	-- buttons
-	if hud.buttons_t and t - hud.buttons_t < hud_crossfade_len then
-		local tt = clamp(0, 1, (t - hud.buttons_t) / hud_crossfade_len)
-		local c_last = rgba(1, 1, 1, 1 - tt)
-		local c_current = rgba(1, 1, 1, tt)
-		
-		for i=1,5 do
-			local p = vec2((i-1)*64+32, scr_size.y - 64 + 32)
-			if hud.buttons[i] == hud.last_buttons[i] then
-				render_button(hud.buttons[i], p, rgba(1, 1, 1, 1))
-			else
-				if hud.last_buttons[i] then
-					render_button(hud.last_buttons[i], p, c_last)
-				end
-				if hud.buttons[i] then
-					render_button(hud.buttons[i], p, c_current)
-				end
-			end
-		end
-	else
-		for i=1,5 do
-			local p = vec2((i-1)*64+32, scr_size.y - 64 + 32)
-			render_button(hud.buttons[i], p)
-		end
+	render_buttons(t)
+end
+
+local border_back_left_dest = rect(grid_pos.x - 3.5 * 128, 0, grid_pos.x - 2.5 * 128, scr_size.y)
+local border_back_right_dest = rect(grid_pos.x + 2.5 * 128, 0, grid_pos.x + 3.5 * 128, scr_size.y)
+local border_left_dest = rect(grid_pos.x - 2.5 * 128 - 2, 0, grid_pos.x - 2.5 * 128, scr_size.y)
+local border_right_dest = rect(grid_pos.x + 2.5 * 128, 0, grid_pos.x + 2.5 * 128 + 2, scr_size.y)
+
+function hud.render_ipad()
+	-- border background
+	sprsheet.draw(hud.spr_empty, paper_layer-1, border_back_left_dest)
+	sprsheet.draw(hud.spr_empty, paper_layer-1, border_back_right_dest)
+
+	-- border
+	sprsheet.draw(hud.spr_border, paper_layer-1, border_left_dest)
+	sprsheet.draw(hud.spr_border, paper_layer-1, border_right_dest)
+
+	-- paper
+	sprsheet.draw_centered(hud.spr_paper, paper_layer, grid_pos, math.pi/2)
+
+	-- menu tiles
+	for i=1,6 do
+		sprsheet.draw(hud.spr_tile, hud_layer, tile_pos[i])
 	end
+
+	local t = time.s()
+
+	render_buttons(t)
 end
 
 return hud
