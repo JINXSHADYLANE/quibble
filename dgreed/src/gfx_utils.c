@@ -138,6 +138,19 @@ void gfx_transform(Vector2* v, uint n_v, const Vector2* translate, float rotate,
 		v[i] = vec2_add(v[i], *translate);	
 }		
 
+void gfx_matmul(Vector2* v, uint n_v, float* m) {
+	assert(v);
+	assert(n_v);
+	assert(m);
+
+	float nx, ny;
+	for(uint i = 0; i < n_v; ++i) {
+		nx = m[0] * v[i].x + m[1] * v[i].y + m[2];
+		ny = m[3] * v[i].x + m[4] * v[i].y + m[3];
+		v[i].x = nx; v[i].y = ny;
+	}
+}
+
 Color gfx_sample_img(Color* img, uint w, uint h, int x, int y) {
 	assert(img);
 

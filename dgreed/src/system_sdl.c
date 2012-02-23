@@ -14,6 +14,7 @@
 #include "memory.h"
 #include "wav.h"
 #include "darray.h"
+#include "gfx_utils.h"
 
 #define STBI_HEADER_FILE_ONLY
 #include "stb_image.c"
@@ -302,7 +303,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 		rect_buckets[i] = darray_create(sizeof(TexturedRectDesc), 32);
 		line_buckets[i] = darray_create(sizeof(LineDesc), 32);
 		blend_modes[i] = BM_NORMAL;
-		transforms[i] = NULL;
+		transform[i] = NULL;
 	}
 
 	LOG_INFO("Video initialized");
@@ -439,45 +440,37 @@ void video_present(void) {
 
 			glColor4f(r, g, b, a);
 
-			if(rect.rotation == 0.0f) {
-				glTexCoord2f(rect.source.left, rect.source.top);
-				glVertex2f(rect.dest.left, rect.dest.top);
-				
-				glTexCoord2f(rect.source.right, rect.source.top);
-				glVertex2f(rect.dest.right, rect.dest.top);
+			Vector2 points[4] = {
+				{rect.dest.left, rect.dest.top},
+				{rect.dest.right, rect.dest.top},
+				{rect.dest.right, rect.dest.bottom},
+				{rect.dest.left, rect.dest.bottom}
+			};
 
-				glTexCoord2f(rect.source.right, rect.source.bottom);
-				glVertex2f(rect.dest.right, rect.dest.bottom);
-
-				glTexCoord2f(rect.source.left, rect.source.bottom);
-				glVertex2f(rect.dest.left, rect.dest.bottom);
-			}
-			else {
+			if(rect.rotation != 0.0f) {
 				float rot = rect.rotation;
-				Vector2 tl = vec2(rect.dest.left, rect.dest.top);
-				Vector2 tr = vec2(rect.dest.right, rect.dest.top);
-				Vector2 br = vec2(rect.dest.right, rect.dest.bottom);
-				Vector2 bl = vec2(rect.dest.left, rect.dest.bottom);
 				Vector2 cnt = vec2((rect.dest.left + rect.dest.right) / 2.0f,
 					(rect.dest.top + rect.dest.bottom) / 2.0f);
 
-				tl = vec2_add(vec2_rotate(vec2_sub(tl, cnt), rot), cnt);
-				tr = vec2_add(vec2_rotate(vec2_sub(tr, cnt), rot), cnt);
-				br = vec2_add(vec2_rotate(vec2_sub(br, cnt), rot), cnt);
-				bl = vec2_add(vec2_rotate(vec2_sub(bl, cnt), rot), cnt);
+				for(uint k = 0; k < 4; ++k)
+					points[k] = vec2_add(vec2_rotate(vec2_sub(points[k], cnt), rot), cnt);
+			}
+			
+			if(transform[i] != NULL)
+				gfx_matmul(points, 4, transform[i]);
 
-				glTexCoord2f(rect.source.left, rect.source.top);
-				glVertex2f(tl.x, tl.y);
-				
-				glTexCoord2f(rect.source.right, rect.source.top);
-				glVertex2f(tr.x, tr.y);
+			glTexCoord2f(rect.source.left, rect.source.top);
+			glVertex2f(points[0].x, points[0].y);
+			
+			glTexCoord2f(rect.source.right, rect.source.top);
+			glVertex2f(points[1].x, points[1].y);
 
-				glTexCoord2f(rect.source.right, rect.source.bottom);
-				glVertex2f(br.x, br.y);
+			glTexCoord2f(rect.source.right, rect.source.bottom);
+			glVertex2f(points[2].x, points[2].y);
 
-				glTexCoord2f(rect.source.left, rect.source.bottom);
-				glVertex2f(bl.x, bl.y);
-			}	
+			glTexCoord2f(rect.source.left, rect.source.bottom);
+			glVertex2f(points[3].x, points[3].y);
+
 		}
 		if(drawing) {
 			glEnd();
@@ -529,8 +522,16 @@ void video_present(void) {
 				LineDesc line = lines[j];
 				_color_to_4f(line.color, &r, &g, &b, &a);
 				glColor4f(r, g, b, a);
-				glVertex2f(line.start.x, line.start.y);
-				glVertex2f(line.end.x, line.end.y);
+				Vector2 points[2] = {
+					{line.start.x, line.start.y},
+					{line.end.x, line.end.y}
+				};
+
+				if(transform[i] != NULL)
+					gfx_matmul(points, 4, transform[i]);
+
+				glVertex2f(points[0].x, points[0].y);
+				glVertex2f(points[1].x, points[1].y);
 			}
 
 			glEnd();
@@ -566,7 +567,7 @@ void video_set_blendmode(uint layer, BlendMode bmode) {
 void video_set_transform(uint layer, float* matrix) {
 	assert(layer < BUCKET_COUNT);
 
-	transforms[i] = matrix;
+	transform[layer] = matrix;
 }
 
 TexHandle tex_load(const char* filename) {
