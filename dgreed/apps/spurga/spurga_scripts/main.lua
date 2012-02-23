@@ -13,17 +13,25 @@ function setup_screen()
 	local w, h = video.native_resolution()
 	if params_find('-retina') or (w == 960 and h == 640) then
 		retina = true
-	end	
+	elseif params_find('-ipad') or (w == 1024 and h == 768) then
+		ipad = true
+	end
 end
 
 pre = 'spurga_assets/'
-scr_size = vec2(320, 480) 
-grid_pos = vec2(scr_size.x / 2, 32 + 384/2)
 
 retina = nil
 ipad = nil
 
 setup_screen()
+
+if ipad then
+	scr_size = vec2(1024, 768)
+	grid_pos = vec2(scr_size.x / 2, scr_size.y / 2)
+else
+	scr_size = vec2(320, 480) 
+	grid_pos = vec2(scr_size.x / 2, 32 + 384/2)
+end
 
 local hud = require('hud')
 local game = require('game')
@@ -75,6 +83,8 @@ function game_init()
 
 	if retina then
 		fnt = font.load(pre..'HelveticaNeueLTCom-Md_29px.bft', 0.5, pre)
+	elseif ipad then
+		fnt = font.load(pre..'HelveticaNeueLTCom-Md_29px.bft', 1.0, pre)
 	else
 		fnt = font.load(pre..'HelveticaNeueLTCom-Md_14px.bft', 1.0, pre)
 	end

@@ -95,9 +95,7 @@ function game.update()
 		score = grid:score()
 		if grid.moves > 0 then
 			local score_text = 'score: '..tostring(score)
-			if hud.title ~= score_text then
-				hud.set_title(score_text)	
-			end
+			hud.set_title(score_text)	
 		end
 	end
 
