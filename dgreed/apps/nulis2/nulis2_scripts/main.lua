@@ -1,16 +1,14 @@
-require 'game'
-require 'editor'
-require 'menu'
 
 pre = 'nulis2_assets/'
 scr_size = { x = 1024, y = 768 }
 sim_size = scr_size
 scr_type = 'ipad'
+retina = nil
 
 music = nil
 music_source = nil
 
-function game_init()
+function setup_screen()
 	levels_file = 'levels.mml' 
 	if argv then
 		for i,arg in ipairs(argv) do
@@ -23,6 +21,9 @@ function game_init()
 				scr_size = { x = 480, y = 320 }
 				scr_type = 'iphone'
 			end
+			if arg == '-retina' then
+				retina = true
+			end
 		end
 	else
 		local w, h = video.native_resolution()
@@ -32,7 +33,19 @@ function game_init()
 			scr_size = sim_size
 			scr_type = 'iphone'
 		end
+		if w == 960 and h == 640 then
+			retina = true
+		end
 	end
+end
+
+setup_screen()
+
+require 'game'
+require 'editor'
+require 'menu'
+
+function game_init()
 	
 	states.register('game', game)
 	states.register('editor', editor)
