@@ -71,9 +71,14 @@ function puzzles.load(descs_filename, slices_filename)
 
 			local _l, _t, _r, _b = slice.value:match('(%d+),(%d+),(%d+),(%d+)')
 
+			local scale = 1
+			if ipad then
+				scale = 2
+			end
+
 			sliced_puzzle[t] = rect(
-				tonumber(_l), tonumber(_t), 
-				tonumber(_r), tonumber(_b)
+				tonumber(_l)*scale, tonumber(_t)*scale, 
+				tonumber(_r)*scale, tonumber(_b)*scale
 			)
 	
 			if not sliced_puzzle.tile_w then
@@ -104,9 +109,11 @@ function puzzles.preload(puzzle)
 
 	puzzle.tile_src = slices
 
-	if retina then
+	if ipad or retina then
 		puzzle.tex = tex.load(pre..(slices.texture:gsub('.png', 'hd.png')))
-		tex.scale(puzzle.tex, 0.5)
+		if retina then
+			tex.scale(puzzle.tex, 0.5)
+		end
 	else
 		puzzle.tex = tex.load(pre..slices.texture)
 	end
