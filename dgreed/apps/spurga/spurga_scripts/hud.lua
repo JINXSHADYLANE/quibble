@@ -315,6 +315,9 @@ local border_back_right_dest = rect(grid_pos.x + 2.5 * 128, 0, grid_pos.x + 3.5 
 local border_left_dest = rect(grid_pos.x - 2.5 * 128 - 2, 0, grid_pos.x - 2.5 * 128, scr_size.y)
 local border_right_dest = rect(grid_pos.x + 2.5 * 128, 0, grid_pos.x + 2.5 * 128 + 2, scr_size.y)
 
+local score_pos = tile_pos[1] + vec2(64, 64)
+local score_number_pos = tile_pos[1] + vec2(64, 96)
+
 function hud.render_ipad()
 	-- border background
 	sprsheet.draw(hud.spr_empty, paper_layer-1, border_back_left_dest)
@@ -333,6 +336,33 @@ function hud.render_ipad()
 	end
 
 	local t = time.s()
+
+	-- score
+	if hud.score_t and t - hud.score_t < hud_crossfade_len then
+		local tt = clamp(0, 1, (t - hud.score_t) / hud_crossfade_len)
+		text_color.a = tt 
+		if hud.score and not hud.last_score then
+			video.draw_text_centered(fnt, hud_layer, 'score', score_pos, 1.0, text_color)
+		end
+		if hud.score then
+			video.draw_text_centered(fnt, hud_layer, hud.score, score_number_pos, 1.0, text_color)
+		end
+		text_color.a = 1 - tt
+		if hud.last_score and not hud.score then
+			video.draw_text_centered(fnt, hud_layer, 'score', score_pos, 1.0, text_color)
+		end
+		if hud.last_score then
+			video.draw_text_centered(fnt, hud_layer, hud.last_score, score_number_pos, 1.0, text_color)
+		end
+		text_color.a = 1
+		if hud.score and hud.last_score then
+			video.draw_text_centered(fnt, hud_layer, 'score', score_pos, 1.0, text_color)
+		end
+	elseif hud.score then
+		video.draw_text_centered(fnt, hud_layer, 'score', score_pos, 1.0, text_color)
+		video.draw_text_centered(fnt, hud_layer, hud.score, score_number_pos, 1.0, text_color)
+	end
+
 
 	render_buttons(t)
 end

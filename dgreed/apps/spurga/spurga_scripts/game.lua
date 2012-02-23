@@ -30,6 +30,7 @@ function game.enter()
 end
 
 function game.leave()
+	hud.set_score(nil)
 	levels.current_grid.can_shuffle = false
 	levels.current_grid:save_state()
 	levels.prep_colors()
@@ -96,6 +97,7 @@ function game.update()
 		if grid.moves > 0 then
 			local score_text = 'score: '..tostring(score)
 			hud.set_title(score_text)	
+			hud.set_score(score)
 		end
 	end
 

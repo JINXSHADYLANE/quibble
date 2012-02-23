@@ -51,6 +51,7 @@ typedef struct {
 bool draw_gfx_debug = false;
 
 static BlendMode last_blend_mode;
+static float* transform[BUCKET_COUNT];
 static BlendMode blend_modes[BUCKET_COUNT];
 static DArray rect_buckets[BUCKET_COUNT];
 static DArray line_buckets[BUCKET_COUNT];
@@ -301,6 +302,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 		rect_buckets[i] = darray_create(sizeof(TexturedRectDesc), 32);
 		line_buckets[i] = darray_create(sizeof(LineDesc), 32);
 		blend_modes[i] = BM_NORMAL;
+		transforms[i] = NULL;
 	}
 
 	LOG_INFO("Video initialized");
@@ -559,6 +561,12 @@ void video_set_blendmode(uint layer, BlendMode bmode) {
 	assert(layer < BUCKET_COUNT);
 
 	blend_modes[layer] = bmode;
+}
+
+void video_set_transform(uint layer, float* matrix) {
+	assert(layer < BUCKET_COUNT);
+
+	transforms[i] = matrix;
 }
 
 TexHandle tex_load(const char* filename) {

@@ -241,14 +241,14 @@ bool level_is_unlocked(const char* name) {
 	assert(strlen(key_name) + strlen(name) < 32);
 	strcat(key_name, name);
 
-	return strcmp(name, "l1") == 0 || keyval_get_bool(key_name, false);
+	return strcmp(name, "l1") == 0 || strcmp(name, "l40") == 0 || keyval_get_bool(key_name, false);
 }
 
 bool level_is_unlocked_n(uint n) {
 	char key_name[32];
 	sprintf(key_name, "ulck_l%u", n);
 
-	return n == 1 || keyval_get_bool(key_name, false);
+	return n == 1 || n == 40 || keyval_get_bool(key_name, false);
 }
 
 bool level_is_solved(const char* name) {

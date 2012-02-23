@@ -33,7 +33,6 @@ void dgreed_init(int argc, const char** argv) {
 		v_width = width = 1024;
 		v_height = height = 768;
 		sprsheet = ASSETS_PRE "sprsheet_768p.mml";
-		printf("ipad\n");
 	}
 	else if(params_find("-retina") != ~0 || (n_width == 960 && n_height == 640)) {
 		// Retina
