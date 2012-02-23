@@ -1,6 +1,5 @@
-(sprsheet spurga_640p
+(sprsheet spurga_768p
 	(prefix "spurga_assets/")
-	(scale 0.5)
 	(img cup
 		(tex atlas.png)
 		(src 0,0,70,70)

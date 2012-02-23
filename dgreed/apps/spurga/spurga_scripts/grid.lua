@@ -15,6 +15,8 @@ local active_color = rgba(1, 1, 1, 0.9)
 -- length of single tile transition phase, in normalized time
 local tile_transition_len = 0.2
 
+local vec2_zero = vec2(0, 0)
+
 
 function grid:new(puzzle, relax) 
 	local obj = {['puzzle'] = puzzle, ['relax'] = relax}
@@ -349,7 +351,7 @@ function grid:draw(pos, layer, transition, hint)
 						end
 					else
 						if anim_offset == nil then
-							anim_offset = vec2(0, 0)
+							anim_offset = vec2_zero
 						end
 						-- animated tile
 						self:draw_shifted_tile(
@@ -375,6 +377,8 @@ end
 function grid:shift(column_x, row_y, offset)
 	assert(column_x ~= nil or row_y ~= nil)
 	assert(column_x == nil or row_y == nil)
+
+	local fmod = math.fmod
 
 	-- count a move
 	if not self.shuffling then
@@ -406,9 +410,9 @@ function grid:shift(column_x, row_y, offset)
 
 	-- make a new, rotated row/column table
 	local new = {}
-	local off = math.fmod(offset, #prev)
+	local off = fmod(offset, #prev)
 	for i = 1, #prev do
-		new[i] = prev[math.fmod(#prev - off + (i-1), #prev) + 1]
+		new[i] = prev[fmod(#prev - off + (i-1), #prev) + 1]
 	end
 	
 	-- update current state with rotated row/column
@@ -464,8 +468,8 @@ function grid:shuffle()
 	self.shuffling = true
 
 	self.start_anim_t = time.s()
-	self.start_anim_offset = vec2(0, 0)
-	self.end_anim_offset = vec2(0, 0)
+	self.start_anim_offset = vec2_zero
+	self.end_anim_offset = vec2_zero
 	self.anim_len = 1
 
 	local mask_x, mask_y, shift_offset
@@ -531,8 +535,8 @@ function grid:unscramble()
 	self.shuffling = true
 
 	self.start_anim_t = time.s()
-	self.start_anim_offset = vec2(0, 0)
-	self.end_anim_offset = vec2(0, 0)
+	self.start_anim_offset = vec2_zero
+	self.end_anim_offset = vec2_zero
 	self.anim_len = 1
 
 	local n = #self.scramble_offset
@@ -708,7 +712,7 @@ function grid:touch(t, pos, touch_cb)
 
 	-- calculate move offset
 	if not self.move_offset then
-		self.move_offset = vec2(0, 0)
+		self.move_offset = vec2_zero 
 	end
 
 	if move_x then
