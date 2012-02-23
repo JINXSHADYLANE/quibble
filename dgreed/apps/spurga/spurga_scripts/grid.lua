@@ -492,7 +492,7 @@ function grid:shuffle()
 end
 
 function grid:scramble()
-	local n = 20
+	local n = 18 
 	local moves_x = {}
 	local moves_y = {}
 	local moves_offset = {}
@@ -520,6 +520,8 @@ function grid:scramble()
 end
 
 function grid:unscramble()
+	self.start_anim_t = nil
+
 	if not self.can_shuffle then
 		self.must_unscramble = true
 		return
@@ -654,13 +656,23 @@ function grid:touch(t, pos, touch_cb)
 		return
 	end
 
+	local abs = math.abs
+
 	local off_x = t.hit_pos.x - t.pos.x
 	local off_y = t.hit_pos.y - t.pos.y
 	local move_x = self.move_mask_x == nil
 	local move_y = self.move_mask_y == nil
 	if move_x and move_y then
-		move_x = math.abs(off_x) > touch_move_dist
-		move_y = math.abs(off_y) > touch_move_dist
+		move_x = abs(off_x) > touch_move_dist
+		move_y = abs(off_y) > touch_move_dist
+
+		if move_x and move_y then
+			if abs(off_x) > abs(off_y) then
+				move_y = nil
+			else
+				move_x = nil
+			end
+		end
 	end
 
 	if not (self.move_mask_x or self.move_mask_y) then
@@ -699,12 +711,10 @@ function grid:touch(t, pos, touch_cb)
 		self.move_offset = vec2(0, 0)
 	end
 
-	if move_x ~= move_y then
-		if move_x then
-			self.move_offset = vec2(off_x, 0) 
-		elseif move_y then
-			self.move_offset = vec2(0, off_y)
-		end
+	if move_x then
+		self.move_offset = vec2(off_x, 0) 
+	elseif move_y then
+		self.move_offset = vec2(0, off_y)
 	end
 end
 
