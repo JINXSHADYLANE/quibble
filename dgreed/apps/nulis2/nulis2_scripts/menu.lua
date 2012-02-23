@@ -87,20 +87,25 @@ function split_rect(r, ratio, w)
 	return a, b
 end
 
+local filled_anim_scale = 1
+if retina then
+	filled_anim_scale = 0.5
+end
+
 function draw_filled_anim(spr, frame, layer, pos, rot, col, fill)
 	local tex, src = sprsheet.get_anim(spr, frame)
 	local half_width, half_height = half_icon_w, half_icon_h
 	local src_filled, src_empty = split_rect(src, fill, half_width * 2)
-	local pf = pos + rotate(vec2(lerp(-half_width, 0, fill), 0), rot)
-	local pe = pos + rotate(vec2(lerp(0, half_width,  fill), 0), rot) 
+	local pf = pos + rotate(vec2(lerp(-half_width*filled_anim_scale, 0, fill), 0), rot)
+	local pe = pos + rotate(vec2(lerp(0, half_width*filled_anim_scale,  fill), 0), rot) 
 	local empty_col = col * 0.5 
 
 	if fill > 0.01 then
-		video.draw_rect_centered(tex, layer, src_filled, pf, rot, 1.0, col)
+		video.draw_rect_centered(tex, layer, src_filled, pf, rot, filled_anim_scale, col)
 	end
 
 	if fill < 0.99 then
-		video.draw_rect_centered(tex, layer, src_empty, pe, rot, 1.0, empty_col)
+		video.draw_rect_centered(tex, layer, src_empty, pe, rot, filled_anim_scale, empty_col)
 	end
 end
 
