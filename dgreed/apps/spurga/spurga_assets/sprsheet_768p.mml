@@ -52,6 +52,10 @@
 		(tex atlas.png)
 		(src 493,85,511,138)
 	)
+	(img m_shadow_h
+		(tex atlas.png)
+		(src 416,166,466,180)
+	)
 	(img menu_block
 		(tex atlas.png)
 		(src 0,384,128,512)
