@@ -60,7 +60,7 @@ void video_present(void);
 uint video_get_frame(void);
 // Sets a blendmode for a layer
 void video_set_blendmode(uint layer, BlendMode bmode);
-// Sets a custom 2x2 affine transform matrix for a layer,
+// Sets a custom 3x2 affine transform matrix for a layer,
 // NULL means identity.
 void video_set_transform(uint layer, float* matrix);
 

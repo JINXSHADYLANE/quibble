@@ -28,6 +28,9 @@ void gfx_draw_textured_rect(TexHandle tex, uint layer, const RectF* source,
 void gfx_transform(Vector2* v, uint n_v, const Vector2* translate, float rotate, 
 	float scale);
 
+// Multiplies array of vectors with 3x2 affine matrix
+void gfx_matmul(Vector2* v, uint n_v, float* m);
+
 // Samples 32bit image at some coordinate. If coordinate is outside of texture
 // it is clamped to nearest edge pixel
 Color gfx_sample_img(Color* img, uint w, uint h, int x, int y);

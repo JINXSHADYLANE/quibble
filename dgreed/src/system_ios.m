@@ -3,6 +3,7 @@
 #include "memory.h"
 #include "darray.h"
 #include "wav.h"
+#include "gfx_utils.h"
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
@@ -82,6 +83,7 @@ bool draw_gfx_debug = false;
 
 static BlendMode last_blend_mode;
 static BlendMode blend_modes[bucket_count];
+static float* transform[bucket_count];
 static DArray rect_buckets[bucket_count];
 static DArray line_buckets[bucket_count];
 static DArray textures;
@@ -442,69 +444,47 @@ void video_present(void) {
 			vertex_buffer.size += 4;
 			assert(vertex_buffer.size <= vertex_buffer.reserved);
 			
-			Vector2 tl = vec2(rects[j].dest.left, rects[j].dest.top);
-			Vector2 tr = vec2(rects[j].dest.right, rects[j].dest.top);
-			Vector2 br = vec2(rects[j].dest.right, rects[j].dest.bottom);
-			Vector2 bl = vec2(rects[j].dest.left, rects[j].dest.bottom);
-			
+			Vector2 points[4] = {
+				{rects[j].dest.left, rects[j].dest.top},
+				{rects[j].dest.right, rects[j].dest.top},
+				{rects[j].dest.right, rects[j].dest.bottom},
+				{rects[j].dest.left, rects[j].dest.bottom}
+			};
+
 			if(rects[j].rotation != 0.0f) {
 				float rot = rects[j].rotation;
 				Vector2 cnt = vec2((rects[j].dest.left + rects[j].dest.right) * 0.5f,
 								   (rects[j].dest.top + rects[j].dest.bottom) * 0.5f);
 				
-#if 0
-				tl = vec2_add(vec2_rotate(vec2_sub(tl, cnt), rot), cnt);
-				tr = vec2_add(vec2_rotate(vec2_sub(tr, cnt), rot), cnt);
-				br = vec2_add(vec2_rotate(vec2_sub(br, cnt), rot), cnt);
-				bl = vec2_add(vec2_rotate(vec2_sub(bl, cnt), rot), cnt);
-#else
-				// Inlining this by hand yields noticable perf improvement
 				float dx, dy;
 				float s = sinf(rot);
 				float c = cosf(rot);
 
-				dx = tl.x - cnt.x; dy = tl.y - cnt.y;
-				tl.x = c * dx - s * dy + cnt.x;
-				tl.y = s * dx + c * dy + cnt.y;
-
-				dx = tr.x - cnt.x; dy = tr.y - cnt.y;
-				tr.x = c * dx - s * dy + cnt.x;
-				tr.y = s * dx + c * dy + cnt.y;
-
-				dx = br.x - cnt.x; dy = br.y - cnt.y;
-				br.x = c * dx - s * dy + cnt.x;
-				br.y = s * dx + c * dy + cnt.y;
-
-				dx = bl.x - cnt.x; dy = bl.y - cnt.y;
-				bl.x = c * dx - s * dy + cnt.x;
-				bl.y = s * dx + c * dy + cnt.y;
-#endif
+				for(uint l = 0; l < 4; ++l) {
+					dx = points[l].x - cnt.x;
+					dy = points[l].y - cnt.y;
+					points[l].x = c * dx - s * dy + cnt.x;
+					points[l].y = s * dx + c * dy + cnt.y;
+				}
 			}
-			
-			
-			vb[k+0].x = tl.x;
-			vb[k+0].y = tl.y;
-			vb[k+0].color = c;
-			vb[k+0].u = rects[j].src_l;
-			vb[k+0].v = rects[j].src_t;
-			
-			vb[k+1].x = tr.x;
-			vb[k+1].y = tr.y;
-			vb[k+1].color = c;
-			vb[k+1].u = rects[j].src_r;
-			vb[k+1].v = rects[j].src_t;
-			
-			vb[k+2].x = br.x;
-			vb[k+2].y = br.y;
-			vb[k+2].color = c;
-			vb[k+2].u = rects[j].src_r;
-			vb[k+2].v = rects[j].src_b;
-			
-			vb[k+3].x = bl.x;
-			vb[k+3].y = bl.y;
-			vb[k+3].color = c;
-			vb[k+3].u = rects[j].src_l;
-			vb[k+3].v = rects[j].src_b;
+
+			if(transform[i] != NULL) 
+				gfx_matmul(points, 4, transform[i]);
+
+			Vector2 src[4] = {
+				{rects[j].src_l, rects[j].src_t},
+				{rects[j].src_r, rects[j].src_t},
+				{rects[j].src_r, rects[j].src_b},
+				{rects[j].src_l, rects[j].src_b}
+			};
+
+			for(uint l = 0; l < 4; ++l) {
+				vb[k+l].x = points[l].x;
+				vb[k+l].y = points[l].y;
+				vb[k+l].color = c;
+				vb[k+l].u = src[l].x;
+				vb[k+l].v = src[l].y;
+			}
 		}
 
 		if(vertex_buffer.size > 0) {
@@ -537,13 +517,21 @@ void video_present(void) {
 				g = (g * a) << 8;
 				b = (b * a) << 8;
 				c = COLOR_RGBA(r, g, b, a);
+			
+				Vector2 points[2] = {
+					{lines[j].start.x, lines[j].start.y},
+					{lines[j].end.x, lines[j].end.y}
+				};
 
-				vb[k].x = lines[j].start.x;
-				vb[k].y = lines[j].start.y;
+				if(transform[i] != NULL)
+					gfx_matmul(points, 2, transform[i]);
+
+				vb[k].x = points[0].x;
+				vb[k].y = points[0].y;
 				vb[k].color = c;
 				k++;
-				vb[k].x = lines[j].end.x;
-				vb[k].y = lines[j].end.y;
+				vb[k].x = points[1].x;
+				vb[k].y = points[1].x;
 				vb[k].color = c;
 				k++;
 			}
@@ -587,6 +575,12 @@ uint video_get_frame(void) {
 void video_set_blendmode(uint layer, BlendMode bmode) {
 	assert(layer < bucket_count);
 	blend_modes[layer] = bmode;
+}
+
+void video_set_transform(uint layer, float* matrix) {
+	assert(layer < bucket_count);
+
+	transform[layer] = matrix;
 }
 
 TexHandle tex_load(const char* filename) {
