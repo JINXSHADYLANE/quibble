@@ -73,7 +73,7 @@
 		(tex "tut_two_fingers.png")
 	)
 	(img tut_menu_fingers
-		(tex "tut_menu_fingers.png")
+		(tex "tut_three_fingers.png")
 	)
 	(img clock
 		(tex "clock.png")
