@@ -68,5 +68,9 @@
 		(tex paper_320p.png)
 		(src 0,0,320,480)
 	)
+	(img empty
+		(tex atlas_s.png)
+		(src 52,244,54,246)
+	)
 )
 

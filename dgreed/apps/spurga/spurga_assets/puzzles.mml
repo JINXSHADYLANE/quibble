@@ -49,6 +49,7 @@
 			19 = snowman
 			20 = pattern
 			21 = birds
+			22 = smile
 		")
 	)
 	(puzzle score
@@ -324,6 +325,18 @@
 			11 12 13 14 15
 			a  25 16 17 18
 			a  a  19 20 0
+		")
+	)
+	(puzzle smile
+		(par 64)
+		(img lvl_smile.png)
+		(def "
+			0  0  0  0  0
+			0  1  2  3  0
+			0  4  A  5  0
+			0  6  7  8  0
+			0  9  10 11 0
+			0  0  0  0  0
 		")
 	)
 )
