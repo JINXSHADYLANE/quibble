@@ -1,83 +1,59 @@
 (sprsheet spurga_768p
 	(prefix "spurga_assets/")
-	(img cup
+	(img play
 		(tex atlas.png)
 		(src 0,0,70,70)
 	)
-	(img arrow
+	(img reset
 		(tex atlas.png)
 		(src 70,0,140,70)
 	)
-	(img play
+	(img music
 		(tex atlas.png)
 		(src 140,0,210,70)
 	)
-	(img reset
+	(img sound
 		(tex atlas.png)
 		(src 210,0,280,70)
 	)
-	(img star
+	(img query
 		(tex atlas.png)
 		(src 280,0,350,70)
 	)
 	(img hint
 		(tex atlas.png)
-		(src 420,70,490,154)
+		(src 350,0,420,84)
 	)
 	(img quit
 		(tex atlas.png)
 		(src 420,0,512,70)
 	)
-	(img query
+	(img music_off
 		(tex atlas.png)
-		(src 0,70,70,140)
-	)
-	(img sound
-		(tex atlas.png)
-		(src 242,70,328,156)
+		(src 0,70,84,155)
 	)
 	(img sound_off
 		(tex atlas.png)
-		(src 70,70,156,156)
-	)
-	(img music
-		(tex atlas.png)
-		(src 328,70,414,156)
-	)
-	(img music_off
-		(tex atlas.png)
-		(src 156,70,242,156)
+		(src 85,70,179,154)
 	)
 	(img m_shadow
 		(tex atlas.png)
-		(src 493,85,511,138)
+		(src 80,206,85,256)
 	)
 	(img m_shadow_h
 		(tex atlas.png)
-		(src 416,166,466,180)
+		(src 0,220,50,225)
 	)
 	(img menu_block
 		(tex atlas.png)
-		(src 0,384,128,512)
-	)
-	(img white_block
-		(tex atlas.png)
-		(src 20,404,108,492)
-	)
-	(img tile_reflect
-		(tex atlas.png)
-		(src 128,384,256,512)
+		(src 384,128,512,256)
 	)
 	(img paper
 		(tex paper_768p.png)
 		(src 0,0,768,1024)
 	)
-	(img border
-		(tex atlas.png)
-		(src 509,153,511,155)
-	)
 	(img empty
 		(tex atlas.png)
-		(src 106,490,108,492)
+		(src 450,200,452,202)
 	)
 )
