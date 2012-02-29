@@ -21,6 +21,7 @@ function menu.enter()
 end
 
 function menu.leave()
+	mfx.trigger('transition')
 	menu_grid:save_state()
 end
 

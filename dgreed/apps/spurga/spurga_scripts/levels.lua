@@ -94,6 +94,7 @@ function levels.leave()
 end
 
 function levels.play()
+	mfx.trigger('transition')
 	levels.current_grid = grid:new(puzzles[levels.last or levels.first_unsolved()])
 	puzzles.preload(levels.current_grid.puzzle)
 	states.push('game')
@@ -107,6 +108,7 @@ function levels.update()
 			local lvl = levels_grid.puzzle.map[t]
 			if lvl then
 				if not levels.is_locked(lvl) then
+					mfx.trigger('transition')
 					levels.last = lvl
 					local puzzle = puzzles[lvl]
 					levels.current_grid = grid:new(puzzle, levels.relax)
