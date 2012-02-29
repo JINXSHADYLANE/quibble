@@ -3,47 +3,51 @@
 	(scale 0.5)
 	(img play
 		(tex atlas.png)
-		(src 0,0,70,70)
+		(src 32,0,96,128)
+	)
+	(img next
+		(tex atlas.png)
+		(src 160,0,224,128)
 	)
 	(img reset
 		(tex atlas.png)
-		(src 70,0,140,70)
-	)
-	(img music
-		(tex atlas.png)
-		(src 140,0,210,70)
-	)
-	(img sound
-		(tex atlas.png)
-		(src 210,0,280,70)
-	)
-	(img query
-		(tex atlas.png)
-		(src 280,0,350,70)
-	)
-	(img hint
-		(tex atlas.png)
-		(src 350,0,420,84)
+		(src 286,0,356,128)
 	)
 	(img quit
 		(tex atlas.png)
-		(src 420,0,512,70)
+		(src 404,0,492,128)
 	)
-	(img music_off
+	(img hint
 		(tex atlas.png)
-		(src 0,70,84,155)
+		(src 26,128,102,256)
+	)
+	(img query
+		(tex atlas.png)
+		(src 172,128,212,256)
+	)
+	(img sound
+		(tex atlas.png)
+		(src 256,128,384,256)
+	)
+	(img music
+		(tex atlas.png)
+		(src 384,128,512,256)
 	)
 	(img sound_off
 		(tex atlas.png)
-		(src 85,70,179,154)
+		(src 256,256,384,384)
+	)
+	(img music_off
+		(tex atlas.png)
+		(src 384,256,512,384)
 	)
 	(img m_shadow
 		(tex atlas.png)
-		(src 80,206,85,256)
+		(src 318,448,322,512)
 	)
 	(img menu_block
 		(tex atlas.png)
-		(src 384,128,512,256)
+		(src 384,384,512,512)
 	)
 	(img paper
 		(tex paper_768p.png)
@@ -51,6 +55,6 @@
 	)
 	(img empty
 		(tex atlas.png)
-		(src 450,200,452,202)
+		(src 450,450,452,452)
 	)
 )
