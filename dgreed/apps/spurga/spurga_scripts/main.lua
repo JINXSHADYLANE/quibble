@@ -26,8 +26,8 @@ ipad = nil
 setup_screen()
 
 if ipad then
-	scr_size = vec2(1024, 768)
-	grid_pos = vec2(scr_size.x / 2, scr_size.y / 2)
+	scr_size = vec2(768, 1024)
+	grid_pos = vec2(scr_size.x / 2, 108 + 768/2)
 else
 	scr_size = vec2(320, 480) 
 	grid_pos = vec2(scr_size.x / 2, 32 + 384/2)

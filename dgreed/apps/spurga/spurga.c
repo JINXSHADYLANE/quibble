@@ -30,8 +30,8 @@ void dgreed_init(int argc, const char** argv) {
 
 	if(params_find("-ipad") != ~0 || (n_width == 1024 && n_height == 768)) {
 		// Ipad
-		v_width = width = 1024;
-		v_height = height = 768;
+		v_width = width = 768;
+		v_height = height = 1024;
 		sprsheet = ASSETS_PRE "sprsheet_768p.mml";
 	}
 	else if(params_find("-retina") != ~0 || (n_width == 960 && n_height == 640)) {
