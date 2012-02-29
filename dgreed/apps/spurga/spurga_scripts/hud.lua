@@ -212,15 +212,21 @@ local color_white = rgba(1, 1, 1, 1)
 local bottom_shadow_dest = rect(0, scr_size.y - 74, scr_size.x, scr_size.y - 64)
 local top_background_dest = rect(0, 0, scr_size.x, 32)
 local top_shadow_dest = rect(0, 32 + 10, scr_size.x, 32)
-local title_pos = vec2(scr_size.x / 2, 24)
+
+local title_pos
+if ipad then
+	title_pos = vec2(scr_size.x / 2, 42) 
+else
+	title_pos = vec2(scr_size.x / 2, 24)
+end
 
 local button_pos = {nil, nil, nil, nil, nil}
 local button_rect = {nil, nil, nil, nil, nil}
 if ipad then
 	for i=1,5 do
-		local pos = vec2(scr_size.x - 64, i*128+64)
-		button_pos[6-i] = pos
-		button_rect[6-i] = rect(
+		local pos = vec2(math.floor((i-1)*(768/5) + 64), scr_size.y - 128 + 64)
+		button_pos[i] = pos
+		button_rect[i] = rect(
 			pos.x - half_button_width, pos.y - half_button_height,
 			pos.x + half_button_width, pos.y + half_button_height
 		)
@@ -238,11 +244,7 @@ end
 
 
 local tile_pos = {nil, nil, nil, nil, nil}
-if ipad then
-	for i=1,6 do
-		tile_pos[i] = vec2(scr_size.x - 128, (i-1)*128)
-	end
-else
+if not ipad then
 	for i=1,5 do
 		tile_pos[i] = vec2((i-1)*64, scr_size.y - 64)
 	end
@@ -275,6 +277,19 @@ local function render_buttons(t)
 	end
 end
 
+local function render_title(t)
+	if hud.title_t and t - hud.title_t < hud_crossfade_len then
+		local tt = clamp(0, 1, (t - hud.title_t) / hud_crossfade_len)
+		text_color.a = tt 
+		video.draw_text_centered(fnt, hud_layer, hud.title, title_pos, 1.0, text_color)
+		text_color.a = 1 - tt
+		video.draw_text_centered(fnt, hud_layer, hud.last_title, title_pos, 1.0, text_color)
+		text_color.a = 1
+	else	
+		video.draw_text_centered(fnt, hud_layer, hud.title, title_pos, 1.0, text_color)
+	end
+end
+
 function hud.render_iphone()
 	-- paper
 	sprsheet.draw(hud.spr_paper, paper_layer, vec2_zero)
@@ -295,76 +310,66 @@ function hud.render_iphone()
 
 	local t = time.s()
 
-	-- title
-	if hud.title_t and t - hud.title_t < hud_crossfade_len then
-		local tt = clamp(0, 1, (t - hud.title_t) / hud_crossfade_len)
-		text_color.a = tt 
-		video.draw_text_centered(fnt, hud_layer, hud.title, title_pos, 1.0, text_color)
-		text_color.a = 1 - tt
-		video.draw_text_centered(fnt, hud_layer, hud.last_title, title_pos, 1.0, text_color)
-		text_color.a = 1
-	else	
-		video.draw_text_centered(fnt, hud_layer, hud.title, title_pos, 1.0, text_color)
-	end
-
+	render_title(t)
 	render_buttons(t)
 end
 
-local border_back_left_dest = rect(grid_pos.x - 3.5 * 128, 0, grid_pos.x - 2.5 * 128, scr_size.y)
-local border_back_right_dest = rect(grid_pos.x + 2.5 * 128, 0, grid_pos.x + 3.5 * 128, scr_size.y)
-local border_left_dest = rect(grid_pos.x - 2.5 * 128 - 2, 0, grid_pos.x - 2.5 * 128, scr_size.y)
-local border_right_dest = rect(grid_pos.x + 2.5 * 128, 0, grid_pos.x + 2.5 * 128 + 2, scr_size.y)
+local border_back_left_dest = rect(
+	grid_pos.x - 3.5 * 128, grid_pos.y - 3 * 128, 
+	grid_pos.x - 2.5 * 128, grid_pos.y + 3 * 128
+)
+local border_back_right_dest = rect(
+	grid_pos.x + 2.5 * 128, grid_pos.y - 3 * 128, 
+	grid_pos.x + 3.5 * 128, grid_pos.y + 3 * 128 
+)
+local border_back_top_dest = rect(
+	grid_pos.x - 2.5 * 128, grid_pos.y - 4 * 128,
+	grid_pos.x + 2.5 * 128, grid_pos.y - 3 * 128
+)
+local border_back_bottom_dest = rect(
+	grid_pos.x - 2.5 * 128, grid_pos.y + 3 * 128,
+	grid_pos.x + 2.5 * 128, grid_pos.y + 4 * 128
+)
 
-local score_pos = tile_pos[1] + vec2(64, 64)
-local score_number_pos = tile_pos[1] + vec2(64, 96)
+local border_left_dest = rect(
+	grid_pos.x - 2.5 * 128 - 2, grid_pos.y - 3 * 128, 
+	grid_pos.x - 2.5 * 128, grid_pos.y + 3 * 128 
+)
+local border_right_dest = rect(
+	grid_pos.x + 2.5 * 128, grid_pos.y - 3 * 128, 
+	grid_pos.x + 2.5 * 128 + 2, grid_pos.y + 3 * 128 
+)
+local border_top_dest = rect(
+	grid_pos.x - 2.5 * 128 - 2, grid_pos.y - 3 * 128 - 2,
+	grid_pos.x + 2.5 * 128 + 2, grid_pos.y - 3 * 128
+)
+local border_bottom_dest = rect(
+	grid_pos.x - 2.5 * 128 - 2, grid_pos.y + 3 * 128,
+	grid_pos.x + 2.5 * 128 + 2, grid_pos.y + 3 * 128 + 2
+)
 
 function hud.render_ipad()
+	
 	-- border background
 	sprsheet.draw(hud.spr_empty, paper_layer-1, border_back_left_dest)
 	sprsheet.draw(hud.spr_empty, paper_layer-1, border_back_right_dest)
+	sprsheet.draw(hud.spr_empty, paper_layer-1, border_back_top_dest)
+	sprsheet.draw(hud.spr_empty, paper_layer-1, border_back_bottom_dest)
 
 	-- border
 	sprsheet.draw(hud.spr_border, paper_layer-1, border_left_dest)
 	sprsheet.draw(hud.spr_border, paper_layer-1, border_right_dest)
+	sprsheet.draw(hud.spr_border, paper_layer-1, border_top_dest)
+	sprsheet.draw(hud.spr_border, paper_layer-1, border_bottom_dest)
 
 	-- paper
-	sprsheet.draw_centered(hud.spr_paper, paper_layer, grid_pos, math.pi/2)
-
-	-- menu tiles
-	for i=1,6 do
-		sprsheet.draw(hud.spr_tile, hud_layer, tile_pos[i])
-	end
+	sprsheet.draw(hud.spr_paper, paper_layer, vec2_zero)
 
 	local t = time.s()
 
-	-- score
-	if hud.score_t and t - hud.score_t < hud_crossfade_len then
-		local tt = clamp(0, 1, (t - hud.score_t) / hud_crossfade_len)
-		text_color.a = tt 
-		if hud.score and not hud.last_score then
-			video.draw_text_centered(fnt, hud_layer, 'score', score_pos, 1.0, text_color)
-		end
-		if hud.score then
-			video.draw_text_centered(fnt, hud_layer, hud.score, score_number_pos, 1.0, text_color)
-		end
-		text_color.a = 1 - tt
-		if hud.last_score and not hud.score then
-			video.draw_text_centered(fnt, hud_layer, 'score', score_pos, 1.0, text_color)
-		end
-		if hud.last_score then
-			video.draw_text_centered(fnt, hud_layer, hud.last_score, score_number_pos, 1.0, text_color)
-		end
-		text_color.a = 1
-		if hud.score and hud.last_score then
-			video.draw_text_centered(fnt, hud_layer, 'score', score_pos, 1.0, text_color)
-		end
-	elseif hud.score then
-		video.draw_text_centered(fnt, hud_layer, 'score', score_pos, 1.0, text_color)
-		video.draw_text_centered(fnt, hud_layer, hud.score, score_number_pos, 1.0, text_color)
-	end
-
-
+	render_title(t)
 	render_buttons(t)
 end
 
 return hud
+
