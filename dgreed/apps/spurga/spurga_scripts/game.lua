@@ -20,19 +20,31 @@ function game.close()
 end
 
 function game.enter()
-	hud.set_title(levels.current_grid.puzzle.name)
 	hud.set_buttons(buttons_normal)
 	game.solved_buttons = false
 	hud.delegate = game
 
-	assert(levels.current_grid)
-	levels.current_grid.can_shuffle = true
+	local grid = levels.current_grid
+	assert(grid)
+	grid.can_shuffle = true
+
+	game.solved_mode = grid:is_solved()
+	if not levels.relax and game.solved_mode then
+		score = grid:score()
+		local score_text = 'score: '..tostring(score)
+		hud.set_title(score_text)	
+	else
+		hud.set_title(levels.current_grid.puzzle.name)
+	end
 end
 
 function game.leave()
 	hud.set_score(nil)
-	levels.current_grid.can_shuffle = false
-	levels.current_grid:save_state()
+	local grid = levels.current_grid
+	grid.can_shuffle = false
+	if not game.solved_mode then 
+		levels.current_grid:save_state()
+	end
 	levels.prep_colors()
 end
 
@@ -45,8 +57,9 @@ function game.next_level_transition()
 	if tt >= 1 then
 		-- end transition
 		game.level_transition_t = nil
-		levels.current_grid = game.next_grid
-		levels.current_grid:draw(grid_pos, 1, 0)
+		local grid = game.next_grid
+		levels.current_grid = grid
+		grid:draw(grid_pos, 1, 0)
 		game.enter()
 	else
 		levels.current_grid:draw(grid_pos, 1, tt)
@@ -57,9 +70,10 @@ end
 function game.play()
 	local p = levels.current_grid.puzzle
 	levels.current_grid:save_state()
-	if not levels.relax then
+	if not levels.relax and not game.solved_mode then
 		-- play next level
 		levels.current_grid = grid:new(puzzles.get_next(p), false)
+		puzzles.preload(levels.current_grid.puzzle)
 	else
 		-- relax mode, do manual transition to next level
 		game.next_grid = grid:new(puzzles.get_next(p), true)
@@ -92,19 +106,18 @@ function game.update()
 		grid:touch(nil, grid_pos)
 	end
 
-	if not levels.relax then
+	if not levels.relax and not game.solved_mode then
 		score = grid:score()
 		if grid.moves > 0 then
 			local score_text = 'score: '..tostring(score)
 			hud.set_title(score_text)	
-			hud.set_score(score)
 		end
 	end
 
 	hud.update()
 
 	if grid:is_solved() then
-		if levels.relax then
+		if levels.relax or game.solved_mode then
 			if not game.solved_buttons then
 				local next_level = puzzles.get_next(grid.puzzle)
 				if levels.is_locked(next_level.name) then
