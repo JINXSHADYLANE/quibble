@@ -56,4 +56,8 @@
 		(tex paper_320p.png)
 		(src 0,0,360,480)
 	)
+	(img frontier
+		(tex atlas_s.png)
+		(src 0,128,91,219)
+	)
 )

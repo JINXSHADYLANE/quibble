@@ -93,4 +93,8 @@
 		(tex paper_768p.png)
 		(src 0,0,768,1024)
 	)
+	(img frontier
+		(tex atlas.png)
+		(src 0,256,182,438)
+	)
 )
