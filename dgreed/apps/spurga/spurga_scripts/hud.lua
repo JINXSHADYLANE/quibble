@@ -36,6 +36,16 @@ function hud.init()
 	hud.spr_replay = sprsheet.get_handle('reset')
 	hud.spr_hint = sprsheet.get_handle('hint')
 	hud.spr_play = sprsheet.get_handle('play')
+	hud.spr_shadow_grid = {
+		sprsheet.get_handle('shadow_t'),
+		sprsheet.get_handle('shadow_b'),
+		sprsheet.get_handle('shadow_l'),
+		sprsheet.get_handle('shadow_r'),
+		sprsheet.get_handle('shadow_tl'),
+		sprsheet.get_handle('shadow_tr'),
+		sprsheet.get_handle('shadow_bl'),
+		sprsheet.get_handle('shadow_br')
+	}
 
 	video.set_blendmode(paper_layer, 'multiply')
 
@@ -314,39 +324,31 @@ function hud.render_iphone()
 	render_buttons(t)
 end
 
-local border_back_left_dest = rect(
-	grid_pos.x - 3.5 * 128, grid_pos.y - 3 * 128, 
-	grid_pos.x - 2.5 * 128, grid_pos.y + 3 * 128
-)
-local border_back_right_dest = rect(
-	grid_pos.x + 2.5 * 128, grid_pos.y - 3 * 128, 
-	grid_pos.x + 3.5 * 128, grid_pos.y + 3 * 128 
-)
-local border_back_top_dest = rect(
-	grid_pos.x - 2.5 * 128, grid_pos.y - 4 * 128,
-	grid_pos.x + 2.5 * 128, grid_pos.y - 3 * 128
-)
-local border_back_bottom_dest = rect(
-	grid_pos.x - 2.5 * 128, grid_pos.y + 3 * 128,
-	grid_pos.x + 2.5 * 128, grid_pos.y + 4 * 128
+local board = rect(
+	grid_pos.x - 2.5 * 128, grid_pos.y - 3 * 128,
+	grid_pos.x + 2.5 * 128, grid_pos.y + 3 * 128
 )
 
-local border_left_dest = rect(
-	grid_pos.x - 2.5 * 128 - 2, grid_pos.y - 3 * 128, 
-	grid_pos.x - 2.5 * 128, grid_pos.y + 3 * 128 
-)
-local border_right_dest = rect(
-	grid_pos.x + 2.5 * 128, grid_pos.y - 3 * 128, 
-	grid_pos.x + 2.5 * 128 + 2, grid_pos.y + 3 * 128 
-)
-local border_top_dest = rect(
-	grid_pos.x - 2.5 * 128 - 2, grid_pos.y - 3 * 128 - 2,
-	grid_pos.x + 2.5 * 128 + 2, grid_pos.y - 3 * 128
-)
-local border_bottom_dest = rect(
-	grid_pos.x - 2.5 * 128 - 2, grid_pos.y + 3 * 128,
-	grid_pos.x + 2.5 * 128 + 2, grid_pos.y + 3 * 128 + 2
-)
+local border_back_left_dest = rect(board.l - 128, board.t, board.l, board.b)
+local border_back_right_dest = rect(board.r, board.t, board.r + 128, board.b) 
+local border_back_top_dest = rect(board.l, board.t - 128, board.r, board.t)
+local border_back_bottom_dest = rect(board.l, board.b, board.r, board.b + 128)
+
+local border_left_dest = rect(board.l - 2, board.t, board.l, board.b)
+local border_right_dest = rect(board.r, board.t, board.r + 2, board.b)
+local border_top_dest = rect(board.l - 2, board.t - 2, board.r + 2, board.t)
+local border_bottom_dest = rect(board.l - 2, board.b, board.r + 2, board.b + 2)
+
+local shadow_dest = {
+	rect(board.l + 62, board.t, board.r - 62, board.t + 62),
+	rect(board.l + 62, board.b - 62, board.r - 62, board.b),
+	rect(board.l, board.t + 62, board.l + 62, board.b - 62),
+	rect(board.r - 62, board.t + 62, board.r, board.b - 62),
+	vec2(board.l, board.t),
+	vec2(board.r - 62, board.t),
+	vec2(board.l, board.b - 62),
+	vec2(board.r - 62, board.b - 62)
+}
 
 function hud.render_ipad()
 	
@@ -361,6 +363,11 @@ function hud.render_ipad()
 	sprsheet.draw(hud.spr_border, paper_layer-1, border_right_dest)
 	sprsheet.draw(hud.spr_border, paper_layer-1, border_top_dest)
 	sprsheet.draw(hud.spr_border, paper_layer-1, border_bottom_dest)
+
+	-- shadow
+	for i,s in ipairs(shadow_dest) do
+		sprsheet.draw(hud.spr_shadow_grid[i], paper_layer-1, s)
+	end
 
 	-- paper
 	sprsheet.draw(hud.spr_paper, paper_layer, vec2_zero)
