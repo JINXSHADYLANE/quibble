@@ -1,8 +1,37 @@
 (mfx _
 	(prefix "spurga_assets/")
 	(sounds _
+		(s laimejimas.wav)
+		(s klaust.wav)
+		(s atgal.wav)
+		(s pirmyn.wav)
+		(s klikt.wav)
+		(s slinkt.wav
+			(type ambient)
+			(decay 3)
+			(attack 5)
+			(trigger 0.1)
+		)
 	)
 	(effects _
+		(e solve
+			(sound laimejimas.wav)
+		)
+		(e transition
+			(sound pirmyn.wav)
+		)
+		(e back
+			(sound atgal.wav)
+		)
+		(e click
+			(sound klikt.wav)
+		)
+		(e hint
+			(sound klaust.wav)
+		)
+		(e move
+			(sound slinkt.wav)
+		)
 	)
 )
 

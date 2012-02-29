@@ -523,7 +523,8 @@ void mfx_snd_set_ambient(const char* name, float volume) {
 		live = _get_playing(idx);
 
 	if(live) {
-		live->volume = volume;
+		if(volume > live->volume)
+			live->volume = volume;
 	}
 	else {
 		if(mfx_volume > 0.01f) {

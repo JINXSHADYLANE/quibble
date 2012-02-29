@@ -17,6 +17,7 @@ hud.back = 3
 hud.replay = 4
 hud.hint = 5
 hud.play = 6
+hud.play_next = 7
 
 hud.music_state = true
 hud.sound_state = true
@@ -36,6 +37,7 @@ function hud.init()
 	hud.spr_replay = sprsheet.get_handle('reset')
 	hud.spr_hint = sprsheet.get_handle('hint')
 	hud.spr_play = sprsheet.get_handle('play')
+	hud.spr_next = sprsheet.get_handle('next')
 	hud.spr_shadow_grid = {
 		sprsheet.get_handle('shadow_t'),
 		sprsheet.get_handle('shadow_b'),
@@ -159,6 +161,7 @@ local function render_stateful_button(spr_on, spr_off, pos, state, r, col)
 
 		if hud.touch_up and rect_point_collision(r, hud.touch_up.pos) then
 			result = not result
+			mfx.trigger('click')
 		end
 	end
 
@@ -185,6 +188,7 @@ local function render_button(btn, pos, r, col)
 		end
 	elseif btn == hud.back then
 		if render_stateless_button(hud.spr_back, pos, r, col) then
+			mfx.trigger('back')
 			states.pop()
 			hud.touch_up = nil
 
@@ -206,8 +210,12 @@ local function render_button(btn, pos, r, col)
 				hud.delegate.hint()
 			end
 		end
-	elseif btn == hud.play then
-		if render_stateless_button(hud.spr_play, pos, r, col) then
+	elseif btn == hud.play or btn == hud.play_next then
+		local spr = hud.spr_play
+		if btn == hud.play_next then
+			spr = hud.spr_next
+		end
+		if render_stateless_button(spr, pos, r, col) then
 			hud.touch_up = nil
 			if hud.delegate and hud.delegate.play then
 				hud.delegate.play()
@@ -351,22 +359,24 @@ local shadow_dest = {
 }
 
 function hud.render_ipad()
+
+	local pre_paper = paper_layer-1
 	
 	-- border background
-	sprsheet.draw(hud.spr_empty, paper_layer-1, border_back_left_dest)
-	sprsheet.draw(hud.spr_empty, paper_layer-1, border_back_right_dest)
-	sprsheet.draw(hud.spr_empty, paper_layer-1, border_back_top_dest)
-	sprsheet.draw(hud.spr_empty, paper_layer-1, border_back_bottom_dest)
+	sprsheet.draw(hud.spr_empty, pre_paper, border_back_left_dest)
+	sprsheet.draw(hud.spr_empty, pre_paper, border_back_right_dest)
+	sprsheet.draw(hud.spr_empty, pre_paper, border_back_top_dest)
+	sprsheet.draw(hud.spr_empty, pre_paper, border_back_bottom_dest)
 
 	-- border
-	sprsheet.draw(hud.spr_border, paper_layer-1, border_left_dest)
-	sprsheet.draw(hud.spr_border, paper_layer-1, border_right_dest)
-	sprsheet.draw(hud.spr_border, paper_layer-1, border_top_dest)
-	sprsheet.draw(hud.spr_border, paper_layer-1, border_bottom_dest)
+	sprsheet.draw(hud.spr_border, pre_paper, border_left_dest)
+	sprsheet.draw(hud.spr_border, pre_paper, border_right_dest)
+	sprsheet.draw(hud.spr_border, pre_paper, border_top_dest)
+	sprsheet.draw(hud.spr_border, pre_paper, border_bottom_dest)
 
 	-- shadow
 	for i,s in ipairs(shadow_dest) do
-		sprsheet.draw(hud.spr_shadow_grid[i], paper_layer-1, s)
+		sprsheet.draw(hud.spr_shadow_grid[i], pre_paper, s)
 	end
 
 	-- paper

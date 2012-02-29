@@ -264,6 +264,7 @@ function grid:draw(pos, layer, transition, hint)
 			self.anim_mask_x = nil
 			self.anim_mask_y = nil
 			if self.anim_end_callback then
+				mfx.snd_ambient('slinkt.wav', 0.25)
 				self.anim_end_callback()
 			end
 		else
@@ -271,6 +272,9 @@ function grid:draw(pos, layer, transition, hint)
 				self.start_anim_offset, 
 				self.end_anim_offset, t
 			)
+			if length_sq(self.start_anim_offset - self.end_anim_offset) > 4 then
+				mfx.snd_ambient('slinkt.wav', 0.2)
+			end
 		end
 	end
 
@@ -715,10 +719,20 @@ function grid:touch(t, pos, touch_cb)
 		self.move_offset = vec2_zero 
 	end
 
+	local new_move_offset
 	if move_x then
-		self.move_offset = vec2(off_x, 0) 
+		new_move_offset = vec2(off_x, 0) 
 	elseif move_y then
-		self.move_offset = vec2(0, off_y)
+		new_move_offset = vec2(0, off_y)
+	end
+
+	if new_move_offset then
+		local d = length_sq(new_move_offset - self.move_offset)
+		if d > 0 then
+			local vol = math.sqrt(d)/10
+			mfx.snd_ambient('slinkt.wav', math.min(1, vol))
+		end
+		self.move_offset = new_move_offset
 	end
 end
 

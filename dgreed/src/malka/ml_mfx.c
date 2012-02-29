@@ -88,7 +88,7 @@ static int ml_mfx_snd_ambient(lua_State* l) {
 	checkargs(2, "mfx.snd_ambient");
 
 	const char* name = luaL_checkstring(l, 1);
-	float volume = luaL_checknumber(l, 1);
+	float volume = luaL_checknumber(l, 2);
 	mfx_snd_set_ambient(name, volume);
 
 	return 0;

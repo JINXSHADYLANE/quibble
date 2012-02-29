@@ -9,7 +9,7 @@ local levels = require('levels')
 local hint_show_speed = 1/20
 
 local buttons_normal = {hud.back, nil, hud.hint, nil, hud.replay}
-local buttons_solved = {hud.back, nil, hud.play, nil, hud.replay}
+local buttons_solved = {hud.back, nil, hud.play_next, nil, hud.replay}
 local buttons_locked = {hud.back, nil, nil, nil, hud.replay}
 
 function game.init()
@@ -79,6 +79,7 @@ function game.play()
 		game.next_grid = grid:new(puzzles.get_next(p), true)
 		game.level_transition_t = time.s()
 	end
+	mfx.trigger('transition')
 end
 
 function game.replay()
@@ -91,6 +92,7 @@ function game.hint()
 		if game.hint_alpha == 0 then
 			local p = levels.current_grid.puzzle
 			new_transition_mask(p.w * p.h)
+			mfx.trigger('hint')
 		end
 		game.hint_alpha = math.min(1, game.hint_alpha + hint_show_speed*2)
 	end
@@ -123,6 +125,7 @@ function game.update()
 				if levels.is_locked(next_level.name) then
 					hud.set_buttons(buttons_locked)
 				else
+					mfx.trigger('solve')
 					hud.set_buttons(buttons_solved)
 				end
 				game.solved_buttons = true
@@ -131,6 +134,7 @@ function game.update()
 			scores.bake(score)
 			scores.render_hud = true
 			states.replace('scores')
+			mfx.trigger('solve')
 		end
 	else
 		if game.solved_buttons then
