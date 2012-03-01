@@ -41,6 +41,7 @@ local scores = require('scores')
 local puzzles = require('puzzles')
 local reset = require('reset')
 local colours = require('colours')
+local tutorials = require('tutorials')
 
 -- transition mask is list of numbers from 1 to n, shuffled randomly
 transition_mask = nil
@@ -83,6 +84,7 @@ function game_init()
 	states.register('colours', colours)
 
 	hud.init()
+	tutorials.init()
 	puzzles.load(pre..'puzzles.mml', pre..'slices.mml')
 
 	if retina then
@@ -100,6 +102,7 @@ function game_init()
 end
 
 function game_close()
+	tutorials.close()
 	font.free(fnt)
 	puzzles.free()
 	hud.close()

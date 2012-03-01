@@ -5,6 +5,7 @@ local puzzles = require('puzzles')
 local hud = require('hud')
 local scores = require('scores')
 local levels = require('levels')
+local tutorials = require('tutorials')
 
 local hint_show_speed = 1/20
 
@@ -34,8 +35,10 @@ function game.enter()
 		local score_text = 'score: '..tostring(score)
 		hud.set_title(score_text)	
 	else
-		hud.set_title(levels.current_grid.puzzle.name)
+		hud.set_title(grid.puzzle.name)
 	end
+
+	tutorials.show(grid.puzzle.name)
 end
 
 function game.leave()
@@ -46,6 +49,7 @@ function game.leave()
 		levels.current_grid:save_state()
 	end
 	levels.prep_colors()
+	tutorials.hide(true)
 end
 
 -- special transition which can't be handled by
@@ -85,6 +89,7 @@ end
 function game.replay()
 	--states.replace('game')
 	levels.current_grid:reset_state(true)
+	game.solved_mode = false
 end
 
 function game.hint()
@@ -104,8 +109,13 @@ function game.update()
 
 	if touch.count() > 0 then
 		grid:touch(touch.get(0), grid_pos)
+		last_touch = true
 	else
+		if last_touch then
+			tutorials.hide()
+		end
 		grid:touch(nil, grid_pos)
+		last_touch = false
 	end
 
 	if not levels.relax and not game.solved_mode then
@@ -160,6 +170,10 @@ function game.render(t)
 
 	if t == 0 then
 		hud.render()
+	end
+
+	if not levels.relax then
+		tutorials.render(t)
 	end
 
 	return true

@@ -109,13 +109,15 @@ function puzzles.preload(puzzle)
 
 	puzzle.tile_src = slices
 
-	if ipad or retina then
-		puzzle.tex = tex.load(pre..(slices.texture:gsub('.png', 'hd.png')))
-		if retina then
-			tex.scale(puzzle.tex, 0.5)
+	if puzzle.tex == nil then
+		if ipad or retina then
+			puzzle.tex = tex.load(pre..(slices.texture:gsub('.png', 'hd.png')))
+			if retina then
+				tex.scale(puzzle.tex, 0.5)
+			end
+		else
+			puzzle.tex = tex.load(pre..slices.texture)
 		end
-	else
-		puzzle.tex = tex.load(pre..slices.texture)
 	end
 
 	puzzle.tile_w = slices.tile_w
