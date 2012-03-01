@@ -512,6 +512,9 @@ function grid:shuffle()
 			self.anim_len = shuffle_speed * n*n
 		else
 			self.shuffling = false
+			if self.finish_shuffle_cb then
+				self.finish_shuffle_cb()
+			end
 		end
 	end
 	
@@ -560,7 +563,7 @@ function grid:unscramble()
 	self.start_anim_t = time.s()
 	self.start_anim_offset = vec2_zero
 	self.end_anim_offset = vec2_zero
-	self.anim_len = 1
+	self.anim_len = 0
 
 	local n = #self.scramble_offset
 	local mask_x, mask_y, offset

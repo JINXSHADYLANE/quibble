@@ -38,7 +38,12 @@ function game.enter()
 		hud.set_title(grid.puzzle.name)
 	end
 
-	tutorials.show(grid.puzzle.name)
+	grid.finish_shuffle_cb = function()
+		tutorials.show(grid.puzzle.name)
+		last_touch = false
+	end
+
+	solve_t = nil
 end
 
 function game.leave()
@@ -141,16 +146,23 @@ function game.update()
 				game.solved_buttons = true
 			end
 		else
-			scores.bake(score)
-			scores.render_hud = true
-			states.replace('scores')
-			mfx.trigger('solve')
+			if solve_t == nil then
+				solve_t = time.s() + 1
+				mfx.trigger('solve')
+			end
 		end
 	else
 		if game.solved_buttons then
 			hud.set_buttons(buttons_normal)
 			game.solved_buttons = false
 		end
+	end
+
+	if solve_t and solve_t < time.s() then
+		scores.bake(score)
+		scores.render_hud = true
+		states.replace('scores')
+		solve_t = nil
 	end
 
 	return true
