@@ -10,7 +10,7 @@
 	)
 	(img reset
 		(tex atlas_s.png)
-		(src 143,0,178,64)
+		(src 142,0,178,64)
 	)
 	(img quit
 		(tex atlas_s.png)
@@ -18,7 +18,7 @@
 	)
 	(img hint
 		(tex atlas_s.png)
-		(src 13,64,51,128)
+		(src 12,64,52,128)
 	)
 	(img query
 		(tex atlas_s.png)
@@ -42,7 +42,7 @@
 	)
 	(img m_shadow
 		(tex atlas_s.png)
-		(src 159,224,161,256)
+		(src 158,224,162,256)
 	)
 	(img menu_block
 		(tex atlas_s.png)
@@ -58,27 +58,27 @@
 	)
 	(img frontier
 		(tex atlas_s.png)
-		(src 1,128,91,219)
+		(src 1,128,91,220)
 	)
 	(img tut1
 		(tex tutorials_s.png)
-		(src 203,70,307,122)
+		(src 202,70,308,122)
 	)
 	(img tut2
 		(tex tutorials_s.png)
-		(src 18,32,183,64)
+		(src 18,32,184,64)
 	)
 	(img tut3
 		(tex tutorials_s.png)
-		(src 10,0,217,32)
+		(src 10,0,218,32)
 	)
 	(img tut4
 		(tex tutorials_s.png)
-		(src 18,72,187,122)
+		(src 18,72,188,122)
 	)
 	(img tut_arrow
 		(tex tutorials_s.png)
-		(src 280,18,297,45)
+		(src 280,18,298,46)
 	)
 	(img tut_finger
 		(tex tutorials_s.png)
