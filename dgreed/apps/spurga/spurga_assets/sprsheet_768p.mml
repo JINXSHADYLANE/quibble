@@ -95,6 +95,30 @@
 	)
 	(img frontier
 		(tex atlas.png)
-		(src 0,256,182,438)
+		(src 1,256,182,438)
+	)
+	(img tut1
+		(tex tutorials.png)
+		(src 406,140,614,244)
+	)
+	(img tut2
+		(tex tutorials.png)
+		(src 36,64,366,128)
+	)
+	(img tut3
+		(tex tutorials.png)
+		(src 20,0,434,64)
+	)
+	(img tut4
+		(tex tutorials.png)
+		(src 36,144,374,244)
+	)
+	(img tut_arrow
+		(tex tutorials.png)
+		(src 560,36,594,90)
+	)
+	(img tut_finger
+		(tex tutorials.png)
+		(src 640,0,1024,256)
 	)
 )

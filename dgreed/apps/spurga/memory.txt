@@ -1,0 +1,3 @@
+Memory allocations dump:
+ 1: src/system_sdl.c:639:	27	0x7fc8494e023008
+Total memory allocated: 27 bytes
