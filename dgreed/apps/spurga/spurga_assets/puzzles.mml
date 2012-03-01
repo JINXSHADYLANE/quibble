@@ -87,6 +87,17 @@
 			19 = no
 		")
 	)
+	(puzzle colors
+		(img lvl_colors.png)
+		(def "
+			0  1  2  3  4
+			0  5  6  7  0
+			0  8  9 10  0
+			0  11 12 13 0
+			0  14 15 16 0
+			0  17 18 19 0
+		")
+	)
 	(puzzle two
 		(par 32)
 		(img lvl_two.png)
