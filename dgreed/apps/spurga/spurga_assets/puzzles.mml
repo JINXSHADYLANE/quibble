@@ -71,6 +71,21 @@
 			9 0 27 27 27
 		")
 	)
+	(puzzle reset
+		(img lvl_reset.png)
+		(def "
+			0  0  0  0  0
+			1  2  3  4  5
+			6  7  8  9  10
+			0  11 12 13 0
+			0  18 0  19 0
+			0  20 21 22 23
+		")
+		(map "
+			18 = yes
+			19 = no
+		")
+	)
 	(puzzle two
 		(par 32)
 		(img lvl_two.png)

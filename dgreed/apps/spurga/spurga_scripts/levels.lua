@@ -21,10 +21,10 @@ end
 function levels.prep_colors()
 	local c_white = rgba(1, 1, 1, 1)
 	local c_locked = rgba(1, 1, 1, 0.1)
-	local c_unlocked = rgba(122/255, 160/255, 211/255, 1)
-	local c_solved = rgba(236/255, 207/255, 14/255, 1)
-	local c_pro = rgba(201/255, 50/255, 49/255)
-	local c_wizard = rgba(201/255, 49/255, 143/255)
+	local c_unlocked = rgba(255/255, 255/255, 255/255, 1)
+	local c_solved = rgba(235/255, 206/255, 12/255, 1)
+	local c_pro = rgba(204/255, 90/255, 44/255)
+	local c_wizard = rgba(108/255, 187/255, 42/255)
 
 	local m = levels_grid.color_map
 
