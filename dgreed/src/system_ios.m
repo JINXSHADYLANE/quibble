@@ -1209,7 +1209,8 @@ void sound_resume_ex(SourceHandle handle) {
 
 void sound_stop_ex(SourceHandle handle) {
 	Source* src = _get_source(handle);
-	assert(src);
+	if(!src)
+		return;
 	
 	Sound* sound = _get_sound(src->sound, NULL);
 	assert(sound);
@@ -1227,17 +1228,18 @@ void sound_stop_ex(SourceHandle handle) {
 
 void sound_set_volume_ex(SourceHandle handle, float volume) {
 	Source* src = _get_source(handle);
-	assert(src);
-	assert(volume >= 0.0f && volume <= 1.0f);
-	
-	src->volume = volume;
-	if(!src->buffer) {
-		Sound* sound = _get_sound(src->sound, NULL);
-		assert(sound);
-		[sound->av_player setVolume:volume];
-	}
-	else {
-		alSourcef(src->al_source, AL_GAIN, volume);
+	if(src) {
+		assert(volume >= 0.0f && volume <= 1.0f);
+		
+		src->volume = volume;
+		if(!src->buffer) {
+			Sound* sound = _get_sound(src->sound, NULL);
+			assert(sound);
+			[sound->av_player setVolume:volume];
+		}
+		else {
+			alSourcef(src->al_source, AL_GAIN, volume);
+		}
 	}
 }
 
