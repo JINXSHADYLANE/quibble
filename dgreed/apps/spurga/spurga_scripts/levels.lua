@@ -3,6 +3,7 @@ local levels = {}
 local grid = require('grid')
 local puzzles = require('puzzles')
 local hud = require('hud')
+local colours = require('colours')
 
 local levels_grid
 local first_level
@@ -81,8 +82,9 @@ function levels.unlock_all()
 end
 
 function levels.help()
-	levels.unlock_all()
-	levels.prep_colors()
+	mfx.trigger('transition')
+	colours.preenter()
+	states.push('colours')
 end
 
 function levels.enter()
