@@ -14,6 +14,8 @@ local shuffle_speed = 0.000005
 local active_color = rgba(1, 1, 1, 0.9)
 -- length of single tile transition phase, in normalized time
 local tile_transition_len = 0.2
+-- length of immovable tile animation
+local wallmark_len = 0.3
 
 local vec2_zero = vec2(0, 0)
 
@@ -23,6 +25,8 @@ function grid:new(puzzle, relax)
 	setmetatable(obj, self) 
 	obj:load_state()
 	obj.color_map = {}
+	obj.wallmarks = {}
+	obj.show_wallmars = true
 	return obj
 end
 
@@ -221,6 +225,7 @@ end
 
 function grid:draw(pos, layer, transition, hint)
 	local p = self.puzzle
+	local ts = time.s()
 
 	-- do delayed shuffling
 	if self.must_shuffle then
@@ -257,7 +262,7 @@ function grid:draw(pos, layer, transition, hint)
 	local t = nil
 	local anim_offset = nil
 	if self.start_anim_t then
-		local t = (time.s() - self.start_anim_t) / self.anim_len
+		local t = (ts - self.start_anim_t) / self.anim_len
 		if t >= 1 then
 			-- end anim
 			self.start_anim_t = nil
@@ -290,6 +295,7 @@ function grid:draw(pos, layer, transition, hint)
 			tile = self.state[idx] 
 			solved_tile = p.solved[tile]
 			r = p.tile_src[solved_tile]
+
 
 			-- pressed color
 			c = nil
@@ -371,6 +377,23 @@ function grid:draw(pos, layer, transition, hint)
 					)
 				end
 			end
+
+			-- draw wallmark
+			local wm = self.wallmarks[tile]
+			if wm ~= nil then
+				local tt = (ts - wm) / wallmark_len
+				if tt >= 1 then
+					self.wallmarks[tile] = nil
+					self.show_wallmarks = false
+				else
+					local col = rgba(1, 1, 1, math.sin(tt * math.pi))
+					sprsheet.draw_centered(
+						'frontier', layer, 
+						cursor + vec2(p.tile_w/2, p.tile_h/2), col
+					)
+				end
+			end
+
 			cursor.x = cursor.x + p.tile_w
 		end
 		cursor.x = pos.x - self.half_size.x
@@ -573,7 +596,7 @@ end
 
 
 -- rows/columns with immovable tiles cannot be moved
-function grid:can_move(move_x, move_y, tx, ty, p)
+function grid:can_move(move_x, move_y, tx, ty, p, mark)
 	local x, y, dx, dy = 0, 0, 0, 0
 
 	if move_x then
@@ -581,15 +604,23 @@ function grid:can_move(move_x, move_y, tx, ty, p)
 	else
 		x, dy = tx, 1
 	end
+	local result = true
 	while x < p.w and y < p.h do
 		local t = self.state[y * p.w + x + 1] 
 		if is_wall(p.solved[t]) then
-			return false
+			if not mark then
+				return false
+			else
+				if self.show_wallmarks and self.wallmarks[t] == nil then
+					self.wallmarks[t] = time.s()
+				end
+				result = false
+			end
 		end
 		x, y = x + dx, y + dy
 	end
 
-	return true
+	return result
 end
 
 function grid:touch(t, pos, touch_cb)
@@ -661,6 +692,7 @@ function grid:touch(t, pos, touch_cb)
 		end
 
 		self.touched_tile = nil
+		self.show_wallmarks = true
 		return
 	end
 
@@ -698,7 +730,7 @@ function grid:touch(t, pos, touch_cb)
 			self.touched_tile = nil	
 		
 			-- also back out if row/column has immovable tiles
-			if not self:can_move(move_x, move_y, tile_pos.x, tile_pos.y, p) then
+			if not self:can_move(move_x, move_y, tile_pos.x, tile_pos.y, p, true) then
 				return
 			end
 		
