@@ -388,7 +388,7 @@ function grid:draw(pos, layer, transition, hint)
 				else
 					local col = rgba(1, 1, 1, math.sin(tt * math.pi))
 					sprsheet.draw_centered(
-						'frontier', layer, 
+						'frontier', layer+1, 
 						cursor + vec2(p.tile_w/2, p.tile_h/2), col
 					)
 				end
