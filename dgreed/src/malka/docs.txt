@@ -672,6 +672,9 @@ flushes data to disk
 - keyval.gc()
 performs garbage collection on in-memory data 
 
+- keyval.wipe()
+wipes all data
+
 
 ------
 states

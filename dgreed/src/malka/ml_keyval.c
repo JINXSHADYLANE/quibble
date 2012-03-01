@@ -93,6 +93,14 @@ static int ml_keyval_gc(lua_State* l) {
 	return 0;
 }
 
+static int ml_keyval_wipe(lua_State* l) {
+	checkargs(0, "keyval.wipe");
+
+	keyval_wipe();
+
+	return 0;
+}
+
 static const luaL_Reg keyval_fun[] = {
 	{"init", ml_keyval_init},
 	{"close", ml_keyval_close},
@@ -100,6 +108,7 @@ static const luaL_Reg keyval_fun[] = {
 	{"set", ml_keyval_set},
 	{"flush", ml_keyval_flush},
 	{"gc", ml_keyval_gc},
+	{"wipe", ml_keyval_wipe},
 	{NULL, NULL}
 };
 

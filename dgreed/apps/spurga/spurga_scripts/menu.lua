@@ -4,6 +4,7 @@ local grid = require('grid')
 local puzzles = require('puzzles')
 local hud = require('hud')
 local levels = require('levels')
+local reset = require('reset')
 
 local menu_grid
 
@@ -30,14 +31,18 @@ function menu.update()
 		menu_grid:touch(touch.get(0), grid_pos)
 	else
 		menu_grid:touch(nil, grid_pos, function (t)
-			if menu_grid.puzzle.map[t] == 'play' then
+			local btn = menu_grid.puzzle.map[t]
+			if btn == 'play' then
 				levels.relax = false
 				levels.prep_colors()
 				states.push('levels')
-			elseif menu_grid.puzzle.map[t] == 'relax' then
+			elseif btn == 'relax' then
 				levels.relax = true
 				levels.prep_colors()
 				states.push('levels')
+			elseif btn == 'reset' then
+				reset.preenter()
+				states.push('reset')
 			end
 		end)
 	end

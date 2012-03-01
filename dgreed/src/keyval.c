@@ -266,6 +266,12 @@ void keyval_gc(void) {
 	_gc();
 }
 
+void keyval_wipe(void) {
+	memset(keyval_dict.map, 0, sizeof(DictEntry) * keyval_dict.mask-1);
+	keyval_dict.items = 0;
+	keyval_strs.size = 0;
+}
+
 void keyval_app_suspend(void) {
 	if(keyval_initialized) {
 		_gc();

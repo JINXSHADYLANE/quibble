@@ -26,7 +26,7 @@ function grid:new(puzzle, relax)
 	obj:load_state()
 	obj.color_map = {}
 	obj.wallmarks = {}
-	obj.show_wallmars = true
+	obj.show_wallmarks = true
 	return obj
 end
 
@@ -84,11 +84,7 @@ function grid:load_state()
 	
 	local state_str = keyval.get(state_key, '')
 	if state_str == '' then
-		if name == 'menu' or name == 'levels' or name == 'score' then
-			self:reset_state()
-		else	
-			self:reset_state(true)
-		end
+		self:reset_state(true)
 	else
 		local state = {}
 		for s in state_str:gmatch('(%d+)') do

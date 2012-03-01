@@ -73,11 +73,15 @@ function levels.first_unsolved()
 	return levels_grid.puzzle.map[#levels_grid.puzzle.map]
 end
 
-function levels.help()
+function levels.unlock_all()
 	-- a cheat, unlocks all levels
 	for i,puzzle in ipairs(levels_grid.puzzle.map) do
 		levels.unlock[puzzle] = true
 	end
+end
+
+function levels.help()
+	levels.unlock_all()
 	levels.prep_colors()
 end
 

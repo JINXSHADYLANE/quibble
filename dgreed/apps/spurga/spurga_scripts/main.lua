@@ -39,6 +39,7 @@ local menu = require('menu')
 local levels = require('levels')
 local scores = require('scores')
 local puzzles = require('puzzles')
+local reset = require('reset')
 
 -- transition mask is list of numbers from 1 to n, shuffled randomly
 transition_mask = nil
@@ -77,6 +78,7 @@ function game_init()
 	states.register('menu', menu)
 	states.register('levels', levels)
 	states.register('scores', scores)
+	states.register('reset', reset)
 
 	hud.init()
 	puzzles.load(pre..'puzzles.mml', pre..'slices.mml')

@@ -23,6 +23,7 @@ void keyval_set_float(const char* key, float val);
 
 void keyval_flush(void);
 void keyval_gc(void);
+void keyval_wipe(void);
 
 void keyval_app_suspend(void);
 

@@ -60,3 +60,22 @@ TEST_(gc) {
 	ASSERT_(false == keyval_get_bool("bar", true));
 	ASSERT_(18.0f == keyval_get_float("baz", 0.0f));
 }
+
+TEST_(wipe) {
+	keyval_set("n", "north");
+	keyval_set("s", "south");
+	keyval_set("e", "east");
+	keyval_set("w", "west");
+
+	ASSERT_(strcmp(keyval_get("n", ""), "north") == 0);
+	ASSERT_(strcmp(keyval_get("s", ""), "south") == 0);
+	ASSERT_(strcmp(keyval_get("e", ""), "east") == 0);
+	ASSERT_(strcmp(keyval_get("w", ""), "west") == 0);
+
+	keyval_wipe();
+
+	ASSERT_(strcmp(keyval_get("n", ""), "") == 0);
+	ASSERT_(strcmp(keyval_get("s", ""), "") == 0);
+	ASSERT_(strcmp(keyval_get("e", ""), "") == 0);
+	ASSERT_(strcmp(keyval_get("w", ""), "") == 0);
+}
