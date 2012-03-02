@@ -194,6 +194,18 @@ void runstate_background_cb(RunStateCallback cb);
 void runstate_foreground_cb(RunStateCallback cb);
 
 /*
+---------------------
+--- Accelerometer ---
+---------------------
+*/
+
+typedef void (*ShakeCallback)(void);
+
+// Sets a callback which will be invoked when
+// device is shaked. Can be NULL.
+void acc_shake_cb(ShakeCallback cb);
+
+/*
 -------------
 --- Input ---
 -------------

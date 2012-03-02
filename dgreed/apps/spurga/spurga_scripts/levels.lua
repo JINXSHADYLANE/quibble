@@ -91,12 +91,18 @@ function levels.enter()
 	hud.set_title('choose a puzzle')
 	hud.set_buttons({hud.back, hud.music, hud.sound, hud.help, hud.play})
 	hud.delegate = levels
+
+	acceleration.shake_callback(function ()
+		levels_grid:reset_state()
+	end)
 end
 
 function levels.leave()
 	levels_grid:save_state()
 	levels.unlock = {}
 	levels.prep_colors()
+
+	acceleration.shake_callback(nil)
 end
 
 function levels.play()

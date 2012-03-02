@@ -440,6 +440,14 @@ upside-up
 returns right and down vectors in screenspace for provided orientation
 
 
+------------
+acceleration
+------------
+
+- acceleration.shake_callback(cb)
+sets a callback which will be invoked when device shakes
+
+
 ---
 gui
 ---

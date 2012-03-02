@@ -19,11 +19,17 @@ function menu.enter()
 	hud.set_title('spurga')
 	hud.set_buttons({nil, hud.music, hud.sound, hud.help, nil})
 	hud.delegate = menu
+
+	acceleration.shake_callback(function ()
+		menu_grid:reset_state()
+	end)
 end
 
 function menu.leave()
 	mfx.trigger('transition')
 	menu_grid:save_state()
+
+	acceleration.shake_callback(nil)
 end
 
 function menu.update()

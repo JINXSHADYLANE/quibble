@@ -135,7 +135,7 @@ static int ml_gamecenter_get_scores(lua_State* l) {
 	const char* playerscope = luaL_checkstring(l, 4);
 
 	if(lua_isfunction(l, 5)) {
-		cb_score_ref = luaL_ref(l, 1); 
+		cb_score_ref = lua_ref(l, 1); 
 		cb_l = l;
 
 		PlayerScope ps = _str_to_player_scope(playerscope);
@@ -235,7 +235,7 @@ static int ml_gamecenter_get_achievements(lua_State* l) {
 	live_achievements_req = true;
 
 	if(lua_isfunction(l, 1)) {
-		cb_achievement_ref = luaL_ref(l, 1);
+		cb_achievement_ref = lua_ref(l, 1);
 		cb_l = l;
 
 		gamecenter_get_achievements(_get_achievements_cb);

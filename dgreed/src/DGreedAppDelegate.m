@@ -18,6 +18,7 @@ extern float screen_widthf, screen_heightf;
 
 extern RunStateCallback enter_background_cb;
 extern RunStateCallback enter_foreground_cb;
+extern ShakeCallback shake_cb;
 
 const char* g_home_dir = NULL;
 const char* g_storage_dir = NULL;
@@ -30,6 +31,7 @@ float resign_active_t;
 @synthesize window;
 @synthesize controller;
 @synthesize gl_controller;
+@synthesize last_acceleration;
 
 #pragma mark -
 #pragma mark Application lifecycle
@@ -60,6 +62,8 @@ float resign_active_t;
 	[fileManager release];
     
     _set_gamecenter_app_delegate(self);
+    
+    [UIAccelerometer sharedAccelerometer].delegate = self;
 	
 	dgreed_preinit();
     
@@ -176,6 +180,27 @@ float resign_active_t;
 {
     [controller dismissModalViewControllerAnimated:YES];
     [self.window bringSubviewToFront:gl_controller.view];
+}
+
+bool isAccelerating(UIAcceleration* last, UIAcceleration* current, double threshold) {
+    return fabs(last.x - current.x) > threshold 
+        || fabs(last.y - current.y) > threshold
+        || fabs(last.z - current.z) > threshold;
+}
+
+- (void) accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
+    if(self.last_acceleration) {
+        if(!is_shaking && isAccelerating(self.last_acceleration, acceleration, 2.5)) {
+            is_shaking = true;
+            
+            if(shake_cb)
+                (*shake_cb)();
+        }
+        if(is_shaking && !isAccelerating(self.last_acceleration, acceleration, 0.2)) {
+            is_shaking = false;
+        }
+    }
+    self.last_acceleration = acceleration;
 }
 
 @end
