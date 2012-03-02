@@ -1192,6 +1192,8 @@ static const luaL_Reg orientation_fun[] = {
 	{NULL, NULL}
 };
 
+// acceleration
+
 static lua_State* cb_l;
 static int cb_shake_ref = -1;
 
@@ -1226,6 +1228,75 @@ static int ml_acceleration_shake_callback(lua_State* l) {
 
 static const luaL_Reg acceleration_fun[] = {
 	{"shake_callback", ml_acceleration_shake_callback},
+	{NULL, NULL}
+};
+
+// runstate
+
+static int cb_background_ref = -1;
+static int cb_foreground_ref = -1;
+
+static void _background_cb(void) {
+	lua_getref(cb_l, cb_background_ref);
+	assert(lua_isfunction(cb_l, -1));
+	lua_call(cb_l, 0, 0);
+}
+
+static void _foreground_cb(void) {
+	lua_getref(cb_l, cb_foreground_ref);
+	assert(lua_isfunction(cb_l, -1));
+	lua_call(cb_l, 0, 0);
+}
+
+static int ml_runstate_background_callback(lua_State* l) {
+	checkargs(1, "runstate.background_callback");
+
+	if(cb_shake_ref != -1) {
+		lua_unref(l, cb_shake_ref);
+		cb_shake_ref = -1;
+	}
+
+	if(lua_isnil(l, 1)) {
+		runstate_background_cb(NULL);
+	}
+	else if(lua_isfunction(l, 1)) {
+		cb_l = l;
+		cb_background_ref = lua_ref(l, 1);
+		runstate_background_cb(_background_cb);	
+	}
+	else {
+		return luaL_error(l, "wrong callback type");
+	}
+
+	return 0;
+}
+
+static int ml_runstate_foreground_callback(lua_State* l) {
+	checkargs(1, "runstate.foreground_callback");
+
+	if(cb_shake_ref != -1) {
+		lua_unref(l, cb_shake_ref);
+		cb_shake_ref = -1;
+	}
+
+	if(lua_isnil(l, 1)) {
+		runstate_foreground_cb(NULL);
+	}
+	else if(lua_isfunction(l, 1)) {
+		cb_l = l;
+		cb_foreground_ref = lua_ref(l, 1);
+		runstate_foreground_cb(_foreground_cb);	
+	}
+	else {
+		return luaL_error(l, "wrong callback type");
+	}
+
+	return 0;
+}
+
+static const luaL_Reg runstate_fun[] = {
+	{"background_callback", ml_runstate_background_callback},
+	{"foreground_callback", ml_runstate_foreground_callback},
 	{NULL, NULL}
 };
 
@@ -1744,7 +1815,8 @@ int malka_open_system(lua_State* l) {
 	lua_setfield(l, tbl, "portrait_upside_down");
 
 	luaL_register(l, "acceleration", acceleration_fun);
-	
+
+	luaL_register(l, "runstate", runstate_fun);
 
 	luaL_register(l, "gui", gui_fun);
 
@@ -1753,7 +1825,7 @@ int malka_open_system(lua_State* l) {
 	luaL_newmetatable(l, "_TilemapHandle.mt");
 	luaL_register(l, "tilemap", tilemap_fun);
 
-	lua_pop(l, 6);
+	lua_pop(l, 7);
 
 	return 1;
 }

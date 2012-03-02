@@ -485,7 +485,6 @@ function grid:shuffle()
 	if self.relax then
 		rand.seed(time.ms())
 	else
-		print(tostring(hash(self.puzzle.name)))
 		rand.seed(hash(self.puzzle.name))
 	end
 
