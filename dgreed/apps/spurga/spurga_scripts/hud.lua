@@ -10,6 +10,9 @@ local pressed_button_color = rgba(1, 1, 1, 0.8)
 local half_button_width = 32
 local half_button_height = 32
 
+local sound_mute
+local music_mute
+
 hud.music = 0
 hud.sound = 1
 hud.help = 2
@@ -18,9 +21,6 @@ hud.replay = 4
 hud.hint = 5
 hud.play = 6
 hud.play_next = 7
-
-hud.music_state = true
-hud.sound_state = true
 
 function hud.init()
 	hud.spr_border = sprsheet.get_handle('border')
@@ -65,6 +65,16 @@ function hud.init()
 	else
 		hud.render = hud.render_iphone
 	end
+
+	sound_mute = keyval.get('sound_mute', false)
+	music_mute = keyval.get('music_mute', false)
+
+	if sound_mute then
+		mfx.snd_set_volume(0)
+	end
+
+	hud.sound_state = not sound_mute
+	hud.music_state = not music_mute
 end
 
 function hud.close()
@@ -174,11 +184,20 @@ local function render_button(btn, pos, r, col)
 			hud.spr_music, hud.spr_music_off, pos, 
 			hud.music_state, r, col
 		)
+		music_mute = not hud.music_state
+		keyval.set('music_mute', music_mute)
 	elseif btn == hud.sound then
 		hud.sound_state = render_stateful_button(
 			hud.spr_sound, hud.spr_sound_off, pos,
 			hud.sound_state, r, col
 		)
+		sound_mute = not hud.sound_state
+		keyval.set('sound_mute', sound_mute)
+		if sound_mute then
+			mfx.snd_set_volume(0)
+		else
+			mfx.snd_set_volume(1)
+		end
 	elseif btn == hud.help then
 		if render_stateless_button(hud.spr_help, pos, r, col) then
 			hud.touch_up = nil
