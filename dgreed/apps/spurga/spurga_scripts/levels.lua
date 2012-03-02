@@ -125,7 +125,6 @@ function levels.update()
 					local puzzle = puzzles[lvl]
 					levels.current_grid = grid:new(puzzle, levels.relax)
 					puzzles.preload(levels.current_grid.puzzle)
-					new_transition_mask(puzzle.w * puzzle.h)
 					states.push('game')
 				end
 			end

@@ -719,11 +719,11 @@ static void _mt_update(void) {
 	int kk;
 	uint y;
 
-	const uint upper = 1UL << 31;
-	const uint lower = ~upper;
+	const uint upper = 0x80000000UL;
+	const uint lower = 0x7fffffffUL;
 	const uint matrix = 0x9908b0dfUL;
 
-	for(kk = 0; kk < MT19937_M - MT19937_N; ++kk) {
+	for(kk = 0; kk < MT19937_N - MT19937_M; ++kk) {
 		y = (mt_state[kk] & upper) | (mt_state[kk+1] & lower);
 		mt_state[kk] = mt_state[kk + MT19937_M] ^ (y >> 1); 
 		mt_state[kk] ^= (y & 1) ? 0 : matrix;

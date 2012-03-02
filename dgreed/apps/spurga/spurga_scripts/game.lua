@@ -101,7 +101,6 @@ function game.hint()
 	if not levels.current_grid.shuffling then
 		if game.hint_alpha == 0 then
 			local p = levels.current_grid.puzzle
-			new_transition_mask(p.w * p.h)
 			mfx.trigger('hint')
 		end
 		game.hint_alpha = math.min(1, game.hint_alpha + hint_show_speed*2)
