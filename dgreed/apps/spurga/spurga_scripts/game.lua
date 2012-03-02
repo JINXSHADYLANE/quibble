@@ -6,6 +6,7 @@ local hud = require('hud')
 local scores = require('scores')
 local levels = require('levels')
 local tutorials = require('tutorials')
+local missions = require('missions')
 
 local hint_show_speed = 1/20
 
@@ -109,6 +110,7 @@ function game.hint()
 		if game.hint_alpha == 0 then
 			local p = levels.current_grid.puzzle
 			mfx.trigger('hint')
+			missions.remind(p.name)
 		end
 		game.hint_alpha = math.min(1, game.hint_alpha + hint_show_speed*2)
 	end
@@ -148,6 +150,7 @@ function game.update()
 				else
 					mfx.trigger('solve')
 					hud.set_buttons(buttons_solved)
+					missions.relax_solved(grid.puzzle.name)
 				end
 				game.solved_buttons = true
 			end

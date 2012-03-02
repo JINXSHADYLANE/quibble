@@ -5,6 +5,7 @@ local puzzles = require('puzzles')
 local hud = require('hud')
 local levels = require('levels')
 local reset = require('reset')
+local missions = require('missions')
 
 local menu_grid
 
@@ -22,6 +23,7 @@ function menu.enter()
 
 	acceleration.shake_callback(function ()
 		menu_grid:reset_state()
+		missions.shake()
 	end)
 end
 
