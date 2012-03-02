@@ -448,6 +448,17 @@ acceleration
 sets a callback which will be invoked when device shakes
 
 
+--------
+runstate
+--------
+
+- runstate.background_callback(cb)
+sets a callback for entering background state
+
+- runstate.foreground_callback(cb)
+sets a callback for entering foreground state
+
+
 ---
 gui
 ---
@@ -794,4 +805,12 @@ gets all achievements and calls callback with a list of
 
 - gamecenter.show_achievements()
 pauses game, shows default gamecenter achievement ui
+
+
+---
+web
+---
+
+- web.open(url)
+opens web browser with specified url
 

@@ -32,6 +32,10 @@ function menu.leave()
 	acceleration.shake_callback(nil)
 end
 
+function menu.help()
+	web.open('http://www.qbcode.com')
+end
+
 function menu.update()
 	if touch.count() > 0 then
 		menu_grid:touch(touch.get(0), grid_pos)

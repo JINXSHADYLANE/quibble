@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2187E6491500FD2300AE0D51 /* ml_web.c in Sources */ = {isa = PBXBuildFile; fileRef = 2187E6471500FD2300AE0D51 /* ml_web.c */; };
 		21A2C0BE14F3A2C0003971FB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A2C0BD14F3A2C0003971FB /* UIKit.framework */; };
 		21A2C0C014F3A2C0003971FB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A2C0BF14F3A2C0003971FB /* Foundation.framework */; };
 		21A2C0C214F3A2C0003971FB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A2C0C114F3A2C0003971FB /* CoreGraphics.framework */; };
@@ -92,6 +93,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2187E6471500FD2300AE0D51 /* ml_web.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_web.c; path = ../../../src/malka/ml_web.c; sourceTree = "<group>"; };
+		2187E6481500FD2300AE0D51 /* ml_web.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_web.h; path = ../../../src/malka/ml_web.h; sourceTree = "<group>"; };
 		21A2C0B914F3A2BF003971FB /* spurga.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = spurga.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		21A2C0BD14F3A2C0003971FB /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		21A2C0BF14F3A2C0003971FB /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -401,6 +404,8 @@
 				21A2C14014F3A468003971FB /* ml_system.h */,
 				21A2C14114F3A468003971FB /* ml_utils.c */,
 				21A2C14214F3A468003971FB /* ml_utils.h */,
+				2187E6471500FD2300AE0D51 /* ml_web.c */,
+				2187E6481500FD2300AE0D51 /* ml_web.h */,
 			);
 			name = malka;
 			sourceTree = "<group>";
@@ -597,6 +602,7 @@
 				21A2C1A014F3A4A0003971FB /* lzio.c in Sources */,
 				21A2C1A114F3A4A0003971FB /* print.c in Sources */,
 				21A2C1A314F3A4E0003971FB /* spurga.c in Sources */,
+				2187E6491500FD2300AE0D51 /* ml_web.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

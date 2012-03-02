@@ -1568,3 +1568,14 @@ bool system_update(void) {
 	
 	return true;
 }
+
+/*
+-----------
+--- Web ---
+-----------
+*/
+
+void ios_open_web_url(const char* url) {
+    NSString* ns_url = [NSString stringWithUTF8String:url];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString: ns_url]];
+}
