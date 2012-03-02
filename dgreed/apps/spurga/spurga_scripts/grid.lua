@@ -2,6 +2,7 @@ local grid = {}
 grid.__index = grid
 
 local puzzles = require('puzzles')
+local missions = require('missions')
 
 -- tweaks
 -- do not move row/column if touch move distance is less than this
@@ -85,6 +86,7 @@ function grid:load_state()
 	local state_str = keyval.get(state_key, '')
 	if state_str == '' then
 		self:reset_state(true)
+		missions.start(name)
 	else
 		local state = {}
 		for s in state_str:gmatch('(%d+)') do
@@ -120,6 +122,8 @@ function grid:is_solved()
 
 			-- unlock next two levels
 			puzzles.unlock_next(p)
+
+			missions.solved(p.name)
 		end
 
 		return true
@@ -402,6 +406,7 @@ function grid:shift(column_x, row_y, offset)
 	assert(column_x == nil or row_y == nil)
 
 	local fmod = math.fmod
+	local p = self.puzzle
 
 	-- count a move
 	if not self.shuffling then
@@ -409,9 +414,9 @@ function grid:shift(column_x, row_y, offset)
 			self.moves = self.moves + 1
 			self.last_move_x, self.last_move_y = column_x, row_y
 		end
+		missions.moved(p.name, self.state, offset, column_x, column_y)
 	end
 
-	local p = self.puzzle
 
 	-- calc step offset and start pos
 	local dx, dy, x, y = 1, 1, 0, 0

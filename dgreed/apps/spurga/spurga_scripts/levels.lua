@@ -4,6 +4,7 @@ local grid = require('grid')
 local puzzles = require('puzzles')
 local hud = require('hud')
 local colours = require('colours')
+local missions = require('missions')
 
 local levels_grid
 local first_level
@@ -100,6 +101,7 @@ function levels.enter()
 
 	acceleration.shake_callback(function ()
 		levels_grid:reset_state()
+		missions.shake()
 	end)
 end
 
