@@ -89,7 +89,13 @@ end
 
 function levels.enter()
 	hud.set_title('choose a puzzle')
-	hud.set_buttons({hud.back, hud.music, hud.sound, hud.help, hud.play})
+	local buttons
+	if not levels.relax then
+		buttons = {hud.back, hud.music, hud.sound, hud.help, hud.play}
+	else
+		buttons = {hud.back, hud.music, hud.sound, nil, hud.play}
+	end
+	hud.set_buttons(buttons)
 	hud.delegate = levels
 
 	acceleration.shake_callback(function ()
