@@ -99,6 +99,7 @@ end
 
 function game.replay()
 	--states.replace('game')
+	mfx.trigger('click')
 	levels.current_grid:reset_state(true)
 	game.solved_mode = false
 end
@@ -164,6 +165,13 @@ function game.update()
 	end
 
 	if solve_t and solve_t < time.s() then
+		local total_score = puzzles.total_score()
+		if gamecenter then
+			if gamecenter.is_active() then
+				gamecenter.report_score('default', 42, total_score)
+			end
+		end
+
 		scores.bake(score)
 		scores.render_hud = true
 		states.replace('scores')

@@ -39,7 +39,7 @@ function levels.prep_colors()
 			local pro_score = puzzles[puzzle].par / 2
 			local wizard_score = pro_score * 3 / 2
 
-			if score > 0 then
+			if score > -1 then
 				if score >= wizard_score then
 					m[i] = c_wizard
 				elseif score >= pro_score then
