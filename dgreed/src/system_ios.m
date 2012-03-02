@@ -1356,6 +1356,18 @@ void runstate_foreground_cb(RunStateCallback cb) {
 }
 
 /*
+---------------------
+--- Accelerometer ---
+---------------------
+*/
+
+ShakeCallback shake_cb = NULL;
+
+void acc_shake_cb(ShakeCallback cb) {
+    shake_cb = cb;
+}
+
+/*
 ------------- 
 --- Input ---
 -------------

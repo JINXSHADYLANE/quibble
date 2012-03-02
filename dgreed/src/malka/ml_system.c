@@ -1192,6 +1192,43 @@ static const luaL_Reg orientation_fun[] = {
 	{NULL, NULL}
 };
 
+static lua_State* cb_l;
+static int cb_shake_ref = -1;
+
+static void _shake_cb(void) {
+	lua_getref(cb_l, cb_shake_ref);
+	assert(lua_isfunction(cb_l, -1));
+	lua_call(cb_l, 0, 0);
+}
+
+static int ml_acceleration_shake_callback(lua_State* l) {
+	checkargs(1, "acceleration.shake_callback");
+
+	if(cb_shake_ref != -1) {
+		lua_unref(l, cb_shake_ref);
+		cb_shake_ref = -1;
+	}
+
+	if(lua_isnil(l, 1)) {
+		acc_shake_cb(NULL);
+	}
+	else if(lua_isfunction(l, 1)) {
+		cb_l = l;
+		cb_shake_ref = lua_ref(l, 1);
+		acc_shake_cb(_shake_cb);
+	}
+	else {
+		return luaL_error(l, "wrong callback type");
+	}
+
+	return 0;
+}
+
+static const luaL_Reg acceleration_fun[] = {
+	{"shake_callback", ml_acceleration_shake_callback},
+	{NULL, NULL}
+};
+
 // gui
 
 static void _push_rect(lua_State* l, RectF rect) {
@@ -1705,6 +1742,8 @@ int malka_open_system(lua_State* l) {
 	lua_setfield(l, tbl, "portrait");
 	lua_pushinteger(l, ORIENT_PORTRAIT_UPSIDE_DOWN);
 	lua_setfield(l, tbl, "portrait_upside_down");
+
+	luaL_register(l, "acceleration", acceleration_fun);
 	
 
 	luaL_register(l, "gui", gui_fun);
@@ -1714,7 +1753,7 @@ int malka_open_system(lua_State* l) {
 	luaL_newmetatable(l, "_TilemapHandle.mt");
 	luaL_register(l, "tilemap", tilemap_fun);
 
-	lua_pop(l, 5);
+	lua_pop(l, 6);
 
 	return 1;
 }

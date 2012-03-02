@@ -1332,6 +1332,15 @@ void runstate_background_cb(RunStateCallback cb) {
 void runstate_foreground_cb(RunStateCallback cb) {
 	enter_foreground_cb = cb;
 }
+
+/*
+--------------------
+--- Acceleration ---
+--------------------
+*/
+
+void acc_shake_cb(ShakeCallback cb) {
+}
 	
 /*
 -------------
