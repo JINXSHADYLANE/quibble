@@ -44,6 +44,10 @@ function game.enter()
 	end
 
 	solve_t = nil
+
+	runstate.background_callback(function ()
+		levels.current_grid:save_state()
+	end)
 end
 
 function game.leave()
@@ -55,6 +59,8 @@ function game.leave()
 	end
 	levels.prep_colors()
 	tutorials.hide(true)
+
+	runstate.background_callback(nil)
 end
 
 -- special transition which can't be handled by
