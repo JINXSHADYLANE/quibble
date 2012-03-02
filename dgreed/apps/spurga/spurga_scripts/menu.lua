@@ -53,6 +53,10 @@ function menu.update()
 			elseif btn == 'reset' then
 				reset.preenter()
 				states.push('reset')
+			elseif btn == 'scores' then
+				if gamecenter and gamecenter.is_active() then
+					gamecenter.show_leaderboard('default', 'all')
+				end
 			end
 		end)
 	end

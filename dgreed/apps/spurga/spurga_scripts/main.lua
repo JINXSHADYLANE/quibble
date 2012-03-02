@@ -76,6 +76,10 @@ function is_wall(c)
 end
 
 function game_init()
+	if gamecenter then
+		gamecenter.init()
+	end
+
 	states.register('game', game)
 	states.register('menu', menu)
 	states.register('levels', levels)
@@ -102,6 +106,10 @@ function game_init()
 end
 
 function game_close()
+	if gamecenter then
+		gamecenter.close()
+	end
+
 	tutorials.close()
 	font.free(fnt)
 	puzzles.free()

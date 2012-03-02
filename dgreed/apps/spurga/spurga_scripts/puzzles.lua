@@ -164,6 +164,19 @@ function puzzles.unlock_next(puzzle)
 	end
 end
 
+function puzzles.total_score()
+	local total = 0
+	local levels_puzzle = puzzles['levels']
+	local m = levels_puzzle.map
+	for i,p in pairs(m) do
+		local score = keyval.get('pscore:'..p, -1)
+		if score > 0 then
+			total = total + score
+		end
+	end
+	return total
+end
+
 -- move puzzle to front of lru list
 function puzzles.lru_list_front(puzzle)
 	if not puzzles.lru then
