@@ -617,6 +617,7 @@ function grid:can_move(move_x, move_y, tx, ty, p, mark)
 			else
 				if self.show_wallmarks and self.wallmarks[t] == nil then
 					self.wallmarks[t] = time.s()
+					mfx.trigger('wallmark')
 				end
 				result = false
 			end

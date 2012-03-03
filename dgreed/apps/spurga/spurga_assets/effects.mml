@@ -6,6 +6,7 @@
 		(s atgal.wav)
 		(s pirmyn.wav)
 		(s klikt.wav)
+		(s ne.wav)
 		(s slinkt.wav
 			(type ambient)
 			(decay 3)
@@ -31,6 +32,9 @@
 		)
 		(e move
 			(sound slinkt.wav)
+		)
+		(e wallmark
+			(sound ne.wav)
 		)
 	)
 )
