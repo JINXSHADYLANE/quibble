@@ -43,6 +43,8 @@ static long io_resp_code;
 
 static void _http_invoke_callback(void* userdata);
 
+extern void async_process_schedule(void);
+
 // Stuff happening on io thread
 
 static size_t _io_write_data(char* ptr, size_t size, size_t nmemb, void* userdata) {
@@ -362,6 +364,8 @@ static void _http_close(void) {
 	while(!async_is_finished(task)) {
 	};
 
+	async_process_schedule();
+
 	curl_global_cleanup();
 
 	http_initialized = false;
@@ -398,6 +402,7 @@ void http_post(
 		const char* data, const char* content_type, HttpCallback cb) {
 	assert(addr && cb);
 	assert(!shr_live_req);
+	_http_check_init();
 
 	// Pass data to io task
 	shr_live_req = true;
@@ -414,6 +419,7 @@ void http_put(const char* addr, void* data, size_t size,
 		bool get_header, HttpCallback cb) {
 	assert(addr && cb);
 	assert(!shr_live_req);
+	_http_check_init();
 
 	// Pass data to io task
 	shr_live_req = true;
