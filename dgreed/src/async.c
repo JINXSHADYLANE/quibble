@@ -56,6 +56,7 @@ static void _async_close_queues(void);
 static void _async_stop_queues(void);
 static void _async_init_scheduler(void);
 static void _async_close_scheduler(void);
+void async_process_schedule(void);
 
 static void _check_async_threads(void);
 static void _check_io_thread(void);
@@ -453,6 +454,8 @@ static void _async_init_scheduler(void) {
 }
 
 static void _async_close_scheduler(void) {
+	async_process_schedule();
+
 	if(heap_size(&async_schedule_pq) != 0) {
 		LOG_WARNING("Closing scheduler with unfinished tasks!");
 	}
