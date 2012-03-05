@@ -187,7 +187,14 @@ void video_get_native_resolution(uint* width, uint* height) {
     *width = MAX(screen_rect.size.width, screen_rect.size.height);
     *height = MIN(screen_rect.size.width, screen_rect.size.height);
     
-    CGFloat screen_scale = [[UIScreen mainScreen] scale];
+    CGFloat screen_scale;
+    
+    if([[UIScreen mainScreen] respondsToSelector:@selector(scale:)]) {
+        screen_scale = [[UIScreen mainScreen] scale];
+    }
+    else {
+        screen_scale = 1.0f;
+    }
     
     *width *= screen_scale;
     *height *= screen_scale;
@@ -612,7 +619,6 @@ TexHandle tex_load(const char* filename) {
 	CGImageRef cg_image = image.CGImage;
 	new_tex.width = CGImageGetWidth(cg_image);
 	new_tex.height = CGImageGetHeight(cg_image);
-	bool has_alpha = CGImageGetAlphaInfo(cg_image) != kCGImageAlphaNone;
     CGColorSpaceRef color_space = CGImageGetColorSpace(cg_image);
 	CGColorSpaceModel color_model = CGColorSpaceGetModel(color_space);
 	uint bits_per_component = CGImageGetBitsPerComponent(cg_image);
@@ -625,13 +631,23 @@ TexHandle tex_load(const char* filename) {
 	
 	// Make gl texture
 	uint gl_id;
-	uint format = has_alpha ? GL_RGBA : GL_RGB;
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &gl_id);
 	glBindTexture(GL_TEXTURE_2D, gl_id);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_2D, 0, format, new_tex.width, new_tex.height, 0, 
-				 format, GL_UNSIGNED_BYTE, data);
-	CFRelease(image_data);
+    
+    NSString *reqSysVer = @"3.1.3";
+    NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
+    if ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedSame) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, new_tex.width, new_tex.height, 0, 
+				 GL_RGBA, GL_UNSIGNED_BYTE, data);
+    }
+    else {
+        // For some reason one specific iPod 1st gen requires to reverse color order
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, new_tex.width, new_tex.height, 0, 
+                GL_BGRA_EXT, GL_UNSIGNED_BYTE, data);
+    }
+    
+    CFRelease(image_data);
     if(!video_retro_filtering) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

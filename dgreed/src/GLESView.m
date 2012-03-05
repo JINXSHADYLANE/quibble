@@ -26,12 +26,18 @@ static GLESView* global_gles_view = NULL;
 		if(!context || ![EAGLContext setCurrentContext:context]) {
 			[self release];
 			return nil;
-		}	
+		}
         
-        CGFloat screen_scale = [[UIScreen mainScreen] scale];
-        self.contentScaleFactor = screen_scale;
-		
-		// Create framebuffer and renderbuffer
+        CGFloat screen_scale;
+        if([[UIScreen mainScreen] respondsToSelector:@selector(scale:)]) {
+            CGFloat screen_scale = [[UIScreen mainScreen] scale];
+            self.contentScaleFactor = screen_scale;
+        }
+        else {
+            screen_scale = 1.0f;
+        }
+        
+        // Create framebuffer and renderbuffer
 		GLuint framebuffer, renderbuffer;
 		glGenFramebuffersOES(1, &framebuffer);
 		glGenRenderbuffersOES(1, &renderbuffer);
