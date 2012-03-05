@@ -49,7 +49,12 @@ float resign_active_t;
     
     gl_view = [gl_controller.gl_view retain];
 	
-	[application setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
+    if([application respondsToSelector:@selector(setStatusBarHidden:withAnimation:)]) {
+        [application setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
+    }
+    else {
+        [application setStatusBarHidden:YES animated:false];
+    }
 	
 	/* Get home directory for utils.c */
 	NSString* home = NSHomeDirectory();

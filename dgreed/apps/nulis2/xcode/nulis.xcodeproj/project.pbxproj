@@ -93,6 +93,7 @@
 		2137781D14CD5D4C004F01D2 /* nulis2_scripts in Resources */ = {isa = PBXBuildFile; fileRef = 2137781C14CD5D4C004F01D2 /* nulis2_scripts */; };
 		2137782714CD61B5004F01D2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213777BB14CD5C01004F01D2 /* QuartzCore.framework */; };
 		214AB17314E57D1A0074C84F /* libSystem.B.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 21D150DA14E171CA00870D7A /* libSystem.B.dylib */; };
+		214AB57F150507A800A45DC0 /* ml_web.c in Sources */ = {isa = PBXBuildFile; fileRef = 214AB57D150507A800A45DC0 /* ml_web.c */; };
 		2183CA2114E285BF00ECDC45 /* ml_gamecenter.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */; };
 		2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1F14E285BF00ECDC45 /* ml_keyval.c */; };
 		2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 2194F0C414D7FF5900147A0C /* ml_coldet.c */; };
@@ -249,6 +250,8 @@
 		2137781A14CD5D42004F01D2 /* nulis2_assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = nulis2_assets; path = ../nulis2_assets; sourceTree = "<group>"; };
 		2137781C14CD5D4C004F01D2 /* nulis2_scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = nulis2_scripts; path = ../nulis2_scripts; sourceTree = "<group>"; };
 		2137782514CD5E34004F01D2 /* nulis-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "nulis-Info.plist"; path = "nulis/nulis-Info.plist"; sourceTree = "<group>"; };
+		214AB57D150507A800A45DC0 /* ml_web.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_web.c; path = ../../../src/malka/ml_web.c; sourceTree = "<group>"; };
+		214AB57E150507A800A45DC0 /* ml_web.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_web.h; path = ../../../src/malka/ml_web.h; sourceTree = "<group>"; };
 		2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_gamecenter.c; path = ../../../src/malka/ml_gamecenter.c; sourceTree = "<group>"; };
 		2183CA1E14E285BF00ECDC45 /* ml_gamecenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_gamecenter.h; path = ../../../src/malka/ml_gamecenter.h; sourceTree = "<group>"; };
 		2183CA1F14E285BF00ECDC45 /* ml_keyval.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_keyval.c; path = ../../../src/malka/ml_keyval.c; sourceTree = "<group>"; };
@@ -433,6 +436,8 @@
 				2137774714CD5B27004F01D2 /* ml_utils.h */,
 				2194F0C414D7FF5900147A0C /* ml_coldet.c */,
 				2194F0C514D7FF5900147A0C /* ml_coldet.h */,
+				214AB57D150507A800A45DC0 /* ml_web.c */,
+				214AB57E150507A800A45DC0 /* ml_web.h */,
 			);
 			name = malka;
 			sourceTree = "<group>";
@@ -648,6 +653,7 @@
 				21D150D314E1541B00870D7A /* gamecenter.m in Sources */,
 				2183CA2114E285BF00ECDC45 /* ml_gamecenter.c in Sources */,
 				2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */,
+				214AB57F150507A800A45DC0 /* ml_web.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
