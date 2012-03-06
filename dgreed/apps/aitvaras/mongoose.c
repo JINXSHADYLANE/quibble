@@ -2583,7 +2583,7 @@ static void parse_http_headers(char **buf, struct mg_request_info *ri) {
 static int is_valid_http_method(const char *method) {
   return !strcmp(method, "GET") || !strcmp(method, "POST") ||
     !strcmp(method, "HEAD") || !strcmp(method, "CONNECT") ||
-    !strcmp(method, "PUT") || !strcmp(method, "DELETE");
+    !strcmp(method, "PUT") || !strcmp(method, "DELETE") || !strcmp(method, "OPTIONS");
 }
 
 // Parse HTTP request, fill in mg_request_info structure.

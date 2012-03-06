@@ -3,6 +3,7 @@ Import('env')
 NAME='aitvaras'
 ASSETS_DIR = NAME + '_assets'
 SCRIPTS_DIR = NAME + '_scripts'
+HTML_DIR = NAME + '_html'
 
 sources = Glob('*.c', strings=True)
 
@@ -29,4 +30,8 @@ if env['DGREED_POSTFIX'] == 'd':
 	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + SCRIPTS_DIR
 	for script in Glob(SCRIPTS_DIR + '/*.lua', strings=True):
 		env.Install(dest_dir, script)
+
+	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + HTML_DIR 
+	for file in Glob(HTML_DIR + '/*', strings=True):
+		env.Install(dest_dir, file);
 

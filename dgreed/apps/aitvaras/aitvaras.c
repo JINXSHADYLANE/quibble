@@ -2,27 +2,40 @@
 #include <font.h>
 #include <memory.h>
 #include <http.h>
+#include <datastruct.h>
+#include <sprsheet.h>
 
 #include "mongoose.h"
 
-#define MAX_CLIENTS 16
+#define WIDTH 1024
+#define HEIGHT 768
+#define MAX_CLIENTS 32
 #define ASSETS_PRE "aitvaras_assets/"
-#define LOBBY_ADDR "http://localhost"
+#define SERVER_ADDR "http://89.249.93.114:8008"
+#define LOBBY_ADDR "http://89.249.93.114:80"
 #define LISTENING_PORT "8008"
 
 FontHandle font;
 const char* id_text = NULL;
 
-int n_clients = 0;
-int client_ids[MAX_CLIENTS];
+typedef struct {
+	Vector2 pos;
+	Vector2 dir;
+} Client;
+
+AATree clients;
+uint n_ids = 0;
+uint ids[MAX_CLIENTS];
 
 // Mongoose stuff
 struct mg_context* mg_ctx;
 
 static const char *standard_reply = "HTTP/1.1 200 OK\r\n"
-  "Cache: no-cache\r\n"
   "Content-Type: text/plain\r\n"
-  "Connection: close\r\n\r\n";
+  "Access-Control-Allow-Origin: *\r\n"
+  "Access-Control-Allow-Headers: Content-Type\r\n"
+  "Cache: no-cache\r\n"
+  "Connection: keep-alive\r\n\r\n";
 
 static void mg_error(struct mg_connection *conn, const struct mg_request_info *ri) {
 	mg_printf(conn, "HTTP/1.1 %d XX\r\n" "Connection: close\r\n\r\n", ri->status_code);
@@ -32,12 +45,23 @@ static void mg_error(struct mg_connection *conn, const struct mg_request_info *r
 static void mg_join(struct mg_connection* conn, const struct mg_request_info* ri) {
 	if(strcmp(ri->request_method, "GET") == 0) {
 		uint new_id = rand_uint();
-		if(n_clients == MAX_CLIENTS-1) 
+
+		Client* new = MEM_ALLOC(sizeof(Client));
+		if(!aatree_insert(&clients, new_id, new))
 			goto error;
 
-		client_ids[n_clients++] = new_id;
+		assert(n_ids < MAX_CLIENTS);
+		ids[n_ids++] = new_id;
+
+		new->pos = vec2(
+			rand_float_range(0, WIDTH),
+			rand_float_range(0, HEIGHT)
+		);
+		new->dir = vec2(0.0f, 0.0f);
+
 		mg_printf(conn, "%s", standard_reply);
 		mg_printf(conn, "%u\n", new_id);
+		return;
 	}
 	
 error:
@@ -52,27 +76,37 @@ static void mg_leave(struct mg_connection* conn, const struct mg_request_info* r
 	if (strcmp(ri->request_method, "POST") == 0 &&
 		(cl = mg_get_header(conn, "Content-Length")) != NULL) {
 		len = atoi(cl);
-		if ((buf = malloc(len+1)) != NULL) {
+		if ((buf = MEM_ALLOC(len+1)) != NULL) {
 			mg_read(conn, buf, len);
 			buf[len] = '\0';
 
 			uint id;
 			sscanf(buf, "%u", &id); 
+			MEM_FREE(buf);
 
-			for(uint i = 0; i < n_clients; i++) {
-				if(client_ids[i] == id) {
-					client_ids[i] = client_ids[n_clients-1];
-					n_clients--;
-					mg_printf(conn, "%s", standard_reply);
-					free(buf);
-					return;
+			if(aatree_size(&clients)) {
+				Client* c = aatree_remove(&clients, id);
+				if(!c)
+					goto error;
+
+				for(uint i = 0; i < n_ids; ++i) {
+					if(ids[i] == id) {
+						ids[i] = ids[--n_ids];
+						goto ok;
+					}
 				}
+				goto error;
+					
+			ok:
+				mg_printf(conn, "%s", standard_reply);
+				MEM_FREE(c);
+				return;
 			}
-
-			mg_error(conn, ri);
-
-			free(buf);
 		}
+	}
+	else if(strcmp(ri->request_method, "OPTIONS") == 0) {
+		mg_printf(conn, "%s", standard_reply);
+		return;
 	}
 
 error:
@@ -88,11 +122,26 @@ static void mg_input(struct mg_connection* conn, const struct mg_request_info* r
 	if (strcmp(ri->request_method, "POST") == 0 &&
 		(cl = mg_get_header(conn, "Content-Length")) != NULL) {
 		len = atoi(cl);
-		if ((buf = malloc(len+1)) != NULL) {
+		if ((buf = MEM_ALLOC(len+1)) != NULL) {
 			mg_read(conn, buf, len);
 			buf[len] = '\0';
-			printf("%s\n", buf);
-			free(buf);
+
+			uint id;
+			char dir;
+			char state;
+
+			sscanf(buf, "%u\n:%c:%c", &id, &dir, &state);
+			MEM_FREE(buf);
+
+			Client* c = aatree_find(&clients, id);
+			if(dir == 'l') 
+				c->dir = vec2(state == 'd' ? -1.0f : 0.0f, c->dir.y);
+			if(dir == 'r')
+				c->dir = vec2(state == 'd' ? 1.0f : 0.0f, c->dir.y);
+			if(dir == 'u')
+				c->dir = vec2(c->dir.x, state == 'd' ? -1.0f : 0.0f);
+			if(dir == 'd')
+				c->dir = vec2(c->dir.x, state == 'd' ? 1.0f : 0.0f);
 		}
 	}
 }
@@ -148,9 +197,12 @@ bool dgreed_init(void) {
 	video_init(1024, 768, "Aitvaras");
 	sound_init();
 
-	http_post(LOBBY_ADDR "/enlist", false, "", NULL, enlist_cb);
+	http_post(LOBBY_ADDR "/enlist", false, SERVER_ADDR, NULL, enlist_cb);
 
 	font = font_load(ASSETS_PRE "lucida_grande_60px.bft");
+
+	aatree_init(&clients);
+	sprsheet_init(ASSETS_PRE "sprsheet.mml");
 
   	const char *options[] = {
 		"listening_ports", LISTENING_PORT, 
@@ -166,7 +218,7 @@ bool dgreed_update(void) {
 	sound_update();
 
 	if(key_up(KEY_QUIT)) {
-		http_post(LOBBY_ADDR "/remove", false, "", NULL, remove_cb);
+		http_post(LOBBY_ADDR "/remove", false, SERVER_ADDR, NULL, remove_cb);
 		return false;
 	}
 
@@ -175,10 +227,18 @@ bool dgreed_update(void) {
 
 bool dgreed_render(void) {
 	
-	// Render
 	if(id_text) {
-		Vector2 pos = {10.0, 700.0f};
+		Vector2 pos = {10.0, 680.0f};
 		font_draw(font, id_text, 6, &pos, COLOR_WHITE);
+	}
+
+	for(uint i = 0; i < n_ids; ++i) {
+		uint id = ids[i];
+		Client* c = aatree_find(&clients, id);
+
+		c->pos = vec2_add(c->pos, vec2_scale(c->dir, 0.8f));
+
+		spr_draw_cntr("white", 1, c->pos, 0.0f, 1.0f, COLOR_WHITE);	
 	}
 	
 	video_present();
@@ -188,6 +248,17 @@ bool dgreed_render(void) {
 
 void dgreed_close(void) {
 	mg_stop(mg_ctx);
+
+	sprsheet_close();
+
+	while(aatree_size(&clients)) {
+		Client* c;
+		uint id = aatree_min(&clients, (void**)&c);
+		aatree_remove(&clients, id);
+		MEM_FREE(c);
+	}
+
+	aatree_free(&clients);
 
 	if(id_text)
 		MEM_FREE(id_text);

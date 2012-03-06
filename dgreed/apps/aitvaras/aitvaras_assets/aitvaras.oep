@@ -1,0 +1,17 @@
+<project>
+	<name>aitvaras</name>
+	<settings>
+		<defaultWidth>1024</defaultWidth>
+		<defaultHeight>768</defaultHeight>
+		<workingDirectory>./</workingDirectory>
+	</settings>
+	<tilesets>
+		<tileset name="atlas" image="atlas.png" tileWidth="64" tileHeight="64" width="256" height="256"/>
+	</tilesets>	
+	<layers>
+		<grid name="collision" gridSize="64" />
+		<tiles name="background" gridSize="64" />
+		<tiles name="foreground" gridSize="64" />
+	</layers>	
+</project>
+
