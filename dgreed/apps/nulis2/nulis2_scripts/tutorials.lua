@@ -6,7 +6,7 @@ image_layer = 1
 image_show_len = 4
 
 images = {
-	['l1'] = {'', 'title', 'tut_one_finger'},
+	['l1'] = {'title', 'tut_one_finger'},
 	['l2'] = {'tut_two_fingers','hint1'},
 	['l3'] = {'tut_menu_fingers','hint2','hint3'},
 	['l10'] = {'','clock'},

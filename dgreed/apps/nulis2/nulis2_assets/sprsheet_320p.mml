@@ -1,7 +1,9 @@
 (sprsheet nulis_320p
+	(preload title,bubble_w,background)
 	(prefix "nulis2_assets/")
 	(img empty
-		(tex "empty.png")
+		(tex "background.png")
+		(src 0,350,2,352)
 	)
 	(img title
 		(tex "nulis_title_s.png")
