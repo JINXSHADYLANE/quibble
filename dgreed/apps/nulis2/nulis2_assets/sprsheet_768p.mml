@@ -177,4 +177,16 @@
 		(offset 100,100)
 		(grid 8,5)
 	)
+	(img hint1
+		(tex "tut_hints.png")
+		(src 0,0,194,30)
+	)
+	(img hint2
+		(tex "tut_hints.png")
+		(src 0,30,284,56)
+	)
+	(img hint3
+		(tex "tut_hints.png")
+		(src 0,56,284,86)
+	)
 )
