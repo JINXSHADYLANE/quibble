@@ -67,22 +67,22 @@
 		(tex "circle.png")
 	)
 	(img tut_one_finger
-		(tex "tut_one_finger.png")
+		(tex "tut_one_finger_r.png")
 	)
 	(img tut_two_fingers
-		(tex "tut_two_fingers.png")
+		(tex "tut_two_fingers_r.png")
 	)
 	(img tut_menu_fingers
-		(tex "tut_three_fingers.png")
+		(tex "tut_menu_fingers_r.png")
 	)
 	(img clock
-		(tex "clock.png")
+		(tex "clock_r.png")
 	)
 	(img magnet
-		(tex "magnet.png")
+		(tex "magnet_r.png")
 	)
 	(img stopwatch
-		(tex "stopwatch.png")
+		(tex "stopwatch_r.png")
 	)
 	(img resume
 		(tex "ui.png")
@@ -138,5 +138,17 @@
 		(src 0,256,128,384)
 		(offset 128,128)
 		(grid 8,5)
+	)
+	(img hint1
+		(tex "tut_hints_r.png")
+		(src 0,0,264,58)
+	)
+	(img hint2
+		(tex "tut_hints_r.png")
+		(src 0,58,372,112)
+	)
+	(img hint3
+		(tex "tut_hints_r.png")
+		(src 0,112,372,170)
 	)
 )
