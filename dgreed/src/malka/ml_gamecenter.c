@@ -219,6 +219,8 @@ static void _get_achievements_cb(DArray* data) {
 		lua_createtable(cb_l, 0, 0);
 	}
 
+	// Does this work right, shouldn't function come first and then the
+	// arguments?
 	lua_getref(cb_l, cb_achievement_ref);
 	assert(lua_isfunction(cb_l, -1));
 	lua_call(cb_l, 1, 0);

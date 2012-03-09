@@ -17,6 +17,7 @@ sources = Split("""
 	ml_keyval.c
 	ml_gamecenter.c
 	ml_web.c
+	ml_iap.c
 """)
 
 malka = env.Library(NAME + postfix, sources)
