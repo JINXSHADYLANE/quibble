@@ -29,8 +29,8 @@ static GLESView* global_gles_view = NULL;
 		}
         
         CGFloat screen_scale;
-        if([[UIScreen mainScreen] respondsToSelector:@selector(scale:)]) {
-            CGFloat screen_scale = [[UIScreen mainScreen] scale];
+        if([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+            screen_scale = [[UIScreen mainScreen] scale];
             self.contentScaleFactor = screen_scale;
         }
         else {

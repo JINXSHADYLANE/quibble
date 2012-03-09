@@ -12,6 +12,9 @@ extern uint time_ms_current(void);
 extern void keyval_app_suspend(void);
 extern void gamecenter_app_suspend(void);
 extern void _set_gamecenter_app_delegate(DGreedAppDelegate* _app_delegate);
+extern void _set_iap_app_delegate(DGreedAppDelegate* _app_delegate);
+extern void _iap_received_products_response(SKProductsResponse* response);
+extern void _iap_updated_transaction(SKPaymentQueue* queue, SKPaymentTransaction* transaction);
 extern float inactive_time;
 extern Color clear_color;
 extern float screen_widthf, screen_heightf;
@@ -67,6 +70,7 @@ float resign_active_t;
 	[fileManager release];
     
     _set_gamecenter_app_delegate(self);
+    //_set_iap_app_delegate(self);
     
     [UIAccelerometer sharedAccelerometer].delegate = self;
 	
@@ -206,6 +210,18 @@ bool isAccelerating(UIAcceleration* last, UIAcceleration* current, double thresh
         }
     }
     self.last_acceleration = acceleration;
+}
+
+- (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
+{
+    _iap_received_products_response(response);
+}
+
+- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
+{
+    for(SKPaymentTransaction* transaction in transactions) {
+        _iap_updated_transaction(queue, transaction);
+    }
 }
 
 @end

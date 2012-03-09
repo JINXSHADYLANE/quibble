@@ -189,7 +189,7 @@ void video_get_native_resolution(uint* width, uint* height) {
     
     CGFloat screen_scale;
     
-    if([[UIScreen mainScreen] respondsToSelector:@selector(scale:)]) {
+    if([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
         screen_scale = [[UIScreen mainScreen] scale];
     }
     else {
@@ -1068,8 +1068,7 @@ Source* _get_source(SourceHandle handle) {
 			return &source[i];
 		}	
 	}
-	assert(0 && "Unable to find source handle");
-	return &source[0];
+    return NULL;
 }
 
 void sound_free(SoundHandle handle) {
@@ -1160,7 +1159,6 @@ SourceHandle sound_play_ex(SoundHandle handle, bool loop) {
 		}
 	}
 	if(src == NULL) {
-		LOG_WARNING("Skipping sound");
 		return 0;
 	}
 	
@@ -1192,7 +1190,8 @@ SourceHandle sound_play_ex(SoundHandle handle, bool loop) {
 
 void sound_pause_ex(SourceHandle handle) {
 	Source* src = _get_source(handle);
-	assert(src);
+	if(!src)
+        return;
 	
 	if(src->buffer) {
 		alSourcePause(src->al_source);
@@ -1207,7 +1206,8 @@ void sound_pause_ex(SourceHandle handle) {
 
 void sound_resume_ex(SourceHandle handle) {
 	Source* src = _get_source(handle);
-	assert(src);
+	if(!src)
+        return;
 	
 	if(src->buffer) {
 		ALint state;
@@ -1261,14 +1261,16 @@ void sound_set_volume_ex(SourceHandle handle, float volume) {
 
 float sound_get_volume_ex(SourceHandle handle) {
 	Source* src = _get_source(handle);
-	assert(src);
-	
-	return src->volume;
+	if(src)
+        return src->volume;
+    else
+        return 0.0f;
 }
 
 float sound_get_pos_ex(SourceHandle handle) {
 	Source* src = _get_source(handle);
-	assert(src);
+	if(!src)
+        return 0.0f;
 	
 	if(!src->buffer) {
 		Sound* sound = _get_sound(src->sound, NULL);
@@ -1284,7 +1286,8 @@ float sound_get_pos_ex(SourceHandle handle) {
 
 void sound_set_pos_ex(SourceHandle handle, float pos) {
 	Source* src = _get_source(handle);
-	assert(src);
+	if(!src)
+        return;
 	
 	if(!src->buffer) {
 		Sound* sound = _get_sound(src->sound, NULL);

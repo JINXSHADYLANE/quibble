@@ -808,6 +808,31 @@ pauses game, shows default gamecenter achievement ui
 
 
 ---
+iap
+---
+
+In-App purchases. Available only in iOS, iap == nil if 
+not supported.
+
+- iap.init()
+initializes iap subsystem
+
+- iap.close()
+closes iap
+
+- iap.is_active()
+returns false if you can't use iap
+
+- iap.products(callback)
+invokes callback with a list of {id, title, description, price_str} 
+tables
+
+- iap.purchase(id, callback)
+purchase a product, callback is invoked with product table and a
+boolean indicating successfullness of purchase
+
+
+---
 web
 ---
 
