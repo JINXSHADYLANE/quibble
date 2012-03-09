@@ -1,0 +1,155 @@
+(sprsheet nulis_1536p
+	(preload title,bubble_w,background)
+	(prefix "nulis2_assets/")
+	(img empty
+		(tex "background.png")
+		(src 0,350,2,352)
+	)
+	(img title
+		(tex "nulis_title_r.png")
+	)
+	(img background
+		(tex "background.png")
+		(src 2,2,242,162)
+	)
+	(img vignette
+		(tex "background.png")
+		(src 2,164,242,324)
+	)
+	(img bubble_w
+		(tex "bubbles.png")
+		(src 0,0,64,64)
+	)
+	(img bubble_b
+		(tex "bubbles.png")
+		(src 0,64,64,128)
+	)
+	(img double_bubble_w
+		(tex "bubbles.png")
+		(src 128,0,232,64)
+	)
+	(img double_bubble_b
+		(tex "bubbles.png")
+		(src 128,64,232,128)
+	)
+	(img triple_bubble_w
+		(tex "bubbles.png")
+		(src 0,128,104,232)
+	)
+	(img triple_bubble_b
+		(tex "bubbles.png")
+		(src 104,128,208,232)
+	)
+	(img beacon
+		(tex "bubbles.png")
+		(src 64,0,128,64)
+	)
+	(img time_w
+		(tex "bubbles.png")
+		(src 256,0,384,128)
+	)
+	(img time_b
+		(tex "bubbles.png")
+		(src 384,0,512,128)
+	)
+	(img gravity_w
+		(tex "bubbles.png")
+		(src 208,128,308,228)
+	)
+	(img gravity_b
+		(tex "bubbles.png")
+		(src 308,128,408,228)
+	)
+	(img g_sparkles
+		(tex "bubbles.png")
+		(src 408,128,508,228)
+	)
+	(img circle
+		(tex "circle.png")
+	)
+	(img tut_one_finger
+		(tex "tut_one_finger_ipad_r.png")
+	)
+	(img tut_two_fingers
+		(tex "tut_two_fingers_ipad_r.png")
+	)
+	(img tut_menu_fingers
+		(tex "tut_menu_fingers_ipad_r.png")
+	)
+	(img clock
+		(tex "clock_ipad_r.png")
+	)
+	(img magnet
+		(tex "magnet_ipad_r.png")
+	)
+	(img stopwatch
+		(tex "stopwatch_ipad_r.png")
+	)
+	(img resume
+		(tex "ui_ipad_r.png")
+		(src 0,0,200,200)
+	)
+	(img replay
+		(tex "ui_ipad_r.png")
+		(src 200,0,400,200)
+	)
+	(img sound
+		(tex "ui_ipad_r.png")
+		(src 400,0,600,200)
+	)
+	(img music
+		(tex "ui_ipad_r.png")
+		(src 600,0,800,200)
+	)
+	(img score
+		(tex "ui_ipad_r.png")
+		(src 800,0,1000,200)
+	)
+	(img sound_mute
+		(tex "ui_ipad_r.png")
+		(src 1000,0,1200,200)
+	)
+	(img music_mute
+		(tex "ui_ipad_r.png")
+		(src 1200,0,1400,200)
+	)
+	(img back
+		(tex "ui_ipad_r.png")
+		(src 1400,0,1600,200)
+	)
+	(img locked
+		(tex "ui_ipad_r.png")
+		(src 0,200,200,400)
+	)
+	(img high_score
+		(tex "ui_ipad_r.png")
+		(src 200,200,400,400)
+	)
+	(img level_stats
+		(tex "ui_ipad_r.png")
+		(src 400,200,600,400)
+	)
+	(img achievements
+		(tex "ui_ipad_r.png")
+		(src 600,200,800,400)
+	)
+	(anim levels
+		(tex "ui_ipad_r.png")
+		(frames 40)
+		(src 0,400,200,600)
+		(offset 200,200)
+		(grid 8,5)
+	)
+	(img hint1
+		(tex "tut_hints_ipad_r.png")
+		(src 0,0,388,60)
+	)
+	(img hint2
+		(tex "tut_hints_ipad_r.png")
+		(src 0,60,568,112)
+	)
+	(img hint3
+		(tex "tut_hints_ipad_r.png")
+		(src 0,112,568,172)
+	)
+)
