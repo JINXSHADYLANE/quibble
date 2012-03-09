@@ -1,4 +1,5 @@
 #import <UIKit/UIKit.h>
+#import <StoreKit/StoreKit.h>
 #import "GLESView.h"
 #import "GLESViewController.h"
 #import "AutoRotateViewController.h"
@@ -7,7 +8,9 @@
     UIApplicationDelegate, 
     GKLeaderboardViewControllerDelegate, 
     GKAchievementViewControllerDelegate,
-    UIAccelerometerDelegate
+    UIAccelerometerDelegate,
+    SKProductsRequestDelegate,
+    SKPaymentTransactionObserver
     > {
     
     UIWindow* window;

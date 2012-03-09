@@ -189,7 +189,7 @@ void video_get_native_resolution(uint* width, uint* height) {
     
     CGFloat screen_scale;
     
-    if([[UIScreen mainScreen] respondsToSelector:@selector(scale:)]) {
+    if([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
         screen_scale = [[UIScreen mainScreen] scale];
     }
     else {
@@ -1159,7 +1159,6 @@ SourceHandle sound_play_ex(SoundHandle handle, bool loop) {
 		}
 	}
 	if(src == NULL) {
-		LOG_WARNING("Skipping sound");
 		return 0;
 	}
 	
