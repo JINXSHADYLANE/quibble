@@ -92,14 +92,15 @@
 		2137781B14CD5D42004F01D2 /* nulis2_assets in Resources */ = {isa = PBXBuildFile; fileRef = 2137781A14CD5D42004F01D2 /* nulis2_assets */; };
 		2137781D14CD5D4C004F01D2 /* nulis2_scripts in Resources */ = {isa = PBXBuildFile; fileRef = 2137781C14CD5D4C004F01D2 /* nulis2_scripts */; };
 		2137782714CD61B5004F01D2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213777BB14CD5C01004F01D2 /* QuartzCore.framework */; };
-		214AB17314E57D1A0074C84F /* libSystem.B.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 21D150DA14E171CA00870D7A /* libSystem.B.dylib */; };
 		214AB57F150507A800A45DC0 /* ml_web.c in Sources */ = {isa = PBXBuildFile; fileRef = 214AB57D150507A800A45DC0 /* ml_web.c */; };
 		2183CA2114E285BF00ECDC45 /* ml_gamecenter.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */; };
 		2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1F14E285BF00ECDC45 /* ml_keyval.c */; };
 		2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 2194F0C414D7FF5900147A0C /* ml_coldet.c */; };
 		21A6736714DC0D3700665A26 /* AutoRotateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 21A6736614DC0D3700665A26 /* AutoRotateViewController.m */; };
+		21A92A0E150A2D6F004AE2C3 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A92A0C150A2D61004AE2C3 /* StoreKit.framework */; };
 		21D150D314E1541B00870D7A /* gamecenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D150D214E1541A00870D7A /* gamecenter.m */; };
 		21D150D914E1715000870D7A /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21D150D714E1713D00870D7A /* GameKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		21F7DC081509FA9300AAFBA4 /* iap.m in Sources */ = {isa = PBXBuildFile; fileRef = 21F7DC071509FA9300AAFBA4 /* iap.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -260,10 +261,12 @@
 		2194F0C514D7FF5900147A0C /* ml_coldet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_coldet.h; path = ../../../src/malka/ml_coldet.h; sourceTree = "<group>"; };
 		21A6736514DC0D3700665A26 /* AutoRotateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AutoRotateViewController.h; path = ../../../src/AutoRotateViewController.h; sourceTree = "<group>"; };
 		21A6736614DC0D3700665A26 /* AutoRotateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AutoRotateViewController.m; path = ../../../src/AutoRotateViewController.m; sourceTree = "<group>"; };
+		21A92A0C150A2D61004AE2C3 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		21D150D114E1541A00870D7A /* gamecenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gamecenter.h; path = ../../../src/gamecenter.h; sourceTree = "<group>"; };
 		21D150D214E1541A00870D7A /* gamecenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = gamecenter.m; path = ../../../src/gamecenter.m; sourceTree = "<group>"; };
 		21D150D714E1713D00870D7A /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
-		21D150DA14E171CA00870D7A /* libSystem.B.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSystem.B.dylib; path = usr/lib/libSystem.B.dylib; sourceTree = SDKROOT; };
+		21F7DC051509F9F900AAFBA4 /* iap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iap.h; path = ../../../src/iap.h; sourceTree = "<group>"; };
+		21F7DC071509FA9300AAFBA4 /* iap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iap.m; path = ../../../src/iap.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -271,6 +274,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				21A92A0E150A2D6F004AE2C3 /* StoreKit.framework in Frameworks */,
 				2137782714CD61B5004F01D2 /* QuartzCore.framework in Frameworks */,
 				213777CD14CD5CB7004F01D2 /* CoreData.framework in Frameworks */,
 				213777C714CD5C57004F01D2 /* OpenAL.framework in Frameworks */,
@@ -282,7 +286,6 @@
 				213776DD14CD5A58004F01D2 /* Foundation.framework in Frameworks */,
 				213776DF14CD5A58004F01D2 /* CoreGraphics.framework in Frameworks */,
 				21D150D914E1715000870D7A /* GameKit.framework in Frameworks */,
-				214AB17314E57D1A0074C84F /* libSystem.B.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,7 +321,7 @@
 		213776D914CD5A58004F01D2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				21D150DA14E171CA00870D7A /* libSystem.B.dylib */,
+				21A92A0C150A2D61004AE2C3 /* StoreKit.framework */,
 				21D150D714E1713D00870D7A /* GameKit.framework */,
 				213777CB14CD5CA4004F01D2 /* CoreData.framework */,
 				213777B614CD5C01004F01D2 /* AudioToolbox.framework */,
@@ -356,6 +359,8 @@
 				2137773814CD5B05004F01D2 /* malka */,
 				213776F214CD5AFB004F01D2 /* async.c */,
 				213776F314CD5AFB004F01D2 /* async.h */,
+				21F7DC051509F9F900AAFBA4 /* iap.h */,
+				21F7DC071509FA9300AAFBA4 /* iap.m */,
 				213776F414CD5AFB004F01D2 /* coldet.c */,
 				213776F514CD5AFB004F01D2 /* coldet.h */,
 				213776F614CD5AFB004F01D2 /* darray.c */,
@@ -654,6 +659,7 @@
 				2183CA2114E285BF00ECDC45 /* ml_gamecenter.c in Sources */,
 				2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */,
 				214AB57F150507A800A45DC0 /* ml_web.c in Sources */,
+				21F7DC081509FA9300AAFBA4 /* iap.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

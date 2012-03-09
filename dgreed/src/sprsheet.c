@@ -364,6 +364,10 @@ void spr_draw(const char* name, uint layer, RectF dest, Color tint) {
 	RectF src;
 
 	sprsheet_get(name, &tex, &src);
+	if(dest.right == 0.0f && dest.bottom == 0.0f) {
+		dest.right = dest.left + rectf_width(&src) * sprsheet_scale;
+		dest.bottom = dest.top + rectf_height(&src) * sprsheet_scale;
+	}
 	video_draw_rect(tex, layer, &src, &dest, tint);
 }
 
