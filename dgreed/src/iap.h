@@ -1,3 +1,4 @@
+#ifndef IAP_H
 #define IAP_H
 
 // iOS In-App Purchase wrapper
@@ -7,7 +8,8 @@
 #error IAP works only on iOS
 #endif
 
-#include <utils.h>
+#include "utils.h"
+#include "darray.h"
 
 typedef struct {
 	const char* id;
@@ -17,13 +19,13 @@ typedef struct {
 } Product;
 
 typedef void (*ProductCallback)(DArray* data);
-typedef void (*PurchaseCallback)(Product* product, bool success);
+typedef void (*PurchaseCallback)(const char* _id, bool success);
 
 void iap_init(void);
 void iap_close(void);
-void iap_is_active(void);
+bool iap_is_active(void);
 
 void iap_get_products(ProductCallback cb);
-void iap_purchase(const char* id, PurchaseCallback);
+void iap_purchase(const char* _id, PurchaseCallback);
 
 #endif
