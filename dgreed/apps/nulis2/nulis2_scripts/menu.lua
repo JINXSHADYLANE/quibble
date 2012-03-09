@@ -413,7 +413,7 @@ end
 
 function render(t)
 	local a = 1 - math.abs(t)
-	local c = rgba(1, 1, 1, a)
+	local c = rgba(0, 0, 0, a)
 	
 	tutorials.render(csim.level())
 	csim.render()

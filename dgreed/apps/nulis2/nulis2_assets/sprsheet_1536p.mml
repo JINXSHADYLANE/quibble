@@ -1,6 +1,7 @@
 (sprsheet nulis_1536p
 	(preload title,bubble_w,background)
 	(prefix "nulis2_assets/")
+	(scale 0.5)
 	(img empty
 		(tex "background.png")
 		(src 0,350,2,352)
