@@ -1068,6 +1068,8 @@ static void _render_ffield(void) {
 		float start_r = circle->shrink ? circle->radius : circle->radius * 0.5f;
 		float end_r = circle->shrink ? circle->radius * 0.5f : circle->radius;
 		float scale = lerp(start_r, end_r, ct) / (scr_size == SCR_IPAD ? 128.0f : 64.0f);
+		if(scr_size == SCR_IPAD && retina)
+			scale *= 2.0f;
 
 		Color transparent = circle->color & 0xFFFFFF;
 		Color col = color_lerp(transparent, circle->color, sinf(ct * PI));
@@ -1435,7 +1437,7 @@ void sim_render_ex(bool skip_vignette) {
 		if(t - reset_t < vignette_duration) {
 			float tt = clamp(0.0f, 1.0f, (t - reset_t) / vignette_duration);
 			tt = sinf(tt * PI);
-			Color c = COLOR_FTRANSP(tt);
+			Color c = COLOR_FTRANSP(tt) & 0xFF000000;
 			spr_draw_h(spr_vignette, 3, fullscr, c);
 		}
 	}

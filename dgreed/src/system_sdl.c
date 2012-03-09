@@ -246,8 +246,8 @@ void video_init(uint width, uint height, const char* name) {
 
 void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 	char* name, bool fullscreen) {
-	assert(width <= 1600 && width >= 320);
-	assert(height <= 1200 && height >= 240);
+	assert(width > 0);
+	assert(height > 0);
 	assert(v_width != 0);
 	assert(v_height != 0);
 

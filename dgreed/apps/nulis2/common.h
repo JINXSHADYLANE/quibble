@@ -7,6 +7,7 @@ typedef enum {
 } ScreenSize;
 
 extern ScreenSize scr_size;
+extern bool retina;
 
 #define ASSETS_PRE "nulis2_assets/"
 #define SCRIPTS_PRE "nulis2_scripts/"

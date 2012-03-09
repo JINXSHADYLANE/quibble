@@ -10,6 +10,7 @@
 #include "bind.h"
 
 ScreenSize scr_size;
+bool retina = false;
 
 void dgreed_preinit(void) {
 	video_clear_color(COLOR_RGBA(188, 188, 188, 255));
@@ -36,6 +37,12 @@ bool dgreed_init(int argc, const char** argv) {
 
 	// Select screen size
 	scr_size = SCR_IPAD;
+	if(params_find("-retinaipad") != ~0 || (n_width == 2048 && n_height == 1536)) {
+		sprsheet = ASSETS_PRE "sprsheet_1536p.mml";
+		width = 2048;
+		height = 1536;
+		retina = true;
+	}
 	if(params_find("-iphone") != ~0 || (n_width < 960 || n_height < 640)) {
 		sprsheet = ASSETS_PRE "sprsheet_320p.mml";
 		particles = "particles_small.mml";
@@ -51,6 +58,7 @@ bool dgreed_init(int argc, const char** argv) {
 		v_height = 320;
 		width = v_width * 2;
 		height = v_height * 2;
+		retina = true;
 	}
 
 	video_init_ex(width, height, v_width, v_height, "nulis", false);

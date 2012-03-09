@@ -233,8 +233,7 @@ static bool _check_extension(const char* name) {
 
 void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 				   const char* name, bool fullscreen) {
-	assert(width >= 320 && width <= 1024);
-	assert(height >= 320 && height <= 1024);
+	assert(width != 0 && height != 0);
 	assert(v_width != 0 && v_height != 0);
     
     screen_widthf = v_width;
