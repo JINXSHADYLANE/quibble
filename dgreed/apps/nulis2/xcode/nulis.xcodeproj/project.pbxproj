@@ -98,6 +98,7 @@
 		2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 2194F0C414D7FF5900147A0C /* ml_coldet.c */; };
 		21A6736714DC0D3700665A26 /* AutoRotateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 21A6736614DC0D3700665A26 /* AutoRotateViewController.m */; };
 		21A92A0E150A2D6F004AE2C3 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A92A0C150A2D61004AE2C3 /* StoreKit.framework */; };
+		21A92A11150A64F5004AE2C3 /* ml_iap.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A92A0F150A64F5004AE2C3 /* ml_iap.c */; };
 		21D150D314E1541B00870D7A /* gamecenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D150D214E1541A00870D7A /* gamecenter.m */; };
 		21D150D914E1715000870D7A /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21D150D714E1713D00870D7A /* GameKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		21F7DC081509FA9300AAFBA4 /* iap.m in Sources */ = {isa = PBXBuildFile; fileRef = 21F7DC071509FA9300AAFBA4 /* iap.m */; };
@@ -262,6 +263,8 @@
 		21A6736514DC0D3700665A26 /* AutoRotateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AutoRotateViewController.h; path = ../../../src/AutoRotateViewController.h; sourceTree = "<group>"; };
 		21A6736614DC0D3700665A26 /* AutoRotateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AutoRotateViewController.m; path = ../../../src/AutoRotateViewController.m; sourceTree = "<group>"; };
 		21A92A0C150A2D61004AE2C3 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		21A92A0F150A64F5004AE2C3 /* ml_iap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_iap.c; path = ../../../src/malka/ml_iap.c; sourceTree = "<group>"; };
+		21A92A10150A64F5004AE2C3 /* ml_iap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_iap.h; path = ../../../src/malka/ml_iap.h; sourceTree = "<group>"; };
 		21D150D114E1541A00870D7A /* gamecenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gamecenter.h; path = ../../../src/gamecenter.h; sourceTree = "<group>"; };
 		21D150D214E1541A00870D7A /* gamecenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = gamecenter.m; path = ../../../src/gamecenter.m; sourceTree = "<group>"; };
 		21D150D714E1713D00870D7A /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
@@ -427,6 +430,8 @@
 				2137773D14CD5B27004F01D2 /* ml_mfx.h */,
 				2137773E14CD5B27004F01D2 /* ml_mml.c */,
 				2137773F14CD5B27004F01D2 /* ml_mml.h */,
+				21A92A0F150A64F5004AE2C3 /* ml_iap.c */,
+				21A92A10150A64F5004AE2C3 /* ml_iap.h */,
 				2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */,
 				2183CA1E14E285BF00ECDC45 /* ml_gamecenter.h */,
 				2183CA1F14E285BF00ECDC45 /* ml_keyval.c */,
@@ -660,6 +665,7 @@
 				2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */,
 				214AB57F150507A800A45DC0 /* ml_web.c in Sources */,
 				21F7DC081509FA9300AAFBA4 /* iap.m in Sources */,
+				21A92A11150A64F5004AE2C3 /* ml_iap.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -828,7 +828,7 @@ invokes callback with a list of {id, title, description, price_str}
 tables
 
 - iap.purchase(id, callback)
-purchase a product, callback is invoked with product table and a
+purchase a product, callback is invoked with product id and a
 boolean indicating successfullness of purchase
 
 
