@@ -685,10 +685,58 @@ static int ml_video_draw_text_centered(lua_State* l) {
 		}
 	}
 	error:
-		return luaL_error(l, "bad argument provided to video.draw_text");
+		return luaL_error(l, "bad argument provided to video.draw_text_centered");
 
 	nargs_error:
-		return luaL_error(l, "wrong number of arguments provided to video.draw_text");
+		return luaL_error(l, "wrong number of arguments provided to video.draw_text_centered");
+}
+
+static int ml_video_draw_text_rotated(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n < 5 || n > 7)
+		goto nargs_error;
+
+	FontHandle* h = checkfonthandle(l, 1);
+	uint layer = luaL_checkinteger(l, 2);
+	if(layer > 15)
+		goto error;
+	const char* text = luaL_checkstring(l, 3);
+	Vector2 pos;
+	if(!_check_vec2(l, 4, &pos))
+		goto error;
+
+	float rot = luaL_checknumber(l, 5);
+
+	Color c;
+	if(n == 5) {
+		font_draw_rot(*h, text, layer, &pos, 1.0f, rot, COLOR_BLACK);
+		return 0;
+	}
+	else if(n == 6) {
+		if(lua_isnumber(l, 6)) {
+			float scale = lua_tonumber(l, 6);
+			font_draw_rot(*h, text, layer, &pos, scale, rot, COLOR_BLACK);
+			return 0;
+		}
+		else if(_check_color(l, 6, &c)) {
+			font_draw_rot(*h, text, layer, &pos, 1.0f, rot, c);
+			return 0;
+		}
+		goto error;
+	}
+	else if(n == 7) {
+		if(lua_isnumber(l, 6) && _check_color(l, 7, &c)) {
+			float scale = lua_tonumber(l, 6);
+			font_draw_rot(*h, text, layer, &pos, scale, rot, c);
+			return 0;
+		}
+	}
+
+	error:
+		return luaL_error(l, "bad argument provided to video.draw_text_rotated");
+
+	nargs_error:
+		return luaL_error(l, "wrong number of arguments provided to video.draw_text_rotated");
 }
 
 static int ml_video_set_blendmode(lua_State* l) {
@@ -725,6 +773,7 @@ static const luaL_Reg video_fun[] = {
 	{"draw_seg", ml_video_draw_seg},
 	{"draw_text", ml_video_draw_text},
 	{"draw_text_centered", ml_video_draw_text_centered},
+	{"draw_text_rotated", ml_video_draw_text_rotated},
 	{"set_blendmode", ml_video_set_blendmode},
 	{NULL, NULL}
 };

@@ -1,5 +1,9 @@
 #include "font.h"
 
+#include "memory.h"
+#include "lib9-utf/utf.h"
+#include "gfx_utils.h"
+
 #pragma pack(1)
 typedef struct {
 	//byte id, x, y, width, height, xoffset, yoffset, xadvance;
@@ -8,17 +12,18 @@ typedef struct {
 #pragma pack()
 
 typedef struct {
+	Rune codepoint;
 	RectF source;
 	float x_offset, y_offset;
 	float x_advance;
 } Char;	
 
-// TODO: Find a way to store less than 256 Chars
 typedef struct {
 	TexHandle tex;
 	float height;
 	float y_gap;
-	Char chars[256];
+	uint n_chars;
+	Char* chars;
 	bool active;
 	float scale;
 } FontDesc;
@@ -26,6 +31,35 @@ typedef struct {
 #define MAX_FONTS 4
 FontDesc fonts[MAX_FONTS];
 uint font_count = 0;
+
+static int _cmp_char(const void *a, const void *b) {
+	Char* ca = (Char*)a;
+	Char* cb = (Char*)b;
+	return ca->codepoint - cb->codepoint;
+}
+
+static Char* _get_char(FontDesc* desc, Rune codepoint) {
+	// Binary search
+	uint idx = ~0;
+	uint low = 0, high = desc->n_chars;
+	while(high > low) {
+		uint mid = (low + high) / 2;
+		if(codepoint < desc->chars[mid].codepoint)
+			high = mid;
+		else if(codepoint > desc->chars[mid].codepoint)
+			low = mid;
+		else {
+			idx = mid;
+			break;
+		}
+	}
+
+	if(idx == ~0) 
+		return NULL;
+
+	assert(idx < desc->n_chars);
+	return &desc->chars[idx];
+}
 
 FontHandle font_load(const char* filename) {
 	return font_load_ex(filename, 1.0f);
@@ -63,7 +97,7 @@ FontHandle font_load_exp(const char* filename, float scale, const char* prefix) 
 
 	// Confirm file id
 	uint id = file_read_uint32(font_file);
-	if(id != ('F' + ('O' << 8) + ('N' << 16) + ('T' << 24))) {
+	if(id != FOURCC('F', 'O', 'N', 'T')) {
 		file_close(font_file);
 		LOG_ERROR("Trying to load invalid font file");
 	}	
@@ -92,12 +126,17 @@ FontHandle font_load_exp(const char* filename, float scale, const char* prefix) 
 
 	// Read number of chars
 	uint16 chars = file_read_uint16(font_file);
-	
-	// Null previous chars
-	memset(fonts[result].chars, 0, sizeof(fonts[result].chars));
+	fonts[result].n_chars = chars;
 
+	// Alloc space for chars
+	fonts[result].chars = MEM_ALLOC((chars+1) * sizeof(Char));
+	
 	// Read char descs one by one
+	bool found_space = false;
+	bool needs_sort = false;
 	CharDesc char_desc;
+	Char* chr = fonts[result].chars;
+	uint n = 0;
 	for(i = 0; i < chars; ++i) {
 		file_read(font_file, &char_desc, sizeof(char_desc));
 
@@ -109,20 +148,43 @@ FontHandle font_load_exp(const char* filename, float scale, const char* prefix) 
 		char_desc.xoffset = endian_swap2(char_desc.xoffset);
 		char_desc.yoffset = endian_swap2(char_desc.yoffset);
 		char_desc.xadvance = endian_swap2(char_desc.xadvance);
-		
-		fonts[result].chars[char_desc.id].source = 
-			rectf((float)char_desc.x, (float)char_desc.y,
-				(float)(char_desc.x + char_desc.width),
-				(float)(char_desc.y + char_desc.height));
-		fonts[result].chars[char_desc.id].x_offset = (float)char_desc.xoffset;
-		fonts[result].chars[char_desc.id].y_offset = (float)char_desc.yoffset;
-		fonts[result].chars[char_desc.id].x_advance = 
-			(float)char_desc.xadvance;
+
+		if(char_desc.id == ' ')
+			found_space = true;
+
+		chr[n].codepoint = char_desc.id;
+		chr[n].source = rectf(
+			(float)char_desc.x, (float)char_desc.y,
+			(float)(char_desc.x + char_desc.width),
+			(float)(char_desc.y + char_desc.height)
+		);
+		chr[n].x_offset = (float)char_desc.xoffset;
+		chr[n].y_offset = (float)char_desc.yoffset;
+		chr[n].x_advance = (float)char_desc.xadvance;
+
+		if(n > 0 && chr[n-1].codepoint > chr[n].codepoint)
+			needs_sort = true;
+		n++;
+	}
+	assert(n == fonts[result].n_chars);
+
+	if(!found_space) {
+		chr[n].codepoint = ' ';
+		chr[n].x_advance = 0.0f;
+		n++; fonts[result].n_chars++;
+		needs_sort = true;
 	}
 
+	if(needs_sort)
+		qsort(chr, n, sizeof(Char), _cmp_char);
+
 	// If space glyph has 0 x_advance, use 'a' glyph x_advance
-	if(fonts[result].chars[' '].x_advance == 0)
-		fonts[result].chars[' '].x_advance = fonts[result].chars['a'].x_advance;
+	Char* space = _get_char(&fonts[result], ' ');
+	assert(space);
+	if(space->x_advance == 0.0f) {
+		Char* a = _get_char(&fonts[result], 'a');
+		space->x_advance = a->x_advance;
+	}
 
 	file_close(font_file);
 	
@@ -135,6 +197,8 @@ void font_free(FontHandle font) {
 	assert(font < MAX_FONTS);
 	assert(fonts[font].active);
 
+	MEM_FREE(fonts[font].chars);
+
 	fonts[font].active = false;
 	tex_free(fonts[font].tex);
 	font_count--;
@@ -144,14 +208,21 @@ float font_width(FontHandle font, const char* string) {
 	assert(font < MAX_FONTS);
 	assert(fonts[font].active);
 
+	Rune codepoint;
 	float width = 0.0f;
+	uint n = strlen(string);
 	uint i = 0;
-	float s = fonts[font].scale;
-	while(string[i]) {
-		width += fonts[font].chars[(size_t)string[i]].x_advance;
-		i++;
+	
+	while(i < n) {
+		i += chartorune(&codepoint, string + i);  
+		if(codepoint != 0) {
+			Char* c = _get_char(&fonts[font], codepoint);
+			if(c)
+				width += c->x_advance;
+		}
 	}
-	return width * s;
+
+	return width * fonts[font].scale;
 }	
 
 float font_height(FontHandle font) {
@@ -166,25 +237,31 @@ void font_draw(FontHandle font, const char* string, uint layer,
 	assert(font < MAX_FONTS);
 	assert(fonts[font].active);
 
+	Rune codepoint;
 	float cursor_x = 0.0f;
+	uint n = strlen(string);
 	uint i = 0;
 	float s = fonts[font].scale;
-	while(string[i]) {
-		const Char* chr = &fonts[font].chars[(size_t)string[i]];
 
-		RectF dest = rectf(topleft->x + cursor_x, topleft->y, 0.0f, 0.0f);
-		dest.left += chr->x_offset * s;
-		dest.top += chr->y_offset * s;
-		dest.right = dest.left + rectf_width(&chr->source) * s;
-		dest.bottom = dest.top + rectf_height(&chr->source) * s;
+	while(i < n) {
+		i += chartorune(&codepoint, string + i);
+		if(codepoint != 0) {
+			const Char* chr = _get_char(&fonts[font], codepoint);
+			if(!chr)
+				continue;
 
-		if(string[i] != ' ')
-			video_draw_rect(fonts[font].tex, layer,
-				&(fonts[font].chars[(size_t)string[i]].source), &dest, tint);
+			RectF dest = rectf(topleft->x + cursor_x, topleft->y, 0.0f, 0.0f);
+			dest.left += chr->x_offset * s;
+			dest.top += chr->y_offset * s;
+			dest.right = dest.left + rectf_width(&chr->source) * s;
+			dest.bottom = dest.top + rectf_height(&chr->source) * s;
 
-		cursor_x += chr->x_advance * s;
-		i++;
-	}	
+			if(chr->codepoint != ' ')
+				video_draw_rect(fonts[font].tex, layer, &chr->source, &dest, tint);
+
+			cursor_x += chr->x_advance * s;
+		}
+	}
 }	
 
 RectF font_rect_ex(FontHandle font, const char* string, 
@@ -213,22 +290,77 @@ void font_draw_ex(FontHandle font, const char* string, uint layer,
 		floorf(center->y - height/2.0f)
 	);
 	float cursor_x = 0.0f;
+	Rune codepoint;
+	uint n = strlen(string);
 	uint i = 0;
-	while(string[i]) {
-		const Char* chr = &fonts[font].chars[(size_t)string[i]];
+	while(i < n) {
+		i += chartorune(&codepoint, string + i);
+		if(codepoint != 0) {
+			const Char* chr = _get_char(&fonts[font], codepoint);
+			if(!chr)
+				continue;
 
-		RectF dest = rectf(topleft.x + cursor_x, topleft.y, 0.0f, 0.0f);
-		dest.left += chr->x_offset * s;
-		dest.top += chr->y_offset * s;
-		dest.right = dest.left + rectf_width(&chr->source) * s;
-		dest.bottom = dest.top + rectf_height(&chr->source) * s;
+			RectF dest = rectf(topleft.x + cursor_x, topleft.y, 0.0f, 0.0f);
+			dest.left += chr->x_offset * s;
+			dest.top += chr->y_offset * s;
+			dest.right = dest.left + rectf_width(&chr->source) * s;
+			dest.bottom = dest.top + rectf_height(&chr->source) * s;
 
-		if(string[i] != ' ')
-			video_draw_rect(fonts[font].tex, layer,
-				&(fonts[font].chars[(size_t)string[i]].source), &dest, tint);
+			if(chr->codepoint != ' ')
+				video_draw_rect(fonts[font].tex, layer, &chr->source, &dest, tint);
 
-		cursor_x += chr->x_advance * s;
-		i++;
+			cursor_x += chr->x_advance * s;
+		}
 	}	
 }	
-	
+
+void font_draw_rot(FontHandle font, const char* string, uint layer,
+	const Vector2* center, float scale, float rot, Color tint) {
+	assert(font < MAX_FONTS);
+	assert(fonts[font].active);
+
+	float s = fonts[font].scale * scale;
+	float width = font_width(font, string) * scale;
+	float height = font_height(font) * scale;
+
+	Vector2 topleft = vec2_add(*center, 
+		vec2_rotate(vec2(-width/2.0f, -height/2.0f), rot)
+	);
+
+	Vector2 cursor = vec2(0.0f, 0.0f);
+
+	Rune codepoint;
+	uint n = strlen(string);
+	uint i = 0;
+	while(i < n) {
+		i += chartorune(&codepoint, string + i);
+		if(codepoint != 0) {
+			const Char* chr = _get_char(&fonts[font], codepoint);
+			if(!chr)
+				continue;
+
+			Vector2 dest = vec2_add(cursor, topleft); 
+			dest = vec2_add(dest, vec2_rotate(vec2(
+				(chr->x_offset + rectf_width(&chr->source)/2.0f) * s,
+				(chr->y_offset + rectf_height(&chr->source)/2.0f) * s
+			), rot));
+
+			/*
+			RectF dest = rectf(topleft.x + cursor_x, topleft.y, 0.0f, 0.0f);
+			dest.left += chr->x_offset * s;
+			dest.top += chr->y_offset * s;
+			dest.right = dest.left + rectf_width(&chr->source) * s;
+			dest.bottom = dest.top + rectf_height(&chr->source) * s;
+			*/
+
+			if(chr->codepoint != ' ')
+				gfx_draw_textured_rect(fonts[font].tex, layer, &chr->source, 
+						&dest, rot, s, tint);
+
+			cursor = vec2_add(cursor, 
+				vec2_rotate(vec2(chr->x_advance * s, 0.0f), rot)
+			);
+		}
+	}	
+}	
+

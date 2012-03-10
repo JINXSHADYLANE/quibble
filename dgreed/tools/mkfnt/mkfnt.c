@@ -15,16 +15,36 @@ Pos* glyph_pos;
 Color* baked_font;
 
 const char* chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,\"\'/|\\!?+-=*()[]{}@#$%&_ ";
+int currencies[] = {
+	0x20AC, // Euro
+	0x00A5, // Yen
+	0x00A2, // Cent
+	0x00A3, // Pound
+	0x20A8, // Rupee
+	0x20AB, // Dong
+	0x20B1, // Peso
+	0x20A3  // Frank
+};
+
+int cmp_int(const void *a, const void *b) {
+	return *(int*)a - *(int*)b;
+}
 
 void mkfnt_init(void) {
-	n_glyphs = strlen(chars);
+	n_glyphs = strlen(chars) + (sizeof(currencies) / sizeof(int));
 
 	glyph_codepoints = MEM_ALLOC(sizeof(int) * n_glyphs);
 	glyph_bitmaps = MEM_ALLOC(sizeof(byte*) * n_glyphs);
 	glyph_metrics = MEM_ALLOC(sizeof(GlyphMetrics) * n_glyphs);
 
-	for(uint i = 0; i < n_glyphs; ++i)
+	uint i;
+	for(i = 0; i < strlen(chars); ++i)
 		glyph_codepoints[i] = chars[i];
+	for(; i < n_glyphs; ++i)
+		glyph_codepoints[i] = currencies[i - strlen(chars)];
+
+	// Sort codepoints
+	qsort(glyph_codepoints, n_glyphs, sizeof(int), cmp_int);
 }
 
 void mkfnt_render_glyphs(const char* filename, uint px_size) {
