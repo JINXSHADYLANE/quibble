@@ -12,13 +12,12 @@
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
 	<string>icon 57x57.png</string>
-	<key>UIPrerenderedIcon</key>
-	<true/>
 	<key>CFBundleIconFiles</key>
 	<array>
 		<string>icon 57x57.png</string>
 		<string>icon 114x114.png</string>
 		<string>icon 72x72.png</string>
+		<string>icon 144x144.png</string>
 	</array>
 	<key>CFBundleIcons</key>
 	<dict>
@@ -29,6 +28,7 @@
 				<string>icon 57x57.png</string>
 				<string>icon 114x114.png</string>
 				<string>icon 72x72.png</string>
+				<string>icon 144x144.png</string>
 			</array>
 			<key>UIPrerenderedIcon</key>
 			<true/>
@@ -50,6 +50,8 @@
 	<string>1.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<false/>
+	<key>UIPrerenderedIcon</key>
+	<true/>
 	<key>UIStatusBarHidden</key>
 	<true/>
 	<key>UISupportedInterfaceOrientations</key>
