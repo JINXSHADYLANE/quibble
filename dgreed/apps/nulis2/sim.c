@@ -49,6 +49,7 @@ static float last_spawn_t;
 static bool is_solved;
 static bool reset_level;
 static float reset_t;
+static float win_t;
 static bool sim_active = false;
 static BallType spawn_color;
 static uint reactions;
@@ -107,6 +108,7 @@ float ghost_maxrot = 7.0f;
 
 float vignette_delay = 1.0f;
 float vignette_duration = 5.0f;
+float win_vignette_duration = 1.0f;
 
 float ffield_freq = 0.2f;
 float ffield_lifetime = 0.5f;
@@ -236,7 +238,7 @@ void sim_init(uint screen_width, uint screen_height, uint sim_width, uint sim_he
 
 	spr_ffield = sprsheet_get_handle("circle");
 
-	reset_t = -100.0f;
+	win_t = reset_t = -100.0f;
 
 	tweaks_font = font_load(ASSETS_PRE "varela.bft");
 	static char* tweaks_file = ASSETS_PRE "tweaks.mml";
@@ -1000,7 +1002,14 @@ static void _update_ball(Ball* ball) {
 void _next_level(void* userdata) {
 	if(sim_active) {
 		const char* next = levels_next(level.name);
-		sim_reset(next);
+		if(next) {
+			sim_reset(next);
+		}
+		else {
+			sim_reset(level.name);
+			malka_states_push("menu");
+			malka_states_push("buy");
+		}
 	}
 	else {
 		did_not_next = true;
@@ -1209,10 +1218,10 @@ void sim_update(void) {
 		is_solved = true;
 		// Level finished!
 		async_schedule(_next_level, lrintf(ghost_lifetime * 1000.0f) + 500, NULL);
-
+		win_t = t;
 		uint t = lrintf(malka_state_time("game") - start_t);
 		level_solve(level.name, reactions, t);
-		printf("Solved level %s: time = %d, reactions = %d\n", level.name, t, reactions);
+		//printf("Solved level %s: time = %d, reactions = %d\n", level.name, t, reactions);
 	}
 
 	if(!is_solved && !reset_level && _is_unsolvable(t)) {
@@ -1438,6 +1447,13 @@ void sim_render_ex(bool skip_vignette) {
 			float tt = clamp(0.0f, 1.0f, (t - reset_t) / vignette_duration);
 			tt = sinf(tt * PI);
 			Color c = COLOR_FTRANSP(tt) & 0xFF000000;
+			spr_draw_h(spr_vignette, 3, fullscr, c);
+		}
+
+		if(t - win_t < win_vignette_duration) {
+			float tt = clamp(0.0f, 1.0f, (t - win_t) / win_vignette_duration);
+			tt = sinf(tt * PI);
+			Color c = COLOR_FTRANSP(tt);
 			spr_draw_h(spr_vignette, 3, fullscr, c);
 		}
 	}

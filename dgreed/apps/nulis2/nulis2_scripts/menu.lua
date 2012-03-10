@@ -1,6 +1,9 @@
 module(..., package.seeall)
 
 require 'tutorials'
+require 'buy'
+
+paid_level = 11
 
 background_layer = 6
 icons_layer = 7
@@ -257,8 +260,12 @@ function draw_level_icon(p, col, angle, n, score)
 		local is_unlocked = unlocked[n+1] 
 		if is_unlocked then
 			if menu_icon(sprs.levels, nil, p, nil, col, angle, n, score) then
-				csim.reset('l'..tostring(n+1))
-				states.pop()
+				if buy.is_unlocked() or n+1 < paid_level or n+1 == 40 then
+					csim.reset('l'..tostring(n+1))
+					states.pop()
+				else
+					states.push('buy')
+				end
 			end
 		else
 			menu_icon(sprs.locked, nil, p, nil, col, angle)

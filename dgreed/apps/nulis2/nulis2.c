@@ -12,6 +12,8 @@
 ScreenSize scr_size;
 bool retina = false;
 
+extern bool draw_gfx_debug;
+
 void dgreed_preinit(void) {
 	video_clear_color(COLOR_RGBA(188, 188, 188, 255));
 }

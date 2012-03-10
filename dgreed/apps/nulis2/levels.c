@@ -4,6 +4,7 @@
 #include <darray.h>
 #include <memory.h>
 #include <keyval.h>
+#include <malka/ml_states.h>
 
 #ifdef TARGET_IOS
 #include <gamecenter.h>
@@ -217,11 +218,22 @@ void levels_get(const char* name, LevelDef* def) {
 	assert(0 && "Level not found");
 }
 
+static int _is_accessible(int n) {
+	if(n+1 <= 9 || n+1 == 40)
+		return true;
+	if(keyval_get_bool("unlocked", false))
+		return true;
+	return false;
+}
+
 const char* levels_next(const char* current) {
 	LevelDef* defs = DARRAY_DATA_PTR(level_defs, LevelDef);
 	for(uint i = 0; i < level_defs.size; ++i) {
 		if(strcmp(defs[i].name, current) == 0) {
-			return defs[(i+1)%level_defs.size].name; 
+			if(_is_accessible(i))
+				return defs[(i+1)%level_defs.size].name; 
+			else
+				return NULL;
 		}
 	}
 	assert(0 && "Level not found");
@@ -352,8 +364,15 @@ const char* level_first_unsolved(void) {
 		sprintf(key_name, "slvd_%s", level_name);
 		if(!keyval_get_bool(key_name, false)) {
 			sprintf(key_name, "ulck_%s", level_name);
-			if(i == 1 || keyval_get_bool(key_name, false))
-				return level_name;
+			if(i == 1 || keyval_get_bool(key_name, false)) {
+				if(_is_accessible(i-1))
+					return level_name;
+				else {
+					malka_states_push("menu");
+					malka_states_push("buy");
+					return level_name;
+				}
+			}
 		}
 	}
 	assert(0 && "Unable to determine next level to solve!");
