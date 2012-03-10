@@ -93,6 +93,14 @@
 		2137781D14CD5D4C004F01D2 /* nulis2_scripts in Resources */ = {isa = PBXBuildFile; fileRef = 2137781C14CD5D4C004F01D2 /* nulis2_scripts */; };
 		2137782714CD61B5004F01D2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213777BB14CD5C01004F01D2 /* QuartzCore.framework */; };
 		214AB57F150507A800A45DC0 /* ml_web.c in Sources */ = {isa = PBXBuildFile; fileRef = 214AB57D150507A800A45DC0 /* ml_web.c */; };
+		21744011150B699B002C92D7 /* rune.c in Sources */ = {isa = PBXBuildFile; fileRef = 21744006150B699B002C92D7 /* rune.c */; };
+		21744012150B699B002C92D7 /* runetype.c in Sources */ = {isa = PBXBuildFile; fileRef = 21744007150B699B002C92D7 /* runetype.c */; };
+		21744013150B699B002C92D7 /* utfecpy.c in Sources */ = {isa = PBXBuildFile; fileRef = 2174400B150B699B002C92D7 /* utfecpy.c */; };
+		21744014150B699B002C92D7 /* utflen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2174400C150B699B002C92D7 /* utflen.c */; };
+		21744015150B699B002C92D7 /* utfnlen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2174400D150B699B002C92D7 /* utfnlen.c */; };
+		21744016150B699B002C92D7 /* utfrrune.c in Sources */ = {isa = PBXBuildFile; fileRef = 2174400E150B699B002C92D7 /* utfrrune.c */; };
+		21744017150B699B002C92D7 /* utfrune.c in Sources */ = {isa = PBXBuildFile; fileRef = 2174400F150B699B002C92D7 /* utfrune.c */; };
+		21744018150B699B002C92D7 /* utfutf.c in Sources */ = {isa = PBXBuildFile; fileRef = 21744010150B699B002C92D7 /* utfutf.c */; };
 		2183CA2114E285BF00ECDC45 /* ml_gamecenter.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */; };
 		2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1F14E285BF00ECDC45 /* ml_keyval.c */; };
 		2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 2194F0C414D7FF5900147A0C /* ml_coldet.c */; };
@@ -255,6 +263,17 @@
 		2137782514CD5E34004F01D2 /* nulis-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "nulis-Info.plist"; path = "nulis/nulis-Info.plist"; sourceTree = "<group>"; };
 		214AB57D150507A800A45DC0 /* ml_web.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_web.c; path = ../../../src/malka/ml_web.c; sourceTree = "<group>"; };
 		214AB57E150507A800A45DC0 /* ml_web.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_web.h; path = ../../../src/malka/ml_web.h; sourceTree = "<group>"; };
+		21744006150B699B002C92D7 /* rune.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rune.c; path = "../../../src/lib9-utf/rune.c"; sourceTree = "<group>"; };
+		21744007150B699B002C92D7 /* runetype.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = runetype.c; path = "../../../src/lib9-utf/runetype.c"; sourceTree = "<group>"; };
+		21744008150B699B002C92D7 /* runetypebody-6.0.0.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "runetypebody-6.0.0.h"; path = "../../../src/lib9-utf/runetypebody-6.0.0.h"; sourceTree = "<group>"; };
+		21744009150B699B002C92D7 /* utf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utf.h; path = "../../../src/lib9-utf/utf.h"; sourceTree = "<group>"; };
+		2174400A150B699B002C92D7 /* utfdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utfdef.h; path = "../../../src/lib9-utf/utfdef.h"; sourceTree = "<group>"; };
+		2174400B150B699B002C92D7 /* utfecpy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utfecpy.c; path = "../../../src/lib9-utf/utfecpy.c"; sourceTree = "<group>"; };
+		2174400C150B699B002C92D7 /* utflen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utflen.c; path = "../../../src/lib9-utf/utflen.c"; sourceTree = "<group>"; };
+		2174400D150B699B002C92D7 /* utfnlen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utfnlen.c; path = "../../../src/lib9-utf/utfnlen.c"; sourceTree = "<group>"; };
+		2174400E150B699B002C92D7 /* utfrrune.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utfrrune.c; path = "../../../src/lib9-utf/utfrrune.c"; sourceTree = "<group>"; };
+		2174400F150B699B002C92D7 /* utfrune.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utfrune.c; path = "../../../src/lib9-utf/utfrune.c"; sourceTree = "<group>"; };
+		21744010150B699B002C92D7 /* utfutf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utfutf.c; path = "../../../src/lib9-utf/utfutf.c"; sourceTree = "<group>"; };
 		2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_gamecenter.c; path = ../../../src/malka/ml_gamecenter.c; sourceTree = "<group>"; };
 		2183CA1E14E285BF00ECDC45 /* ml_gamecenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_gamecenter.h; path = ../../../src/malka/ml_gamecenter.h; sourceTree = "<group>"; };
 		2183CA1F14E285BF00ECDC45 /* ml_keyval.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_keyval.c; path = ../../../src/malka/ml_keyval.c; sourceTree = "<group>"; };
@@ -279,18 +298,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				21A92A0E150A2D6F004AE2C3 /* StoreKit.framework in Frameworks */,
-				2137782714CD61B5004F01D2 /* QuartzCore.framework in Frameworks */,
-				213777CD14CD5CB7004F01D2 /* CoreData.framework in Frameworks */,
-				213777C714CD5C57004F01D2 /* OpenAL.framework in Frameworks */,
 				213777C814CD5C57004F01D2 /* OpenGLES.framework in Frameworks */,
+				213777C714CD5C57004F01D2 /* OpenAL.framework in Frameworks */,
+				2137782714CD61B5004F01D2 /* QuartzCore.framework in Frameworks */,
+				213776DB14CD5A58004F01D2 /* UIKit.framework in Frameworks */,
+				213776DD14CD5A58004F01D2 /* Foundation.framework in Frameworks */,
+				213777CD14CD5CB7004F01D2 /* CoreData.framework in Frameworks */,
 				213777C414CD5C4C004F01D2 /* AudioToolbox.framework in Frameworks */,
 				213777C514CD5C4C004F01D2 /* AVFoundation.framework in Frameworks */,
 				213777C614CD5C4C004F01D2 /* CoreAudio.framework in Frameworks */,
-				213776DB14CD5A58004F01D2 /* UIKit.framework in Frameworks */,
-				213776DD14CD5A58004F01D2 /* Foundation.framework in Frameworks */,
 				213776DF14CD5A58004F01D2 /* CoreGraphics.framework in Frameworks */,
 				21D150D914E1715000870D7A /* GameKit.framework in Frameworks */,
+				21A92A0E150A2D6F004AE2C3 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,6 +381,7 @@
 		213776F114CD5AAB004F01D2 /* dgreed */ = {
 			isa = PBXGroup;
 			children = (
+				21744004150B698B002C92D7 /* lib9-utf */,
 				2137773814CD5B05004F01D2 /* malka */,
 				213776F214CD5AFB004F01D2 /* async.c */,
 				213776F314CD5AFB004F01D2 /* async.h */,
@@ -526,6 +546,24 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
+		21744004150B698B002C92D7 /* lib9-utf */ = {
+			isa = PBXGroup;
+			children = (
+				21744006150B699B002C92D7 /* rune.c */,
+				21744007150B699B002C92D7 /* runetype.c */,
+				21744008150B699B002C92D7 /* runetypebody-6.0.0.h */,
+				21744009150B699B002C92D7 /* utf.h */,
+				2174400A150B699B002C92D7 /* utfdef.h */,
+				2174400B150B699B002C92D7 /* utfecpy.c */,
+				2174400C150B699B002C92D7 /* utflen.c */,
+				2174400D150B699B002C92D7 /* utfnlen.c */,
+				2174400E150B699B002C92D7 /* utfrrune.c */,
+				2174400F150B699B002C92D7 /* utfrune.c */,
+				21744010150B699B002C92D7 /* utfutf.c */,
+			);
+			name = "lib9-utf";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -670,6 +708,14 @@
 				214AB57F150507A800A45DC0 /* ml_web.c in Sources */,
 				21F7DC081509FA9300AAFBA4 /* iap.m in Sources */,
 				21A92A11150A64F5004AE2C3 /* ml_iap.c in Sources */,
+				21744011150B699B002C92D7 /* rune.c in Sources */,
+				21744012150B699B002C92D7 /* runetype.c in Sources */,
+				21744013150B699B002C92D7 /* utfecpy.c in Sources */,
+				21744014150B699B002C92D7 /* utflen.c in Sources */,
+				21744015150B699B002C92D7 /* utfnlen.c in Sources */,
+				21744016150B699B002C92D7 /* utfrrune.c in Sources */,
+				21744017150B699B002C92D7 /* utfrune.c in Sources */,
+				21744018150B699B002C92D7 /* utfutf.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -749,7 +795,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "D0284C4C-1C6B-4A2A-AD56-A6D461D15877";
+				PROVISIONING_PROFILE = "461AB44F-A1F2-4861-9CBF-FD86D3276AFD";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -769,7 +815,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "D0284C4C-1C6B-4A2A-AD56-A6D461D15877";
+				PROVISIONING_PROFILE = "461AB44F-A1F2-4861-9CBF-FD86D3276AFD";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

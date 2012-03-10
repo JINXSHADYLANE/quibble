@@ -156,7 +156,7 @@
 		(tex "tut_hints_s.png")
 		(src 0,86,234,110)
 	)
-	(img stroke
+	(img stripe
 		(tex "background.png")
 		(src 245,164,255,165)
 	)

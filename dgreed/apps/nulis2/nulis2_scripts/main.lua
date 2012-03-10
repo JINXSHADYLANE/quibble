@@ -27,7 +27,9 @@ function setup_screen()
 		end
 	else
 		local w, h = video.native_resolution()
-		if w ~= 1024 and h ~= 768 then
+		if w == 2048 and h == 1536 then
+			retina = true
+		elseif w ~= 1024 and h ~= 768 then
 			sim_size = { x = 480, y = 320 }
 			levels_file = 'levels_small.mml'
 			scr_size = sim_size
@@ -42,21 +44,37 @@ end
 setup_screen()
 
 require 'game'
-require 'editor'
+--require 'editor'
 require 'menu'
+require 'buy'
 
 function game_init()
-	
 	states.register('game', game)
-	states.register('editor', editor)
+	--states.register('editor', editor)
 	states.register('menu', menu)
+	states.register('buy', buy)
 
 	states.push('game')
 
 	music = sound.load_stream(pre..'theme.ogg')
 	music_source = sound.play(music, true)
+
+	if scr_type == 'ipad' then
+		if retina then
+			fnt = font.load(pre .. 'VarelaRound-Regular_60px.bft', 0.5, pre)
+		else
+			fnt = font.load(pre .. 'VarelaRound-Regular_30px.bft', 1.0, pre)
+		end
+	else
+		if retina then
+			fnt = font.load(pre .. 'VarelaRound-Regular_46px.bft', 0.5, pre)
+		else
+			fnt = font.load(pre .. 'VarelaRound-Regular_23px.bft', 1.0, pre)
+		end
+	end
 end
 
 function game_close()
+	font.free(fnt)
 	sound.free(music)
 end
