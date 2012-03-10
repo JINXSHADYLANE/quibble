@@ -31,4 +31,8 @@ RectF font_rect_ex(FontHandle font, const char* string,
 void font_draw_ex(FontHandle font, const char* string, uint layer,
 	const Vector2* center, float scale, Color tint);
 
+// Draws centered, scaled, rotated string with specified font.
+void font_draw_rot(FontHandle font, const char* string, uint layer,
+	const Vector2* center, float scale, float angle, Color tint);
+
 #endif

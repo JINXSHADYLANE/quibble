@@ -2,6 +2,7 @@
 
 #include "memory.h"
 #include "lib9-utf/utf.h"
+#include "gfx_utils.h"
 
 #pragma pack(1)
 typedef struct {
@@ -312,4 +313,54 @@ void font_draw_ex(FontHandle font, const char* string, uint layer,
 		}
 	}	
 }	
-	
+
+void font_draw_rot(FontHandle font, const char* string, uint layer,
+	const Vector2* center, float scale, float rot, Color tint) {
+	assert(font < MAX_FONTS);
+	assert(fonts[font].active);
+
+	float s = fonts[font].scale * scale;
+	float width = font_width(font, string) * scale;
+	float height = font_height(font) * scale;
+
+	Vector2 topleft = vec2_add(*center, 
+		vec2_rotate(vec2(-width/2.0f, -height/2.0f), rot)
+	);
+
+	Vector2 cursor = vec2(0.0f, 0.0f);
+
+	Rune codepoint;
+	uint n = strlen(string);
+	uint i = 0;
+	while(i < n) {
+		i += chartorune(&codepoint, string + i);
+		if(codepoint != 0) {
+			const Char* chr = _get_char(&fonts[font], codepoint);
+			if(!chr)
+				continue;
+
+			Vector2 dest = vec2_add(cursor, topleft); 
+			dest = vec2_add(dest, vec2_rotate(vec2(
+				(chr->x_offset + rectf_width(&chr->source)/2.0f) * s,
+				(chr->y_offset + rectf_height(&chr->source)/2.0f) * s
+			), rot));
+
+			/*
+			RectF dest = rectf(topleft.x + cursor_x, topleft.y, 0.0f, 0.0f);
+			dest.left += chr->x_offset * s;
+			dest.top += chr->y_offset * s;
+			dest.right = dest.left + rectf_width(&chr->source) * s;
+			dest.bottom = dest.top + rectf_height(&chr->source) * s;
+			*/
+
+			if(chr->codepoint != ' ')
+				gfx_draw_textured_rect(fonts[font].tex, layer, &chr->source, 
+						&dest, rot, s, tint);
+
+			cursor = vec2_add(cursor, 
+				vec2_rotate(vec2(chr->x_advance * s, 0.0f), rot)
+			);
+		}
+	}	
+}	
+

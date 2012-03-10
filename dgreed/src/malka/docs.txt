@@ -261,6 +261,9 @@ draws piece of text, arguments:
 draws text, same as draw_text, except you provide center coordinates and can
 optionally scale text by a scalar factor
 
+- video.draw_text_rotated(font, layer, text, pos, rot, scale color)
+draws centered, rotated text; scale and color is optional
+
 - video.set_blendmode(layer, mode)
 sets blending mode for a single layer; valid mode values are 'normal'
 (default), 'add' and 'multiply'
