@@ -153,4 +153,12 @@
 		(tex "tut_hints_ipad_r.png")
 		(src 0,112,568,172)
 	)
+	(img hint4
+		(tex "tut_hints_ipad_r.png")
+		(src 0,172,710,232)
+	)
+	(img stroke
+		(tex "background.png")
+		(src 245,170,255,174)
+	)
 )

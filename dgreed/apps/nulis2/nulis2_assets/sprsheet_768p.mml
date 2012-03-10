@@ -191,4 +191,12 @@
 		(tex "tut_hints.png")
 		(src 0,56,284,86)
 	)
+	(img hint4
+		(tex "tut_hints.png")
+		(src 0,86,356,116)
+	)
+	(img stroke
+		(tex "background.png")
+		(src 245,166,255,168)
+	)
 )
