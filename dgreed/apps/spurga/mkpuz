@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd spurga_assets
+../../../tools/spurga_slicer.py puzzles.mml slices.mml
+
