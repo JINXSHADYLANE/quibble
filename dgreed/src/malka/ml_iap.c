@@ -8,30 +8,6 @@
 
 #include "iap.h"
 
-static int ml_iap_init(lua_State* l) {
-	checkargs(0, "iap.init");
-
-	iap_init();
-
-	return 0;
-}
-
-static int ml_iap_close(lua_State* l) {
-	checkargs(0, "iap.close");
-
-	iap_close();
-
-	return 0;
-}
-
-static int ml_iap_is_active(lua_State* l) {
-	checkargs(0, "iap.is_active");
-
-	lua_pushboolean(l, iap_is_active());
-
-	return 1;
-}
-
 static void _product_to_tbl(lua_State* l, Product* p) {
 	lua_createtable(l, 0, 4);
 	int tbl = lua_gettop(l);
@@ -54,6 +30,8 @@ static void _product_to_tbl(lua_State* l, Product* p) {
 }
 
 static lua_State* cb_l = NULL;
+static int cb_purchase_ref = -1;
+static int cb_product_ref = -1;
 
 static void _products_callback(DArray* products) {
 	assert(cb_l);
@@ -66,48 +44,57 @@ static void _products_callback(DArray* products) {
 			lua_rawseti(cb_l, tbl, i+1);
 		}
 
+		lua_getref(cb_l, cb_product_ref);
 		lua_insert(cb_l, -2);
-
 		lua_call(cb_l, 1, 0);
 	}
 }
 
-static int ml_iap_products(lua_State* l) {
-	checkargs(1, "iap.products");
-
-	if(lua_isfunction(l, 1)) {
-		cb_l = l;
-
-		iap_get_products(_products_callback);
-	}
-	else
-		return luaL_error(l, "iap.products argument must be callback");
-
-	return 0;
-}
-
-static int cb_purchase_ref = -1;
-
 static void _purchase_callback(const char* id, bool success) {
+	assert(cb_l);
 	lua_getref(cb_l, cb_purchase_ref);
 	lua_pushstring(cb_l, id);
 	lua_pushboolean(cb_l, success);
 	lua_call(cb_l, 2, 0);	
-	lua_unref(cb_l, cb_purchase_ref);
+}
+
+static int ml_iap_init(lua_State* l) {
+	checkargs(2, "iap.init");
+
+	cb_l = l;
+	cb_purchase_ref = lua_ref(l, 1);
+	cb_product_ref = lua_ref(l, 1);
+
+	iap_init(_products_callback, _purchase_callback);
+
+	return 0;
+}
+
+static int ml_iap_close(lua_State* l) {
+	checkargs(0, "iap.close");
+
+	lua_unref(l, cb_product_ref);
+	lua_unref(l, cb_purchase_ref);
+
+	iap_close();
+
+	return 0;
+}
+
+static int ml_iap_is_active(lua_State* l) {
+	checkargs(0, "iap.is_active");
+
+	lua_pushboolean(l, iap_is_active());
+
+	return 1;
 }
 
 static int ml_iap_purchase(lua_State* l) {
-	checkargs(2, "iap.purchase");
+	checkargs(1, "iap.purchase");
 
 	const char* id = luaL_checkstring(l, 1);
-	
-	if(lua_isfunction(l, 2)) {
-		cb_l = l;
-		cb_purchase_ref = lua_ref(l, 1);
-		iap_purchase(id, _purchase_callback);
-	}
-	else
-		return luaL_error(l, "iap.purchase second argument must be callback");
+
+	iap_purchase(id);
 
 	return 0;
 }
@@ -116,7 +103,6 @@ static const luaL_Reg iap_fun[] = {
 	{"init", ml_iap_init},
 	{"close", ml_iap_close},
 	{"is_active", ml_iap_is_active},
-	{"products", ml_iap_products},
 	{"purchase", ml_iap_purchase},
 	{NULL, NULL}
 };

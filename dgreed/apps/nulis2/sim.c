@@ -35,7 +35,6 @@ static SprHandle spr_ffield;
 // Game state
 static Tweaks* tweaks;
 static bool show_tweaks = false;
-static FontHandle tweaks_font;
 static float screen_widthf, screen_heightf;
 static float sim_widthf, sim_heightf;
 static Vector2 screen_offset;
@@ -240,7 +239,7 @@ void sim_init(uint screen_width, uint screen_height, uint sim_width, uint sim_he
 
 	win_t = reset_t = -100.0f;
 
-	tweaks_font = font_load(ASSETS_PRE "varela.bft");
+	//tweaks_font = font_load(ASSETS_PRE "varela.bft");
 	static char* tweaks_file = ASSETS_PRE "tweaks.mml";
 	if(scr_size == SCR_IPHONE || screen_width > sim_width)
 		tweaks_file = ASSETS_PRE "tweaks_small.mml";
@@ -252,7 +251,7 @@ void sim_init(uint screen_width, uint screen_height, uint sim_width, uint sim_he
 }
 
 void sim_close(void) {
-	font_free(tweaks_font);
+	//font_free(tweaks_font);
 	tweaks_close(tweaks);
 
 	coldet_close(&cd);

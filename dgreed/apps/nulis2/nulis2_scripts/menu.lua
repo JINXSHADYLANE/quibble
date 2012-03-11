@@ -3,7 +3,7 @@ module(..., package.seeall)
 require 'tutorials'
 require 'buy'
 
-paid_level = 11
+paid_level = 9 
 
 background_layer = 6
 icons_layer = 7
@@ -60,6 +60,9 @@ function init()
 	end
 
 	angle = orientation.angle(orientation.current())
+
+	state_sound = keyval.get('state_sound', true)
+	state_music = keyval.get('state_music', true)
 end
 
 function close()
@@ -219,9 +222,13 @@ end
 function draw_options(t)
 	local off, c = animate_menu(t)
 	if menu_icon(sprs.replay, nil, pos_replay - off, nil, c, angle) then
-		csim.reset('l'..tostring(current_level+1))
-		tutorials.start_t = states.time('game')
-		states.pop()
+		if buy.is_unlocked() or current_level+1 < paid_level or current_level+1 == 40 then
+			csim.reset('l'..tostring(current_level+1))
+			tutorials.start_t = states.time('game')
+			states.pop()
+		else
+			states.push('buy')
+		end
 	end
 
 	local new_state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound - off, state_sound, c, angle) 
@@ -231,6 +238,7 @@ function draw_options(t)
 		else
 			mfx.snd_set_volume(0.0)
 		end
+		keyval.set('state_sound', new_state_sound)
 	end
 	state_sound = new_state_sound
 
@@ -241,6 +249,7 @@ function draw_options(t)
 		else
 			sound.pause(music_source)
 		end
+		keyval.set('state_music', new_state_music)
 	end
 	state_music = new_state_music
 
@@ -273,7 +282,11 @@ function draw_level_icon(p, col, angle, n, score)
 	else
 		menu_icon(sprs.levels, nil, p, nil, col, angle, n, score)
 		if menu_icon(sprs.resume, nil, p, nil, col, angle) then
-			states.pop()
+			if buy.is_unlocked() or n+1 < paid_level or n+1 == 40 then
+				states.pop()
+			else
+				states.push('buy')
+			end
 		end
 	end
 end
