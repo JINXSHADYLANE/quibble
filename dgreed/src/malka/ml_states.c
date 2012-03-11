@@ -283,6 +283,8 @@ static int ml_states_push(lua_State* l) {
 }
 
 static void _state_pop(lua_State* l) {
+    assert(_stack_size());
+
 	// Leave old state
 	int top = _stack_get(_stack_size()-1);
 	_call_state_func(l, _names_get(top), "leave", NULL);
@@ -297,6 +299,9 @@ static void _state_pop(lua_State* l) {
 		states_to = top;
 		states_transition_t = time_s();
 	}
+    else {
+        LOG_WARNING("Stack was just emptied");
+    }
 }
 
 static int ml_states_pop(lua_State* l) {

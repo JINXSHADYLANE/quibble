@@ -107,8 +107,7 @@ void _iap_updated_transaction(SKPaymentQueue* queue, SKPaymentTransaction* trans
             [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
             break;
         case SKPaymentTransactionStateFailed:
-            if(transaction.error.code != SKErrorPaymentCancelled)
-                (*_iap_purchase_cb)(_id, false);
+            (*_iap_purchase_cb)(_id, false);
             [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
             break;
         default:

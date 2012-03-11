@@ -227,6 +227,7 @@ function draw_options(t)
 	if menu_icon(sprs.replay, nil, pos_replay - off, nil, c, angle) then
 		if buy.is_unlocked() or current_level+1 < paid_level or current_level+1 == 40 then
 			csim.reset('l'..tostring(current_level+1))
+			tutorials.render('...')
 			tutorials.start_t = states.time('game')
 			states.pop()
 		else
@@ -272,11 +273,14 @@ function draw_level_icon(p, col, angle, n, score)
 		local is_unlocked = unlocked[n+1] 
 		if is_unlocked then
 			if menu_icon(sprs.levels, nil, p, nil, col, angle, n, score) then
-				if buy.is_unlocked() or n+1 < paid_level or n+1 == 40 then
-					csim.reset('l'..tostring(n+1))
-					states.pop()
-				else
-					states.push('buy')
+				if not popped then
+					if buy.is_unlocked() or n+1 < paid_level or n+1 == 40 then
+						csim.reset('l'..tostring(n+1))
+						states.pop()
+					else
+						states.push('buy')
+					end
+					popped = true
 				end
 			end
 		else
@@ -285,10 +289,13 @@ function draw_level_icon(p, col, angle, n, score)
 	else
 		menu_icon(sprs.levels, nil, p, nil, col, angle, n, score)
 		if menu_icon(sprs.resume, nil, p, nil, col, angle) then
-			if buy.is_unlocked() or n+1 < paid_level or n+1 == 40 then
-				states.pop()
-			else
-				states.push('buy')
+			if not popped then
+				if buy.is_unlocked() or n+1 < paid_level or n+1 == 40 then
+					states.pop()
+				else
+					states.push('buy')
+				end
+				popped = true
 			end
 		end
 	end
@@ -435,6 +442,7 @@ function update()
 end
 
 function render(t)
+	popped = false
 	local a = 1 - math.abs(t)
 	local c = rgba(0, 0, 0, a)
 	
@@ -462,7 +470,6 @@ function render(t)
 			draw_options(1 - score_t)
 		end
 	end
-
 
 	return true
 end
