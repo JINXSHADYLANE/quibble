@@ -817,8 +817,11 @@ iap
 In-App purchases. Available only in iOS, iap == nil if 
 not supported.
 
-- iap.init()
-initializes iap subsystem
+- iap.init(product_callback, purchase_callback)
+initializes iap subsystem; product_callback is invoked with a list of
+{id, title, description, price_str} whenever this info becomes available,
+purchase_callback is invoked with id and boolean success when purchase is
+made
 
 - iap.close()
 closes iap
@@ -826,13 +829,8 @@ closes iap
 - iap.is_active()
 returns false if you can't use iap
 
-- iap.products(callback)
-invokes callback with a list of {id, title, description, price_str} 
-tables
-
-- iap.purchase(id, callback)
-purchase a product, callback is invoked with product id and a
-boolean indicating successfullness of purchase
+- iap.purchase(id)
+purchase a product
 
 
 ---

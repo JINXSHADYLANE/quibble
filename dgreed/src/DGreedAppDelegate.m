@@ -70,7 +70,7 @@ float resign_active_t;
 	[fileManager release];
     
     _set_gamecenter_app_delegate(self);
-    //_set_iap_app_delegate(self);
+    _set_iap_app_delegate(self);
     
     [UIAccelerometer sharedAccelerometer].delegate = self;
 	

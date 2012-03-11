@@ -219,7 +219,7 @@ void levels_get(const char* name, LevelDef* def) {
 }
 
 static int _is_accessible(int n) {
-	if(n+1 <= 9 || n+1 == 40)
+	if(n+1 <= 7 || n+1 == 40)
 		return true;
 	if(keyval_get_bool("unlocked", false))
 		return true;
@@ -369,7 +369,6 @@ const char* level_first_unsolved(void) {
 					return level_name;
 				else {
 					malka_states_push("menu");
-					malka_states_push("buy");
 					return level_name;
 				}
 			}

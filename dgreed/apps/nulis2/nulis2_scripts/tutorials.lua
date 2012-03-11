@@ -38,6 +38,9 @@ tut_fingers = {
 	['tut_menu_fingers'] = 5 
 }
 
+cr_size = 0
+cr_positions = {}
+
 tut_menu_offsets = {
 	vec2(0, 0),
 	vec2(-80, 20),
@@ -51,9 +54,11 @@ function init()
 
 	if scr_type == 'ipad' then
 		tut_offset = vec2(0, 150)
+		cr_size = 130
 	elseif scr_type == 'iphone' then
 		tut_offset = vec2(0, 60)
 		tut_fingers['tut_menu_fingers'] = 3
+		cr_size = 74
 	end
 end
 
@@ -69,7 +74,11 @@ function render(level)
 
 	if last_level ~= level then
 		last_level = level
-		if scenario == nil then
+
+-- The complex append-tutorial-to-old-tutorials policy
+-- was too complex!
+
+--		if scenario == nil then
 			-- old scenario finished, start a new one
 
 			-- clone table rather than copy reference
@@ -84,17 +93,17 @@ function render(level)
 			start_t = states.time('game') 
 			freeze_t = nil
 			unfreeze_t = nil
-		else
-			if images[level] then
-				if freeze_t and not unfreeze_t then
-					unfreeze_t = states.time('game') - start_t
-				end
-				-- append images to old scenario
-				for i,img in ipairs(images[level]) do
-					table.insert(scenario, img)
-				end
-			end
-		end
+--		else
+--			if images[level] then
+--				if freeze_t and not unfreeze_t then
+--					unfreeze_t = states.time('game') - start_t
+--				end
+--				-- append images to old scenario
+--				for i,img in ipairs(images[level]) do
+--					table.insert(scenario, img)
+--				end
+--			end
+--		end
 	end
 
 	if scenario then
@@ -123,6 +132,18 @@ function render(level)
 			local tt = (t - i * image_show_len) / image_show_len
 			local img_alpha = math.sin(tt * math.pi)
 			local color = rgba(1, 1, 1, img_alpha) 
+
+			-- credit image hacks
+			if img:find('cr_') == 1 then
+				pos = cr_positions[img]
+				if pos == nil then
+					pos = vec2(
+						math.floor(rand.float(cr_size, scr_size.x - cr_size)),
+						math.floor(rand.float(cr_size, scr_size.y - cr_size))
+					)
+					cr_positions[img] = pos
+				end
+			end
 
 			-- finger image hacks
 			if img:find('tut') == 1 then

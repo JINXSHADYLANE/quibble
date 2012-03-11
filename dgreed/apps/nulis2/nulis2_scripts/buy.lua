@@ -8,6 +8,8 @@ background_layer = 6
 text_layer = 7
 
 color_white = rgba(1, 1, 1, 1)
+color_gray = rgba(0.8, 0.8, 0.8, 1)
+text_color = color_white
 
 sprs = {}
 
@@ -15,18 +17,54 @@ function is_unlocked()
 	return keyval.get('unlocked', false)
 end
 
+function products_cb(products)
+	local p = products[1]
+
+	if p then
+		if scr_type == 'ipad' then
+			buy_text = 'buy the rest of the game for '..p.price_str
+		else
+			buy_text = 'buy the game for '..p.price_str
+		end
+	end
+end
+
+function purchase_cb(id, success)
+	log.info('Purchase!')
+	if id == 'com.qbcode.nulis.unlock' and success then
+		log.info('Unlocking')
+		keyval.set('unlocked', true)
+		states.pop()
+	end
+
+	if not success then
+		purchased = false
+	end
+end
+
 function init()
+	if iap then
+		iap.init(products_cb, purchase_cb)
+	end
+
 	sprs.background = sprsheet.get_handle('background')
 	sprs.text = sprsheet.get_handle('hint4')
 
 	sprs.line_tex, sprs.line = sprsheet.get('stripe')
+
+	buy_enter_t = -100
+	held_down = false
 end
 
 function close()
+	if iap then
+		iap.close()
+	end
 end
 
 function enter()
 	buy_enter_t = time.s()
+	held_down = false
 end
 
 function leave()
@@ -41,6 +79,27 @@ function update()
 		states.pop()
 	end
 
+	-- hack for PCs 
+	if char.down('u') then
+		keyval.set('unlocked', true)
+		states.pop()
+	end
+
+	-- buy logic
+	if touch.count() == 1 then
+		local t = touch.get(0)
+		held_down = true
+		text_color = color_gray
+	end
+
+	if touch.count() == 0 and held_down then
+		held_down = false
+		text_color = color_white
+		if iap and iap.is_active() then
+			iap.purchase('com.qbcode.nulis.unlock')
+		end
+	end
+
 	menu.update_orientation()
 
 	return true
@@ -48,7 +107,7 @@ end
 
 local center = vec2(scr_size.x / 2, scr_size.y / 2)
 
-local buy_text = 'buy the game for $0.99'
+buy_text = 'buy the game for $0.99'
 if scr_type == 'ipad' then
 	buy_text = 'buy the rest of the game for $0.99'
 end
@@ -80,21 +139,21 @@ function render(t)
 
 	video.draw_text_rotated(fnt, text_layer, buy_text, 
 		center + rotate(vec2(0, off + h + text_hack), menu.angle),
-		menu.angle, 1.0, col
+		menu.angle, 1.0, text_color
 	)
 
 	local line_p = center + rotate(vec2(0, line1_off), menu.angle)
 
 	video.draw_rect(sprs.line_tex, text_layer, sprs.line,
 		rect(line_p.x - w/2, line_p.y-1, line_p.x + w/2, line_p.y+1),
-		menu.angle, col
+		menu.angle, text_color
 	)
 
 	local line_p = center + rotate(vec2(0, line2_off), menu.angle)
 
 	video.draw_rect(sprs.line_tex, text_layer, sprs.line,
 		rect(line_p.x - w/2, line_p.y-1, line_p.x + w/2, line_p.y+1),
-		menu.angle, col
+		menu.angle, text_color
 	)
 
 	return true	
