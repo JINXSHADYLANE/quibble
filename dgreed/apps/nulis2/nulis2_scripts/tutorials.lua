@@ -70,40 +70,45 @@ scenario = nil
 start_t = nil
 freeze_t = nil
 
+prev_img = nil
+prev_col = nil
+prev_pos = nil
+
+old_img = nil
+old_col = nil
+old_pos = nil
+
 function render(level)
 
 	if last_level ~= level then
 		last_level = level
 
--- The complex append-tutorial-to-old-tutorials policy
--- was too complex!
+		old_img = prev_img
+		old_col = prev_col
+		old_pos = prev_pos
 
---		if scenario == nil then
-			-- old scenario finished, start a new one
-
-			-- clone table rather than copy reference
-			scenario = nil
-			if images[level] and #images[level] > 0 then
-				scenario = {}
-				for i,img in ipairs(images[level]) do
-					table.insert(scenario, img)
-				end
+		-- clone table rather than copy reference
+		scenario = nil
+		if images[level] and #images[level] > 0 then
+			scenario = {}
+			for i,img in ipairs(images[level]) do
+				table.insert(scenario, img)
 			end
+		end
 
-			start_t = states.time('game') 
-			freeze_t = nil
-			unfreeze_t = nil
---		else
---			if images[level] then
---				if freeze_t and not unfreeze_t then
---					unfreeze_t = states.time('game') - start_t
---				end
---				-- append images to old scenario
---				for i,img in ipairs(images[level]) do
---					table.insert(scenario, img)
---				end
---			end
---		end
+		start_t = states.time('game') 
+		freeze_t = nil
+		unfreeze_t = nil
+	end
+
+	if old_img then
+		sprsheet.draw_centered(old_img, image_layer, old_pos, menu.angle, 1.0, old_col) 
+		old_col.a = lerp(old_col.a, 0, 0.1)
+		if old_col.a < 0.01 then
+			old_img = nil
+			old_col = nil
+			old_pos = nil
+		end
 	end
 
 	if scenario then
@@ -193,8 +198,17 @@ function render(level)
 			end
 
 			sprsheet.draw_centered(img, image_layer, pos, menu.angle, 1.0, color) 
+
+			prev_img = img
+			prev_col = color
+			prev_pos = pos
+
 		else
 			scenario = nil
+
+			prev_img = nil
+			prev_col = nil
+			prev_pos = nil
 		end
 	end
 end

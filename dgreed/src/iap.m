@@ -40,7 +40,6 @@ static void _iap_get_products(ProductCallback cb) {
 
 void iap_init(ProductCallback product_cb, PurchaseCallback purchase_cb) {
     if ([SKPaymentQueue canMakePayments]) {
-        can_make_payments = true;
         
         products_dict = [[NSMutableDictionary alloc] init];
         prices_dict = [[NSMutableDictionary alloc] init];
@@ -73,6 +72,7 @@ void _iap_received_products_response(SKProductsResponse* response) {
         [products_dict setValue:product forKey:product.productIdentifier];
         [numberFormatter setLocale:product.priceLocale];
         [prices_dict setValue:[numberFormatter stringFromNumber:product.price] forKey:product.productIdentifier];
+        can_make_payments = true;
     }
     
     _iap_get_products(_iap_product_cb);

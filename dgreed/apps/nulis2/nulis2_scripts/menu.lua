@@ -62,6 +62,9 @@ function init()
 	angle = orientation.angle(orientation.current())
 
 	state_sound = keyval.get('state_sound', true)
+	if not state_sound then
+		mfx.snd_set_volume(0)
+	end
 	state_music = keyval.get('state_music', true)
 end
 

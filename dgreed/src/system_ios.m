@@ -1597,3 +1597,13 @@ void ios_open_web_url(const char* url) {
     NSString* ns_url = [NSString stringWithUTF8String:url];
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString: ns_url]];
 }
+
+void ios_alert(const char* title, const char* text) {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithUTF8String:title] 
+                                                    message:[NSString stringWithUTF8String:text]
+                                                   delegate:nil 
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:nil];
+    [alert show];
+    [alert release];
+}

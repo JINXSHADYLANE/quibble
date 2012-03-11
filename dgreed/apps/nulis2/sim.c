@@ -1016,6 +1016,8 @@ void _next_level(void* userdata) {
 }
 
 void _reset_level(void* userdata) {
+	if(!reset_level)
+		return;
 	if(sim_active) {
 		Ball* b = DARRAY_DATA_PTR(balls, Ball);
 		for(uint i = 0; i < balls.size; ++i) {

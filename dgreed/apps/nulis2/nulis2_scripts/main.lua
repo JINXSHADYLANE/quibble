@@ -24,6 +24,9 @@ function setup_screen()
 			if arg == '-retina' then
 				retina = true
 			end
+			if arg == '-retinaipad' then
+				retina = true
+			end
 		end
 	else
 		local w, h = video.native_resolution()
@@ -58,6 +61,9 @@ function game_init()
 
 	music = sound.load_stream(pre..'theme.ogg')
 	music_source = sound.play(music, true)
+	if not keyval.get('state_music', true) then
+		sound.pause(music_source)
+	end
 
 	if scr_type == 'ipad' then
 		if retina then

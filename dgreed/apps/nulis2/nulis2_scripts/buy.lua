@@ -39,6 +39,7 @@ function purchase_cb(id, success)
 
 	if not success then
 		purchased = false
+		buy_text = old_buy_text
 	end
 end
 
@@ -65,6 +66,10 @@ end
 function enter()
 	buy_enter_t = time.s()
 	held_down = false
+
+	if old_buy_text then
+		buy_text = old_buy_text
+	end
 end
 
 function leave()
@@ -92,11 +97,16 @@ function update()
 		text_color = color_gray
 	end
 
-	if touch.count() == 0 and held_down then
+	if touch.count() == 0 and held_down and buy_text ~= 'please wait...' then
 		held_down = false
 		text_color = color_white
 		if iap and iap.is_active() then
 			iap.purchase('com.qbcode.nulis.unlock')
+			old_buy_text = buy_text
+			buy_text = 'please wait ...'
+		else
+			os.alert('Unable to purchase', 'You must be connected to internet to purchase the rest of the game')
+			states.pop()
 		end
 	end
 
@@ -113,12 +123,19 @@ if scr_type == 'ipad' then
 end
 
 local text_hack = 0
+if retina then
+	text_hack = 3
+end
+
 local line1_off = 12 
 local line2_off = 42
 if scr_type == 'ipad' then
 	line1_off = 27
 	line2_off = 77
 	text_hack = 2
+	if retina then
+		text_hack = 6
+	end
 end
 local off = (line1_off + line2_off) / 2 
 

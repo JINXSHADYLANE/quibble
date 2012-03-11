@@ -833,10 +833,13 @@ returns false if you can't use iap
 purchase a product
 
 
----
-web
----
+--
+os
+--
 
-- web.open(url)
+- os.open(url)
 opens web browser with specified url
+
+- os.alert(title, text)
+displays alert box with 'ok' button
 
