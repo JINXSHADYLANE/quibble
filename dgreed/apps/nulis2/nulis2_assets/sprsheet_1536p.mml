@@ -161,4 +161,67 @@
 		(tex "background.png")
 		(src 245,170,255,174)
 	)
+	(img cr_snioka
+		(tex "credits_ipad_r.png")
+		(src 0,0,512,64)
+	)
+	(img cr_palaima
+		(tex "credits_ipad_r.png")
+		(src 0,64,512,128)
+	)
+	(img cr_mitkus
+		(tex "credits_ipad_r.png")
+		(src 0,128,512,192)
+	)
+	(img cr_domas
+		(tex "credits_ipad_r.png")
+		(src 0,192,512,256)
+	)
+	(img cr_marius
+		(tex "credits_ipad_r.png")
+		(src 0,256,512,320)
+	)
+	(img cr_auste
+		(tex "credits_ipad_r.png")
+		(src 0,320,512,384)
+	)
+	(img cr_jonas
+		(tex "credits_ipad_r.png")
+		(src 0,384,512,448)
+	)
+	(img cr_justas
+		(tex "credits_ipad_r.png")
+		(src 0,448,512,512)
+	)
+	(img cr_aiste
+		(tex "credits_ipad_r.png")
+		(src 512,0,1024,64)
+	)
+	(img cr_migle
+		(tex "credits_ipad_r.png")
+		(src 512,64,1024,128)
+	)
+	(img cr_zujus
+		(tex "credits_ipad_r.png")
+		(src 512,128,1024,192)
+	)
+	(img cr_daka
+		(tex "credits_ipad_r.png")
+		(src 512,192,1024,256)
+	)
+	(img cr_stumbrys
+		(tex "credits_ipad_r.png")
+		(src 512,256,1024,320)
+	)
+	(img cr_justinas
+		(tex "credits_ipad_r.png")
+		(src 512,320,1024,384)
+	)
+	(img thanks
+		(tex "credits_ipad_r.png")
+		(src 512,384,1024,448)
+	)
+	(img qbcode
+		(tex "qbcode_ipad_r.png")
+	)
 )

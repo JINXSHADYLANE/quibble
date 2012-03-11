@@ -160,4 +160,67 @@
 		(tex "background.png")
 		(src 245,164,255,165)
 	)
+	(img cr_palaima
+		(tex "credits_s.png")
+		(src 0,0,120,24)
+	)
+	(img cr_stumbrys
+		(tex "credits_s.png")
+		(src 120,0,256,24)
+	)
+	(img cr_mitkus
+		(tex "credits_s.png")
+		(src 0,24,120,48)
+	)
+	(img cr_justinas
+		(tex "credits_s.png")
+		(src 120,24,256,48)
+	)
+	(img cr_domas
+		(tex "credits_s.png")
+		(src 0,48,144,72)
+	)
+	(img cr_zujus
+		(tex "credits_s.png")
+		(src 144,48,256,72)
+	)
+	(img cr_marius
+		(tex "credits_s.png")
+		(src 0,72,120,96)
+	)
+	(img cr_snioka
+		(tex "credits_s.png")
+		(src 120,72,256,96)
+	)
+	(img cr_auste
+		(tex "credits_s.png")
+		(src 0,96,144,120)
+	)
+	(img cr_jonas
+		(tex "credits_s.png")
+		(src 0,120,144,144)
+	)
+	(img cr_justas
+		(tex "credits_s.png")
+		(src 0,144,144,168)
+	)
+	(img cr_aiste
+		(tex "credits_s.png")
+		(src 0,168,144,192)
+	)
+	(img cr_migle
+		(tex "credits_s.png")
+		(src 0,192,144,216)
+	)
+	(img cr_daka
+		(tex "credits_s.png")
+		(src 0,216,144,240)
+	)
+	(img thanks
+		(tex "credits_s.png")
+		(src 144,96,256,120)
+	)
+	(img qbcode
+		(tex "qbcode_s.png")
+	)
 )

@@ -6,12 +6,30 @@ image_layer = 1
 image_show_len = 4
 
 images = {
-	['l1'] = {'title', 'tut_one_finger'},
-	['l2'] = {'tut_two_fingers','hint1'},
-	['l3'] = {'tut_menu_fingers','hint2','hint3'},
+	['l1'] =  {'title', 'tut_one_finger'},
+	['l2'] =  {'tut_two_fingers','hint1'},
+	['l3'] =  {'tut_menu_fingers','hint2','hint3'},
 	['l10'] = {'','clock'},
 	['l20'] = {'','magnet'},
-	['l29'] = {'','stopwatch'}
+	['l29'] = {'','stopwatch'},
+	['l40'] = {'','','','','','',
+				'cr_mitkus',
+				'cr_domas',
+				'cr_marius',
+				'cr_jonas',
+				'cr_justas',
+				'cr_palaima',
+				'cr_snioka',
+				'cr_aiste',
+				'cr_zujus',
+				'cr_migle',
+				'cr_daka',
+				'cr_auste',
+				'cr_justinas',
+				'cr_stumbrys',
+				'thanks',
+				'qbcode'
+			  }
 }
 
 tut_fingers = {
