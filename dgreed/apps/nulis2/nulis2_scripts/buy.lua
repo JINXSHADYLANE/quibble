@@ -154,6 +154,8 @@ function render(t)
 
 	local w, h = font.size(fnt, buy_text)
 
+	text_color.a = col.a
+
 	video.draw_text_rotated(fnt, text_layer, buy_text, 
 		center + rotate(vec2(0, off + h + text_hack), menu.angle),
 		menu.angle, 1.0, text_color
@@ -172,6 +174,8 @@ function render(t)
 		rect(line_p.x - w/2, line_p.y-1, line_p.x + w/2, line_p.y+1),
 		menu.angle, text_color
 	)
+
+	text_color.a = 1
 
 	return true	
 end
