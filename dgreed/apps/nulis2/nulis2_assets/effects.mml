@@ -19,7 +19,9 @@
 		(s Vanish2.wav)
 		(s Explode.wav)
 		(s Vanish.wav)
-		(s Win.wav)
+		(s Win.wav
+			(volume 0.6)
+		)
 		(s Spawn.wav
 			(volume 0.8)
 		)
