@@ -225,13 +225,16 @@ end
 function draw_options(t)
 	local off, c = animate_menu(t)
 	if menu_icon(sprs.replay, nil, pos_replay - off, nil, c, angle) then
-		if buy.is_unlocked() or current_level+1 < paid_level or current_level+1 == 40 then
-			csim.reset('l'..tostring(current_level+1))
-			tutorials.render('...')
-			tutorials.start_t = states.time('game')
-			states.pop()
-		else
-			states.push('buy')
+		if not popped then
+			if buy.is_unlocked() or current_level+1 < paid_level or current_level+1 == 40 then
+				csim.reset('l'..tostring(current_level+1))
+				tutorials.render('...')
+				tutorials.start_t = states.time('game')
+				states.pop()
+			else
+				states.push('buy')
+			end
+			popped = true
 		end
 	end
 
