@@ -8,6 +8,8 @@ retina = nil
 music = nil
 music_source = nil
 
+ed = false
+
 function setup_screen()
 	levels_file = 'levels.mml' 
 	if argv then
@@ -26,6 +28,9 @@ function setup_screen()
 			end
 			if arg == '-retinaipad' then
 				retina = true
+			end
+			if arg == '-e' then
+				ed = true
 			end
 		end
 	else
@@ -47,13 +52,17 @@ end
 setup_screen()
 
 require 'game'
---require 'editor'
+if ed then
+	require 'editor'
+end
 require 'menu'
 require 'buy'
 
 function game_init()
 	states.register('game', game)
-	--states.register('editor', editor)
+	if ed then
+		states.register('editor', editor)
+	end
 	states.register('menu', menu)
 	states.register('buy', buy)
 

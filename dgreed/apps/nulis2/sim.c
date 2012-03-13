@@ -35,6 +35,7 @@ static SprHandle spr_ffield;
 // Game state
 static Tweaks* tweaks;
 static bool show_tweaks = false;
+static FontHandle tweaks_font = 0;
 static float screen_widthf, screen_heightf;
 static float sim_widthf, sim_heightf;
 static Vector2 screen_offset;
@@ -239,11 +240,13 @@ void sim_init(uint screen_width, uint screen_height, uint sim_width, uint sim_he
 
 	win_t = reset_t = -100.0f;
 
-	//tweaks_font = font_load(ASSETS_PRE "varela.bft");
+	if(params_find("-e") != ~0)
+		tweaks_font = font_load(ASSETS_PRE "varela.bft");
 	static char* tweaks_file = ASSETS_PRE "tweaks.mml";
 	if(scr_size == SCR_IPHONE || screen_width > sim_width)
 		tweaks_file = ASSETS_PRE "tweaks_small.mml";
-	tweaks = tweaks_init(tweaks_file, rectf(10.0f, 40.0f, 1000.0f, 700.0f), 9, 0);
+	tweaks = tweaks_init(tweaks_file, rectf(10.0f, 40.0f, 1000.0f, 700.0f),
+			9, tweaks_font);
 	tweaks->y_spacing = 90.0f;
 	tweaks->items_per_page = 7;
 	_register_tweaks();
@@ -251,7 +254,8 @@ void sim_init(uint screen_width, uint screen_height, uint sim_width, uint sim_he
 }
 
 void sim_close(void) {
-	//font_free(tweaks_font);
+	if(params_find("-e") != ~0)
+		font_free(tweaks_font);
 	tweaks_close(tweaks);
 
 	coldet_close(&cd);
@@ -1187,15 +1191,17 @@ void sim_update(void) {
 		malka_states_push("menu");
 	}
 
-	if(scr_size == SCR_IPAD) {
-		if(touches_count() == 6 || char_up('e'))
-			malka_states_push("editor");
+	if(params_find("-e") != ~0) {
+		if(scr_size == SCR_IPAD) {
+			if(touches_count() == 6 || char_up('e'))
+				malka_states_push("editor");
 
-		if(show_tweaks && char_up('t'))
-			show_tweaks = false;
+			if(show_tweaks && char_up('t'))
+				show_tweaks = false;
 
-		if(touches_count() == 7 || char_up('t'))
-			show_tweaks = true;
+			if(touches_count() == 7 || char_up('t'))
+				show_tweaks = true;
+		}
 	}
 
 	float t = malka_state_time("game");
