@@ -21,7 +21,7 @@ typedef struct {
 typedef void (*ProductCallback)(DArray* data);
 typedef void (*PurchaseCallback)(const char* _id, bool success);
 
-void iap_init(ProductCallback product_cb, PurchaseCallback purchase_cb);
+void iap_init(const char* ids, ProductCallback product_cb, PurchaseCallback purchase_cb);
 void iap_close(void);
 bool iap_is_active(void);
 

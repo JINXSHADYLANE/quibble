@@ -59,13 +59,15 @@ static void _purchase_callback(const char* id, bool success) {
 }
 
 static int ml_iap_init(lua_State* l) {
-	checkargs(2, "iap.init");
+	checkargs(3, "iap.init");
+
+	const char* ids = luaL_checkstring(l, 1);
 
 	cb_l = l;
 	cb_purchase_ref = lua_ref(l, 1);
 	cb_product_ref = lua_ref(l, 1);
 
-	iap_init(_products_callback, _purchase_callback);
+	iap_init(ids, _products_callback, _purchase_callback);
 
 	return 0;
 }

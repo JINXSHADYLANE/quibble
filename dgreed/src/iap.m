@@ -3,6 +3,8 @@
 #import <StoreKit/StoreKit.h>
 #import "DGreedAppDelegate.h"
 
+#include "memory.h"
+
 static DGreedAppDelegate* app_delegate = nil;
 static bool can_make_payments = false;
 static NSMutableDictionary* products_dict = NULL;
@@ -38,7 +40,7 @@ static void _iap_get_products(ProductCallback cb) {
 }
 
 
-void iap_init(ProductCallback product_cb, PurchaseCallback purchase_cb) {
+void iap_init(const char* ids, ProductCallback product_cb, PurchaseCallback purchase_cb) {
     if ([SKPaymentQueue canMakePayments]) {
         
         products_dict = [[NSMutableDictionary alloc] init];
@@ -48,9 +50,25 @@ void iap_init(ProductCallback product_cb, PurchaseCallback purchase_cb) {
         _iap_purchase_cb = purchase_cb;
         
         [[SKPaymentQueue defaultQueue] addTransactionObserver:app_delegate];
+
+		// Split ids
+		NSMutableSet* ids_set = [[NSMutableSet alloc] init];
+
+		char* cloned_ids = alloca(strlen(ids)+1);
+        strcpy(cloned_ids, ids);
         
-        SKProductsRequest *request= [[SKProductsRequest alloc] initWithProductIdentifiers:
-                                     [NSSet setWithObject: @"com.qbcode.nulis.unlock"]];
+		char* _id;
+
+		_id = strtok(cloned_ids, ",");
+		while(_id != NULL) {
+			[ids_set addObject:[NSString stringWithUTF8String:_id]];
+			_id = strtok(NULL, ",");
+		}
+        
+        SKProductsRequest *request= [[SKProductsRequest alloc] initWithProductIdentifiers:ids_set];
+        
+        [ids_set release];
+
         request.delegate = app_delegate;
         [request start];
     }
