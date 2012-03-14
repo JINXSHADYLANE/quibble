@@ -817,11 +817,11 @@ iap
 In-App purchases. Available only in iOS, iap == nil if 
 not supported.
 
-- iap.init(product_callback, purchase_callback)
-initializes iap subsystem; product_callback is invoked with a list of
-{id, title, description, price_str} whenever this info becomes available,
-purchase_callback is invoked with id and boolean success when purchase is
-made
+- iap.init(ids, product_callback, purchase_callback)
+initializes iap subsystem; ids is comma-separated list of product ids,
+product_callback is invoked with a list of {id, title, description, price_str} 
+whenever this info becomes available, purchase_callback is invoked with id 
+and boolean success when purchase is made
 
 - iap.close()
 closes iap

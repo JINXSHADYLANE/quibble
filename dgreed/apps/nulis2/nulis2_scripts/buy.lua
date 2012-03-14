@@ -45,7 +45,8 @@ end
 
 function init()
 	if iap then
-		iap.init(products_cb, purchase_cb)
+		print 'opa'
+		iap.init('com.qbcode.nulis.unlock', products_cb, purchase_cb)
 	end
 
 	sprs.background = sprsheet.get_handle('background')
@@ -97,16 +98,18 @@ function update()
 		text_color = color_gray
 	end
 
-	if touch.count() == 0 and held_down and buy_text ~= 'please wait...' then
+	if touch.count() == 0 and held_down then
 		held_down = false
 		text_color = color_white
-		if iap and iap.is_active() then
-			iap.purchase('com.qbcode.nulis.unlock')
-			old_buy_text = buy_text
-			buy_text = 'please wait ...'
-		else
-			os.alert('Unable to purchase', 'You must be connected to internet to purchase the rest of the game')
-			states.pop()
+		if buy_text ~= wait_text then
+			if iap and iap.is_active() then
+				iap.purchase('com.qbcode.nulis.unlock')
+				old_buy_text = buy_text
+				buy_text = wait_text 
+			else
+				os.alert('Unable to purchase', 'You must be connected to internet to purchase the rest of the game')
+				states.pop()
+			end
 		end
 	end
 
@@ -117,6 +120,7 @@ end
 
 local center = vec2(scr_size.x / 2, scr_size.y / 2)
 
+wait_text = 'please wait...'
 buy_text = 'buy the game for $0.99'
 if scr_type == 'ipad' then
 	buy_text = 'buy the rest of the game for $0.99'
