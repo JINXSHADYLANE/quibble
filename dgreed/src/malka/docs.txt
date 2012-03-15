@@ -739,6 +739,22 @@ state stack handling
 a number of seconds for transitioning between states, 0 by default
 
 
+----
+http
+----
+
+Async http requests. All callbacks have this form:
+callback(retcode, data, header),
+where retcode is integer http response code, data is 
+string and header is nil or string
+
+- http.get(addr, callback, get_header)
+perform a get request, get_header is optional boolean
+
+- http.post(addr, data, content_type, callback, get_header)
+perform a post request, content_type is optional string
+
+
 -------
 devmode (not implemented)
 -------

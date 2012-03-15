@@ -1,4 +1,4 @@
-#include "ml_web.h"
+#include "ml_os.h"
 #include "ml_common.h"
 
 #include "lua/lauxlib.h"
@@ -51,7 +51,7 @@ static luaL_Reg os_fun[] = {
 	{NULL, NULL}
 };
 
-int malka_open_web(lua_State* l) {
+int malka_open_os(lua_State* l) {
 	luaL_register(l, "os", os_fun);
 
 	lua_pop(l, 1);
