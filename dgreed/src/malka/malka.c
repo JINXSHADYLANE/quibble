@@ -9,8 +9,9 @@
 #include "ml_coldet.h"
 #include "ml_keyval.h"
 #include "ml_gamecenter.h"
-#include "ml_web.h"
+#include "ml_os.h"
 #include "ml_iap.h"
+#include "ml_http.h"
 
 #include "memory.h"
 #include "mempool.h"
@@ -168,8 +169,9 @@ void malka_init_ex(bool use_pools) {
 	malka_open_coldet(l);
 	malka_open_keyval(l);
 	malka_open_gamecenter(l);
-	malka_open_web(l);
+	malka_open_os(l);
 	malka_open_iap(l);
+	malka_open_http(l);
 
 	ml_states_init(l);
 }
