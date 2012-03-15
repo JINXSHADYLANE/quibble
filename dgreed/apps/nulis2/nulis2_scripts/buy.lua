@@ -45,7 +45,6 @@ end
 
 function init()
 	if iap then
-		print 'opa'
 		iap.init('com.qbcode.nulis.unlock', products_cb, purchase_cb)
 	end
 
