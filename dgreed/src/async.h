@@ -19,7 +19,7 @@ TaskId async_run(Task task, void* userdata);
 // executed in-order.
 TaskId async_run_io(Task task, void* userdata);
 
-// Schedule task to be executed in t miliseconds on the same thread.
+// Schedule task to be executed in t miliseconds on the main thread.
 // Timing is precise to 1/60 of a second.
 TaskId async_schedule(Task task, uint t, void* userdata);
 
