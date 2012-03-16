@@ -51,7 +51,7 @@ static void _invoke_task(void* userdata) {
 	lua_getfield(cb_l, -1, inv->method);
 	lua_pushnumber(cb_l, inv->id);
 
-	if(inv->msg[0] != '\0') {
+	if(inv->msg[0] == '\0') {
 		lua_call(cb_l, 1, 0);
 	}
 	else {
@@ -195,7 +195,7 @@ static void* mg_callback(enum mg_event event, struct mg_connection* conn,
 
 #define check_conf(name, type) \
 	lua_getfield(l, tbl, name); \
-	if(!lua_is##type(l, 1)) { \
+	if(!lua_is##type(l, -1)) { \
 		LOG_WARNING("No " name); \
 		lua_pop(l, 1); \
 		return false; \
