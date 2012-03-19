@@ -55,6 +55,9 @@ function init()
 
 	buy_enter_t = -100
 	held_down = false
+
+	--- temp
+	keyval.set('unlocked', true)
 end
 
 function close()

@@ -7,7 +7,7 @@
 #define SCRIPTS_PRE "aitvaras_scripts/"
 
 void dgreed_preinit(void) {
-	video_clear_color(COLOR_RGBA(0, 0, 0, 255));
+	video_clear_color(COLOR_RGBA(255, 255, 255, 255));
 }
 
 bool dgreed_init(int argc, const char** argv) {
