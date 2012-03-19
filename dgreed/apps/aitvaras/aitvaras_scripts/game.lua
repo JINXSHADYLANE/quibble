@@ -1,7 +1,12 @@
 local game = {}
 
+colour_counter = 1
+move_len = 0.5
+
 tiles_w = 16
 tiles_h = 12
+
+sprs = {'bug_red', 'bug_blue', 'bug_green', 'bug_yellow'}
 
 local function map2world(p)
 	return p * 64 + vec2(32, 32)
@@ -13,7 +18,8 @@ local player = {}
 player.__index = player
 
 function player:new(id)
-	local obj = {}
+	local obj = {dir = nil, sprite = sprs[colour_counter]}
+	colour_counter = math.fmod(colour_counter+1, #sprs)
 	setmetatable(obj, self)
 	obj:randomize_pos()
 	return obj
@@ -29,8 +35,37 @@ function player:randomize_pos()
 	self.pos = vec2(x, y)
 end
 
+function player:update()
+	if self.t ~= nil then
+		local tt = (states.time() - self.t) / move_len
+
+		if tt >= 1 then
+			self.pos = self.next_pos
+			self.next_pos = nil
+			self.t = nil
+		end
+	end
+
+	if self.t == nil and self.dir ~= nil then
+		local next_pos = self.pos + self.dir
+		if not tilemap.collide(game.map, map2world(next_pos)) then
+			self.next_pos = next_pos
+			self.t = states.time()
+		end
+	end
+end
+
 function player:draw()
-	sprsheet.draw_anim_centered('bug_red', 0, 4, map2world(self.pos))
+	local frame = 0
+	local pos = self.pos
+	if self.t ~= nil then
+		local t = states.time()
+		local tt = (t - self.t) / move_len
+		pos = lerp(pos, self.next_pos, tt)
+		frame = math.floor(math.fmod(t*6, 2))
+	end
+
+	sprsheet.draw_anim_centered(self.sprite, frame, 4, map2world(pos), self.angle or 0)
 end
 
 local players = {}
@@ -39,7 +74,6 @@ local players = {}
 function game.join(id)
 	print('player id '..tostring(id)..' joined')
 	players[id] = player:new(id)
-	print(tostring(players[id].pos))
 end
 
 function game.leave(id)
@@ -48,11 +82,45 @@ function game.leave(id)
 end
 
 function game.control(id, msg)
-	print(tostring(id).. ' -> '..tostring(msg))
+	local p = players[id]
+
+	if p then
+		local dir = p.dir or vec2(0, 0)
+		local d, s = msg:match('(%a):(%a)')
+
+		local dirs =  {
+			['l'] = vec2(-1, 0),
+			['r'] = vec2(1, 0),
+			['u'] = vec2(0, -1),
+			['d'] = vec2(0, 1)
+		}
+
+		local angles = {
+			['l'] = -math.pi/2,
+			['r'] = math.pi/2,
+			['u'] = 0,
+			['d'] = math.pi
+		}
+
+		if s == 'd' then
+			dir = dir + dirs[d]
+			p.angle = angles[d]
+		end
+
+		if s == 'u' then
+			dir = dir - dirs[d]
+		end
+
+		if length_sq(dir) > 0 then
+			p.dir = dir
+		else
+			p.dir = nil
+		end
+	end
 end
 
 function game.init()
-	aitvaras.lobby_addr = 'http://89.249.93.114:80'
+	aitvaras.lobby_addr = 'http://antrasekranas.lt'
 	aitvaras.server_addr = 'http://89.249.93.114:8008' 
 	aitvaras.listening_port = 8008
 	aitvaras.document_root = 'aitvaras_html/'
@@ -79,6 +147,12 @@ function game.leave()
 end
 
 function game.update()
+	for id,player in pairs(players) do
+		if player then
+			player:update()
+		end
+	end
+
 	return true
 end
 
