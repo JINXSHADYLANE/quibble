@@ -160,6 +160,19 @@ void levels_reset(const char* desc) {
 		darray_append(&level_defs, &new);
 	}
 
+	// Special logic for levels update:
+	// unlock 40 & 41 levels if 39 is solved,
+	// unlock 40 if 38 is solved
+	
+	if(level_is_solved("l39")) {
+		keyval_set_bool("ulck_l40", true);
+		keyval_set_bool("ulck_l41", true);
+	}
+
+	if(level_is_solved("l38")) {
+		keyval_set_bool("ulck_l40", true);
+	}
+
 	mml_free(&level_mml);
 	level_mml_loaded = true;
 }
