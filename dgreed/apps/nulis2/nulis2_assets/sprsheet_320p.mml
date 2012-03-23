@@ -135,10 +135,10 @@
 	)
 	(anim levels
 		(tex "ui_s.png")
-		(frames 40)
+		(frames 50)
 		(src 0,0,64,64)
 		(offset 64,64)
-		(grid 8,6)
+		(grid 8,7)
 	)
 	(img hint1
 		(tex "tut_hints_s.png")
