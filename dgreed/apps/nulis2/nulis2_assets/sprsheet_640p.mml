@@ -139,7 +139,7 @@
 		(tex "ui.png")
 		(src 0,0,128,128)
 		(offset 128,128)
-		(grid 8,6)
+		(grid 8,7)
 	)
 	(img hint1
 		(tex "tut_hints_r.png")
