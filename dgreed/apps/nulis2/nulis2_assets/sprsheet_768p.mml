@@ -87,51 +87,51 @@
 	)
 	(img resume
 		(tex "ui_ipad.png")
-		(src 0,0,100,100)
+		(src 0,700,100,800)
 	)
 	(img replay
 		(tex "ui_ipad.png")
-		(src 100,0,200,100)
+		(src 100,700,200,800)
 	)
 	(img sound
 		(tex "ui_ipad.png")
-		(src 200,0,300,100)
+		(src 200,700,300,800)
 	)
 	(img music
 		(tex "ui_ipad.png")
-		(src 300,0,400,100)
+		(src 300,700,400,800)
 	)
 	(img score
 		(tex "ui_ipad.png")
-		(src 400,0,500,100)
+		(src 400,700,500,800)
 	)
 	(img sound_mute
 		(tex "ui_ipad.png")
-		(src 500,0,600,100)
+		(src 500,700,600,800)
 	)
 	(img music_mute
 		(tex "ui_ipad.png")
-		(src 600,0,700,100)
+		(src 600,700,700,800)
 	)
 	(img back
 		(tex "ui_ipad.png")
-		(src 700,0,800,100)
+		(src 700,700,800,800)
 	)
 	(img locked
 		(tex "ui_ipad.png")
-		(src 0,100,100,200)
+		(src 400,600,500,700)
 	)
 	(img high_score
 		(tex "ui_ipad.png")
-		(src 100,100,200,200)
+		(src 500,600,600,700)
 	)
 	(img level_stats
 		(tex "ui_ipad.png")
-		(src 200,100,300,200)
+		(src 600,600,700,700)
 	)
 	(img achievements
 		(tex "ui_ipad.png")
-		(src 300,100,400,200)
+		(src 700,600,800,700)
 	)
 	(img editor_circle
 		(tex "editor_circle.png")
@@ -174,10 +174,10 @@
 	)
 	(anim levels
 		(tex "ui_ipad.png")
-		(frames 40)
-		(src 0,200,100,300)
+		(frames 50)
+		(src 0,0,100,100)
 		(offset 100,100)
-		(grid 8,5)
+		(grid 8,6)
 	)
 	(img hint1
 		(tex "tut_hints.png")
