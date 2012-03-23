@@ -81,7 +81,7 @@ function enter()
 
 	unlocked = {}
 	score = {}
-	for i=1,40 do
+	for i=1,50 do
 		unlocked[i] = clevels.is_unlocked_n(i)	
 		score[i] = clevels.score_n(i)
 	end
@@ -226,7 +226,7 @@ function draw_options(t)
 	local off, c = animate_menu(t)
 	if menu_icon(sprs.replay, nil, pos_replay - off, nil, c, angle) then
 		if not popped then
-			if buy.is_unlocked() or current_level+1 < paid_level or current_level+1 == 40 then
+			if buy.is_unlocked() or current_level+1 < paid_level or current_level+1 == 50 then
 				csim.reset('l'..tostring(current_level+1))
 				tutorials.render('...')
 				tutorials.start_t = states.time('game')
@@ -277,7 +277,7 @@ function draw_level_icon(p, col, angle, n, score)
 		if is_unlocked then
 			if menu_icon(sprs.levels, nil, p, nil, col, angle, n, score) then
 				if not popped then
-					if buy.is_unlocked() or n+1 < paid_level or n+1 == 40 then
+					if buy.is_unlocked() or n+1 < paid_level or n+1 == 50 then
 						csim.reset('l'..tostring(n+1))
 						states.pop()
 					else
@@ -293,7 +293,7 @@ function draw_level_icon(p, col, angle, n, score)
 		menu_icon(sprs.levels, nil, p, nil, col, angle, n, score)
 		if menu_icon(sprs.resume, nil, p, nil, col, angle) then
 			if not popped then
-				if buy.is_unlocked() or n+1 < paid_level or n+1 == 40 then
+				if buy.is_unlocked() or n+1 < paid_level or n+1 == 50 then
 					states.pop()
 				else
 					states.push('buy')
@@ -321,13 +321,13 @@ function draw_levels(scores, t)
 	if touch_current then
 		d = touch_current.pos.y - touch_current.hit_pos.y
 	end
-	if touch_sliding and math.abs(d) > 8 then
+	if touch_sliding and math.abs(d) > 4 then
 		off = off + d
 		levels_off_target = math.floor(0.5 + off / off_levels.y) * off_levels.y
-		levels_off_target = clamp(-off_levels.y*4, 0, levels_off_target)
+		levels_off_target = clamp(-off_levels.y*6, 0, levels_off_target)
 	end
 
-	for y=1,8 do
+	for y=1,10 do
 		local y_pos = (y-1)*off_levels.y + off
 		local alpha = 1
 

@@ -10,7 +10,7 @@
 #include <gamecenter.h>
 #endif
 
-const int max_levels = 40;
+const int max_levels = 50;
 const int solve_bonus = 11;
 
 static bool level_defs_allocated = false;
@@ -219,7 +219,7 @@ void levels_get(const char* name, LevelDef* def) {
 }
 
 static int _is_accessible(int n) {
-	if(n+1 <= 7 || n+1 == 40)
+	if(n+1 <= 7 || n+1 == 50)
 		return true;
 	if(keyval_get_bool("unlocked", false))
 		return true;
@@ -260,7 +260,7 @@ bool level_is_unlocked_n(uint n) {
 	char key_name[32];
 	sprintf(key_name, "ulck_l%u", n);
 
-	return n == 1 || n == 40 || keyval_get_bool(key_name, false);
+	return n == 1 || n == 50 || keyval_get_bool(key_name, false);
 }
 
 bool level_is_solved(const char* name) {

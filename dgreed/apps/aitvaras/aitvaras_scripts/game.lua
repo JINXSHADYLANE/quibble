@@ -120,7 +120,7 @@ function game.control(id, msg)
 end
 
 function game.init()
-	aitvaras.lobby_addr = 'http://antrasekranas.lt'
+	aitvaras.lobby_addr = 'http://www.antrasekranas.lt'
 	aitvaras.server_addr = 'http://89.249.93.114:8008' 
 	aitvaras.listening_port = 8008
 	aitvaras.document_root = 'aitvaras_html/'
