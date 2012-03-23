@@ -177,7 +177,7 @@
 		(frames 50)
 		(src 0,0,100,100)
 		(offset 100,100)
-		(grid 8,6)
+		(grid 8,7)
 	)
 	(img hint1
 		(tex "tut_hints.png")
