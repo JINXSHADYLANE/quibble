@@ -87,58 +87,58 @@
 	)
 	(img resume
 		(tex "ui_s.png")
-		(src 0,0,64,64)
+		(src 0,448,64,512)
 	)
 	(img replay
 		(tex "ui_s.png")
-		(src 64,0,128,64)
+		(src 64,448,128,512)
 	)
 	(img sound
 		(tex "ui_s.png")
-		(src 128,0,192,64)
+		(src 128,448,192,512)
 	)
 	(img music
 		(tex "ui_s.png")
-		(src 192,0,256,64)
+		(src 192,448,256,512)
 	)
 	(img score
 		(tex "ui_s.png")
-		(src 256,0,320,64)
+		(src 256,448,320,512)
 	)
 	(img sound_mute
 		(tex "ui_s.png")
-		(src 320,0,384,64)
+		(src 320,448,384,512)
 	)
 	(img music_mute
 		(tex "ui_s.png")
-		(src 384,0,448,64)
+		(src 384,448,448,512)
 	)
 	(img back
 		(tex "ui_s.png")
-		(src 448,0,512,64)
+		(src 448,448,512,512)
 	)
 	(img locked
 		(tex "ui_s.png")
-		(src 0,64,64,128)
+		(src 256,384,320,448)
 	)
 	(img high_score
 		(tex "ui_s.png")
-		(src 64,64,128,128)
+		(src 320,384,384,448)
 	)
 	(img level_stats
 		(tex "ui_s.png")
-		(src 128,64,192,128)
+		(src 384,384,448,448)
 	)
 	(img achievements
 		(tex "ui_s.png")
-		(src 192,64,256,128)
+		(src 448,384,512,448)
 	)
 	(anim levels
 		(tex "ui_s.png")
 		(frames 40)
-		(src 0,128,64,192)
+		(src 0,0,64,64)
 		(offset 64,64)
-		(grid 8,5)
+		(grid 8,6)
 	)
 	(img hint1
 		(tex "tut_hints_s.png")
