@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "levels.h"
+#include "achievements.h"
 
 #include <sprsheet.h>
 #include <coldet.h>
@@ -53,6 +54,9 @@ static float win_t;
 static bool sim_active = false;
 static BallType spawn_color;
 static uint reactions;
+static uint old_reactions;
+static float reaction_start_t;
+static float reaction_last_t;
 static bool did_not_reset = false;
 static bool did_not_next = false;
 
@@ -161,12 +165,38 @@ static Ball* _get_ball(uint i) {
 }
 
 static uint _count_alive_balls(void) {
+	uint n_white = 0, n_black = 0;
 	uint n_balls = 0;
 	Ball* b = DARRAY_DATA_PTR(balls, Ball);
 	for(uint i = 0; i < balls.size; ++i) {
-		if(!b[i].remove)
+		if(!b[i].remove) {
 			n_balls++;
+
+			if(b[i].type & BT_WHITE)
+				n_white++;
+			else
+				n_black++;
+		}
 	}
+
+	// Multiplication achievement
+	if(strcmp(level.name, "l3") == 0) {
+		if(balls.size >= 30)
+			achievements_progress("multiplication", 1.0f);
+	}
+
+	// Harmony achievement
+	if(n_white == 10 && n_black == 10)
+		achievements_progress("harmony", 1.0f);
+
+	// Dark matter achievement
+	if(n_white == 0 && n_black == 15)
+		achievements_progress("dark_matter", 1.0f);
+
+	// Limitless achievement
+	if(balls.size == 64)
+		achievements_progress("limitless", 1.0f);
+
 	return n_balls;
 }
 
@@ -277,6 +307,7 @@ void sim_reset(const char* level) {
 	did_not_reset = did_not_next = false;
 	is_solved = reset_level = false;
 	reactions = 0;
+	old_reactions = 0;
 	start_t = malka_state_time("game");
 	last_spawn_t = -100.0f;
 	ghosts.size = 0;
@@ -675,6 +706,9 @@ void _balls_bounce(Ball* a, Ball* b) {
 			event = "time+b";
 		mfx_trigger_ex(event, vec2_add(p, screen_offset), dir);	
 	}
+	else {
+		achievements_progress("gently", 1.0f);
+	}
 
 	// Normal and tangent vectors of collission space
 	Vector2 sn = vec2_normalize(vec2_sub(b_pos, a_pos));
@@ -728,6 +762,18 @@ void _balls_bounce(Ball* a, Ball* b) {
 	a->old_pos = vec2_sub(a->pos, nva);
 	b->pos = vec2_add(pb, vec2_scale(nvb, 1.0f - t));
 	b->old_pos = vec2_sub(b->pos, nvb);
+
+	// Conservator achievement logic
+	if(vec2_length_sq(va) > vec2_length_sq(vb)) {
+		Vector2 tmp = va; va = vb; vb = tmp;
+		tmp = nva; nva = nvb; nvb = tmp;
+	}
+	if(vec2_length_sq(va) < 0.5f && vec2_length_sq(vb) > 2.0f) {
+		printf("cond\n");
+		if(vec2_length_sq(nva) >= vec2_length_sq(vb) * 0.95f) {
+			achievements_progress("conservator", 1.0f);
+		}
+	}
 }
 
 void _collission_cb(CDObj* a, CDObj* b) {
@@ -962,9 +1008,13 @@ static void _update_ball(Ball* ball) {
 	float l = vec2_length_sq(v);
 	if(l > max_speed*max_speed) {
 		v = vec2_scale(vec2_normalize(v), max_speed); 
+		achievements_progress("terminal_velocity", 1.0f);
 	}
 	ball->pos = vec2_add(ball->pos, vec2_scale(v, ball->ts));
 	ball->old_pos = vec2_sub(ball->pos, v);
+
+	if(ball->ts >= 8.0f && (ball->type & BT_TIME) == 0)
+		achievements_progress("relativity", 1.0f);
 
 	// Wrap around
 	if(ball->pos.x < 0.0f || ball->pos.x >= sim_widthf) {
@@ -1070,6 +1120,9 @@ static void _update_ffield(void) {
 			continue;
 		}
 	}
+
+	if(ffield_circle_count >= 20)
+		achievements_progress("powerful", 1.0f);
 }
 
 static void _render_ffield(void) {
@@ -1229,6 +1282,9 @@ void sim_update(void) {
 		uint t = lrintf(malka_state_time("game") - start_t);
 		level_solve(level.name, reactions, t);
 		//printf("Solved level %s: time = %d, reactions = %d\n", level.name, t, reactions);
+		
+		if(reactions > 1000)
+			achievements("maximalist", 1.0f);
 	}
 
 	if(!is_solved && !reset_level && _is_unsolvable(t)) {
@@ -1343,6 +1399,20 @@ void sim_update(void) {
 		pnew->collider = obj;
 	}
 	spawns.size = 0;
+
+	// Reactions timer logic
+	if(old_reactions != reactions) {
+		if((t - reaction_last_t) < 2.0f) {
+			reaction_last_t = t;
+			if((t - reaction_start_t) > 45.0f) {
+				achievements_progress("critical_mass", 1.0f);
+			}
+		}
+		else {
+			reaction_last_t = reaction_start_t = t;
+		}
+		old_reactions = reactions;
+	}
 }
 
 static void _render_ball(Ball* b, float t) {
