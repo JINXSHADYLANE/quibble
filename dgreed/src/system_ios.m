@@ -14,9 +14,11 @@
 #import <OpenGLES/ES1/glext.h>
 #import <OpenAL/al.h>
 #import <OpenAL/alc.h>
+#import <Twitter/TWTweetComposeViewController.h>
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #import "GLESView.h"
+#import "GLESViewController.h"
 
 // Main function
 
@@ -1589,7 +1591,7 @@ bool system_update(void) {
 
 /*
 -----------
---- Web ---
+--- OS ---
 -----------
 */
 
@@ -1606,4 +1608,26 @@ void ios_alert(const char* title, const char* text) {
                                           otherButtonTitles:nil];
     [alert show];
     [alert release];
+}
+
+bool ios_has_twitter(void) {
+    NSString *reqSysVer = @"5.0";
+    NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
+    if ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedAscending) {
+        Class TW = NSClassFromString(@"TWTweetComposeViewController");
+        return [TW canSendTweet];
+    }
+    
+    return false;
+}
+
+void ios_tweet(const char* msg, const char* url) {
+    Class TW = NSClassFromString(@"TWTweetComposeViewController");
+    id tw = [[TW alloc] init];
+    
+    [tw setInitialText:[NSString stringWithUTF8String:msg]];
+    if(url)
+        [tw addURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]];
+    
+    [[GLESViewController singleton] presentModalViewController:tw animated:YES];
 }
