@@ -26,35 +26,35 @@
 	Have exactly 10 black and 10 white orbs on the screen at the same time
 	Had exactly 10 black and 10 white orbs on the screen at the same time
 
-8 50 -Dark matter
+8 40 -Dark matter
 	Have exactly 15 black particles on the screen
 	Had exactly 15 black particles on the screen
 
-50 -Limitless
+9 50 -Limitless
 	Have exactly 64 particles on the screen
 	Had exactly 64 particles on the screen
 
-50 -Relativity
+10 50 -Relativity
 	Make the time go mindbogglingly fast
 	Made the time go mindbogglingly fast
 
-50 -Bond
+11 50 -Bond
 	Solve level 9 without lifting your finger up
 	Solved level 9 without lifting your finger up
 
-50 -Repulsor
+12 50 -Repulsor
 	Solve level 15 without using single-finger pull
 	Solved level 15 without using single-finger pull
 
-50 -Maximalist
+13 50 -Maximalist
 	Solve level with more than 1000 reactions
 	Solved level with more than 1000 reactions
 
-50 -Dynamics
+14 50 -Dynamics
 	Solve level 8 without letting a single orb become stationary
 	Solved level 8 without letting a single orb become stationary
 
-50 -Turns
+15 50 -Turns
 	Solve level 1 without having two orbs move at the same time
 	Solved level 1 without having two orbs move at the same time
 

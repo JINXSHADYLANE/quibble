@@ -131,6 +131,14 @@ static int clevels_score_n(lua_State* l) {
 	return 1;
 }
 
+static int clevels_total_score(lua_State* l) {
+	checkargs(0, "clevels.total_score");
+
+	lua_pushnumber(l, levels_total_score());
+
+	return 1;
+}
+
 static const luaL_Reg clevels_fun[] = {
 	{"reset", clevels_reset},
 	{"close", clevels_close},
@@ -139,6 +147,7 @@ static const luaL_Reg clevels_fun[] = {
 	{"is_unlocked_n", clevels_is_unlocked_n},
 	{"first_unsolved", clevels_first_unsolved},
 	{"score_n", clevels_score_n},
+	{"total_score", clevels_total_score},
 	{NULL, NULL}
 };
 
