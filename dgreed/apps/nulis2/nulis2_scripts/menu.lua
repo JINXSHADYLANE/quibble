@@ -392,6 +392,7 @@ function update_orientation()
 		local t = (ct - orientation_transition_t) / orientation_transition_len
 		if t > 1.2 then
 			orientation_anim = nil
+			touch_released = true
 		else	
 			local curr_orientation = orientation.current()
 			local curr_angle = orientation.angle(curr_orientation)
@@ -408,8 +409,10 @@ function update_orientation()
 			end
 			angle = smoothstep(curr_angle, next_angle, t)
 		end
+		return true
 	else
 		angle = orientation.angle(orientation.current())
+		return false
 	end
 end
 
@@ -418,30 +421,30 @@ function update()
 		states.pop()
 	end
 
-	update_orientation()
-
-	-- update touch state
-	if touch_released and touch.count() == 1 then
-		local t = touch.get(0)
-		if touch_current == nil then
-			touch_sliding = false
-		end
-		touch_current = t
-		touch_up = nil
-
-		if not touch_sliding and length_sq(t.pos - t.hit_pos) > 8*8 then
-			touch_sliding = true
-		end
-	end
-
-	if touch.count() == 0 then
-		touch_released = true
-		if touch_current ~= nil then
-			touch_up = touch_current
-		else
+	if not update_orientation() then
+		-- update touch state
+		if touch_released and touch.count() == 1 then
+			local t = touch.get(0)
+			if touch_current == nil then
+				touch_sliding = false
+			end
+			touch_current = t
 			touch_up = nil
+
+			if not touch_sliding and length_sq(t.pos - t.hit_pos) > 8*8 then
+				touch_sliding = true
+			end
 		end
-		touch_current = nil
+
+		if touch.count() == 0 then
+			touch_released = true
+			if touch_current ~= nil then
+				touch_up = touch_current
+			else
+				touch_up = nil
+			end
+			touch_current = nil
+		end
 	end
 
 	return true
