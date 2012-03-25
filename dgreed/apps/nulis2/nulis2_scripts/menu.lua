@@ -3,7 +3,9 @@ module(..., package.seeall)
 require 'tutorials'
 require 'buy'
 
-paid_level = 9 
+paid_level = 12 
+
+n_levels = 50
 
 background_layer = 6
 icons_layer = 7
@@ -38,6 +40,9 @@ function init()
 	sprs.locked = sprsheet.get_handle('locked')
 	sprs.levels = sprsheet.get_handle('levels')
 	sprs.leaderboards = sprsheet.get_handle('high_score')
+	sprs.achievements = sprsheet.get_handle('level_stats')
+	sprs.twitter = sprsheet.get_handle('level_stats')
+	sprs.plus = sprsheet.get_handle('level_stats')
 
 	local t, icon_rect = sprsheet.get(sprs.locked)
 	half_icon_w, half_icon_h = (icon_rect.r - icon_rect.l)/2, (icon_rect.b - icon_rect.t)/2
@@ -81,7 +86,7 @@ function enter()
 
 	unlocked = {}
 	score = {}
-	for i=1,50 do
+	for i=1,n_levels do
 		unlocked[i] = clevels.is_unlocked_n(i)	
 		score[i] = clevels.score_n(i)
 	end
@@ -190,30 +195,22 @@ function draw_competitive(t)
 			-- show game center leaderboard
 			gamecenter.show_leaderboard('default', 'all')
 		end
+
+		if menu_icon(sprs.achievements, nil, pos_sound + off, nil, c, angle) then
+			-- show game center achievements
+			gamecenter.show_achievements()
+		end
 	end
 	
-	--[[
-	local new_state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound + off, state_sound, c, angle) 
-	if state_sound ~= new_state_sound then
-		if new_state_sound then
-			mfx.snd_set_volume(1.0)
-		else
-			mfx.snd_set_volume(0.0)
+
+	-- twitter
+	if os.has_twitter() then
+		if menu_icon(sprs.twitter, nil, pos_music + off, nil, c, angle) then
+			local s = clevels.total_score()
+			local msg = "I'm chilling out playing #nulis, got "..tostring(s)..' points so far!'
+			os.tweet(msg, 'http://www.bit.ly/nulis')
 		end
 	end
-	state_sound = new_state_sound
-
-	local new_state_music = menu_icon(sprs.music, sprs.music_off, pos_music + off, state_music, c, angle) 
-	if state_music ~= new_state_music then
-		if new_state_music then
-			sound.resume(music_source)
-		else
-			sound.pause(music_source)
-		end
-	end
-	state_music = new_state_music
-	]]
-
 
 	if menu_icon(sprs.back, nil, pos_score + off, nil, c, angle) then
 		show_scores = false
@@ -287,7 +284,13 @@ function draw_level_icon(p, col, angle, n, score)
 				end
 			end
 		else
-			menu_icon(sprs.locked, nil, p, nil, col, angle)
+			if not buy.is_unlocked() and unlocked[n] then
+				if menu_icon(sprs.plus, nil, p, nil, col, angle) then
+					states.push('buy')
+				end
+			else
+				menu_icon(sprs.locked, nil, p, nil, col, angle)
+			end
 		end
 	else
 		menu_icon(sprs.levels, nil, p, nil, col, angle, n, score)

@@ -65,7 +65,7 @@ void iap_init(const char* ids, ProductCallback product_cb, PurchaseCallback purc
 			_id = strtok(NULL, ",");
 		}
         
-        SKProductsRequest *request= [[SKProductsRequest alloc] initWithProductIdentifiers:ids_set];
+        SKProductsRequest *request= [[[SKProductsRequest alloc] initWithProductIdentifiers:ids_set] autorelease];
         
         [ids_set release];
 
@@ -76,7 +76,7 @@ void iap_init(const char* ids, ProductCallback product_cb, PurchaseCallback purc
 
 void _iap_received_products_response(SKProductsResponse* response) {
     LOG_INFO("Received products response");
-    
+        
     NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
     [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];

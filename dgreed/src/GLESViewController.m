@@ -4,6 +4,8 @@
 
 @synthesize gl_view;
 
+static GLESViewController* global_gles_view_controller = NULL;
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -37,6 +39,8 @@
     
     gl_view = [[GLESView alloc] initWithFrame:[UIScreen mainScreen].bounds];
     [self.view addSubview:gl_view];
+    
+    global_gles_view_controller = self;
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -55,6 +59,11 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
++ (GLESViewController*) singleton {
+	assert(global_gles_view_controller);
+	return global_gles_view_controller;
 }
 
 @end
