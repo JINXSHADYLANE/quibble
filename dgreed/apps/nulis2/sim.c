@@ -1365,7 +1365,7 @@ void sim_update(void) {
 
 		_update_ball(b);
 
-		if(vec2_length_sq(vec2_sub(b->pos, b->prev_pos)) > 1.0f)
+		if(vec2_length_sq(vec2_sub(b->pos, b->old_pos)) > 1.0f)
 			n_moving_balls++;
 	}
 
