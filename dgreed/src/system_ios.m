@@ -15,6 +15,7 @@
 #import <OpenAL/al.h>
 #import <OpenAL/alc.h>
 #import <Twitter/TWTweetComposeViewController.h>
+#import <MediaPlayer/MPMusicPlayerController.h>
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #import "GLESView.h"
@@ -864,7 +865,7 @@ const SoundStats* sound_stats(void) {
 
 void sound_init(void) {
 	NSError* error = nil;
-	[[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategorySoloAmbient error:&error];
+	[[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
 	//[[AVAudioSession sharedInstance] setActive:true error:&error];
 	 
 	audio_device = alcOpenDevice(NULL);
@@ -1035,10 +1036,15 @@ SoundHandle sound_load_stream(const char* filename) {
 	MEM_FREE(file);
 
 	NSError* err = nil;
-	s.av_player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&err];
+    if([[MPMusicPlayerController iPodMusicPlayer] playbackState] == MPMusicPlaybackStatePlaying) {
+        s.av_player = nil;
+    }
+    else {
+       s.av_player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&err];
+    }
 	if(!s.av_player) {
 		_log_nserror(err);
-		LOG_ERROR("Unable to make AVAudioPlayer from stream");
+		LOG_WARNING("Unable to make AVAudioPlayer from stream");
 	}	
 	
 	[url release];
@@ -1461,8 +1467,9 @@ void _touch_down(float x, float y) {
 }
 
 void _touch_move(float old_x, float old_y, float new_x, float new_y) {
+	if(!touch_count)
+		return;
     uint count = touch_count;
-    assert(count);
 	float min_d = 10000.0f;
 	uint min_i = 0;
 	for(uint i = 0; i < count && i < max_touches; ++i) {
@@ -1478,6 +1485,8 @@ void _touch_move(float old_x, float old_y, float new_x, float new_y) {
 }
 
 void _touch_up(float old_x, float old_y) {
+	if(!touch_count)
+		return;
 	uint count = touch_count;
 	float min_d = 10000.0f;
 	uint min_i = 0;
