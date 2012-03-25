@@ -127,6 +127,7 @@
 		21D150D914E1715000870D7A /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21D150D714E1713D00870D7A /* GameKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		21DBAB04151F4BD800DCFFFB /* achievements.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DBAB02151F4BD800DCFFFB /* achievements.c */; };
 		21DBAB06151F5D0000DCFFFB /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21DBAB05151F5D0000DCFFFB /* Twitter.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		21DBAB08151F6C0500DCFFFB /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21DBAB07151F6C0400DCFFFB /* MediaPlayer.framework */; };
 		21F7DC081509FA9300AAFBA4 /* iap.m in Sources */ = {isa = PBXBuildFile; fileRef = 21F7DC071509FA9300AAFBA4 /* iap.m */; };
 /* End PBXBuildFile section */
 
@@ -339,6 +340,7 @@
 		21DBAB02151F4BD800DCFFFB /* achievements.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = achievements.c; path = ../../achievements.c; sourceTree = "<group>"; };
 		21DBAB03151F4BD800DCFFFB /* achievements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = achievements.h; path = ../../achievements.h; sourceTree = "<group>"; };
 		21DBAB05151F5D0000DCFFFB /* Twitter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Twitter.framework; path = System/Library/Frameworks/Twitter.framework; sourceTree = SDKROOT; };
+		21DBAB07151F6C0400DCFFFB /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		21F7DC051509F9F900AAFBA4 /* iap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iap.h; path = ../../../src/iap.h; sourceTree = "<group>"; };
 		21F7DC071509FA9300AAFBA4 /* iap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iap.m; path = ../../../src/iap.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -348,6 +350,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				21DBAB08151F6C0500DCFFFB /* MediaPlayer.framework in Frameworks */,
 				216A5F6D1511F43B00BFE24D /* MobileCoreServices.framework in Frameworks */,
 				216A5F6C1511F43400BFE24D /* SystemConfiguration.framework in Frameworks */,
 				213777C814CD5C57004F01D2 /* OpenGLES.framework in Frameworks */,
@@ -402,6 +405,7 @@
 			isa = PBXGroup;
 			children = (
 				216A5F5A1511F33500BFE24D /* libz.dylib */,
+				21DBAB07151F6C0400DCFFFB /* MediaPlayer.framework */,
 				21DBAB05151F5D0000DCFFFB /* Twitter.framework */,
 				216A5F681511F3F500BFE24D /* SystemConfiguration.framework */,
 				216A5F6A1511F41700BFE24D /* MobileCoreServices.framework */,
