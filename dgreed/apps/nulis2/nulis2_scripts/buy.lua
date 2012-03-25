@@ -34,6 +34,9 @@ function purchase_cb(id, success)
 	if id == 'com.qbcode.nulis.unlock' and success then
 		log.info('Unlocking')
 		keyval.set('unlocked', true)
+		for i=1,12 do
+			keyval.set('ulck_l'..tostring(i), true)
+		end
 		states.pop()
 	end
 
@@ -56,8 +59,6 @@ function init()
 	buy_enter_t = -100
 	held_down = false
 
-	--- temp
-	keyval.set('unlocked', true)
 end
 
 function close()
@@ -89,8 +90,7 @@ function update()
 
 	-- hack for PCs 
 	if char.down('u') then
-		keyval.set('unlocked', true)
-		states.pop()
+		purchase_cb('com.qbcode.nulis.unlock', true)
 	end
 
 	-- buy logic

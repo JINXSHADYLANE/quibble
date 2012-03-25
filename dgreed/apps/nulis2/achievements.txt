@@ -1,76 +1,76 @@
--Terminal velocity
+1 30 -Terminal velocity
 	Reach maximum allowed speed
 	Reached maximum allowed speed
 
--Gently
+2 20 -Gently
 	Make a collision, quietly
 	Made a quiet collision
 
--Powerful
+3 40 -Powerful
 	Make 20 force field rings visible on the screen at the same time
 	Made 20 force field rings visible on the screen at the same time
 
--Conservator
+4 40 -Conservator
 	Transfer over 95% of kinetic energy of moving orb to a stationary orb
 	Transferred over 95% of kinetic energy of moving orb to a stationary orb
 
--Critical mass
+5 40 -Critical mass
 	Start a chain reaction lasting at least 45 seconds
 	Started a chain reaction lasting at least 45 seconds
 
--Multiplication
+6 40 -Multiplication
 	Generate 30 or more particles in the third level
 	Generated 30 or more particles in the third level
 
--Harmony
+7 30 -Harmony
 	Have exactly 10 black and 10 white orbs on the screen at the same time
 	Had exactly 10 black and 10 white orbs on the screen at the same time
 
--Dark matter
+8 50 -Dark matter
 	Have exactly 15 black particles on the screen
 	Had exactly 15 black particles on the screen
 
--Limitless
+50 -Limitless
 	Have exactly 64 particles on the screen
 	Had exactly 64 particles on the screen
 
--Relativity
+50 -Relativity
 	Make the time go mindbogglingly fast
 	Made the time go mindbogglingly fast
 
-*Bond
+50 -Bond
 	Solve level 9 without lifting your finger up
 	Solved level 9 without lifting your finger up
 
-*Repulsor
+50 -Repulsor
 	Solve level 15 without using single-finger pull
 	Solved level 15 without using single-finger pull
 
--Maximalist
+50 -Maximalist
 	Solve level with more than 1000 reactions
 	Solved level with more than 1000 reactions
 
-Dynamics
+50 -Dynamics
 	Solve level 8 without letting a single orb become stationary
 	Solved level 8 without letting a single orb become stationary
 
-Turns
+50 -Turns
 	Solve level 1 without having two orbs move at the same time
 	Solved level 1 without having two orbs move at the same time
 
-Perfectionist
-	Perfect 10 consecutive levels
-	Perfected 10 consecutive levels
+100 -Perfectionist
+	Perfect 15 levels
+	Perfected 15 levels
 
-Flash
+-Flash
 	Finish game in 60 minutes or less
 	Finished the game in 60 minutes or less
 
--Persistence
+40 -Persistence
 	Lose the same level, 10 times in a row
 	Lost the same level, 10 times in a row
 
-Tour de force
+-Tour de force
 	Perfect all levels
 	Perfected all levels
 
