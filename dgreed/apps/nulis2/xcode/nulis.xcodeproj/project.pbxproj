@@ -125,6 +125,7 @@
 		21A92A13150A778D004AE2C3 /* icon 144x144.png in Resources */ = {isa = PBXBuildFile; fileRef = 21A92A12150A778D004AE2C3 /* icon 144x144.png */; };
 		21D150D314E1541B00870D7A /* gamecenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D150D214E1541A00870D7A /* gamecenter.m */; };
 		21D150D914E1715000870D7A /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21D150D714E1713D00870D7A /* GameKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		21DBAB04151F4BD800DCFFFB /* achievements.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DBAB02151F4BD800DCFFFB /* achievements.c */; };
 		21F7DC081509FA9300AAFBA4 /* iap.m in Sources */ = {isa = PBXBuildFile; fileRef = 21F7DC071509FA9300AAFBA4 /* iap.m */; };
 /* End PBXBuildFile section */
 
@@ -334,6 +335,8 @@
 		21D150D114E1541A00870D7A /* gamecenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gamecenter.h; path = ../../../src/gamecenter.h; sourceTree = "<group>"; };
 		21D150D214E1541A00870D7A /* gamecenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = gamecenter.m; path = ../../../src/gamecenter.m; sourceTree = "<group>"; };
 		21D150D714E1713D00870D7A /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
+		21DBAB02151F4BD800DCFFFB /* achievements.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = achievements.c; path = ../../achievements.c; sourceTree = "<group>"; };
+		21DBAB03151F4BD800DCFFFB /* achievements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = achievements.h; path = ../../achievements.h; sourceTree = "<group>"; };
 		21F7DC051509F9F900AAFBA4 /* iap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iap.h; path = ../../../src/iap.h; sourceTree = "<group>"; };
 		21F7DC071509FA9300AAFBA4 /* iap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iap.m; path = ../../../src/iap.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -418,6 +421,8 @@
 		213776E014CD5A58004F01D2 /* nulis2 */ = {
 			isa = PBXGroup;
 			children = (
+				21DBAB02151F4BD800DCFFFB /* achievements.c */,
+				21DBAB03151F4BD800DCFFFB /* achievements.h */,
 				213777A714CD5B98004F01D2 /* bind.c */,
 				213777A814CD5B98004F01D2 /* bind.h */,
 				213777A914CD5B98004F01D2 /* common.h */,
@@ -814,6 +819,7 @@
 				216A5F4D1511F01300BFE24D /* ASINetworkQueue.m in Sources */,
 				216A5F521511F22000BFE24D /* ASIAuthenticationDialog.m in Sources */,
 				216A5F531511F22000BFE24D /* Reachability.m in Sources */,
+				21DBAB04151F4BD800DCFFFB /* achievements.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

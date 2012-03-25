@@ -1,5 +1,7 @@
 #include "levels.h"
 
+#include "achievements.h"
+
 #include <mml.h>
 #include <darray.h>
 #include <memory.h>
@@ -232,7 +234,7 @@ void levels_get(const char* name, LevelDef* def) {
 }
 
 static int _is_accessible(int n) {
-	if(n+1 <= 7 || n+1 == 50)
+	if(n+1 <= 10 || n+1 == 50)
 		return true;
 	if(keyval_get_bool("unlocked", false))
 		return true;
@@ -302,6 +304,10 @@ void level_solve(const char* name, uint reactions, uint time) {
 		}
 	}
 
+	// Update time
+	sprintf(key_name, "time_%s", name);
+	keyval_set_int(key_name, time);
+
 	// Update score
 	LevelDef def;
 	levels_get(name, &def);
@@ -312,13 +318,13 @@ void level_solve(const char* name, uint reactions, uint time) {
 		score += MAX(0, (int)def.par_reactions - (int)reactions);
 	sprintf(key_name, "score_%s", name);
 	uint old_score = keyval_get_int(key_name, 0);
+	uint total_score = levels_total_score();
 	if(score > old_score) {
 		keyval_set_int(key_name, score);
 
 		// Submit score to gamecenter
 #ifdef TARGET_IOS
 		if(gamecenter_is_active()) {
-			uint total_score = levels_total_score();
 			GameCenterScore s = {
 				.category = "default",
 				.context = 42,
@@ -328,6 +334,8 @@ void level_solve(const char* name, uint reactions, uint time) {
 
 			gamecenter_report_score(&s);
 		}
+#else
+	total_score = 0;
 #endif
 	}
 }
@@ -360,11 +368,36 @@ uint levels_total_score(void) {
 	uint score = 0;
 	static char level_name[16];
 	char key_name[16];
+	uint n_perfected_levels = 0;
+	uint n_solved_levels = 0;
+	uint total_time = 0;
+	LevelDef* defs = DARRAY_DATA_PTR(level_defs, LevelDef);
 	for(uint i = 1; i <= max_levels; ++i) {
 		sprintf(level_name, "l%d", i);	
 		sprintf(key_name, "score_%s", level_name);
-		score += keyval_get_int(key_name, 0);
+		uint s = keyval_get_int(key_name, 0);
+		uint max_score = defs[i].par_time - defs[i].min_time;
+		max_score += (defs[i].par_reactions - defs[i].min_reactions) + solve_bonus;
+		if(max_score == s)
+			n_perfected_levels++;
+
+		sprintf(key_name, "slvd_%s", level_name);
+		if(keyval_get_bool(key_name, false)) {
+			n_solved_levels++;
+			sprintf(key_name, "time_%s", level_name);
+			total_time += keyval_get_int(key_name, 1000);
+		}
+		score += s;
 	}
+
+	if(n_solved_levels >= max_levels-1) {
+		if(total_time <= 60*60)
+			achievements_progress("flash", 1.0f);
+	}
+
+	achievements_progress("perfectionist", clamp(0.0f, 1.0f, (float)n_perfected_levels / 15.0f)); 
+	achievements_progress("tour_de_force", clamp(0.0f, 1.0f, (float)n_perfected_levels / (float)(max_levels-1))); 
+
 	return score;
 }
 
