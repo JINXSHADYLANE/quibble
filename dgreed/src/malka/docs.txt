@@ -859,3 +859,9 @@ opens web browser with specified url
 - os.alert(title, text)
 displays alert box with 'ok' button
 
+- os.has_twitter()
+returns true if we can send tweets
+
+- os.tweet(msg, url)
+sends a twitter message, with optional web url
+

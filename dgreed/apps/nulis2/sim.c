@@ -784,7 +784,6 @@ void _balls_bounce(Ball* a, Ball* b) {
 		tmp = nva; nva = nvb; nvb = tmp;
 	}
 	if(vec2_length_sq(va) < 0.5f && vec2_length_sq(vb) > 2.0f) {
-		printf("cond\n");
 		if(vec2_length_sq(nva) >= vec2_length_sq(vb) * 0.95f) {
 			achievements_progress("conservator", 1.0f);
 		}
@@ -1069,9 +1068,22 @@ static void _update_ball(Ball* ball) {
 
 void _next_level(void* userdata) {
 	if(sim_active) {
+		if(strcmp(level.name, "l9") == 0 && !ac_bond_failed)
+			achievements_progress("bond", 1.0f);
+
+		if(strcmp(level.name, "l15") == 0 && !ac_repulsor_failed)
+			achievements_progress("repulsor", 1.0f);
+
+		if(strcmp(level.name, "l8") == 0 && !ac_dynamics_failed)
+			achievements_progress("dynamics", 1.0f);
+
+		if(strcmp(level.name, "l1") == 0 && !ac_turns_failed)
+			achievements_progress("turns", 1.0f);
+
 		const char* next = levels_next(level.name);
 		if(next) {
 			sim_reset(next);
+
 		}
 		else {
 			sim_reset(level.name);
@@ -1219,7 +1231,7 @@ static void _process_touch(void) {
 				processed[i] = true;
 				pos = t[i].pos;
 
-				if(time_s() - t[i].hit_t > 0.3f)
+				if(time_s() - t[i].hit_time > 0.3f)
 					ac_repulsor_failed = true;
 			}
 

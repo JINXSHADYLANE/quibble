@@ -133,8 +133,9 @@ static void _process_score_queue(void) {
 static void _get_achievements(void) {
     [GKAchievement loadAchievementsWithCompletionHandler:^(NSArray *achievements, NSError *error) {
         if(error == nil) {
-            for(GKAchievement* achievement in achievements)
+            for(GKAchievement* achievement in achievements) {
                 [achievement_dict setObject: achievement forKey: achievement.identifier];
+            }
         }
         live_requests--;
     }];
@@ -154,6 +155,8 @@ static GKAchievement* _get_achievement(const char* identifier) {
 static void _report_achievement(const char* identifier, float progress) {
     GKAchievement *achievement = _get_achievement(identifier);
     if(achievement) {
+        if([achievement respondsToSelector:@selector(setShowsCompletionBanner:)])
+            achievement.showsCompletionBanner = YES;
         achievement.percentComplete = progress;
         [achievement reportAchievementWithCompletionHandler:^(NSError *error) {
             if (error != nil) {
