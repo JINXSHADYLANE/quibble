@@ -4,7 +4,7 @@
 #include <utils.h>
 
 #define LEVEL_NAMELEN 4 
-#define MAX_SPAWNS 32 
+#define MAX_SPAWNS 64 
 
 /*
 Example:

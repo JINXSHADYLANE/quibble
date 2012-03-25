@@ -82,6 +82,14 @@ typedef struct {
 FFieldCircle ffield_circles[MAX_FFIELD_CIRCLES];
 uint ffield_circle_count = 0;
 
+// Achievement state
+static bool ac_bond_failed;
+static bool ac_repulsor_failed;
+static bool ac_dynamics_failed;
+static bool ac_turns_failed;
+static uint ac_persistance_count;
+static const char* ac_persistance_lvl = "";
+
 // Tweaks
 float max_speed = 15.0f;
 float ball_mass = 2.0f;
@@ -323,6 +331,13 @@ void sim_reset(const char* level) {
 
 	_load_level(level);
 
+	// Reset achievement state
+	ac_bond_failed = ac_repulsor_failed = false;
+	ac_dynamics_failed = ac_turns_failed = false;
+	if(strcmp(ac_persistance_lvl, level) != 0) {
+		ac_persistance_count = 0;
+		ac_persistance_lvl = level;
+	}
 }
 
 const char* sim_level(void) {
@@ -1080,6 +1095,10 @@ void _reset_level(void* userdata) {
 		}
 
 		sim_reset(level.name);
+
+		ac_persistance_count++;
+		if(ac_persistance_count >= 10)
+			achievements_progress("persistance", 1.0f);
 	}
 	else {
 		did_not_reset = true;
@@ -1160,6 +1179,9 @@ static void _render_ffield(void) {
 static void _process_touch(void) {
 	uint tcount = touches_count();
 
+	if(tcount == 0)
+		ac_bond_failed = true;
+
 	if(tcount && tcount < 5) {
 		bool processed[4] = {false, false, false, false};
 		Touch* t = touches_get();	
@@ -1196,6 +1218,9 @@ static void _process_touch(void) {
 			else {
 				processed[i] = true;
 				pos = t[i].pos;
+
+				if(time_s() - t[i].hit_t > 0.3f)
+					ac_repulsor_failed = true;
 			}
 
 			ffield_pos = vec2_sub(pos, screen_offset); 
@@ -1210,6 +1235,8 @@ static void _process_touch(void) {
 
 			_show_ffield(pos, ffield_radius, push);
 			mfx_trigger_ex("force_field", vec2_add(pos, screen_offset), 0.0f);
+
+
 		}
 	}
 }
@@ -1284,7 +1311,7 @@ void sim_update(void) {
 		//printf("Solved level %s: time = %d, reactions = %d\n", level.name, t, reactions);
 		
 		if(reactions > 1000)
-			achievements("maximalist", 1.0f);
+			achievements_progress("maximalist", 1.0f);
 	}
 
 	if(!is_solved && !reset_level && _is_unsolvable(t)) {
@@ -1328,6 +1355,8 @@ void sim_update(void) {
 	if(time_volume > 0.1f)
 		mfx_snd_set_ambient("TimeWarp.wav", time_volume);
 
+	uint n_moving_balls = 0;
+
 	// Calculate next state using verlet integration
 	for(uint i = 0; i < balls.size; ++i) {
 		Ball* b = _get_ball(i);	
@@ -1335,7 +1364,15 @@ void sim_update(void) {
 			continue;
 
 		_update_ball(b);
+
+		if(vec2_length_sq(vec2_sub(b->pos, b->prev_pos)) > 1.0f)
+			n_moving_balls++;
 	}
+
+	if(n_moving_balls > 1)
+		ac_turns_failed = true;
+	if(n_moving_balls < balls.size)
+		ac_dynamics_failed = true;
 	
 	// Remove old ghosts and update all the others
 	Ball* b = DARRAY_DATA_PTR(ghosts, Ball);

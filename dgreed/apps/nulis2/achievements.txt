@@ -38,25 +38,25 @@
 	Make the time go mindbogglingly fast
 	Made the time go mindbogglingly fast
 
-Bond
-	Solve level x without lifting your finger up
-	Solved level x without lifting your finger up
+*Bond
+	Solve level 9 without lifting your finger up
+	Solved level 9 without lifting your finger up
 
-Repulsor
-	Solve level x without using single-finger pull
-	Solved level x without using single-finger pull
+*Repulsor
+	Solve level 15 without using single-finger pull
+	Solved level 15 without using single-finger pull
 
 -Maximalist
 	Solve level with more than 1000 reactions
 	Solved level with more than 1000 reactions
 
 Dynamics
-	Solve level x without letting a single orb become stationary
-	Solved level x without letting a single orb become stationary
+	Solve level 8 without letting a single orb become stationary
+	Solved level 8 without letting a single orb become stationary
 
 Turns
-	Solve level x without having two orbs move at the same time
-	Solved level x without having two orbs move at the same time
+	Solve level 1 without having two orbs move at the same time
+	Solved level 1 without having two orbs move at the same time
 
 Perfectionist
 	Perfect 10 consecutive levels
@@ -66,7 +66,7 @@ Flash
 	Finish game in 60 minutes or less
 	Finished the game in 60 minutes or less
 
-Persistence
+-Persistence
 	Lose the same level, 10 times in a row
 	Lost the same level, 10 times in a row
 
