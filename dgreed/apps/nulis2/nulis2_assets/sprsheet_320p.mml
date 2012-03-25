@@ -117,6 +117,10 @@
 		(tex "ui_s.png")
 		(src 448,448,512,512)
 	)
+	(img plus
+		(tex "ui_s.png")
+		(src 196,384,256,448)
+	)
 	(img locked
 		(tex "ui_s.png")
 		(src 256,384,320,448)
@@ -125,7 +129,7 @@
 		(tex "ui_s.png")
 		(src 320,384,384,448)
 	)
-	(img level_stats
+	(img twitter
 		(tex "ui_s.png")
 		(src 384,384,448,448)
 	)

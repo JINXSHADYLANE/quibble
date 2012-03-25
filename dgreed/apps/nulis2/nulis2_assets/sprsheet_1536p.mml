@@ -118,6 +118,10 @@
 		(tex "ui_ipad_r.png")
 		(src 1400,1400,1600,1600)
 	)
+	(img plus
+		(tex "ui_ipad_r.png")
+		(src 1000,1200,1200,1400)
+	)
 	(img locked
 		(tex "ui_ipad_r.png")
 		(src 800,1200,1000,1400)
@@ -126,7 +130,7 @@
 		(tex "ui_ipad_r.png")
 		(src 1000,1200,1200,1400)
 	)
-	(img level_stats
+	(img twitter
 		(tex "ui_ipad_r.png")
 		(src 1200,1200,1400,1400)
 	)
