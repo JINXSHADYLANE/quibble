@@ -40,9 +40,9 @@ function init()
 	sprs.locked = sprsheet.get_handle('locked')
 	sprs.levels = sprsheet.get_handle('levels')
 	sprs.leaderboards = sprsheet.get_handle('high_score')
-	sprs.achievements = sprsheet.get_handle('level_stats')
-	sprs.twitter = sprsheet.get_handle('level_stats')
-	sprs.plus = sprsheet.get_handle('level_stats')
+	sprs.achievements = sprsheet.get_handle('achievements')
+	sprs.twitter = sprsheet.get_handle('twitter')
+	sprs.plus = sprsheet.get_handle('plus')
 
 	local t, icon_rect = sprsheet.get(sprs.locked)
 	half_icon_w, half_icon_h = (icon_rect.r - icon_rect.l)/2, (icon_rect.b - icon_rect.t)/2

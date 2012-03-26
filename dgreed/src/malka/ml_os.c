@@ -71,7 +71,7 @@ static int ml_os_alert(lua_State* l) {
 }
 
 static int ml_os_has_twitter(lua_State* l) {
-	lua_pushboolean(false);
+	lua_pushboolean(l, false);
 
 	return 1;
 }
