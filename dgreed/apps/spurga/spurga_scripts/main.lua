@@ -15,6 +15,9 @@ function setup_screen()
 		retina = true
 	elseif params_find('-ipad') or (w == 1024 and h == 768) then
 		ipad = true
+	elseif params_find('-retinaipad') or (w == 2048 and h == 1536) then
+		ipad = true
+		--retina = true
 	end
 end
 
