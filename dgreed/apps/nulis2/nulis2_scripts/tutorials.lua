@@ -9,6 +9,7 @@ images = {
 	['l1'] =  {'title', 'tut_one_finger'},
 	['l2'] =  {'tut_two_fingers','hint1'},
 	['l3'] =  {'tut_menu_fingers','hint2','hint3'},
+	['l5'] =  {'','hint5'},
 	['l10'] = {'','clock'},
 	['l20'] = {'','magnet'},
 	['l29'] = {'','stopwatch'},
