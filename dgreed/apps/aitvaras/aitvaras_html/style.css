@@ -1,0 +1,97 @@
+body {
+	background-color: #3b404e;
+	width:100%;
+}
+.bup {
+	background-image: url(img/bup.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+.bup:active {
+	background-image: url(img/bup.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #ccc;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+.bdown {
+	background-image: url(img/bdown.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+.bdown:active {
+	background-image: url(img/bdown.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #CCC;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+.bleft {
+	background-image: url(img/bleft.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	float:left;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+
+.bleft:active {
+	background-image: url(img/bleft.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #CCC;
+	float:left;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+.bright {
+	background-image: url(img/bright.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	float:right;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+.bright:active {
+	background-image: url(img/bright.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #CCC;
+	float:right;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
