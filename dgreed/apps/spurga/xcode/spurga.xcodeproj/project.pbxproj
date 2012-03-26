@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2159D090152072C3007C3237 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2159D08F152072C3007C3237 /* MediaPlayer.framework */; };
+		2159D09A152076B7007C3237 /* logic love 57.png in Resources */ = {isa = PBXBuildFile; fileRef = 2159D099152076B7007C3237 /* logic love 57.png */; };
+		2159D09C152076C3007C3237 /* logic love 114.png in Resources */ = {isa = PBXBuildFile; fileRef = 2159D09B152076C3007C3237 /* logic love 114.png */; };
+		2159D09E152076D4007C3237 /* logic love 72.png in Resources */ = {isa = PBXBuildFile; fileRef = 2159D09D152076D4007C3237 /* logic love 72.png */; };
+		2159D0A0152076D7007C3237 /* logic love 144.png in Resources */ = {isa = PBXBuildFile; fileRef = 2159D09F152076D7007C3237 /* logic love 144.png */; };
 		2178C58F15172BF2007E9D8A /* ml_http.c in Sources */ = {isa = PBXBuildFile; fileRef = 2178C58915172BF2007E9D8A /* ml_http.c */; };
 		2178C59015172BF2007E9D8A /* ml_iap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2178C58B15172BF2007E9D8A /* ml_iap.c */; };
 		2178C59115172BF2007E9D8A /* ml_os.c in Sources */ = {isa = PBXBuildFile; fileRef = 2178C58D15172BF2007E9D8A /* ml_os.c */; };
@@ -119,6 +124,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2159D08F152072C3007C3237 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		2159D099152076B7007C3237 /* logic love 57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logic love 57.png"; sourceTree = "<group>"; };
+		2159D09B152076C3007C3237 /* logic love 114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logic love 114.png"; sourceTree = "<group>"; };
+		2159D09D152076D4007C3237 /* logic love 72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logic love 72.png"; sourceTree = "<group>"; };
+		2159D09F152076D7007C3237 /* logic love 144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logic love 144.png"; sourceTree = "<group>"; };
 		2178C58915172BF2007E9D8A /* ml_http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_http.c; path = ../../../src/malka/ml_http.c; sourceTree = "<group>"; };
 		2178C58A15172BF2007E9D8A /* ml_http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_http.h; path = ../../../src/malka/ml_http.h; sourceTree = "<group>"; };
 		2178C58B15172BF2007E9D8A /* ml_iap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_iap.c; path = ../../../src/malka/ml_iap.c; sourceTree = "<group>"; };
@@ -318,6 +328,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2159D090152072C3007C3237 /* MediaPlayer.framework in Frameworks */,
 				2178C5D715172CE0007E9D8A /* StoreKit.framework in Frameworks */,
 				2178C5D515172CCD007E9D8A /* MobileCoreServices.framework in Frameworks */,
 				2178C5CB15172C6D007E9D8A /* libz.dylib in Frameworks */,
@@ -390,11 +401,10 @@
 		21A2C0AE14F3A2BF003971FB = {
 			isa = PBXGroup;
 			children = (
-				2178C5D615172CE0007E9D8A /* StoreKit.framework */,
-				2178C5D415172CCD007E9D8A /* MobileCoreServices.framework */,
-				2178C5CA15172C6D007E9D8A /* libz.dylib */,
-				2178C5C815172C66007E9D8A /* CFNetwork.framework */,
-				2178C5C615172C5C007E9D8A /* SystemConfiguration.framework */,
+				2159D09F152076D7007C3237 /* logic love 144.png */,
+				2159D09D152076D4007C3237 /* logic love 72.png */,
+				2159D09B152076C3007C3237 /* logic love 114.png */,
+				2159D099152076B7007C3237 /* logic love 57.png */,
 				21A2C0D514F3A314003971FB /* Resources */,
 				21A2C0D414F3A309003971FB /* dgreed */,
 				21A2C0D614F3A325003971FB /* spurga */,
@@ -414,6 +424,12 @@
 		21A2C0BC14F3A2C0003971FB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2159D08F152072C3007C3237 /* MediaPlayer.framework */,
+				2178C5D615172CE0007E9D8A /* StoreKit.framework */,
+				2178C5D415172CCD007E9D8A /* MobileCoreServices.framework */,
+				2178C5CA15172C6D007E9D8A /* libz.dylib */,
+				2178C5C815172C66007E9D8A /* CFNetwork.framework */,
+				2178C5C615172C5C007E9D8A /* SystemConfiguration.framework */,
 				21A2C1A814F3A6AD003971FB /* AudioToolbox.framework */,
 				21A2C1A914F3A6AD003971FB /* AVFoundation.framework */,
 				21A2C1AA14F3A6AD003971FB /* CoreAudio.framework */,
@@ -663,6 +679,10 @@
 				21A2C0D814F3A3D2003971FB /* spurga-Info.plist in Resources */,
 				21A2C0DA14F3A3E1003971FB /* spurga_assets in Resources */,
 				21A2C0DC14F3A3EB003971FB /* spurga_scripts in Resources */,
+				2159D09A152076B7007C3237 /* logic love 57.png in Resources */,
+				2159D09C152076C3007C3237 /* logic love 114.png in Resources */,
+				2159D09E152076D4007C3237 /* logic love 72.png in Resources */,
+				2159D0A0152076D7007C3237 /* logic love 144.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -839,7 +859,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "78D26511-66F6-4EAB-A5EE-961D53F6C932";
+				PROVISIONING_PROFILE = "EF1D7FC6-104E-450E-9BA5-2C46E4BE8E6A";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -868,7 +888,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "78D26511-66F6-4EAB-A5EE-961D53F6C932";
+				PROVISIONING_PROFILE = "EF1D7FC6-104E-450E-9BA5-2C46E4BE8E6A";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

@@ -33,7 +33,7 @@ function game.enter()
 	game.solved_mode = grid:is_solved()
 	if not levels.relax and game.solved_mode then
 		score = grid:score()
-		local score_text = 'score: '..tostring(score)
+		local score_text = 'score '..tostring(score)
 		hud.set_title(score_text)	
 	else
 		hud.set_title(grid.puzzle.name)
@@ -134,7 +134,7 @@ function game.update()
 	if not levels.relax and not game.solved_mode then
 		score = grid:score()
 		if grid.moves > 0 then
-			local score_text = 'score: '..tostring(score)
+			local score_text = 'score '..tostring(score)
 			hud.set_title(score_text)	
 		end
 	end

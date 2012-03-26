@@ -15,7 +15,7 @@ end
 
 function scores.enter()
 	hud.set_title('score')
-	hud.set_buttons({hud.back, nil, hud.play, nil, hud.replay})
+	hud.set_buttons({hud.back, nil, hud.play_next, nil, hud.replay})
 	scores.old_delegate = hud.delegate
 	hud.delegate = scores
 	scores_grid.can_shuffle = true
