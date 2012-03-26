@@ -288,7 +288,6 @@ void sim_init(uint screen_width, uint screen_height, uint sim_width, uint sim_he
 	tweaks->y_spacing = 90.0f;
 	tweaks->items_per_page = 7;
 	_register_tweaks();
-
 }
 
 void sim_close(void) {
@@ -673,7 +672,7 @@ void _balls_join(Ball* a, Ball* b) {
 
 	// Due to time effects, we need higher effect
 	// trigger threshold for time balls
-	float trigger_sqr_d = collission_trigger_sqr_d;
+	float trigger_sqr_d = collission_trigger_sqr_d*2.0f;
 	if((a->type | b->type) & BT_TIME) {
 		trigger_sqr_d *= 6.0f;
 	}
@@ -681,7 +680,11 @@ void _balls_join(Ball* a, Ball* b) {
 	if(fabsf(vec2_length_sq(ba) - vec2_length_sq(old_ba)) > trigger_sqr_d) {
 		Vector2 p = vec2_add(b->pos, vec2_scale(ba, a->radius / (a->radius + b->radius)));
 		float dir = atan2f(ba.y, ba.x);
-		mfx_trigger_ex("grav_join", vec2_add(p, screen_offset), dir);
+
+		bool a_grav = a->type & BT_GRAV;
+		bool b_grav = b->type & BT_GRAV;
+		if(!a_grav || !b_grav)
+			mfx_trigger_ex("grav_join", vec2_add(p, screen_offset), dir);
 	}
 
 	Vector2 nv = vec2_add(
@@ -715,11 +718,13 @@ void _balls_bounce(Ball* a, Ball* b) {
 		Vector2 p = vec2_scale(vec2_add(a_pos, b_pos), 0.5f);
 		float dir = atan2f(ab.y, ab.x);
 		const char* event = "a+b";
-		if((a->type | b->type) & BT_GRAV)
+		if((a->type | b->type) & BT_GRAV) 
 			event = "grav+b";
 		if((a->type | b->type) & BT_TIME)
 			event = "time+b";
-		mfx_trigger_ex(event, vec2_add(p, screen_offset), dir);	
+
+		if(!(a->type & BT_GRAV) || !(b->type & BT_GRAV))
+			mfx_trigger_ex(event, vec2_add(p, screen_offset), dir);	
 	}
 	else {
 		achievements_progress("gently", 1.0f);
