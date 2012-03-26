@@ -120,7 +120,7 @@
 	)
 	(img plus
 		(tex "ui.png")
-		(src 640,768,768,896)
+		(src 384,768,512,896)
 	)
 	(img locked
 		(tex "ui.png")
@@ -160,6 +160,10 @@
 	(img hint4
 		(tex "tut_hints_r.png")
 		(src 0,170,466,220)
+	)
+	(img hint5
+		(tex "tut_hints_r.png")
+		(src 466,0,1024,58)
 	)
 	(img stripe
 		(tex "background.png")

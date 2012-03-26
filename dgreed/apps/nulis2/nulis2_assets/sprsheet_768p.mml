@@ -117,9 +117,9 @@
 		(tex "ui_ipad.png")
 		(src 700,700,800,800)
 	)
-	(img plu
+	(img plus
 		(tex "ui_ipad.png")
-		(src 500,600,600,700)
+		(src 300,600,400,700)
 	)
 	(img locked
 		(tex "ui_ipad.png")
@@ -197,7 +197,11 @@
 	)
 	(img hint4
 		(tex "tut_hints.png")
-		(src 0,86,356,116)
+		(src 194,0,512,30)
+	)
+	(img hint5
+		(tex "tut_hints.png")
+		(src 0,86,412,116)
 	)
 	(img stripe
 		(tex "background.png")
