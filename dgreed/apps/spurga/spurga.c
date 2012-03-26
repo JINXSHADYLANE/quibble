@@ -40,6 +40,14 @@ void dgreed_init(int argc, const char** argv) {
 		height = 960;
 		sprsheet = ASSETS_PRE "sprsheet_640p.mml";
 	}
+	else if(params_find("-retinaipad") != ~0 || (n_width = 2048 && n_height == 1536)) {
+		v_width = width = 768;
+		v_height = height = 1024;
+		sprsheet = ASSETS_PRE "sprsheet_768p.mml";
+
+		width *= 2;
+		height *= 2;
+	}
 
 	video_init_ex(width, height, v_width, v_height, "spurga", false);
 	sound_init();
