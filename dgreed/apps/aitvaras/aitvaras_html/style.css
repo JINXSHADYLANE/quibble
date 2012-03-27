@@ -5,13 +5,19 @@ body {
 	font-family:Arial, Helvetica, sans-serif;
 }
 h1 {
-	margin: 200px 0px 40px 0px;
-	color: #FFF;
+	margin: 50px 0px 40px 0px;
+	color: #3b404e;
 	text-align:center;
-	font-size:65px;
+	font-size:0px;
 }
 form {
 	text-align:center;
+}
+#magic {
+	margin: 50px 0px 40px 0px;
+	color: #FFF;
+	text-align:center;
+	font-size:65px;
 }
 #code {
 	margin: 30px;
