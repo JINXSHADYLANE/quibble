@@ -1,7 +1,11 @@
+
 <html>
 	<head>
+        <!--<meta name="viewport" content="width=device-width, user-scalable=no" />-->
 		<title>aitvaras</title>
 		<link href="style.css" rel="stylesheet" type="text/css" />
+        <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.1.0-rc.1/jquery.mobile-1.1.0-rc.1.min.js"></script>
 		<script src="processing-1.3.6.min.js"></script>
 		<script type="application/javascript">
 			function getUrlVars() {
@@ -41,12 +45,41 @@
 
 			join();
 			window.onbeforeunload = leave;
+            
+            //here starts virtual mouse events
+			$(function(){
+    			$(".bup").bind("vmousedown", function(){
+        			move("u", "d");
+    			});
+                $(".bleft").bind("vmousedown", function(){
+        			move("l", "d");
+    			});
+                $(".bright").bind("vmousedown", function(){
+        			move("r", "d");
+    			});
+                $(".bdown").bind("vmousedown", function(){
+        			move("d", "d");
+    			});
+                //virtual mouse release
+                $(".bup").bind("vmouseup", function(){
+        			move("u", "u");
+    			});
+                $(".bleft").bind("vmouseup", function(){
+        			move("l", "u");
+    			});
+                $(".bright").bind("vmouseup", function(){
+        			move("r", "u");
+    			});
+                $(".bdown").bind("vmouseup", function(){
+        			move("d", "u");
+    			});
+			});
 		</script>
 	</head>
 	<body>
-		<button class="bup"    onmousedown="move('u', 'd');" onmouseup="move('u', 'u');"></button>
-		<button class="bleft"  onmousedown="move('l', 'd');" onmouseup="move('l', 'u');"></button>
-		<button class="bright" onmousedown="move('r', 'd');" onmouseup="move('r', 'u');"></button>
-		<button class="bdown"  onmousedown="move('d', 'd');" onmouseup="move('d', 'u');"></button>
+		<button class="bup"></button>
+		<button class="bleft"></button>
+		<button class="bright"></button>
+		<button class="bdown"></button>
 	</body>
 </html>
