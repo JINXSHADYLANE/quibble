@@ -6,7 +6,6 @@
 		<!--<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css" />-->
         <script type="text/javascript" charset="utf-8" src="http://code.jquery.com/jquery-1.7.2.js"></script>
         <script src="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.js"></script>
-		<script src="processing-1.3.6.min.js"></script>
 		<link href="style.css" rel="stylesheet" type="text/css" />
 		<script type="application/javascript">
 			function getUrlVars() {
@@ -38,10 +37,15 @@
 				req.send(vars.client_id);
 			}
 
+			var btnState = {};
+
 			function move(dir, up) {
-				var req = new XMLHttpRequest();
-				req.open("POST", vars.server + "/input", true);
-				req.send(vars.client_id + ":" + dir + ":" + up);
+				if(btnState[dir] !== up) {
+					btnState[dir] = up;
+					var req = new XMLHttpRequest();
+					req.open("POST", vars.server + "/input", true);
+					req.send(vars.client_id + ":" + dir + ":" + up);
+				}
 			}
 
 			join();
