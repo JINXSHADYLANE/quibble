@@ -40,4 +40,11 @@
 		(offset 0,64)
 		(grid 1,2)
 	)
+	(anim box
+		(tex "boxanim.png")
+		(frames 6)
+		(src 0,0,128,256)
+		(offset 128,0)
+		(grid 6,1)
+	)
 )
