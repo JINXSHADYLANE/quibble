@@ -1,8 +1,8 @@
 <project>
 	<name>aitvaras</name>
 	<settings>
-		<defaultWidth>1024</defaultWidth>
-		<defaultHeight>768</defaultHeight>
+		<defaultWidth>1920</defaultWidth>
+		<defaultHeight>1088</defaultHeight>
 		<workingDirectory>./</workingDirectory>
 	</settings>
 	<tilesets>
@@ -10,8 +10,6 @@
 	</tilesets>	
 	<layers>
 		<grid name="collision" gridSize="64" />
-		<tiles name="background" gridSize="64" />
-		<tiles name="foreground" gridSize="64" />
 	</layers>	
 </project>
 
