@@ -1,6 +1,7 @@
 var http = require('http');
 var fs = require('fs');
-var crypto = require('crypto')
+var crypto = require('crypto');
+var path = require('path');
 
 function startsWith(str, prefix) {
 	return str.indexOf(prefix) === 0;
@@ -21,6 +22,11 @@ function getIp(req) {
 var servers = {}
 
 http.createServer(function (req, res) {
+	if(req.url === '/')
+		req.url = '/index.html'
+
+	console.log(req.url);
+
 	if(req.method === 'POST' && req.url === '/enlist') {
 		// Enlist a new game server
 
@@ -81,30 +87,59 @@ http.createServer(function (req, res) {
 			res.end();
 		});
 	}
-	else if(req.method === 'GET' && startsWith(req.url, '/')) {
-		try {
-			var id = parseInt(req.url.substring(1));
-			if(typeof id !== 'number' || typeof servers[id] !== 'string')
-				throw 'bad addr or no such server';
+	else if(req.method === 'GET') {
+		var filePath = './aitvaras_html' + req.url;
+		path.exists(filePath, function(exists) {
+			if(exists) {
+				var extname = path.extname(filePath);
+				var contentType = 'text/html';
+				switch(extname) {
+					case '.json':
+						contentType = 'application/json';
+						break;
+					case '.png':
+						contentType = 'image/png';
+						break;
+					case '.css':
+						contentType = 'text/css';
+						break;
+					case '.js':
+						contentType = 'text/javascript';
+						break;
+				}
 
-			console.log('Server for id ' + id + ' = ' + servers[id]);
+				fs.readFile('./aitvaras_html' + req.url, function(error, content) {
+					if(error) {
+						res.writeHead(500);
+						res.end();
+					}
+					else {
+						res.writeHead(200, {'Content-Type': contentType});
+						res.end(content, 'utf-8');
+					}
+				});
+			}
+			else {
+				try {
+					var id = parseInt(req.url.substring(1));
+					if(typeof id !== 'number' || typeof servers[id] !== 'string')
+						throw 'bad addr or no such server';
 
-			res.writeHead(200, {
-				'Content-Type': 'text/plain',
-				'Access-Control-Allow-Origin' : '*' 
-			});
-			res.end(servers[id]);
-		}
-		catch(err) {
-			console.log('Error in GET request');
-			res.writeHead(404);
-			res.end();
-		};
-	}
-	else {
-		console.log('Unrecognized request ' + req.url);
-		res.writeHead(404);
-		res.end();
+					console.log('Server for id ' + id + ' = ' + servers[id]);
+
+					res.writeHead(200, {
+						'Content-Type': 'text/plain',
+						'Access-Control-Allow-Origin' : '*' 
+					});
+					res.end(servers[id]);
+				}
+				catch(err) {
+					console.log('Error in GET request');
+					res.writeHead(404);
+					res.end();
+				};
+			}
+		});
 	}
 }).listen(80);
 
