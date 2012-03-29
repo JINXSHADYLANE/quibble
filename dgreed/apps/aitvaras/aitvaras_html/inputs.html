@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta name="viewport" content="width=device-width, initial-scale=0.4, maximum-scale=0.4, user-scalable=no" />
+		<title>aitvaras</title>
+		<!--<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css" />-->
+        <script type="text/javascript" charset="utf-8" src="http://code.jquery.com/jquery-1.7.2.js"></script>
+        <script src="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.js"></script>
+		<script src="processing-1.3.6.min.js"></script>
+		<link href="style.css" rel="stylesheet" type="text/css" />
+		<script type="application/javascript">
+			function getUrlVars() {
+				var vars = {};
+				var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+					vars[key] = value;
+				});
+				return vars;
+			}
+
+			var vars = getUrlVars();
+
+			function join() {
+				var req = new XMLHttpRequest();
+				req.onreadystatechange = function() {
+					if(req.readyState == 4 && req.status == 200) {
+						console.log("sucess!");
+						vars.client_id = req.responseText;
+					}
+				}
+				req.open("GET", vars.server + "/join", true);
+				req.send();
+			}
+
+			function leave() {
+				console.log("leave!");
+				var req = new XMLHttpRequest();
+				req.open("POST", vars.server + "/leave", true);
+				req.send(vars.client_id);
+			}
+
+			function move(dir, up) {
+				var req = new XMLHttpRequest();
+				req.open("POST", vars.server + "/input", true);
+				req.send(vars.client_id + ":" + dir + ":" + up);
+			}
+
+			join();
+			window.onbeforeunload = leave;
+            
+            //here starts virtual mouse events
+			$(function(){
+                $(".bup").bind({
+                    vmousedown: function() {
+                        move("u", "d");
+                    },
+                    vmouseup: function() {
+                        move("u", "u");
+                    }
+    			});
+                $(".bleft").bind({
+                    vmousedown: function() {
+                        move("l", "d");
+                    },
+                    vmouseup: function() {
+                        move("l", "u");
+                    }
+    			});
+                $(".bright").bind({
+                    vmousedown: function() {
+                        move("r", "d");
+                    },
+                    vmouseup: function() {
+                        move("r", "u");
+                    }
+    			});
+                $(".bdown").bind({
+                    vmousedown: function() {
+                        move("d", "d");
+                    },
+                    vmouseup: function() {
+                        move("d", "u");
+                    }
+    			});
+			});
+		</script>
+		<script type="text/javascript">
+			//this defines screen width (x) and height (y)
+			var w=window,
+				d=document,
+				e=d.documentElement,
+				g=d.getElementsByTagName("body")[0],
+				x=w.innerWidth||e.clientWidth||g.clientWidth,
+				y=w.innerHeight||e.clientHeight||g.clientHeight;
+			
+			//based on the sceen dimensions buttons are set to a proper size
+			$(document).ready(function(){
+				$(".bup").css("height", y/3 );
+				$(".bleft").css("height", y/3 );
+				$(".bright").css("height", y/3 );
+				$(".bdown").css("height", y/3 );
+			});
+
+			//orientation change refreshes the screen size
+			$(window).bind('orientationchange', function(event) {
+   				//location.reload();
+   				//this defines screen width (x) and height (y)
+				var w=window,
+					d=document,
+					e=d.documentElement,
+					g=d.getElementsByTagName("body")[0],
+					x=w.innerWidth||e.clientWidth||g.clientWidth,
+					y=w.innerHeight||e.clientHeight||g.clientHeight;
+			
+				//based on the sceen dimensions buttons are set to a proper size
+				$(document).ready(function(){
+					$(".bup").css("height", y/3 );
+					$(".bleft").css("height", y/3 );
+					$(".bright").css("height", y/3 );
+					$(".bdown").css("height", y/3 );
+				});   				
+   			});
+
+			//this hides safari url bar
+			addEventListener("load", function() { 
+				setTimeout(hideURLbar, 0); }, false);
+				function hideURLbar(){ window.scrollTo(0,1);
+			}	
+		</script>
+	</head>
+	<body>
+		<button class="bup" ></button>
+		<button class="bleft"></button>
+		<button class="bright"></button>
+		<button class="bdown"></button>
+	</body>
+</html>
