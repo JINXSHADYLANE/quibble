@@ -12,33 +12,13 @@
 		(tex atlas.png)
 		(src 152,24,168,40)
 	)
-	(anim bug_red
-		(tex "atlas.png")
-		(frames 2)
-		(src 0,128,64,192)
-		(offset 0,64)
-		(grid 1,2)
+	(img background
+		(tex background.png)
+		(src 0,0,1920,1080)
 	)
-	(anim bug_blue
-		(tex "atlas.png")
-		(frames 2)
-		(src 64,128,128,192)
-		(offset 0,64)
-		(grid 1,2)
-	)
-	(anim bug_green
-		(tex "atlas.png")
-		(frames 2)
-		(src 128,128,192,192)
-		(offset 0,64)
-		(grid 1,2)
-	)
-	(anim bug_yellow
-		(tex "atlas.png")
-		(frames 2)
-		(src 192,128,256,192)
-		(offset 0,64)
-		(grid 1,2)
+	(img wall
+		(tex wall.png)
+		(src 0,0,1920,1080)
 	)
 	(anim box
 		(tex "boxanim.png")
