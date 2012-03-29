@@ -33,5 +33,10 @@ if env['DGREED_POSTFIX'] == 'd':
 
 	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + HTML_DIR 
 	for file in Glob(HTML_DIR + '/*', strings=True):
-		env.Install(dest_dir, file);
+		if file.endswith('.html') or file.endswith('.css'):
+			env.Install(dest_dir, file);
+	
+	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + HTML_DIR + '/img'
+	for img in Glob(HTML_DIR + '/img/*', strings=True):
+		env.Install(dest_dir, img)
 
