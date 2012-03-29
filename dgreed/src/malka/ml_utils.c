@@ -815,7 +815,7 @@ static int ml_to_rgba(lua_State* l) {
 static int ml_to_hsva(lua_State* l) {
 	int n = lua_gettop(l);
 	if(n != 1)
-		return luaL_error(l, "wrong number of arguments provided to to_rgba");
+		return luaL_error(l, "wrong number of arguments provided to to_hsva");
 	
 	luaL_checktype(l, 1, LUA_TTABLE);
 
