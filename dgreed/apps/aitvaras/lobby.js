@@ -2,6 +2,7 @@ var http = require('http');
 var fs = require('fs');
 var crypto = require('crypto');
 var path = require('path');
+var url = require('url');
 
 function startsWith(str, prefix) {
 	return str.indexOf(prefix) === 0;
@@ -24,6 +25,9 @@ var servers = {}
 http.createServer(function (req, res) {
 	if(req.url === '/')
 		req.url = '/index.html'
+
+	var rurl = url.parse(req.url);
+	req.url = rurl.pathname;
 
 	console.log(req.url);
 
