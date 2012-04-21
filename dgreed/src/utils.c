@@ -354,6 +354,63 @@ Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end) 
 	return hitp;
 }
 
+Vector2 rectf_sweep(const RectF* a, const RectF* b, const Vector2* offset) {
+	assert(a && b && offset);
+
+	const float eps = 0.001f;
+
+	// Let's make a wrong assumption that all sides of b are shorter or equal to
+	// a! For LD23 purposes only.
+	
+	Vector2 tl = vec2(b->left, b->top);
+	Vector2 tr = vec2(b->right, b->top);
+	Vector2 bl = vec2(b->left, b->bottom);
+	Vector2 br = vec2(b->right, b->bottom);
+
+	Vector2 starts[] = {tl, tr, bl, br};
+	bool check[] = {
+		offset->x < 0.0f || offset->y < 0.0f,
+		offset->x > 0.0f || offset->y < 0.0f,
+		offset->x < 0.0f || offset->y > 0.0f,
+		offset->x > 0.0f || offset->y > 0.0f
+	};
+	float min_sq_d = vec2_length_sq(*offset);
+	Vector2 min_offset = *offset;
+	for(uint i = 0; i < 4; ++i) {
+		if(!check[i])
+			continue;
+		Vector2 end = vec2_add(starts[i], *offset);
+		Vector2 nend = rectf_raycast(a, &starts[i], &end);
+		Vector2 off = vec2_sub(nend, starts[i]);
+		float l = vec2_length_sq(off);
+		if(l < min_sq_d) {
+			min_sq_d = l;
+			min_offset = off;
+		}
+	}
+
+	// Hack for falling
+	if(offset->x == 0.0f && offset->y != 0.0f) {
+		if( fabsf(a->left - b->right) < 0.01f ||
+			fabsf(a->right - b->left) < 0.01f)  {
+			return *offset;
+		}
+	}
+
+	// Hack for sliding top/bottom
+	if(offset->x != 0.0f && offset->y == 0.0f) {
+		if( fabsf(a->top - b->bottom) < 0.01f ||
+			fabsf(a->bottom - b->top) < 0.01f) {
+			return *offset;
+		}
+	}
+
+	if(min_sq_d > 4.0f * eps * eps)
+		return min_offset;
+	else
+		return vec2(0.0f, 0.0f);
+}
+
 uint rectf_cut(const RectF* a, const RectF* b, RectF* out) {
 	assert(a && b && out);
 

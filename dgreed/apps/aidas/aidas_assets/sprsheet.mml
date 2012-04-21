@@ -4,4 +4,8 @@
 		(tex atlas.png)
 		(src 64,0,96,32)
 	)
+	(img box
+		(tex atlas.png)
+		(src 32,32,64,64)
+	)
 )

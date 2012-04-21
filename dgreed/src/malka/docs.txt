@@ -64,6 +64,10 @@ intersect
 returns point where ray hits rectangle, or end if there is no intersection;
 start is assumed to be outside of rect
 
+- rect_rect_sweep(a, b, offset)
+moves b along offset vector, returns how much b did move until collision with
+a
+
 
 --------------
 misc. geometry
