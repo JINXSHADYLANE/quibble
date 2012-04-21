@@ -1,0 +1,7 @@
+(sprsheet aidas
+	(prefix "aidas_assets/")
+	(img player
+		(tex atlas.png)
+		(src 64,0,96,32)
+	)
+)

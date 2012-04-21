@@ -2,6 +2,7 @@
 pre = 'aidas_assets/'
 
 scr_size = vec2(480, 320)
+screen_rect = rect(0, 0, scr_size.x, scr_size.y)
 
 local game = require('game')
 
@@ -12,7 +13,7 @@ function game_init()
 	sound.init()
 
 	--mfx.init(pre..'effects.mml')
-	--sprsheet.init(pre..'sprsheet.mml')
+	sprsheet.init(pre..'sprsheet.mml')
 	--mus = sound.load_stream(pre..'music.ogg')
 	--sound.set_volume(mus, 0.7)
 	--sound.play(mus, true)
@@ -29,7 +30,7 @@ function game_close()
 	--particles.close()
 	--font.free(fnt)
 	--sound.free(mus)
-	--sprsheet.close()
+	sprsheet.close()
 	--mfx.close()
 	sound.close()
 	video.close()

@@ -12,6 +12,7 @@
 	<objects>
 		<object name="start" image="obj_start.png" width="32" height="32" />
 		<object name="w_start" image="obj_world.png" width="32" height="32" />
+		<object name="box" image="obj_box.png" width="32" height="32" />
 		<object name="btn_a" image="obj_a.png" width="32" height="32" />
 		<object name="door_a" image="obj_da.png" width="32" height="32" />
 		<object name="btn_b" image="obj_b.png" width="32" height="32" />

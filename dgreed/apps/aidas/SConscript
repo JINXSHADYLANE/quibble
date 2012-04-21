@@ -20,7 +20,7 @@ if env['DGREED_POSTFIX'] == 'd':
 		elif asset.endswith('.oel'):
 			env.Command('#' + env['DGREED_BIN_DIR']+'/'+ asset.replace('.oel', '.btm'),
 				[asset, ASSETS_DIR + '/aidas.oep'],
-				env['DGREED_OGMO_TOOL'] + ' -p vakar_assets/')
+				env['DGREED_OGMO_TOOL'] + ' -p aidas_assets/')
 		elif asset.endswith('.png') or asset.endswith('.wav') or \
 			asset.endswith('.ogg') or asset.endswith('.mml') or \
 			asset.endswith('.bft'):
