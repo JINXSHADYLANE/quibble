@@ -19,6 +19,20 @@ local function sweep_rect(rect, offset, no_push)
 		d = length_sq(off)
 	end
 
+	-- collide against doors
+	if d > 0 then
+		for i,door in ipairs(objs.doors) do
+			if not door.open then
+				local door_off = rect_rect_sweep(door.rect, rect, offset)
+				local door_d = length_sq(door_off)
+				if d - door_d > 0.001 then
+					d = door_d
+					off = door_off
+				end
+			end
+		end
+	end
+
 	-- collide against boxes
 	local box = nil
 	if d > 0 then
@@ -44,6 +58,89 @@ local function sweep_rect(rect, offset, no_push)
 	else
 		return off
 	end
+end
+
+-- door
+
+local door = {}
+door.__index = door
+
+function door:new(obj, t)
+	local o = {
+		width = 32,
+		height = 32,
+
+		pos = obj.pos + vec2(16, 16),
+		rect = rect(
+			obj.pos.x, obj.pos.y,
+			obj.pos.x + 32, obj.pos.x + 32
+		),
+
+		type = t,
+		open = false
+	}
+	setmetatable(o, self)
+	return o
+end
+
+function door:render()
+	local pos = tilemap.world2screen(objs.level, screen_rect, self.pos)
+	local col = rgba(1, 1, 1, 1)
+	if self.open then
+		col.a = 0.2
+	end
+	sprsheet.draw_anim_centered('doors', self.type, 2, pos, col)
+end
+
+-- switch
+
+local switch = {}
+switch.__index = switch
+
+function switch:new(obj, t)
+	local o = {
+		width = 32,
+		height = 32,
+
+		pos = obj.pos + vec2(16, 16),
+		rect = rect(
+			obj.pos.x, obj.pos.y,
+			obj.pos.x + 32, obj.pos.x + 32
+		),
+
+		type = t,
+		pressed = false
+	}
+	setmetatable(o, self)
+	return o
+end
+
+function switch:update()
+	local pressed = false
+	if rect_rect_collision(self.rect, objs.player.bbox) then
+		pressed = true
+	end
+	for i,b in ipairs(objs.boxes) do
+		if rect_rect_collision(self.rect, b.rect) then
+			pressed = true
+			break
+		end
+	end
+
+	if pressed ~= self.pressed then
+		-- change state
+		self.pressed = pressed
+		for i,d in ipairs(objs.doors) do
+			if d.type == self.type then
+				d.open = pressed
+			end
+		end
+	end
+end
+
+function switch:render()
+	local pos = tilemap.world2screen(objs.level, screen_rect, self.pos)
+	sprsheet.draw_anim_centered('buttons', self.type, 2, pos)
 end
 
 -- box
@@ -269,6 +366,25 @@ function objs.reset(level)
 		if t == 'box' then
 			table.insert(objs.boxes, box:new(obj))
 		end
+		if t == 'button_a' then
+			table.insert(objs.buttons, switch:new(obj, 0))
+		end
+		if t == 'button_b' then
+			table.insert(objs.buttons, switch:new(obj, 1))
+		end
+		if t == 'button_c' then
+			table.insert(objs.buttons, switch:new(obj, 2))
+		end
+		if t == 'door_a' then
+			table.insert(objs.doors, door:new(obj, 0))
+		end
+		if t == 'door_b' then
+			table.insert(objs.doors, door:new(obj, 1))
+		end
+		if t == 'door_c' then
+			table.insert(objs.doors, door:new(obj, 2))
+		end
+
 	end
 end
 
@@ -278,6 +394,10 @@ function objs.update()
 	for i,b in ipairs(objs.boxes) do
 		b:update()
 	end
+
+	for i,b in ipairs(objs.buttons) do
+		b:update()
+	end
 end
 
 function objs.render()
@@ -285,6 +405,14 @@ function objs.render()
 
 	for i,b in ipairs(objs.boxes) do
 		b:render()
+	end
+
+	for i,b in ipairs(objs.buttons) do
+		b:render()
+	end
+
+	for i,d in ipairs(objs.doors) do
+		d:render()
 	end
 end
 
