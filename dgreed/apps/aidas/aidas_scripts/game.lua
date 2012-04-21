@@ -2,7 +2,20 @@ local objs = require('objs')
 
 local game = {}
 
+local levels = {
+	'first.btm',
+	'goal.btm',
+	'obstacles.btm',
+	'path.btm'
+}
+
+local level_index = 1
+
 local function load_level(name)
+	if level then
+		tilemap.free(level)
+	end
+
 	level = tilemap.load(pre..name)
 	objs.reset(level)
 
@@ -12,7 +25,7 @@ end
 -- game state --
 
 function game.init()
-	load_level('prelude.btm')
+	load_level(levels[level_index])
 end
 
 function game.close()
@@ -34,7 +47,10 @@ function game.update()
 
 	sound.update()
 
-	objs.update()
+	if objs.update() then
+		level_index = level_index + 1
+		load_level(levels[level_index])
+	end
 	
 	return true
 end
