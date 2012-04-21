@@ -1,7 +1,7 @@
 local objs = {}
 
 -- global tweaks
-local gravity = 1
+local gravity = 1 
 
 -- object containers
 objs.player = nil
@@ -117,11 +117,15 @@ end
 
 function switch:update()
 	local pressed = false
-	if rect_rect_collision(self.rect, objs.player.bbox) then
+	local r = rect(self.rect)
+	r.l = r.l + 2
+	r.r = r.r - 2
+	r.t = r.t + 28
+	if rect_rect_collision(r, objs.player.bbox) then
 		pressed = true
 	end
 	for i,b in ipairs(objs.boxes) do
-		if rect_rect_collision(self.rect, b.rect) then
+		if rect_rect_collision(r, b.rect) then
 			pressed = true
 			break
 		end
@@ -139,8 +143,12 @@ function switch:update()
 end
 
 function switch:render()
-	local pos = tilemap.world2screen(objs.level, screen_rect, self.pos)
-	sprsheet.draw_anim_centered('buttons', self.type, 2, pos)
+	local p = vec2(self.pos)
+	if self.pressed then
+		p.y = p.y + 2
+	end
+	local pos = tilemap.world2screen(objs.level, screen_rect, p)
+	sprsheet.draw_anim_centered('buttons', self.type, 0, pos)
 end
 
 -- box
@@ -149,18 +157,21 @@ local box = {}
 box.__index = box
 
 function box:new(obj)
-	local o = {
-		width = 32,
-		height = 32,
+	local o = {}
+	if obj then
+		o = {
+			width = 32,
+			height = 32,
 
-		falling = true,
-		pos = obj.pos + vec2(16, 16),
-		rect = rect(
-			obj.pos.x, obj.pos.y, 
-			obj.pos.x + 32, obj.pos.y + 32
-		),
-		top = nil
-	}
+			falling = true,
+			pos = obj.pos + vec2(16, 16),
+			rect = rect(
+				obj.pos.x, obj.pos.y, 
+				obj.pos.x + 32, obj.pos.y + 32
+			),
+			top = nil
+		}
+	end
 	setmetatable(o, self)
 	return o
 end
@@ -268,6 +279,85 @@ function box:render()
 	sprsheet.draw_centered('box', 2, pos)
 end
 
+-- world
+
+local world = box:new() 
+world.__index = world 
+
+function world:new(obj)
+	local o = box:new(obj)
+	o.angle = 0
+	o.old_update = o.update
+	setmetatable(o, self)
+	return o
+end
+
+local function px_to_angle(px)
+	return px * 0.05
+end
+
+function world:update()
+	-- if player is standing on top...
+	if not self.move_anim and not self.falling then
+		local wb = self.rect
+		local pb = objs.player.bbox
+		if  math.abs(wb.t - pb.b) < 0.1 then
+			if wb.l <= pb.r and wb.r >= pb.l then
+				local d = self.pos.x - objs.player.pos.x
+				local ad = math.abs(d)
+				if ad > 10 then
+					if d > 0 then
+						if self:move(true) then
+							objs.player.vel.x = objs.player.vel.x - 4 
+							--objs.player.vel.y = objs.player.vel.y - 4 
+						end
+					else
+						if self:move(false) then
+							objs.player.vel.x = objs.player.vel.x + 4 
+							--objs.player.vel.y = objs.player.vel.y - 4 
+						end
+					end
+				end
+			end
+		end
+	end
+	if self.move_anim then
+		local new_off = self.anim_off.x + self.move_delta.x
+		if math.abs(new_off) < 32 then
+		else
+			if self.move_delta.x > 0 then
+				self.angle = self.angle + px_to_angle(32)
+			else
+				self.angle = self.angle - px_to_angle(32)
+			end
+		end
+	end
+	self:old_update()
+end
+
+function world:render()
+	local p = self.pos
+	local a = self.angle
+	if self.anim_off and self.fall_anim then
+		p = p - vec2(0, 32) + self.anim_off
+	end
+
+	if self.anim_off and self.move_anim then
+		if self.move_delta.x > 0 then
+			p = p - vec2(32, 0)
+		else
+			p = p + vec2(32, 0)
+		end
+		p = p + self.anim_off
+		a = a + px_to_angle(self.anim_off.x)
+	end
+
+	local pos = tilemap.world2screen(objs.level, screen_rect, p)
+	sprsheet.draw_centered('world', 2, pos, a, 1)
+end
+
+
+
 -- player
 
 local player = {}
@@ -276,7 +366,7 @@ player.__index = player
 function player:new(obj)
 	local o = {
 		width = 16,
-		height = 30,
+		height = 26,
 		move_acc = 0.5,
 		move_damp = 0.8,
 		jump_acc = 12,
@@ -313,13 +403,13 @@ function player:update()
 	bbox.r = bbox.l + self.width
 	bbox.b = bbox.t + self.height
 
-	local dx = sweep_rect(bbox, vec2(self.vel.x, 0))
+	local dx = sweep_rect(bbox, vec2(self.vel.x, 0), not self.ground)
 	self.pos = self.pos + dx
 	bbox.l = bbox.l + dx.x
 	bbox.r = bbox.r + dx.x
 	self.vel.x = dx.x
 	
-	local dy = sweep_rect(bbox, vec2(0, self.vel.y))
+	local dy = sweep_rect(bbox, vec2(0, self.vel.y), true)
 	if self.vel.y > 0 then
 		self.ground = dy.y == 0
 	end
@@ -365,6 +455,11 @@ function objs.reset(level)
 		end
 		if t == 'box' then
 			table.insert(objs.boxes, box:new(obj))
+		end
+		if t == 'world' then
+			local w = world:new(obj)
+			objs.world = w
+			table.insert(objs.boxes, w)
 		end
 		if t == 'button_a' then
 			table.insert(objs.buttons, switch:new(obj, 0))

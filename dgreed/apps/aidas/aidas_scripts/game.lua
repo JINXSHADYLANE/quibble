@@ -41,11 +41,11 @@ end
 
 function game.render(t)
 	
+	objs.render()
+
 	if level then
 		tilemap.render(level, screen_rect)
 	end
-
-	objs.render()
 
 	return true
 end
