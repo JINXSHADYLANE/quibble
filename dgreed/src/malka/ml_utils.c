@@ -538,6 +538,52 @@ static int ml_rect_raycast(lua_State* l) {
 	return 1;
 }
 
+static int ml_rect_rect_sweep(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 3)
+		return luaL_error(l, "wrong number of arguments provided to rect_raycast");
+
+	luaL_checktype(l, 1, LUA_TTABLE);
+	luaL_checktype(l, 2, LUA_TTABLE);
+	luaL_checktype(l, 3, LUA_TTABLE);
+
+	lua_getfield(l, 1, "l");
+	lua_getfield(l, 1, "t");
+	lua_getfield(l, 1, "r");
+	lua_getfield(l, 1, "b");
+	lua_getfield(l, 2, "l");
+	lua_getfield(l, 2, "t");
+	lua_getfield(l, 2, "r");
+	lua_getfield(l, 2, "b");
+	lua_getfield(l, 3, "x");
+	lua_getfield(l, 3, "y");
+
+	RectF a = {
+		luaL_checknumber(l, 4),
+		luaL_checknumber(l, 5),
+		luaL_checknumber(l, 6),
+		luaL_checknumber(l, 7)
+	};
+
+	RectF b = {
+		luaL_checknumber(l, 8),
+		luaL_checknumber(l, 9),
+		luaL_checknumber(l, 10),
+		luaL_checknumber(l, 11)
+	};
+
+	Vector2 offset = {
+		luaL_checknumber(l, 12),
+		luaL_checknumber(l, 13)
+	};
+
+	Vector2 off = rectf_sweep(&a, &b, &offset);
+
+	_new_vec2(l, off.x, off.y);
+
+	return 1;
+}
+
 static int ml_rect_tostring(lua_State* l) {
 	lua_getfield(l, 1, "l");
 	lua_getfield(l, 1, "t");
@@ -613,6 +659,7 @@ static const luaL_Reg rect_fun[] = {
 	{"rect_circle_collision", ml_rect_circle_collision},
 	{"rect_tri_collision", ml_rect_tri_collision},
 	{"rect_raycast", ml_rect_raycast},
+	{"rect_rect_sweep", ml_rect_rect_sweep},
 	{"segment_intersect", ml_segment_intersect},
 	{NULL, NULL}
 };
