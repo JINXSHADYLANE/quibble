@@ -19,6 +19,7 @@
 		<object name="door_b" image="obj_db.png" width="32" height="32" />
 		<object name="btn_c" image="obj_c.png" width="32" height="32" />
 		<object name="door_c" image="obj_dc.png" width="32" height="32" />
+		<object name="end" image="obj_end.png" width="32" height="32" />
 	</objects>
 	<layers>
 		<tiles name="background" gridSize="32" />

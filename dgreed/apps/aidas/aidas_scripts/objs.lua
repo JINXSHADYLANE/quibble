@@ -6,6 +6,7 @@ local gravity = 1
 -- object containers
 objs.player = nil
 objs.world = nil
+objs.goal = nil
 objs.boxes = {}
 objs.buttons = {}
 objs.doors = {}
@@ -205,6 +206,7 @@ function box:move(dir, test_only)
 			b.move_anim = true
 			b.anim_off = vec2(0, 0)
 			b.move_delta = offset/16
+			b.falling = true
 
 			b = b.top
 		end
@@ -433,6 +435,31 @@ function player:render()
 	end
 end
 
+-- goal
+
+local goal = {}
+goal.__index = goal
+
+function goal:new(obj)
+	local o = {
+		width = 32,
+		height = 32,
+
+		pos = obj.pos + vec2(16, 16),
+		rect = rect(
+			obj.pos.x, obj.pos.y,
+			obj.pos.x + 32, obj.pos.y + 32
+		)
+	}
+	setmetatable(o, self)
+	return o
+end
+
+function goal:update()
+	-- returns true if goal is reached
+	return rect_rect_collision(self.rect, objs.world.rect)
+end
+
 local object_type = {
 	[0] = 'start',
 	[1] = 'world',
@@ -442,16 +469,27 @@ local object_type = {
 	[5] = 'button_b',
 	[6] = 'door_b',
 	[7] = 'button_c',
-	[8] = 'door_c'
+	[8] = 'door_c',
+	[9] = 'end'
 }
 
 function objs.reset(level)
+	objs.player = nil
+	objs.world = nil
+	objs.goal = nil
+	objs.boxes = {}
+	objs.buttons = {}
+	objs.doors = {}
+
 	objs.level = level
 	local objects = tilemap.objects(level)
 	for i,obj in ipairs(objects) do
 		local t = object_type[obj.id]
 		if t == 'start' then
 			objs.player = player:new(obj)
+		end
+		if t == 'end' then
+			objs.goal = goal:new(obj)
 		end
 		if t == 'box' then
 			table.insert(objs.boxes, box:new(obj))
@@ -479,7 +517,6 @@ function objs.reset(level)
 		if t == 'door_c' then
 			table.insert(objs.doors, door:new(obj, 2))
 		end
-
 	end
 end
 
@@ -493,6 +530,8 @@ function objs.update()
 	for i,b in ipairs(objs.buttons) do
 		b:update()
 	end
+
+	return objs.goal:update()
 end
 
 function objs.render()
