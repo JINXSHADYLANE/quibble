@@ -1,0 +1,29 @@
+<project>
+	<name>aidas</name>
+	<settings>
+		<defaultWidth>960</defaultWidth>
+		<defaultHeight>640</defaultHeight>
+		<workingDirectory>./</workingDirectory>
+	</settings>
+	<tilesets>
+		<tileset name="tiles0" image="atlas.png" tileWidth="32" tileHeight="32"
+		width="256" height="256"/>
+	</tilesets>	
+	<objects>
+		<object name="start" image="obj_start.png" width="32" height="32" />
+		<object name="w_start" image="obj_world.png" width="32" height="32" />
+		<object name="btn_a" image="obj_a.png" width="32" height="32" />
+		<object name="door_a" image="obj_da.png" width="32" height="32" />
+		<object name="btn_b" image="obj_b.png" width="32" height="32" />
+		<object name="door_b" image="obj_db.png" width="32" height="32" />
+		<object name="btn_c" image="obj_c.png" width="32" height="32" />
+		<object name="door_c" image="obj_dc.png" width="32" height="32" />
+	</objects>
+	<layers>
+		<tiles name="background" gridSize="32" />
+		<grid name="col" gridSize="32" />
+		<objects name="objs" gridSize="32" />
+		<tiles name="foreground" gridSize="32" />
+	</layers>	
+</project>
+
