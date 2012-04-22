@@ -209,6 +209,12 @@ function box:move(dir, test_only)
 	if not test_only and can_move then
 		local b = self
 		mfx.trigger('box_push')
+
+		if b.bottom then
+			b.bottom.top = nil
+			b.bottom = nil
+		end
+
 		while b ~= nil do	
 			b.pos = b.pos + offset
 			b.rect = rect(
@@ -321,7 +327,7 @@ function world:update()
 
 	-- if player is crushed ...
 	if math.abs(wb.b - pb.t) < 8 then
-		if wb.l <= pb.r and wb.r >= pb.l then
+		if math.abs(self.pos.x - objs.player.pos.x) < 8 then
 			objs.crushed = true
 		end
 	end
@@ -382,8 +388,6 @@ function world:render()
 	local pos = tilemap.world2screen(objs.level, screen_rect, p)
 	sprsheet.draw_centered('world', 2, pos, a, 1)
 end
-
-
 
 -- player
 
