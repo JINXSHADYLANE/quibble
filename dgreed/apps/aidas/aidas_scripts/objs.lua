@@ -135,6 +135,7 @@ function switch:update()
 
 	if pressed ~= self.pressed then
 		-- change state
+		mfx.trigger('door')
 		self.pressed = pressed
 		for i,d in ipairs(objs.doors) do
 			if d.type == self.type then
@@ -176,7 +177,8 @@ function box:new(obj)
 				obj.pos.x, obj.pos.y, 
 				obj.pos.x + 32, obj.pos.y + 32
 			),
-			top = nil
+			top = nil,
+			bottom = nil
 		}
 	end
 	setmetatable(o, self)
@@ -196,12 +198,17 @@ function box:move(dir, test_only)
 	local can_move = length_sq(move_off) >= 31*31
 	self.skip = nil
 
+	if self.bottom and self.bottom.falling then
+		can_move = false
+	end
+
 	if can_move and self.top then
 		can_move = self.top:move(dir, true)
 	end
 
 	if not test_only and can_move then
 		local b = self
+		mfx.trigger('box_push')
 		while b ~= nil do	
 			b.pos = b.pos + offset
 			b.rect = rect(
@@ -248,11 +255,15 @@ function box:update()
 
 	if self.falling and not can_fall then
 		-- fell on something
+		if self.anim_off then
+			mfx.trigger('box_land')
+		end
 		self.falling = false
 		self.fall_anim = false
 		self.anim_off = nil
 		if b then
 			b.top = self
+			self.bottom = b
 		end
 	end
 
@@ -402,6 +413,7 @@ function player:update()
 		self.ground = false
 		self.vel.y = -self.jump_acc
 		self.frame = 4
+		mfx.trigger('jump')
 	end
 	self.vel.y = self.vel.y + gravity
 	self.vel.x = self.vel.x * self.move_damp
@@ -421,12 +433,18 @@ function player:update()
 	self.vel.x = dx.x
 	
 	local dy = sweep_rect(bbox, vec2(0, self.vel.y), true)
+	local was_on_ground = self.ground
 	if self.vel.y > 0 then
 		self.ground = dy.y == 0
 		if self.ground then
 			self.frame = 0
 		end
 	end
+
+	if (not was_on_ground) and self.ground then
+		mfx.trigger('land')
+	end
+
 	self.pos = self.pos + dy
 	self.vel.y = dy.y
 	bbox.t = bbox.t + dy.y

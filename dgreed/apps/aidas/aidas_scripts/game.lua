@@ -14,10 +14,10 @@ local levels = {
 }
 
 local texts = {
-	'tiny world of my own',
-	'goal',
-	'obstacles',
-	'path',
+	'a tiny world of my own',
+	'I move it wherever I want to',
+	'I overcome obstacles along the way',
+	'and I upen up new paths',
 	'fall',
 	'control',
 	'push',
@@ -72,9 +72,11 @@ function game.update()
 	end
 
 	sound.update()
+	--mfx.update()
 
 	if not game.is_fading() then
 		if objs.update() then
+			mfx.trigger('win')
 			fadeout_t = time.s() + fadeout_len / 2
 			loaded = false
 		end
