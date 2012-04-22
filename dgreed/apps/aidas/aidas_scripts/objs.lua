@@ -11,20 +11,20 @@ objs.boxes = {}
 objs.buttons = {}
 objs.doors = {}
 
-local function sweep_rect(rect, offset, no_push)
+local function sweep_rect(r, offset, no_push)
 	local off, d
 
 	-- collide against level
 	if objs.level then
-		off = tilemap.collide_swept(objs.level, rect, offset)
+		off = tilemap.collide_swept(objs.level, r, offset)
 		d = length_sq(off)
 	end
 
 	-- collide against doors
 	if d > 0 then
-		for i,door in ipairs(objs.doors) do
-			if not door.open then
-				local door_off = rect_rect_sweep(door.rect, rect, offset)
+		for i,dr in ipairs(objs.doors) do
+			if not dr.open then
+				local door_off = rect_rect_sweep(dr.rect, r, offset)
 				local door_d = length_sq(door_off)
 				if d - door_d > 0.001 then
 					d = door_d
@@ -39,7 +39,7 @@ local function sweep_rect(rect, offset, no_push)
 	if d > 0 then
 		for i,b in ipairs(objs.boxes) do
 			if not b.skip then
-				local box_off = rect_rect_sweep(b.rect, rect, offset)
+				local box_off = rect_rect_sweep(b.rect, r, offset)
 				local box_d = length_sq(box_off)
 				if d - box_d > 0.001 then
 					box = b
@@ -74,7 +74,7 @@ function door:new(obj, t)
 		pos = obj.pos + vec2(16, 16),
 		rect = rect(
 			obj.pos.x, obj.pos.y,
-			obj.pos.x + 32, obj.pos.x + 32
+			obj.pos.x + 32, obj.pos.y + 32
 		),
 
 		type = t,
@@ -106,7 +106,7 @@ function switch:new(obj, t)
 		pos = obj.pos + vec2(16, 16),
 		rect = rect(
 			obj.pos.x, obj.pos.y,
-			obj.pos.x + 32, obj.pos.x + 32
+			obj.pos.x + 32, obj.pos.y + 32
 		),
 
 		type = t,
@@ -139,6 +139,11 @@ function switch:update()
 			if d.type == self.type then
 				d.open = pressed
 			end
+		end
+
+		-- make boxes fall
+		for i,b in ipairs(objs.boxes) do
+			b.falling = true
 		end
 	end
 end
@@ -457,7 +462,11 @@ end
 
 function goal:update()
 	-- returns true if goal is reached
-	return rect_rect_collision(self.rect, objs.world.rect)
+	if not objs.world.move_anim and not objs.world.fall_anim then
+		if rect_rect_collision(self.rect, objs.world.rect) then
+			return length_sq(self.pos - objs.world.pos) < 1
+		end
+	end
 end
 
 local object_type = {

@@ -6,7 +6,11 @@ local levels = {
 	'first.btm',
 	'goal.btm',
 	'obstacles.btm',
-	'path.btm'
+	'path.btm',
+	'fall.btm',
+	'control.btm',
+	'push.btm',
+	'chasm.btm'
 }
 
 local level_index = 1
