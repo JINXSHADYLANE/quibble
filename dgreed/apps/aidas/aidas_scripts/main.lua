@@ -18,7 +18,7 @@ function game_init()
 	--sound.set_volume(mus, 0.7)
 	--sound.play(mus, true)
 
-	--fnt = font.load(pre..'lucida_grande_30px.bft', 0.5)
+	fnt = font.load(pre..'gentium_60px.bft', 0.5, pre)
 
 	--particles.init('aidas_assets/', 6)
 
@@ -28,7 +28,7 @@ end
 
 function game_close()
 	--particles.close()
-	--font.free(fnt)
+	font.free(fnt)
 	--sound.free(mus)
 	sprsheet.close()
 	--mfx.close()
