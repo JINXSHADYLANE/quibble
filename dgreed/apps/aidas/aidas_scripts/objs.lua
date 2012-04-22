@@ -498,6 +498,11 @@ function goal:update()
 	end
 end
 
+function goal:render()
+	local pos = tilemap.world2screen(objs.level, screen_rect, self.pos)
+	sprsheet.draw_centered('goal', 3, pos)
+end
+
 local object_type = {
 	[0] = 'start',
 	[1] = 'world',
@@ -574,6 +579,7 @@ end
 
 function objs.render()
 	objs.player:render()
+	objs.goal:render()
 
 	for i,b in ipairs(objs.boxes) do
 		b:render()

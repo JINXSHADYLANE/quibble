@@ -14,7 +14,7 @@ local levels = {
 }
 
 local texts = {
-	'first',
+	'tiny world of my own',
 	'goal',
 	'obstacles',
 	'path',
@@ -121,13 +121,13 @@ function game.render_text()
 	if gameover or (d < text_len / 2) then
 		local a = 1 - d / (text_len / 2)
 		local col = rgba(1, 1, 1, math.min(1, a*2))
-		video.draw_text_centered(fnt, 5, texts[level_index], scr_size/2, col)
+		video.draw_text_centered(fnt, 5, texts[level_index], scr_size/2 - vec2(0, 120), col)
 	end
 end
 
 function game.render(t)
 
-	sprsheet.draw('empty', 0, screen_rect, rgba(0.2, 0.4, 0.2, 1))
+	sprsheet.draw('back', 0, screen_rect)
 	
 	objs.render()
 

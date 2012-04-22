@@ -14,22 +14,18 @@ function game_init()
 
 	--mfx.init(pre..'effects.mml')
 	sprsheet.init(pre..'sprsheet.mml')
-	--mus = sound.load_stream(pre..'music.ogg')
-	--sound.set_volume(mus, 0.7)
-	--sound.play(mus, true)
+	mus = sound.load_stream(pre..'aidas.ogg')
+	sound.play(mus, true)
 
 	fnt = font.load(pre..'gentium_60px.bft', 0.5, pre)
-
-	--particles.init('aidas_assets/', 6)
 
 	states.register('game', game)
 	states.push('game')
 end
 
 function game_close()
-	--particles.close()
 	font.free(fnt)
-	--sound.free(mus)
+	sound.free(mus)
 	sprsheet.close()
 	--mfx.close()
 	sound.close()
