@@ -8,14 +8,16 @@ local levels = {
 	'obstacles.btm',
 	'path.btm',
 	'fall.btm',
+	'down.btm',
 	'control.btm',
 	'push.btm',
-	'chasm.btm'
+	'chasm.btm',
+	'end.btm'
 }
 
 local texts = {
 	'a tiny world of my own',
-	'I move it wherever I want to',
+	'I have the power to control it',
 	'I overcome obstacles along the way',
 	'and I upen up new paths',
 	'fall',
@@ -72,7 +74,7 @@ function game.update()
 	end
 
 	sound.update()
-	--mfx.update()
+	mfx.update()
 
 	if not game.is_fading() then
 		if objs.update() then
