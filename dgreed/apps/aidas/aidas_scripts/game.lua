@@ -19,12 +19,14 @@ local texts = {
 	'a tiny world of my own',
 	'I have the power to control it',
 	'I overcome obstacles along the way',
-	'and I upen up new paths',
-	'fall',
-	'control',
-	'push',
-	'chasm',
-	'end'
+	'and I carefully plan my actions',
+	'our bond can\'t be separated',
+	'for every challenge makes us stronger',
+	'standing on top of my world I see far ahead',
+	'together we flatten mountains',
+	'and we listen to echoes of the past',
+	'... and still, my world often hurts me',
+	'the end'
 }
 
 local text_len = 4
