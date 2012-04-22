@@ -240,7 +240,7 @@ function box:update()
 	end
 
 	if self.fall_anim then
-		self.anim_off = self.anim_off + vec2(0, gravity*4)
+		self.anim_off = self.anim_off + vec2(0, gravity*6)
 		if self.anim_off.y < 32 then
 			return
 		else
@@ -316,10 +316,18 @@ local function px_to_angle(px)
 end
 
 function world:update()
+	local wb = self.rect
+	local pb = objs.player.bbox
+
+	-- if player is crushed ...
+	if math.abs(wb.b - pb.t) < 8 then
+		if wb.l <= pb.r and wb.r >= pb.l then
+			objs.crushed = true
+		end
+	end
+
 	-- if player is standing on top...
 	if not self.move_anim and not self.falling then
-		local wb = self.rect
-		local pb = objs.player.bbox
 		if  math.abs(wb.t - pb.b) < 0.1 then
 			if wb.l <= pb.r and wb.r >= pb.l then
 				local d = self.pos.x - objs.player.pos.x
@@ -582,6 +590,10 @@ function objs.reset(level)
 end
 
 function objs.update()
+	if objs.crushed then
+		return true
+	end
+
 	objs.player:update()
 
 	for i,b in ipairs(objs.boxes) do
