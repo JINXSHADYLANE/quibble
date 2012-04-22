@@ -51,8 +51,9 @@ local function sweep_rect(r, offset, no_push)
 	end
 
 	if not no_push and box and offset.x ~= 0 then
+		objs.player.push = 7
 		box:move(offset.x < 0)
-	end
+ 	end
 
 	if box then
 		return off, box
@@ -381,7 +382,8 @@ function player:new(obj)
 		pos = obj.pos + vec2(16, 16),
 		vel = vec2(0, 0),
 		dir = false,
-		ground = true
+		ground = true,
+		frame = 0
 	}
 	setmetatable(o, self)
 	return o
@@ -390,18 +392,20 @@ end
 function player:update()
 	if key.pressed(key._left) then
 		self.vel.x = self.vel.x - self.move_acc
-		dir = true
+		self.dir = true
 	end
 	if key.pressed(key._right) then
 		self.vel.x = self.vel.x + self.move_acc
-		dir = false
+		self.dir = false
 	end
 	if (key.down(key._up) or key.down(key.a)) and self.ground then
 		self.ground = false
 		self.vel.y = -self.jump_acc
+		self.frame = 4
 	end
 	self.vel.y = self.vel.y + gravity
 	self.vel.x = self.vel.x * self.move_damp
+
 
 	local bbox = rect(
 		self.pos.x - self.width / 2,
@@ -419,12 +423,33 @@ function player:update()
 	local dy = sweep_rect(bbox, vec2(0, self.vel.y), true)
 	if self.vel.y > 0 then
 		self.ground = dy.y == 0
+		if self.ground then
+			self.frame = 0
+		end
 	end
 	self.pos = self.pos + dy
 	self.vel.y = dy.y
 	bbox.t = bbox.t + dy.y
 	bbox.b = bbox.b + dy.y
 	self.bbox = bbox
+
+	if self.ground and self.frame ~= 3 then
+		if math.abs(self.vel.x) > 0.01 then
+			local t = time.s()
+			self.frame = math.fmod(math.floor(t * 10), 3)
+		else
+			self.frame = 0
+		end
+	end
+
+	if self.push then
+		self.push = self.push - 1
+		if self.push == 0 then
+			self.push = nil
+		else
+			self.frame = 3
+		end
+	end
 
 	-- move camera
 	local cam_pos, z, rot = tilemap.camera(objs.level)
@@ -436,7 +461,11 @@ end
 function player:render()
 	if self.bbox then
 		local pos = tilemap.world2screen(objs.level, screen_rect, self.bbox)
-		sprsheet.draw('player', 2, pos)
+		if self.dir then
+			pos.l, pos.r = pos.r, pos.l
+		end
+
+		sprsheet.draw_anim('guy', self.frame, 2, pos)
 	end
 end
 

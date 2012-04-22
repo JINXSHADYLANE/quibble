@@ -5,12 +5,12 @@ local game = {}
 local levels = {
 	'first.btm',
 	'goal.btm',
---	'obstacles.btm',
---	'path.btm',
---	'fall.btm',
---	'control.btm',
---	'push.btm',
---	'chasm.btm'
+	'obstacles.btm',
+	'path.btm',
+	'fall.btm',
+	'control.btm',
+	'push.btm',
+	'chasm.btm'
 }
 
 local texts = {
@@ -126,6 +126,8 @@ function game.render_text()
 end
 
 function game.render(t)
+
+	sprsheet.draw('empty', 0, screen_rect, rgba(0.2, 0.4, 0.2, 1))
 	
 	objs.render()
 
