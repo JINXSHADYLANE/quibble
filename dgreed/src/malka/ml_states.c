@@ -31,6 +31,8 @@ static bool states_in_mainloop = false;
 static uint states_from, states_to;
 static float states_transition_t;
 
+static PreRenderCallback pre_render_cb = NULL;
+
 static bool _call_c_state_func(CState* state, const char* func, float* arg) {
 	assert(state && func);
 
@@ -348,6 +350,39 @@ static int ml_states_replace(lua_State* l) {
 	return 0;
 }
 
+static lua_State* cb_l = NULL;
+static int cb_prerender_ref = -1;
+
+static void _prerender_cb(void) {
+	assert(cb_l);
+	lua_getref(cb_l, cb_prerender_ref);
+	assert(lua_isfunction(cb_l, -1));
+	lua_call(cb_l, 0, 0);
+}
+
+static int ml_states_prerender_callback(lua_State* l) {
+	checkargs(1, "states.prerender_callback");
+
+	if(cb_prerender_ref != -1) {
+		lua_unref(l, cb_prerender_ref);
+		cb_prerender_ref = -1;
+	}
+
+	if(lua_isnil(l, 1)) {
+		malka_states_prerender_cb(NULL);
+	}
+	else if(lua_isfunction(l, 1)) {
+		cb_l = l;
+		cb_prerender_ref = lua_ref(l, 1);
+		malka_states_prerender_cb(_prerender_cb);
+	}
+	else {
+		return luaL_error(l, "wrong callback type");
+	}
+
+	return 0;
+}
+
 void ml_states_init(lua_State* l) {
 	n_c_states = 0;
 	n_state_names = 0;
@@ -384,6 +419,7 @@ static const luaL_Reg states_fun[] = {
 	{"push", ml_states_push},
 	{"pop", ml_states_pop},
 	{"replace", ml_states_replace},
+	{"prerender_callback", ml_states_prerender_callback},
 	{NULL, NULL}
 };
 
@@ -500,6 +536,8 @@ bool malka_states_step(void) {
 			assert(t >= 0.0f && t <= 1.0f);
 			_call_state_func(l, _names_get(states_from), "render", &t);
 			_call_state_func(l, _names_get(states_to), "render", &tt);
+			if(pre_render_cb)
+				(*pre_render_cb)();
 			video_present();
 		}
 	}
@@ -514,6 +552,8 @@ bool malka_states_step(void) {
 				if(_stack_size()) {
 					float zero = 0.0f;
 					breakout = !_call_state_func(l, top_name, "render", &zero);
+					if(pre_render_cb)
+						(*pre_render_cb)();
 					video_present();
 				}
 			}	
@@ -542,3 +582,6 @@ float malka_state_time(const char* name) {
 	}
 }
 
+void malka_states_prerender_cb(PreRenderCallback cb) {
+	pre_render_cb = cb;
+}

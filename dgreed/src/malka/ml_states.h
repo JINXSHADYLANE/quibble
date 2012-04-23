@@ -33,4 +33,7 @@ void malka_states_end(void);
 bool malka_states_step(void);
 float malka_state_time(const char* name);
 
+typedef void (*PreRenderCallback)(void);
+void malka_states_prerender_cb(PreRenderCallback cb);
+
 #endif
