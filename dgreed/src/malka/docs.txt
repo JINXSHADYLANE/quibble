@@ -739,6 +739,9 @@ registers a state
 - states.push(name), states.pop(), states.replace(name)
 state stack handling
 
+- states.prerender_callback(cb)
+set a callback to be inovoked once every frame, before video present
+
 - states.transition_len 
 a number of seconds for transitioning between states, 0 by default
 
