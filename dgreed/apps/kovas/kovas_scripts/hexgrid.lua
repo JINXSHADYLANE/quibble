@@ -35,30 +35,49 @@ function hexgrid:center(x, y)
 end
 
 function hexgrid:world2grid(pt)
-	local x = (pt.x - side_len) / (side_len * 1.5)
+	local x = (pt.x + side_len) / (side_len * 1.5)
 	local xi, xf = math.modf(x)
+	if xf < 0 then
+		xi = xi-1
+		xf = 1 + xf
+	end
 
 	local y_shift = 0
-	if math.fmod(xi, 2) == 1 then
+	if math.abs(math.fmod(xi, 2)) == 1 then
 		y_shift = cell_height / 2
 	end
 
-	local y = (pt.y - cell_height - y_shift) / cell_height
+	local y = (pt.y + cell_height - y_shift) / cell_height
 	local yi, yf = math.modf(y)
+	if yf < 0 then
+		yi = yi-1
+		yf = 1 + yf
+	end
 
-	local c1 = self:center(xi, yi)
+	local ox1, oy1, ox2, oy2, ox3, oy3
+
+	ox1, oy1 = xi, yi
+	ox2, oy2 = xi-1, yi
+	if y_shift == 0 then
+		ox3, oy3 = xi, yi-1
+	else
+		ox3, oy3 = xi, yi+1
+	end	
+
+	local c1 = self:center(ox1, oy1)
+	local c2 = self:center(ox2, oy2)
+	local c3 = self:center(ox3, oy3)
+
 	local d1 = length_sq(c1 - pt)
-	local c2 = self:center(xi-1, yi)
 	local d2 = length_sq(c2 - pt)
-	local c3 = self:center(xi, yi-1)
 	local d3 = length_sq(c3 - pt)
 
 	if d1 <= d2 and d1 <= d3 then
-		return xi, yi
+		return ox1, oy1
 	elseif d2 < d1 and d2 < d3 then
-		return xi-1, yi
+		return ox2, oy2
 	else
-		return xi, yi-1
+		return ox3, oy3
 	end
 end
 
@@ -90,12 +109,20 @@ function hexgrid:draw(camera_pos, screen_rect)
 	for y = min_y, max_y do
 		for x = min_x, max_x do
 			local t = self:get(x, y)
+			local c = self:center(x, y) - topleft 
 			if t == nil then
-				local c = self:center(x, y) - topleft 
 				self:draw_hex(c, col)
+			else
+				video.draw_seg(1, c - vec2(10, 10), c + vec2(10, 10), rgba(0, 0.8, 0, 1))
+				video.draw_seg(1, c - vec2(-10, 10), c + vec2(-10, 10), rgba(0, 0.8, 0, 1))
 			end
 		end
 	end
+
+	local p = topleft + mouse.pos()
+	local x, y = self:world2grid(p)
+	local c = self:center(x, y) - topleft
+	self:draw_hex(c, rgba(0.1, 0.1, 0.1, 1))
 end
 
 function hexgrid:world2screen(pt, camera_pos, screen_rect)
