@@ -571,6 +571,10 @@ void video_set_transform(uint layer, float* matrix) {
 }
 
 TexHandle tex_load(const char* filename) {
+	return tex_load_filter(filename, NULL);
+}
+
+TexHandle tex_load_filter(const char* filename, TexFilter filter) {
 	assert(filename);
 
 	Texture* tex = DARRAY_DATA_PTR(textures, Texture);
@@ -615,15 +619,20 @@ TexHandle tex_load(const char* filename) {
 		LOG_ERROR("Texture dimensions is not power of 2");
 	}	
 
+	// Apply filter
+	if(filter) {
+		(*filter)((Color*)decompr_data, width, height);
+	}
+
 	// Make gl texture
 	uint gl_id;
 	glGenTextures(1, &gl_id);
 	glBindTexture(GL_TEXTURE_2D, gl_id);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA,
 		GL_UNSIGNED_BYTE, decompr_data); 
-	GLuint filter = retro ? GL_NEAREST : GL_LINEAR;
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);	
+	GLuint tfilter = retro ? GL_NEAREST : GL_LINEAR;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, tfilter);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, tfilter);	
 	
 	uint error = glGetError();
 	if(error != GL_NO_ERROR)

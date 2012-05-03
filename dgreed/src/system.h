@@ -65,10 +65,13 @@ void video_set_blendmode(uint layer, BlendMode bmode);
 void video_set_transform(uint layer, float* matrix);
 
 typedef uint TexHandle;
+typedef void (*TexFilter)(Color* texels, uint w, uint h);
 
 // Loads texture from .png file, it must have pow2 dimensions
 TexHandle tex_load(const char* filename);
-// Returns widht and height of texture in pixels
+// Loads texture and applies custom filtering
+TexHandle tex_load_filter(const char* filename, TexFilter filter); 
+// Returns width and height of texture in pixels
 void tex_size(TexHandle tex, uint* width, uint* height); 
 // Frees texture which was loaded with tex_load
 void tex_free(TexHandle tex);
