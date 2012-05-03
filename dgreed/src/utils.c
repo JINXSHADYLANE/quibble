@@ -1427,6 +1427,13 @@ bool is_pow2(uint n) {
 	return n && !(n & (n - 1));
 }
 
+uint next_pow2(uint n) {
+    uint p = 1;
+    while(n > p)
+        p *= 2;
+    return p;
+}
+
 // Knuth-Morris-Pratt with stack allocated partial match table
 int strfind(const char* needle, const char* haystack) {
 	assert(needle && haystack);

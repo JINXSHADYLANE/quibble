@@ -103,6 +103,7 @@ static uint16 index_buffer[max_vertices/4 * 6];
 static uint fps_count = 0;
 static bool video_retro_filtering = false;
 static bool has_discard_extension = false;
+static bool use_bgra = false;
 
 const float tex_mul = 32767.0f;
 
@@ -228,7 +229,7 @@ void video_init_exr(uint width, uint height, uint v_width, uint v_height,
 }
 
 static bool _check_extension(const char* name) {
-    const char* exts = NULL;
+    static const char* exts = NULL;
     if(exts == NULL)
         exts = (char*)glGetString(GL_EXTENSIONS);
     return strfind(name, exts) != -1;
@@ -244,6 +245,12 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
     
     has_discard_extension = _check_extension("GL_EXT_discard_framebuffer");
 	
+    NSString *reqSysVer = @"3.1.4";
+    NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
+    if ([currSysVer compare:reqSysVer options:NSNumericSearch] == NSOrderedAscending) {
+		use_bgra = true;
+	}
+       
 	glEnable(GL_TEXTURE_2D);
 	glShadeModel(GL_FLAT);
 	glClearDepthf(1.0f);
@@ -592,6 +599,55 @@ void video_set_transform(uint layer, float* matrix) {
 	transform[layer] = matrix;
 }
 
+static void* _load_image(const char* filename, uint* width, uint* height, CFDataRef* image_data) {
+	// Construct proper path to texture
+	NSString* ns_filename = [NSString stringWithUTF8String:filename];
+	NSString* resource_path = [[NSBundle mainBundle] resourcePath];
+	NSString* full_path = [resource_path stringByAppendingPathComponent:ns_filename];
+	
+	// Load texture
+	UIImage* image = [UIImage imageWithContentsOfFile:full_path];
+	CGImageRef cg_image = image.CGImage;
+	*width = CGImageGetWidth(cg_image);
+	*height = CGImageGetHeight(cg_image);
+    CGColorSpaceRef color_space = CGImageGetColorSpace(cg_image);
+	CGColorSpaceModel color_model = CGColorSpaceGetModel(color_space);
+	uint bits_per_component = CGImageGetBitsPerComponent(cg_image);
+	if(color_model != kCGColorSpaceModelRGB || bits_per_component != 8)
+		LOG_ERROR("Bad image color space - please use 24 or 32 bit rgb/rgba");
+	if(!(is_pow2(*width) && is_pow2(*height)))
+		LOG_ERROR("Texture dimensions must be a power of 2");
+	*image_data = CGDataProviderCopyData(CGImageGetDataProvider(cg_image));
+	void* data = (void*)CFDataGetBytePtr(*image_data);
+	return data;
+}
+
+static uint _make_gl_texture(void* data, uint width, uint height) {
+	assert(data);
+
+	// Make gl texture
+	uint gl_id;
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &gl_id);
+	glBindTexture(GL_TEXTURE_2D, gl_id);
+    
+    if(!video_retro_filtering) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+    else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+
+	uint order = use_bgra ? GL_BGRA_EXT : GL_RGBA;
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, 
+				 order, GL_UNSIGNED_BYTE, data);
+
+	return gl_id;
+}
+
 TexHandle tex_load(const char* filename) {
 	assert(filename);
 	
@@ -610,54 +666,50 @@ TexHandle tex_load(const char* filename) {
 	LOG_INFO("Loading texture from file %s", filename);
 	
 	Texture new_tex;
-	
-	// Construct proper path to texture
-	NSString* ns_filename = [NSString stringWithUTF8String:filename];
-	NSString* resource_path = [[NSBundle mainBundle] resourcePath];
-	NSString* full_path = [resource_path stringByAppendingPathComponent:ns_filename];
-	
-	// Load texture
-	UIImage* image = [UIImage imageWithContentsOfFile:full_path];
-	CGImageRef cg_image = image.CGImage;
-	new_tex.width = CGImageGetWidth(cg_image);
-	new_tex.height = CGImageGetHeight(cg_image);
-    CGColorSpaceRef color_space = CGImageGetColorSpace(cg_image);
-	CGColorSpaceModel color_model = CGColorSpaceGetModel(color_space);
-	uint bits_per_component = CGImageGetBitsPerComponent(cg_image);
-	if(color_model != kCGColorSpaceModelRGB || bits_per_component != 8)
-		LOG_ERROR("Bad image color space - please use 24 or 32 bit rgb/rgba");
-	if(!(is_pow2(new_tex.width) && is_pow2(new_tex.height)))
-		LOG_ERROR("Texture dimensions must be a power of 2");
-	CFDataRef image_data = CGDataProviderCopyData(CGImageGetDataProvider(cg_image));
-	void* data = (void*)CFDataGetBytePtr(image_data);
-	
-	// Make gl texture
-	uint gl_id;
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, &gl_id);
-	glBindTexture(GL_TEXTURE_2D, gl_id);
-    
-    NSString *reqSysVer = @"3.1.3";
-    NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
-    if ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedSame) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, new_tex.width, new_tex.height, 0, 
-				 GL_RGBA, GL_UNSIGNED_BYTE, data);
-    }
-    else {
-        // For some reason one specific iPod 1st gen requires to reverse color order
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, new_tex.width, new_tex.height, 0, 
-                GL_BGRA_EXT, GL_UNSIGNED_BYTE, data);
-    }
-    
+
+    CFDataRef image_data;
+	void* data = _load_image(filename, &new_tex.width, &new_tex.height, &image_data);
+    uint gl_id = _make_gl_texture(data, new_tex.width, new_tex.height);
     CFRelease(image_data);
-    if(!video_retro_filtering) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	new_tex.gl_id = gl_id;
+	new_tex.file = strclone(filename);
+	new_tex.retain_count = 1;
+	new_tex.active = true;
+	new_tex.scale = 1.0f;
+	
+	darray_append(&textures, &new_tex);
+	
+	return textures.size-1;
+}
+
+TexHandle tex_load_filter(const char* filename, TexFilter filter) {
+	assert(filename);
+	
+	Texture* tex = DARRAY_DATA_PTR(textures, Texture);
+	
+	// Look if texture is already loaded
+	for(uint i = 0; i < textures.size; ++i) {
+		if(tex[i].active) {
+			if(strcmp(tex[i].file, filename) == 0) {
+				tex[i].retain_count++;
+				return i;
+			}
+		}
 	}
-    else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    }
+	
+	LOG_INFO("Loading texture (with filtering) from file %s", filename);
+	
+	Texture new_tex;
+
+    CFDataRef image_data;
+	void* data = _load_image(filename, &new_tex.width, &new_tex.height, &image_data);
+
+	(*filter)((Color*)data, new_tex.width, new_tex.height);
+
+    uint gl_id = _make_gl_texture(data, new_tex.width, new_tex.height);
+    CFRelease(image_data);
+
 	new_tex.gl_id = gl_id;
 	new_tex.file = strclone(filename);
 	new_tex.retain_count = 1;
