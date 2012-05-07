@@ -10,14 +10,14 @@
 #import <AVFoundation/AVFoundation.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
-#import <OpenAL/al.h>
-#import <OpenAL/alc.h>
 #import <Twitter/TWTweetComposeViewController.h>
 #import <MediaPlayer/MPMusicPlayerController.h>
 #include <mach/mach.h>
 #include <mach/mach_time.h>
+#include <OpenGLES/ES1/gl.h>
+#include <OpenGLES/ES1/glext.h>
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
 #import "GLESView.h"
 #import "GLESViewController.h"
 
@@ -600,13 +600,18 @@ void video_set_transform(uint layer, float* matrix) {
 }
 
 static void* _load_image(const char* filename, uint* width, uint* height, CFDataRef* image_data) {
-	// Construct proper path to texture
-	NSString* ns_filename = [NSString stringWithUTF8String:filename];
-	NSString* resource_path = [[NSBundle mainBundle] resourcePath];
-	NSString* full_path = [resource_path stringByAppendingPathComponent:ns_filename];
-	
+    FileHandle f = file_open(filename);
+    size_t s = file_size(f);
+    void* fdata = malloc(s);
+    file_read(f, fdata, s);
+    file_close(f);
+    
+    NSData* img_data = [[NSData alloc] initWithBytesNoCopy:fdata length:s freeWhenDone:YES];
+    
 	// Load texture
-	UIImage* image = [UIImage imageWithContentsOfFile:full_path];
+    UIImage* image = [[UIImage alloc] initWithData:img_data];
+    [img_data release];
+
 	CGImageRef cg_image = image.CGImage;
 	*width = CGImageGetWidth(cg_image);
 	*height = CGImageGetHeight(cg_image);
@@ -619,6 +624,9 @@ static void* _load_image(const char* filename, uint* width, uint* height, CFData
 		LOG_ERROR("Texture dimensions must be a power of 2");
 	*image_data = CGDataProviderCopyData(CGImageGetDataProvider(cg_image));
 	void* data = (void*)CFDataGetBytePtr(*image_data);
+    
+    [image release];
+
 	return data;
 }
 
@@ -648,7 +656,42 @@ static uint _make_gl_texture(void* data, uint width, uint height) {
 	return gl_id;
 }
 
+TexHandle tex_create(uint width, uint height) {
+	assert(width && height);
+
+	// Validate size 
+	int max_size = 0;
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_size);
+	if(width > max_size || height > max_size) 
+		LOG_ERROR("Can't create texture so large!");
+	if(!(is_pow2(width) && is_pow2(height)))
+		LOG_ERROR("Texture dimensions must be a power of 2");
+
+	// Prep pixel data
+	void* data = MEM_ALLOC(4 * width * height);
+	memset(data, 0, 4 * width * height);
+	uint gl_id = _make_gl_texture(data, width, height);
+	MEM_FREE(data);
+
+	// Fill texture struct
+	Texture new_tex = {
+		.gl_id = gl_id,
+		.file = NULL,
+		.retain_count = 1,
+		.active = true,
+		.scale = 1.0f
+	};
+
+	darray_append(&textures, &new_tex);
+
+	return textures.size - 1;
+}
+
 TexHandle tex_load(const char* filename) {
+	return tex_load_filter(filename, NULL);
+}
+
+TexHandle tex_load_filter(const char* filename, TexFilter filter) {
 	assert(filename);
 	
 	Texture* tex = DARRAY_DATA_PTR(textures, Texture);
@@ -656,19 +699,23 @@ TexHandle tex_load(const char* filename) {
 	// Look if texture is already loaded
 	for(uint i = 0; i < textures.size; ++i) {
 		if(tex[i].active) {
-			if(strcmp(tex[i].file, filename) == 0) {
+			if(tex[i].file && strcmp(tex[i].file, filename) == 0) {
 				tex[i].retain_count++;
 				return i;
 			}
 		}
 	}
 	
-	LOG_INFO("Loading texture from file %s", filename);
+	LOG_INFO("Loading texture (with filtering) from file %s", filename);
 	
 	Texture new_tex;
 
     CFDataRef image_data;
 	void* data = _load_image(filename, &new_tex.width, &new_tex.height, &image_data);
+
+	if(filter)
+		(*filter)((Color*)data, new_tex.width, new_tex.height);
+
     uint gl_id = _make_gl_texture(data, new_tex.width, new_tex.height);
     CFRelease(image_data);
 
@@ -683,42 +730,30 @@ TexHandle tex_load(const char* filename) {
 	return textures.size-1;
 }
 
-TexHandle tex_load_filter(const char* filename, TexFilter filter) {
-	assert(filename);
-	
-	Texture* tex = DARRAY_DATA_PTR(textures, Texture);
-	
-	// Look if texture is already loaded
-	for(uint i = 0; i < textures.size; ++i) {
-		if(tex[i].active) {
-			if(strcmp(tex[i].file, filename) == 0) {
-				tex[i].retain_count++;
-				return i;
-			}
-		}
+void tex_blit(TexHandle tex, Color* data, uint x, uint y, uint w, uint h) {
+	assert(tex < textures.size);
+	Texture* t = DARRAY_DATA_PTR(textures, Texture);
+	t = &t[tex];
+	assert(t->active);
+	assert(x + w <= t->width || y + h <= t->height);
+
+	uint order = use_bgra ? GL_BGRA_EXT : GL_RGBA;	
+
+	glBindTexture(GL_TEXTURE_2D, t->gl_id);
+
+	if(w == t->width && h == t->height) {
+		glTexImage2D(
+				GL_TEXTURE_2D, 0, GL_RGBA, 
+				w, h, 0, order, GL_UNSIGNED_BYTE, data
+		);
 	}
-	
-	LOG_INFO("Loading texture (with filtering) from file %s", filename);
-	
-	Texture new_tex;
-
-    CFDataRef image_data;
-	void* data = _load_image(filename, &new_tex.width, &new_tex.height, &image_data);
-
-	(*filter)((Color*)data, new_tex.width, new_tex.height);
-
-    uint gl_id = _make_gl_texture(data, new_tex.width, new_tex.height);
-    CFRelease(image_data);
-
-	new_tex.gl_id = gl_id;
-	new_tex.file = strclone(filename);
-	new_tex.retain_count = 1;
-	new_tex.active = true;
-	new_tex.scale = 1.0f;
-	
-	darray_append(&textures, &new_tex);
-	
-	return textures.size-1;
+	else {
+		glTexSubImage2D(
+				GL_TEXTURE_2D, 0,
+				x, y, w, h,
+				GL_RGBA, GL_UNSIGNED_BYTE, data
+		);
+	}
 }
 
 void tex_size(TexHandle	tex, uint* width, uint* height) {
@@ -740,7 +775,8 @@ void tex_free(TexHandle tex) {
 	t[tex].retain_count--;
 	if(t[tex].retain_count == 0) {
 		glDeleteTextures(1, &t[tex].gl_id);
-		MEM_FREE(t[tex].file);
+		if(t[tex].file)
+			MEM_FREE(t[tex].file);
 		t[tex].active = false;
 	}
 }
