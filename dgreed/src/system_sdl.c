@@ -570,6 +570,88 @@ void video_set_transform(uint layer, float* matrix) {
 	transform[layer] = matrix;
 }
 
+static uint _make_gl_texture(void* data, uint width, uint height) {
+	// Make gl texture
+	uint gl_id;
+	glGenTextures(1, &gl_id);
+	glBindTexture(GL_TEXTURE_2D, gl_id);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA,
+		GL_UNSIGNED_BYTE, data); 
+	GLuint tfilter = retro ? GL_NEAREST : GL_LINEAR;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, tfilter);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, tfilter);	
+	
+	uint error = glGetError();
+	if(error != GL_NO_ERROR)
+		LOG_ERROR("OpenGL error while loading texture, id %u", error);
+
+	return gl_id;
+}
+
+static Texture* _alloc_tex(const char* filename, TexHandle* handle) {
+	Texture* tex = DARRAY_DATA_PTR(textures, Texture);
+
+	// Look if texture is already loaded
+	if(filename) {
+		for(uint i = 0; i < textures.size; ++i) {
+			if(tex[i].active && tex[i].file && strcmp(tex[i].file, filename) == 0) {
+				tex[i].retain_count++;
+				*handle = i;
+				return NULL;
+			}	
+		}
+	}
+
+	// Look for first inactive texture
+	for(uint i = 0; i < textures.size; ++i) {
+		if(!tex[i].active) {
+			*handle = i;
+			return &tex[i];
+		}
+	}
+
+	// Make new texture
+	Texture new;
+	darray_append(&textures, &new);
+	*handle = textures.size - 1;
+	tex = DARRAY_DATA_PTR(textures, Texture);
+	return &tex[*handle];
+}
+
+TexHandle tex_create(uint width, uint height) {
+	assert(width && height);
+
+	TexHandle result;
+	Texture* new = _alloc_tex(NULL, &result);
+	assert(new);
+
+	// Validate size
+	int max_size = 0;
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_size);
+	if(width > max_size || height > max_size)
+		LOG_ERROR("Can't create texture so large!");
+	if(!(is_pow2(width) && is_pow2(height)))
+		LOG_ERROR("Texture dimensions must be power of 2");
+
+	// Prep pixel data, make gl texture
+	void* data = MEM_ALLOC(4 * width * height);
+	memset(data, 0, 4 * width * height);
+	uint gl_id = _make_gl_texture(data, width, height);
+	MEM_FREE(data);
+
+	// Fill texture struct
+	new->width = width;
+	new->height = height;
+	new->gl_id = gl_id;
+	new->file = NULL;
+	new->retain_count = 1;
+	new->scale = 1.0f;
+	new->active = true;
+
+	return result;
+}
+
+
 TexHandle tex_load(const char* filename) {
 	return tex_load_filter(filename, NULL);
 }
@@ -577,30 +659,12 @@ TexHandle tex_load(const char* filename) {
 TexHandle tex_load_filter(const char* filename, TexFilter filter) {
 	assert(filename);
 
-	Texture* tex = DARRAY_DATA_PTR(textures, Texture);
-
-	bool inactive_found = false;
-	uint first_inactive = 0;
-
-	// Look if texture is already loaded
-	for(uint i = 0; i < textures.size; ++i) {
-		if(tex[i].active) {
-			if(strcmp(tex[i].file, filename) == 0) {
-				tex[i].retain_count++;
-				return i;
-			}	
-		}	
-		else {
-			if(!inactive_found) {
-				first_inactive = i;
-				inactive_found = true;
-			}
-		}
-	}
+	TexHandle result;
+	Texture* new = _alloc_tex(filename, &result);
+	if(!new)
+		return result;
 
 	LOG_INFO("Loading texture from file %s", filename);
-
-	TexHandle result = first_inactive;
 
 	// Read file to memory
 	FileHandle tex_file = file_open(filename);
@@ -624,42 +688,37 @@ TexHandle tex_load_filter(const char* filename, TexFilter filter) {
 		(*filter)((Color*)decompr_data, width, height);
 	}
 
-	// Make gl texture
-	uint gl_id;
-	glGenTextures(1, &gl_id);
-	glBindTexture(GL_TEXTURE_2D, gl_id);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA,
-		GL_UNSIGNED_BYTE, decompr_data); 
-	GLuint tfilter = retro ? GL_NEAREST : GL_LINEAR;
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, tfilter);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, tfilter);	
-	
-	uint error = glGetError();
-	if(error != GL_NO_ERROR)
-		LOG_ERROR("OpenGl error while loading texture, id %u", error);
+	uint gl_id = _make_gl_texture(decompr_data, width, height);
 
 	stbi_image_free(decompr_data);
 	MEM_FREE(buffer);
 
-	Texture new;
-	new.width = width;
-	new.height = height;
-	new.gl_id = gl_id;
-	new.file = strclone(filename);
-	new.retain_count = 1;
-	new.scale = 1.0f;
-	new.active = true;
-
-	if(inactive_found) {
-		tex[first_inactive] = new;
-	}
-	else {
-		result = textures.size;
-		darray_append(&textures, &new);
-	}
+	new->width = width;
+	new->height = height;
+	new->gl_id = gl_id;
+	new->file = strclone(filename);
+	new->retain_count = 1;
+	new->scale = 1.0f;
+	new->active = true;
 
 	return result;
 }	
+
+void tex_blit(TexHandle tex, Color* data, uint x, uint y, uint w, uint h) {
+	assert(tex < textures.size);
+	Texture* t = DARRAY_DATA_PTR(textures, Texture);
+	t = &t[tex];
+	assert(t->active);
+	assert(x + w <= t->width || y + h <= t->height);
+
+	glBindTexture(GL_TEXTURE_2D, t->gl_id);
+
+	glTexSubImage2D(
+			GL_TEXTURE_2D, 0,
+			x, y, w, h,
+			GL_RGBA, GL_UNSIGNED_BYTE, data
+	);
+}
 
 void tex_size(TexHandle tex, uint* width, uint* height) {
 	assert(tex < textures.size);
@@ -682,7 +741,8 @@ void tex_free(TexHandle tex) {
 	t[tex].retain_count--;
 	if(t[tex].retain_count == 0) {
 		glDeleteTextures(1, &t[tex].gl_id);
-		MEM_FREE(t[tex].file);
+		if(t[tex].file)
+			MEM_FREE(t[tex].file);
 		t[tex].active = false;
 	}
 }	

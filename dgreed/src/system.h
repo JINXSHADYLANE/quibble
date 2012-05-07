@@ -67,10 +67,14 @@ void video_set_transform(uint layer, float* matrix);
 typedef uint TexHandle;
 typedef void (*TexFilter)(Color* texels, uint w, uint h);
 
+// Creates empty texture, filled with transparent white
+TexHandle tex_create(uint width, uint height);
 // Loads texture from .png file, it must have pow2 dimensions
 TexHandle tex_load(const char* filename);
 // Loads texture and applies custom filtering
 TexHandle tex_load_filter(const char* filename, TexFilter filter); 
+// Blits image into texture. You are responsible for clipping!
+void tex_blit(TexHandle tex, Color* data, uint x, uint y, uint w, uint h);
 // Returns width and height of texture in pixels
 void tex_size(TexHandle tex, uint* width, uint* height); 
 // Frees texture which was loaded with tex_load
