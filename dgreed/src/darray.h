@@ -43,6 +43,9 @@ void darray_reserve(DArray* array, unsigned int count);
 // Useful for reducing memory usage when you know array will not be expanding.
 void darray_shrink(DArray* array);
 
+// Returns a pointer to i-th item.
+void* darray_get(DArray* array, unsigned int i);
+
 // Returns type-safe pointer to array items, eg.:
 // int* int_array = DARRAY_DATA_PTR(int, darray);
 #define DARRAY_DATA_PTR(darray, type) ((type*)(darray).data)
