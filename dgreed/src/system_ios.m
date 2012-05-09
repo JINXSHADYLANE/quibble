@@ -679,7 +679,9 @@ TexHandle tex_create(uint width, uint height) {
 		.file = NULL,
 		.retain_count = 1,
 		.active = true,
-		.scale = 1.0f
+		.scale = 1.0f,
+        .width = width,
+        .height = height
 	};
 
 	darray_append(&textures, &new_tex);
@@ -735,7 +737,7 @@ void tex_blit(TexHandle tex, Color* data, uint x, uint y, uint w, uint h) {
 	Texture* t = DARRAY_DATA_PTR(textures, Texture);
 	t = &t[tex];
 	assert(t->active);
-	assert(x + w <= t->width || y + h <= t->height);
+	assert((x + w <= t->width) && (y + h <= t->height));
 
 	uint order = use_bgra ? GL_BGRA_EXT : GL_RGBA;	
 

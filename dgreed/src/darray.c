@@ -226,3 +226,12 @@ void darray_shrink(DArray* array) {
 	array->reserved = size;
 }
 
+void* darray_get(DArray* array, unsigned int i) {
+    assert(array);
+    assert(array->data);
+    assert(array->size <= array->reserved);
+    assert(i < array->size);
+    
+    return array->data + i * array->item_size;
+}
+
