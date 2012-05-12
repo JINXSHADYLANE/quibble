@@ -7,7 +7,7 @@ screen_rect = rect(0, 0, scr_size.x, scr_size.y)
 local game = require('game')
 
 function game_init()
-	video.init(scr_size.x, scr_size.y, 'aidas')
+	video.init(scr_size.x, scr_size.y, 'kovas')
 	sound.init()
 
 --	mfx.init(pre..'effects.mml')
