@@ -161,32 +161,51 @@ function hexgrid:draw_hex(pos, col)
 	video.draw_seg(1, f, a, col)
 end
 
-function hexgrid:draw(camera_pos, screen_rect)
+function hexgrid:draw(camera_pos, screen_rect, player_pos)
 	local w, h = width(screen_rect), height(screen_rect)
 	local topleft = camera_pos - vec2(w/2, h/2)
+
+	w = w + side_len * 4 + 400
+	h = h + side_len * 4 + 400
 
 	local min_x, min_y = self:world2grid(camera_pos - vec2(w/2, h/2))
 	local max_x, max_y = self:world2grid(camera_pos + vec2(w/2, h/2))
 
 	local col = rgba(1, 1, 1, 1)
+	local fire_col = rgba(0.8, 0.2, 0.2, 1)
+
+	local lights = {{
+		pos = player_pos - topleft,
+		radius = 300,
+		alpha = 1
+	}}
 
 	for y = min_y, max_y do
 		for x = min_x, max_x do
 			local t = self:get(x, y)
 			local c = self:center(x, y) - topleft 
-			if t == nil then
-				self:draw_hex(c, col)
-			else
-				video.draw_seg(1, c - vec2(10, 10), c + vec2(10, 10), rgba(0, 0.8, 0, 1))
-				video.draw_seg(1, c - vec2(-10, 10), c + vec2(-10, 10), rgba(0, 0.8, 0, 1))
+			if t ~= nil then
+				if t == 1 then
+					self:draw_hex(c, col)
+				elseif t == 2 then
+					self:draw_hex(c, fire_col)	
+					table.insert(lights, {
+						pos = c,
+						radius = 400,
+						alpha = 1
+					})
+				end
 			end
 		end
 	end
 
+	-- mouse mark
 	local p = topleft + mouse.pos()
 	local x, y = self:world2grid(p)
 	local c = self:center(x, y) - topleft
 	self:draw_hex(c, rgba(0.1, 0.1, 0.1, 1))
+
+	clighting.render(15, lights)
 end
 
 function hexgrid:world2screen(pt, camera_pos, screen_rect)
