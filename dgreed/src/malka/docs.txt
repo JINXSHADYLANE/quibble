@@ -76,6 +76,10 @@ misc. geometry
 - segment_intersect(a1, a2, b1, b2)
 returns intersection point between to segments or nil
 
+- segment_to_point(a1, a2, p)
+returns signed distance (left is +, right -) from point
+to segment
+
 ------
 colors
 ------

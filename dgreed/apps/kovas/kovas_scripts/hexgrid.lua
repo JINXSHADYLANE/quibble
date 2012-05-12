@@ -1,7 +1,7 @@
 local hexgrid = {}
 hexgrid.__index = hexgrid
 
-local side_len = 32
+local side_len = 40 
 local cell_height = math.sqrt(3) * side_len
 local max_width = 43640 -- (2**31) / 43640 = 43641 
 
@@ -32,6 +32,70 @@ function hexgrid:center(x, y)
 		wy = wy - cell_height/2
 	end
 	return vec2(wx, wy)
+end
+
+function hexgrid:collide_circle(p, r, offset)
+	-- returns collision normal or nil
+	local function circle_to_hex(hpos, cpos, cr, offset)
+		local a = hpos + vec2(-side_len / 2, -cell_height / 2)
+		local b = hpos + vec2(side_len / 2, -cell_height / 2)
+		local c = hpos + vec2(side_len, 0)
+		local d = hpos + vec2(side_len / 2, cell_height / 2)
+		local e = hpos + vec2(-side_len / 2, cell_height / 2)
+		local f = hpos + vec2(-side_len, 0)
+		local pts = {a, b, c, d, e, f}
+
+		local maxp, maxi = 0, 0
+		local p = cpos + offset
+		local pd = {}
+		for i=1,6 do
+			local j = i+1
+			if j > 6 then j = j - 6 end
+			pd[i] = segment_to_point(pts[i], pts[j], p)
+			pd[i] = math.abs(pd[i]) - r
+			if pd[i] < 0 then
+				if pd[i] < maxp then
+					maxp = pd[i]
+					maxi = i
+				end
+			end
+		end
+
+		if maxi > 0 then
+			return rotate(vec2(0, maxp), (math.pi*2 / 6) * (maxi-1)) 
+		else
+			return nil
+		end
+	end
+
+	local noff = vec2(offset)
+
+	local min_x, min_y = self:world2grid(p - vec2(r*3.5, r*3.5))
+	local max_x, max_y = self:world2grid(p + vec2(r*3.5, r*3.5))
+
+	local check_n = 0
+	local deflect_n = 0
+	local deflect_acc = vec2(0, 0)
+	for y = min_y, max_y do
+		for x = min_x, max_x do
+			local t = self:get(x, y)
+			local c = self:center(x, y) 
+			if t ~= nil then
+				local n = circle_to_hex(c, p, r, offset)
+				check_n = check_n + 1
+				if n ~= nil then
+					deflect_acc = deflect_acc + n
+					deflect_n = deflect_n + 1
+				end
+			end
+		end
+	end
+
+	if deflect_n > 1 then
+		deflect_acc = deflect_acc / deflect_n
+	end
+
+	return noff + deflect_acc
 end
 
 function hexgrid:world2grid(pt)

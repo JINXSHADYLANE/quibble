@@ -650,6 +650,44 @@ static int ml_segment_intersect(lua_State* l) {
 	return 1;
 }
 
+static int ml_segment_to_point(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 3)
+		return luaL_error(l, "wrong number of arguments provided to segment_to_point");
+
+	luaL_checktype(l, 1, LUA_TTABLE);
+	luaL_checktype(l, 2, LUA_TTABLE);
+	luaL_checktype(l, 3, LUA_TTABLE);
+	
+	lua_getfield(l, 1, "x");
+	lua_getfield(l, 1, "y");
+	lua_getfield(l, 2, "x");
+	lua_getfield(l, 2, "y");
+	lua_getfield(l, 3, "x");
+	lua_getfield(l, 3, "y");
+
+	Vector2 a1 = {
+		luaL_checknumber(l, 4),
+		luaL_checknumber(l, 5)
+	};
+
+	Vector2 a2 = {
+		luaL_checknumber(l, 6),
+		luaL_checknumber(l, 7)
+	};
+
+	Vector2 p = {
+		luaL_checknumber(l, 8),
+		luaL_checknumber(l, 9)
+	};
+
+	Segment seg = {a1, a2};
+
+	lua_pushnumber(l, segment_point_dist(seg, p));
+
+	return 1;
+}
+
 static const luaL_Reg rect_fun[] = {
 	{"rect", ml_rect},
 	{"width", ml_width},
@@ -661,6 +699,7 @@ static const luaL_Reg rect_fun[] = {
 	{"rect_raycast", ml_rect_raycast},
 	{"rect_rect_sweep", ml_rect_rect_sweep},
 	{"segment_intersect", ml_segment_intersect},
+	{"segment_to_point", ml_segment_to_point},
 	{NULL, NULL}
 };
 
