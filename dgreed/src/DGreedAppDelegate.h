@@ -10,7 +10,9 @@
     GKAchievementViewControllerDelegate,
     UIAccelerometerDelegate,
     SKProductsRequestDelegate,
-    SKPaymentTransactionObserver
+    SKPaymentTransactionObserver,
+    UIImagePickerControllerDelegate,
+    UINavigationControllerDelegate
     > {
     
     UIWindow* window;
@@ -25,6 +27,7 @@
 @property(nonatomic,retain) AutoRotateViewController* controller;
 @property(nonatomic,retain) GLESViewController* gl_controller;
 @property(nonatomic,retain) UIAcceleration* last_acceleration;
+@property(nonatomic,assign) BOOL is_ipad;
 
 @end
 

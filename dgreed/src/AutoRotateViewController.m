@@ -5,6 +5,14 @@
 extern void _orientation_set_current(UIInterfaceOrientation orient);
 extern void _orientation_start_transition(UIInterfaceOrientation next, float len);
 
+static AutoRotateViewController* global_auto_rotate_view_controller = NULL;
+
++ (AutoRotateViewController*) singleton
+{
+    assert(global_auto_rotate_view_controller);
+    return global_auto_rotate_view_controller;
+}
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -20,6 +28,7 @@ extern void _orientation_start_transition(UIInterfaceOrientation next, float len
     if(self) {
         UIInterfaceOrientation current = [UIApplication sharedApplication].statusBarOrientation;
         _orientation_set_current(current);
+        global_auto_rotate_view_controller = self;
     }
     return self;
 }

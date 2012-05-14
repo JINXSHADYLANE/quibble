@@ -20,6 +20,7 @@
 #include <OpenAL/alc.h>
 #import "GLESView.h"
 #import "GLESViewController.h"
+#import "AutoRotateViewController.h"
 
 // Main function
 
@@ -1598,6 +1599,53 @@ uint touches_count(void) {
 
 Touch* touches_get(void) {
 	return touch_count ? &touches[0] : NULL;
+}
+
+/*
+------------------
+--- Text Input ---
+------------------
+*/
+
+static bool txtinput_capturing = false;
+bool txtinput_return = false;
+
+void txtinput_start(void) {
+    assert(!txtinput_capturing);
+    txtinput_capturing = true;
+    txtinput_clear();
+    [[GLESViewController singleton].text_view becomeFirstResponder];
+}
+
+const char* txtinput_get(void) {
+    assert(txtinput_capturing);
+    NSString* text = [GLESViewController singleton].text_view.text;
+    return [text UTF8String];
+}
+
+const char* txtinput_did_end(void) {
+    assert(txtinput_capturing);
+    if(txtinput_return) {
+        txtinput_return = false;
+        return txtinput_end();
+    }
+    else {
+        return NULL;
+    }
+}
+
+const char* txtinput_end(void) {
+    assert(txtinput_capturing);
+    [[GLESViewController singleton].text_view resignFirstResponder];
+    NSString* text = [GLESViewController singleton].text_view.text;
+    txtinput_capturing = false;
+    return [text UTF8String];
+
+}
+
+void txtinput_clear(void) {
+    assert(txtinput_capturing);
+    [GLESViewController singleton].text_view.text = @"";
 }
 
 /*

@@ -13,8 +13,11 @@ extern void keyval_app_suspend(void);
 extern void gamecenter_app_suspend(void);
 extern void _set_gamecenter_app_delegate(DGreedAppDelegate* _app_delegate);
 extern void _set_iap_app_delegate(DGreedAppDelegate* _app_delegate);
+extern void _set_camera_app_delegate(DGreedAppDelegate* _app_delegate);
 extern void _iap_received_products_response(SKProductsResponse* response);
 extern void _iap_updated_transaction(SKPaymentQueue* queue, SKPaymentTransaction* transaction);
+extern void _camera_did_cancel(UIImagePickerController* picker); 
+extern void _camera_did_finish_picking(UIImagePickerController* picker, NSDictionary* info);
 extern float inactive_time;
 extern Color clear_color;
 extern float screen_widthf, screen_heightf;
@@ -35,6 +38,7 @@ float resign_active_t;
 @synthesize controller;
 @synthesize gl_controller;
 @synthesize last_acceleration;
+@synthesize is_ipad;
 
 #pragma mark -
 #pragma mark Application lifecycle
@@ -58,6 +62,11 @@ float resign_active_t;
     else {
         [application setStatusBarHidden:YES animated:false];
     }
+    
+    /* Determine if we're on iPad */
+    self.is_ipad = false;
+    if ([[UIDevice currentDevice] respondsToSelector: @selector(userInterfaceIdiom)])
+            self.is_ipad = ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad);
 	
 	/* Get home directory for utils.c */
 	NSString* home = NSHomeDirectory();
@@ -71,6 +80,7 @@ float resign_active_t;
     
     _set_gamecenter_app_delegate(self);
     _set_iap_app_delegate(self);
+    _set_camera_app_delegate(self);
     
     [UIAccelerometer sharedAccelerometer].delegate = self;
 	
@@ -222,6 +232,16 @@ bool isAccelerating(UIAcceleration* last, UIAcceleration* current, double thresh
     for(SKPaymentTransaction* transaction in transactions) {
         _iap_updated_transaction(queue, transaction);
     }
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    _camera_did_cancel(picker);
+}
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    _camera_did_finish_picking(picker, info);
 }
 
 @end

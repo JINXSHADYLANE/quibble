@@ -2,7 +2,8 @@
 
 @implementation GLESViewController
 
-@synthesize gl_view;
+@synthesize gl_view = _gl_view;
+@synthesize text_view = _text_view;
 
 static GLESViewController* global_gles_view_controller = NULL;
 
@@ -37,16 +38,33 @@ static GLESViewController* global_gles_view_controller = NULL;
 {
     [super viewDidLoad];
     
-    gl_view = [[GLESView alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    [self.view addSubview:gl_view];
+    // Create gl view
+    self.gl_view = [[GLESView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    [self.view addSubview:self.gl_view];
+    
+    // Create invisible text capture view
+    self.text_view = [[TextCapturerView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 10.0f, 10.0f)];
+    self.text_view.hidden = YES;
+    self.text_view.autocorrectionType = UITextAutocorrectionTypeNo;
+    self.text_view.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    self.text_view.delegate = self;
+    [self.view addSubview:self.text_view];
     
     global_gles_view_controller = self;
+}
+
+extern bool txtinput_return;
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    txtinput_return = true;
+    return NO;
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [gl_view startAnimation];
+    [self.gl_view startAnimation];
 }
 
 - (void)viewDidUnload

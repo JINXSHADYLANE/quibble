@@ -6,7 +6,7 @@ sources = Glob('*.c', strings=True)
 sources += Glob('lib9-utf/*.c', strings=True)
 
 if str(Platform()) == 'darwin':
-	sources += ['NSFileManager+DirectoryLocations.m', 'SDLMain.m']
+	sources += ['NSFileManager+DirectoryLocations.m', 'SDLMain.m', 'vfont.m']
 	env.Append(LINKFLAGS=' -all_load')
 
 dgreed = env.Library('dgreed' + env['DGREED_POSTFIX'], sources)
