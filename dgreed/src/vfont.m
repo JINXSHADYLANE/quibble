@@ -1,7 +1,13 @@
 #include "vfont.h"
 
 #import <QuartzCore/QuartzCore.h>
+
+#ifdef TARGET_IOS
 #import <UIKit/UIKit.h>
+#else
+#import <AppKit/AppKit.h>
+#endif
+
 #include "darray.h"
 #include "datastruct.h"
 #include "memory.h"
@@ -9,7 +15,11 @@
 typedef struct {
     const char* name;
     float size;
+#ifdef TARGET_IOS
     UIFont* uifont;
+#else
+	NSFont* uifont;
+#endif
 } Font;
 
 typedef struct {
@@ -48,11 +58,14 @@ static uint selected_font = 0;
 static RectF _bbox(const char* string) {
     Font* font = darray_get(&fonts, selected_font);
     NSString* ns_string = [NSString stringWithUTF8String:string];
+
+#ifdef TARGET_IOS
     CGSize size = [ns_string sizeWithFont:font->uifont];
-    if(retina) {
-        size.width *= 2.0f;
-        size.height *= 2.0f;
-    }
+#else
+	NSDictionary* attr = [NSDictionary dictionaryWithObject:font->uifont forKey: NSFontAttributeName];
+	NSSize size = [ns_string sizeWithAttributes:attr];
+#endif
+
     return rectf(0.0f, 0.0f, size.width, size.height);
 }
 
@@ -150,22 +163,40 @@ static void _render_text(const char* string, CachePage* page, RectF* dest) {
         data, w, h, 8, w*4, 
         color_space, kCGImageAlphaPremultipliedLast
     );
+
+#ifdef TARGET_IOS
     UIGraphicsPushContext(ctx);
+#else
+	NSGraphicsContext *old_nsctx = [NSGraphicsContext currentContext];
+	NSGraphicsContext *nsctx = [NSGraphicsContext graphicsContextWithGraphicsPort:ctx flipped:NO];
+	[NSGraphicsContext setCurrentContext:nsctx];
+#endif
+    
     CGContextSaveGState(ctx); 
+
+#ifdef TARGET_IOS
     CGContextTranslateCTM(ctx, 0, h);
     if(retina)
         CGContextScaleCTM(ctx, 2.0, -2.0);
     else
         CGContextScaleCTM(ctx, 1.0, -1.0);
+#endif
         
-    float c_rgba[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    CGFloat c_rgba[] = {1.0f, 1.0f, 1.0f, 1.0f};
     CGColorRef c = CGColorCreate(color_space, c_rgba);
     CGContextSetFillColorWithColor(ctx, c);
     CGColorRelease(c);
     
     Font* font = darray_get(&fonts, selected_font);
     NSString* ns_str = [NSString stringWithUTF8String:string];
+
+#ifdef TARGET_IOS
     [ns_str drawAtPoint:CGPointMake(0.0f, 0.0f) withFont:font->uifont];
+#else
+	NSPoint pt = {0.0f, 0.0f};
+	NSDictionary* attr = [NSDictionary dictionaryWithObject:font->uifont forKey: NSFontAttributeName];
+	[ns_str drawAtPoint:pt withAttributes:attr];
+#endif
     
     /*
     // Premultiply alpha
@@ -181,17 +212,34 @@ static void _render_text(const char* string, CachePage* page, RectF* dest) {
     
     tex_blit(page->tex, CGBitmapContextGetData(ctx), x, y, w, h);
     CGContextRestoreGState(ctx);
+
+#ifdef TARGET_IOS
     UIGraphicsPopContext();
+#else
+	[NSGraphicsContext setCurrentContext:old_nsctx];
+#endif
+
     CGContextRelease(ctx);
     CGColorSpaceRelease(color_space);
     
     MEM_FREE(data);
 }
 
-static const CachedText* _precache(const char* string, const char* key) {
+static const CachedText* _precache(const char* string, const char* key, bool input) {
     RectF bbox = _bbox(string);
+    if(retina) {
+        bbox.right *= 2.0f;
+        bbox.bottom *= 2.0f;
+    }
     float w = rectf_width(&bbox);
     float h = rectf_height(&bbox);
+    
+    // Make user inputed text very long, so that we can use cache better
+    if(input) {
+        assert(w < 256.0f);
+        w = 256.0f;
+        bbox.right = 256.0f;
+    }
     
     // Look for space in free rects, choose smallest that fits
     FreeRect* frects = DARRAY_DATA_PTR(free_rects, FreeRect);
@@ -270,7 +318,7 @@ static const CachedText* _precache(const char* string, const char* key) {
     sprintf(key, "%s:%s:%f", str, font->name, font->size)
 
 
-static const CachedText* _get_text(const char* string) {
+static const CachedText* _get_text(const char* string, bool input) {
     // Construct cache key
 	_key(string);
     
@@ -280,7 +328,7 @@ static const CachedText* _get_text(const char* string) {
         return text;
         
     // Text was not in cache, rasterize
-    return _precache(string, key);
+    return _precache(string, key, input);
 }
 
 void vfont_init(void) {
@@ -296,11 +344,13 @@ void vfont_init_ex(uint cache_w, uint cache_h) {
 	cache_pages = darray_create(sizeof(CachePage), 0);
 	free_rects = darray_create(sizeof(FreeRect), 0);
     
+#ifdef TARGET_IOS
     UIScreen* main = [UIScreen mainScreen];
     if ([main respondsToSelector:@selector(displayLinkWithTarget:selector:)]){
         if(main.scale == 2.0f)
             retina = true;
     }
+#endif
 }
 
 void vfont_close(void) {
@@ -352,7 +402,11 @@ void vfont_select(const char* font_name, float size) {
     Font new = {
         .name = strclone(font_name),
         .size = size,
+#ifdef TARGET_IOS
         .uifont = [UIFont fontWithName:ns_font_name size:size]
+#else
+		.uifont = [NSFont fontWithName:ns_font_name size:size]
+#endif
     };
     
     if(new.uifont == nil)
@@ -365,7 +419,10 @@ void vfont_select(const char* font_name, float size) {
 void vfont_draw(const char* string, uint layer, Vector2 topleft, Color tint) {
     assert(string);
     
-    const CachedText* text = _get_text(string);
+    if(strcmp(string, "") == 0)
+        return;
+    
+    const CachedText* text = _get_text(string, false);
     RectF dest = rectf(topleft.x, topleft.y, 0.0f, 0.0f);
     if(retina) {
         dest.right = dest.left + rectf_width(&text->src) / 2.0f;
@@ -374,12 +431,37 @@ void vfont_draw(const char* string, uint layer, Vector2 topleft, Color tint) {
     video_draw_rect(text->tex, layer, &text->src, &dest, tint);
 }
 
+void vfont_draw_input(const char* string, uint layer, Vector2 topleft, Color tint) {
+    assert(string);
+    
+    if(strcmp(string, "") == 0)
+        return;
+    
+    static char prev_string[256] = "";
+    if(strcmp(string, prev_string) == 0) {
+        vfont_draw(string, layer, topleft, tint);
+        return;
+    }
+    
+    if(strcmp(prev_string, "") != 0)
+        vfont_cache_invalidate(prev_string);
+    strcpy(prev_string, string);
+    _get_text(string, true);
+    
+    vfont_draw(string, layer, topleft, tint);
+}
+
 void vfont_precache(const char* string) {
-    _get_text(string);
+    if(strcmp(string, "") == 0)
+        return;
+    _get_text(string, false);
 }
 
 void vfont_cache_invalidate(const char* string) {
-	_key(string);		 
+	_key(string);
+    
+    if(strcmp(string, "") == 0)
+        return;
 
 	const CachedText* text = dict_get(&cache, key);
 	if(!text)

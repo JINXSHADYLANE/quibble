@@ -1513,6 +1513,38 @@ Touch* touches_get(void) {
 	return NULL;
 }
 
+/*
+------------------
+--- Text Input ---
+------------------
+*/
+
+// Stub implementation
+
+void txtinput_start(void) {
+}
+
+const char* txtinput_get(void) {
+	return NULL;
+}
+
+const char* txtinput_did_end(void) {
+	return NULL;
+}
+
+const char* txtinput_end(void) {
+	return NULL;
+}
+
+void txtinput_clear(void) {
+}
+
+/*
+-------------------
+--- Time & Misc ---
+-------------------
+*/
+
 float t_ms = 0.0f, t_d = 0.0f;
 uint last_frame_time = 0, last_fps_update = 0;
 uint fps_count = 0;

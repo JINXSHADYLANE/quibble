@@ -8,6 +8,7 @@
 #include <memory.h>
 #include <system.h>
 #include <font.h>
+#include <vfont.h>
 #include <gfx_utils.h>
 #include <gui.h>
 #include <particles.h>
@@ -760,6 +761,29 @@ static int ml_video_set_blendmode(lua_State* l) {
 	return 0;
 }
 
+static float ml_transforms[16][6];
+
+static int ml_video_set_transform(lua_State* l) {
+	checkargs(2, "video.set_transform");
+
+	uint layer = luaL_checkinteger(l, 1); 
+	assert(layer < 16);
+
+	if(lua_istable(l, 2)) {
+		for(uint i = 0; i < 6; ++i) {
+			lua_rawgeti(l, 2, i+1);
+			ml_transforms[layer][i] = luaL_checknumber(l, 3);
+			lua_pop(l, 1);
+		}
+		video_set_transform(layer, ml_transforms[layer]);
+	}
+	else {
+		video_set_transform(layer, NULL);
+	}
+
+	return 0;
+}
+
 static const luaL_Reg video_fun[] = {
 	{"native_resolution", ml_video_native_resolution},
 	{"init", ml_video_init},
@@ -775,9 +799,121 @@ static const luaL_Reg video_fun[] = {
 	{"draw_text_centered", ml_video_draw_text_centered},
 	{"draw_text_rotated", ml_video_draw_text_rotated},
 	{"set_blendmode", ml_video_set_blendmode},
+	{"set_transform", ml_video_set_transform},
 	{NULL, NULL}
 };
 
+
+// vfont
+
+static int ml_vfont_init(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n == 0) {
+		vfont_init();
+		return 0;
+	}
+	else if(n == 2) {
+		uint w = luaL_checkinteger(l, 1);
+		uint h = luaL_checkinteger(l, 2);
+		vfont_init_ex(w, h);
+		return 0;
+	}
+
+	return luaL_error(l, "bad args to vfont.init");
+}
+
+static int ml_vfont_close(lua_State* l) {
+	checkargs(0, "vfont.close");
+	vfont_close();
+	return 0;
+}
+
+static int ml_vfont_select(lua_State* l) {
+	checkargs(2, "vfont.select");
+	const char* name = luaL_checkstring(l, 1);
+	float size = luaL_checknumber(l, 2);
+	vfont_select(name, size);
+	return 0;
+}
+
+static int ml_vfont_draw(lua_State* l) {
+	int n = lua_gettop(l);
+	const char* string = luaL_checkstring(l, 1);
+	uint layer = luaL_checkinteger(l, 2);
+	Vector2 pos;
+	if(!_check_vec2(l, 3, &pos))
+		goto error;
+	Color c = COLOR_BLACK;
+
+	if(n == 4) 
+		if(!_check_color(l, 4, &c))
+			goto error;
+
+	if(n == 3 || n == 4) {
+		vfont_draw(string, layer, pos, c);
+		return 0;
+	}	
+
+error:
+	return luaL_error(l, "bad args to vfont.draw");
+}
+
+static int ml_vfont_draw_input(lua_State* l) {
+	int n = lua_gettop(l);
+	const char* string = luaL_checkstring(l, 1);
+	uint layer = luaL_checkinteger(l, 2);
+	Vector2 pos;
+	if(!_check_vec2(l, 3, &pos))
+		goto error;
+	Color c = COLOR_BLACK;
+
+	if(n == 4) 
+		if(!_check_color(l, 4, &c))
+			goto error;
+
+	if(n == 3 || n == 4) {
+		vfont_draw_input(string, layer, pos, c);
+		return 0;
+	}	
+
+error:
+	return luaL_error(l, "bad args to vfont.draw_input");
+}
+
+static int ml_vfont_size(lua_State* l) {
+	checkargs(1, "vfont.size");
+	const char* string = luaL_checkstring(l, 1);
+
+	Vector2 size = vfont_size(string);
+	_new_vec2(l, size.x, size.y);
+	return 1;
+}
+
+static int ml_vfont_precache(lua_State* l) {
+	checkargs(1, "vfont.precache");
+	const char* string = luaL_checkstring(l, 1);
+	vfont_precache(string);
+	return 0;
+}
+
+static int ml_vfont_invalidate(lua_State* l) {
+	checkargs(1, "vfont.invalidate");
+	const char* string = luaL_checkstring(l, 1);
+	vfont_cache_invalidate(string);
+	return 0;
+}
+
+static const luaL_Reg vfont_fun[] = {
+	{"init", ml_vfont_init},
+	{"close", ml_vfont_close},
+	{"select", ml_vfont_select},
+	{"draw", ml_vfont_draw},
+	{"draw_input", ml_vfont_draw_input},
+	{"size", ml_vfont_size},
+	{"precache", ml_vfont_precache},
+	{"invalidate", ml_vfont_invalidate},
+	{NULL, NULL}
+};
 
 // sound
 
@@ -1153,6 +1289,52 @@ static const char* key_names[] = {
 static const char* mbtn_names[] = {
 	"primary", "secondary", "middle"
 };	
+
+
+// text input
+
+static int ml_txtinput_start(lua_State* l) {
+	checkargs(0, "txtinput.start");
+	txtinput_start();
+	return 0;
+}
+
+static int ml_txtinput_get(lua_State* l) {
+	checkargs(0, "txtinput.get");
+	lua_pushstring(l, txtinput_get());
+	return 1;
+}
+
+static int ml_txtinput_did_end(lua_State* l) {
+	checkargs(0, "txtinput.did_end");
+	const char* str = txtinput_did_end();
+	if(str)
+		lua_pushstring(l, str);
+	else
+		lua_pushnil(l);
+	return 1;
+}
+
+static int ml_txtinput_end(lua_State* l) {
+	checkargs(0, "txtinput.end");
+	lua_pushstring(l, txtinput_end());
+	return 1;
+}
+
+static int ml_txtinput_clear(lua_State* l) {
+	checkargs(0, "txtinput.clear");
+	txtinput_clear();
+	return 0;
+}
+
+static const luaL_Reg txtinput_fun[] = {
+	{"start", ml_txtinput_start},
+	{"get", ml_txtinput_get},
+	{"did_end", ml_txtinput_did_end},
+	{"end", ml_txtinput_end},
+	{"clear", ml_txtinput_clear},
+	{NULL, NULL}
+};
 
 
 // orientation
@@ -1819,6 +2001,7 @@ int malka_open_system(lua_State* l) {
 
 	luaL_newmetatable(l, "_FontHandle.mt");
 	luaL_register(l, "font", font_fun);
+	luaL_register(l, "vfont", vfont_fun);
 
 	luaL_register(l, "video", video_fun);
 
@@ -1830,8 +2013,9 @@ int malka_open_system(lua_State* l) {
 	luaL_register(l, "char", char_fun);
 	luaL_register(l, "mouse", mouse_fun);
 	luaL_register(l, "touch", touch_fun);
+	luaL_register(l, "txtinput", txtinput_fun);
 
-	lua_pop(l, 13);
+	lua_pop(l, 15);
 
 	lua_getglobal(l, "key");
 	int tbl = lua_gettop(l);
