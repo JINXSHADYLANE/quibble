@@ -61,6 +61,10 @@ function game.render(t)
 	game.map:draw(game.camera, screen, game.player.p)
 	game.player:draw(game.camera, screen)
 
+	if game.map.active_altars then
+		vfont.draw(tostring(game.map.active_altars), 15, vec2(20, 0), rgba(1, 1, 1, 1))
+	end
+
 	return true
 end
 
