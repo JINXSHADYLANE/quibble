@@ -58,7 +58,7 @@ end
 function game.render(t)
 	local screen = rect(0, 0, scr_size.x, scr_size.y)
 	game.map:draw_background(game.camera, screen)
-	game.map:draw(game.camera, screen, game.player.p)
+	game.map:draw(game.camera, screen, game.player.p, game.player.light_offset)
 	game.player:draw(game.camera, screen)
 
 	if game.map.active_altars then
