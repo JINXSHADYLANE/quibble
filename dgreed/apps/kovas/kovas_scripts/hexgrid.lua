@@ -208,6 +208,29 @@ function hexgrid:draw(camera_pos, screen_rect, player_pos)
 	clighting.render(15, lights)
 end
 
+function hexgrid:draw_background(camera_pos, screen_rect)
+	local w, h = width(screen_rect), height(screen_rect)
+
+	-- figure out screen space pos of central tile
+	local x = math.fmod(camera_pos.x-256, 512)
+	if x < 0 then x = x + 512 end
+	local y = math.fmod(camera_pos.y-256, 512)
+	if y < 0 then y = y + 512 end
+	x, y = -x + w/2, -y + h/2
+
+	while x > -512 do x = x - 512 end
+	while y > -512 do y = y - 512 end
+
+	while y < h + 512 do
+		local nx = x
+		while nx < w + 512 do
+			sprsheet.draw('background', 0, vec2(nx, y))
+			nx = nx + 512
+		end
+		y = y + 512
+	end
+end
+
 function hexgrid:world2screen(pt, camera_pos, screen_rect)
 end
 
