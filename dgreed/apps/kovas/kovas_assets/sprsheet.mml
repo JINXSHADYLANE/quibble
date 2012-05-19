@@ -17,4 +17,12 @@
 		(offset 256,256)
 		(grid 10,8)
 	)
+	(img tree
+		(tex "atlas.png")
+		(src 0,0,66,512)
+	)
+	(img bush
+		(tex "atlas.png")
+		(src 66,0,316,220)
+	)
 )
