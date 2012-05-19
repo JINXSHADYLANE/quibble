@@ -161,7 +161,7 @@ function hexgrid:draw_hex(pos, col)
 	video.draw_seg(1, f, a, col)
 end
 
-function hexgrid:draw(camera_pos, screen_rect, player_pos)
+function hexgrid:draw(camera_pos, screen_rect, player_pos, loff)
 	local w, h = width(screen_rect), height(screen_rect)
 	local topleft = camera_pos - vec2(w/2, h/2)
 
@@ -174,8 +174,13 @@ function hexgrid:draw(camera_pos, screen_rect, player_pos)
 	local col = rgba(1, 1, 1, 1)
 	local fire_col = rgba(0.8, 0.2, 0.2, 1)
 
+	local light_offset = vec2(0, 0)
+	if loff then
+		light_offset = loff
+	end
+
 	local lights = {{
-		pos = player_pos - topleft,
+		pos = player_pos - topleft + light_offset,
 		radius = 300,
 		alpha = 1
 	}}

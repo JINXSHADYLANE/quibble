@@ -10,7 +10,8 @@ function player:new()
 		r = 20,
 		dir = 0,
 		frame = 0,
-		hit_t = nil
+		hit_t = nil,
+		vdir = vec2(0,-1)
 	}
 	setmetatable(o, self)
 	return o
@@ -51,6 +52,7 @@ function player:update(hexgrid)
 			local angle = (math.atan2(dir.y, dir.x) + math.pi) / (math.pi * 2)
 			angle = math.fmod(angle + 0.75, 1)
 			self.dir = math.floor(angle * 8 + 0.5)
+			self.vdir = vec2(dir)
 			if self.dir == 8 then self.dir = 0 end
 		end
 	else
@@ -87,12 +89,14 @@ function player:draw(camera)
 	if not self.hit_t then
 		p = p - vec2(0, 66)
 		sprsheet.draw_anim_centered('player_walk', self.dir * 15 + f, 2, p)
+		self.light_offset = self.vdir * 10 
 	else
 		p = p - vec2(0, 70)
 		local t = (time.s() - self.hit_t) / hit_anim_len
 		t = clamp(0, 0.999, t)
 		f = math.floor(t * 10)
 		sprsheet.draw_anim_centered('player_hit', self.dir * 10 + f, 2, p)
+		self.light_offset = self.vdir * (10 + math.sin(t*math.pi) * 30)
 	end
 end
 
