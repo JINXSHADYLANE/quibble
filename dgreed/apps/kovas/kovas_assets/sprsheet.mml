@@ -17,6 +17,17 @@
 		(offset 256,256)
 		(grid 10,8)
 	)
+	(img altar
+		(tex "atlas.png")
+		(src 316,0,464,206)
+	)
+	(anim altar_burn
+		(tex "atlas.png")
+		(frames 3)
+		(src 66,220,214,426)
+		(offset 148,206)
+		(grid 3,0)
+	)
 	(img tree
 		(tex "atlas.png")
 		(src 0,0,66,512)
