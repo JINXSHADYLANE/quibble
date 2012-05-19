@@ -323,6 +323,13 @@ void sprsheet_get_h(SprHandle handle, TexHandle* tex, RectF* src) {
 
 	*tex = desc->tex;
 	*src = desc->src;
+
+	if(src->right == 0.0f && src->bottom == 0.0f) {
+		uint w, h;
+		tex_size(*tex, &w, &h);
+		src->right = src->left + (float)w;
+		src->bottom = src->top + (float)h;
+	}
 }
 
 void sprsheet_get_anim(const char* name, uint frame, TexHandle* tex, RectF* src) {

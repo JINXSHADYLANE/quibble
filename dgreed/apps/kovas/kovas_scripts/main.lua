@@ -11,7 +11,7 @@ function game_init()
 	sound.init()
 
 --	mfx.init(pre..'effects.mml')
---	sprsheet.init(pre..'sprsheet.mml')
+	sprsheet.init(pre..'sprsheet.mml')
 --	mus = sound.load_stream(pre..'aidas.ogg')
 --	sound.play(mus, true)
 
@@ -24,7 +24,7 @@ end
 function game_close()
 --	font.free(fnt)
 --	sound.free(mus)
---	sprsheet.close()
+	sprsheet.close()
 --	mfx.close()
 	sound.close()
 	video.close()

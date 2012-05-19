@@ -1,0 +1,20 @@
+(sprsheet kovas
+	(prefix "kovas_assets/")
+	(img background
+		(tex "bg.png")
+	)
+	(anim player_walk
+		(tex "char_walk_sheet.png")
+		(frames 120)
+		(src 0,0,256,256)
+		(offset 256,256)
+		(grid 15,8)
+	)
+	(anim player_hit
+		(tex "char_hit_sheet.png")
+		(frames 80)
+		(src 0,0,256,256)
+		(offset 256,256)
+		(grid 10,8)
+	)
+)
