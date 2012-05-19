@@ -86,13 +86,13 @@ function player:draw(camera)
 	local p = self.p - topleft
 	if not self.hit_t then
 		p = p - vec2(0, 66)
-		sprsheet.draw_anim_centered('player_walk', self.dir * 15 + f, 1, p)
+		sprsheet.draw_anim_centered('player_walk', self.dir * 15 + f, 2, p)
 	else
 		p = p - vec2(0, 70)
 		local t = (time.s() - self.hit_t) / hit_anim_len
 		t = clamp(0, 0.999, t)
 		f = math.floor(t * 10)
-		sprsheet.draw_anim_centered('player_hit', self.dir * 10 + f, 1, p)
+		sprsheet.draw_anim_centered('player_hit', self.dir * 10 + f, 2, p)
 	end
 end
 

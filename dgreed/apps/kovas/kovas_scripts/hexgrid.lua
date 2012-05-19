@@ -165,8 +165,8 @@ function hexgrid:draw(camera_pos, screen_rect, player_pos)
 	local w, h = width(screen_rect), height(screen_rect)
 	local topleft = camera_pos - vec2(w/2, h/2)
 
-	w = w + side_len * 4 + 400
-	h = h + side_len * 4 + 400
+	w = w + side_len * 4 + 800
+	h = h + side_len * 4 + 800
 
 	local min_x, min_y = self:world2grid(camera_pos - vec2(w/2, h/2))
 	local max_x, max_y = self:world2grid(camera_pos + vec2(w/2, h/2))
@@ -183,10 +183,17 @@ function hexgrid:draw(camera_pos, screen_rect, player_pos)
 	for y = min_y, max_y do
 		for x = min_x, max_x do
 			local t = self:get(x, y)
-			local c = self:center(x, y) - topleft 
+			local cnt = self:center(x, y)
+			local c = cnt - topleft 
 			if t ~= nil then
 				if t == 1 then
-					self:draw_hex(c, col)
+					-- bush
+					local layer = 1 -- pre player
+					if cnt.y > player_pos.y then
+						layer = 3
+					end
+					local p = c - vec2(0, 5)
+					sprsheet.draw_centered('bush', layer, p)	
 				elseif t == 2 then
 					self:draw_hex(c, fire_col)	
 					table.insert(lights, {
@@ -194,6 +201,16 @@ function hexgrid:draw(camera_pos, screen_rect, player_pos)
 						radius = 400,
 						alpha = 1
 					})
+				else
+					-- tree
+					cnt = cnt + t
+					c = c + t
+					local layer = 1 -- pre player
+					if cnt.y > player_pos.y then
+						layer = 3
+					end
+					local p = c - vec2(0, 216)
+					sprsheet.draw_centered('tree', layer, p)	
 				end
 			end
 		end

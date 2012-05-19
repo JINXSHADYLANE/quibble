@@ -15,6 +15,14 @@ function game.init()
 	for i=1,100000 do
 		local x = rand.int(-500, 500)
 		local y = rand.int(-500, 500)
+		local off = vec2(rand.float(-15, 15), rand.float(-5, 5))
+		game.map:set(x, y, off)
+	end
+
+	-- plant 10000 bushes
+	for i=1,10000 do
+		local x = rand.int(-500, 500)
+		local y = rand.int(-500, 500)
 		game.map:set(x, y, 1)
 	end
 
