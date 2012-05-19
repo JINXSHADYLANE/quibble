@@ -194,7 +194,10 @@ static void _render_text(const char* string, CachePage* page, RectF* dest) {
     [ns_str drawAtPoint:CGPointMake(0.0f, 0.0f) withFont:font->uifont];
 #else
 	NSPoint pt = {0.0f, 0.0f};
-	NSDictionary* attr = [NSDictionary dictionaryWithObject:font->uifont forKey: NSFontAttributeName];
+	NSDictionary* attr = [NSDictionary dictionaryWithObjectsAndKeys:
+		font->uifont, NSFontAttributeName,
+		[NSColor whiteColor], NSForegroundColorAttributeName,
+		nil];
 	[ns_str drawAtPoint:pt withAttributes:attr];
 #endif
     

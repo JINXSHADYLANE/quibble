@@ -194,13 +194,37 @@ function hexgrid:draw(camera_pos, screen_rect, player_pos)
 					end
 					local p = c - vec2(0, 5)
 					sprsheet.draw_centered('bush', layer, p)	
-				elseif t == 2 then
-					self:draw_hex(c, fire_col)	
+				elseif t == 2 or t == 3 then
+					-- altar
+					local r = 400
+					if t == 2 then r = 100 end
 					table.insert(lights, {
 						pos = c,
-						radius = 400,
+						radius = r,
 						alpha = 1
 					})
+
+					local layer = 1 -- pre player
+					if cnt.y > player_pos.y then
+						layer = 3
+					end
+					local p = c - vec2(0, 5)
+
+					if t == 2 then
+						sprsheet.draw_centered('altar', layer, p)
+						if length(cnt - player_pos) < 80 then
+							self:set(x, y, 3)
+							if not self.active_altars then
+								self.active_altars = 0
+							end
+							self.active_altars = self.active_altars + 1
+						end
+					else
+						local f = x * 10 + y + time.s() * 8
+						f = math.fmod(math.abs(f), 3)
+						f = math.floor(f)
+						sprsheet.draw_anim_centered('altar_burn', f, layer, p)
+					end
 				else
 					-- tree
 					cnt = cnt + t
@@ -222,7 +246,7 @@ function hexgrid:draw(camera_pos, screen_rect, player_pos)
 	local c = self:center(x, y) - topleft
 	self:draw_hex(c, rgba(0.1, 0.1, 0.1, 1))
 
-	clighting.render(15, lights)
+	clighting.render(14, lights)
 end
 
 function hexgrid:draw_background(camera_pos, screen_rect)
