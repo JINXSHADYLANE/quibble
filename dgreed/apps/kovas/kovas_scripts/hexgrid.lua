@@ -182,8 +182,8 @@ function hexgrid:draw(camera_pos, screen_rect, player_pos, loff)
 	end
 
 	local lights = {{
-		pos = player_pos - topleft + light_offset,
-		radius = 250,
+		pos = player_pos - topleft + light_offset * 1.2,
+		radius = 250 + length(light_offset),
 		alpha = 1
 	}}
 
@@ -227,8 +227,8 @@ function hexgrid:draw(camera_pos, screen_rect, player_pos, loff)
 							self.active_altars = self.active_altars + 1
 						end
 					else
-						local f = x * 10 + y + time.s() * 8
-						f = math.fmod(math.abs(f), 3)
+						local f = x * 10 + y + time.s() * 16 
+						f = math.fmod(math.abs(f), 8)
 						f = math.floor(f)
 						sprsheet.draw_anim_centered('altar_burn', f, layer, p)
 					end

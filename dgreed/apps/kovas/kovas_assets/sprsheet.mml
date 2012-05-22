@@ -23,7 +23,7 @@
 	)
 	(anim altar_burn
 		(tex "atlas.png")
-		(frames 3)
+		(frames 8)
 		(src 0,0,172,246)
 		(offset 172,246)
 		(grid 4,2)
