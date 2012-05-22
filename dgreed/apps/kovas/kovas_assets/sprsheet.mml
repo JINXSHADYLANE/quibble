@@ -19,22 +19,22 @@
 	)
 	(img altar
 		(tex "atlas.png")
-		(src 316,0,464,206)
+		(src 0,0,172,246)
 	)
 	(anim altar_burn
 		(tex "atlas.png")
 		(frames 3)
-		(src 66,220,214,426)
-		(offset 148,206)
-		(grid 3,1)
+		(src 0,0,172,246)
+		(offset 172,246)
+		(grid 4,2)
 	)
 	(img tree
 		(tex "atlas.png")
-		(src 0,0,66,512)
+		(src 959,0,1024,512)
 	)
 	(img bush
 		(tex "atlas.png")
-		(src 66,0,316,220)
+		(src 718,246,959,468)
 	)
 	(anim eyes
 		(tex "eyes.png")
