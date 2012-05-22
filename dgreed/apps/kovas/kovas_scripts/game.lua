@@ -1,5 +1,6 @@
 local hexgrid = require('hexgrid')
 local player = require('player')
+local ghosts = require('ghosts')
 
 local game = {}
 
@@ -32,6 +33,8 @@ function game.init()
 		local y = rand.int(-400, 400)
 		game.map:set(x, y, 2)
 	end
+
+	ghosts.init()
 end
 
 function game.close()
@@ -60,6 +63,7 @@ function game.render(t)
 	game.map:draw_background(game.camera, screen)
 	game.map:draw(game.camera, screen, game.player.p, game.player.light_offset)
 	game.player:draw(game.camera, screen)
+	ghosts.draw(game.camera)
 
 	if game.map.active_altars then
 		vfont.draw(tostring(game.map.active_altars), 15, vec2(20, 0), rgba(1, 1, 1, 1))

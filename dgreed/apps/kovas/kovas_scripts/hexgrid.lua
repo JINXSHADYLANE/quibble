@@ -5,6 +5,8 @@ local side_len = 40
 local cell_height = math.sqrt(3) * side_len
 local max_width = 43640 -- (2**31) / 43640 = 43641 
 
+local ghosts = require('ghosts')
+
 function hexgrid:new()
 	local o = {
 		map = {}
@@ -181,7 +183,7 @@ function hexgrid:draw(camera_pos, screen_rect, player_pos, loff)
 
 	local lights = {{
 		pos = player_pos - topleft + light_offset,
-		radius = 300,
+		radius = 250,
 		alpha = 1
 	}}
 
@@ -244,6 +246,8 @@ function hexgrid:draw(camera_pos, screen_rect, player_pos, loff)
 			end
 		end
 	end
+
+	ghosts.update(camera_pos, lights, player_pos)
 
 	-- mouse mark
 	local p = topleft + mouse.pos()
