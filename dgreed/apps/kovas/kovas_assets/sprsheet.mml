@@ -36,4 +36,11 @@
 		(tex "atlas.png")
 		(src 66,0,316,220)
 	)
+	(anim eyes
+		(tex "eyes.png")
+		(src 0,0,32,16)
+		(offset 0,16)
+		(frames 8)
+		(grid 1,8)
+	)
 )
