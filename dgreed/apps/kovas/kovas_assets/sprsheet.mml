@@ -19,7 +19,7 @@
 	)
 	(img altar
 		(tex "atlas.png")
-		(src 0,0,172,246)
+		(src 688,0,860,246)
 	)
 	(anim altar_burn
 		(tex "atlas.png")
