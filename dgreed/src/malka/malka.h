@@ -37,6 +37,14 @@ void malka_states_init(const char* luafile);
 void malka_states_close(void);
 extern bool malka_states_step(void);
 
+// Calls lua function,
+// fmt is string with param types:
+// s - string,
+// u/d - unsigned/signed int
+// f - double 
+// Returns function result (if it's double) or 0.0
+double malka_call(const char* func_name, const char* fmt, ...);
+
 // Collects garbage for specified number of milliseconds,
 // or less if there's no more garbage
 void malka_gc(uint ms);
