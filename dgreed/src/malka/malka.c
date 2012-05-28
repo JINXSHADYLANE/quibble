@@ -17,6 +17,7 @@
 #include "mempool.h"
 #include "system.h"
 
+#include <stdarg.h>
 #ifdef MACOSX_BUNDLE
 #include <unistd.h>
 #endif
@@ -296,6 +297,52 @@ int malka_states_run(const char* luafile) {
 	ml_states_run(l);
 	malka_states_close();
 	return 0;
+}
+
+double malka_call(const char* func_name, const char* fmt, ...) {
+	uint n = strlen(fmt);
+
+	lua_getglobal(l, func_name);
+	if(!lua_isfunction(l, -1))
+		LOG_ERROR("Unable to call %s - no such function", func_name);
+
+	va_list v;
+	va_start(v, fmt);
+	for(uint i = 0; i < n; ++i) {
+        const char* str;
+        uint u;
+        int d;
+        double f;
+		char t = fmt[i];
+		switch(t) {
+			case 's': {
+				  str = va_arg(v, char*);
+				  lua_pushstring(l, str);
+				  break;
+            }
+			case 'u':
+				  u = va_arg(v, uint);
+				  lua_pushinteger(l, u);
+				  break;
+			case 'd':
+				  d = va_arg(v, int);
+				  lua_pushinteger(l, d);
+				  break;
+			case 'f':
+				  f = va_arg(v, double);
+				  lua_pushnumber(l, f);
+				  break;
+			default:
+				  LOG_ERROR("Unknown malka_call fmt type %c", t);
+		}
+	}
+	va_end(v);
+
+	lua_call(l, n, 1);
+	double res = lua_tonumber(l, -1);
+	lua_pop(l, 1);
+
+	return res;
 }
 
 void malka_gc(uint ms) {
