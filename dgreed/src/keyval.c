@@ -5,13 +5,15 @@
 #include "darray.h"
 #include "async.h"
 
-#define WRITES_BEFORE_FLUSH 128 
+#define WRITES_BEFORE_FLUSH 32 
 
 static const char* keyval_file;
 static Dict keyval_dict;
 static DArray keyval_strs;
 static uint n_writes;
 static bool keyval_initialized = false;
+
+static CriticalSection keyval_cs;
 
 static void _rebase_ptrs(const void* old_base, const void* new_base, size_t strs_size) {
 	const void* minp = old_base;
@@ -77,6 +79,8 @@ static void _read(void) {
 }
 
 static void _flush(void) {
+	assert(keyval_initialized);
+
 	// Flushing is done rather often, let's make this as simple as possible.
 
 	FileHandle f = file_create(keyval_file);
@@ -87,16 +91,22 @@ static void _flush(void) {
 	file_write_uint32(f, sizeof(DictEntry));
 	file_write(f, &keyval_dict, sizeof(Dict));
 	file_write(f, &keyval_strs, sizeof(DArray));
+	
+	async_enter_cs(keyval_cs);
 	file_write(f, keyval_dict.map, (keyval_dict.mask + 1) * sizeof(DictEntry));
 	file_write(f, keyval_strs.data, keyval_strs.size);
+	async_leave_cs(keyval_cs);
 
 	file_close(f);
 }
 
 static void _gc(void) {
+	assert(keyval_initialized);
 	// Since all str data is stored in append-only format, we need to
 	// collect garbage from time to time
 	
+	async_enter_cs(keyval_cs);
+
 	DArray old_strs = keyval_strs;
 	keyval_strs = darray_create(sizeof(char), 0);	
 
@@ -138,11 +148,13 @@ static void _gc(void) {
 		}
 		e->data = &strs[keyval_strs.size - (len+1)];
 	}
+	async_leave_cs(keyval_cs);
 
 	darray_free(&old_strs);
 }
 
 void keyval_init(const char* file) {
+	assert(!keyval_initialized);
 	assert(file);
 
 	keyval_file = file;
@@ -157,24 +169,34 @@ void keyval_init(const char* file) {
 	}
 
 	keyval_initialized = true;
+
+	keyval_cs = async_make_cs();
 }
 
 void keyval_close(void) {
+	assert(keyval_initialized);
+
 	if(n_writes) {
 		_gc();
 		_flush();
 	}
 
+	async_enter_cs(keyval_cs);
 	dict_free(&keyval_dict);
 	darray_free(&keyval_strs);
+	async_leave_cs(keyval_cs);
 
-	keyval_initialized = true;
+	keyval_initialized = false;
 }
 
 const char* keyval_get(const char* key, const char* def) {
+	assert(keyval_initialized);
 	assert(key && def);
 
+	async_enter_cs(keyval_cs);
 	const char* val = dict_get(&keyval_dict, key);
+	async_leave_cs(keyval_cs);
+
 	return val ? val : def;
 }
 
@@ -213,12 +235,15 @@ float keyval_get_float(const char* key, float def) {
 }
 
 void keyval_set(const char* key, const char* val) {
+	assert(keyval_initialized);
 	assert(key && val);
 
 	size_t key_len = strlen(key)+1;
 	size_t val_len = strlen(val)+1;
 	size_t keyval_len = key_len + val_len;
 
+	async_enter_cs(keyval_cs);
+	
 	void* old_strs_data = keyval_strs.data;
 	
 	darray_append_multi(&keyval_strs, key, key_len);
@@ -236,9 +261,13 @@ void keyval_set(const char* key, const char* val) {
 
 	n_writes++;
 	if(n_writes >= WRITES_BEFORE_FLUSH) {
+		async_leave_cs(keyval_cs);
 		_flush();
+		async_enter_cs(keyval_cs);
 		n_writes = 0;
 	}
+
+	async_leave_cs(keyval_cs);
 }
 
 void keyval_set_int(const char* key, int val) {
@@ -258,18 +287,24 @@ void keyval_set_float(const char* key, float val) {
 }
 
 void keyval_flush(void) {
+	assert(keyval_initialized);
 	_flush();
 	n_writes = 0;
 }
 
 void keyval_gc(void) {
+	assert(keyval_initialized);
 	_gc();
 }
 
 void keyval_wipe(void) {
+	assert(keyval_initialized);
+
+	async_enter_cs(keyval_cs);
 	memset(keyval_dict.map, 0, sizeof(DictEntry) * keyval_dict.mask-1);
 	keyval_dict.items = 0;
 	keyval_strs.size = 0;
+	async_leave_cs(keyval_cs);
 }
 
 void keyval_app_suspend(void) {
