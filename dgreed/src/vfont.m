@@ -375,7 +375,7 @@ void vfont_close(void) {
 	darray_free(&fonts);
 
 	// Free cached texts
-	for(uint i = 0; i < cache.mask-1; ++i) {
+	for(uint i = 0; i < cache.mask+1; ++i) {
 		DictEntry e = cache.map[i];
 		if(e.key && e.data) {
 			const CachedText* text = e.data;
@@ -466,9 +466,12 @@ void vfont_cache_invalidate(const char* string) {
     if(strcmp(string, "") == 0)
         return;
 
-	const CachedText* text = dict_get(&cache, key);
-	if(!text)
+	DictEntry* text_entry = dict_entry(&cache, key);
+	if(!text_entry)
 		LOG_ERROR("Invalidating not-precached text");
+
+	const CachedText* text = (const CachedText*)text_entry->data;
+	assert(text);
 
 	// Mark new free rect
 	FreeRect new = {
@@ -476,6 +479,11 @@ void vfont_cache_invalidate(const char* string) {
 		.free = text->src
 	};
 	darray_append(&free_rects, &new);
+
+	// Free memory
+	MEM_FREE(text->text);
+	MEM_FREE(text);
+	MEM_FREE(text_entry->key);
 
 	// Remove cache entry
 	dict_delete(&cache, key);

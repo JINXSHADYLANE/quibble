@@ -835,3 +835,23 @@ const void* dict_get(Dict* dict, const char* key) {
 	return NULL;
 }
 
+DictEntry* dict_entry(Dict* dict, const char* key) {
+	assert(dict);
+	assert(key);
+
+	uint hash = hash_murmur(key, strlen(key), 7);
+
+	DictEntry* e = _dict_get(dict, hash);
+
+	for(uint i = 0; i < H; ++i) {
+		if(e->hopinfo & (1 << i)) {
+			DictEntry* entry = _dict_get(dict, hash + i);
+			if(hash == entry->hash && strcmp(key, entry->key) == 0) {
+				return entry;
+			}
+		}
+	}
+
+	return NULL;
+}
+
