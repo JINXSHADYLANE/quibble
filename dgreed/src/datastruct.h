@@ -94,5 +94,6 @@ bool dict_insert(Dict* dict, const char* key, const void* data);
 const void* dict_delete(Dict* dict, const char* key);
 void dict_set(Dict* dict, const char* key, const void* data);
 const void* dict_get(Dict* dict, const char* key);
+DictEntry* dict_entry(Dict* dict, const char* key);
 
 #endif
