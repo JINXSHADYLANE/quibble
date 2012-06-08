@@ -1238,8 +1238,10 @@ static int ml_touch_get(lua_State* l) {
 	
 	uint i = luaL_checkinteger(l, 1);
 	Touch* t = touches_get();
-	if(!t || i >= touches_count())
-		return luaL_error(l, "Trying to get non-existing touch");
+	if(!t || i >= touches_count()) {
+		lua_pushnil(l);
+		return 1;
+	}
 
 	lua_createtable(l, 0, 3);
 	int table = lua_gettop(l);
