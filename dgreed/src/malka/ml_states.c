@@ -383,6 +383,35 @@ static int ml_states_prerender_callback(lua_State* l) {
 	return 0;
 }
 
+static int ml_states_size(lua_State* l) {
+	checkargs(0, "states.size");
+
+	lua_pushinteger(l, _stack_size());
+	return 1;
+}
+
+static int ml_states_top(lua_State* l) {
+	checkargs(0, "states.top");
+
+	uint top = _stack_get(_stack_size()-1);
+	lua_pushstring(l, _names_get(top));
+
+	return 1;
+}
+
+static int ml_states_at(lua_State* l) {
+	checkargs(1, "states.at");
+
+	uint i = luaL_checkinteger(l, 1);
+
+	assert(i < _stack_size());
+
+	uint s = _stack_get(_stack_size()-1 - i);
+	lua_pushstring(l, _names_get(s));
+
+	return 1;
+}
+
 void ml_states_init(lua_State* l) {
 	n_c_states = 0;
 	n_state_names = 0;
@@ -420,6 +449,9 @@ static const luaL_Reg states_fun[] = {
 	{"pop", ml_states_pop},
 	{"replace", ml_states_replace},
 	{"prerender_callback", ml_states_prerender_callback},
+	{"size", ml_states_size},
+	{"top", ml_states_top},
+	{"at", ml_states_at},
 	{NULL, NULL}
 };
 
