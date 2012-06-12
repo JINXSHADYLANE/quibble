@@ -17,6 +17,8 @@ typedef struct {
 	void (*close)(void);
 	void (*enter)(void);
 	void (*leave)(void);
+	const char* (*save)(void);
+	void (*load)(const char* data);
 	bool (*update)(void);
 	bool (*render)(float);
 } StateDesc;
@@ -28,6 +30,9 @@ void malka_states_pop(void);
 void malka_states_set_transition_len(float len);
 float malka_states_transition_len(void);
 
+void malka_states_save(const char* filename);
+bool malka_states_load(const char* filename);
+
 void malka_states_start(void);
 void malka_states_end(void);
 bool malka_states_step(void);
@@ -35,5 +40,7 @@ float malka_state_time(const char* name);
 
 typedef void (*PreRenderCallback)(void);
 void malka_states_prerender_cb(PreRenderCallback cb);
+
+void malka_states_app_suspend(void);
 
 #endif
