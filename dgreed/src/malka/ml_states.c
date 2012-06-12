@@ -6,6 +6,7 @@
 
 #include <utils.h>
 #include <system.h>
+#include <memory.h>
 
 #define max_states 32
 #define max_state_name_len 16
@@ -33,7 +34,8 @@ static float states_transition_t;
 
 static PreRenderCallback pre_render_cb = NULL;
 
-static bool _call_c_state_func(CState* state, const char* func, float* arg) {
+static bool _call_c_state_func(CState* state, const char* func, float* arg,
+		const char* str_arg, const char** str_out) {
 	assert(state && func);
 
 	// Update & render are called most often, handle first
@@ -51,6 +53,26 @@ static bool _call_c_state_func(CState* state, const char* func, float* arg) {
 			return (*state->desc.render)(*arg);
 		else
 			return true;
+	}
+
+	if(strcmp(func, "save") == 0) {
+		assert(str_out);
+		if(state->desc.save) {
+			const char* data = (*state->desc.save)();
+			*str_out = data;
+		}
+		else {
+			*str_out = NULL;
+		}
+		return true;
+	}
+
+	if(strcmp(func, "load") == 0) {
+		assert(str_arg);
+		if(state->desc.load) {
+			(*state->desc.load)(str_arg);
+		}
+		return true;
 	}
 
 	// Handle other state methods
@@ -77,13 +99,13 @@ static bool _call_c_state_func(CState* state, const char* func, float* arg) {
 }
 
 static bool _call_state_func(lua_State* l, const char* name, 
-		const char* func, float* arg) {
+		const char* func, float* arg, const char* str_arg, const char** str_out) {
 	assert(name && func); 
 
 	// Handle C state
 	for(uint i = 0; i < n_c_states; ++i) {
 		if(strcmp(c_states[i].name, name) == 0) {
-			return _call_c_state_func(&c_states[i], func, arg);
+			return _call_c_state_func(&c_states[i], func, arg, NULL, NULL);
 		}
 	}
 
@@ -111,10 +133,21 @@ static bool _call_state_func(lua_State* l, const char* name,
 	
 	if(arg)
 		lua_pushnumber(l, *arg);
+
+	if(str_arg)
+		lua_pushstring(l, str_arg);
+
+	assert(arg == NULL || str_arg == NULL);
 	
-	lua_call(l, arg ? 1 : 0, 1);
+	lua_call(l, (arg || str_arg) ? 1 : 0, 1);
 
 	bool res = lua_toboolean(l, -1);
+
+	if(strcmp(func, "save") == 0) {
+		if(lua_isstring(l, -1))
+			*str_out = strclone(lua_tostring(l, -1));
+	}
+
 	lua_pop(l, 4);
 	return res;
 }
@@ -241,8 +274,7 @@ static int ml_states_register(lua_State* l) {
 	_register_state(l, name, 2);
 	_names_add(name);
 
-	if(states_in_mainloop)
-		_call_state_func(l, name, "init", NULL);
+	_call_state_func(l, name, "init", NULL, NULL, NULL);
 
 	return 1;
 }
@@ -254,7 +286,7 @@ static void _states_push(lua_State* l, uint idx) {
 	if(!stack_empty) {
 		// Leave old state
 		top = _stack_get(_stack_size()-1);
-		_call_state_func(l, _names_get(top), "leave", NULL);
+		_call_state_func(l, _names_get(top), "leave", NULL, NULL, NULL);
 		states_acc_t[top] += time_s() - states_enter_t[top];
 	}
 
@@ -289,7 +321,7 @@ static void _state_pop(lua_State* l) {
 
 	// Leave old state
 	int top = _stack_get(_stack_size()-1);
-	_call_state_func(l, _names_get(top), "leave", NULL);
+	_call_state_func(l, _names_get(top), "leave", NULL, NULL, NULL);
 	states_acc_t[top] += time_s() - states_enter_t[top];
 
 	_stack_pop();
@@ -320,7 +352,7 @@ static int ml_states_pop(lua_State* l) {
 static void _states_replace(lua_State* l, uint idx) {
 	// Leave old state
 	int top = _stack_get(_stack_size()-1);
-	_call_state_func(l, _names_get(top), "leave", NULL);
+	_call_state_func(l, _names_get(top), "leave", NULL, NULL, NULL);
 	states_acc_t[top] += time_s() - states_enter_t[top];
 
 	_stack_pop();
@@ -412,6 +444,26 @@ static int ml_states_at(lua_State* l) {
 	return 1;
 }
 
+static int ml_states_save(lua_State* l) {
+	checkargs(1, "states.save");
+
+	const char* filename = luaL_checkstring(l, 1);
+
+	malka_states_save(filename);
+
+	return 0;
+}
+
+static int ml_states_load(lua_State* l) {
+	checkargs(1, "states.load");
+
+	const char* filename = luaL_checkstring(l, 1);
+
+	lua_pushboolean(l, malka_states_load(filename));
+
+	return 1;
+}
+
 void ml_states_init(lua_State* l) {
 	n_c_states = 0;
 	n_state_names = 0;
@@ -452,6 +504,8 @@ static const luaL_Reg states_fun[] = {
 	{"size", ml_states_size},
 	{"top", ml_states_top},
 	{"at", ml_states_at},
+	{"save", ml_states_save},
+	{"load", ml_states_load},
 	{NULL, NULL}
 };
 
@@ -472,9 +526,8 @@ void malka_states_register(const char* name, StateDesc* state) {
 	c_states[n_c_states].desc = *state;
 	n_c_states++;
 
-	if(states_in_mainloop)
-		if(state->init)
-			(*state->init)();
+	if(state->init)
+		(*state->init)();
 }
 
 extern lua_State* malka_lua_state(void);
@@ -505,6 +558,88 @@ float malka_states_transition_len(void) {
 	return _get_transition_len(malka_lua_state());
 }
 
+void malka_states_save(const char* filename) {
+	// Save format:
+	// 4 - MSV0
+	// 4 - n states
+	// for each state:
+	//  4 name length
+	//  x name
+	//  4 data length
+	//  x data
+	
+	lua_State* l = malka_lua_state();
+	
+	FileHandle out = file_create(filename);
+	file_write_uint32(out, FOURCC('M', 'S', 'V', '0'));
+	file_write_uint32(out, _stack_size());
+	for(uint i = 0; i < _stack_size(); ++i) {
+		// state name
+		const char* name = _names_get(_stack_get(i));
+		assert(name);
+		uint32 name_len = strlen(name);
+		assert(name_len);
+
+		file_write_uint32(out, name_len);
+		file_write(out, name, name_len);
+
+		// persistent state data
+		const char* data = NULL;
+		_call_state_func(l, name, "save", NULL, NULL, &data); 
+		if(data) {
+			uint32 data_len = strlen(data);
+			file_write_uint32(out, data_len);
+			file_write(out, data, data_len);
+			MEM_FREE(data);
+		}
+		else {
+			file_write_uint32(out, 0);
+		}
+	}
+
+	file_close(out);
+}
+
+bool malka_states_load(const char* filename) {
+	if(file_exists(filename)) {
+		lua_State* l = malka_lua_state();
+
+		FileHandle in = file_open(filename);
+		if(file_read_uint32(in) != FOURCC('M', 'S', 'V', '0'))
+			goto error;
+
+		uint n = file_read_uint32(in);
+
+		char buffer[256];
+		for(uint i = 0; i < n; ++i) {
+			// Name
+			uint32 name_len = file_read_uint32(in); 
+			assert(name_len > 0 && name_len < 256);
+			file_read(in, buffer, name_len);
+			buffer[name_len] = '\0';
+			uint name_idx = _names_find(buffer);
+			assert(name_idx != ~0);
+			_stack_push(name_idx);
+
+			// Data
+			uint32 data_len = file_read_uint32(in);
+			assert(data_len < 256);
+			if(data_len) {
+				file_read(in, buffer, data_len);
+			}
+			buffer[data_len] = '\0';
+			_call_state_func(l, _names_get(name_idx), "load", NULL, buffer, NULL);
+		}
+
+		file_close(in);
+		return true;
+
+error:
+		file_close(in);
+	}
+	return false;
+}
+
 void malka_states_start(void) {
 	lua_State* l = malka_lua_state();
 
@@ -513,16 +648,12 @@ void malka_states_start(void) {
 		return;
 	}	
 
-	// Init all states
-	for(uint i = 0; i < _names_size(); ++i)
-		_call_state_func(l, _names_get(i), "init", NULL);
-
 	states_from = states_to = _stack_get(_stack_size()-1);	
 
 	// Enter top state
 	top_name = _names_get(states_from);
 	states_enter_t[states_from] = time_s();
-	_call_state_func(l, top_name, "enter", NULL);
+	_call_state_func(l, top_name, "enter", NULL, NULL, NULL);
 
 	// Prep for main loop
 	states_in_mainloop = true;
@@ -537,11 +668,11 @@ void malka_states_end(void) {
 	// Leave top state if stack is not empty
 	if(_stack_size()) {
 		top_name = _names_get(_stack_get(_stack_size()-1));
-		_call_state_func(l, top_name, "leave", NULL);
+		_call_state_func(l, top_name, "leave", NULL, NULL, NULL);
 	}
 
 	for(uint i = 0; i < _names_size(); ++i)
-		_call_state_func(l, _names_get(i), "close", NULL);
+		_call_state_func(l, _names_get(i), "close", NULL, NULL, NULL);
 }
 
 bool malka_states_step(void) {
@@ -555,7 +686,7 @@ bool malka_states_step(void) {
 		if(len <= 0.0f || states_transition_t + len <= time) {
 			// End transition
 			states_enter_t[states_to] = time_s();
-			_call_state_func(l, _names_get(states_to), "enter", NULL);
+			_call_state_func(l, _names_get(states_to), "enter", NULL, NULL, NULL);
 			states_from = states_to;
 		}
 		else {
@@ -566,8 +697,8 @@ bool malka_states_step(void) {
 				t += 0.00001f;
 			float tt = -1.0f + t;
 			assert(t >= 0.0f && t <= 1.0f);
-			_call_state_func(l, _names_get(states_from), "render", &t);
-			_call_state_func(l, _names_get(states_to), "render", &tt);
+			_call_state_func(l, _names_get(states_from), "render", &t, NULL, NULL);
+			_call_state_func(l, _names_get(states_to), "render", &tt, NULL, NULL);
 			if(pre_render_cb)
 				(*pre_render_cb)();
 			video_present();
@@ -576,14 +707,14 @@ bool malka_states_step(void) {
 	else {
 		if(_stack_size()) {
 			top_name = _names_get(_stack_get(_stack_size()-1));
-			if(!_call_state_func(l, top_name, "update", NULL)) {
+			if(!_call_state_func(l, top_name, "update", NULL, NULL, NULL)) {
 				breakout = true;
 			}
 			else {
 				// Update may have made stack empty, check again
 				if(_stack_size()) {
 					float zero = 0.0f;
-					breakout = !_call_state_func(l, top_name, "render", &zero);
+					breakout = !_call_state_func(l, top_name, "render", &zero, NULL, NULL);
 					if(pre_render_cb)
 						(*pre_render_cb)();
 					video_present();
@@ -616,4 +747,10 @@ float malka_state_time(const char* name) {
 
 void malka_states_prerender_cb(PreRenderCallback cb) {
 	pre_render_cb = cb;
+}
+
+void malka_states_app_suspend(void) {
+	if(_stack_size()) {
+		malka_states_save("states.db");
+	}
 }
