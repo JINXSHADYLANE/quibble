@@ -1307,6 +1307,13 @@ static int ml_txtinput_get(lua_State* l) {
 	return 1;
 }
 
+static int ml_txtinput_set(lua_State* l) {
+	checkargs(1, "txtinput.set");
+	const char* text = luaL_checkstring(l, 1);
+	txtinput_set(text);
+	return 0;
+}
+
 static int ml_txtinput_did_end(lua_State* l) {
 	checkargs(0, "txtinput.did_end");
 	const char* str = txtinput_did_end();
@@ -1332,6 +1339,7 @@ static int ml_txtinput_clear(lua_State* l) {
 static const luaL_Reg txtinput_fun[] = {
 	{"start", ml_txtinput_start},
 	{"get", ml_txtinput_get},
+	{"set", ml_txtinput_set},
 	{"did_end", ml_txtinput_did_end},
 	{"end", ml_txtinput_end},
 	{"clear", ml_txtinput_clear},

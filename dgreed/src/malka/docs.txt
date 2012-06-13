@@ -197,6 +197,8 @@ releases texture
 font
 ----
 
+Fast & simple text renderint out of precomputed glyph atlases.
+
 - font.load(filename, scale, prefix)
 loads bft font, returns handle, optionally allows to provide scaling factor
 and/or asset prefix
@@ -209,6 +211,38 @@ returns rectangle bounding scaled, centered text
 
 - font.free(fonthandle)
 releases font
+
+
+-----
+vfont
+-----
+
+Slow & pretty text rendering with full unicode support.
+
+- vfont.init(cache_w, cache_h)
+intializes vfont subsystem, you can optionally specify cache size in pixels
+
+- vfont.close()
+closes vfont subsystem
+
+- vfont.select(font_name, size)
+select font and its size in points
+
+- vfont.draw(text, layer, pos, tint)
+draw a line of text using currently selected font; tint is optional
+
+- vfont.draw_input(text, layer, pos, tint)
+draw a line of text with caching strategy optimized for user-input text display
+
+- vfont.size(text)
+returns vec2 text size in pixels
+
+- vfont.precache(text)
+precache text so it can be rendered without delays
+
+- vfont.invalidate(text)
+remove text from cache; default caching strategy should work
+well enough most of the time, with no need to precache/invalidate manually
 
 
 -----
@@ -271,6 +305,9 @@ draws centered, rotated text; scale and color is optional
 - video.set_blendmode(layer, mode)
 sets blending mode for a single layer; valid mode values are 'normal'
 (default), 'add' and 'multiply'
+
+- video.set_transform(layer, matrix)
+apply 3x2 affine transform for a single layer, nil means identity
 
 
 --------
@@ -420,6 +457,29 @@ returns number of fingers on the screen
 - touch.get(i)
 returns i-th touch object, which is a table with fields pos, hit_pos and
 hit_time
+
+
+----------
+text input
+----------
+
+- txtinput.start()
+start capturing text
+
+- txtinput.get()
+currently entered text
+
+- txtinput.set(str)
+override entered text
+
+- txtinput.did_end()
+returns string if user ended text capture, nil otherwise
+
+- txtinput.end()
+end text capture
+
+- txtinput.clear()
+clear entered text
 
 
 -----------
@@ -890,4 +950,14 @@ returns true if we can send tweets
 
 - os.tweet(msg, url)
 sends a twitter message, with optional web url
+
+- os.has_mail()
+returns true if we can send mail
+
+- os.mail(subject, body, callback)
+opens mail compose screen, invokes callback when closed; callback arg:
+'cancelled', 'saved', 'sent', 'failed'
+
+- os.move(old, new)
+renames file
 

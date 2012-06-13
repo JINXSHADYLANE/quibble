@@ -239,9 +239,10 @@ static const CachedText* _precache(const char* string, const char* key, bool inp
     
     // Make user inputed text very long, so that we can use cache better
     if(input) {
-        assert(w < 256.0f);
-        w = 256.0f;
-        bbox.right = 256.0f;
+        float input_w = retina ? 512.0f : 256.0f;
+        assert(w < input_w);
+        w = input_w;
+        bbox.right = input_w;
     }
     
     // Look for space in free rects, choose smallest that fits
@@ -447,7 +448,7 @@ void vfont_draw_input(const char* string, uint layer, Vector2 topleft, Color tin
     }
     
     if(strcmp(prev_string, "") != 0)
-        vfont_cache_invalidate(prev_string);
+        vfont_cache_invalidate_ex(prev_string, false);
     strcpy(prev_string, string);
     _get_text(string, true);
     
@@ -461,14 +462,20 @@ void vfont_precache(const char* string) {
 }
 
 void vfont_cache_invalidate(const char* string) {
+    vfont_cache_invalidate_ex(string, true);
+}
+
+void vfont_cache_invalidate_ex(const char* string, bool strict) {
 	_key(string);
     
     if(strcmp(string, "") == 0)
         return;
 
 	DictEntry* text_entry = dict_entry(&cache, key);
-	if(!text_entry)
+	if(!text_entry && strict)
 		LOG_ERROR("Invalidating not-precached text");
+    if(!text_entry && !strict)
+        return;
 
 	const CachedText* text = (const CachedText*)text_entry->data;
 	assert(text);
