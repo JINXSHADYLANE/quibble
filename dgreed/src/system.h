@@ -285,11 +285,13 @@ Touch* touches_get(void);
 // Start capturing text. Shows on-screen keyboard if
 // running on keyboardless devices.
 void txtinput_start(void);
-// Stop capturing text, hide keyboard
+// Currently entered text in utf-8
 const char* txtinput_get(void);
+// Overrides entered text
+void txtinput_set(const char* text);
 // Returns string if user ended text capture, NULL otherwise
 const char* txtinput_did_end(void);
-// Currently entered text in utf-8
+// Stop capturing text, hide keyboard
 const char* txtinput_end(void);
 // Clear currently entered text
 void txtinput_clear(void);

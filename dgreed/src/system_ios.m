@@ -10,6 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
+#import <MessageUI/MFMailComposeViewController.h>
 #import <Twitter/TWTweetComposeViewController.h>
 #import <MediaPlayer/MPMusicPlayerController.h>
 #include <mach/mach.h>
@@ -18,6 +19,7 @@
 #include <OpenGLES/ES1/glext.h>
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
+#import "DGreedAppDelegate.h"
 #import "GLESView.h"
 #import "GLESViewController.h"
 #import "AutoRotateViewController.h"
@@ -1623,6 +1625,12 @@ const char* txtinput_get(void) {
     return [text UTF8String];
 }
 
+void txtinput_set(const char* text) {
+	assert(text);
+	NSString* ns_text = [NSString stringWithUTF8String:text];
+	[GLESViewController singleton].text_view.text = ns_text;
+}
+
 const char* txtinput_did_end(void) {
     assert(txtinput_capturing);
     if(txtinput_return) {
@@ -1778,3 +1786,58 @@ void ios_tweet(const char* msg, const char* url) {
     
     [[GLESViewController singleton] presentModalViewController:tw animated:YES];
 }
+
+bool ios_has_mail(void) {
+    return [MFMailComposeViewController canSendMail];
+}
+
+typedef void (*MailCallback)(const char* result);
+
+
+static DGreedAppDelegate* mail_delegate = nil;
+static MailCallback mail_callback = NULL;
+
+void _ios_mail_set_delegate(DGreedAppDelegate* delegate) {
+    mail_delegate = delegate;
+}
+
+void _ios_mail_did_finish(MFMailComposeViewController* controller, MFMailComposeResult result) {
+    switch (result) {
+        case MFMailComposeResultCancelled:
+            mail_callback("cancelled");
+            break;
+        case MFMailComposeResultSaved:
+            mail_callback("saved");
+            break;
+        case MFMailComposeResultSent:
+            mail_callback("sent");
+            break;
+        case MFMailComposeResultFailed:
+        default:
+            mail_callback("failed");
+            break;
+    }
+	
+	// Remove the mail view
+    [[GLESViewController singleton] dismissModalViewControllerAnimated:YES];
+}
+
+void ios_mail(const char* subject, const char* body, MailCallback cb) {
+    assert(subject && body && cb && mail_delegate);
+
+    MFMailComposeViewController* mail_view = [[MFMailComposeViewController alloc] init];
+    
+    NSString* ns_subject = [NSString stringWithUTF8String:subject];
+    [mail_view setSubject:ns_subject];
+    NSString* ns_body = [NSString stringWithUTF8String:body];
+    
+    bool is_html = [ns_body rangeOfString:@"<html"].location != NSNotFound;
+    [mail_view setMessageBody:ns_body isHTML:is_html];
+    
+    mail_view.mailComposeDelegate = mail_delegate;
+    
+    mail_callback = cb;
+    
+    [[GLESViewController singleton] presentModalViewController:mail_view animated:YES];
+}
+
