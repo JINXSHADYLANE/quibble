@@ -1295,6 +1295,8 @@ static const char* mbtn_names[] = {
 
 // text input
 
+#ifdef TARGET_IOS
+
 static int ml_txtinput_start(lua_State* l) {
 	checkargs(0, "txtinput.start");
 	txtinput_start();
@@ -1345,6 +1347,14 @@ static const luaL_Reg txtinput_fun[] = {
 	{"clear", ml_txtinput_clear},
 	{NULL, NULL}
 };
+
+#else
+
+static const luaL_Reg txtinput_fun[] = {
+	{NULL, NULL}
+};
+
+#endif
 
 
 // orientation

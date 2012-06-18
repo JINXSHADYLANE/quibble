@@ -18,6 +18,7 @@ void vfont_draw(const char* string, uint layer, Vector2 topleft, Color tint);
 void vfont_draw_input(const char* string, uint layer, Vector2 topleft, Color tint);
 void vfont_precache(const char* string);
 void vfont_cache_invalidate(const char* string);
+void vfont_cache_invalidate_ex(const char* string, bool strict);
 
 Vector2 vfont_size(const char* string);
 
