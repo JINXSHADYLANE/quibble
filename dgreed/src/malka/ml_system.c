@@ -8,11 +8,14 @@
 #include <memory.h>
 #include <system.h>
 #include <font.h>
-#include <vfont.h>
 #include <gfx_utils.h>
 #include <gui.h>
 #include <particles.h>
 #include <tilemap.h>
+
+#ifdef __APPLE__
+#include <vfont.h>
+#endif
 
 extern void _new_vec2(lua_State* l, double x, double y);
 extern void _new_rect(lua_State* l, double _l, double t,
@@ -804,6 +807,8 @@ static const luaL_Reg video_fun[] = {
 };
 
 
+#ifdef __APPLE__
+
 // vfont
 
 static int ml_vfont_init(lua_State* l) {
@@ -914,6 +919,8 @@ static const luaL_Reg vfont_fun[] = {
 	{"invalidate", ml_vfont_invalidate},
 	{NULL, NULL}
 };
+
+#endif
 
 // sound
 
@@ -2021,7 +2028,10 @@ int malka_open_system(lua_State* l) {
 
 	luaL_newmetatable(l, "_FontHandle.mt");
 	luaL_register(l, "font", font_fun);
+
+#ifdef __APPLE__
 	luaL_register(l, "vfont", vfont_fun);
+#endif
 
 	luaL_register(l, "video", video_fun);
 
