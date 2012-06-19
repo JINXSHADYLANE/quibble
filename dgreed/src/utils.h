@@ -356,6 +356,10 @@ char* path_change_ext(const char* path, const char* ext);
 uint16 endian_swap2(uint16 in);
 uint32 endian_swap4(uint32 in);
 
+#ifndef __APPLE__
+#define alloca(size) __builtin_alloca(size)
+#endif
+
 // Copies string to some new place in memory and returns pointer to it.
 // You must free this pointer!
 #ifdef TRACK_MEMORY
