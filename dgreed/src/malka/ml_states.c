@@ -609,6 +609,8 @@ bool malka_states_load(const char* filename) {
 			goto error;
 
 		uint n = file_read_uint32(in);
+		if(n < 1)
+			goto error;
 
 		char buffer[256];
 		for(uint i = 0; i < n; ++i) {
