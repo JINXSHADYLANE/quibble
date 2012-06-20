@@ -109,6 +109,9 @@ static CachePage* _alloc_cache(RectF* r) {
         if(ow + w < page->width && h <= page->height) {
             r->left = page->occupied.right;
             r->right += r->left;
+            
+            page->occupied.right += w;
+            page->occupied.bottom = MAX(page->occupied.bottom, r->bottom);
         
             FreeRect new = {
                 .page = page,
@@ -119,14 +122,17 @@ static CachePage* _alloc_cache(RectF* r) {
                     .bottom = page->occupied.bottom
                 }
             };
-            darray_append(&free_rects, &new);
-            page->occupied.right += w;
             
+            // Append new rect only if it's higher than 
+            // the rect we're allocating space for
+            if(rectf_height(&new.free) >= h)
+                darray_append(&free_rects, &new);
+                
             return page;
         }
         
         // Append to bottom
-        if(oh + h < page->width && w <= page->width) {
+        if(oh + h < page->height && w <= page->width) {
             r->top = page->occupied.bottom;
             r->bottom += r->top;
         
@@ -141,7 +147,6 @@ static CachePage* _alloc_cache(RectF* r) {
             };
             darray_append(&free_rects, &new);
             page->occupied.bottom += h;
-            
             return page;
         }
     }
@@ -210,6 +215,16 @@ static void _render_text(const char* string, CachePage* page, RectF* dest) {
         g = (g * a) >> 8;
         b = (b * a) >> 8;
         data[i] = COLOR_RGBA(r, g, b, a);
+    }
+    */
+    
+    /*
+    // Draw a border to see where overdraw happens
+    for(uint y = 0; y < h; ++y) {
+        for(uint x = 0; x < w; ++x) {
+            if(y == 0 || y == (h-1) || x == 0 || x == (w-1))
+                data[y * w + x] = COLOR_RGBA(0, 0, 0, 255);
+        }
     }
     */
     
