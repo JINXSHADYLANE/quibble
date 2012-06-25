@@ -841,6 +841,24 @@ perform a get request, get_header is optional boolean
 perform a post request, content_type is optional string
 
 
+------------
+localization
+------------
+
+- loc.init(files, production)
+initializes localization system; files is comma separated list of localization
+files, production - boolean indicating if base.loc should be generated
+
+- loc.close()
+closes localization system, writes base.loc if not in production mode
+
+- loc.select(lang)
+selects a localization; for example 'de' selects de.loc file
+
+- loc.str(str)
+translates a string
+
+
 -------
 devmode (not implemented)
 -------
