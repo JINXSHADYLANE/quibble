@@ -832,7 +832,8 @@ uint mml_insert_escapes(const char* in, DArray* out) {
 		if(qoute)
 			darray_append(out, "\"");
 
-		darray_append_multi(out, (void*)in, length);
+        if(length)
+            darray_append_multi(out, (void*)in, length);
 
 		if(qoute)
 			darray_append(out, "\"");

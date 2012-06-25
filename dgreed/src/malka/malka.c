@@ -12,6 +12,7 @@
 #include "ml_os.h"
 #include "ml_iap.h"
 #include "ml_http.h"
+#include "ml_localization.h"
 
 #include "memory.h"
 #include "mempool.h"
@@ -173,6 +174,7 @@ void malka_init_ex(bool use_pools) {
 	malka_open_os(l);
 	malka_open_iap(l);
 	malka_open_http(l);
+	malka_open_localization(l);
 
 	ml_states_init(l);
 }
