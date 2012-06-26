@@ -1,0 +1,27 @@
+#ifndef IMAGE_H
+#define IMAGE_H
+
+#include <utils.h>
+
+// Loads images from files
+// Supported formats:
+// png, jpeg (OS implementation or stb_image)
+// dig (fast-loading dgreed format with support for weird formats - 4444, PVRTC)
+
+// Do not ever change existing values!
+typedef enum {
+	PF_RGB888 = 0x1,
+	PF_RGB565 = 0x2,
+	PF_RGBA8888 = 0x3,
+	PF_RGBA4444 = 0x4,
+	PF_RGBA5551 = 0x5,
+	PF_PVRTC2 = 0x10,
+	PF_PVRTC4 = 0x20,
+
+	PF_MASK_PVRTC = 0xF0,
+	PF_MASK_RGBA = 0x0F
+} PixelFormat;
+
+void* image_load(const char* filename, int* w, int* h, PixelFormat* format);
+
+#endif
