@@ -15,9 +15,7 @@
 #include "wav.h"
 #include "darray.h"
 #include "gfx_utils.h"
-
-#define STBI_HEADER_FILE_ONLY
-#include "stb_image.c"
+#include "image.h"
 
 #define STB_VORBIS_HEADER_ONLY
 #include "stb_vorbis.c"
@@ -659,47 +657,45 @@ TexHandle tex_load(const char* filename) {
 TexHandle tex_load_filter(const char* filename, TexFilter filter) {
 	assert(filename);
 
+	uint t = time_ms_current();
+
 	TexHandle result;
 	Texture* new = _alloc_tex(filename, &result);
 	if(!new)
 		return result;
 
-	LOG_INFO("Loading texture from file %s", filename);
+	uint w, h;
+	PixelFormat format;
+	byte* decompr_data = image_load(filename, &w, &h, &format);
 
-	// Read file to memory
-	FileHandle tex_file = file_open(filename);
-	uint size = file_size(tex_file);
-	byte* buffer = (byte*)MEM_ALLOC(size);
-	file_read(tex_file, buffer, size);
-	file_close(tex_file);
-
-	// Convert to raw pixel data
-	int width, height, components;
-	byte* decompr_data = (byte*)stbi_load_from_memory(buffer, size, &width, &height, 
-		&components, 4);
-	if(!(is_pow2(width) && is_pow2(height))) {
-		stbi_image_free(decompr_data);
-		MEM_FREE(buffer);
-		LOG_ERROR("Texture dimensions is not power of 2");
+	if(!(is_pow2(w) && is_pow2(h))) {
+		free(decompr_data);
+		LOG_ERROR("%s: Texture dimensions is not power of 2", filename);
 	}	
+
+	if(format != PF_RGBA8888) {
+		free(decompr_data);
+		LOG_ERROR("%s: Only RGBA8888 pixel format is supported", filename);
+	}
 
 	// Apply filter
 	if(filter) {
-		(*filter)((Color*)decompr_data, width, height);
+		(*filter)((Color*)decompr_data, w, h);
 	}
 
-	uint gl_id = _make_gl_texture(decompr_data, width, height);
+	uint gl_id = _make_gl_texture(decompr_data, w, h);
 
-	stbi_image_free(decompr_data);
-	MEM_FREE(buffer);
+	free(decompr_data);
 
-	new->width = width;
-	new->height = height;
+	new->width = w;
+	new->height = h;
 	new->gl_id = gl_id;
 	new->file = strclone(filename);
 	new->retain_count = 1;
 	new->scale = 1.0f;
 	new->active = true;
+
+	LOG_INFO("Loaded texture from file %s in %ums", filename, time_ms_current()-t);
 
 	return result;
 }	
