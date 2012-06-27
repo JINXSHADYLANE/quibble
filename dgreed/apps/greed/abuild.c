@@ -112,7 +112,7 @@ void save(const char* mml_file, const char* walls_img_file)
 	MEM_FREE(mml_text);
 
 	// Save images
-	stbi_write_tga(walls_img_file, 512, 1024, 4, (void*)final_image);
+	gfx_save_tga(walls_img_file,(void*)final_image, 512, 1024);
 }	
 
 void deinit(void) {
