@@ -30,6 +30,22 @@ typedef struct {
 #define RGB565_ENCODE(r, g, b) \
 	(((r)&0x1f)<<11)|(((g)&0x3f)<<5)|(((b)&0x1f))
 
+static void _enc_delta16(void* data, uint w, uint h) {
+	uint16* img = data;
+	for(uint i = 1; i < w * h; ++i) {
+		img[i] = img[i] - img[i-1];
+	}
+}
+
+static void _dec_delta16(void* data, uint w, uint h) {
+	uint16* img = data;
+	uint16 prev = img[0];
+	for(uint i = 1; i < w * h; ++i) {
+		img[i] = prev + img[i];
+		prev = img[i];
+	}
+}
+
 static void _enc_delta_rgb565(void* data, uint w, uint h) {
 	uint16* img = data;
 	uint16 prev = img[0], curr;
@@ -201,7 +217,7 @@ void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, v
 	// choose a otherwise.
 	
 	uint bpp = _format_bpp(format);
-	size_t size_uncompr = (w * h * bpp) / 2;
+	size_t size_uncompr = (w * h * bpp) / 8;
 
 	void* pixels_lz4 = malloc(LZ4_compressBound(size_uncompr));
 	size_t size_lz4 = LZ4_compressHC(pixels, pixels_lz4, size_uncompr);
