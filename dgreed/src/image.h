@@ -8,6 +8,9 @@
 // png, jpeg (OS implementation or stb_image)
 // dig (fast-loading dgreed format with support for weird pixel formats - 4444, PVRTC)
 
+// dig is png inspired format (lossless, filter+compressor), but much simpler
+// and faster to load while achieving comparable compression ratios
+
 // Do not ever change existing values!
 typedef enum {
 	PF_RGB888 = 0x1,
@@ -27,5 +30,7 @@ typedef enum {
 void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format);
 
 void image_write_tga(const char* filename, uint w, uint h, const Color* pixels);
+
+void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, void* pixels);
 
 #endif
