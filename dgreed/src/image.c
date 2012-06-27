@@ -4,6 +4,7 @@
 #include "stb_image.c"
 
 #include "lz4.h"
+#include "lz4hc.h"
 
 typedef enum {
 	DC_NONE = 0,
@@ -71,6 +72,26 @@ static void _dec_delta_rgb565(void* data, uint w, uint h) {
 	}
 }
 
+static int _format_bpp(PixelFormat format) {
+	switch(format & PF_MASK_PIXEL_FORMAT) {
+		case PF_RGBA8888:
+			return 32;
+		case PF_RGB888:
+			return 24;
+		case PF_RGB565:
+		case PF_RGBA4444:
+		case PF_RGBA5551:
+			return 16;
+		case PF_PVRTC4:
+			return 4;
+		case PF_PVRTC2:
+			return 2;
+		default:
+			LOG_ERROR("Unknown dig pixel format");
+	}
+	return 0;
+}
+
 static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 	assert(sizeof(DIGHeader) == 8);
 
@@ -94,29 +115,7 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 	*h = hdr.height;
 
 	// Determine bits per pixel
-	uint bpp = 0; 
-	switch(hdr.format & PF_MASK_PIXEL_FORMAT) {
-		case PF_RGBA8888:
-			bpp = 32;
-			break;
-		case PF_RGB888:
-			bpp = 24;
-			break;
-		case PF_RGB565:
-		case PF_RGBA4444:
-		case PF_RGBA5551:
-			bpp = 16;
-			break;
-		case PF_PVRTC2:
-			bpp = 2;
-			break;
-		case PF_PVRTC4:
-			bpp = 4;
-			break;
-		default:
-			LOG_ERROR("Unknown dig pixel format");
-	}
-	assert(bpp);
+	uint bpp = _format_bpp(hdr.format);
 
 	// Read the rest of the data
 	// (use malloc to behave just like stb_image)
@@ -186,5 +185,79 @@ void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format) {
 
 void image_write_tga(const char* filename, uint w, uint h, const Color* pixels) {
 	// TODO
+}
+
+void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, void* pixels) {
+	assert(filename && pixels);
+	assert(w > 0 && w <= 8192);
+	assert(h > 0 && h <= 8192);
+
+	// Try 3 variations:
+	// a) Uncompressed
+	// b) LZ4
+	// c) Delta coding + LZ4 (if pixel format supports delta coding)
+	//
+	// Choose smaller of b and c if it is at least 1.5 times smaller than a,
+	// choose a otherwise.
+	
+	uint bpp = _format_bpp(format);
+	size_t size_uncompr = (w * h * bpp) / 2;
+
+	void* pixels_lz4 = malloc(LZ4_compressBound(size_uncompr));
+	size_t size_lz4 = LZ4_compressHC(pixels, pixels_lz4, size_uncompr);
+
+	bool deltacode = (format & PF_MASK_PIXEL_FORMAT) == PF_RGB565;
+	if(deltacode) {
+		void* pixels_dc = malloc(size_uncompr);
+		memcpy(pixels_dc, pixels, size_uncompr);
+		_enc_delta_rgb565(pixels_dc, w, h);
+		void* pixels_lz4dc = malloc(LZ4_compressBound(size_uncompr));
+		size_t size_lz4dc = LZ4_compressHC(pixels_dc, pixels_lz4dc, size_uncompr);
+
+		free(pixels_dc);
+		if(size_lz4dc < size_lz4) {
+			free(pixels_lz4);
+			pixels_lz4 = pixels_lz4dc;
+		}
+		else {
+			free(pixels_lz4dc);
+			deltacode = false;
+		}
+	}
+
+	void* out_pixels;
+	size_t out_size;
+	uint8 compression = 0;
+	if(size_lz4 * 3 < size_uncompr * 2) {
+		compression = DC_LZ4 | (deltacode ? DC_DELTA : 0);
+		out_pixels = pixels_lz4;
+		out_size = size_lz4;
+	}
+	else {
+		out_pixels = pixels;
+		out_size = size_uncompr;
+	}
+
+	// Fill up header
+	DIGHeader hdr = {
+		.id = "DI",
+		.width = w,
+		.height = h,
+		.format = format,
+		.compression = compression
+	};
+
+#if SOPHIST_endian == SOPHIST_big_endian
+	hdr.width = endian_swap2(hdr.width);
+	hdr.height = endian_swap2(hdr.height);
+#endif
+
+	// Write
+	FileHandle f = file_create(filename);
+	file_write(f, &hdr, sizeof(DIGHeader));
+	file_write(f, out_pixels, out_size);
+	file_close(f);
+
+	free(pixels_lz4);
 }
 
