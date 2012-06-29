@@ -17,9 +17,26 @@ typedef struct {
 	char id[2];
 	uint16 width;
 	uint16 height;
-	uint8 format;	
+	uint8 format;
 	uint8 compression;
 } DIGHeader;
+#pragma pack()
+
+#pragma pack(1)
+typedef struct {
+   byte  idlength;
+   byte  colourmaptype;
+   byte  datatypecode;
+   short int colourmaporigin;
+   short int colourmaplength;
+   byte  colourmapdepth;
+   short int x_origin;
+   short int y_origin;
+   int16 width;
+   int16 height;
+   byte  bitsperpixel;
+   byte  imagedescriptor;
+} TGAHeader;
 #pragma pack()
 
 #define RGB565_DECODE(color, r, g, b) \
@@ -104,7 +121,7 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 		return NULL;
 	}
 
-	// Swap uint16 bytes on big endian 
+	// Swap uint16 bytes on big endian
 #if SOPHIST_endian == SOPHIST_big_endian
 	hdr.width = endian_swap2(hdr.width);
 	hdr.height = endian_swap2(hdr.height);
@@ -126,9 +143,9 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 
 	// Decompress if neccessary
 	if(hdr.compression & DC_LZ4) {
-		size_t decompr_size = (*w * *h * bpp) / 8;	
+		size_t decompr_size = (*w * *h * bpp) / 8;
 		void* decompr_data = malloc(decompr_size);
-		int processed = LZ4_uncompress(pixdata, decompr_data, decompr_size); 
+		int processed = LZ4_uncompress(pixdata, decompr_data, decompr_size);
 		free(pixdata);
 
 		if(processed != s) {
@@ -174,10 +191,10 @@ void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format) {
 		// Load png/jpeg
 #ifdef TARGET_IOS
 		file_close(f);
-		data = ios_load_image(filename, w, h, format); 
+		data = ios_load_image(filename, w, h, format);
 #else
 		int x, y, comp;
-		data = stbi_load_from_file((FILE*)f, &x, &y, &comp, 4); 
+		data = stbi_load_from_file((FILE*)f, &x, &y, &comp, 4);
 		file_close(f);
 		*w = x;
 		*h = y;
@@ -189,7 +206,45 @@ void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format) {
 }
 
 void image_write_tga(const char* filename, uint w, uint h, const Color* pixels) {
-	// TODO
+	// Fill up header
+	TGAHeader hdr = {
+        .idlength = 0,
+        .colourmaptype = 0,
+        .datatypecode = 2,
+        .colourmaporigin = 0,
+        .colourmaplength = 0,
+        .colourmapdepth = 0,
+        .x_origin = 0,
+        .y_origin = 0,
+        .width = w,
+        .height = h,
+        .bitsperpixel = 32,
+        .imagedescriptor = 8
+	};
+
+    Color * pix = (Color *) malloc(w * h * sizeof(Color));
+    byte a, r, g, b;
+
+    for(int i = 0; i < w * h; i++)
+        {
+            pix[i] = pixels[i];
+            // Swap r byte with b byte (argb -> abgr)
+            a = (pix[i] >> 24);
+            r = (pix[i] >> 16);
+            g = (pix[i] >> 8);
+            b = (pix[i] >> 0);
+            pix[i] = ((a << 24) | (b << 16) | (g << 8)  | (r << 0));
+        }
+
+    size_t out_size = (w * h * 32) / 8;
+
+    // Write
+    FileHandle f = file_create(filename);
+	file_write(f, &hdr, sizeof(TGAHeader));
+ 	file_write(f, pix, out_size);
+    file_close(f);
+
+    free(pix);
 }
 
 void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, void* pixels) {
@@ -204,7 +259,7 @@ void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, v
 	//
 	// Choose smaller of b and c if it is at least 1.5 times smaller than a,
 	// choose a otherwise.
-	
+
 	uint bpp = _format_bpp(format);
 	size_t size_uncompr = (w * h * bpp) / 8;
 
