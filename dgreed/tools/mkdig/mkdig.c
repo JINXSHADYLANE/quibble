@@ -51,7 +51,7 @@ static void* _to_rgba4444(Color* data, uint w, uint h) {
 }
 
 #define RGBA5551_ENCODE(r, g, b, a) \
-	(((a)&0x1)|(((g)&0x1F)<<1)|(((b)&0x1F)<<6)|(((a)&0x1F)<<11))
+	(((a)&0x1)|(((b)&0x1F)<<1)|(((g)&0x1F)<<6)|(((r)&0x1F)<<11))
 
 static void* _to_rgba5551(Color* data, uint w, uint h) {
 	uint16* out = malloc(w * h * 2);
