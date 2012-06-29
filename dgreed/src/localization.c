@@ -100,7 +100,6 @@ void _loc_write_base(void) {
 		// Write new base.loc
 		char* base_text = mml_serialize(&mml);
 		txtfile_write(base_path, base_text);
-		printf("%s", base_text);
 		MEM_FREE(base_text);
 
 		mml_free(&mml);
@@ -109,6 +108,11 @@ void _loc_write_base(void) {
 
 void loc_close(void) {
 	_loc_write_base();
+
+	if(genbase) {
+		dict_free(&base_dict);
+		darray_free(&base_strs);
+	}
 
 	if(loc_files)
 		MEM_FREE(loc_files);
