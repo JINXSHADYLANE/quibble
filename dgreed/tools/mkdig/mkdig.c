@@ -34,7 +34,7 @@ static void* _to_rgb565(Color* data, uint w, uint h) {
 }
 
 #define RGBA4444_ENCODE(r, g, b, a) \
-	(((r)&0xF)|(((g)&0xF)<<4)|(((b)&0xF)<<8)|(((a)&0xF)<<12))
+	(((a)&0xF)|(((b)&0xF)<<4)|(((g)&0xF)<<8)|(((r)&0xF)<<12))
 
 static void* _to_rgba4444(Color* data, uint w, uint h) {
 	uint16* out = malloc(w * h * 2);
@@ -51,7 +51,7 @@ static void* _to_rgba4444(Color* data, uint w, uint h) {
 }
 
 #define RGBA5551_ENCODE(r, g, b, a) \
-	(((r)&0x1F)|(((g)&0x1F)<<5)|(((b)&0x1F)<<10)|(((a)&0xF)<<15))
+	(((a)&0x1)|(((g)&0x1F)<<1)|(((b)&0x1F)<<6)|(((a)&0x1F)<<11))
 
 static void* _to_rgba5551(Color* data, uint w, uint h) {
 	uint16* out = malloc(w * h * 2);
