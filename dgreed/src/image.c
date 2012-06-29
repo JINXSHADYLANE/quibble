@@ -30,22 +30,6 @@ typedef struct {
 #define RGB565_ENCODE(r, g, b) \
 	(((r)&0x1f)<<11)|(((g)&0x3f)<<5)|(((b)&0x1f))
 
-static void _enc_delta16(void* data, uint w, uint h) {
-	uint16* img = data;
-	for(uint i = 1; i < w * h; ++i) {
-		img[i] = img[i] - img[i-1];
-	}
-}
-
-static void _dec_delta16(void* data, uint w, uint h) {
-	uint16* img = data;
-	uint16 prev = img[0];
-	for(uint i = 1; i < w * h; ++i) {
-		img[i] = prev + img[i];
-		prev = img[i];
-	}
-}
-
 static void _enc_delta_rgb565(void* data, uint w, uint h) {
 	uint16* img = data;
 	uint16 prev = img[0], curr;
@@ -83,7 +67,7 @@ static void _dec_delta_rgb565(void* data, uint w, uint h) {
 		curr = img[i];
 		RGB565_DECODE(curr, dr, dg, db);
 		RGB565_DECODE(prev, r, g, b);
-		curr = RGB565_ENCODE((r+dr), (g+dg), (b+dg));
+		curr = RGB565_ENCODE((r+dr), (g+dg), (b+db));
 		img[i] = prev = curr;
 	}
 }
@@ -129,6 +113,7 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 	// Write size
 	*w = hdr.width;
 	*h = hdr.height;
+    *format = hdr.format;
 
 	// Determine bits per pixel
 	uint bpp = _format_bpp(hdr.format);
@@ -173,6 +158,10 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 	return pixdata;
 }
 
+#ifdef TARGET_IOS
+extern void* ios_load_image(const char* filename, uint* w, uint* h, PixelFormat* format);
+#endif
+
 void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format) {
 	assert(filename && w && h && format);
 
@@ -184,17 +173,17 @@ void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format) {
 	if(!data) {
 		// Load png/jpeg
 #ifdef TARGET_IOS
-#error Not implemented
+		file_close(f);
+		data = ios_load_image(filename, w, h, format); 
 #else
 		int x, y, comp;
 		data = stbi_load_from_file((FILE*)f, &x, &y, &comp, 4); 
+		file_close(f);
 		*w = x;
 		*h = y;
 		*format = PF_RGBA8888;
 #endif
 	}
-
-	file_close(f);
 
 	return data;
 }
@@ -234,6 +223,7 @@ void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, v
 		if(size_lz4dc < size_lz4) {
 			free(pixels_lz4);
 			pixels_lz4 = pixels_lz4dc;
+            size_lz4 = size_lz4dc;
 		}
 		else {
 			free(pixels_lz4dc);
