@@ -1,6 +1,7 @@
 #include <image.h>
 #include <stdio.h>
 #include <memory.h>
+#include <stdint.h>
 
 #define STBI_HEADER_FILE_ONLY
 #include <stb_image.c>
@@ -67,7 +68,32 @@ static void* _to_rgba5551(Color* data, uint w, uint h) {
 	return out;
 }
 
-static void* _format(Color* data, uint w, uint h, PixelFormat format) {
+static void* _to_pvrtc(const char* file_name, int bpp){
+	char params[128];
+	const char* temp_file = "./mkdig_temp.pvr";
+	char command[256];
+
+	sprintf(params, " -f PVRTC%d -silent -p -pvrtchigh", bpp);
+	sprintf(command, "PVRTexTool -i %s %s -o %s", file_name, params, temp_file);
+	system(command);
+
+	const size_t header_size = 52;
+	FileHandle file_handle = file_open(temp_file);
+	uint size = file_size(file_handle);
+	file_seek(file_handle, header_size);
+	void* d = malloc(size - header_size);
+	file_read(file_handle, d, size - header_size);
+	file_close(file_handle);
+
+	sprintf(command, "rm -f %s", temp_file);
+	system(command);	
+	return d;
+}	
+
+static void* _format(
+		Color* data, uint w, uint h, PixelFormat format, 
+		const char* file_name, bool premul) {
+
 	void* out = NULL;
 	switch(format) {
 		case PF_RGB888:
@@ -77,7 +103,7 @@ static void* _format(Color* data, uint w, uint h, PixelFormat format) {
 			out = _to_rgb565(data, w, h);
 			break;
 		case PF_RGBA8888:
-			out = MEM_ALLOC(w * h * 4);
+			out = malloc(w * h * 4);
 			memcpy(out, data, w * h * 4);
 			break;
 		case PF_RGBA4444:
@@ -85,6 +111,12 @@ static void* _format(Color* data, uint w, uint h, PixelFormat format) {
 			break;
 		case PF_RGBA5551:
 			out = _to_rgba5551(data, w, h);
+			break;
+		case PF_PVRTC4:
+			out = _to_pvrtc(file_name, 4);
+			break;
+		case PF_PVRTC2:
+			out = _to_pvrtc(file_name, 2);
 			break;
 		default:
 			printf("format is not yet supported\n");
@@ -178,8 +210,8 @@ int dgreed_main(int argc, const char** argv) {
 
 	if(premul)
 		_premul_alpha(data, w, h);
-
-	void* pixels = _format(data, w, h, format);
+	
+	void* pixels = _format(data, w, h, format, in, premul);
 
 	if(premul)
 		format |= PF_MASK_PREMUL_ALPHA;
@@ -188,7 +220,6 @@ int dgreed_main(int argc, const char** argv) {
 
 	free(pixels);
 	free(data);
-
 	return 0;
 }
 
