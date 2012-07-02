@@ -34,10 +34,13 @@ RawSound* wav_load(const char* filename) {
 
 	// Data chunk
 	// https://projects.developer.nokia.com/svn/matchempoker/tags/v1.1.0/qt_build/src/GEAudioBuffer.cpp
-	uint data_id = file_read_uint32(wav_file);
-	if(data_id != ('d'+('a'<<8)+('t'<<16)+('a'<<24)))
-		LOG_WARNING("Data id is not \'data\'");
-	uint data_size = file_read_uint32(wav_file);
+	uint32 data_id = 1635017060;
+    uint32 current_field = file_read_uint32(wav_file);
+    while(current_field != data_id) // Skip till "data" is found
+        current_field = file_read_uint32(wav_file);
+
+    uint data_size = file_read_uint32(wav_file);
+
 	if(data_size < 1)
         LOG_ERROR("Data id is not \'data\'");
 	void* data = MEM_ALLOC(data_size);
