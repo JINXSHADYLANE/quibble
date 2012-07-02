@@ -806,7 +806,6 @@ static const luaL_Reg video_fun[] = {
 	{NULL, NULL}
 };
 
-
 #ifdef __APPLE__
 
 // vfont
@@ -908,6 +907,13 @@ static int ml_vfont_invalidate(lua_State* l) {
 	return 0;
 }
 
+static int ml_vfont_invalidate_nonstrict(lua_State* l) {
+	checkargs(1, "vfont.invalidate_nonstrict");
+	const char* string = luaL_checkstring(l, 1);
+	vfont_cache_invalidate_ex(string, false);
+	return 0;
+}
+
 static const luaL_Reg vfont_fun[] = {
 	{"init", ml_vfont_init},
 	{"close", ml_vfont_close},
@@ -917,6 +923,7 @@ static const luaL_Reg vfont_fun[] = {
 	{"size", ml_vfont_size},
 	{"precache", ml_vfont_precache},
 	{"invalidate", ml_vfont_invalidate},
+	{"invalidate_nonstrict", ml_vfont_invalidate_nonstrict},
 	{NULL, NULL}
 };
 
@@ -2021,6 +2028,7 @@ static const luaL_Reg tilemap_fun[] = {
 };	
 
 int malka_open_system(lua_State* l) {
+	int popcnt = 14;
 	luaL_register(l, "time", time_fun);
 
 	luaL_newmetatable(l, "_TexHandle.mt");
@@ -2031,6 +2039,7 @@ int malka_open_system(lua_State* l) {
 
 #ifdef __APPLE__
 	luaL_register(l, "vfont", vfont_fun);
+	popcnt++;
 #endif
 
 	luaL_register(l, "video", video_fun);
@@ -2045,7 +2054,7 @@ int malka_open_system(lua_State* l) {
 	luaL_register(l, "touch", touch_fun);
 	luaL_register(l, "txtinput", txtinput_fun);
 
-	lua_pop(l, 15);
+	lua_pop(l, popcnt);
 
 	lua_getglobal(l, "key");
 	int tbl = lua_gettop(l);
