@@ -43,7 +43,7 @@ extern float min_point_distance;
 extern float max_edge_distance;
 
 void init(const char* mml_file) {
-	// Get chapter - second-to-last digit in filename 
+	// Get chapter - second-to-last digit in filename
 	// Works as long as arenas are named cx_arenay
 	uint i = strlen(mml_file);
 	while(i && !isdigit(mml_file[--i]));
@@ -69,13 +69,13 @@ void init(const char* mml_file) {
 	shadow_shift_y = (int)shift.y;
 
 	NodeIdx no_rigid_walls_node = mml_get_child(&arena_mml, root, "no_rigid_walls");
-	if(no_rigid_walls_node != 0) 
+	if(no_rigid_walls_node != 0)
 		no_rigid_walls = mml_getval_bool(&arena_mml, no_rigid_walls_node);
-	
+
 	NodeIdx no_wall_shadows_node = mml_get_child(&arena_mml, root, "no_wall_shadows");
 	if(no_wall_shadows_node != 0)
 		no_wall_shadows = mml_getval_bool(&arena_mml, no_wall_shadows_node);
-}	
+}
 
 // Strips folders from path, returns only filename
 char* _get_file(const char* path) {
@@ -84,7 +84,7 @@ char* _get_file(const char* path) {
 		idx--;
 	}
 	return strclone(&(path[idx+1]));
-}	
+}
 
 void save(const char* mml_file, const char* walls_img_file)
 {
@@ -103,7 +103,7 @@ void save(const char* mml_file, const char* walls_img_file)
 	sprintf(precalc_filename, "greed_assets/%s.precalc", arena_name);
 	NodeIdx precalc_node = mml_node(&arena_mml, "precalc", precalc_filename);
 	mml_insert_after(&arena_mml, mml_root(&arena_mml), precalc_node, "walls");
-	
+
 	// Save mml
 	char* mml_text = mml_serialize(&arena_mml);
 	if(mml_text == NULL)
@@ -113,12 +113,12 @@ void save(const char* mml_file, const char* walls_img_file)
 
 	// Save images
 	gfx_save_tga(walls_img_file,(void*)final_image, 512, 1024);
-}	
+}
 
 void deinit(void) {
 	mml_free(&arena_mml);
 	if(background)
-		stbi_image_free(background);	
+		stbi_image_free(background);
 	if(walls)
 		stbi_image_free(walls);
 	if(collision_mask)
@@ -132,7 +132,7 @@ void deinit(void) {
 void gen_density_map(void) {
 	density_map = (float*)MEM_ALLOC(density_width * density_height * sizeof(float));
 	for(uint i = 0; i < density_width*density_height; ++i) {
-		int r, g, b, a;
+		int r __attribute__((unused)), g, b, a  __attribute__((unused));
 		COLOR_DECONSTRUCT(density[i], r, g, b, a);
 		float d = (float)((g+b)/2) / 255.0f;
 		assert(d >= 0.0f && d <= 1.0f);
@@ -169,14 +169,14 @@ void load_images(const char* folder) {
 		density_filename = mml_getval_str(&arena_mml, density_node);
 		sprintf(path, "%s%s", folder, density_filename);
 		density = (Color*)stbi_load(path, &w, &h, &n, 4);
-	
+
 		// Rescale density map to correct size
 		int	scale = 1;
 		while(w/scale > density_width && h/scale > density_height)
 			scale++;
 		if(w/scale != density_width || h/scale != density_height)
 			LOG_ERROR("Unable to downscale density map to 30x20");
-		
+
 		Color* img = MEM_ALLOC(w * h * 4);
 		memcpy(img, density, w * h * 4);
 		stbi_image_free(density);
@@ -209,7 +209,7 @@ void make_collision_mask(void) {
 				collision_mask[idx] = RASTER_SOLID;
 		}
 	}
-}	
+}
 
 void make_shadow(void) {
 	shadow = (Color*)MEM_ALLOC(sizeof(Color) * width * height);
@@ -261,17 +261,17 @@ void blend_images(void) {
 			size_t src_idx = IDX_2D(dx, dy, width);
 			final_image[dest_idx] = walls[src_idx];
 		}
-	}	
-}	
+	}
+}
 void gen_precalc_data(void) {
 	DArray segments = darray_create(sizeof(Segment), 0);
-	DArray triangles; 
-	if(!no_rigid_walls)	
+	DArray triangles;
+	if(!no_rigid_walls)
 		triangles = poly_triangulate_raster(collision_mask, width, height, &segments);
 	else
 		triangles = darray_create(sizeof(Triangle), 0);
 
-	DArray platforms = darray_create(sizeof(Vector2), 0);	
+	DArray platforms = darray_create(sizeof(Vector2), 0);
 	NodeIdx root = mml_root(&arena_mml);
 	NodeIdx platforms_node = mml_get_child(&arena_mml, root, "platforms");
 	for(NodeIdx platform = mml_get_first_child(&arena_mml, platforms_node);
@@ -279,11 +279,11 @@ void gen_precalc_data(void) {
 		platform = mml_get_next(&arena_mml, platform)) {
 
 		assert(strcmp(mml_get_name(&arena_mml, platform), "p") == 0);
-		
+
 		Vector2	p = mml_getval_vec2(&arena_mml, platform);
 
 		darray_append(&platforms, (void*)&p);
-	}	
+	}
 
 	// Set navmesh settings, special for fourth chapter
 	if(chapter == 4) {
@@ -295,14 +295,14 @@ void gen_precalc_data(void) {
 	NavMesh	nav_mesh = ai_precalc_navmesh(segments, platforms,
 		(float)width, (float)height);
 
-	darray_free(&platforms);	
+	darray_free(&platforms);
 
 	// Collision tris
 	Triangle* tris = NULL;
 	if(triangles.size != 0)
 		tris = DARRAY_DATA_PTR(triangles, Triangle);
-	
-	file_write_uint32(precalc_file, triangles.size);	
+
+	file_write_uint32(precalc_file, triangles.size);
 
 	for(uint i = 0; i < triangles.size; ++i) {
 		file_write_float(precalc_file, tris[i].p1.x);
@@ -317,8 +317,8 @@ void gen_precalc_data(void) {
 	if(density_map != NULL) {
 		size_t density_size = density_width * density_height;
 		file_write_uint32(precalc_file, (uint32)density_size);
-		for(uint i = 0; i < density_width*density_height; ++i) 
-			file_write_float(precalc_file, density_map[i]);	
+		for(uint i = 0; i < density_width*density_height; ++i)
+			file_write_float(precalc_file, density_map[i]);
 
 		MEM_FREE(density_map);
 	}
@@ -330,7 +330,7 @@ void gen_precalc_data(void) {
 
 	darray_free(&triangles);
 	darray_free(&segments);
-}	
+}
 
 int dgreed_main(int argc, const char** argv) {
 	params_init(argc, argv);
@@ -342,7 +342,7 @@ int dgreed_main(int argc, const char** argv) {
 
 	init(params_get(0));
 
-	char* folder = path_get_folder(params_get(0));	
+	char* folder = path_get_folder(params_get(0));
 	load_images(folder);
 	MEM_FREE(folder);
 
@@ -351,14 +351,14 @@ int dgreed_main(int argc, const char** argv) {
 	blend_images();
 
 	// Figure out where to save final img:
-	char* mml_path = path_get_folder(params_get(1)); 
+	char* mml_path = path_get_folder(params_get(1));
 	// Glue everything together
 	char final_walls_name[256];
-	
+
 	char* file = path_change_ext(walls_img_filename, "tga");
 	sprintf(final_walls_name, "%s%s", mml_path, file);
 	MEM_FREE(file);
-	
+
 	// Save collision and ai precalc data in binary file
 	char* precalc_filename = path_change_ext(params_get(1), "precalc");
 	precalc_file = file_create(precalc_filename);

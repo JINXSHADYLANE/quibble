@@ -162,9 +162,9 @@ static void _async_init_task_state(void) {
 	assert(async_initialized);
 
 	async_enter_cs(ASYNC_TASK_STATE_CS);
-	
+
 	assert(!async_task_state_initialized);
-	
+
 	aatree_init(&async_unfinished_taskids);
 	async_task_state_initialized = true;
 
@@ -178,7 +178,7 @@ static void _async_close_task_state(void) {
 
 	assert(async_task_state_initialized);
 
-	if(aatree_size(&async_unfinished_taskids) != 0) 
+	if(aatree_size(&async_unfinished_taskids) != 0)
 		LOG_WARNING("Closing task state tracker with unfinished tasks!");
 
 	aatree_free(&async_unfinished_taskids);
@@ -210,15 +210,13 @@ static void _async_finish_taskid(TaskId id) {
 	assert(id >= async_lowest_unfinished_taskid);
 
 	// Remove id from unfinished taskids list
-	void* p = aatree_remove(&async_unfinished_taskids, id);
-	assert(p);
-	p = 0; // Prevent unused warning
+	assert(aatree_remove(&async_unfinished_taskids, id));
 
 	// Update highest finished taskid
 	async_highest_finished_taskid = MAX(async_highest_finished_taskid, id);
-	
+
 	// If id was the previous lowest unfinished taskid, find a new one.
-	// Also find a new one if lowest unfinished taskid is 0 (means previously 
+	// Also find a new one if lowest unfinished taskid is 0 (means previously
 	// there were no unfinished tasks).
 	if(	id == async_lowest_unfinished_taskid ||
 		0 == async_lowest_unfinished_taskid) {
@@ -230,17 +228,17 @@ static void _async_finish_taskid(TaskId id) {
 			async_lowest_unfinished_taskid = 0;
 		}
 		else {
-			async_lowest_unfinished_taskid = 
+			async_lowest_unfinished_taskid =
 				aatree_min(&async_unfinished_taskids, NULL);
 		}
 	}
-	
+
 	async_leave_cs(ASYNC_TASK_STATE_CS);
 }
 
 bool async_is_finished(TaskId id) {
 	assert(async_initialized);
-	
+
 	bool result;
 
 	async_enter_cs(ASYNC_TASK_STATE_CS);
@@ -313,14 +311,14 @@ static void _async_stop_queues(void) {
 		pthread_mutex_unlock(&tq_io.mutex);
 		pthread_cond_broadcast(&tq_io.cond);
 	}
-	
+
 	if(async_threads_created) {
 		pthread_mutex_lock(&tq_async.mutex);
 		tq_async.count = -1;
 		pthread_mutex_unlock(&tq_async.mutex);
 		pthread_cond_broadcast(&tq_async.cond);
 	}
-	
+
 	// Join all threads
 	for(uint i = 0; i < n_threads; ++i) {
 		int res = pthread_join(threads[i].thread, NULL);
@@ -354,7 +352,7 @@ static void _async_rebase_lists(ptrdiff_t delta) {
 		next = (void*)tq_io.queue.next;
 		assert(range_start <= prev && prev < range_end);
 		assert(range_start <= next && next < range_end);
-		
+
 		tq_io.queue.prev = (void*)(prev + delta);
 		tq_io.queue.next = (void*)(next + delta);
 	}
@@ -364,7 +362,7 @@ static void _async_rebase_lists(ptrdiff_t delta) {
 		next = (void*)tq_async.queue.next;
 		assert(range_start <= prev && prev < range_end);
 		assert(range_start <= next && next < range_end);
-		
+
 		tq_async.queue.prev = (void*)(prev + delta);
 		tq_async.queue.next = (void*)(next + delta);
 	}
@@ -417,7 +415,7 @@ static bool _async_dequeue(ListHead* head, TaskDef* dest) {
 	if(list_empty(head))
 		return false;
 
-	TaskDef* first = list_entry(list_pop_front(head), TaskDef, list); 
+	TaskDef* first = list_entry(list_pop_front(head), TaskDef, list);
 
 	// Calculate taskdef index inside taskdef pool
 	uint i = ((void*)first - taskdef_pool.data) / taskdef_pool.item_size;
@@ -576,7 +574,7 @@ again:
 
 static void _create_thread(const char* name, TaskQueue* queue) {
 	assert(async_initialized);
-		
+
 	WorkerThread* thread = &threads[n_threads];
 	n_threads++;
 	assert(n_threads < MAX_THREADS);
@@ -624,7 +622,7 @@ TaskId async_run(Task task, void* userdata) {
 	_async_enqueue(&tq_async.queue, task, id, userdata);
 	tq_async.count++;
 	pthread_mutex_unlock(&tq_async.mutex);
-	pthread_cond_signal(&tq_async.cond);  
+	pthread_cond_signal(&tq_async.cond);
 
 	return id;
 }

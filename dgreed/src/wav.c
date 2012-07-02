@@ -3,9 +3,9 @@
 
 RawSound* wav_load(const char* filename) {
 	assert(filename);
-	
+
 	FileHandle wav_file = file_open(filename);
-	
+
 	uint chunk_id = file_read_uint32(wav_file);
 	if(chunk_id != ('R'+('I'<<8)+('F'<<16)+('F'<<24)))
 		LOG_ERROR("Bad file type");
@@ -18,12 +18,12 @@ RawSound* wav_load(const char* filename) {
 	uint format_id = file_read_uint32(wav_file);
 	if(format_id != ('f'+('m'<<8)+('t'<<16)+(' '<<24)))
 		LOG_ERROR("Not format chunk");
-	uint format_length = file_read_uint32(wav_file);
+	uint format_length __attribute__ ((unused)) = file_read_uint32(wav_file);
 	assert(format_length == 0x10);
-	format_length = 0; // To prevent unused warning
-	uint16 format_code = file_read_uint16(wav_file);
+
+	uint16 format_code __attribute__ ((unused)) = file_read_uint16(wav_file);
 	assert(format_code == 0x01);
-	format_code = 0; // To prevent unused warning
+
 	uint16 n_channels = file_read_uint16(wav_file);
 	assert(n_channels == 1 || n_channels == 2);
 	uint32 sample_rate = file_read_uint32(wav_file);
@@ -33,10 +33,13 @@ RawSound* wav_load(const char* filename) {
 	assert(bits_per_sample == 8 || bits_per_sample == 16);
 
 	// Data chunk
+	// https://projects.developer.nokia.com/svn/matchempoker/tags/v1.1.0/qt_build/src/GEAudioBuffer.cpp
 	uint data_id = file_read_uint32(wav_file);
 	if(data_id != ('d'+('a'<<8)+('t'<<16)+('a'<<24)))
-		LOG_ERROR("Bad data id");
-	uint data_size = file_read_uint32(wav_file);	
+		LOG_WARNING("Data id is not \'data\'");
+	uint data_size = file_read_uint32(wav_file);
+	if(data_size < 1)
+        LOG_ERROR("Data id is not \'data\'");
 	void* data = MEM_ALLOC(data_size);
 	file_read(wav_file, data, data_size);
 
@@ -58,7 +61,7 @@ RawSound* wav_load(const char* filename) {
 	}
 
 	return result;
-}	
+}
 
 void wav_free(RawSound* sound) {
 	assert(sound);
@@ -67,5 +70,5 @@ void wav_free(RawSound* sound) {
 	MEM_FREE(sound->data);
 	sound->data = NULL;
 	MEM_FREE(sound);
-}	
+}
 

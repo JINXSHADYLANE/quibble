@@ -43,7 +43,7 @@ static uint _aligned_rect_to_cell(RectF rect) {
 	assert(rectf_width(&rect) <= fcell_size + 0.001f);
 	assert(rectf_height(&rect) <= fcell_size + 0.001f);
 
-	return _vec_to_cell(vec2(rect.left, rect.top));	
+	return _vec_to_cell(vec2(rect.left, rect.top));
 }
 
 // Returns amount of result cells in out
@@ -64,7 +64,7 @@ static uint _rect_to_cells(RectF rect, uint out[4]) {
 				count--;
 				j--;
 			}
-		}	
+		}
 	}
 
 	return count;
@@ -81,7 +81,7 @@ void objects_reset(Tilemap* map) {
 	assert(world_width % cell_size == 0);
 	assert(world_height % cell_size == 0);
 
-	cell_count = (world_width / cell_size) * (world_height / cell_size); 
+	cell_count = (world_width / cell_size) * (world_height / cell_size);
 
 	if(cells)
 		MEM_FREE(cells);
@@ -121,7 +121,7 @@ void objects_add(ObjectType type, Vector2 pos) {
 	assert(pos.x >= 0.0f && (pos.x + 64.0f) <= (float)world_width);
 	assert(pos.y >= 0.0f && (pos.y + 64.0f) <= (float)world_height);
 
-	Object new = {type, rectf(pos.x+0.1f, pos.y+0.1f, pos.x+63.9f, pos.y+63.9f)}; 
+	Object new = {type, rectf(pos.x+0.1f, pos.y+0.1f, pos.x+63.9f, pos.y+63.9f)};
 	uint i = objs_array.size;
 	switch(type) {
 		case obj_crate:
@@ -148,7 +148,7 @@ void objects_add(ObjectType type, Vector2 pos) {
 
 void _cell_append(uint cell_id, uint object_id) {
 	assert(cell_id < cell_count);
-	uint c = cells[cell_id].obj_count; 
+	uint c = cells[cell_id].obj_count;
 	assert(c < MAX_OBJS_IN_CELL-1);
 	cells[cell_id].obj_ids[c++] = object_id;
 	cells[cell_id].obj_count = c;
@@ -157,7 +157,7 @@ void _cell_append(uint cell_id, uint object_id) {
 void _cell_remove(uint cell_id, uint object_id) {
 	assert(cell_id < cell_count);
 	SHashCell* c = &cells[cell_id];
-	bool success = false;
+	bool success __attribute__ ((unused)) = false;
 	for(uint i = 0; i < c->obj_count; ++i) {
 		if(c->obj_ids[i] == object_id) {
 			success = true;
@@ -206,12 +206,12 @@ void _object_move(uint object_id, RectF new_pos) {
 void objects_seal(RectF player) {
 	player_rect = player;
 
-	objects = DARRAY_DATA_PTR(objs_array, Object);	
+	objects = DARRAY_DATA_PTR(objs_array, Object);
 	crates = DARRAY_DATA_PTR(crates_array, uint);
 	beacons = DARRAY_DATA_PTR(beacons_array, uint);
 	buttons = DARRAY_DATA_PTR(buttons_array, uint);
 	batteries = DARRAY_DATA_PTR(batteries_array, uint);
-		
+
 	// Fill spatial hash map
 	for(uint i = 0; i < objs_array.size; ++i) {
 		uint cell_id = _aligned_rect_to_cell(objects[i].rect);
@@ -295,7 +295,7 @@ again:
 
 			for(uint j = 0; j < n_segs; ++j) {
 				if(segment_intersect(ray, segs[j], &hitp)) {
-					float sq_dist = vec2_length_sq(vec2_sub(start, hitp));	
+					float sq_dist = vec2_length_sq(vec2_sub(start, hitp));
 					if(sq_dist < min_sq_dist) {
 						min_sq_dist = sq_dist;
 						min_hitp = hitp;
@@ -314,11 +314,11 @@ again:
 							assert(hit_crates_count < 15);
 							if(!id_registered)
 								hit_crate_ids[hit_crates_count++] = c->obj_ids[i];
-						}	
+						}
 					}
 				}
-			}	
-		}	
+			}
+		}
 	}
 
 	if(cell_ids[0] != cell_ids[1]) {
@@ -342,7 +342,7 @@ static Vector2 _crates_collide_swept_rectf(RectF rect, Vector2 offset) {
 
 		Vector2 int1 = _crates_raycast(p1, vec2_add(p1, offset));
 		Vector2 int2 = _crates_raycast(p2, vec2_add(p2, offset));
-		
+
 		Vector2 new_off1 = vec2_sub(int1, p1);
 		Vector2 new_off2 = vec2_sub(int2, p2);
 
@@ -366,7 +366,7 @@ static Vector2 _crates_collide_swept_rectf(RectF rect, Vector2 offset) {
 
 		Vector2 int1 = _crates_raycast(p1, vec2_add(p1, offset));
 		Vector2 int2 = _crates_raycast(p2, vec2_add(p2, offset));
-		
+
 		Vector2 new_off1 = vec2_sub(int1, p1);
 		Vector2 new_off2 = vec2_sub(int2, p2);
 
@@ -442,13 +442,13 @@ RectF objects_move_player(Vector2 offset, bool* battery, bool* snd_button,
 	// Collide with crates
 	hit_crates_count = 0;
 	hit_update = true;
-	bool crate_hit = false;
+	//bool crate_hit = false;
 	dx = _crates_collide_swept_rectf(bbox, vec2(offset.x, 0.0f));
-	
+
 	// Move crate horizontally
 	if(fabsf(dx.x) < fabsf(offset.x)) {
 		hit_update = false;
-		crate_hit = true;
+		//crate_hit = true;
 
 		float min_crate_offset = INFINITY;
 		for(uint i = 0; i < hit_crates_count; ++i) {
@@ -465,10 +465,10 @@ RectF objects_move_player(Vector2 offset, bool* battery, bool* snd_button,
 			min_crate_offset = 0.0f;
 		if(fabs(min_crate_offset) > 0.0f) {
 			bbox.left += min_crate_offset;
-			bbox.right += min_crate_offset; 
+			bbox.right += min_crate_offset;
 			*snd_push = true;
 		}
-	}	
+	}
 
 	hit_crates_count = 0;
 	hit_update = true;
@@ -479,7 +479,7 @@ RectF objects_move_player(Vector2 offset, bool* battery, bool* snd_button,
 	// Move crate vertically
 	if(fabsf(dy.y) < fabsf(offset.y)) {
 		hit_update = false;
-		crate_hit = true;
+		//crate_hit = true;
 
 		float min_crate_offset = INFINITY;
 		for(uint i = 0; i < hit_crates_count; ++i) {
@@ -496,10 +496,10 @@ RectF objects_move_player(Vector2 offset, bool* battery, bool* snd_button,
 			min_crate_offset = 0.0f;
 		if(fabs(min_crate_offset) > 0.0f) {
 			bbox.top += min_crate_offset;
-			bbox.bottom += min_crate_offset; 
+			bbox.bottom += min_crate_offset;
 			*snd_push = true;
 		}
-	}	
+	}
 
 	bbox.top += dy.y;
 	bbox.bottom += dy.y;
@@ -517,7 +517,7 @@ RectF objects_move_player(Vector2 offset, bool* battery, bool* snd_button,
 			if(obj->type == obj_crate) {
 				if(rectf_rectf_collision(&obj->rect, &button->rect)) {
 					button->data.button_state = true;
-				}	
+				}
 			}
 		}
 	}
@@ -551,7 +551,7 @@ RectF objects_move_player(Vector2 offset, bool* battery, bool* snd_button,
 			*snd_button = true;
 
 		Object* beacon = &objects[button->button_beacon];
-		assert(beacon->type == obj_beacon);	
+		assert(beacon->type == obj_beacon);
 		assert(beacon->beacon_taken == true);
 
 		float target_intensity = button->data.button_state ? beacon_intensity : 0.0f;
@@ -565,7 +565,7 @@ RectF objects_move_player(Vector2 offset, bool* battery, bool* snd_button,
 void objects_get(ObjectType type, RectF screen, DArray* dest) {
 	static uint obj_list[256];
 	uint obj_count = 0;
-	
+
 	assert(dest->item_size == sizeof(Object));
 	dest->size = 0;
 
@@ -632,7 +632,7 @@ void objects_get(ObjectType type, RectF screen, DArray* dest) {
 		}
 	}
 
-	for(uint i = 0; i < obj_count; ++i) 
-		darray_append(dest, (void*)&objects[obj_list[i]]); 	
+	for(uint i = 0; i < obj_count; ++i)
+		darray_append(dest, (void*)&objects[obj_list[i]]);
 }
 

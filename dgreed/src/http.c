@@ -7,6 +7,12 @@
 #define INITIAL_HEADER_BUF 1024
 #define INITIAL_DATA_BUF 2048
 
+#if defined (_DEBUG_)
+#define ASSERT       assert
+#else                           /* _DEBUG_ */
+#define ASSERT( __exp__ )
+#endif
+
 typedef struct {
 	char* data;
 	char* cursor_ptr;
@@ -58,7 +64,7 @@ static size_t _io_write_data(char* ptr, size_t size, size_t nmemb, void* userdat
 		char* old_data = buffer->data;
 		buffer->size *= 2;
 		buffer->data = realloc(buffer->data, buffer->size);
-		buffer->cursor_ptr = buffer->data + (buffer->cursor_ptr - old_data); 
+		buffer->cursor_ptr = buffer->data + (buffer->cursor_ptr - old_data);
 	}
 
 	assert(buffer->cursor_ptr + data_size < buffer->data + buffer->size);
@@ -75,7 +81,7 @@ static size_t _io_read_data(char* ptr, size_t size, size_t nmemb, void* userdata
 
 	size_t data_size = size * nmemb;
 	size_t can_read = buffer->size - (buffer->cursor_ptr - buffer->data);
-	
+
 	if(can_read) {
 		size_t bytes_read = MIN(can_read, data_size);
 		memcpy(ptr, buffer->data, bytes_read);
@@ -90,12 +96,12 @@ static void _io_http_init(void* userdata) {
 	assert(!http_initialized);
 
 	io_header.data = malloc(INITIAL_HEADER_BUF);
-	io_header.size = INITIAL_HEADER_BUF; 
+	io_header.size = INITIAL_HEADER_BUF;
 	io_data.data = malloc(INITIAL_DATA_BUF);
 	io_data.size = INITIAL_DATA_BUF;
 
 	shr_header.data = malloc(INITIAL_HEADER_BUF);
-	shr_header.size = INITIAL_HEADER_BUF; 
+	shr_header.size = INITIAL_HEADER_BUF;
 	shr_header.cursor_ptr = NULL;
 	shr_data.data = malloc(INITIAL_DATA_BUF);
 	shr_data.size = INITIAL_DATA_BUF;
@@ -103,7 +109,7 @@ static void _io_http_init(void* userdata) {
 
 	shr_data_cs = async_make_cs();
 
-	io_curl = curl_easy_init();	
+	io_curl = curl_easy_init();
 
 	http_initialized = true;
 	LOG_INFO("http initialized - %s", curl_version());
@@ -142,7 +148,7 @@ static void _io_move_data() {
 
 static void _io_http_get(void* userdata) {
 	assert(http_initialized && shr_live_req);
-	
+
 	// Reset buffer write pointers
 	io_header.cursor_ptr = io_header.data;
 	io_data.cursor_ptr = io_data.data;
@@ -158,7 +164,7 @@ static void _io_http_get(void* userdata) {
 		curl_easy_setopt(io_curl, CURLOPT_HEADERFUNCTION, _io_write_data);
 	}
 	else {
-		curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, 0);
+	    curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, NULL);
 	}
 
 	// Perform request
@@ -200,7 +206,7 @@ static void _io_http_post(void* userdata) {
 		curl_easy_setopt(io_curl, CURLOPT_HEADERFUNCTION, _io_write_data);
 	}
 	else {
-		curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, 0);
+		curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, NULL);
 	}
 	curl_easy_setopt(io_curl, CURLOPT_READDATA, &io_readbuf);
 	curl_easy_setopt(io_curl, CURLOPT_READFUNCTION, _io_read_data);
@@ -212,7 +218,7 @@ static void _io_http_post(void* userdata) {
 		char content_type[128] = "Content-Type: ";
 		assert(strlen(content_type) + strlen(shr_req_content_type) < 128);
 		strcat(content_type, shr_req_content_type);
-		chunk = curl_slist_append(chunk, content_type); 
+		chunk = curl_slist_append(chunk, content_type);
 		curl_easy_setopt(io_curl, CURLOPT_HTTPHEADER, chunk);
 	}
 
@@ -259,7 +265,7 @@ static void _io_http_put(void* userdata) {
 		curl_easy_setopt(io_curl, CURLOPT_HEADERFUNCTION, _io_write_data);
 	}
 	else {
-		curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, 0);
+		curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, NULL);
 	}
 	curl_easy_setopt(io_curl, CURLOPT_READDATA, &io_readbuf);
 	curl_easy_setopt(io_curl, CURLOPT_READFUNCTION, _io_read_data);
@@ -283,7 +289,7 @@ static void _io_http_put(void* userdata) {
 
 static void _io_http_delete(void* userdata) {
 	assert(http_initialized && shr_live_req);
-	
+
 	// Reset buffer write pointers
 	io_header.cursor_ptr = io_header.data;
 	io_data.cursor_ptr = io_data.data;
@@ -300,7 +306,7 @@ static void _io_http_delete(void* userdata) {
 		curl_easy_setopt(io_curl, CURLOPT_HEADERFUNCTION, _io_write_data);
 	}
 	else {
-		curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, 0);
+		curl_easy_setopt(io_curl, CURLOPT_WRITEHEADER, NULL);
 	}
 
 	// Perform request
@@ -324,7 +330,7 @@ static void _io_http_delete(void* userdata) {
 static void _http_invoke_callback(void* userdata) {
 	assert(userdata);
 	assert(shr_live_req);
-	
+
 	HttpCallback cb = userdata;
 
 	async_enter_cs(shr_data_cs);
@@ -337,8 +343,8 @@ static void _http_invoke_callback(void* userdata) {
 
 	// Callback
 	(*cb)(
-			shr_resp_code, 
-			shr_data.data, data_size, 
+			shr_resp_code,
+			shr_data.data, data_size,
 			header_size ? shr_header.data : NULL, header_size
 	);
 
@@ -348,7 +354,7 @@ static void _http_invoke_callback(void* userdata) {
 }
 
 static void _http_init(void) {
-	assert(!http_initialized); 
+	assert(!http_initialized);
 
 	curl_global_init(CURL_GLOBAL_ALL);
 

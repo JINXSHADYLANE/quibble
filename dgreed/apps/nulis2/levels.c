@@ -51,7 +51,7 @@ static void _parse_level(MMLObject* mml, NodeIdx node, LevelDef* dest) {
 	NodeIdx n = mml_get_child(mml, node, "random_at");
 	if(n)
 		dest->spawn_random_at = mml_getval_uint(mml, n);
-	
+
 	n = mml_get_child(mml, node, "random_interval");
 	if(n)
 		dest->spawn_random_interval = mml_getval_float(mml, n);
@@ -81,7 +81,7 @@ static void _parse_level(MMLObject* mml, NodeIdx node, LevelDef* dest) {
 		dest->min_reactions = dest->par_reactions/2;
 
 	n = mml_get_child(mml, node, "spawns");
-	dest->n_spawns = 0; 
+	dest->n_spawns = 0;
 	assert(dest->n_spawns <= MAX_SPAWNS);
 
 	n = mml_get_first_child(mml, n);
@@ -99,7 +99,7 @@ static void _parse_level(MMLObject* mml, NodeIdx node, LevelDef* dest) {
 		NodeIdx m = mml_get_child(mml, n, "vel");
 		if(m)
 			spawn.vel = mml_getval_vec2(mml, m);
-		
+
 		m = mml_get_child(mml, n, "t");
 		if(m)
 			spawn.t = mml_getval_float(mml, m);
@@ -120,7 +120,7 @@ void levels_reset(const char* desc) {
 
 	if(level_mml_loaded) {
 		level_defs.size = 0;
-		level_mml_loaded = false;	
+		level_mml_loaded = false;
 	}
 
 	if(!level_defs_allocated) {
@@ -158,14 +158,14 @@ void levels_reset(const char* desc) {
 		memset(&new, 0, sizeof(new));
 
 		_parse_level(&level_mml, level, &new);
-		
+
 		darray_append(&level_defs, &new);
 	}
 
 	// Special logic for levels update:
 	// unlock 40 & 41 levels if 39 is solved,
 	// unlock 40 if 38 is solved
-	
+
 	if(level_is_solved("l39")) {
 		keyval_set_bool("ulck_l40", true);
 		keyval_set_bool("ulck_l41", true);
@@ -246,7 +246,7 @@ const char* levels_next(const char* current) {
 	for(uint i = 0; i < level_defs.size; ++i) {
 		if(strcmp(defs[i].name, current) == 0) {
 			if(_is_accessible(i))
-				return defs[(i+1)%level_defs.size].name; 
+				return defs[(i+1)%level_defs.size].name;
 			else
 				return NULL;
 		}
@@ -318,7 +318,7 @@ void level_solve(const char* name, uint reactions, uint time) {
 		score += MAX(0, (int)def.par_reactions - (int)reactions);
 	sprintf(key_name, "score_%s", name);
 	uint old_score = keyval_get_int(key_name, 0);
-	uint total_score = levels_total_score();
+	//uint total_score = levels_total_score();
 	if(score > old_score) {
 		keyval_set_int(key_name, score);
 
@@ -328,14 +328,14 @@ void level_solve(const char* name, uint reactions, uint time) {
 			GameCenterScore s = {
 				.category = "default",
 				.context = 42,
-				.value = total_score,
+				.value = levels_total_score(),
 				.player = NULL
 			};
 
 			gamecenter_report_score(&s);
 		}
-#else
-	total_score = 0;
+//#else
+//	total_score = 0;
 #endif
 	}
 }
@@ -373,7 +373,7 @@ uint levels_total_score(void) {
 	uint total_time = 0;
 	LevelDef* defs = DARRAY_DATA_PTR(level_defs, LevelDef);
 	for(uint i = 1; i <= max_levels; ++i) {
-		sprintf(level_name, "l%d", i);	
+		sprintf(level_name, "l%d", i);
 		sprintf(key_name, "score_%s", level_name);
 		uint s = keyval_get_int(key_name, 0);
 		uint max_score = defs[i].par_time - defs[i].min_time;
@@ -395,8 +395,8 @@ uint levels_total_score(void) {
 			achievements_progress("flash", 1.0f);
 	}
 
-	achievements_progress("perfectionist", clamp(0.0f, 1.0f, (float)n_perfected_levels / 15.0f)); 
-	achievements_progress("tour_de_force", clamp(0.0f, 1.0f, (float)n_perfected_levels / (float)(max_levels-1))); 
+	achievements_progress("perfectionist", clamp(0.0f, 1.0f, (float)n_perfected_levels / 15.0f));
+	achievements_progress("tour_de_force", clamp(0.0f, 1.0f, (float)n_perfected_levels / (float)(max_levels-1)));
 
 	return score;
 }
@@ -405,7 +405,7 @@ const char* level_first_unsolved(void) {
 	static char level_name[16];
 	char key_name[16];
 	for(uint i = 1; i <= max_levels; ++i) {
-		sprintf(level_name, "l%d", i);	
+		sprintf(level_name, "l%d", i);
 
 		sprintf(key_name, "slvd_%s", level_name);
 		if(!keyval_get_bool(key_name, false)) {

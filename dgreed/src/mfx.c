@@ -7,7 +7,7 @@
 #include "memory.h"
 #include "mml.h"
 
-static const bool preload_all = true; 
+static const bool preload_all = true;
 
 typedef enum {
 	SUB_SOUND,
@@ -69,7 +69,7 @@ Dict meta_effect_dict;
 DArray meta_effects;
 DArray sub_effects;
 DArray live_sub_effects;
-Heap live_sub_effects_pq; 
+Heap live_sub_effects_pq;
 
 Dict snd_dict;
 DArray snd_defs;
@@ -104,7 +104,7 @@ static void _perform_sub_effect(LiveSubEffect* sf) {
 	assert(!sf->remove);
 
 	// Delay is already taken into account
-	
+
 	SubEffect* sub = _get_sub_effect(sf->sub);
 
 	if(sub->type == SUB_SOUND) {
@@ -127,7 +127,7 @@ static void _snd_load(SndDef* def, const char* name) {
 	strcat(path, name);
 
 	// Load
-	def->handle = sound_load_sample(path);	
+	def->handle = sound_load_sample(path);
 	def->loaded = true;
 
 	// Set volume for events
@@ -143,7 +143,7 @@ static void _load_sounds(NodeIdx node) {
 	NodeIdx sound_node = mml_get_first_child(&mfx_mml, node);
 	for(; sound_node != 0; sound_node = mml_get_next(&mfx_mml, sound_node)) {
 		assert(strcmp("s", mml_get_name(&mfx_mml, sound_node)) == 0);
-		const char* snd_name = mml_getval_str(&mfx_mml, sound_node); 
+		const char* snd_name = mml_getval_str(&mfx_mml, sound_node);
 
 		SndDef new = {
 			.type = SND_EVENT,
@@ -225,7 +225,7 @@ static void _load_effects(NodeIdx node) {
 		for(; sub_node != 0; sub_node = mml_get_next(&mfx_mml, sub_node)) {
 
 			const char* name = mml_get_name(&mfx_mml, sub_node);
-			SubEffectType type;
+			SubEffectType type = 0;  // Iniatilized type
 
 			if(strcmp("sound", name) == 0)
 				type = SUB_SOUND;
@@ -242,7 +242,7 @@ static void _load_effects(NodeIdx node) {
 				.pos_offset = {0.0f, 0.0f}
 			};
 
-			// Params 
+			// Params
 			NodeIdx param = mml_get_first_child(&mfx_mml, sub_node);
 			for(; param != 0; param = mml_get_next(&mfx_mml, param)) {
 				const char* param_name = mml_get_name(&mfx_mml, param);
@@ -298,7 +298,7 @@ static void _load_desc(const char* filename) {
 		if(strcmp("effects", name) == 0)
 			_load_effects(child);
 
-		if(strcmp("prefix", name) == 0) 
+		if(strcmp("prefix", name) == 0)
 			mfx_prefix = mml_getval_str(&mfx_mml, child);
 	}
 }
@@ -376,7 +376,7 @@ void mfx_trigger(const char* name) {
 }
 
 void mfx_trigger_ex(const char* name, Vector2 pos, float dir) {
-	assert(name);	
+	assert(name);
 
 	MetaEffectIdx idx = (MetaEffectIdx)dict_get(&meta_effect_dict, name);
 	MetaEffect* mfx = _get_meta_effect(idx);
@@ -447,16 +447,16 @@ static void _snd_update(void) {
 
 	for(uint i = 0; i < snd_live.size; ++i) {
 		LiveSnd* snd = &snds[i];
-	
+
 		SndDef* def = _get_snd_def(snd->def);
 
 		if(t - snd->trigger_t < def->trigger)
 			snd->volume += def->attack * dt;
 		else
 			snd->volume -= def->decay * dt;
-		
+
 		snd->volume = clamp(0.0f, 1.0f, snd->volume);
-		float vol = def->volume * snd->volume * mfx_volume; 
+		float vol = def->volume * snd->volume * mfx_volume;
 		if(vol < 0.01f) {
 			// Remove from live sounds
 			sound_stop_ex(snd->handle);
@@ -518,7 +518,7 @@ void mfx_snd_set_ambient(const char* name, float volume) {
 	SndDefIdx idx = (SndDefIdx)dict_get(&snd_dict, name);
 	SndDef* def = _get_snd_def(idx);
 	LiveSnd* live = NULL;
-	
+
 	if(!def->loaded)
 		_snd_load(def, name);
 	else

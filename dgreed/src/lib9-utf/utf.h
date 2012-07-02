@@ -50,7 +50,6 @@ extern "C" {
 
 int runetochar(char* s, const Rune* r);
 
-
 // chartorune copies (decodes) at most UTFmax bytes starting at s to
 // one rune, pointed to by r, and returns the number of bytes consumed.
 // If the input is not exactly in UTF format, chartorune will set *r

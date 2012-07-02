@@ -7,7 +7,7 @@
 
 static void* _to_rgb888(Color* data, uint w, uint h) {
 	byte* out = malloc(w * h * 3);
-	byte r, g, b, a;
+	byte r, g, b, a __attribute__ ((unused));
 	for(uint i = 0, j = 0; i < w * h; ++i, j += 3) {
 		COLOR_DECONSTRUCT(data[i], r, g, b, a);
 		out[j+0] = r;
@@ -22,7 +22,7 @@ static void* _to_rgb888(Color* data, uint w, uint h) {
 
 static void* _to_rgb565(Color* data, uint w, uint h) {
 	uint16* out = malloc(w * h * 2);
-	byte r, g, b, a;
+	byte r, g, b, a __attribute__ ((unused));
 	for(uint i = 0; i < w * h; ++i) {
 		COLOR_DECONSTRUCT(data[i], r, g, b, a);
 		r >>= 3;
@@ -147,7 +147,7 @@ int dgreed_main(int argc, const char** argv) {
 	}
 
 	bool premul = false;
-	bool verbose = false;
+	bool verbose __attribute__ ((unused)) = false;
 	PixelFormat format = PF_RGBA4444;
 	const char* in = NULL;
 	const char* out = "out.dig";
@@ -159,7 +159,7 @@ int dgreed_main(int argc, const char** argv) {
 			premul = true;
 		else if(strcmp(params_get(i), "-f") == 0)
 			format = _str_to_format(params_get(++i));
-		else if(strcmp(params_get(i), "-o") == 0) 
+		else if(strcmp(params_get(i), "-o") == 0)
 			out = params_get(++i);
 		else if(!in)
 			in = params_get(i);

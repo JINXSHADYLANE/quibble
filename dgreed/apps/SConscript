@@ -1,6 +1,6 @@
 Import('env')
 
-SUBS = ['empty', 'pong' , 'keymingler', 'greed', 'gyvis', 'lietus',
+SUBS = ['empty', 'pong' , 'keymingler', 'greed', 'lietus',
 	'sausra', 'white_dove', 'bulb', 'gurbas', 'states', 'nulis', 'nulis2',
 	'plikledis', 'vakar', 'tests', 'aitvaras', 'aidas', 'kovas']
 
