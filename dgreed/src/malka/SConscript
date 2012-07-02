@@ -1,0 +1,28 @@
+Import('env')
+
+lua = SConscript('lua/SConscript', exports='env')
+
+NAME='malka'
+postfix = env['DGREED_POSTFIX']
+
+sources = Split("""
+	malka.c
+	ml_utils.c
+	ml_system.c
+	ml_mml.c
+	ml_states.c
+	ml_sprsheet.c
+	ml_mfx.c
+	ml_coldet.c
+	ml_keyval.c
+	ml_gamecenter.c
+	ml_os.c
+	ml_iap.c
+	ml_http.c
+	ml_localization.c
+""")
+
+malka = env.Library(NAME + postfix, sources)
+env.Install('#'+env['DGREED_BIN_DIR'], malka)
+env.Depends(malka, lua)
+
