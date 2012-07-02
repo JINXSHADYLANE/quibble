@@ -68,53 +68,32 @@ static void* _to_rgba5551(Color* data, uint w, uint h) {
 	return out;
 }
 
-static void*_to_pvrtc(const char *file_name, const char *params, int bpp, int pixels_count){
-	const char *temp_file = "./mkdig_temp.pvr";
-	const char *pvrtex = "./PVRTexTool -i ";
-	char *command = malloc(strlen(file_name) + strlen(temp_file) + strlen(pvrtex) + strlen(params)+1);
-	strcpy(command, pvrtex);
-	strcat(command, file_name);
-	strcat(command, params);
-	strcat(command, temp_file);
+static void* _to_pvrtc(const char* file_name, int bpp){
+	char params[128];
+	const char* temp_file = "./mkdig_temp.pvr";
+	char command[256];
+
+	sprintf(params, " -f PVRTC%d -silent -p -pvrtchigh", bpp);
+	sprintf(command, "PVRTexTool -i %s %s -o %s", file_name, params, temp_file);
 	system(command);
-	free(command);
 
+	const size_t header_size = 52;
 	FileHandle file_handle = file_open(temp_file);
-	uint file_s = file_size(file_handle);
-	uint data_size = (pixels_count*bpp/8);
-	uint header_size = file_s - data_size;
+	uint size = file_size(file_handle);
 	file_seek(file_handle, header_size);
-
-	void* d = malloc(data_size*sizeof(d));
-	file_read(file_handle, d, data_size);
-
+	void* d = malloc(size - header_size);
+	file_read(file_handle, d, size - header_size);
 	file_close(file_handle);
-	system("rm -f ./mkdig_temp.pvr");	
+
+	sprintf(command, "rm -f %s", temp_file);
+	system(command);	
 	return d;
-}
-
-
-
-
-static void*_to_pvrtc2(const char*file_name,bool premul, int pixels_count){
-	if(premul){	
-		const char*params=" -f PVRTC2 -premultalpha -silent -o ";
-		return _to_pvrtc(file_name, params, 2, pixels_count );
-	}
-	const char*params=" -f PVRTC2 -silent -o ";
-	return _to_pvrtc(file_name, params,2, pixels_count);	
 }	
 
-static void*_to_pvrtc4(const char*file_name,bool premul, int pixels_count){
-	if(premul){	
-		const char*params=" -f PVRTC4 -premultalpha -silent -o ";
-		return _to_pvrtc(file_name,params, 4, pixels_count);
-	}
-	const char*params=" -f PVRTC4 -silent -o ";
-	return _to_pvrtc(file_name, params, 4, pixels_count);
-}
+static void* _format(
+		Color* data, uint w, uint h, PixelFormat format, 
+		const char* file_name, bool premul) {
 
-static void* _format(Color* data, uint w, uint h, PixelFormat format, const char*file_name, bool premul) {
 	void* out = NULL;
 	switch(format) {
 		case PF_RGB888:
@@ -124,7 +103,7 @@ static void* _format(Color* data, uint w, uint h, PixelFormat format, const char
 			out = _to_rgb565(data, w, h);
 			break;
 		case PF_RGBA8888:
-			out = MEM_ALLOC(w * h * 4);
+			out = malloc(w * h * 4);
 			memcpy(out, data, w * h * 4);
 			break;
 		case PF_RGBA4444:
@@ -134,10 +113,10 @@ static void* _format(Color* data, uint w, uint h, PixelFormat format, const char
 			out = _to_rgba5551(data, w, h);
 			break;
 		case PF_PVRTC4:
-			out = _to_pvrtc4(file_name, premul, w*h);
+			out = _to_pvrtc(file_name, 4);
 			break;
 		case PF_PVRTC2:
-			out = _to_pvrtc2(file_name, premul, w*h);
+			out = _to_pvrtc(file_name, 2);
 			break;
 		default:
 			printf("format is not yet supported\n");
@@ -236,8 +215,9 @@ int dgreed_main(int argc, const char** argv) {
 
 	if(premul)
 		format |= PF_MASK_PREMUL_ALPHA;
-	printf("image_write_dig\n");
+
 	image_write_dig(out, w, h, format, pixels);
+
 	free(pixels);
 	free(data);
 	return 0;
