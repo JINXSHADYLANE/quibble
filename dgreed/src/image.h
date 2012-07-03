@@ -31,6 +31,8 @@ void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format);
 
 void image_write_tga(const char* filename, uint w, uint h, const Color* pixels);
 
+void image_write_png(const char* filename, uint w, uint h, const Color* pixels);
+
 void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, void* pixels);
 
 #endif
