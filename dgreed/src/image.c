@@ -5,6 +5,7 @@
 
 #include "lz4.h"
 #include "lz4hc.h"
+#include "miniz/miniz.c"
 
 typedef enum {
 	DC_NONE = 0,
@@ -222,19 +223,18 @@ void image_write_tga(const char* filename, uint w, uint h, const Color* pixels) 
         .imagedescriptor = 8
 	};
 
-    Color * pix = (Color *) malloc(w * h * sizeof(Color));
-    byte a, r, g, b;
+	Color * pix = (Color *) malloc(w * h * sizeof(Color));
+	byte a, r, g, b;
 
-    for(int i = 0; i < w * h; i++)
-        {
-            pix[i] = pixels[i];
-            // Swap r byte with b byte (argb -> abgr)
-            a = (pix[i] >> 24);
-            r = (pix[i] >> 16);
-            g = (pix[i] >> 8);
-            b = (pix[i] >> 0);
-            pix[i] = ((a << 24) | (b << 16) | (g << 8)  | (r << 0));
-        }
+	for(int i = 0; i < w * h; i++) {
+    	pix[i] = pixels[i];
+       	// Swap r byte with b byte (argb -> abgr)
+       	a = (pix[i] >> 24);
+       	r = (pix[i] >> 16);
+       	g = (pix[i] >> 8);
+        b = (pix[i] >> 0);
+        pix[i] = ((a << 24) | (b << 16) | (g << 8)  | (r << 0));
+    }
 
     size_t out_size = (w * h * 32) / 8;
 
@@ -245,6 +245,20 @@ void image_write_tga(const char* filename, uint w, uint h, const Color* pixels) 
     file_close(f);
 
     free(pix);
+}
+
+void image_write_png(const char* filename, uint w, uint h, const Color* pixels) {
+	size_t* out_size = malloc(sizeof(size_t));
+
+	void * pix = tdefl_write_image_to_png_file_in_memory(pixels, w, h, 4, out_size);
+
+	// Write
+	FileHandle f = file_create(filename);
+	file_write(f, pix, *out_size);
+	file_close(f);
+
+	free(out_size);
+	free(pix);
 }
 
 void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, void* pixels) {
