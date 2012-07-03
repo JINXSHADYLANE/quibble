@@ -75,7 +75,9 @@ static void* _to_pvrtc(const char* file_name, int bpp){
 
 	sprintf(params, " -f PVRTC%d -silent -p -pvrtchigh", bpp);
 	sprintf(command, "PVRTexTool -i %s %s -o %s", file_name, params, temp_file);
-	system(command);
+	if(system(command)==-1)
+	   LOG_ERROR("System command %s failed", command);
+
 
 	const size_t header_size = 52;
 	FileHandle file_handle = file_open(temp_file);
@@ -86,12 +88,13 @@ static void* _to_pvrtc(const char* file_name, int bpp){
 	file_close(file_handle);
 
 	sprintf(command, "rm -f %s", temp_file);
-	system(command);	
+    if(system(command)==-1)
+	   LOG_ERROR("System command %s failed", command);
 	return d;
-}	
+}
 
 static void* _format(
-		Color* data, uint w, uint h, PixelFormat format, 
+		Color* data, uint w, uint h, PixelFormat format,
 		const char* file_name, bool premul) {
 
 	void* out = NULL;
@@ -210,7 +213,7 @@ int dgreed_main(int argc, const char** argv) {
 
 	if(premul)
 		_premul_alpha(data, w, h);
-	
+
 	void* pixels = _format(data, w, h, format, in, premul);
 
 	if(premul)
