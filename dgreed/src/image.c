@@ -5,6 +5,8 @@
 
 #include "lz4.h"
 #include "lz4hc.h"
+
+#define MINIZ_HEADER_FILE_ONLY
 #include "miniz/miniz.c"
 
 typedef enum {
