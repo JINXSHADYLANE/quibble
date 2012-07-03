@@ -250,16 +250,15 @@ void image_write_tga(const char* filename, uint w, uint h, const Color* pixels) 
 }
 
 void image_write_png(const char* filename, uint w, uint h, const Color* pixels) {
-	size_t* out_size = malloc(sizeof(size_t));
+	size_t out_size;
 
-	void * pix = tdefl_write_image_to_png_file_in_memory(pixels, w, h, 4, out_size);
+	void *pix = tdefl_write_image_to_png_file_in_memory(pixels, w, h, 4, &out_size);
 
 	// Write
 	FileHandle f = file_create(filename);
-	file_write(f, pix, *out_size);
+	file_write(f, pix, out_size);
 	file_close(f);
 
-	free(out_size);
 	free(pix);
 }
 
