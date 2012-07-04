@@ -210,7 +210,8 @@ static void _async_finish_taskid(TaskId id) {
 	assert(id >= async_lowest_unfinished_taskid);
 
 	// Remove id from unfinished taskids list
-	assert(aatree_remove(&async_unfinished_taskids, id));
+	void* p __attribute__ ((unused)) = aatree_remove(&async_unfinished_taskids, id);
+	assert(p);
 
 	// Update highest finished taskid
 	async_highest_finished_taskid = MAX(async_highest_finished_taskid, id);
