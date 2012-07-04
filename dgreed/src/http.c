@@ -7,12 +7,6 @@
 #define INITIAL_HEADER_BUF 1024
 #define INITIAL_DATA_BUF 2048
 
-#if defined (_DEBUG_)
-#define ASSERT       assert
-#else                           /* _DEBUG_ */
-#define ASSERT( __exp__ )
-#endif
-
 typedef struct {
 	char* data;
 	char* cursor_ptr;
