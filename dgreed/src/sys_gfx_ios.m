@@ -2,27 +2,12 @@
 
 #include "memory.h"
 #include "darray.h"
-#include "wav.h"
 #include "gfx_utils.h"
 
-#import <Foundation/Foundation.h>
-#import <CoreData/CoreData.h>
-#import <AVFoundation/AVFoundation.h>
 #import <QuartzCore/QuartzCore.h>
-#import <UIKit/UIKit.h>
-#import <MessageUI/MFMailComposeViewController.h>
-#import <Twitter/TWTweetComposeViewController.h>
-#import <MediaPlayer/MPMusicPlayerController.h>
-#include <mach/mach.h>
-#include <mach/mach_time.h>
 #include <OpenGLES/ES1/gl.h>
 #include <OpenGLES/ES1/glext.h>
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
-#import "DGreedAppDelegate.h"
-#import "GLESView.h"
 #import "GLESViewController.h"
-#import "AutoRotateViewController.h"
 
 /*
 -------------
@@ -82,7 +67,7 @@ static uint radix_counts[256];
 static DArray rects_out;
 static DArray vertex_buffer;
 static uint16 index_buffer[max_vertices/4 * 6];
-static uint fps_count = 0;
+extern uint fps_count;
 static bool video_retro_filtering = false;
 static bool has_discard_extension = false;
 static bool use_bgra = false;
