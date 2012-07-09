@@ -56,6 +56,7 @@ static bool orientation_transition_start = false;
 static DevOrient orientation_next;
 static float orientation_transition_start_t = 0.0f;
 static float orientation_transition_len = 0.0f;
+uint fps_count;
 
 DevOrient _uikit_to_dev_orient(UIInterfaceOrientation orient) {
     switch(orient) {
