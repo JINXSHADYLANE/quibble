@@ -5,8 +5,8 @@
 
 extern float x_size_factor, y_size_factor;
 
-#include "system_video/system_video.h"
-#include "system_audio/system_audio.h"
-#include "system_misc/system_misc.h"
+#include "sys_gfx.h"
+#include "sys_snd.h"
+#include "sys_misc.h"
 
 #endif
