@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		211523C115AADC0200C38EEC /* sys_misc_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523C015AADC0200C38EEC /* sys_misc_ios.m */; };
 		211523C315AADC1400C38EEC /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523C215AADC1400C38EEC /* sys_gfx_ios.m */; };
 		211523C515AADC2500C38EEC /* sys_snd_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523C415AADC2500C38EEC /* sys_snd_ios.m */; };
 		211523CA15AAE16300C38EEC /* camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523C915AAE16300C38EEC /* camera.m */; };
@@ -35,7 +34,6 @@
 		2137772214CD5AFB004F01D2 /* coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 213776F414CD5AFB004F01D2 /* coldet.c */; };
 		2137772314CD5AFB004F01D2 /* darray.c in Sources */ = {isa = PBXBuildFile; fileRef = 213776F614CD5AFB004F01D2 /* darray.c */; };
 		2137772414CD5AFB004F01D2 /* datastruct.c in Sources */ = {isa = PBXBuildFile; fileRef = 213776F814CD5AFB004F01D2 /* datastruct.c */; };
-		2137772514CD5AFB004F01D2 /* DGreedAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 213776FB14CD5AFB004F01D2 /* DGreedAppDelegate.m */; };
 		2137772614CD5AFB004F01D2 /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 213776FC14CD5AFB004F01D2 /* font.c */; };
 		2137772714CD5AFB004F01D2 /* gfx_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 213776FE14CD5AFB004F01D2 /* gfx_utils.c */; };
 		2137772814CD5AFB004F01D2 /* GLESView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2137770114CD5AFB004F01D2 /* GLESView.m */; };
@@ -134,6 +132,9 @@
 		21A92A0E150A2D6F004AE2C3 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A92A0C150A2D61004AE2C3 /* StoreKit.framework */; };
 		21A92A11150A64F5004AE2C3 /* ml_iap.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A92A0F150A64F5004AE2C3 /* ml_iap.c */; };
 		21A92A13150A778D004AE2C3 /* icon 144x144.png in Resources */ = {isa = PBXBuildFile; fileRef = 21A92A12150A778D004AE2C3 /* icon 144x144.png */; };
+		21B8B4AB15AD560800F2AADD /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21B8B4AA15AD560800F2AADD /* MessageUI.framework */; };
+		21CF3BF615AC237400BF33BC /* DGreedAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 21CF3BF515AC237400BF33BC /* DGreedAppDelegate.m */; };
+		21CF3BF815AC266800BF33BC /* sys_misc_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 21CF3BF715AC266800BF33BC /* sys_misc_ios.m */; };
 		21D150D314E1541B00870D7A /* gamecenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D150D214E1541A00870D7A /* gamecenter.m */; };
 		21D150D914E1715000870D7A /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21D150D714E1713D00870D7A /* GameKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		21DBAB04151F4BD800DCFFFB /* achievements.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DBAB02151F4BD800DCFFFB /* achievements.c */; };
@@ -144,7 +145,6 @@
 
 /* Begin PBXFileReference section */
 		211523BF15AADBF600C38EEC /* sys_gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sys_gfx.h; path = ../../../src/sys_gfx.h; sourceTree = "<group>"; };
-		211523C015AADC0200C38EEC /* sys_misc_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_misc_ios.m; path = ../../../src/sys_misc_ios.m; sourceTree = "<group>"; };
 		211523C215AADC1400C38EEC /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
 		211523C415AADC2500C38EEC /* sys_snd_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_snd_ios.m; path = ../../../src/sys_snd_ios.m; sourceTree = "<group>"; };
 		211523C615AADC3100C38EEC /* sys_misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sys_misc.h; path = ../../../src/sys_misc.h; sourceTree = "<group>"; };
@@ -189,8 +189,6 @@
 		213776F714CD5AFB004F01D2 /* darray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = darray.h; path = ../../../src/darray.h; sourceTree = "<group>"; };
 		213776F814CD5AFB004F01D2 /* datastruct.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = datastruct.c; path = ../../../src/datastruct.c; sourceTree = "<group>"; };
 		213776F914CD5AFB004F01D2 /* datastruct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = datastruct.h; path = ../../../src/datastruct.h; sourceTree = "<group>"; };
-		213776FA14CD5AFB004F01D2 /* DGreedAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DGreedAppDelegate.h; path = ../../../src/DGreedAppDelegate.h; sourceTree = "<group>"; };
-		213776FB14CD5AFB004F01D2 /* DGreedAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DGreedAppDelegate.m; path = ../../../src/DGreedAppDelegate.m; sourceTree = "<group>"; };
 		213776FC14CD5AFB004F01D2 /* font.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = font.c; path = ../../../src/font.c; sourceTree = "<group>"; };
 		213776FD14CD5AFB004F01D2 /* font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = font.h; path = ../../../src/font.h; sourceTree = "<group>"; };
 		213776FE14CD5AFB004F01D2 /* gfx_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gfx_utils.c; path = ../../../src/gfx_utils.c; sourceTree = "<group>"; };
@@ -367,6 +365,10 @@
 		21A92A0F150A64F5004AE2C3 /* ml_iap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_iap.c; path = ../../../src/malka/ml_iap.c; sourceTree = "<group>"; };
 		21A92A10150A64F5004AE2C3 /* ml_iap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_iap.h; path = ../../../src/malka/ml_iap.h; sourceTree = "<group>"; };
 		21A92A12150A778D004AE2C3 /* icon 144x144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 144x144.png"; sourceTree = "<group>"; };
+		21B8B4AA15AD560800F2AADD /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		21CF3BF415AC237400BF33BC /* DGreedAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DGreedAppDelegate.h; path = ../../../src/DGreedAppDelegate.h; sourceTree = "<group>"; };
+		21CF3BF515AC237400BF33BC /* DGreedAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DGreedAppDelegate.m; path = ../../../src/DGreedAppDelegate.m; sourceTree = "<group>"; };
+		21CF3BF715AC266800BF33BC /* sys_misc_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_misc_ios.m; path = ../../../src/sys_misc_ios.m; sourceTree = "<group>"; };
 		21D150D114E1541A00870D7A /* gamecenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gamecenter.h; path = ../../../src/gamecenter.h; sourceTree = "<group>"; };
 		21D150D214E1541A00870D7A /* gamecenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = gamecenter.m; path = ../../../src/gamecenter.m; sourceTree = "<group>"; };
 		21D150D714E1713D00870D7A /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
@@ -383,6 +385,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				21B8B4AB15AD560800F2AADD /* MessageUI.framework in Frameworks */,
 				21DBAB08151F6C0500DCFFFB /* MediaPlayer.framework in Frameworks */,
 				216A5F6D1511F43B00BFE24D /* MobileCoreServices.framework in Frameworks */,
 				216A5F6C1511F43400BFE24D /* SystemConfiguration.framework in Frameworks */,
@@ -410,6 +413,7 @@
 		213776CB14CD5A58004F01D2 = {
 			isa = PBXGroup;
 			children = (
+				21B8B4AA15AD560800F2AADD /* MessageUI.framework */,
 				21A92A12150A778D004AE2C3 /* icon 144x144.png */,
 				212518E514CEA31C000E8BD2 /* Default@2x.png */,
 				212518E314CEA319000E8BD2 /* Default.png */,
@@ -480,6 +484,9 @@
 		213776F114CD5AAB004F01D2 /* dgreed */ = {
 			isa = PBXGroup;
 			children = (
+				21CF3BF715AC266800BF33BC /* sys_misc_ios.m */,
+				21CF3BF415AC237400BF33BC /* DGreedAppDelegate.h */,
+				21CF3BF515AC237400BF33BC /* DGreedAppDelegate.m */,
 				211523E215AAF04000C38EEC /* miniz.c */,
 				211523D415AAECC900C38EEC /* localization.c */,
 				211523D515AAECC900C38EEC /* localization.h */,
@@ -499,7 +506,6 @@
 				211523C615AADC3100C38EEC /* sys_misc.h */,
 				211523C415AADC2500C38EEC /* sys_snd_ios.m */,
 				211523C215AADC1400C38EEC /* sys_gfx_ios.m */,
-				211523C015AADC0200C38EEC /* sys_misc_ios.m */,
 				211523BF15AADBF600C38EEC /* sys_gfx.h */,
 				216A5F341511F00200BFE24D /* asi-http-request */,
 				21744004150B698B002C92D7 /* lib9-utf */,
@@ -514,8 +520,6 @@
 				213776F714CD5AFB004F01D2 /* darray.h */,
 				213776F814CD5AFB004F01D2 /* datastruct.c */,
 				213776F914CD5AFB004F01D2 /* datastruct.h */,
-				213776FA14CD5AFB004F01D2 /* DGreedAppDelegate.h */,
-				213776FB14CD5AFB004F01D2 /* DGreedAppDelegate.m */,
 				213776FC14CD5AFB004F01D2 /* font.c */,
 				213776FD14CD5AFB004F01D2 /* font.h */,
 				21D150D214E1541A00870D7A /* gamecenter.m */,
@@ -793,7 +797,6 @@
 				2137772214CD5AFB004F01D2 /* coldet.c in Sources */,
 				2137772314CD5AFB004F01D2 /* darray.c in Sources */,
 				2137772414CD5AFB004F01D2 /* datastruct.c in Sources */,
-				2137772514CD5AFB004F01D2 /* DGreedAppDelegate.m in Sources */,
 				2137772614CD5AFB004F01D2 /* font.c in Sources */,
 				2137772714CD5AFB004F01D2 /* gfx_utils.c in Sources */,
 				2137772814CD5AFB004F01D2 /* GLESView.m in Sources */,
@@ -882,7 +885,6 @@
 				216A5F521511F22000BFE24D /* ASIAuthenticationDialog.m in Sources */,
 				216A5F531511F22000BFE24D /* Reachability.m in Sources */,
 				21DBAB04151F4BD800DCFFFB /* achievements.c in Sources */,
-				211523C115AADC0200C38EEC /* sys_misc_ios.m in Sources */,
 				211523C315AADC1400C38EEC /* sys_gfx_ios.m in Sources */,
 				211523C515AADC2500C38EEC /* sys_snd_ios.m in Sources */,
 				211523CA15AAE16300C38EEC /* camera.m in Sources */,
@@ -894,6 +896,8 @@
 				211523DC15AAECCA00C38EEC /* lz4hc.c in Sources */,
 				211523DF15AAED5200C38EEC /* ml_localization.c in Sources */,
 				211523E315AAF04000C38EEC /* miniz.c in Sources */,
+				21CF3BF615AC237400BF33BC /* DGreedAppDelegate.m in Sources */,
+				21CF3BF815AC266800BF33BC /* sys_misc_ios.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -2,6 +2,7 @@
 
 #include "memory.h"
 #include "darray.h"
+#include "image.h"
 #include "gfx_utils.h"
 
 #import <QuartzCore/QuartzCore.h>
@@ -876,4 +877,15 @@ void video_draw_line(uint layer, const Vector2* start,
 	new_line.color = color;
 
 	darray_append(&line_buckets[layer], &new_line);
+}
+
+void* ios_load_image(const char* filename, uint* w, uint* h, PixelFormat* format) {
+	CFDataRef image_data;
+	void* data = _load_image(filename, w, h, &image_data);
+    size_t s = 4 * *w * *h;
+	void* data_copy = malloc(s);
+	memcpy(data_copy, data, s);
+	CFRelease(image_data);
+	*format = PF_RGBA8888;
+	return data_copy;
 }
