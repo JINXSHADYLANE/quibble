@@ -18,6 +18,8 @@ extern void _iap_received_products_response(SKProductsResponse* response);
 extern void _iap_updated_transaction(SKPaymentQueue* queue, SKPaymentTransaction* transaction);
 extern void _camera_did_cancel(UIImagePickerController* picker); 
 extern void _camera_did_finish_picking(UIImagePickerController* picker, NSDictionary* info);
+extern void _ios_mail_did_finish(MFMailComposeViewController* controller, MFMailComposeResult result);
+extern void _ios_mail_set_delegate(DGreedAppDelegate* delegate);
 extern float inactive_time;
 extern Color clear_color;
 extern float screen_widthf, screen_heightf;
@@ -66,7 +68,7 @@ float resign_active_t;
     /* Determine if we're on iPad */
     self.is_ipad = false;
     if ([[UIDevice currentDevice] respondsToSelector: @selector(userInterfaceIdiom)])
-            self.is_ipad = ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad);
+        self.is_ipad = ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad);
 	
 	/* Get home directory for utils.c */
 	NSString* home = NSHomeDirectory();
@@ -93,7 +95,7 @@ float resign_active_t;
                                                          green:(float)r/255.0f
                                                           blue:(float)b/255.0f 
                                                          alpha:1.0f];
-
+    
     if(!dgreed_init(0, NULL))
 		return NO;
     
@@ -203,8 +205,8 @@ float resign_active_t;
 
 bool isAccelerating(UIAcceleration* last, UIAcceleration* current, double threshold) {
     return fabs(last.x - current.x) > threshold 
-        || fabs(last.y - current.y) > threshold
-        || fabs(last.z - current.z) > threshold;
+    || fabs(last.y - current.y) > threshold
+    || fabs(last.z - current.z) > threshold;
 }
 
 - (void) accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
@@ -242,6 +244,11 @@ bool isAccelerating(UIAcceleration* last, UIAcceleration* current, double thresh
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     _camera_did_finish_picking(picker, info);
+}
+
+- (void)mailComposeController:(MFMailComposeViewController *)mail_controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+    _ios_mail_did_finish(mail_controller, result);
 }
 
 @end

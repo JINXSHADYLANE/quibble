@@ -3,17 +3,20 @@
 #import "GLESView.h"
 #import "GLESViewController.h"
 #import "AutoRotateViewController.h"
+#import <MessageUI/MFMailComposeViewController.h>
 
 @interface DGreedAppDelegate : NSObject <
-    UIApplicationDelegate, 
-    GKLeaderboardViewControllerDelegate, 
-    GKAchievementViewControllerDelegate,
-    UIAccelerometerDelegate,
-    SKProductsRequestDelegate,
-    SKPaymentTransactionObserver,
-    UIImagePickerControllerDelegate,
-    UINavigationControllerDelegate
-    > {
+UIApplicationDelegate, 
+GKLeaderboardViewControllerDelegate, 
+GKAchievementViewControllerDelegate,
+UIAccelerometerDelegate,
+SKProductsRequestDelegate,
+SKPaymentTransactionObserver,
+UIImagePickerControllerDelegate,
+UIPopoverControllerDelegate,
+UINavigationControllerDelegate,
+MFMailComposeViewControllerDelegate
+> {
     
     UIWindow* window;
     AutoRotateViewController* controller;
