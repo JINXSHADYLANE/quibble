@@ -101,6 +101,7 @@ static int _format_bpp(PixelFormat format) {
 		case PF_RGB565:
 		case PF_RGBA4444:
 		case PF_RGBA5551:
+		case PF_LA88:
 			return 16;
 		case PF_PVRTC4:
 			return 4;
