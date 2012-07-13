@@ -68,6 +68,19 @@ static void* _to_rgba5551(Color* data, uint w, uint h) {
 	return out;
 }
 
+#define LA88_ENCODE(l, a) \
+	(((l)&0xFF)|(((a)&0xFF)<<8))
+
+static void* _to_la88(Color* data, uint w, uint h) {
+	uint16* out = malloc(w * h * 2);
+	byte r, g, b, a;
+	for(uint i = 0; i < w * h; ++i) {
+		COLOR_DECONSTRUCT(data[i], r, g, b, a);
+		out[i] = LA88_ENCODE((r + g + b) / 3, a);
+	}
+	return out;
+}
+
 static void* _to_pvrtc(const char* file_name, int bpp){
 	char params[128];
 	const char* temp_file = "./mkdig_temp.pvr";
@@ -115,6 +128,9 @@ static void* _format(
 		case PF_RGBA5551:
 			out = _to_rgba5551(data, w, h);
 			break;
+		case PF_LA88:
+			out = _to_la88(data, w, h);
+			break;
 		case PF_PVRTC4:
 			out = _to_pvrtc(file_name, 4);
 			break;
@@ -149,8 +165,9 @@ static PixelFormat _str_to_format(const char* str) {
 		{"RGBA8888", PF_RGBA8888},
 		{"RGBA4444", PF_RGBA4444},
 		{"RGBA5551", PF_RGBA5551},
+		{"LA88", PF_LA88},
 		{"PVRTC2", PF_PVRTC2},
-		{"PVRTC4", PF_PVRTC4},
+		{"PVRTC4", PF_PVRTC4}
 	};
 
 	for(uint i = 0; i < sizeof(formats)/sizeof(formats[0]); ++i) {

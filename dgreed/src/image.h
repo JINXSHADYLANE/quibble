@@ -18,6 +18,7 @@ typedef enum {
 	PF_RGBA8888 = 0x3,
 	PF_RGBA4444 = 0x4,
 	PF_RGBA5551 = 0x5,
+	PF_LA88 = 0x6,
 	PF_PVRTC2 = 0x10,
 	PF_PVRTC4 = 0x20,
 
