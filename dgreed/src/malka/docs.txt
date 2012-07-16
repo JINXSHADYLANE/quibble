@@ -475,7 +475,7 @@ override entered text
 - txtinput.did_end()
 returns string if user ended text capture, nil otherwise
 
-- txtinput.end()
+- txtinput.finish()
 end text capture
 
 - txtinput.clear()
@@ -978,4 +978,7 @@ opens mail compose screen, invokes callback when closed; callback arg:
 
 - os.move(old, new)
 renames file
+
+- os.remove(name)
+deletes file
 

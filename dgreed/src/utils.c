@@ -76,7 +76,6 @@ char* path_to_resource(const char* _file) {
         CFRelease(file_cfstring);
 
 	if(!resource_url) {
-		LOG_WARNING("Unable to get url to file %s in a bundle", file);
 		MEM_FREE(file);
 		return NULL;
 	}	
@@ -993,6 +992,19 @@ static FILE* _storage_fopen(const char* name, const char* mode) {
         return NULL;
     }
 }
+
+static const char* _storage_fpath(const char* name) {
+	char storage_path[256];
+	const char* file = path_get_file(name);
+    if(file) {
+        assert(strlen(g_storage_dir) + strlen(file) < 254);
+        sprintf(storage_path, "%s/%s", g_storage_dir, file);
+        return strclone(storage_path);
+    }
+    else {
+        return NULL;
+    }
+}
 #endif
 
 bool file_exists(const char* name) {
@@ -1037,19 +1049,82 @@ bool file_exists(const char* name) {
 	return false;
 }
 
+void file_move(const char* old_name, const char* new_name) {
+	assert(old_name && new_name);
+
+	const char* path = NULL;
+
+#ifdef MACOSX_BUNDLE
+	FILE* file = _storage_fopen(old_name, "rb");
+	if(file != NULL) {
+		fclose(file);
+		path = _storage_fpath(old_name);
+	}
+
+	if(!path) {
+		const char* res_path = path_to_resource(old_name);
+		if(res_path)
+			path = res_path;
+	}
+#endif
+
+	if(path == NULL)
+		path = strclone(old_name);
+	assert(path);
+
+	const char* folder = path_get_folder(path);
+	assert(folder);
+
+	char* new_path = alloca(strlen(folder) + strlen(new_name) + 8);
+	sprintf(new_path, "%s%s", folder, new_name);
+
+	rename(path, new_path);
+
+	MEM_FREE(path);
+}
+
+void file_remove(const char* name) {
+	assert(name);
+
+	const char* path = NULL;
+
+#ifdef MACOSX_BUNDLE
+	FILE* file = _storage_fopen(name, "rb");
+	if(file != NULL) {
+		fclose(file);
+		path = _storage_fpath(name);
+	}
+
+	if(!path) {
+		const char* res_path = path_to_resource(name);
+		if(res_path)
+			path = res_path;
+	}
+#endif
+
+	if(path == NULL)
+		path = strclone(name);
+	assert(path);
+
+	remove(path);
+
+	MEM_FREE(path);
+}
+
 FileHandle file_open(const char* name) {
 	assert(name);
 
 #ifdef MACOSX_BUNDLE
 	char* path = path_to_resource(name);
-	if(path == NULL)
-		LOG_WARNING("Unable to get path to file %s", name);
+    FILE* f = NULL;
+	if(path) 
+		f = fopen(path, "rb");
 
-	FILE* f = fopen(path, "rb");
 	if(f == NULL) 
 		f = _storage_fopen(name, "rb");
 	if(path)
 		MEM_FREE(path);
+
 #else
 	FILE* f = fopen(name, "rb");
 #endif

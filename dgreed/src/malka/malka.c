@@ -140,6 +140,8 @@ void malka_init(void) {
 	malka_init_ex(false);
 }
 
+extern int luaopen_luatrace_c_hook(lua_State *L);
+
 void malka_init_ex(bool use_pools) {
 	if(use_pools) {
 		mempool_init_ex(&table_pool, sizeof(Table), 128*1024);
@@ -155,6 +157,7 @@ void malka_init_ex(bool use_pools) {
 
 	luaL_openlibs(l);
 	luaopen_bit(l);
+	luaopen_luatrace_c_hook(l);
 
 	malka_open_vec2(l);
 	malka_open_rect(l);
