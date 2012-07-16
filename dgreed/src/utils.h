@@ -28,6 +28,8 @@ typedef char int8;
 typedef unsigned char uint8;
 typedef unsigned char byte;
 
+#define SHA2_TYPES
+
 #define MIN_INT8 ((int8) 0x80)
 #define MAX_INT8 ((int8) 0x7f)
 #define MAX_UINT8 ((uint8) 0xff)
@@ -283,6 +285,12 @@ typedef size_t FileHandle;
 
 // Returns true if file exists
 bool file_exists(const char* name);
+
+// Moves/renames file
+void file_move(const char* old_name, const char* new_name);
+
+// Removes file
+void file_remove(const char* name);
 
 // Open file for reading
 FileHandle file_open(const char* name);
