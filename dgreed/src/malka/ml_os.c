@@ -156,7 +156,7 @@ static luaL_Reg os_fun[] = {
 	{"has_twitter", ml_os_has_twitter},
 	{"tweet", ml_os_tweet},
 	{"move", ml_os_move},
-	("remove", ml_os_remove},
+	{"remove", ml_os_remove},
 	{"has_mail", ml_os_has_mail},
 	{"mail", ml_os_mail},
 	{NULL, NULL}
