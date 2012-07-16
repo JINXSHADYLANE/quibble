@@ -20,6 +20,7 @@ sources = Split("""
 	ml_iap.c
 	ml_http.c
 	ml_localization.c
+	luatrace/c/c_hook.c
 """)
 
 malka = env.Library(NAME + postfix, sources)
