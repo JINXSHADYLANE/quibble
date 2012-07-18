@@ -62,7 +62,7 @@ static const luaL_Reg time_fun[] = {
 	{"dt", ml_time_dt},
 	{"fps", ml_time_fps},
 	{NULL, NULL}
-};
+};	
 
 
 // texture
@@ -115,7 +115,7 @@ static const luaL_Reg tex_fun[] = {
 	{"free", ml_tex_free},
 	{"scale", ml_tex_scale},
 	{NULL, NULL}
-};
+};	
 
 
 // font
@@ -136,13 +136,13 @@ static int ml_font_load(lua_State* l) {
 	const char* prefix = NULL;
 
     const char* filename = luaL_checkstring(l, 1);
-
+    
 	if(n == 2) {
 		if(lua_isnumber(l, 2)) {
 			scale = lua_tonumber(l, 2);
 		}
 		else {
-			prefix = luaL_checkstring(l, 2);
+			prefix = luaL_checkstring(l, 2);		
 		}
 	}
 	else if(n == 3) {
@@ -193,7 +193,7 @@ static int ml_font_rect(lua_State* l) {
 	Vector2 p = vec2((float)x, (float)y);
 	RectF r = font_rect_ex(*h, text, &p, (float)scale);
 
-	_new_rect(l, (float)r.left, (float)r.top,
+	_new_rect(l, (float)r.left, (float)r.top, 
 		(float)r.right, (float)r.bottom);
 
 	return 1;
@@ -212,7 +212,7 @@ static const luaL_Reg font_fun[] = {
 	{"rect", ml_font_rect},
 	{"free", ml_font_free},
 	{NULL, NULL}
-};
+};	
 
 
 // video
@@ -249,12 +249,12 @@ static int ml_video_init(lua_State* l) {
 	video_initialized = true;
 
 	return 0;
-}
+}	
 
 static int ml_video_init_ex(lua_State* l) {
 	checkvideodeinit();
 	checkargs(6, "video.init_ex");
-	uint width = luaL_checknumber(l, 1);
+	uint width = luaL_checknumber(l, 1);	
 	uint height = luaL_checknumber(l, 2);
 	uint v_width = luaL_checknumber(l, 3);
 	uint v_height = luaL_checknumber(l, 4);
@@ -270,7 +270,7 @@ static int ml_video_init_ex(lua_State* l) {
 static int ml_video_init_exr(lua_State* l) {
 	checkvideodeinit();
 	checkargs(6, "video.init_exr");
-	uint width = luaL_checknumber(l, 1);
+	uint width = luaL_checknumber(l, 1);	
 	uint height = luaL_checknumber(l, 2);
 	uint v_width = luaL_checknumber(l, 3);
 	uint v_height = luaL_checknumber(l, 4);
@@ -290,7 +290,7 @@ static int ml_video_close(lua_State* l) {
 	video_initialized = false;
 
 	return 0;
-}
+}	
 
 bool _check_color(lua_State* l, int i, Color* c) {
 	lua_getfield(l, i, "r");
@@ -298,7 +298,7 @@ bool _check_color(lua_State* l, int i, Color* c) {
 	lua_getfield(l, i, "b");
 	lua_getfield(l, i, "a");
 
-	if(lua_isnumber(l, -1) && lua_isnumber(l, -2)
+	if(lua_isnumber(l, -1) && lua_isnumber(l, -2) 
 		&& lua_isnumber(l, -3) && lua_isnumber(l, -4)) {
 		uint r = lrintf(lua_tonumber(l, -4)*255.0) & 0xFF;
 		uint g = lrintf(lua_tonumber(l, -3)*255.0) & 0xFF;
@@ -327,36 +327,34 @@ static int ml_video_clear_color(lua_State* l) {
 static int ml_video_present(lua_State* l) {
 	checkargs(0, "video.present");
 	bool res = system_update();
-	video_present();
+	video_present();	
 
 	lua_pushboolean(l, res);
 	return 1;
 }
 
 bool _check_vec2(lua_State* l, int i, Vector2* v) {
-	lua_getfield(l, i, "x");
-	lua_getfield(l, i, "y");
+	if(lua_objlen(l, i) == 2) {
+		lua_rawgeti(l, i, 1);
+		lua_rawgeti(l, i, 2);
 
-	if(lua_isnumber(l, -1) && lua_isnumber(l, -2)) {
 		v->x = lua_tonumber(l, -2);
 		v->y = lua_tonumber(l, -1);
 		lua_pop(l, 2);
 		return true;
 	}
 	else {
-		lua_pop(l, 2);
 		return false;
 	}
 }
 
 bool _check_rect(lua_State* l, int i, RectF* r) {
-	lua_getfield(l, i, "l");
-	lua_getfield(l, i, "t");
-	lua_getfield(l, i, "r");
-	lua_getfield(l, i, "b");
+	if(lua_objlen(l, i) == 4) {
+		lua_rawgeti(l, i, 1);
+		lua_rawgeti(l, i, 2);
+		lua_rawgeti(l, i, 3);
+		lua_rawgeti(l, i, 4);
 
-	if(lua_isnumber(l, -1) && lua_isnumber(l, -2)
-		&& lua_isnumber(l, -3) && lua_isnumber(l, -4)) {
 		r->left = lua_tonumber(l, -4);
 		r->top = lua_tonumber(l, -3);
 		r->right = lua_tonumber(l, -2);
@@ -365,7 +363,6 @@ bool _check_rect(lua_State* l, int i, RectF* r) {
 		return true;
 	}
 	else {
-		lua_pop(l, 4);
 		return false;
 	}
 }
@@ -380,14 +377,14 @@ static bool _get_dest(lua_State* l, int i, RectF* dest) {
 	if(_check_rect(l, i, &rdest)) {
 		*dest = rdest;
 		return true;
-	}
+	}	
 	return false;
 }
 
 static int ml_video_draw_rect(lua_State* l) {
 	TexHandle* h = checktexhandle(l, 1);
 	uint layer = luaL_checkinteger(l, 2);
-	if(layer > 15)
+	if(layer > 15) 
 		goto error;
 
 	int n = lua_gettop(l);
@@ -396,7 +393,7 @@ static int ml_video_draw_rect(lua_State* l) {
 		if(_get_dest(l, 3, &dest)) {
 			video_draw_rect(*h, layer, NULL, &dest, COLOR_WHITE);
 			return 0;
-		}
+		}	
 		goto error;
 	}
 	else if(n == 4) {
@@ -415,7 +412,7 @@ static int ml_video_draw_rect(lua_State* l) {
 			if(_get_dest(l, 3, &dest)) {
 				video_draw_rect(*h, layer, NULL, &dest, c);
 				return 0;
-			}
+			}	
 			goto error;
 		}
 		if(_check_rect(l, 3, &src)) {
@@ -433,7 +430,7 @@ static int ml_video_draw_rect(lua_State* l) {
 		if(lua_isnumber(l, 4) && _check_color(l, 5, &c)) {
 			float rot = lua_tonumber(l, 4);
 			if(_get_dest(l, 3, &dest)) {
-				video_draw_rect_rotated(*h, layer, NULL,
+				video_draw_rect_rotated(*h, layer, NULL, 
 					&dest, rot, COLOR_WHITE);
 				return 0;
 			}
@@ -445,7 +442,7 @@ static int ml_video_draw_rect(lua_State* l) {
 			float rot = lua_tonumber(l, 5);
 			video_draw_rect_rotated(*h, layer, &src, &dest,
 				rot, COLOR_WHITE);
-			return 0;
+			return 0;	
 		}
 		if(_check_color(l, 5, &c)) {
 			video_draw_rect(*h, layer, &src, &dest, c);
@@ -463,7 +460,7 @@ static int ml_video_draw_rect(lua_State* l) {
 		video_draw_rect_rotated(*h, layer, &src, &dest, rot, c);
 		return 0;
 	}
-	else
+	else 
 		return luaL_error(l, "wrong number of arguments provided to video.draw_rect");
 
 	error:
@@ -476,7 +473,7 @@ static int ml_video_draw_rect_centered(lua_State* l) {
 	RectF src = rectf_null();
 	Vector2 dest;
 	Color c;
-	if(layer > 15)
+	if(layer > 15) 
 		goto error;
 
 	int n = lua_gettop(l);
@@ -495,7 +492,7 @@ static int ml_video_draw_rect_centered(lua_State* l) {
 			if(_check_vec2(l, 3, &dest)) {
 				gfx_draw_textured_rect(*h, layer, NULL, &dest, rot, 1.0f,
 					COLOR_WHITE);
-				return 0;
+				return 0;	
 			}
 			goto error;
 		}
@@ -510,7 +507,7 @@ static int ml_video_draw_rect_centered(lua_State* l) {
 			if(_check_vec2(l, 4, &dest)) {
 				gfx_draw_textured_rect(*h, layer, &src, &dest, 0.0f, 1.0f,
 					COLOR_WHITE);
-				return 0;
+				return 0;	
 			}
 		}
 		goto error;
@@ -524,17 +521,17 @@ static int ml_video_draw_rect_centered(lua_State* l) {
 					gfx_draw_textured_rect(*h, layer, NULL, &dest,
 						rot, scale, COLOR_WHITE);
 					return 0;
-				}
+				}	
 				goto error;
-			}
+			}	
 			if(_check_color(l, 5, &c)) {
 				float rot = lua_tonumber(l, 4);
 				if(_check_vec2(l, 3, &dest)) {
 					gfx_draw_textured_rect(*h, layer, NULL, &dest,
 						rot, 1.0f, c);
-					return 0;
+					return 0;	
 				}
-			}
+			}	
 			goto error;
 		}
 		if(lua_isnumber(l, 5)) {
@@ -590,7 +587,7 @@ static int ml_video_draw_rect_centered(lua_State* l) {
 	}
 	else
 		return luaL_error(l, "wrong number of arguments provided to video.draw_rect_centered");
-
+	
 	error:
 		return luaL_error(l, "bad argument provided to video.draw_rect_centered");
 }
@@ -599,7 +596,7 @@ static int ml_video_draw_seg(lua_State* l) {
 	int n = lua_gettop(l);
 	Color c = COLOR_WHITE;
 	if(n == 4) {
-		if(!_check_color(l, 4, &c))
+		if(!_check_color(l, 4, &c)) 
 			goto error;
 		n--;
 	}
@@ -633,7 +630,7 @@ static int ml_video_draw_text(lua_State* l) {
 
 	if(n != 4)
 		return luaL_error(l, "wrong number of arguments provided to video.draw_text");
-
+	
 	FontHandle* h = checkfonthandle(l, 1);
 	uint layer = luaL_checkinteger(l, 2);
 	if(layer > 15)
@@ -666,17 +663,17 @@ static int ml_video_draw_text_centered(lua_State* l) {
 
 	Color c;
 	if(n == 4) {
-		font_draw_ex(*h, text, layer, &pos, 1.0f, COLOR_BLACK);
+		font_draw_ex(*h, text, layer, &pos, 1.0f, COLOR_BLACK);	
 		return 0;
 	}
 	else if(n == 5) {
 		if(lua_isnumber(l, 5)) {
 			float scale = lua_tonumber(l, 5);
-			font_draw_ex(*h, text, layer, &pos, scale, COLOR_BLACK);
+			font_draw_ex(*h, text, layer, &pos, scale, COLOR_BLACK);	
 			return 0;
 		}
 		if(_check_color(l, 5, &c)) {
-			font_draw_ex(*h, text, layer, &pos, 1.0f, c);
+			font_draw_ex(*h, text, layer, &pos, 1.0f, c);	
 			return 0;
 		}
 		goto error;
@@ -684,7 +681,7 @@ static int ml_video_draw_text_centered(lua_State* l) {
 	else if(n == 6) {
 		if(lua_isnumber(l, 5) && _check_color(l, 6, &c)) {
 			float scale = lua_tonumber(l, 5);
-			font_draw_ex(*h, text, layer, &pos, scale, c);
+			font_draw_ex(*h, text, layer, &pos, scale, c);	
 			return 0;
 		}
 	}
@@ -769,7 +766,7 @@ static float ml_transforms[16][6];
 static int ml_video_set_transform(lua_State* l) {
 	checkargs(2, "video.set_transform");
 
-	uint layer = luaL_checkinteger(l, 1);
+	uint layer = luaL_checkinteger(l, 1); 
 	assert(layer < 16);
 
 	if(lua_istable(l, 2)) {
@@ -849,14 +846,14 @@ static int ml_vfont_draw(lua_State* l) {
 		goto error;
 	Color c = COLOR_BLACK;
 
-	if(n == 4)
+	if(n == 4) 
 		if(!_check_color(l, 4, &c))
 			goto error;
 
 	if(n == 3 || n == 4) {
 		vfont_draw(string, layer, pos, c);
 		return 0;
-	}
+	}	
 
 error:
 	return luaL_error(l, "bad args to vfont.draw");
@@ -871,14 +868,14 @@ static int ml_vfont_draw_input(lua_State* l) {
 		goto error;
 	Color c = COLOR_BLACK;
 
-	if(n == 4)
+	if(n == 4) 
 		if(!_check_color(l, 4, &c))
 			goto error;
 
 	if(n == 3 || n == 4) {
 		vfont_draw_input(string, layer, pos, c);
 		return 0;
-	}
+	}	
 
 error:
 	return luaL_error(l, "bad args to vfont.draw_input");
@@ -1011,7 +1008,7 @@ static int ml_sound_set_volume(lua_State* l) {
 	checkargs(2, "sound.set_volume");
 	SoundHandle* h = checksoundhandle(l, 1);
 	double vol = luaL_checknumber(l, 2);
-
+	
 	sound_set_volume(*h, (float)vol);
 
 	return 0;
@@ -1123,7 +1120,7 @@ static const luaL_Reg sound_fun[] = {
 	{"set_pos", ml_sound_set_pos},
 	{"pos", ml_sound_pos},
 	{NULL, NULL}
-};
+};	
 
 
 // input
@@ -1164,7 +1161,7 @@ static int ml_char_pressed(lua_State* l) {
 		const char* str = lua_tostring(l, 1);
 		if(strlen(str) > 1)
 			return luaL_error(l, "bad char");
-		c = str[0];
+		c = str[0];	
 	}
 	else
 		return luaL_error(l, "bad argument");
@@ -1181,7 +1178,7 @@ static int ml_char_down(lua_State* l) {
 		const char* str = lua_tostring(l, 1);
 		if(strlen(str) > 1)
 			return luaL_error(l, "bad char");
-		c = str[0];
+		c = str[0];	
 	}
 	else
 		return luaL_error(l, "bad argument");
@@ -1198,7 +1195,7 @@ static int ml_char_up(lua_State* l) {
 		const char* str = lua_tostring(l, 1);
 		if(strlen(str) > 1)
 			return luaL_error(l, "bad char");
-		c = str[0];
+		c = str[0];	
 	}
 	else
 		return luaL_error(l, "bad argument");
@@ -1249,7 +1246,7 @@ static int ml_touch_count(lua_State* l) {
 
 static int ml_touch_get(lua_State* l) {
 	checkargs(1, "touch.get");
-
+	
 	uint i = luaL_checkinteger(l, 1);
 	Touch* t = touches_get();
 	if(!t || i >= touches_count()) {
@@ -1282,7 +1279,7 @@ static const luaL_Reg char_fun[] = {
 	{"down", ml_char_down},
 	{"up", ml_char_up},
 	{NULL, NULL}
-};
+};	
 
 static const luaL_Reg mouse_fun[] = {
 	{"pressed", ml_mouse_pressed},
@@ -1290,7 +1287,7 @@ static const luaL_Reg mouse_fun[] = {
 	{"up", ml_mouse_up},
 	{"pos", ml_mouse_pos},
 	{NULL, NULL}
-};
+};	
 
 static const luaL_Reg touch_fun[] = {
 	{"count", ml_touch_count},
@@ -1300,11 +1297,11 @@ static const luaL_Reg touch_fun[] = {
 
 static const char* key_names[] = {
 	"_up", "_down", "_left", "_right", "a", "b", "pause", "quit"
-};
+};	
 
 static const char* mbtn_names[] = {
 	"primary", "secondary", "middle"
-};
+};	
 
 
 // text input
@@ -1340,8 +1337,8 @@ static int ml_txtinput_did_end(lua_State* l) {
 	return 1;
 }
 
-static int ml_txtinput_end(lua_State* l) {
-	checkargs(0, "txtinput.end");
+static int ml_txtinput_finish(lua_State* l) {
+	checkargs(0, "txtinput.finish");
 	lua_pushstring(l, txtinput_end());
 	return 1;
 }
@@ -1357,7 +1354,7 @@ static const luaL_Reg txtinput_fun[] = {
 	{"get", ml_txtinput_get},
 	{"set", ml_txtinput_set},
 	{"did_end", ml_txtinput_did_end},
-	{"end", ml_txtinput_end},
+	{"finish", ml_txtinput_finish},
 	{"clear", ml_txtinput_clear},
 	{NULL, NULL}
 };
@@ -1527,7 +1524,7 @@ static int ml_runstate_background_callback(lua_State* l) {
 	else if(lua_isfunction(l, 1)) {
 		cb_l = l;
 		cb_background_ref = lua_ref(l, 1);
-		runstate_background_cb(_background_cb);
+		runstate_background_cb(_background_cb);	
 	}
 	else {
 		return luaL_error(l, "wrong callback type");
@@ -1550,7 +1547,7 @@ static int ml_runstate_foreground_callback(lua_State* l) {
 	else if(lua_isfunction(l, 1)) {
 		cb_l = l;
 		cb_foreground_ref = lua_ref(l, 1);
-		runstate_foreground_cb(_foreground_cb);
+		runstate_foreground_cb(_foreground_cb);	
 	}
 	else {
 		return luaL_error(l, "wrong callback type");
@@ -1576,9 +1573,7 @@ static void _push_rect(lua_State* l, RectF rect) {
 }
 
 static void _push_color(lua_State* l, Color c) {
-	byte r, g __attribute__ ((unused)),
-	b __attribute__ ((unused)), a __attribute__ ((unused));
-
+	byte r, g, b, a;
 	COLOR_DECONSTRUCT(c, r, g, b, a);
 	double dr = (double)r / 255.0;
 	double dg = (double)r / 255.0;
@@ -1803,7 +1798,7 @@ static int ml_particles_spawn(lua_State* l) {
 	Vector2 pos;
 	if(!_check_vec2(l, 2, &pos))
 		return luaL_error(l, "bad pos");
-
+	
 	particles_spawn(name, &pos, dir);
 	return 0;
 }
@@ -1818,7 +1813,7 @@ static int ml_particles_update(lua_State* l) {
 
 	if(n != 0)
 		return luaL_error(l, "wrong number of arguments provided to particles.update");
-
+	
 	particles_update(time);
 	return 0;
 }
@@ -1836,7 +1831,7 @@ static const luaL_Reg particles_fun[] = {
 	{"update", ml_particles_update},
 	{"draw", ml_particles_draw},
 	{NULL, NULL}
-};
+};	
 
 
 // tilemap
@@ -1908,7 +1903,7 @@ static int ml_tilemap_objects(lua_State* l) {
 		lua_setfield(l, -2, "pos");
 		lua_pushinteger(l, (*t)->objects[i].id);
 		lua_setfield(l, -2, "id");
-		lua_rawseti(l, -2, i+1);
+		lua_rawseti(l, -2, i+1);	
 	}
 	return 1;
 }
@@ -1923,7 +1918,7 @@ static int ml_tilemap_render(lua_State* l) {
 
 	if(n != 2)
 		return luaL_error(l, "wrong number of arguments provided to tilemap.render");
-
+	
 	Tilemap** t = checktmaphandle(l, 1);
 	RectF viewport;
 	if(!_check_rect(l, 2, &viewport))
@@ -2027,7 +2022,7 @@ static const luaL_Reg tilemap_fun[] = {
 	{"world2screen", ml_tilemap_world2screen},
 	{"screen2world", ml_tilemap_screen2world},
 	{NULL, NULL}
-};
+};	
 
 int malka_open_system(lua_State* l) {
 	int popcnt = 14;
@@ -2047,7 +2042,7 @@ int malka_open_system(lua_State* l) {
 	luaL_register(l, "video", video_fun);
 
 	luaL_newmetatable(l, "_SoundHandle.mt");
-	luaL_newmetatable(l, "_SourceHandle.mt");
+	luaL_newmetatable(l, "_SourceHandle.mt"); 
 	luaL_register(l, "sound", sound_fun);
 
 	luaL_register(l, "key", key_fun);
@@ -2074,9 +2069,9 @@ int malka_open_system(lua_State* l) {
 
 	lua_pop(l, 2);
 
-
+	
 	luaL_register(l, "orientation", orientation_fun);
-
+		
 	lua_getglobal(l, "orientation");
 	tbl = lua_gettop(l);
 	lua_pushinteger(l, ORIENT_LANDSCAPE_LEFT);
