@@ -1,4 +1,5 @@
 #include "ml_utils.h"
+#include "ml_common.h"
 
 #include "lua/lauxlib.h"
 #include "lua/lualib.h"
@@ -10,12 +11,12 @@
 // 2d vectors
 
 void _new_vec2(lua_State* l, double x, double y) {
-	lua_createtable(l, 0, 2);
+	lua_createtable(l, 2, 0);
 	int table = lua_gettop(l);
 	lua_pushnumber(l, y);
 	lua_pushnumber(l, x);
-	lua_setfield(l, table, "x");
-	lua_setfield(l, table, "y");
+	lua_rawseti(l, table, 1);
+	lua_rawseti(l, table, 2);
 	luaL_getmetatable(l, "_vec2.mt");
 	lua_setmetatable(l, -2);
 }
@@ -32,8 +33,8 @@ static int ml_vec2(lua_State* l) {
 	}
 	else if(n == 1) {
 		luaL_checktype(l, 1, LUA_TTABLE);
-		lua_getfield(l, 1, "x");
-		lua_getfield(l, 1, "y");
+		lua_rawgeti(l, 1, 1);
+		lua_rawgeti(l, 1, 2);
 		double x = luaL_checknumber(l, 2);
 		double y = luaL_checknumber(l, 3);
 		_new_vec2(l, x, y);
@@ -44,17 +45,15 @@ static int ml_vec2(lua_State* l) {
 }
 
 static int ml_dot(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 2)
-		return luaL_error(l, "wrong number of arguments provided to dot");
+	checkargs(2, "dot");
 	
 	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
 
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
-	lua_getfield(l, 2, "x");
-	lua_getfield(l, 2, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 2, 1);
+	lua_rawgeti(l, 2, 2);
 
 	double x1 = luaL_checknumber(l, 3);
 	double y1 = luaL_checknumber(l, 4);
@@ -66,14 +65,14 @@ static int ml_dot(lua_State* l) {
 }
 
 static int ml_length(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 1)
-		return luaL_error(l, "wrong number of arguments provided to length");
+	checkargs(1, "length");
 
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
 
 	double x = luaL_checknumber(l, 2);
 	double y = luaL_checknumber(l, 3);
@@ -83,14 +82,14 @@ static int ml_length(lua_State* l) {
 }
 
 static int ml_length_sq(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 1)
-		return luaL_error(l, "wrong number of arguments provided to length_sq");
+	checkargs(1, "length_sq");
 
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
 
 	double x = luaL_checknumber(l, 2);
 	double y = luaL_checknumber(l, 3);
@@ -100,14 +99,14 @@ static int ml_length_sq(lua_State* l) {
 }
 
 static int ml_normalize(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 1)
-		return luaL_error(l, "wrong number of arguments provided to length_sq");
+	checkargs(1, "normalize"); 
 
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
 
 	double x = luaL_checknumber(l, 2);
 	double y = luaL_checknumber(l, 3);
@@ -118,15 +117,16 @@ static int ml_normalize(lua_State* l) {
 }
 
 static int ml_rotate(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 2)
-		return luaL_error(l, "wrong number of arguments provided to rotate");
+	checkargs(2, "rotate");
 
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
+#endif
+
 	double angle = luaL_checknumber(l, 2);
 
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
 
 	double x = luaL_checknumber(l, 3);
 	double y = luaL_checknumber(l, 4);
@@ -138,13 +138,15 @@ static int ml_rotate(lua_State* l) {
 }
 
 static int ml_add(lua_State* l) {
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
-	lua_getfield(l, 2, "x");
-	lua_getfield(l, 2, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 2, 1);
+	lua_rawgeti(l, 2, 2);
 
 	double x1 = luaL_checknumber(l, 3);
 	double y1 = luaL_checknumber(l, 4);
@@ -156,13 +158,15 @@ static int ml_add(lua_State* l) {
 }
 
 static int ml_sub(lua_State* l) {
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
-	lua_getfield(l, 2, "x");
-	lua_getfield(l, 2, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 2, 1);
+	lua_rawgeti(l, 2, 2);
 
 	double x1 = luaL_checknumber(l, 3);
 	double y1 = luaL_checknumber(l, 4);
@@ -176,8 +180,8 @@ static int ml_sub(lua_State* l) {
 static int ml_mul(lua_State* l) {
 	double s = luaL_checknumber(l, 2);
 
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
 
 	double x = luaL_checknumber(l, 3);
 	double y = luaL_checknumber(l, 4);
@@ -189,8 +193,8 @@ static int ml_mul(lua_State* l) {
 static int ml_div(lua_State* l) {
 	double s = luaL_checknumber(l, 2);
 
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
 
 	double x = luaL_checknumber(l, 3);
 	double y = luaL_checknumber(l, 4);
@@ -200,8 +204,8 @@ static int ml_div(lua_State* l) {
 }
 
 static int ml_negate(lua_State* l) {
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
 
 	// Why the hell 3, 4 works and 2, 3 doesn't?
 	double x = luaL_checknumber(l, 3);
@@ -212,13 +216,45 @@ static int ml_negate(lua_State* l) {
 }
 
 static int ml_vec2_tostring(lua_State* l) {
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
 
 	double x = luaL_checknumber(l, 2);
 	double y = luaL_checknumber(l, 3);
 	lua_pushfstring(l, "vec2(%f, %f)", x, y);
 	return 1;
+}
+
+static int ml_vec2_index(lua_State* l) {
+	const char* key = luaL_checkstring(l, 2);
+	assert(strlen(key) == 1);
+
+	if(key[0] == 'x') {
+		lua_rawgeti(l, 1, 1);
+		return 1;
+	}
+
+	if(key[0] == 'y') {
+		lua_rawgeti(l, 1, 2);
+		return 1;
+	}
+
+	return 0;
+}
+
+static int ml_vec2_newindex(lua_State* l) {
+	const char* key = luaL_checkstring(l, 2);
+	assert(strlen(key) == 1);
+
+	if(key[0] == 'x') {
+		lua_rawseti(l, 1, 1);
+	}
+
+	if(key[0] == 'y') {
+		lua_rawseti(l, 1, 2);
+	}
+
+	return 0;
 }
 
 static const luaL_Reg vec2_fun[] = {
@@ -238,6 +274,8 @@ static const luaL_Reg vec2_mt[] = {
 	{"__div", ml_div},
 	{"__unm", ml_negate},
 	{"__tostring", ml_vec2_tostring},
+	{"__index", ml_vec2_index},
+	{"__newindex", ml_vec2_newindex},
 	{NULL, NULL}
 };
 
@@ -265,16 +303,16 @@ int malka_open_vec2(lua_State* l) {
 
 void _new_rect(lua_State* l, double _l, double t,
 	double r, double b) {
-	lua_createtable(l, 0, 4);
+	lua_createtable(l, 4, 0);
 	int table = lua_gettop(l);
 	lua_pushnumber(l, b);
 	lua_pushnumber(l, r);
 	lua_pushnumber(l, t);
 	lua_pushnumber(l, _l);
-	lua_setfield(l, table, "l");
-	lua_setfield(l, table, "t");
-	lua_setfield(l, table, "r");
-	lua_setfield(l, table, "b");
+	lua_rawseti(l, table, 1);
+	lua_rawseti(l, table, 2);
+	lua_rawseti(l, table, 3);
+	lua_rawseti(l, table, 4);
 	luaL_getmetatable(l, "_rect.mt");
 	lua_setmetatable(l, -2);
 }
@@ -298,10 +336,10 @@ static int ml_rect(lua_State* l) {
 	}
 	else if(n == 1) {
 		luaL_checktype(l, 1, LUA_TTABLE);
-		lua_getfield(l, 1, "l");
-		lua_getfield(l, 1, "t");
-		lua_getfield(l, 1, "r");
-		lua_getfield(l, 1, "b");
+		lua_rawgeti(l, 1, 1);
+		lua_rawgeti(l, 1, 2);
+		lua_rawgeti(l, 1, 3);
+		lua_rawgeti(l, 1, 4);
 		double _l = luaL_checknumber(l, 2);
 		double t = luaL_checknumber(l, 3);
 		double r = luaL_checknumber(l, 4);
@@ -314,14 +352,14 @@ static int ml_rect(lua_State* l) {
 }
 
 static int ml_width(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 1)
-		return luaL_error(l, "wrong number of arguments provided to width");
+	checkargs(1, "width");
 
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "l");
-	lua_getfield(l, 1, "r");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 3);
 
 	double _l = luaL_checknumber(l, 2);
 	double r = luaL_checknumber(l, 3);
@@ -332,14 +370,14 @@ static int ml_width(lua_State* l) {
 }
 
 static int ml_height(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 1)
-		return luaL_error(l, "wrong number of arguments provided to height");
+	checkargs(1, "height");
 
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "t");
-	lua_getfield(l, 1, "b");
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 1, 4);
 
 	double t = luaL_checknumber(l, 2);
 	double b = luaL_checknumber(l, 3);
@@ -350,21 +388,21 @@ static int ml_height(lua_State* l) {
 }
 
 static int ml_rect_rect_collision(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 2)
-		return luaL_error(l, "wrong number of arguments provided to rect_rect_collision");
+	checkargs(2, "rect_rect_collision");
 	
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "l");
-	lua_getfield(l, 1, "t");
-	lua_getfield(l, 1, "r");
-	lua_getfield(l, 1, "b");
-	lua_getfield(l, 2, "l");
-	lua_getfield(l, 2, "t");
-	lua_getfield(l, 2, "r");
-	lua_getfield(l, 2, "b");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 1, 3);
+	lua_rawgeti(l, 1, 4);
+	lua_rawgeti(l, 2, 1);
+	lua_rawgeti(l, 2, 2);
+	lua_rawgeti(l, 2, 3);
+	lua_rawgeti(l, 2, 4);
 
 	RectF rect1 = {
 		luaL_checknumber(l, 3),
@@ -385,19 +423,19 @@ static int ml_rect_rect_collision(lua_State* l) {
 }
 
 static int ml_rect_point_collision(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 2)
-		return luaL_error(l, "wrong number of arguments provided to rect_point_collision");
-	
+	checkargs(2, "rect_point_collision");	
+
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "l");
-	lua_getfield(l, 1, "t");
-	lua_getfield(l, 1, "r");
-	lua_getfield(l, 1, "b");
-	lua_getfield(l, 2, "x");
-	lua_getfield(l, 2, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 1, 3);
+	lua_rawgeti(l, 1, 4);
+	lua_rawgeti(l, 2, 1);
+	lua_rawgeti(l, 2, 2);
 
 	RectF rect = {
 		luaL_checknumber(l, 3),
@@ -416,19 +454,19 @@ static int ml_rect_point_collision(lua_State* l) {
 }
 
 static int ml_rect_circle_collision(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 3)
-		return luaL_error(l, "wrong number of arguments provided to rect_circle_collision");
-	
+	checkargs(3, "rect_circle_collision");	
+
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "l");
-	lua_getfield(l, 1, "t");
-	lua_getfield(l, 1, "r");
-	lua_getfield(l, 1, "b");
-	lua_getfield(l, 2, "x");
-	lua_getfield(l, 2, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 1, 3);
+	lua_rawgeti(l, 1, 4);
+	lua_rawgeti(l, 2, 1);
+	lua_rawgeti(l, 2, 2);
 
 	float r = luaL_checknumber(l, 3);
 
@@ -449,25 +487,25 @@ static int ml_rect_circle_collision(lua_State* l) {
 }
 
 static int ml_rect_tri_collision(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 4)
-		return luaL_error(l, "wrong number of arguments provided to rect_tri_collision");
-	
+	checkargs(4, "rect_tri_collision");
+
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
 	luaL_checktype(l, 3, LUA_TTABLE);
 	luaL_checktype(l, 4, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "l");
-	lua_getfield(l, 1, "t");
-	lua_getfield(l, 1, "r");
-	lua_getfield(l, 1, "b");
-	lua_getfield(l, 2, "x");
-	lua_getfield(l, 2, "y");
-	lua_getfield(l, 3, "x");
-	lua_getfield(l, 3, "y");
-	lua_getfield(l, 4, "x");
-	lua_getfield(l, 4, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 1, 3);
+	lua_rawgeti(l, 1, 4);
+	lua_rawgeti(l, 2, 1);
+	lua_rawgeti(l, 2, 2);
+	lua_rawgeti(l, 3, 1);
+	lua_rawgeti(l, 3, 2);
+	lua_rawgeti(l, 4, 1);
+	lua_rawgeti(l, 4, 2);
 
 	RectF rect = {
 		luaL_checknumber(l, 5),
@@ -497,22 +535,22 @@ static int ml_rect_tri_collision(lua_State* l) {
 }
 
 static int ml_rect_raycast(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 3)
-		return luaL_error(l, "wrong number of arguments provided to rect_raycast");
+	checkargs(3, "rect_raycast");
 
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
 	luaL_checktype(l, 3, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "l");
-	lua_getfield(l, 1, "t");
-	lua_getfield(l, 1, "r");
-	lua_getfield(l, 1, "b");
-	lua_getfield(l, 2, "x");
-	lua_getfield(l, 2, "y");
-	lua_getfield(l, 3, "x");
-	lua_getfield(l, 3, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 1, 3);
+	lua_rawgeti(l, 1, 4);
+	lua_rawgeti(l, 2, 1);
+	lua_rawgeti(l, 2, 2);
+	lua_rawgeti(l, 3, 1);
+	lua_rawgeti(l, 3, 2);
 
 	RectF rect = {
 		luaL_checknumber(l, 4),
@@ -539,24 +577,24 @@ static int ml_rect_raycast(lua_State* l) {
 }
 
 static int ml_rect_rect_sweep(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 3)
-		return luaL_error(l, "wrong number of arguments provided to rect_raycast");
+	checkargs(3, "rect_rect_sweep");
 
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
 	luaL_checktype(l, 3, LUA_TTABLE);
+#endif
 
-	lua_getfield(l, 1, "l");
-	lua_getfield(l, 1, "t");
-	lua_getfield(l, 1, "r");
-	lua_getfield(l, 1, "b");
-	lua_getfield(l, 2, "l");
-	lua_getfield(l, 2, "t");
-	lua_getfield(l, 2, "r");
-	lua_getfield(l, 2, "b");
-	lua_getfield(l, 3, "x");
-	lua_getfield(l, 3, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 1, 3);
+	lua_rawgeti(l, 1, 4);
+	lua_rawgeti(l, 2, 1);
+	lua_rawgeti(l, 2, 2);
+	lua_rawgeti(l, 2, 3);
+	lua_rawgeti(l, 2, 4);
+	lua_rawgeti(l, 3, 1);
+	lua_rawgeti(l, 3, 2);
 
 	RectF a = {
 		luaL_checknumber(l, 4),
@@ -585,10 +623,10 @@ static int ml_rect_rect_sweep(lua_State* l) {
 }
 
 static int ml_rect_tostring(lua_State* l) {
-	lua_getfield(l, 1, "l");
-	lua_getfield(l, 1, "t");
-	lua_getfield(l, 1, "r");
-	lua_getfield(l, 1, "b");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 1, 3);
+	lua_rawgeti(l, 1, 4);
 
 	double _l = luaL_checknumber(l, 2);
 	double t = luaL_checknumber(l, 3);
@@ -599,24 +637,74 @@ static int ml_rect_tostring(lua_State* l) {
 	return 1;
 }
 
+static int ml_rect_index(lua_State* l) {
+	const char* key = luaL_checkstring(l, 2);
+	assert(strlen(key) == 1);
+
+	if(key[0] == 'l') {
+		lua_rawgeti(l, 1, 1);
+		return 1;
+	}
+
+	if(key[0] == 't') {
+		lua_rawgeti(l, 1, 2);
+		return 1;
+	}
+
+	if(key[0] == 'r') {
+		lua_rawgeti(l, 1, 3);
+		return 1;
+	}
+
+	if(key[0] == 'b') {
+		lua_rawgeti(l, 1, 4);
+		return 1;
+	}
+
+	return 0;
+}
+
+static int ml_rect_newindex(lua_State* l) {
+	const char* key = luaL_checkstring(l, 2);
+	assert(strlen(key) == 1);
+
+	if(key[0] == 'l') {
+		lua_rawseti(l, 1, 1);
+	}
+
+	if(key[0] == 't') {
+		lua_rawseti(l, 1, 2);
+	}
+
+	if(key[0] == 'r') {
+		lua_rawseti(l, 1, 3);
+	}
+
+	if(key[0] == 'b') {
+		lua_rawseti(l, 1, 4);
+	}
+
+	return 0;
+}
+
 static int ml_segment_intersect(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 4)
-		return luaL_error(l, "wrong number of arguments provided to segment_intersect");
+	checkargs(4, "segment_intersect");
 	
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
 	luaL_checktype(l, 3, LUA_TTABLE);
 	luaL_checktype(l, 4, LUA_TTABLE);
+#endif
 	
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
-	lua_getfield(l, 2, "x");
-	lua_getfield(l, 2, "y");
-	lua_getfield(l, 3, "x");
-	lua_getfield(l, 3, "y");
-	lua_getfield(l, 4, "x");
-	lua_getfield(l, 4, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 2, 1);
+	lua_rawgeti(l, 2, 2);
+	lua_rawgeti(l, 3, 1);
+	lua_rawgeti(l, 3, 2);
+	lua_rawgeti(l, 4, 1);
+	lua_rawgeti(l, 4, 2);
 
 	Vector2 a1 = {
 		luaL_checknumber(l, 5),
@@ -651,20 +739,20 @@ static int ml_segment_intersect(lua_State* l) {
 }
 
 static int ml_segment_to_point(lua_State* l) {
-	int n = lua_gettop(l);
-	if(n != 3)
-		return luaL_error(l, "wrong number of arguments provided to segment_to_point");
+	checkargs(3, "segment_to_point");
 
+#if _DEBUG
 	luaL_checktype(l, 1, LUA_TTABLE);
 	luaL_checktype(l, 2, LUA_TTABLE);
 	luaL_checktype(l, 3, LUA_TTABLE);
+#endif
 	
-	lua_getfield(l, 1, "x");
-	lua_getfield(l, 1, "y");
-	lua_getfield(l, 2, "x");
-	lua_getfield(l, 2, "y");
-	lua_getfield(l, 3, "x");
-	lua_getfield(l, 3, "y");
+	lua_rawgeti(l, 1, 1);
+	lua_rawgeti(l, 1, 2);
+	lua_rawgeti(l, 2, 1);
+	lua_rawgeti(l, 2, 2);
+	lua_rawgeti(l, 3, 1);
+	lua_rawgeti(l, 3, 2);
 
 	Vector2 a1 = {
 		luaL_checknumber(l, 4),
@@ -705,6 +793,8 @@ static const luaL_Reg rect_fun[] = {
 
 static const luaL_Reg rect_mt[] = {
 	{"__tostring", ml_rect_tostring},
+	{"__index", ml_rect_index},
+	{"__newindex", ml_rect_newindex},
 	{NULL, NULL}
 };	
 
