@@ -1,4 +1,4 @@
-#include "lauxlib.h"
+#include "../../lua/lauxlib.h"
 
 #ifdef __MACH__
 #include <mach/mach.h>
