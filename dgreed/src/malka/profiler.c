@@ -1,5 +1,6 @@
 #include "profiler.h"
 
+#include "darray.h"
 #include "datastruct.h"
 #include "memory.h"
 
@@ -154,6 +155,7 @@ static void _hook(lua_State* l, lua_Debug* d) {
 		assert(enter);
 
 		char place[256];
+		sprintf(place, "%s:%d", d->source, d->linedefined);
 
 		FunctionStats fs = {
 			.place = strclone(place),
@@ -214,6 +216,8 @@ void profiler_init(lua_State* l) {
 void profiler_close(lua_State* l) {
 	lua_sethook(l, _hook, 0, 0);
 
+	profiler_results();
+
 	for(uint i = 0; i < stats.mask+1; ++i) {
 		DictEntry* e = &stats.map[i];
 		if(e->key && e->data) {
@@ -229,4 +233,73 @@ void profiler_close(lua_State* l) {
 
 	dict_free(&stats);
 }
+
+static int mem_pred(const void* a, const void* b) {
+	const FunctionStats** as = a;
+	const FunctionStats** bs = b;
+	return (*as)->total_mem - (*bs)->total_mem;
+}
+
+static int time_pred(const void* a, const void* b) {
+	const FunctionStats** as = a;
+	const FunctionStats** bs = b;
+	return (*as)->total_time - (*bs)->total_time;
+}
+
+static int inv_pred(const void* a, const void* b) {
+	const FunctionStats** as = a;
+	const FunctionStats** bs = b;
+	return (*as)->n_invocations - (*bs)->n_invocations;
+}
+
+const char* profiler_results(void) {
+	DArray funcs = darray_create(sizeof(FunctionStats*), 0);
+
+	// Push all functions into the darray
+	for(uint i = 0; i < stats.mask+1; ++i) {
+		DictEntry* e = &stats.map[i];
+		if(e->key && e->data) {
+			const FunctionStats* s = e->data;
+			darray_append(&funcs, &s);
+		}
+	}
+
+	// Sort by total time
+	qsort(funcs.data, funcs.size, sizeof(FunctionStats*), time_pred);
+
+	// Output top 20
+	printf("Top 20 time:\n");
+	for(uint i = 0; i < 20; ++i) {
+		FunctionStats* s = *(FunctionStats**)darray_get(&funcs, funcs.size - i - 1);
+		printf("%s %s \t\t %fms\n", s->place, s->name, s->total_time / 1000.0);
+	}
+	printf("-----\n");
+
+	// Sort by total mem 
+	qsort(funcs.data, funcs.size, sizeof(FunctionStats*), mem_pred);
+
+	// Output top 20
+	printf("Top 20 mem:\n");
+	for(uint i = 0; i < 20; ++i) {
+		FunctionStats* s = *(FunctionStats**)darray_get(&funcs, funcs.size - i - 1);
+		printf("%s %s \t\t %d\n", s->place, s->name, s->total_mem);
+	}
+	printf("-----\n");
+
+	// Sort by total invoke 
+	qsort(funcs.data, funcs.size, sizeof(FunctionStats*), inv_pred);
+
+	// Output top 20
+	printf("Top 20 calls:\n");
+	for(uint i = 0; i < 20; ++i) {
+		FunctionStats* s = *(FunctionStats**)darray_get(&funcs, funcs.size - i - 1);
+		printf("%s %s \t\t %d\n", s->place, s->name, s->n_invocations);
+	}
+	printf("-----\n");
+
+	darray_free(&funcs);
+
+	return NULL;
+}
+
 
