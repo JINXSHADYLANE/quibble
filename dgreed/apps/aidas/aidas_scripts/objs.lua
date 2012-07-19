@@ -608,7 +608,8 @@ function objs.update()
 		b:update()
 	end
 
-	return objs.goal:update()
+	local res = objs.goal:update()
+	return res
 end
 
 function objs.render()
