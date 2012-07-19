@@ -1,5 +1,6 @@
 #include "malka.h"
 
+#include "profiler.h"
 #include "ml_utils.h"
 #include "ml_system.h"
 #include "ml_mml.h"
@@ -32,6 +33,7 @@ static const char** ml_argv = NULL;
 static bool ml_prepped = false;
 
 extern bool fs_devmode;
+static bool profiling = false;
 
 static MemPool table_pool;
 static MemPool vector_pool;
@@ -157,7 +159,6 @@ void malka_init_ex(bool use_pools) {
 
 	luaL_openlibs(l);
 	luaopen_bit(l);
-	luaopen_luatrace_c_hook(l);
 
 	malka_open_vec2(l);
 	malka_open_rect(l);
@@ -189,6 +190,9 @@ void malka_params(int argc, const char** argv) {
 
 void malka_close(void) {
 	ml_states_close(l);
+
+	if(profiling)
+		profiler_close(l);
 
 	lua_close(l);
     
@@ -245,6 +249,8 @@ static void _malka_prep(const char* luafile) {
 		for(int i = 0; i < ml_argc; ++i) {
 			if(strcmp(ml_argv[i], "-fsdev") == 0)
 				fs_devmode = true;
+			if(strcmp(ml_argv[i], "-profile") == 0)
+				profiling = true;
 			lua_pushstring(l, ml_argv[i]);
 			lua_rawseti(l, t, i+1);
 		}
@@ -253,6 +259,9 @@ static void _malka_prep(const char* luafile) {
 		lua_pushnil(l);
 	}
 	lua_setfield(l, LUA_GLOBALSINDEX, "argv");
+
+	if(profiling)
+		profiler_init(l);
 
 	ml_prepped = true;
 }
