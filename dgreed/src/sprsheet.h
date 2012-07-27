@@ -23,6 +23,12 @@ Example description:
 		(src 0,0,480,64)
 	)
 
+	(img off_center
+		(tex "pix.png")
+		(src 10,0,20,10)
+		(cntr 3,3)
+	)
+
 	(anim robot
 		(tex "robot.png")
 		(frames 12)
@@ -42,7 +48,9 @@ void sprsheet_close(void);
 SprHandle sprsheet_get_handle(const char* name);
 
 void sprsheet_get(const char* name, TexHandle* tex, RectF* src);
+void sprsheet_get_ex(const char* name, TexHandle* tex, RectF* src, Vector2* cntr_off);
 void sprsheet_get_h(SprHandle handle, TexHandle* tex, RectF* src);
+void sprsheet_get_ex_h(SprHandle handle, TexHandle* tex, RectF* src, Vector2* cntr_off);
 void sprsheet_get_anim(const char* name, uint frame, TexHandle* tex, RectF* src);
 void sprsheet_get_anim_h(SprHandle handle, uint frame, TexHandle* tex, RectF* src);
 uint sprsheet_get_anim_frames(const char* name);

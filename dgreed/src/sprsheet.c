@@ -11,6 +11,7 @@ typedef struct {
 	const char* tex_name;
 	TexHandle tex;
 	RectF src;
+	Vector2 cntr_off;
 	bool loaded;
 
 	// Animation
@@ -35,6 +36,7 @@ static void _parse_img(NodeIdx node) {
 
 	const char* tex_name = NULL;
 	RectF src = rectf_null();
+	Vector2 cntr = vec2(-1.0f, -1.0f);
 
 	NodeIdx child = mml_get_first_child(&sprsheet_mml, node);
 	for(; child != 0; child = mml_get_next(&sprsheet_mml, child)) {
@@ -45,6 +47,26 @@ static void _parse_img(NodeIdx node) {
 
 		if(strcmp("src", name) == 0) 
 			src = mml_getval_rectf(&sprsheet_mml, child);
+
+		if(strcmp("cntr", name) == 0)
+			cntr = mml_getval_vec2(&sprsheet_mml, child);
+	}
+
+	if(cntr.x < 0.0f && cntr.y < 0.0f) {
+		// Default center
+		cntr.x = 0.0f;
+		cntr.y = 0.0f;
+	}
+	else {
+		// Override center
+		
+		Vector2 default_cntr = vec2(
+			floorf((src.left + src.right) * 0.5f),
+			floorf((src.top + src.bottom) * 0.5f)
+		);
+
+		// cntr now becomes offset from default center
+		cntr = vec2_sub(default_cntr, cntr);
 	}
 
 	if(!tex_name)
@@ -55,6 +77,7 @@ static void _parse_img(NodeIdx node) {
 		.tex_name = tex_name,
 		.tex = 0,
 		.src = src,
+		.cntr_off = cntr,
 		.loaded = false,
 		.frames = 1,
 		.grid_w = 0,
@@ -116,6 +139,7 @@ static void _parse_anim(NodeIdx node) {
 		.tex_name = tex_name,
 		.tex = 0,
 		.src = src,
+		.cntr_off = vec2(0.0f, 0.0f),
 		.loaded = false,
 		.frames = frames,
 		.grid_w = grid_w,
@@ -186,6 +210,19 @@ static void _sprsheet_load(SprDesc* desc) {
 	assert(strlen(sprsheet_prefix) + strlen(desc->tex_name) < 128);
 	strcpy(path, sprsheet_prefix);
 	strcat(path, desc->tex_name);
+
+#ifdef TARGET_IOS
+	// Try to load dig on iOS
+	size_t i = strfind(".png", path);	
+	if(i >= 0) {
+		// Check if dig file exists
+		path[i+1] = 'd'; path[i+2] = 'i';
+		if(!file_exists(path)) {
+			// Revert back to png
+			path[i+1] = 'p'; path[i+2] = 'n';
+		}
+	}
+#endif
 
 	// Load
 	desc->tex = tex_load(path);
@@ -308,10 +345,18 @@ static SprDesc* _get_desc(SprHandle handle) {
 }
 
 void sprsheet_get(const char* name, TexHandle* tex, RectF* src) {
-	sprsheet_get_h(sprsheet_get_handle(name), tex, src);
+	sprsheet_get_ex_h(sprsheet_get_handle(name), tex, src, NULL);
+}
+
+void sprsheet_get_ex(const char* name, TexHandle* tex, RectF* src, Vector2* cntr_off) {
+	sprsheet_get_ex_h(sprsheet_get_handle(name), tex, src, cntr_off);
 }
 
 void sprsheet_get_h(SprHandle handle, TexHandle* tex, RectF* src) {
+	sprsheet_get_ex_h(handle, tex, src, NULL);
+}
+
+void sprsheet_get_ex_h(SprHandle handle, TexHandle* tex, RectF* src, Vector2* cntr_off) {
 	assert(tex && src);
 
 	SprDesc* desc = _get_desc(handle);
@@ -324,12 +369,8 @@ void sprsheet_get_h(SprHandle handle, TexHandle* tex, RectF* src) {
 	*tex = desc->tex;
 	*src = desc->src;
 
-	if(src->right == 0.0f && src->bottom == 0.0f) {
-		uint w, h;
-		tex_size(*tex, &w, &h);
-		src->right = src->left + (float)w;
-		src->bottom = src->top + (float)h;
-	}
+	if(cntr_off)
+		*cntr_off = desc->cntr_off;
 }
 
 void sprsheet_get_anim(const char* name, uint frame, TexHandle* tex, RectF* src) {
@@ -418,8 +459,13 @@ void spr_draw_cntr(const char* name, uint layer, Vector2 dest, float rot,
 		float scale, Color tint) {
 	TexHandle tex;
 	RectF src;
+	Vector2 cntr_off;
 
-	sprsheet_get(name, &tex, &src);
+	sprsheet_get_ex(name, &tex, &src, &cntr_off);
+
+	if(cntr_off.x != 0.0f && cntr_off.y != 0.0f)
+		dest = vec2_add(dest, vec2_rotate(cntr_off, rot));
+
 	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale * sprsheet_scale, tint); 
 }
 
@@ -427,8 +473,13 @@ void spr_draw_cntr_h(SprHandle handle, uint layer, Vector2 dest, float rot,
 		float scale, Color tint) {
 	TexHandle tex;
 	RectF src;
+	Vector2 cntr_off;
 
-	sprsheet_get_h(handle, &tex, &src);
+	sprsheet_get_ex_h(handle, &tex, &src, &cntr_off);
+
+	if(cntr_off.x != 0.0f && cntr_off.y != 0.0f)
+		dest = vec2_add(dest, vec2_rotate(cntr_off, rot));
+
 	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale * sprsheet_scale, tint);
 }
 
@@ -438,6 +489,7 @@ void spr_draw_anim_cntr(const char* name, uint frame, uint layer, Vector2 dest,
 	RectF src;
 
 	sprsheet_get_anim(name, frame, &tex, &src);
+
 	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale * sprsheet_scale, tint);
 }
 
@@ -447,6 +499,7 @@ void spr_draw_anim_cntr_h(SprHandle handle, uint frame, uint layer, Vector2 dest
 	RectF src;
 
 	sprsheet_get_anim_h(handle, frame, &tex, &src);
+
 	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale * sprsheet_scale, tint);
 }
 
