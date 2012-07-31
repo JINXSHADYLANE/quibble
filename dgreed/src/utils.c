@@ -96,72 +96,6 @@ char* path_to_resource(const char* _file) {
 #endif
 
 /*
--------------------
---- Vector math ---
--------------------
-*/
-
-Vector2 vec2(float x, float y) {
-	Vector2 result = {x, y};
-	return result;
-}
-
-Vector2 vec2_add(Vector2 a, Vector2 b) {
-	return vec2(a.x + b.x, a.y + b.y);
-}
-
-Vector2 vec2_sub(Vector2 a, Vector2 b) {
-	return vec2(a.x - b.x, a.y - b.y);
-}
-
-Vector2 vec2_scale(Vector2 a, float b) {
-	return vec2(a.x * b, a.y * b);
-}
-
-Vector2 vec2_normalize(Vector2 a) {
-	float inv_len = 1.0f / vec2_length(a);
-	return vec2_scale(a, inv_len);
-}	
-
-Vector2 vec2_rotate(Vector2 a, float angle) {
-	Vector2 result;
-	float s = sinf(angle);
-	float c = cosf(angle);
-	result.x = c * a.x - s * a.y;
-	result.y = s * a.x + c * a.y;
-	return result;
-}	
-
-float vec2_dot(Vector2 a, Vector2 b) {
-	return a.x * b.x + a.y * b.y;
-}
-
-float vec2_length(Vector2 a) {
-	return sqrtf(a.x*a.x + a.y*a.y);
-}	
-
-float vec2_length_sq(Vector2 a) {
-	return a.x*a.x + a.y*a.y;
-}	
-
-float vec2_dir(Vector2 a) {
-	return atan2f(a.x, a.y);
-}	
-
-float vec2_angle(Vector2 a, Vector2 b) {
-	return atan2f(a.x, a.y) - atan2f(b.x, b.y);
-}
-
-Vector2 vec2_lerp(Vector2 a, Vector2 b, float t) {
-	Vector2 result = {
-		.x = a.x + (b.x-a.x)*t,
-		.y = a.y + (b.y-a.y)*t
-	};
-	return result;
-}
-
-
-/*
 -----------------
 --- Rectangle ---
 -----------------
@@ -1794,10 +1728,15 @@ uint hash_murmur(const void* data, uint len, uint seed) {
 	const byte* bdata = (const byte*)data;
 
 	while(len >= 4) {
+
+#if SOPHIST_endian == SOPHIST_big_endian
 		uint k = bdata[0];
 		k |= bdata[1] << 8;
 		k |= bdata[2] << 16;
 		k |= bdata[3] << 24;
+#else
+		uint k = *(uint*)bdata;
+#endif
 
 		k *= m;
 		k ^= k >> r;
