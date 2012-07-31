@@ -463,7 +463,7 @@ void spr_draw_cntr(const char* name, uint layer, Vector2 dest, float rot,
 
 	sprsheet_get_ex(name, &tex, &src, &cntr_off);
 
-	if(cntr_off.x != 0.0f && cntr_off.y != 0.0f)
+	if(cntr_off.x != 0.0f || cntr_off.y != 0.0f)
 		dest = vec2_add(dest, vec2_rotate(cntr_off, rot));
 
 	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale * sprsheet_scale, tint); 
@@ -477,7 +477,7 @@ void spr_draw_cntr_h(SprHandle handle, uint layer, Vector2 dest, float rot,
 
 	sprsheet_get_ex_h(handle, &tex, &src, &cntr_off);
 
-	if(cntr_off.x != 0.0f && cntr_off.y != 0.0f)
+	if(cntr_off.x != 0.0f || cntr_off.y != 0.0f)
 		dest = vec2_add(dest, vec2_rotate(cntr_off, rot));
 
 	gfx_draw_textured_rect(tex, layer, &src, &dest, rot, scale * sprsheet_scale, tint);
