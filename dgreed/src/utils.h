@@ -67,21 +67,64 @@ typedef struct {
 	float x, y;
 } Vector2;	
 
-// Vector2 constructor
-Vector2 vec2(float x, float y);
+static inline Vector2 vec2(float x, float y) {
+	Vector2 result = {x, y};
+	return result;
+}
 
-// Simple arithmetic
-Vector2 vec2_add(Vector2 a, Vector2 b);
-Vector2 vec2_sub(Vector2 a, Vector2 b);
-Vector2 vec2_scale(Vector2 a, float b);
-Vector2 vec2_normalize(Vector2 a);
-Vector2 vec2_rotate(Vector2 a, float angle);
-float vec2_dot(Vector2 a, Vector2 b);
-float vec2_length(Vector2 a);
-float vec2_length_sq(Vector2 b);
-float vec2_dir(Vector2 a);
-float vec2_angle(Vector2 a, Vector2 b);
-Vector2 vec2_lerp(Vector2 a, Vector2 b, float t);
+static inline Vector2 vec2_add(Vector2 a, Vector2 b) {
+	return vec2(a.x + b.x, a.y + b.y);
+}
+
+static inline Vector2 vec2_sub(Vector2 a, Vector2 b) {
+	return vec2(a.x - b.x, a.y - b.y);
+}
+
+static inline Vector2 vec2_scale(Vector2 a, float b) {
+	return vec2(a.x * b, a.y * b);
+}
+
+static inline float vec2_length(Vector2 a) {
+	return sqrtf(a.x*a.x + a.y*a.y);
+}	
+
+static inline Vector2 vec2_normalize(Vector2 a) {
+	float inv_len = 1.0f / vec2_length(a);
+	return vec2_scale(a, inv_len);
+}	
+
+static inline Vector2 vec2_rotate(Vector2 a, float angle) {
+	Vector2 result;
+	float s = sinf(angle);
+	float c = cosf(angle);
+	result.x = c * a.x - s * a.y;
+	result.y = s * a.x + c * a.y;
+	return result;
+}	
+
+static inline float vec2_dot(Vector2 a, Vector2 b) {
+	return a.x * b.x + a.y * b.y;
+}
+
+static inline float vec2_length_sq(Vector2 a) {
+	return a.x*a.x + a.y*a.y;
+}	
+
+static inline float vec2_dir(Vector2 a) {
+	return atan2f(a.x, a.y);
+}	
+
+static inline float vec2_angle(Vector2 a, Vector2 b) {
+	return atan2f(a.x, a.y) - atan2f(b.x, b.y);
+}
+
+static inline Vector2 vec2_lerp(Vector2 a, Vector2 b, float t) {
+	Vector2 result = {
+		.x = a.x + (b.x-a.x)*t,
+		.y = a.y + (b.y-a.y)*t
+	};
+	return result;
+}
 
 /*
 -----------------
@@ -197,6 +240,14 @@ float circle_circle_test(
 #define COLOR_BLACK COLOR_RGBA(0, 0, 0, 255)
 #define COLOR_TRANSPARENT COLOR_RGBA(255, 255, 255, 0)
 #define COLOR_FTRANSP(alpha) ((((byte)lrintf((alpha) * 255.0f)) << 24) | 0xFFFFFF)
+
+#define RGB565_ENCODE8(r, g, b) \
+	((((unsigned)r>>3)&0x1f)<<11)|((((unsigned)g>>2)&0x3f)<<5)|((((unsigned)b>>3)&0x1f))
+
+#define RGB565_DECODE8(color, r, g, b) \
+	(r) = (unsigned)((color >> 11) & 0x1f) << 3; \
+	(g) = (unsigned)((color >> 5) & 0x3f) << 2; \
+	(b) = (unsigned)(color & 0x1f) << 3; \
 
 typedef uint Color;
 
