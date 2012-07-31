@@ -66,7 +66,7 @@ static void _parse_img(NodeIdx node) {
 		);
 
 		// cntr now becomes offset from default center
-		cntr = vec2_sub(default_cntr, cntr);
+		cntr = vec2_scale(vec2_sub(default_cntr, cntr), sprsheet_scale);
 	}
 
 	if(!tex_name)
