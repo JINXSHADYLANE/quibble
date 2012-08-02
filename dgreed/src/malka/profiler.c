@@ -152,7 +152,13 @@ static void _hook(lua_State* l, lua_Debug* d) {
 	FunctionStats* s = NULL;
 	if(!e) {
 		// Encountered for the first time
-		assert(enter);
+
+		if(!enter) {
+			// Somehow, the first time we encountered this, it had
+			// different name. Not so much we can do, just skip this
+			// sample.
+			return;
+		}
 
 		char place[256];
 		sprintf(place, "%s:%d", d->source, d->linedefined);
@@ -235,20 +241,20 @@ void profiler_close(lua_State* l) {
 }
 
 static int mem_pred(const void* a, const void* b) {
-	const FunctionStats** as = a;
-	const FunctionStats** bs = b;
+	const FunctionStats *const *const as = a;
+	const FunctionStats *const *const bs = b;
 	return (*as)->total_mem - (*bs)->total_mem;
 }
 
 static int time_pred(const void* a, const void* b) {
-	const FunctionStats** as = a;
-	const FunctionStats** bs = b;
+	const FunctionStats *const *const as = a;
+	const FunctionStats *const *const bs = b;
 	return (*as)->total_time - (*bs)->total_time;
 }
 
 static int inv_pred(const void* a, const void* b) {
-	const FunctionStats** as = a;
-	const FunctionStats** bs = b;
+	const FunctionStats *const *const as = a;
+	const FunctionStats *const *const bs = b;
 	return (*as)->n_invocations - (*bs)->n_invocations;
 }
 
@@ -286,7 +292,7 @@ const char* profiler_results(void) {
 	}
 	printf("-----\n");
 
-	// Sort by total invoke 
+	// Sort by total invoke count
 	qsort(funcs.data, funcs.size, sizeof(FunctionStats*), inv_pred);
 
 	// Output top 20
