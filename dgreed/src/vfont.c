@@ -125,6 +125,8 @@ static CachePage* _alloc_page(RectF* r) {
     // Alloc new page
     darray_append(&cache_pages, &new);
 
+	LOG_INFO("Allocated %dx%d vfont cache page.", pw, ph);
+
     return darray_get(&cache_pages, cache_pages.size-1);
 }
 
@@ -527,10 +529,12 @@ void vfont_cache_invalidate_ex(const char* string, bool strict) {
 	// Free memory
 	MEM_FREE(text->text);
 	MEM_FREE(text);
-	MEM_FREE(text_entry->key);
+	const char* key_text = text_entry->key;
 
 	// Remove cache entry
 	dict_delete(&cache, key);
+
+	MEM_FREE(key_text);
 }
 
 Vector2 vfont_size(const char* string) {
