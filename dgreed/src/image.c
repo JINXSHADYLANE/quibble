@@ -151,11 +151,14 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 		size_t decompr_size = (*w * *h * bpp) / 8;
 		void* decompr_data = malloc(decompr_size);
 
-		size_t processed = 0;
+		size_t processed = decompr_size;
 		if(hdr.compression & DC_LZ4)
 			processed = LZ4_uncompress(pixdata, decompr_data, decompr_size);
-		else
-			mz_uncompress(decompr_data, &processed, pixdata, decompr_size);
+		else {
+			if(mz_uncompress(decompr_data, &processed, pixdata, s) != MZ_OK)
+                LOG_ERROR("miniz uncompress error");
+            processed = s;
+        }
 
 		free(pixdata);
 
@@ -399,8 +402,12 @@ void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format
 	size_t size_uncompr = (w * h * bpp) / 8;
 
 	void* pixels_defl = malloc(size_uncompr);
-	size_t size_defl;
-	mz_compress2(pixels_defl, &size_defl, pixels, size_uncompr, 9); 
+	size_t size_defl = size_uncompr;
+    int err = mz_compress2(pixels_defl, &size_defl, pixels, size_uncompr, 9);
+	if(err != MZ_OK) {
+        printf("miniz error %d\n", err);
+        LOG_ERROR("miniz error %d\n", err);
+    }
 
 	bool deltacode = (format & PF_MASK_PIXEL_FORMAT) == PF_RGB565;
 	if(deltacode) {
@@ -408,8 +415,12 @@ void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format
 		memcpy(pixels_dc, pixels, size_uncompr);
 		_enc_delta_rgb565(pixels_dc, w, h);
 		void* pixels_defldc = malloc(size_uncompr);
-		size_t size_defldc;
-		mz_compress2(pixels_defldc, &size_defldc, pixels_dc, size_uncompr, 9);
+		size_t size_defldc = size_uncompr;
+		err = mz_compress2(pixels_defldc, &size_defldc, pixels_dc, size_uncompr, 9);
+        if(err != MZ_OK) {
+            printf("miniz error %d\n", err);
+            LOG_ERROR("miniz error %d\n", err);
+        }
 
 		free(pixels_dc);
 		if(size_defldc < size_defl) {
