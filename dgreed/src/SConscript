@@ -4,7 +4,6 @@ malka = SConscript('malka/SConscript', exports='env')
 
 sources = Glob('*.c', strings=True)
 sources += Glob('lib9-utf/*.c', strings=True)
-sources += Glob('miniz/*.c', strings=True)
 
 if str(Platform()) == 'darwin':
 	sources.remove('vfont.c')

@@ -7,12 +7,13 @@
 #include "lz4hc.h"
 
 #define MINIZ_HEADER_FILE_ONLY
-#include "miniz/miniz.c"
+#include "miniz.c"
 
 typedef enum {
 	DC_NONE = 0,
 	DC_LZ4 = 1,
-	DC_DELTA = 2
+	DC_DELTA = 2,
+	DC_DEFLATE = 4
 } DIGCompression;
 
 #pragma pack(1)
@@ -27,18 +28,18 @@ typedef struct {
 
 #pragma pack(1)
 typedef struct {
-   byte  idlength;
-   byte  colourmaptype;
-   byte  datatypecode;
-   short int colourmaporigin;
-   short int colourmaplength;
-   byte  colourmapdepth;
-   short int x_origin;
-   short int y_origin;
-   int16 width;
-   int16 height;
-   byte  bitsperpixel;
-   byte  imagedescriptor;
+	byte  idlength;
+	byte  colourmaptype;
+	byte  datatypecode;
+	short int colourmaporigin;
+	short int colourmaplength;
+	byte  colourmapdepth;
+	short int x_origin;
+	short int y_origin;
+	int16 width;
+	int16 height;
+	byte  bitsperpixel;
+	byte  imagedescriptor;
 } TGAHeader;
 #pragma pack()
 
@@ -146,10 +147,16 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 	file_read(f, pixdata, s);
 
 	// Decompress if neccessary
-	if(hdr.compression & DC_LZ4) {
+	if((hdr.compression & DC_LZ4) || (hdr.compression & DC_DEFLATE)) {
 		size_t decompr_size = (*w * *h * bpp) / 8;
 		void* decompr_data = malloc(decompr_size);
-		int processed = LZ4_uncompress(pixdata, decompr_data, decompr_size);
+
+		size_t processed = 0;
+		if(hdr.compression & DC_LZ4)
+			processed = LZ4_uncompress(pixdata, decompr_data, decompr_size);
+		else
+			mz_uncompress(decompr_data, &processed, pixdata, decompr_size);
+
 		free(pixdata);
 
 		if(processed != s) {
@@ -336,5 +343,119 @@ void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, v
 	file_close(f);
 
 	free(pixels_lz4);
+}
+
+void image_write_dig_quick(const char* filename, uint w, uint h, PixelFormat format, void* pixels) {
+	assert(filename && pixels);
+	assert(w > 0 && w <= 8192);
+	assert(h > 0 && h <= 8192);
+
+	// Output uncompressed dig
+        
+	uint bpp = _format_bpp(format);
+	size_t size_uncompr = (w * h * bpp) / 8;
+
+	void* out_pixels;
+	size_t out_size;
+	uint8 compression = 0;
+	
+    out_pixels = pixels;
+    out_size = size_uncompr;
+
+	// Fill up header
+	DIGHeader hdr = {
+		.id = "DI",
+		.width = w,
+		.height = h,
+		.format = format,
+		.compression = compression
+	};
+
+#if SOPHIST_endian == SOPHIST_big_endian
+	hdr.width = endian_swap2(hdr.width);
+	hdr.height = endian_swap2(hdr.height);
+#endif
+
+	// Write
+	FileHandle f = file_create(filename);
+	file_write(f, &hdr, sizeof(DIGHeader));
+	file_write(f, out_pixels, out_size);
+	file_close(f);
+}
+
+void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format, void* pixels) {
+	assert(filename && pixels);
+	assert(w > 0 && w <= 8192);
+	assert(h > 0 && h <= 8192);
+
+	// Try 3 variations:
+	// a) Uncompressed
+	// a) Deflate
+	// b) Delta coding + Deflate 
+	//
+	// Choose the smaller.
+
+	uint bpp = _format_bpp(format);
+	size_t size_uncompr = (w * h * bpp) / 8;
+
+	void* pixels_defl = malloc(size_uncompr);
+	size_t size_defl;
+	mz_compress2(pixels_defl, &size_defl, pixels, size_uncompr, 9); 
+
+	bool deltacode = (format & PF_MASK_PIXEL_FORMAT) == PF_RGB565;
+	if(deltacode) {
+		void* pixels_dc = malloc(size_uncompr);
+		memcpy(pixels_dc, pixels, size_uncompr);
+		_enc_delta_rgb565(pixels_dc, w, h);
+		void* pixels_defldc = malloc(size_uncompr);
+		size_t size_defldc;
+		mz_compress2(pixels_defldc, &size_defldc, pixels_dc, size_uncompr, 9);
+
+		free(pixels_dc);
+		if(size_defldc < size_defl) {
+			free(pixels_defl);
+			pixels_defl = pixels_defldc;
+            size_defl = size_defldc;
+		}
+		else {
+			free(pixels_defldc);
+			deltacode = false;
+		}
+	}
+
+	void* out_pixels;
+	size_t out_size;
+	uint8 compression = 0;
+	if(size_defl < size_uncompr) {
+		compression = DC_DEFLATE | (deltacode ? DC_DELTA : 0);
+		out_pixels = pixels_defl;
+		out_size = size_defl;
+	}
+	else {
+		out_pixels = pixels;
+		out_size = size_uncompr;
+	}
+
+	// Fill up header
+	DIGHeader hdr = {
+		.id = "DI",
+		.width = w,
+		.height = h,
+		.format = format,
+		.compression = compression
+	};
+
+#if SOPHIST_endian == SOPHIST_big_endian
+	hdr.width = endian_swap2(hdr.width);
+	hdr.height = endian_swap2(hdr.height);
+#endif
+
+	// Write
+	FileHandle f = file_create(filename);
+	file_write(f, &hdr, sizeof(DIGHeader));
+	file_write(f, out_pixels, out_size);
+	file_close(f);
+
+	free(pixels_defl);
 }
 
