@@ -189,6 +189,7 @@ int dgreed_main(int argc, const char** argv) {
 		printf("usage: mkdig [options] file\n");
 		printf("  -v\tverbose mode\n");
 		printf("  -p\tpremultiply alpha\n");
+		printf("  -h\thigh compression\n");
 		printf("  -f\toutput pixel format (default RGBA4444)\n");
 		printf("  -o\toutput filename (default out.dig)\n\n");
 		printf("Pixel formats:\n");
@@ -198,6 +199,7 @@ int dgreed_main(int argc, const char** argv) {
 		return -1;
 	}
 
+	bool high_comp = false;
 	bool premul = false;
 	bool verbose __attribute__ ((unused)) = false;
 	PixelFormat format = PF_RGBA4444;
@@ -213,6 +215,8 @@ int dgreed_main(int argc, const char** argv) {
 			format = _str_to_format(params_get(++i));
 		else if(strcmp(params_get(i), "-o") == 0)
 			out = params_get(++i);
+		else if(strcmp(params_get(i), "-h") == 0)
+			high_comp = true;
 		else if(!in)
 			in = params_get(i);
 	}
@@ -236,7 +240,10 @@ int dgreed_main(int argc, const char** argv) {
 	if(premul)
 		format |= PF_MASK_PREMUL_ALPHA;
 
-	image_write_dig(out, w, h, format, pixels);
+	if(high_comp)
+		image_write_dig_hc(out, w, h, format, pixels);
+	else
+		image_write_dig(out, w, h, format, pixels);
 
 	free(pixels);
 	free(data);

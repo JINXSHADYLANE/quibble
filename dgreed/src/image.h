@@ -34,6 +34,13 @@ void image_write_tga(const char* filename, uint w, uint h, const Color* pixels);
 
 void image_write_png(const char* filename, uint w, uint h, const Color* pixels);
 
+// Uses lz4
 void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, void* pixels);
+
+// Uses no compression
+void image_write_dig_quick(const char* filename, uint w, uint h, PixelFormat format, void* pixels);
+
+// Uses deflate
+void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format, void* pixels);
 
 #endif
