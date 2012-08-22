@@ -12,7 +12,7 @@
 typedef uint64_t hook_time_t;
 #define CLOCK_FUNCTION mach_absolute_time
 #elif __linux__
-#include <time.h>
+#include <sys/time.h>
 typedef long hook_time_t;
 #define CLOCK_FUNCTION lclock
 #ifdef CLOCK_MONOTONIC_RAW
@@ -48,15 +48,15 @@ static void get_microseconds_info(void)
 #elif __linux__
 static void get_microseconds_info(void)
 {
-  microseconds_numerator = 1;
-  microseconds_denominator = 1000;
+  microseconds_numerator = 1000;
+  microseconds_denominator = 1;
 }
 
 static hook_time_t lclock()
 {
-  struct timespec tp;
-  clock_gettime(LINUX_CLOCK, &tp);
-  return tp.tv_sec * 1000000000L + tp.tv_nsec;
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return tv.tv_sec * 1000L + tv.tv_usec;
 }
 #elif _WIN32
 static void get_microseconds_info(void)
