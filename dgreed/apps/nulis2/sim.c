@@ -1093,7 +1093,6 @@ void _next_level(void* userdata) {
 		else {
 			sim_reset(level.name);
 			malka_states_push("menu");
-			malka_states_push("buy");
 		}
 	}
 	else {

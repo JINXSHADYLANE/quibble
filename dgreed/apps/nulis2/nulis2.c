@@ -67,6 +67,7 @@ bool dgreed_init(int argc, const char** argv) {
 	sound_init();
 
 	keyval_init("nulis2_progress.db");
+    keyval_set_bool("unlocked", true);
 
 	particles_init_ex(ASSETS_PRE, particles, 4);
 	mfx_init(ASSETS_PRE "effects.mml");
