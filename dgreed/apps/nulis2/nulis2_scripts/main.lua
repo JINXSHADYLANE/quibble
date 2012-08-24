@@ -56,7 +56,6 @@ if ed then
 	require 'editor'
 end
 require 'menu'
-require 'buy'
 
 function game_init()
 	states.register('game', game)
@@ -64,7 +63,6 @@ function game_init()
 		states.register('editor', editor)
 	end
 	states.register('menu', menu)
-	states.register('buy', buy)
 
 	states.push('game')
 

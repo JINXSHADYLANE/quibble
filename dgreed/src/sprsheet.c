@@ -213,7 +213,7 @@ static void _sprsheet_load(SprDesc* desc) {
 
 #ifdef TARGET_IOS
 	// Try to load dig on iOS
-	size_t i = strfind(".png", path);	
+	int i = strfind(".png", path);	
 	if(i >= 0) {
 		// Check if dig file exists
 		path[i+1] = 'd'; path[i+2] = 'i';

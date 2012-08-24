@@ -1,7 +1,6 @@
 module(..., package.seeall)
 
 require 'tutorials'
-require 'buy'
 
 paid_level = 12 
 
@@ -223,14 +222,10 @@ function draw_options(t)
 	local off, c = animate_menu(t)
 	if menu_icon(sprs.replay, nil, pos_replay - off, nil, c, angle) then
 		if not popped then
-			if buy.is_unlocked() or current_level+1 < paid_level or current_level+1 == 50 then
-				csim.reset('l'..tostring(current_level+1))
-				tutorials.render('...')
-				tutorials.start_t = states.time('game')
-				states.pop()
-			else
-				states.push('buy')
-			end
+			csim.reset('l'..tostring(current_level+1))
+			tutorials.render('...')
+			tutorials.start_t = states.time('game')
+			states.pop()
 			popped = true
 		end
 	end
@@ -274,33 +269,19 @@ function draw_level_icon(p, col, angle, n, score)
 		if is_unlocked then
 			if menu_icon(sprs.levels, nil, p, nil, col, angle, n, score) then
 				if not popped then
-					if buy.is_unlocked() or n+1 < paid_level or n+1 == 50 then
-						csim.reset('l'..tostring(n+1))
-						states.pop()
-					else
-						states.push('buy')
-					end
+					csim.reset('l'..tostring(n+1))
+					states.pop()
 					popped = true
 				end
 			end
 		else
-			if not buy.is_unlocked() and unlocked[n] then
-				if menu_icon(sprs.plus, nil, p, nil, col, angle) then
-					states.push('buy')
-				end
-			else
-				menu_icon(sprs.locked, nil, p, nil, col, angle)
-			end
+            menu_icon(sprs.locked, nil, p, nil, col, angle)
 		end
 	else
 		menu_icon(sprs.levels, nil, p, nil, col, angle, n, score)
 		if menu_icon(sprs.resume, nil, p, nil, col, angle) then
 			if not popped then
-				if buy.is_unlocked() or n+1 < paid_level or n+1 == 50 then
-					states.pop()
-				else
-					states.push('buy')
-				end
+				states.pop()
 				popped = true
 			end
 		end

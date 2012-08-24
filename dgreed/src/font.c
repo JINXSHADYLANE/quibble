@@ -205,8 +205,9 @@ void font_free(FontHandle font) {
 }	
 
 float font_width(FontHandle font, const char* string) {
-	assert(font < MAX_FONTS);
-	assert(fonts[font].active);
+    // All invalid fonts simply return 0
+	if(font >= MAX_FONTS || !fonts[font].active)
+        return 0.0f;
 
 	Rune codepoint;
 	float width = 0.0f;

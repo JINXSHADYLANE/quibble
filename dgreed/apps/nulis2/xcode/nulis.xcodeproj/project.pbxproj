@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		21107C3215E77B13004AC47F /* miniz.c in Sources */ = {isa = PBXBuildFile; fileRef = 21107C3115E77B13004AC47F /* miniz.c */; };
+		21107C3515E77BAA004AC47F /* profiler.c in Sources */ = {isa = PBXBuildFile; fileRef = 21107C3315E77BAA004AC47F /* profiler.c */; };
 		211523C315AADC1400C38EEC /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523C215AADC1400C38EEC /* sys_gfx_ios.m */; };
 		211523C515AADC2500C38EEC /* sys_snd_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523C415AADC2500C38EEC /* sys_snd_ios.m */; };
 		211523CA15AAE16300C38EEC /* camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523C915AAE16300C38EEC /* camera.m */; };
@@ -17,7 +19,6 @@
 		211523DB15AAECCA00C38EEC /* lz4.c in Sources */ = {isa = PBXBuildFile; fileRef = 211523D615AAECC900C38EEC /* lz4.c */; };
 		211523DC15AAECCA00C38EEC /* lz4hc.c in Sources */ = {isa = PBXBuildFile; fileRef = 211523D815AAECCA00C38EEC /* lz4hc.c */; };
 		211523DF15AAED5200C38EEC /* ml_localization.c in Sources */ = {isa = PBXBuildFile; fileRef = 211523DD15AAED5200C38EEC /* ml_localization.c */; };
-		211523E315AAF04000C38EEC /* miniz.c in Sources */ = {isa = PBXBuildFile; fileRef = 211523E215AAF04000C38EEC /* miniz.c */; };
 		212518DA14CE9FCE000E8BD2 /* icon 57x57.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518D914CE9FCE000E8BD2 /* icon 57x57.png */; };
 		212518DC14CE9FD4000E8BD2 /* icon 114x114.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518DB14CE9FD4000E8BD2 /* icon 114x114.png */; };
 		212518DE14CE9FE7000E8BD2 /* icon 72x72.png in Resources */ = {isa = PBXBuildFile; fileRef = 212518DD14CE9FE7000E8BD2 /* icon 72x72.png */; };
@@ -144,6 +145,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		21107C3115E77B13004AC47F /* miniz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = miniz.c; path = ../../../src/miniz.c; sourceTree = "<group>"; };
+		21107C3315E77BAA004AC47F /* profiler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = profiler.c; path = ../../../src/malka/profiler.c; sourceTree = "<group>"; };
+		21107C3415E77BAA004AC47F /* profiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = profiler.h; path = ../../../src/malka/profiler.h; sourceTree = "<group>"; };
 		211523BF15AADBF600C38EEC /* sys_gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sys_gfx.h; path = ../../../src/sys_gfx.h; sourceTree = "<group>"; };
 		211523C215AADC1400C38EEC /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
 		211523C415AADC2500C38EEC /* sys_snd_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_snd_ios.m; path = ../../../src/sys_snd_ios.m; sourceTree = "<group>"; };
@@ -165,7 +169,6 @@
 		211523D915AAECCA00C38EEC /* lz4hc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lz4hc.h; path = ../../../src/lz4hc.h; sourceTree = "<group>"; };
 		211523DD15AAED5200C38EEC /* ml_localization.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_localization.c; path = ../../../src/malka/ml_localization.c; sourceTree = "<group>"; };
 		211523DE15AAED5200C38EEC /* ml_localization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_localization.h; path = ../../../src/malka/ml_localization.h; sourceTree = "<group>"; };
-		211523E215AAF04000C38EEC /* miniz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = miniz.c; path = ../../../src/miniz/miniz.c; sourceTree = "<group>"; };
 		212518D914CE9FCE000E8BD2 /* icon 57x57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 57x57.png"; sourceTree = "<group>"; };
 		212518DB14CE9FD4000E8BD2 /* icon 114x114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 114x114.png"; sourceTree = "<group>"; };
 		212518DD14CE9FE7000E8BD2 /* icon 72x72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 72x72.png"; sourceTree = "<group>"; };
@@ -413,7 +416,6 @@
 		213776CB14CD5A58004F01D2 = {
 			isa = PBXGroup;
 			children = (
-				21B8B4AA15AD560800F2AADD /* MessageUI.framework */,
 				21A92A12150A778D004AE2C3 /* icon 144x144.png */,
 				212518E514CEA31C000E8BD2 /* Default@2x.png */,
 				212518E314CEA319000E8BD2 /* Default.png */,
@@ -442,6 +444,7 @@
 			isa = PBXGroup;
 			children = (
 				216A5F5A1511F33500BFE24D /* libz.dylib */,
+				21B8B4AA15AD560800F2AADD /* MessageUI.framework */,
 				21DBAB07151F6C0400DCFFFB /* MediaPlayer.framework */,
 				21DBAB05151F5D0000DCFFFB /* Twitter.framework */,
 				216A5F681511F3F500BFE24D /* SystemConfiguration.framework */,
@@ -484,10 +487,13 @@
 		213776F114CD5AAB004F01D2 /* dgreed */ = {
 			isa = PBXGroup;
 			children = (
+				216A5F341511F00200BFE24D /* asi-http-request */,
+				21744004150B698B002C92D7 /* lib9-utf */,
+				2137773814CD5B05004F01D2 /* malka */,
 				21CF3BF715AC266800BF33BC /* sys_misc_ios.m */,
+				21107C3115E77B13004AC47F /* miniz.c */,
 				21CF3BF415AC237400BF33BC /* DGreedAppDelegate.h */,
 				21CF3BF515AC237400BF33BC /* DGreedAppDelegate.m */,
-				211523E215AAF04000C38EEC /* miniz.c */,
 				211523D415AAECC900C38EEC /* localization.c */,
 				211523D515AAECC900C38EEC /* localization.h */,
 				211523D615AAECC900C38EEC /* lz4.c */,
@@ -507,9 +513,6 @@
 				211523C415AADC2500C38EEC /* sys_snd_ios.m */,
 				211523C215AADC1400C38EEC /* sys_gfx_ios.m */,
 				211523BF15AADBF600C38EEC /* sys_gfx.h */,
-				216A5F341511F00200BFE24D /* asi-http-request */,
-				21744004150B698B002C92D7 /* lib9-utf */,
-				2137773814CD5B05004F01D2 /* malka */,
 				213776F214CD5AFB004F01D2 /* async.c */,
 				213776F314CD5AFB004F01D2 /* async.h */,
 				21F7DC051509F9F900AAFBA4 /* iap.h */,
@@ -571,9 +574,9 @@
 		2137773814CD5B05004F01D2 /* malka */ = {
 			isa = PBXGroup;
 			children = (
+				2137774F14CD5B2B004F01D2 /* lua */,
 				211523DD15AAED5200C38EEC /* ml_localization.c */,
 				211523DE15AAED5200C38EEC /* ml_localization.h */,
-				2137774F14CD5B2B004F01D2 /* lua */,
 				2137773914CD5B27004F01D2 /* malka.c */,
 				2137773A14CD5B27004F01D2 /* malka.h */,
 				2137773B14CD5B27004F01D2 /* ml_common.h */,
@@ -601,6 +604,8 @@
 				216A5F2C1511E7DC00BFE24D /* ml_http.h */,
 				216A5F2D1511E7DC00BFE24D /* ml_os.c */,
 				216A5F2E1511E7DC00BFE24D /* ml_os.h */,
+				21107C3315E77BAA004AC47F /* profiler.c */,
+				21107C3415E77BAA004AC47F /* profiler.h */,
 			);
 			name = malka;
 			sourceTree = "<group>";
@@ -895,9 +900,10 @@
 				211523DB15AAECCA00C38EEC /* lz4.c in Sources */,
 				211523DC15AAECCA00C38EEC /* lz4hc.c in Sources */,
 				211523DF15AAED5200C38EEC /* ml_localization.c in Sources */,
-				211523E315AAF04000C38EEC /* miniz.c in Sources */,
 				21CF3BF615AC237400BF33BC /* DGreedAppDelegate.m in Sources */,
 				21CF3BF815AC266800BF33BC /* sys_misc_ios.m in Sources */,
+				21107C3215E77B13004AC47F /* miniz.c in Sources */,
+				21107C3515E77BAA004AC47F /* profiler.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -977,7 +983,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "BC54475C-9381-4525-B830-E8AB92A9541C";
+				PROVISIONING_PROFILE = "8A050763-183A-42CD-86A2-145D880E7291";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -997,7 +1003,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "BC54475C-9381-4525-B830-E8AB92A9541C";
+				PROVISIONING_PROFILE = "8A050763-183A-42CD-86A2-145D880E7291";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

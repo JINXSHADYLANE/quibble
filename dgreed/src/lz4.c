@@ -39,7 +39,7 @@
 // Lowering this value reduces memory usage
 // Reduced memory usage typically improves speed, due to cache effect (ex : L1 32KB for Intel, L1 64KB for AMD)
 // Memory usage formula : N->2^(N+2) Bytes (examples : 12 -> 16KB ; 17 -> 512KB)
-#define COMPRESSIONLEVEL 12
+#define COMPRESSIONLEVEL 14
 
 // NOTCOMPRESSIBLE_CONFIRMATION :
 // Decreasing this value will make the algorithm skip faster data segments considered "incompressible"
