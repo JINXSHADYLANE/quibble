@@ -6,6 +6,9 @@
 #include "lz4.h"
 #include "lz4hc.h"
 
+#include "darray.h"
+#include "datastruct.h"
+
 #define MINIZ_HEADER_FILE_ONLY
 #include "miniz.c"
 
@@ -13,7 +16,8 @@ typedef enum {
 	DC_NONE = 0,
 	DC_LZ4 = 1,
 	DC_DELTA = 2,
-	DC_DEFLATE = 4
+	DC_DEFLATE = 4,
+    DC_PALETTIZE = 8
 } DIGCompression;
 
 #pragma pack(1)
@@ -91,6 +95,72 @@ static void _dec_delta_rgb565(void* data, uint w, uint h) {
 		curr = RGB565_ENCODE((r+dr), (g+dg), (b+db));
 		img[i] = prev = curr;
 	}
+}
+
+typedef struct {
+    uint16 colour;
+    uint count;
+} ColourDef;
+
+static int _comp_colour_defs( const void* a, const void* b ) {
+    const ColourDef* const ca = a;
+    const ColourDef* const cb = b;
+    return (int)cb->count - (int)ca->count;
+}
+
+static void* _palettize_rgb565(uint16* in, uint insize, uint* outsize) {
+    assert(in && insize && outsize);
+    DArray out = darray_create(1, 0);
+
+    // Calculate histogram of all colours
+    uint histogram[MAX_UINT16+1] = {0};
+    uint unique_colours = 0;
+    for(uint i = 0; i < insize; ++i) {
+        histogram[in[i]]++; 
+        if(histogram[in[i]] == 1)
+            unique_colours++;
+    }
+
+    // Get pairs of all unique colours and their use count, sort it
+    ColourDef* cdefs = malloc(unique_colours * sizeof(ColourDef));
+    for(uint i = 0, idx = 0; i <= MAX_UINT16; ++i) {
+        if(histogram[i] > 0) {
+            ColourDef def = {
+                .colour = (uint16)i,
+                .count = histogram[i]
+            };
+            cdefs[idx++] = def;
+        }
+    }
+    qsort(cdefs, unique_colours, sizeof(ColourDef), _comp_colour_defs);
+
+    // Assign 255 most used colours codes in range [0, 254],
+    // build palette
+    uint* codes = histogram;
+    memset(codes, 0xFF, sizeof(histogram));
+    uint covered_pixels = 0;
+    for(uint i = 0; i < 255; ++i) {
+        histogram[cdefs[i].colour] = i;
+        darray_append_multi(&out, &cdefs[i].colour, 2);
+        covered_pixels += cdefs[i].count;
+    }
+    free(cdefs);
+
+    // Encode image using new palette, prefix colours not in
+    // palette with 0xFF
+    for(uint i = 0; i < insize; ++i) {
+        byte code = codes[in[i]];
+        darray_append(&out, &code);
+        if(code == 0xFF) {
+            darray_append_multi(&out, &in[i], 2);
+        }
+    }
+
+    void* outdata = malloc(out.size);
+    *outsize = out.size;
+    memcpy(outdata, out.data, out.size);
+    darray_free(&out);
+    return outdata;
 }
 
 static int _format_bpp(PixelFormat format) {
@@ -281,7 +351,7 @@ void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, v
 	// Try 3 variations:
 	// a) Uncompressed
 	// b) LZ4
-	// c) Delta coding + LZ4 (if pixel format supports delta coding)
+	// c) Palletize + LZ4 (if pixel format supports it)
 	//
 	// Choose smaller of b and c if it is at least 1.5 times smaller than a,
 	// choose a otherwise.
@@ -292,13 +362,12 @@ void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, v
 	void* pixels_lz4 = malloc(LZ4_compressBound(size_uncompr));
 	size_t size_lz4 = LZ4_compressHC(pixels, pixels_lz4, size_uncompr);
 
-	bool deltacode = (format & PF_MASK_PIXEL_FORMAT) == PF_RGB565;
-	if(deltacode) {
-		void* pixels_dc = malloc(size_uncompr);
-		memcpy(pixels_dc, pixels, size_uncompr);
-		_enc_delta_rgb565(pixels_dc, w, h);
-		void* pixels_lz4dc = malloc(LZ4_compressBound(size_uncompr));
-		size_t size_lz4dc = LZ4_compressHC(pixels_dc, pixels_lz4dc, size_uncompr);
+	bool palettize = (format & PF_MASK_PIXEL_FORMAT) == PF_RGB565;
+	if(palettize) {
+        uint pixels_dc_size = 0;
+		void* pixels_dc = _palettize_rgb565(pixels, w * h, &pixels_dc_size);
+		void* pixels_lz4dc = malloc(LZ4_compressBound(pixels_dc_size));
+		size_t size_lz4dc = LZ4_compressHC(pixels_dc, pixels_lz4dc, pixels_dc_size);
 
 		free(pixels_dc);
 		if(size_lz4dc < size_lz4) {
@@ -308,15 +377,15 @@ void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, v
 		}
 		else {
 			free(pixels_lz4dc);
-			deltacode = false;
+			palettize = false;
 		}
 	}
 
 	void* out_pixels;
 	size_t out_size;
 	uint8 compression = 0;
-	if(size_lz4 * 3 < size_uncompr * 2) {
-		compression = DC_LZ4 | (deltacode ? DC_DELTA : 0);
+	if(size_lz4 + 1024 < size_uncompr) {
+		compression = DC_LZ4 | (palettize ? DC_PALETTIZE : 0);
 		out_pixels = pixels_lz4;
 		out_size = size_lz4;
 	}
@@ -394,7 +463,7 @@ void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format
 	// Try 3 variations:
 	// a) Uncompressed
 	// a) Deflate
-	// b) Delta coding + Deflate 
+	// b) Palettize + Deflate 
 	//
 	// Choose the smaller.
 
@@ -409,14 +478,13 @@ void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format
         LOG_ERROR("miniz error %d\n", err);
     }
 
-	bool deltacode = (format & PF_MASK_PIXEL_FORMAT) == PF_RGB565;
-	if(deltacode) {
-		void* pixels_dc = malloc(size_uncompr);
-		memcpy(pixels_dc, pixels, size_uncompr);
-		_enc_delta_rgb565(pixels_dc, w, h);
-		void* pixels_defldc = malloc(size_uncompr);
-		size_t size_defldc = size_uncompr;
-		err = mz_compress2(pixels_defldc, &size_defldc, pixels_dc, size_uncompr, 9);
+	bool palettize = (format & PF_MASK_PIXEL_FORMAT) == PF_RGB565;
+	if(palettize) {
+        uint pixels_dc_size = 0;
+		void* pixels_dc = _palettize_rgb565(pixels, w*h, &pixels_dc_size);
+		void* pixels_defldc = malloc(pixels_dc_size);
+		size_t size_defldc = pixels_dc_size;
+		err = mz_compress2(pixels_defldc, &size_defldc, pixels_dc, pixels_dc_size, 9);
         if(err != MZ_OK) {
             printf("miniz error %d\n", err);
             LOG_ERROR("miniz error %d\n", err);
@@ -430,7 +498,7 @@ void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format
 		}
 		else {
 			free(pixels_defldc);
-			deltacode = false;
+			palettize = false;
 		}
 	}
 
@@ -438,7 +506,7 @@ void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format
 	size_t out_size;
 	uint8 compression = 0;
 	if(size_defl < size_uncompr) {
-		compression = DC_DEFLATE | (deltacode ? DC_DELTA : 0);
+		compression = DC_DEFLATE | (palettize ? DC_PALETTIZE : 0);
 		out_pixels = pixels_defl;
 		out_size = size_defl;
 	}
