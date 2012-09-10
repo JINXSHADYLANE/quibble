@@ -163,6 +163,29 @@ static void* _palettize_rgb565(uint16* in, uint insize, uint* outsize) {
     return outdata;
 }
 
+static void* _unpalettize_rgb565(void* in, uint insize, uint w, uint h) {
+	// Next 255 uint16s is palette, next is palettized image data
+	uint16* palette = in;
+	byte* data = in + 255 * 2;
+
+	uint16* out = malloc(w * h * 2);
+	uint idx = 0;
+
+	// Decode
+	for(uint i = 0; i + 255 * 2 < insize; ++i) {
+		if(data[i] < 0xFF) {
+			out[idx++] = palette[data[i]];
+		}
+		else {
+			out[idx++] = *((uint16*)&data[i+1]);
+			i += 2;
+		}
+	}
+	assert(idx == w*h);
+
+	return out;
+}
+
 static int _format_bpp(PixelFormat format) {
 	switch(format & PF_MASK_PIXEL_FORMAT) {
 		case PF_RGBA8888:
@@ -217,8 +240,14 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 	file_read(f, pixdata, s);
 
 	// Decompress if neccessary
+	size_t decompr_size = (*w * *h * bpp) / 8;
 	if((hdr.compression & DC_LZ4) || (hdr.compression & DC_DEFLATE)) {
-		size_t decompr_size = (*w * *h * bpp) / 8;
+		if(hdr.compression & DC_PALETTIZE) {
+			// Override decompressed size if palettized
+			decompr_size = *((uint*)pixdata);
+			pixdata += 4;
+			s -= 4;
+		}
 		void* decompr_data = malloc(decompr_size);
 
 		size_t processed = decompr_size;
@@ -242,6 +271,15 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 			pixdata = decompr_data;
 			s = decompr_size;
 		}
+	}
+
+	// Undo palettization
+	if(hdr.compression & DC_PALETTIZE) {
+		assert(hdr.format == PF_RGB565);
+		void* rawpix = _unpalettize_rgb565(pixdata, decompr_size, *w, *h);
+		pixdata -= 4;
+		free(pixdata);
+		pixdata = rawpix;
 	}
 
 	// Check if size is right
@@ -348,13 +386,8 @@ void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, v
 	assert(w > 0 && w <= 8192);
 	assert(h > 0 && h <= 8192);
 
-	// Try 3 variations:
-	// a) Uncompressed
-	// b) LZ4
-	// c) Palletize + LZ4 (if pixel format supports it)
-	//
-	// Choose smaller of b and c if it is at least 1.5 times smaller than a,
-	// choose a otherwise.
+	// Simply try to compress pixels with lz4,
+	// or output raw if savings are less than 1k
 
 	uint bpp = _format_bpp(format);
 	size_t size_uncompr = (w * h * bpp) / 8;
@@ -362,30 +395,12 @@ void image_write_dig(const char* filename, uint w, uint h, PixelFormat format, v
 	void* pixels_lz4 = malloc(LZ4_compressBound(size_uncompr));
 	size_t size_lz4 = LZ4_compressHC(pixels, pixels_lz4, size_uncompr);
 
-	bool palettize = (format & PF_MASK_PIXEL_FORMAT) == PF_RGB565;
-	if(palettize) {
-        uint pixels_dc_size = 0;
-		void* pixels_dc = _palettize_rgb565(pixels, w * h, &pixels_dc_size);
-		void* pixels_lz4dc = malloc(LZ4_compressBound(pixels_dc_size));
-		size_t size_lz4dc = LZ4_compressHC(pixels_dc, pixels_lz4dc, pixels_dc_size);
-
-		free(pixels_dc);
-		if(size_lz4dc < size_lz4) {
-			free(pixels_lz4);
-			pixels_lz4 = pixels_lz4dc;
-            size_lz4 = size_lz4dc;
-		}
-		else {
-			free(pixels_lz4dc);
-			palettize = false;
-		}
-	}
-
 	void* out_pixels;
 	size_t out_size;
 	uint8 compression = 0;
+
 	if(size_lz4 + 1024 < size_uncompr) {
-		compression = DC_LZ4 | (palettize ? DC_PALETTIZE : 0);
+		compression = DC_LZ4;
 		out_pixels = pixels_lz4;
 		out_size = size_lz4;
 	}
@@ -479,8 +494,8 @@ void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format
     }
 
 	bool palettize = (format & PF_MASK_PIXEL_FORMAT) == PF_RGB565;
+    uint pixels_dc_size = 0;
 	if(palettize) {
-        uint pixels_dc_size = 0;
 		void* pixels_dc = _palettize_rgb565(pixels, w*h, &pixels_dc_size);
 		void* pixels_defldc = malloc(pixels_dc_size);
 		size_t size_defldc = pixels_dc_size;
@@ -532,6 +547,10 @@ void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format
 	// Write
 	FileHandle f = file_create(filename);
 	file_write(f, &hdr, sizeof(DIGHeader));
+	if(palettize) {
+		assert(pixels_dc_size);
+		file_write_uint32(f, pixels_dc_size);
+	}
 	file_write(f, out_pixels, out_size);
 	file_close(f);
 

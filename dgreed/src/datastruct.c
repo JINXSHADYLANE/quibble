@@ -742,11 +742,11 @@ bool dict_insert(Dict* dict, const char* key, const void* data) {
 
 	// Resize if neccessary
 	dict->items++;
-	if(dict->items*4 > size * 3)
+	if(dict->items*6 > size * 5)
 		_dict_resize(dict);
 
 	size = dict->mask + 1;
-	assert(dict->items*4 <= size * 3);
+	assert(dict->items*6 <= size * 5);
 
 	uint hash = hash_murmur(key, strlen(key), 7);	
 	
