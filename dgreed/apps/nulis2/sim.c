@@ -16,6 +16,7 @@
 
 #define MAX_BALL_SIZE_IPAD 51.2f
 #define MAX_BALL_SIZE_IPHONE 53.3333333333f
+#define MAX_BALL_SIZE_IPHONE5 127.0f;
 #define DT (1.0f / 60.0f)
 
 typedef struct {
@@ -256,6 +257,8 @@ void sim_init(uint screen_width, uint screen_height, uint sim_width, uint sim_he
 
 	float max_size = sim_widthf < 1024.0f ? 
 		MAX_BALL_SIZE_IPHONE : MAX_BALL_SIZE_IPAD;
+	if(feql(sim_widthf, 1136.0f))
+		max_size = MAX_BALL_SIZE_IPHONE5;
 	coldet_init_ex(&cd, max_size, sim_widthf, sim_heightf, true, true);
 
 	spr_background = sprsheet_get_handle("background");

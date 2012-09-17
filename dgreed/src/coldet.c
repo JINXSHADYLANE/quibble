@@ -400,8 +400,8 @@ void coldet_init_ex(CDWorld* cd, float max_obj_size,
 		}
 	}
 
-	assert(fabsf(modff(width / cell_size, &int_part)) <= 0.001f);
-	assert(fabsf(modff(height / cell_size, &int_part)) <= 0.001f);
+	assert(fabsf(modff(width / cell_size, &int_part)) <= 0.1f);
+	assert(fabsf(modff(height / cell_size, &int_part)) <= 0.1f);
 
 	cd->cell_size = cell_size;
 	cd->horiz_wrap = horiz_wrap;

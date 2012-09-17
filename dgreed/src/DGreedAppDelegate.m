@@ -52,18 +52,21 @@ float resign_active_t;
     gl_controller = [[GLESViewController alloc] init];
     controller = [[AutoRotateViewController alloc] init];
     
-    [window addSubview:controller.view];
-    [window addSubview:gl_controller.view];	
+    NSString *reqSysVer = @"6.0";
+    NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
+    if ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedAscending) {
+        [window setRootViewController:controller];
+    }
+    else {
+         [window addSubview:controller.view];
+    }
+    
+    [window addSubview:gl_controller.view];
     [window makeKeyAndVisible];
     
     gl_view = [gl_controller.gl_view retain];
 	
-    if([application respondsToSelector:@selector(setStatusBarHidden:withAnimation:)]) {
-        [application setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
-    }
-    else {
-        [application setStatusBarHidden:YES animated:false];
-    }
+    [application setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
     
     /* Determine if we're on iPad */
     self.is_ipad = false;

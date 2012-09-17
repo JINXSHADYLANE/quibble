@@ -14,6 +14,14 @@ function setup_screen()
 	levels_file = 'levels.mml' 
 	if argv then
 		for i,arg in ipairs(argv) do
+			if arg == '-iphone5' then
+				iphone5 = true
+				sim_size = { x = 568, y = 320 }
+				scr_size = sim_size
+				levels_file = 'levels_small.mml'
+				scr_type = 'iphone'
+				retina = true
+			end
 			if arg == '-s' or arg == '-iphone' or arg == '-retina' then
 				sim_size = { x = 480, y = 320 }
 				levels_file = 'levels_small.mml'
@@ -35,7 +43,14 @@ function setup_screen()
 		end
 	else
 		local w, h = video.native_resolution()
-		if w == 2048 and h == 1536 then
+		if w == 1136 and h == 640 then
+			iphone5 = true
+			retina = true
+			levels_file = 'levels_small.mml'
+			sim_size = { x = 568, y = 320 }
+			scr_size = sim_size
+			scr_type = 'iphone'
+		elseif w == 2048 and h == 1536 then
 			retina = true
 		elseif w ~= 1024 and h ~= 768 then
 			sim_size = { x = 480, y = 320 }

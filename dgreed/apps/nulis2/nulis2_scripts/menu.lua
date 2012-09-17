@@ -54,12 +54,19 @@ function init()
 		pos_score = vec2(94, 594)
 		pos_levels = vec2(244, 174)
 		off_levels = vec2(140, 140)
-	elseif scr_type == 'iphone' then
+	elseif scr_type == 'iphone' and not iphone5 then
 		pos_replay = vec2(36, 37)
 		pos_sound = vec2(36, 119)
 		pos_music = vec2(36, 201)
 		pos_score = vec2(36, 283)
 		pos_levels = vec2(116, 37)
+		off_levels = vec2(80, 82)
+	else
+		pos_replay = vec2(70, 37)
+		pos_sound = vec2(70, 119)
+		pos_music = vec2(70, 201)
+		pos_score = vec2(70, 283)
+		pos_levels = vec2(158, 37)
 		off_levels = vec2(80, 82)
 	end
 
