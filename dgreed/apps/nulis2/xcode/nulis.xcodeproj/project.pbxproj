@@ -134,6 +134,7 @@
 		21A92A11150A64F5004AE2C3 /* ml_iap.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A92A0F150A64F5004AE2C3 /* ml_iap.c */; };
 		21A92A13150A778D004AE2C3 /* icon 144x144.png in Resources */ = {isa = PBXBuildFile; fileRef = 21A92A12150A778D004AE2C3 /* icon 144x144.png */; };
 		21B8B4AB15AD560800F2AADD /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21B8B4AA15AD560800F2AADD /* MessageUI.framework */; };
+		21CA05E016075D81008F2DF5 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 21CA05DF16075D81008F2DF5 /* Default-568h@2x.png */; };
 		21CF3BF615AC237400BF33BC /* DGreedAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 21CF3BF515AC237400BF33BC /* DGreedAppDelegate.m */; };
 		21CF3BF815AC266800BF33BC /* sys_misc_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 21CF3BF715AC266800BF33BC /* sys_misc_ios.m */; };
 		21D150D314E1541B00870D7A /* gamecenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D150D214E1541A00870D7A /* gamecenter.m */; };
@@ -369,6 +370,7 @@
 		21A92A10150A64F5004AE2C3 /* ml_iap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_iap.h; path = ../../../src/malka/ml_iap.h; sourceTree = "<group>"; };
 		21A92A12150A778D004AE2C3 /* icon 144x144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 144x144.png"; sourceTree = "<group>"; };
 		21B8B4AA15AD560800F2AADD /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		21CA05DF16075D81008F2DF5 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		21CF3BF415AC237400BF33BC /* DGreedAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DGreedAppDelegate.h; path = ../../../src/DGreedAppDelegate.h; sourceTree = "<group>"; };
 		21CF3BF515AC237400BF33BC /* DGreedAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DGreedAppDelegate.m; path = ../../../src/DGreedAppDelegate.m; sourceTree = "<group>"; };
 		21CF3BF715AC266800BF33BC /* sys_misc_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_misc_ios.m; path = ../../../src/sys_misc_ios.m; sourceTree = "<group>"; };
@@ -416,6 +418,7 @@
 		213776CB14CD5A58004F01D2 = {
 			isa = PBXGroup;
 			children = (
+				21CA05DF16075D81008F2DF5 /* Default-568h@2x.png */,
 				21A92A12150A778D004AE2C3 /* icon 144x144.png */,
 				212518E514CEA31C000E8BD2 /* Default@2x.png */,
 				212518E314CEA319000E8BD2 /* Default.png */,
@@ -788,6 +791,7 @@
 				212518E414CEA319000E8BD2 /* Default.png in Resources */,
 				212518E614CEA31C000E8BD2 /* Default@2x.png in Resources */,
 				21A92A13150A778D004AE2C3 /* icon 144x144.png in Resources */,
+				21CA05E016075D81008F2DF5 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -934,7 +938,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = ../../../src;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -960,7 +964,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = ../../../src;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -971,16 +975,13 @@
 		213776EF14CD5A59004F01D2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					armv6,
-					armv7,
-				);
+				ARCHS = armv7;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = "nulis/nulis-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "96BC62FE-760A-420D-A928-3160B94C7D5E";
@@ -991,16 +992,13 @@
 		213776F014CD5A59004F01D2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					armv6,
-					armv7,
-				);
+				ARCHS = armv7;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = "nulis/nulis-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "96BC62FE-760A-420D-A928-3160B94C7D5E";

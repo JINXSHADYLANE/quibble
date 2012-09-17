@@ -1,5 +1,7 @@
 #import "AutoRotateViewController.h"
 
+#import "GLESView.h"
+
 @implementation AutoRotateViewController
 
 extern void _orientation_set_current(UIInterfaceOrientation orient);
@@ -29,6 +31,8 @@ static AutoRotateViewController* global_auto_rotate_view_controller = NULL;
         UIInterfaceOrientation current = [UIApplication sharedApplication].statusBarOrientation;
         _orientation_set_current(current);
         global_auto_rotate_view_controller = self;
+        
+        [self.view setMultipleTouchEnabled:YES];
     }
     return self;
 }
@@ -65,11 +69,23 @@ static AutoRotateViewController* global_auto_rotate_view_controller = NULL;
     // e.g. self.myOutlet = nil;
 }
 
+- (BOOL)shouldAutorotate
+{
+    return YES;
+}
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskAll;
+}
+
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     // Return YES for supported orientations
     return YES;
 }
+
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
@@ -81,6 +97,26 @@ static AutoRotateViewController* global_auto_rotate_view_controller = NULL;
 {
     UIInterfaceOrientation current = [UIApplication sharedApplication].statusBarOrientation;
     _orientation_set_current(current);
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [[GLESView singleton] touchesBegan:touches withEvent:event];
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [[GLESView singleton] touchesMoved:touches withEvent:event];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [[GLESView singleton] touchesEnded:touches withEvent:event];
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [[GLESView singleton] touchesCancelled:touches withEvent:event];
 }
 
 @end
