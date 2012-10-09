@@ -126,6 +126,8 @@
 		21744016150B699B002C92D7 /* utfrrune.c in Sources */ = {isa = PBXBuildFile; fileRef = 2174400E150B699B002C92D7 /* utfrrune.c */; };
 		21744017150B699B002C92D7 /* utfrune.c in Sources */ = {isa = PBXBuildFile; fileRef = 2174400F150B699B002C92D7 /* utfrune.c */; };
 		21744018150B699B002C92D7 /* utfutf.c in Sources */ = {isa = PBXBuildFile; fileRef = 21744010150B699B002C92D7 /* utfutf.c */; };
+		2174AAC4162416D100C8B682 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 2174AAC3162416D100C8B682 /* UIImage+Resize.m */; };
+		2174AAC81624184000C8B682 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2174AAC61624182F00C8B682 /* Social.framework */; };
 		2183CA2114E285BF00ECDC45 /* ml_gamecenter.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */; };
 		2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1F14E285BF00ECDC45 /* ml_keyval.c */; };
 		2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 2194F0C414D7FF5900147A0C /* ml_coldet.c */; };
@@ -357,6 +359,9 @@
 		2174400E150B699B002C92D7 /* utfrrune.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utfrrune.c; path = "../../../src/lib9-utf/utfrrune.c"; sourceTree = "<group>"; };
 		2174400F150B699B002C92D7 /* utfrune.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utfrune.c; path = "../../../src/lib9-utf/utfrune.c"; sourceTree = "<group>"; };
 		21744010150B699B002C92D7 /* utfutf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utfutf.c; path = "../../../src/lib9-utf/utfutf.c"; sourceTree = "<group>"; };
+		2174AAC2162416D100C8B682 /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+Resize.h"; path = "../../../src/UIImage+Resize.h"; sourceTree = "<group>"; };
+		2174AAC3162416D100C8B682 /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImage+Resize.m"; path = "../../../src/UIImage+Resize.m"; sourceTree = "<group>"; };
+		2174AAC61624182F00C8B682 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_gamecenter.c; path = ../../../src/malka/ml_gamecenter.c; sourceTree = "<group>"; };
 		2183CA1E14E285BF00ECDC45 /* ml_gamecenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_gamecenter.h; path = ../../../src/malka/ml_gamecenter.h; sourceTree = "<group>"; };
 		2183CA1F14E285BF00ECDC45 /* ml_keyval.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_keyval.c; path = ../../../src/malka/ml_keyval.c; sourceTree = "<group>"; };
@@ -390,6 +395,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2174AAC81624184000C8B682 /* Social.framework in Frameworks */,
 				21B8B4AB15AD560800F2AADD /* MessageUI.framework in Frameworks */,
 				21DBAB08151F6C0500DCFFFB /* MediaPlayer.framework in Frameworks */,
 				216A5F6D1511F43B00BFE24D /* MobileCoreServices.framework in Frameworks */,
@@ -446,6 +452,7 @@
 		213776D914CD5A58004F01D2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2174AAC61624182F00C8B682 /* Social.framework */,
 				216A5F5A1511F33500BFE24D /* libz.dylib */,
 				21B8B4AA15AD560800F2AADD /* MessageUI.framework */,
 				21DBAB07151F6C0400DCFFFB /* MediaPlayer.framework */,
@@ -494,6 +501,12 @@
 				21744004150B698B002C92D7 /* lib9-utf */,
 				2137773814CD5B05004F01D2 /* malka */,
 				21CF3BF715AC266800BF33BC /* sys_misc_ios.m */,
+				211523C615AADC3100C38EEC /* sys_misc.h */,
+				211523C415AADC2500C38EEC /* sys_snd_ios.m */,
+				211523C715AADC3C00C38EEC /* sys_snd.h */,
+				211523C215AADC1400C38EEC /* sys_gfx_ios.m */,
+				211523BF15AADBF600C38EEC /* sys_gfx.h */,
+				2137771614CD5AFB004F01D2 /* system.h */,
 				21107C3115E77B13004AC47F /* miniz.c */,
 				21CF3BF415AC237400BF33BC /* DGreedAppDelegate.h */,
 				21CF3BF515AC237400BF33BC /* DGreedAppDelegate.m */,
@@ -510,12 +523,9 @@
 				211523CB15AAE18B00C38EEC /* vfont.h */,
 				211523CC15AAE18B00C38EEC /* vfont.m */,
 				211523C815AAE16300C38EEC /* camera.h */,
+				2174AAC2162416D100C8B682 /* UIImage+Resize.h */,
+				2174AAC3162416D100C8B682 /* UIImage+Resize.m */,
 				211523C915AAE16300C38EEC /* camera.m */,
-				211523C715AADC3C00C38EEC /* sys_snd.h */,
-				211523C615AADC3100C38EEC /* sys_misc.h */,
-				211523C415AADC2500C38EEC /* sys_snd_ios.m */,
-				211523C215AADC1400C38EEC /* sys_gfx_ios.m */,
-				211523BF15AADBF600C38EEC /* sys_gfx.h */,
 				213776F214CD5AFB004F01D2 /* async.c */,
 				213776F314CD5AFB004F01D2 /* async.h */,
 				21F7DC051509F9F900AAFBA4 /* iap.h */,
@@ -559,7 +569,6 @@
 				2137771214CD5AFB004F01D2 /* sophist.h */,
 				2137771314CD5AFB004F01D2 /* sprsheet.c */,
 				2137771414CD5AFB004F01D2 /* sprsheet.h */,
-				2137771614CD5AFB004F01D2 /* system.h */,
 				2137771714CD5AFB004F01D2 /* tilemap.c */,
 				2137771814CD5AFB004F01D2 /* tilemap.h */,
 				2137771914CD5AFB004F01D2 /* touch_ctrls.c */,
@@ -908,6 +917,7 @@
 				21CF3BF815AC266800BF33BC /* sys_misc_ios.m in Sources */,
 				21107C3215E77B13004AC47F /* miniz.c in Sources */,
 				21107C3515E77BAA004AC47F /* profiler.c in Sources */,
+				2174AAC4162416D100C8B682 /* UIImage+Resize.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

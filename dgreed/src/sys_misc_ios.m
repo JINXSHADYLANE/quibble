@@ -13,6 +13,7 @@
 #import <MessageUI/MFMailComposeViewController.h>
 #import <Twitter/TWTweetComposeViewController.h>
 #import <MediaPlayer/MPMusicPlayerController.h>
+#import <Social/Social.h>
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #include <OpenGLES/ES1/gl.h>
@@ -413,30 +414,67 @@ void ios_alert(const char* title, const char* text) {
 }
 
 bool ios_has_twitter(void) {
-    NSString *reqSysVer = @"5.0";
-    NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
+    NSString* reqSysVer = @"5.0";
+    NSString* currSysVer = [[UIDevice currentDevice] systemVersion];
     if ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedAscending) {
-        Class TW = NSClassFromString(@"TWTweetComposeViewController");
-        return [TW canSendTweet];
+        return [TWTweetComposeViewController canSendTweet];
     }
-
+    
     return false;
 }
 
 void ios_tweet(const char* msg, const char* url) {
     Class TW = NSClassFromString(@"TWTweetComposeViewController");
     id tw = [[TW alloc] init];
-
+    
     [tw setInitialText:[NSString stringWithUTF8String:msg]];
     if(url)
         [tw addURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]];
-
+    
     [[GLESViewController singleton] presentModalViewController:tw animated:YES];
+    [tw release];
 }
+
+bool ios_has_facebook(void) {
+    NSString* reqSysVer = @"6.0";
+    NSString* currSysVer = [[UIDevice currentDevice] systemVersion];
+    if([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedAscending) {
+        return [SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook];
+    }
+    return false;
+}
+
+void ios_fb_post(const char* msg, const char* url) {
+    Class SL = NSClassFromString(@"SLComposeViewController");
+    if([SL respondsToSelector:@selector(composeViewControllerForServiceType:)]) {
+        id sl = [SL composeViewControllerForServiceType:SLServiceTypeFacebook];
+        
+        [sl setInitialText:[NSString stringWithUTF8String:msg]];
+        if(url)
+            [sl addURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]];
+            
+        [[GLESViewController singleton] presentViewController:sl animated:YES completion:nil];
+    }
+}
+
+@interface MailCompose : MFMailComposeViewController {
+}
+@end
+
+@implementation MailCompose
+
+// Override to allow orientations other than the default portrait orientation.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    return (interfaceOrientation == UIInterfaceOrientationPortrait) ||
+        (interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown);
+}
+
+@end
 
 bool ios_has_mail(void) {
-    return [MFMailComposeViewController canSendMail];
+    return [MailCompose canSendMail];
 }
+
 
 typedef void (*MailCallback)(const char* result);
 
