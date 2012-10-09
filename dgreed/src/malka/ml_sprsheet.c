@@ -61,10 +61,13 @@ static int ml_sprsheet_get(lua_State* l) {
 
 	TexHandle tex;
 	RectF r;
-	if(name)
+	if(name) {
 		sprsheet_get(name, &tex, &r);
-	else
+    }
+	else {
+        assert(h);
 		sprsheet_get_h(*h, &tex, &r);
+    }
 
 	_new_texhandle(l, tex);
 	_new_rect(l, r.left, r.top, r.right, r.bottom);
@@ -78,15 +81,18 @@ static int ml_sprsheet_get_anim(lua_State* l) {
 	const char* name;
 	SprHandle* h;
 	resolvespr(l, 1, name, h);
-
+    
 	uint frame = luaL_checkinteger(l, 2);
 
 	TexHandle tex;
 	RectF r;
-	if(name)
+	if(name) {
 		sprsheet_get_anim(name, frame, &tex, &r);
-	else
+    }
+	else {
+        assert(h);
 		sprsheet_get_anim_h(*h, frame, &tex, &r);
+    }
 
 	_new_texhandle(l, tex);
 	_new_rect(l, r.left, r.top, r.right, r.bottom);
@@ -100,12 +106,16 @@ static int ml_sprsheet_anim_frames(lua_State* l) {
 	const char* name;
 	SprHandle* h;
 	resolvespr(l, 1, name, h);
+    
 
 	uint f;
-	if(name)
+	if(name) {
 		f = sprsheet_get_anim_frames(name);
-	else
+    }
+	else {
+        assert(h);
 		f = sprsheet_get_anim_frames_h(*h);
+    }
 
 	lua_pushinteger(l, f);
 
@@ -117,7 +127,7 @@ static int ml_sprsheet_draw(lua_State* l) {
 	if(n < 3 || n > 4)
 		goto error;
 
-	const char* name;
+	const char* name = NULL;
 	SprHandle* h;
 	resolvespr(l, 1, name, h);
 
@@ -139,10 +149,13 @@ static int ml_sprsheet_draw(lua_State* l) {
 		if(!_check_color(l, 4, &tint))
 			goto error;
 
-	if(name)
+	if(name) {
 		spr_draw(name, layer, dest, tint);
-	else
+    }
+	else {
+        assert(h);
 		spr_draw_h(*h, layer, dest, tint);
+    }
 
 	return 0;
 error:
@@ -157,6 +170,7 @@ static int ml_sprsheet_draw_anim(lua_State* l) {
 	const char* name;
 	SprHandle* h;
 	resolvespr(l, 1, name, h);
+    
 
 	uint frame = luaL_checkinteger(l, 2);
 	uint layer = luaL_checkinteger(l, 3);
@@ -177,10 +191,13 @@ static int ml_sprsheet_draw_anim(lua_State* l) {
 		if(!_check_color(l, 5, &tint))
 			goto error;
 
-	if(name)
+	if(name) {
 		spr_draw_anim(name, frame, layer, dest, tint);
-	else
+    }
+	else {
+        assert(h);
 		spr_draw_anim_h(*h, frame, layer, dest, tint);
+    }
 
 	return 0;
 error:
@@ -195,6 +212,7 @@ static int ml_sprsheet_draw_centered(lua_State* l) {
 	const char* name;
 	SprHandle* h;
 	resolvespr(l, 1, name, h);
+    
 
 	uint layer = luaL_checkinteger(l, 2);
 
@@ -232,10 +250,13 @@ static int ml_sprsheet_draw_centered(lua_State* l) {
 			goto error;
 	}
 
-	if(name)
+	if(name) {
 		spr_draw_cntr(name, layer, dest, rot, scale, tint);
-	else
+    }
+	else {
+        assert(h);
 		spr_draw_cntr_h(*h, layer, dest, rot, scale, tint);
+    }
 
 	return 0;
 error:
@@ -250,6 +271,7 @@ static int ml_sprsheet_draw_anim_centered(lua_State* l) {
 	const char* name;
 	SprHandle* h;
 	resolvespr(l, 1, name, h);
+    
 
 	uint frame = luaL_checkinteger(l, 2);
 	uint layer = luaL_checkinteger(l, 3);
@@ -288,10 +310,13 @@ static int ml_sprsheet_draw_anim_centered(lua_State* l) {
 			goto error;
 	}
 
-	if(name)
+	if(name) {
 		spr_draw_anim_cntr(name, frame, layer, dest, rot, scale, tint);
-	else
+    }
+	else {
+        assert(h);
 		spr_draw_anim_cntr_h(*h, frame, layer, dest, rot, scale, tint);
+    }
 
 	return 0;
 error:

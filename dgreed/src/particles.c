@@ -1,6 +1,7 @@
 #include "particles.h"
 #include "mml.h"
 #include "memory.h"
+#include "mempool.h"
 
 static uint particles_layer;
 static const char* particles_file = "particles.mml";
@@ -14,7 +15,7 @@ static const char* particles_prefix;
 
 #define GET_NODEVAL(node, name, dest, type) { \
 	prop = mml_get_sibling(&desc, node, name); \
-	if(!prop) LOG_ERROR("Propierty " name "is missing or in wrong place"); \
+	if(!prop) LOG_ERROR("Missing prop"); \
 	dest = mml_getval_##type(&desc, node); \
 }	
 
@@ -28,6 +29,10 @@ uint psystem_descs_count = 0;
 TexHandle particles_texture;
 
 static float last_time = 0.0f;
+
+// psystems not larger than this will be allocated from pool
+uint psystem_poolable_size = 512;
+MemPool psystem_pool;
 
 #ifndef NO_DEVMODE
 const ParticleStats* particle_stats(void) {
@@ -43,6 +48,9 @@ void particles_init_ex(const char* assets_prefix, const char* filename, uint lay
 	particles_layer = layer;
 
 	particles_prefix = assets_prefix ? assets_prefix : "";
+
+	// Alloc pool
+	mempool_init_ex(&psystem_pool, psystem_poolable_size, psystem_poolable_size * 64);
 
 	// Construct paths
 	char desc_path[256];
@@ -242,13 +250,22 @@ void particles_save(void) {
 void particles_close(void) {
 	for(uint i = 0; i < MAX_PSYSTEMS; ++i) {
 		if(psystems[i].active) {
-			MEM_FREE(psystems[i].particles);
+			uint s = sizeof(Particle) * psystems[i].desc->max_particles;
+			if(s <= psystem_poolable_size) {
+				// Don't bother to free pooled allocs,
+				// pools will be drained anyway
+			}
+			else {
+				MEM_FREE(psystems[i].particles);
+			}
 		}
 	}
 
 	for(uint i = 0; i < psystem_descs_count; ++i) {
 		tex_free(psystem_descs[i].texture);
 	}
+
+	mempool_drain(&psystem_pool);
 }	
 
 ParticleSystem* particles_spawn(const char* name, const Vector2* pos,
@@ -284,8 +301,13 @@ ParticleSystem* particles_spawn(const char* name, const Vector2* pos,
 	psystem->age = 0.0f;
 	psystem->emission_acc = 0.0f;
 	psystem->particle_count = 0;
-	psystem->particles = (Particle*)MEM_ALLOC(sizeof(Particle) *
-		psystem->desc->max_particles);	
+
+	uint s = sizeof(Particle) * psystem->desc->max_particles;
+	if(s <= psystem_poolable_size)
+		psystem->particles = mempool_alloc(&psystem_pool);
+	else
+		psystem->particles = (Particle*)MEM_ALLOC(s);
+
 	psystem->active = true;
 
 	return psystem;
@@ -416,7 +438,11 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 
 	// Self-destruct if age is reached and all particles are dead
 	if(psystem->age > psystem->desc->duration && psystem->particle_count == 0) {
-		MEM_FREE(psystem->particles);
+		uint s = sizeof(Particle) * psystem->desc->max_particles;
+		if(s <= psystem_poolable_size)
+			mempool_free(&psystem_pool, psystem->particles);
+		else
+			MEM_FREE(psystem->particles);
 		psystem->active = false;
 	}		
 }		

@@ -122,6 +122,7 @@ static void* _palettize_rgb565(uint16* in, uint insize, uint* outsize) {
     }
 
     // Get pairs of all unique colours and their use count, sort it
+    assert(unique_colours > 0);
     ColourDef* cdefs = malloc(unique_colours * sizeof(ColourDef));
     for(uint i = 0, idx = 0; i <= MAX_UINT16; ++i) {
         if(histogram[i] > 0) {
@@ -259,6 +260,8 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
             processed = s;
         }
 
+        if(hdr.compression & DC_PALETTIZE)
+            pixdata -= 4;
 		free(pixdata);
 
 		if(processed != s) {
@@ -275,11 +278,11 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 
 	// Undo palettization
 	if(hdr.compression & DC_PALETTIZE) {
-		assert(hdr.format == PF_RGB565);
+		assert((hdr.format & PF_MASK_PIXEL_FORMAT) == PF_RGB565);
 		void* rawpix = _unpalettize_rgb565(pixdata, decompr_size, *w, *h);
-		pixdata -= 4;
 		free(pixdata);
 		pixdata = rawpix;
+        s = (*w * *h * 2);
 	}
 
 	// Check if size is right

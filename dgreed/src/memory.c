@@ -1,3 +1,5 @@
+#ifdef TRACK_MEMORY
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -165,3 +167,4 @@ void mem_dump(const char* path) {
 	fclose(output);
 }
 
+#endif

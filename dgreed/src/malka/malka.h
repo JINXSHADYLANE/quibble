@@ -34,6 +34,7 @@ int malka_states_run(const char* luafile);
 
 // Alternatives for writing your own game loop
 void malka_states_init(const char* luafile);
+void malka_states_postinit(void);
 void malka_states_close(void);
 extern bool malka_states_step(void);
 
@@ -48,5 +49,8 @@ double malka_call(const char* func_name, const char* fmt, ...);
 // Collects garbage for specified number of milliseconds,
 // or less if there's no more garbage
 void malka_gc(uint ms);
+
+// Performs full gc
+void malka_full_gc(void);
 
 #endif

@@ -388,12 +388,15 @@ static int ml_cdobj_rect(lua_State* l) {
 			obj->pos.y + half_radius, obj->pos.y + half_radius
 		);
 	}
-	if(obj->type == CD_AABB) {
+	else if(obj->type == CD_AABB) {
 		res = rectf(
 			obj->pos.x, obj->pos.y,
 			obj->pos.x + obj->size.size.x, obj->pos.y + obj->size.size.y
 		);
 	}
+    else {
+        return 0;
+    }
 
 	_new_rect(l, res.left, res.top, res.right, res.bottom);
 	return 1;

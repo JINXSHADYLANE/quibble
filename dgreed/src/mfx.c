@@ -225,7 +225,7 @@ static void _load_effects(NodeIdx node) {
 		for(; sub_node != 0; sub_node = mml_get_next(&mfx_mml, sub_node)) {
 
 			const char* name = mml_get_name(&mfx_mml, sub_node);
-			SubEffectType type = 0;  // Iniatilized type
+			SubEffectType type;
 
 			if(strcmp("sound", name) == 0)
 				type = SUB_SOUND;
@@ -400,7 +400,8 @@ void mfx_trigger_ex(const char* name, Vector2 pos, float dir) {
 			LiveSubEffectIdx dest = ~0;
 			LiveSubEffect* lives = DARRAY_DATA_PTR(live_sub_effects, LiveSubEffect);
 			for(uint j = 0; j < live_sub_effects.size; ++j) {
-				if(lives[j].remove) {
+                LiveSubEffect* l = (LiveSubEffect*)darray_get(&live_sub_effects, j);
+				if(l->remove) {
 					dest = j;
 					break;
 				}

@@ -538,8 +538,8 @@ bool mml_tokenize(MMLObject* mml, const char* string, DArray* tokens) {
 	assert(string);
 	assert(tokens);
 
-	*tokens = darray_create(sizeof(MMLToken), 0);
-
+	*tokens = darray_create(sizeof(MMLToken), 300);
+    
 	bool in_comment = false;
 	bool in_qliteral = false;
 	bool in_literal = false;
@@ -799,26 +799,33 @@ bool _needs_escaping(const char* in, uint* len, bool* qout) {
 	assert(qout);
 
 	*qout = false;
+	bool escape = false;
 
 	uint i = 0;
 	while(in[i]) {
 		switch(in[i]) {
-			case ' ':
-				*qout = true;
-				break;
 			case '\n':
 			case '\r':
 			case '\t':
 			case '\b':
 			case '"':
 			case '\\':
+				escape = true;
+			case '(':
+			case ')':
+			case ' ':
+			case '#':
 				*qout = true;
-				return true;
 		}
 		i++;
 	}	
 	*len = i;
-	return false;
+
+	// Quote empty strings
+	if(!i)
+		*qout = true;
+
+	return escape;
 }	
 
 uint mml_insert_escapes(const char* in, DArray* out) {

@@ -76,7 +76,10 @@ char* path_to_resource(const char* _file) {
         CFRelease(file_cfstring);
 
 	if(!resource_url) {
-		MEM_FREE(file);
+        if(file)
+            MEM_FREE(file);
+        else
+            MEM_FREE(filename);
 		return NULL;
 	}	
 
@@ -86,7 +89,10 @@ char* path_to_resource(const char* _file) {
     
     CFRelease(resource_url);
 
-	MEM_FREE(file);
+	if(file)
+            MEM_FREE(file);
+        else
+            MEM_FREE(filename);
 	return path;	
 }
 #else
@@ -1400,6 +1406,7 @@ char* strclone_untracked(const char* str) {
 	return clone;
 }
 
+#ifdef TRACK_MEMORY
 char* strclone_tracked(const char* str, const char* file, int line) {
 	assert(str);
 
@@ -1407,7 +1414,8 @@ char* strclone_tracked(const char* str, const char* file, int line) {
 	char* clone = mem_alloc(len+1, file, line);
 	strcpy(clone, str);
 	return clone;
-}	
+}
+#endif
 
 float lerp(float a, float b, float t) {
 	 return a + (b - a) * t;
