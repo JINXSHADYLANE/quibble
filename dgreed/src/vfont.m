@@ -61,6 +61,9 @@ static RectF _bbox(const char* string) {
 
 #ifdef TARGET_IOS
     CGSize size = [ns_string sizeWithFont:font->uifont];
+    // Add additional padding since iOS often returns too small rect
+    size.width += 4.0f;
+    size.height += 2.0f;
 #else
 	NSDictionary* attr = [NSDictionary dictionaryWithObject:font->uifont forKey: NSFontAttributeName];
 	NSSize size = [ns_string sizeWithAttributes:attr];
@@ -73,7 +76,7 @@ static CachePage* _alloc_page(RectF* r) {
     assert(r->left == 0.0f && r->top == 0.0f);
     
     // Determine page size
-    uint pw = default_page_width;
+    uint pw = default_page_width * (retina ? 2 : 1);
     uint ph = default_page_height;
     if(pw < r->right)
         pw = next_pow2((uint)r->right);
@@ -167,7 +170,7 @@ static void _render_text(const char* string, CachePage* page, RectF* dest) {
     memset(data, 0, w * h * sizeof(Color));
     CGColorSpaceRef color_space = CGColorSpaceCreateDeviceRGB();
     CGContextRef ctx = CGBitmapContextCreate(
-        data, w, h, 8, w*4, 
+        data, w, h, 8, w*4,
         color_space, kCGImageAlphaPremultipliedLast
     );
 
@@ -198,7 +201,9 @@ static void _render_text(const char* string, CachePage* page, RectF* dest) {
     NSString* ns_str = [NSString stringWithUTF8String:string];
 
 #ifdef TARGET_IOS
-    [ns_str drawAtPoint:CGPointMake(0.0f, 0.0f) withFont:font->uifont];
+    [ns_str drawAtPoint:CGPointMake(2.0f, 1.0f) withFont:font->uifont];
+//    assert(s.width <= w);
+//    assert(s.height <= h);
 #else
 	NSPoint pt = {0.0f, 0.0f};
 	NSDictionary* attr = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -256,8 +261,11 @@ static const CachedText* _precache(const char* string, const char* key, bool inp
     
     // Make user inputed text very long, so that we can use cache better
     if(input) {
-        float input_w = retina ? 512.0f : 256.0f;
-        assert(w < input_w);
+        float input_w = retina ? 510.0f * 2.0f : 510.0f;
+        // Don't crash, log warning instead
+		if(w >= input_w)
+        	LOG_WARNING("Input text w is longer than it should be!");
+        //assert(w < input_w);
         w = input_w;
         bbox.right = input_w;
     }
@@ -489,12 +497,15 @@ void vfont_cache_invalidate_ex(const char* string, bool strict) {
         return;
 
 	DictEntry* text_entry = dict_entry(&cache, key);
-	if(!text_entry && strict)
-		LOG_ERROR("Invalidating not-precached text");
+	if(!text_entry && strict) {
+		LOG_WARNING("Invalidating not-precached text");
+        return;
+    }
     if(!text_entry && !strict)
         return;
 
-	const CachedText* text = (const CachedText*)text_entry->data;
+	assert(text_entry);
+    const CachedText* text = (const CachedText*)text_entry->data;
 	assert(text);
 
 	// Mark new free rect
@@ -515,6 +526,27 @@ void vfont_cache_invalidate_ex(const char* string, bool strict) {
 	MEM_FREE(key_text);
 }
 
+void vfont_invalidate_all(void) {
+    free_rects.size = 0;
+
+	for(uint i = 0; i < cache.mask+1; ++i) {
+		DictEntry e = cache.map[i];
+		if(e.key && e.data) {
+			const CachedText* text = e.data;
+			MEM_FREE(text->text);
+			MEM_FREE(e.data);
+			MEM_FREE(e.key);
+		}
+	}
+    dict_free(&cache);
+    dict_init(&cache);
+
+    for(uint i = 0; i < cache_pages.size; ++i) {
+        CachePage* page = darray_get(&cache_pages, i);
+        page->occupied = rectf_null();
+    }
+}
+
 Vector2 vfont_size(const char* string) {
     RectF bbox = _bbox(string);
     Vector2 res = {
@@ -525,8 +557,8 @@ Vector2 vfont_size(const char* string) {
 }
 
 void vfont_draw_cache(uint layer, Vector2 topleft) {
-	if(cache_pages.size > 0) {
-		CachePage* page = darray_get(&cache_pages, 0);
+    for(uint i = 0; i < cache_pages.size; ++i) {
+		CachePage* page = darray_get(&cache_pages, i);
 		RectF dest = rectf(topleft.x, topleft.y, 0.0f, 0.0f);
         if(retina) {
             dest.right = dest.left + page->width / 2.0f;
@@ -534,6 +566,7 @@ void vfont_draw_cache(uint layer, Vector2 topleft) {
         }
 
 		video_draw_rect(page->tex, layer, NULL, &dest, COLOR_WHITE);
+        topleft.y += page->height;
 	}
 }
 

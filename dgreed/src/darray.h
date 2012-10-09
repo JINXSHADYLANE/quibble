@@ -26,7 +26,7 @@ void darray_append(DArray* array, const void* item_ptr);
 // Inserts multiple new items to the end of array
 void darray_append_multi(DArray* array, const void* item_ptr, unsigned int count);
 // Inserts multiple new items to the end of array, fills them with nulls
-void darray_append_nulls(DArray* arra, unsigned int count);
+void darray_append_nulls(DArray* array, unsigned int count);
 // Inserts new item at specified index, shifts trailing items back
 void darray_insert(DArray* array, unsigned int index, const void* item_ptr);
 // Removes item and preserves array order.

@@ -16,6 +16,8 @@
 
 @property(nonatomic) BOOL rotate_touches;
 
+- (BOOL) isRunning;
+- (void) setRunning:(BOOL)r;
 - (void) startAnimation;
 - (void) stopAnimation;
 - (void) drawView;

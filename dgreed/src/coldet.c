@@ -303,6 +303,7 @@ static void _coldet_hashmap_insert_cell(CDWorld* world, CDCell* cell) {
 try_again:
 
 	n = world->reserved_cells;
+    assert(n > 1);
 
 	CDCell* dest = &world->cells[_hash(x, y, 0) % n];
 	if(!list_empty(&dest->objs))
