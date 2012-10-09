@@ -19,9 +19,11 @@ static GLESView* global_gles_view = NULL;
         // Aquire EAGL layer
 		CAEAGLLayer* eagl_layer = (CAEAGLLayer*)super.layer;
 		eagl_layer.opaque = YES;
-        eagl_layer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
-            [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking, 
-            kEAGLColorFormatRGB565, kEAGLDrawablePropertyColorFormat, nil];
+        // This makes backbuffer use less memory, but you can see visual quality
+        // degradation in some cases
+        //eagl_layer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
+        //    [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
+        //    kEAGLColorFormatRGB565, kEAGLDrawablePropertyColorFormat, nil];
         
         
 		// Init OpenGL ES 1.1 context
@@ -37,9 +39,6 @@ static GLESView* global_gles_view = NULL;
         if([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
             screen_scale = [[UIScreen mainScreen] scale];
             self.contentScaleFactor = screen_scale;
-        }
-        else {
-            screen_scale = 1.0f;
         }
         
         // Create framebuffer and renderbuffer

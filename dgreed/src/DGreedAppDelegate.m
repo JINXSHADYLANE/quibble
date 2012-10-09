@@ -124,8 +124,6 @@ float resign_active_t;
     dgreed_render();
     [gl_controller.gl_view setRunning:false];
     
-    LOG_INFO("Init done: %ums", time_ms_current() - start_t);
-    
     return YES;
 }
 

@@ -303,6 +303,8 @@ int malka_run_ex(const char* luafile) {
 
 void malka_states_init(const char* luafile) {
 	malka_run_ex(luafile);
+	malka_states_postinit();
+}
 
 void malka_states_postinit(void) {
 	lua_getglobal(l, "game_init");
