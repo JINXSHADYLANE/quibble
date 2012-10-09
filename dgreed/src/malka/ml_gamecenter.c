@@ -203,6 +203,9 @@ static void _achievement_to_tbl(lua_State* l, GameCenterAchievement* a) {
 
 static void _get_achievements_cb(DArray* data) {
 	assert(live_achievements_req);
+    
+    lua_getref(cb_l, cb_achievement_ref);
+	assert(lua_isfunction(cb_l, -1));
 
 	if(data) {
 		GameCenterAchievement* achievements = DARRAY_DATA_PTR(*data, GameCenterAchievement);
@@ -219,10 +222,6 @@ static void _get_achievements_cb(DArray* data) {
 		lua_createtable(cb_l, 0, 0);
 	}
 
-	// Does this work right, shouldn't function come first and then the
-	// arguments?
-	lua_getref(cb_l, cb_achievement_ref);
-	assert(lua_isfunction(cb_l, -1));
 	lua_call(cb_l, 1, 0);
 	lua_unref(cb_l, cb_achievement_ref);
 

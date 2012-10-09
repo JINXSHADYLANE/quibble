@@ -67,8 +67,13 @@ static const luaL_Reg time_fun[] = {
 
 // texture
 
+#ifdef _DEBUG
 #define checktexhandle(l, i) \
 	(TexHandle*)luaL_checkudata(l, i, "_TexHandle.mt")
+#else
+#define checktexhandle(l, i) \
+	(TexHandle*)lua_touserdata(l, i)
+#endif
 
 void _new_texhandle(lua_State* l, TexHandle h) {
 	TexHandle* t = (TexHandle*)lua_newuserdata(l, sizeof(TexHandle));
@@ -317,7 +322,7 @@ bool _check_color(lua_State* l, int i, Color* c) {
 static int ml_video_clear_color(lua_State* l) {
 	checkargs(1, "video.clear_color");
 
-	Color c;
+	Color c = COLOR_RGBA(255, 255, 255, 255);
 	_check_color(l, 1, &c);
 	video_clear_color(c);
 
@@ -407,6 +412,13 @@ static int ml_video_draw_rect(lua_State* l) {
 			}
 			goto error;
 		}
+		if(_check_rect(l, 3, &src)) {
+			if(_get_dest(l, 4, &dest)) {
+				video_draw_rect(*h, layer, &src, &dest,
+					COLOR_WHITE);
+				return 0;
+			}
+		}
 		Color c;
 		if(_check_color(l, 4, &c)) {
 			if(_get_dest(l, 3, &dest)) {
@@ -414,13 +426,6 @@ static int ml_video_draw_rect(lua_State* l) {
 				return 0;
 			}	
 			goto error;
-		}
-		if(_check_rect(l, 3, &src)) {
-			if(_get_dest(l, 4, &dest)) {
-				video_draw_rect(*h, layer, &src, &dest,
-					COLOR_WHITE);
-				return 0;
-			}
 		}
 		goto error;
 	}
@@ -904,6 +909,12 @@ static int ml_vfont_invalidate(lua_State* l) {
 	return 0;
 }
 
+static int ml_vfont_invalidate_all(lua_State* l) {
+    checkargs(0, "vfont.invalidate_all");
+    vfont_invalidate_all();
+    return 0;
+}
+
 static int ml_vfont_invalidate_nonstrict(lua_State* l) {
 	checkargs(1, "vfont.invalidate_nonstrict");
 	const char* string = luaL_checkstring(l, 1);
@@ -921,6 +932,7 @@ static const luaL_Reg vfont_fun[] = {
 	{"precache", ml_vfont_precache},
 	{"invalidate", ml_vfont_invalidate},
 	{"invalidate_nonstrict", ml_vfont_invalidate_nonstrict},
+    {"invalidate_all", ml_vfont_invalidate_all},
 	{NULL, NULL}
 };
 
@@ -1513,9 +1525,9 @@ static void _foreground_cb(void) {
 static int ml_runstate_background_callback(lua_State* l) {
 	checkargs(1, "runstate.background_callback");
 
-	if(cb_shake_ref != -1) {
-		lua_unref(l, cb_shake_ref);
-		cb_shake_ref = -1;
+	if(cb_background_ref != -1) {
+		lua_unref(l, cb_background_ref);
+		cb_background_ref = -1;
 	}
 
 	if(lua_isnil(l, 1)) {
@@ -1536,9 +1548,9 @@ static int ml_runstate_background_callback(lua_State* l) {
 static int ml_runstate_foreground_callback(lua_State* l) {
 	checkargs(1, "runstate.foreground_callback");
 
-	if(cb_shake_ref != -1) {
-		lua_unref(l, cb_shake_ref);
-		cb_shake_ref = -1;
+	if(cb_foreground_ref != -1) {
+		lua_unref(l, cb_foreground_ref);
+		cb_foreground_ref = -1;
 	}
 
 	if(lua_isnil(l, 1)) {

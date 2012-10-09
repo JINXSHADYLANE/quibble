@@ -238,9 +238,7 @@ static void _sprsheet_load(SprDesc* desc) {
 }
 
 static void _sprsheet_load_desc(const char* desc) {
-	assert(sprsheet_descs.item_size == sizeof(SprDesc));
-
-	// Read mml
+    // Read mml
 	char* mml_text = txtfile_read(desc); 
 	if(!mml_deserialize(&sprsheet_mml, mml_text))
 		LOG_ERROR("Unable to parse sprsheet desc %s", desc);
@@ -249,6 +247,9 @@ static void _sprsheet_load_desc(const char* desc) {
 	NodeIdx root = mml_root(&sprsheet_mml);
 	if(strcmp(mml_get_name(&sprsheet_mml, root), "sprsheet") != 0)
 		LOG_ERROR("Invalid sprsheet desc %s", desc);
+    
+    sprsheet_descs = darray_create(sizeof(SprDesc), mml_count_children(&sprsheet_mml, root));
+    assert(sprsheet_descs.item_size == sizeof(SprDesc));
 
 	// Parse mml structure filling data to global state along the way
 	NodeIdx child = mml_get_first_child(&sprsheet_mml, root);
@@ -301,7 +302,7 @@ void sprsheet_init(const char* desc) {
 	assert(sprsheet_initialized == false);
 
 	dict_init(&sprsheet_dict);
-	sprsheet_descs = darray_create(sizeof(SprDesc), 0);
+	//sprsheet_descs = darray_create(sizeof(SprDesc), 0);
 	sprsheet_prefix[0] = '\0';
 	sprsheet_scale = 1.0f;
 	_sprsheet_load_desc(desc);

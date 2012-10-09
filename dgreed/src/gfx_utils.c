@@ -119,24 +119,15 @@ void gfx_transform(Vector2* v, uint n_v, const Vector2* translate, float rotate,
 	assert(n_v);
 	assert(translate);
 
-	// Scale
-	uint i;
-	for(i = 0; i < n_v; ++i)
-		v[i] = vec2_scale(v[i], scale);	
-
-	// Rotate
 	float s = sin(rotate);
 	float c = cos(rotate);
-	for(i = 0; i < n_v; ++i) {
+	for(uint i = 0; i < n_v; ++i) {
 		float nx, ny;
-		nx = c * v[i].x - s * v[i].y;
-		ny = s * v[i].x + c * v[i].y;
-		v[i].x = nx; v[i].y = ny;
-	}	
-
-	// Translate
-	for(i = 0; i < n_v; ++i) 
-		v[i] = vec2_add(v[i], *translate);	
+		nx = c * (v[i].x * scale) - s * (v[i].y * scale);
+		ny = s * (v[i].x * scale) + c * (v[i].y * scale);
+		v[i].x = nx + translate->x;
+        v[i].y = ny + translate->y;
+	}
 }		
 
 void gfx_matmul(Vector2* v, uint n_v, float* m) {

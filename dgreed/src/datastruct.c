@@ -597,11 +597,13 @@ void* aatree_remove(AATree* tree, int key) {
 // Hashmap with hopscotch addressing
 
 #define H 32
+#define RESIZE_RATIO_NUMERATOR 7
+#define RESIZE_RATIO_DENUMERATOR 8
 
 void dict_init(Dict* dict) {
 	assert(dict);
 
-	size_t size = 4*H;
+	size_t size = 2*H;
 
 	dict->items = 0;
 	dict->mask = size-1;
@@ -742,11 +744,11 @@ bool dict_insert(Dict* dict, const char* key, const void* data) {
 
 	// Resize if neccessary
 	dict->items++;
-	if(dict->items*6 > size * 5)
+	if(dict->items * RESIZE_RATIO_DENUMERATOR > size * RESIZE_RATIO_NUMERATOR)
 		_dict_resize(dict);
 
 	size = dict->mask + 1;
-	assert(dict->items*6 <= size * 5);
+	assert(dict->items * RESIZE_RATIO_DENUMERATOR <= size * RESIZE_RATIO_NUMERATOR);
 
 	uint hash = hash_murmur(key, strlen(key), 7);	
 	
@@ -802,11 +804,11 @@ void dict_set(Dict* dict, const char* key, const void* data) {
 	// Resize if neccessary
 	size_t size = dict->mask + 1;
 	dict->items++;
-	if(dict->items*4 > size * 3)
+	if(dict->items * RESIZE_RATIO_DENUMERATOR > size * RESIZE_RATIO_NUMERATOR)
 		_dict_resize(dict);
 
 	size = dict->mask + 1;
-	assert(dict->items*4 <= size * 3);
+	assert(dict->items * RESIZE_RATIO_DENUMERATOR <= size * RESIZE_RATIO_NUMERATOR);
 
 #ifdef _DEBUG
 	assert(_dict_insert(dict, key, data, hash));

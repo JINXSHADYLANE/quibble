@@ -4,6 +4,7 @@
 #include "datastruct.h"
 #include "darray.h"
 #include "async.h"
+#include "system.h"
 
 #define WRITES_BEFORE_FLUSH 32 
 
@@ -80,6 +81,10 @@ static void _read(void) {
 
 static void _flush(void) {
 	assert(keyval_initialized);
+	if(n_writes == 0)
+		return;
+
+	uint start_t = time_ms_current();
 
 	// Flushing is done rather often, let's make this as simple as possible.
 
@@ -98,6 +103,8 @@ static void _flush(void) {
 	async_leave_cs(keyval_cs);
 
 	file_close(f);
+
+	LOG_INFO("keyval db flushed in %ums", time_ms_current() - start_t);
 }
 
 static void _gc(void) {
@@ -108,7 +115,7 @@ static void _gc(void) {
 	async_enter_cs(keyval_cs);
 
 	DArray old_strs = keyval_strs;
-	keyval_strs = darray_create(sizeof(char), 0);	
+	keyval_strs = darray_create(sizeof(char), old_strs.size);
 
 	size_t dict_size = keyval_dict.mask + 1;
 

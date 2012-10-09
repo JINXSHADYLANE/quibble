@@ -20,10 +20,10 @@ RawSound* wav_load(const char* filename) {
 		LOG_ERROR("Not format chunk");
 	uint format_length __attribute__ ((unused)) = file_read_uint32(wav_file);
 	assert(format_length == 0x10);
-
-	uint16 format_code __attribute__ ((unused)) = file_read_uint16(wav_file);
+	format_length = 0; // To prevent unused warning
+	uint16 format_code __attribute__((unused)) = file_read_uint16(wav_file);
 	assert(format_code == 0x01);
-
+	format_code = 0; // To prevent unused warning
 	uint16 n_channels = file_read_uint16(wav_file);
 	assert(n_channels == 1 || n_channels == 2);
 	uint32 sample_rate = file_read_uint32(wav_file);

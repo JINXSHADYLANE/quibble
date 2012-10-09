@@ -243,6 +243,18 @@ static void _malka_prep(const char* luafile) {
 	lua_pop(l, 1);
 	MEM_FREE(module_path);
 
+    // Set flag running_on_ios
+#ifdef TARGET_IOS
+    lua_pushboolean(l, true);
+    lua_setglobal(l, "running_on_ios"); 
+#endif
+
+    // Set debug flag
+#ifdef _DEBUG
+    lua_pushboolean(l, true);
+    lua_setglobal(l, "_DEBUG");
+#endif
+
 	// Register params
 	if(ml_argv) {
 		lua_createtable(l, ml_argc, 0);
@@ -292,6 +304,7 @@ int malka_run_ex(const char* luafile) {
 void malka_states_init(const char* luafile) {
 	malka_run_ex(luafile);
 
+void malka_states_postinit(void) {
 	lua_getglobal(l, "game_init");
 	if(lua_isfunction(l, -1))
 		lua_call(l, 0, 0);
@@ -370,6 +383,10 @@ void malka_gc(uint ms) {
 		lua_gc(l, LUA_GCSTEP, 0);	
 		after_mem = l->l_G->totalbytes;
 	} while(after_mem < before_mem && time_ms_current() < t + ms);
+}
+
+void malka_full_gc(void) {
+    lua_gc(l, LUA_GCCOLLECT, 0);
 }
 
 lua_State* malka_lua_state(void) {

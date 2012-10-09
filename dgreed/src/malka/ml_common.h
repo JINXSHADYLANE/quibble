@@ -1,7 +1,7 @@
 #ifndef ML_COMMON_H
 #define ML_COMMON_H
 
-#if _DEBUG
+#ifdef _DEBUG
 #define checkargs(c, name) \
 	int n = lua_gettop(l); \
 	if(n != c) \

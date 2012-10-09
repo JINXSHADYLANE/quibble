@@ -38,7 +38,7 @@ void mem_dump(const char* path);
 #define MEM_ALLOC(size) malloc(size)
 #define MEM_CALLOC(num, size) calloc(num, size)
 #define MEM_REALLOC(ptr, size) realloc(ptr, size)
-#define MEM_FREE(ptr) free(ptr)
+#define MEM_FREE(ptr) free((void*)ptr)
 
 #endif
 

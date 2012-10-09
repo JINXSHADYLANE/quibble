@@ -969,6 +969,12 @@ returns true if we can send tweets
 - os.tweet(msg, url)
 sends a twitter message, with optional web url
 
+- os.has_facebook()
+returns true if we can send facebook posts
+
+- os.facebook_post(msg, url)
+posts on facebook, with optional url
+
 - os.has_mail()
 returns true if we can send mail
 
