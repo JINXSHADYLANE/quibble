@@ -83,7 +83,9 @@ static bool _call_c_state_func(CState* state, const char* func, float* arg,
 		{"init", state->desc.init},
 		{"close", state->desc.close},
 		{"enter", state->desc.enter},
-		{"leave", state->desc.leave}
+		{"leave", state->desc.leave},
+		{"preenter", state->desc.preenter},
+		{"postleave", state->desc.postleave}
 	};
 
 	for(uint i = 0; i < ARRAY_SIZE(method_tbl); ++i) {
@@ -274,8 +276,6 @@ static int ml_states_register(lua_State* l) {
 	_register_state(l, name, 2);
 	_names_add(name);
 
-	_call_state_func(l, name, "init", NULL, NULL, NULL);
-
 	return 1;
 }
 
@@ -291,6 +291,7 @@ static void _states_push(lua_State* l, uint idx) {
 	}
 
 	_stack_push(idx);
+	_call_state_func(l, _names_get(idx), "preenter", NULL, NULL, NULL);
 
 	if(!stack_empty) {
 		// Set up transition
@@ -332,6 +333,7 @@ static void _state_pop(lua_State* l) {
 		top = _stack_get(_stack_size()-1);
 		states_to = top;
 		states_transition_t = time_s();
+		_call_state_func(l, _names_get(top), "preenter", NULL, NULL, NULL);
 	}
     else {
         LOG_WARNING("Stack was just emptied");
@@ -353,6 +355,7 @@ static void _states_replace(lua_State* l, uint idx) {
 	// Leave old state
 	int top = _stack_get(_stack_size()-1);
 	_call_state_func(l, _names_get(top), "leave", NULL, NULL, NULL);
+	_call_state_func(l, _names_get(idx), "preenter", NULL, NULL, NULL);
 	states_acc_t[top] += time_s() - states_enter_t[top];
 
 	_stack_pop();
@@ -525,9 +528,6 @@ void malka_states_register(const char* name, StateDesc* state) {
 	c_states[n_c_states].name = name;
 	c_states[n_c_states].desc = *state;
 	n_c_states++;
-
-	if(state->init)
-		(*state->init)();
 }
 
 extern lua_State* malka_lua_state(void);
@@ -652,9 +652,18 @@ void malka_states_start(void) {
 
 	states_from = states_to = _stack_get(_stack_size()-1);	
 
+	// Init all states
+	//for(uint i = 0; i < n_c_states; ++i) {
+	//	_call_c_state_func(&c_states[i], "init", NULL, NULL, NULL);
+	//}
+	for(uint i = 0; i < n_state_names; ++i) {
+		_call_state_func(l, state_names[i], "init", NULL, NULL, NULL);
+	}
+
 	// Enter top state
 	top_name = _names_get(states_from);
 	states_enter_t[states_from] = time_s();
+	_call_state_func(l, top_name, "preenter", NULL, NULL, NULL);
 	_call_state_func(l, top_name, "enter", NULL, NULL, NULL);
 
 	// Prep for main loop
@@ -671,6 +680,7 @@ void malka_states_end(void) {
 	if(_stack_size()) {
 		top_name = _names_get(_stack_get(_stack_size()-1));
 		_call_state_func(l, top_name, "leave", NULL, NULL, NULL);
+		_call_state_func(l, top_name, "postleave", NULL, NULL, NULL);
 	}
 
 	for(uint i = 0; i < _names_size(); ++i)
@@ -691,6 +701,7 @@ bool malka_states_step(void) {
 		if(len <= 0.0f || states_transition_t + len <= time) {
 			// End transition
 			states_enter_t[states_to] = time_s();
+			_call_state_func(l, _names_get(states_from), "postleave", NULL, NULL, NULL);
 			_call_state_func(l, _names_get(states_to), "enter", NULL, NULL, NULL);
 			states_from = states_to;
 		}

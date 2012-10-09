@@ -15,8 +15,10 @@ int malka_open_states(lua_State* l);
 typedef struct {
 	void (*init)(void);
 	void (*close)(void);
+	void (*preenter)(void);
 	void (*enter)(void);
 	void (*leave)(void);
+	void (*postleave)(void);
 	const char* (*save)(void);
 	void (*load)(const char* data);
 	bool (*update)(void);

@@ -16,6 +16,14 @@ function enter()
 	print('enter spring')
 end
 
+function preenter()
+	print('preenter spring')
+end
+
+function postleave()
+	print('postleave spring')
+end
+
 function leave()
 	print('leave spring')
 end
