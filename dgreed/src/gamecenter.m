@@ -4,6 +4,7 @@
 
 #import "DGreedAppDelegate.h"
 #import <GameKit/GameKit.h>
+#import "GLESViewController.h"
 
 #define QUEUE_STR_LEN 32
 #define QUEUE_FILE "gcqueues.db"
@@ -32,13 +33,19 @@ void _set_gamecenter_app_delegate(DGreedAppDelegate* _app_delegate) {
 }
 
 static bool is_gamecenter_supported(void) {
-    BOOL found_local_player_class = (NSClassFromString(@"GKLocalPlayer")) != nil;
-    
-    NSString *req_sys_ver = @"4.1";
-    NSString *curr_sys_ver = [[UIDevice currentDevice] systemVersion];
-    BOOL os_version_supported = ([curr_sys_ver compare:req_sys_ver options:NSNumericSearch] != NSOrderedAscending);
-    
-    return os_version_supported && found_local_player_class;
+    static bool initialized = false;
+    static bool supported;
+    if(!initialized) {
+        BOOL found_local_player_class = (NSClassFromString(@"GKLocalPlayer")) != nil;
+        
+        NSString *req_sys_ver = @"4.1";
+        NSString *curr_sys_ver = [[UIDevice currentDevice] systemVersion];
+        BOOL os_version_supported = ([curr_sys_ver compare:req_sys_ver options:NSNumericSearch] != NSOrderedAscending);
+        
+        supported = os_version_supported && found_local_player_class;
+        initialized = true;
+    }
+    return supported;
 }
 
 static void _load_queues(void) {
@@ -200,19 +207,41 @@ void gamecenter_init(void) {
         achievement_dict = [[NSMutableDictionary alloc] init];
         
         GKLocalPlayer *localPlayer = [GKLocalPlayer localPlayer];
-        [localPlayer authenticateWithCompletionHandler:^(NSError *error) {
-            if (localPlayer.isAuthenticated) {
-                LOG_INFO("GameCenter authenticated");
-                gamecenter_active = true;
+       
+        
+        NSString *reqSysVer = @"6.0";
+        NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
+        if ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedAscending) {
+            localPlayer.authenticateHandler = ^void (UIViewController *viewController, NSError *error) {
+                if(viewController) {
+                    [[GLESViewController singleton] presentModalViewController:viewController animated:YES];
+                }
                 
-                _get_achievements();
-                _process_score_queue();
-                _process_achievement_queue();
-            }
-            else {
-                LOG_INFO("GameCenter not working!");
-            }
-        }];
+                if(localPlayer.isAuthenticated) {
+                    LOG_INFO("GameCenter authenticated");
+                    gamecenter_active = true;
+                    
+                    _get_achievements();
+                    _process_score_queue();
+                    _process_achievement_queue();
+                }
+            };
+        }
+        else {
+            [localPlayer authenticateWithCompletionHandler:^(NSError *error) {
+                if (localPlayer.isAuthenticated) {
+                    LOG_INFO("GameCenter authenticated");
+                    gamecenter_active = true;
+                    
+                    _get_achievements();
+                    _process_score_queue();
+                    _process_achievement_queue();
+                }
+                else {
+                    LOG_INFO("GameCenter not working!");
+                }
+            }];
+        }
     }
 }
 
@@ -229,6 +258,9 @@ bool gamecenter_is_active(void) {
 
 void gamecenter_report_score(GameCenterScore* score) {
     assert(strlen(score->category) < QUEUE_STR_LEN);
+    if(!is_gamecenter_supported())
+        return;
+        
     QueuedScore qscore;
     strcpy(qscore.category, score->category);
     qscore.context = score->context;
@@ -287,6 +319,8 @@ static GameCenterAchievement _gk_to_dgreed_achievement(GKAchievement* achievemen
 
 void gamecenter_get_scores(uint start, uint len, TimeScope ts, 
                            PlayerScope ps, GameCenterCallback callback) {
+    if(!is_gamecenter_supported())
+        return;
     
     GKLeaderboard *leaderboard_request = [[[GKLeaderboard alloc] init] autorelease];
     if(leaderboard_request != nil) {
@@ -315,6 +349,9 @@ void gamecenter_get_scores(uint start, uint len, TimeScope ts,
 }
 
 void gamecenter_show_leaderboard(const char* category, TimeScope ts) {
+    if(!is_gamecenter_supported())
+        return;
+        
     GKLeaderboardViewController *leaderboardController = [[GKLeaderboardViewController alloc] init];
     if(leaderboardController != nil) {
         leaderboardController.category = [NSString stringWithUTF8String:category];
@@ -328,6 +365,9 @@ void gamecenter_show_leaderboard(const char* category, TimeScope ts) {
 
 void gamecenter_report_achievement(const char* identifier, float percent) {
     assert(strlen(identifier) < QUEUE_STR_LEN);
+    if(!is_gamecenter_supported())
+        return;
+        
     QueuedAchievement qachievement;
     strcpy(qachievement.identifier, identifier);
     qachievement.progress = percent;
@@ -338,6 +378,9 @@ void gamecenter_report_achievement(const char* identifier, float percent) {
 }
 
 void gamecenter_get_achievements(GameCenterCallback callback) {
+    if(!is_gamecenter_supported())
+        return;
+        
     [GKAchievementDescription loadAchievementDescriptionsWithCompletionHandler:
      ^(NSArray *descriptions, NSError *error) {
          if(error != nil) {
@@ -361,6 +404,9 @@ void gamecenter_get_achievements(GameCenterCallback callback) {
 }
 
 void gamecenter_show_achievements(void) {
+    if(!is_gamecenter_supported())
+        return;
+        
     GKAchievementViewController *achievements = [[GKAchievementViewController alloc] init];
     if (achievements != nil) {
         achievements.achievementDelegate = app_delegate;

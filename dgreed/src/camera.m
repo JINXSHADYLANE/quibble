@@ -1,44 +1,41 @@
 #include "camera.h"
+#include "system.h"
+#include "image.h"
 
 #import "DGreedAppDelegate.h"
+#import "UIImage+Resize.h"
 
+static int width = 0;
+static int height = 0;
 static DGreedAppDelegate* app_delegate = nil;
 static UIPopoverController* popover = nil;
 static CameraCallback camera_cb = NULL;
+static UIImagePickerController* picker = nil;
+static bool got_image = false;
+static bool taking_picture = false;
+static bool importing = false;
+CGRect pop_snap;
 
 void _set_camera_app_delegate(DGreedAppDelegate* _app_delegate) {
     app_delegate = _app_delegate;
 }
 
 void _camera_did_finish_picking(UIImagePickerController* picker, NSDictionary* info) {
+    got_image = true;
+    
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    
     UIImage* img = [info objectForKey:UIImagePickerControllerOriginalImage];
+    if(taking_picture)
+        UIImageWriteToSavedPhotosAlbum(img, nil, nil, NULL);
+    UIImage* photo = [img resizedImageWithContentMode:UIViewContentModeScaleAspectFill
+                                               bounds:CGSizeMake(width, height)
+                                 interpolationQuality:kCGInterpolationLow];
     
-    // Rotate image to its proper orientation
-    UIGraphicsBeginImageContext(img.size);
-        
-    [img drawAtPoint:CGPointMake(0, 0)];
-    UIImage* photo = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-	CGImageRef cg_image = photo.CGImage;
-	uint width = CGImageGetWidth(cg_image);
-	uint height = CGImageGetHeight(cg_image);
-    
-    CGColorSpaceRef color_space = CGImageGetColorSpace(cg_image);
-	CGColorSpaceModel color_model = CGColorSpaceGetModel(color_space);
-	
-    uint bits_per_component = CGImageGetBitsPerComponent(cg_image);
-	if(color_model != kCGColorSpaceModelRGB || bits_per_component != 8)
-		LOG_ERROR("Bad image color space - please use 24 or 32 bit rgb/rgba");
-	CFDataRef image_data = CGDataProviderCopyData(CGImageGetDataProvider(cg_image));
-	void* data = (void*)CFDataGetBytePtr(image_data);
-
     if(camera_cb) {
-        (*camera_cb)((Color*)data, width, height, (void*)photo);
+        (*camera_cb)(NULL, width, height, (void*)photo);
         camera_cb = NULL;
     }
-    
-    CFRelease(image_data);
     
     if(app_delegate.is_ipad) {
         assert(popover);
@@ -48,7 +45,8 @@ void _camera_did_finish_picking(UIImagePickerController* picker, NSDictionary* i
     else {
         [picker dismissModalViewControllerAnimated:YES];
     }
-
+    
+    [pool release];
 }
 
 void _camera_did_cancel(UIImagePickerController* picker) {    
@@ -57,7 +55,7 @@ void _camera_did_cancel(UIImagePickerController* picker) {
         camera_cb = NULL;
     }
     
-    if(app_delegate.is_ipad) {
+    if(app_delegate.is_ipad && !got_image) {
         assert(popover);
         [popover dismissPopoverAnimated:YES];
         [popover release];
@@ -75,8 +73,8 @@ bool camera_can_import(void) {
     return [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary];
 }
 
-static void _present_image_picked(CameraCallback cb, UIImagePickerControllerSourceType type) {
-    UIImagePickerController* picker = [[UIImagePickerController alloc] init];
+static void _present_image_picker(CameraCallback cb, UIImagePickerControllerSourceType type) {
+    picker = [[UIImagePickerController alloc] init];
     picker.sourceType = type;
     picker.allowsEditing = NO;
     picker.delegate = app_delegate;
@@ -85,70 +83,116 @@ static void _present_image_picked(CameraCallback cb, UIImagePickerControllerSour
     
     if(app_delegate.is_ipad) {
         popover = [[UIPopoverController alloc] initWithContentViewController:picker];
-        [popover presentPopoverFromRect:CGRectMake(0.0f, 0.0f, 100.0f, 100.0f) 
-                                 inView:app_delegate.gl_controller.view 
-               permittedArrowDirections:UIPopoverArrowDirectionUp
-                               animated:YES];
+        popover.delegate = app_delegate;
+        camera_pop_up();
     }
     else {
         // Use deprecated method - prefered one is available only in iOS 5.0 and later
         [app_delegate.gl_controller presentModalViewController:picker animated:YES];
     }
     [picker release];
+
+    [[GLESView singleton] setRunning:NO];
 }
 
-void camera_take_picture(CameraCallback cb) {
-    assert(camera_is_available());
-    _present_image_picked(cb, UIImagePickerControllerSourceTypeCamera);
-}
-
-void camera_import(CameraCallback cb) {
-    assert(camera_can_import());
-    _present_image_picked(cb, UIImagePickerControllerSourceTypePhotoLibrary);
-}
-
-void camera_export(void* uiimage, const char* path, uint w, uint h, bool lossless) {
-    UIImage* image = (UIImage*)uiimage;
-    
-    // Crop image
-    float aspect = (float)w / (float)h;
-    float cropped_width = image.size.width;
-    float cropped_height = image.size.width / aspect;
-    if(cropped_height > image.size.height) {
-        cropped_height = image.size.height;
-        cropped_width = cropped_height * aspect;
+void camera_popup_origin(const RectF* rect) {
+    if (app_delegate.is_ipad) {
+        pop_snap = CGRectMake(rect->left, rect->top, rectf_width(rect), rectf_height(rect));
+    } else {
+        pop_snap = CGRectMake(0, 0, 0, 0);
     }
-    CGImageRef cg_cropped_image = CGImageCreateWithImageInRect(image.CGImage, CGRectMake(
-            floorf((image.size.width - cropped_width) / 2.0f),
-            floorf((image.size.height - cropped_height) / 2.0f),
-            floorf(cropped_width),
-            floorf(cropped_height)
-        )
-    );
-    UIImage* cropped_image = [[UIImage alloc] initWithCGImage:cg_cropped_image];
-    CGImageRelease(cg_cropped_image);
+}
+
+void camera_take_picture(CameraCallback cb, uint w, uint h) {
+    assert(camera_is_available());
+    width = w;
+    height = h;
+    taking_picture = true;
+    importing = false;
+    _present_image_picker(cb, UIImagePickerControllerSourceTypeCamera);
+}
+
+void camera_import(CameraCallback cb, uint w, uint h) {
+    assert(camera_can_import());
+    width = w;
+    height = h;
+    taking_picture = false;
+    importing = true;
+    _present_image_picker(cb, UIImagePickerControllerSourceTypePhotoLibrary);
+}
+
+void camera_pop_up(void) {
+    UIInterfaceOrientation current = [UIApplication sharedApplication].statusBarOrientation;
+    if (current == UIInterfaceOrientationPortrait || current == UIInterfaceOrientationPortraitUpsideDown) {
+        [popover presentPopoverFromRect:pop_snap 
+                                 inView:app_delegate.gl_controller.view 
+               permittedArrowDirections:UIPopoverArrowDirectionDown
+                               animated:YES];
+                got_image = false;
+    }
+}
+
+void camera_export(void* uiimage, const char* path, bool lossless) {
+    uint start_t = time_ms_current();
     
-    // Create empty image context and blit cropped image there, with scaling
-    uint width = next_pow2(w);
-    uint height = next_pow2(h);
-    UIGraphicsBeginImageContext(CGSizeMake((float)width, (float)height));
-    CGContextRef cg = UIGraphicsGetCurrentContext();
-    CGContextSetRGBFillColor(cg, 0.0f, 0.0f, 0.0f, 0.0f);
-    UIRectFill(CGRectMake(0.0f, 0.0f, (float)width, (float)height));    
-    [cropped_image drawInRect:CGRectMake(0.0f, 0.0f, (float)MIN(w+1, width), (float)MIN(h+1, height))];
-    UIImage* new = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    [cropped_image release];
+    UIImage* image = (UIImage*)uiimage;
     
     // Compress to png/jpeg
     NSData* img_data = nil;
     if(lossless)
-        img_data = UIImagePNGRepresentation(new);
+        img_data = UIImagePNGRepresentation(image);
     else
-        img_data = UIImageJPEGRepresentation(new, 0.85f);
+        img_data = UIImageJPEGRepresentation(image, 0.85f);
         
     // Save to file
     FileHandle f = file_create(path);
     file_write(f, [img_data bytes], [img_data length]);
     file_close(f);
+    
+    LOG_INFO("Image exported in %ums", time_ms_current() - start_t);
 }
+
+void camera_export_dig(void* uiimage, const char* path) {
+    uint start_t = time_ms_current();
+    
+    UIImage* image = (UIImage*)uiimage;
+    
+    CGImageRef cg_image = image.CGImage;
+	uint w = CGImageGetWidth(cg_image);
+	uint h = CGImageGetHeight(cg_image);
+    CGColorSpaceRef color_space = CGImageGetColorSpace(cg_image);
+	CGColorSpaceModel color_model = CGColorSpaceGetModel(color_space);
+	uint bits_per_component = CGImageGetBitsPerComponent(cg_image);
+	if(color_model != kCGColorSpaceModelRGB || bits_per_component != 8)
+		LOG_ERROR("Bad image color space - please use 24 or 32 bit rgb/rgba");
+	CFDataRef image_data = CGDataProviderCopyData(CGImageGetDataProvider(cg_image));
+    size_t bytes_per_row = CGImageGetBytesPerRow(cg_image);
+	void* data = (void*)CFDataGetBytePtr(image_data);
+    
+    Color* src = data;
+    uint dig_w = next_pow2(w);
+    uint dig_h = next_pow2(h);
+    uint16* img16bit = malloc(dig_w*dig_h*2);
+    for(uint y = 0; y < dig_h; ++y) {
+        for(uint x = 0; x < dig_w; ++x) {
+            uint dst_i = y * dig_w + x;
+            if(x < w && y < h) {
+                uint src_i = (y * bytes_per_row)/sizeof(Color) + x;
+                byte r, g, b, a __attribute__ ((unused));
+                COLOR_DECONSTRUCT(src[src_i], r, g, b, a);
+                img16bit[dst_i] = RGB565_ENCODE8(r, g, b);
+            }
+            else {
+                img16bit[dst_i] = 0xFFFF;
+            }
+        }
+    }
+
+    CFRelease(image_data);
+    
+    image_write_dig_quick(path, dig_w, dig_h, PF_RGB565, img16bit);
+    free(img16bit);
+    
+    LOG_INFO("dig image exported in %ums", time_ms_current() - start_t);
+}
+

@@ -1,14 +1,16 @@
 #import "AutoRotateViewController.h"
-
-#import "GLESView.h"
+#import "GLESViewController.h"
+#import "camera.h"
 
 @implementation AutoRotateViewController
 
 extern void _orientation_set_current(UIInterfaceOrientation orient);
 extern void _orientation_start_transition(UIInterfaceOrientation next, float len);
 
-static AutoRotateViewController* global_auto_rotate_view_controller = NULL;
+float rotation_duration;
 
+static AutoRotateViewController* global_auto_rotate_view_controller = NULL;
+static int orientations = 0;
 + (AutoRotateViewController*) singleton
 {
     assert(global_auto_rotate_view_controller);
@@ -31,8 +33,7 @@ static AutoRotateViewController* global_auto_rotate_view_controller = NULL;
         UIInterfaceOrientation current = [UIApplication sharedApplication].statusBarOrientation;
         _orientation_set_current(current);
         global_auto_rotate_view_controller = self;
-        
-        [self.view setMultipleTouchEnabled:YES];
+        self.view.userInteractionEnabled = NO;
     }
     return self;
 }
@@ -40,7 +41,7 @@ static AutoRotateViewController* global_auto_rotate_view_controller = NULL;
 - (void)didReceiveMemoryWarning
 {
     // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
+    //[super didReceiveMemoryWarning];
     
     // Release any cached data, images, etc that aren't in use.
 }
@@ -51,7 +52,7 @@ static AutoRotateViewController* global_auto_rotate_view_controller = NULL;
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
 - (void)loadView
 {
-    self.view = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    self.view = [[[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds] autorelease];
 }
 
 /*
@@ -66,31 +67,37 @@ static AutoRotateViewController* global_auto_rotate_view_controller = NULL;
 {
     [super viewDidUnload];
     // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
+    self.view = nil;
 }
 
-- (BOOL)shouldAutorotate
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return YES;
+    // Return YES for supported orientations
+    return [self is_rotation_allowed:interfaceOrientation];
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    rotation_duration = (float) duration;
+    _orientation_start_transition(toInterfaceOrientation, rotation_duration);
+    if ([self is_rotation_allowed:toInterfaceOrientation]) {
+        GLESViewController *glview = [GLESViewController singleton];
+        [UIImageView animateWithDuration:rotation_duration delay:0.0 options: UIViewAnimationOptionOverrideInheritedDuration |
+         UIViewAnimationOptionAllowUserInteraction animations:^{
+             if (toInterfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+                 [glview.view setTransform:CGAffineTransformMake(-1, 0, 0, -1, 0, 0)];
+             }
+             if (toInterfaceOrientation == UIInterfaceOrientationPortrait) {
+                 [glview.view setTransform:CGAffineTransformMake(1, 0, 0, 1, 0, 0)];
+             }
+             //camera_pop_up();
+         } completion:^(BOOL finished) {}];
+    }
 }
 
 - (NSUInteger)supportedInterfaceOrientations
 {
     return UIInterfaceOrientationMaskAll;
-}
-
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    // Return YES for supported orientations
-    return YES;
-}
-
-
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    float seconds = (float)duration;
-    _orientation_start_transition(toInterfaceOrientation, seconds);
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
@@ -99,24 +106,21 @@ static AutoRotateViewController* global_auto_rotate_view_controller = NULL;
     _orientation_set_current(current);
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [[GLESView singleton] touchesBegan:touches withEvent:event];
+- (void)allow_rotation:(int)allowed {
+    orientations = allowed;
 }
 
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [[GLESView singleton] touchesMoved:touches withEvent:event];
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [[GLESView singleton] touchesEnded:touches withEvent:event];
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [[GLESView singleton] touchesCancelled:touches withEvent:event];
+- (bool)is_rotation_allowed:(UIInterfaceOrientation) requested {
+    if (requested == UIInterfaceOrientationPortrait) {
+        return orientations & 1;
+    } else if (requested == UIInterfaceOrientationPortraitUpsideDown) {
+        return orientations & 2;
+    } else if (requested == UIInterfaceOrientationLandscapeRight) {
+        return orientations & 4;
+    } else if (requested == UIInterfaceOrientationLandscapeLeft) {
+        return orientations & 8;        
+    }
+    return false;
 }
 
 @end

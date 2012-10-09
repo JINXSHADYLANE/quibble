@@ -65,13 +65,17 @@ void darray_free(DArray* array) {
 	assert(array->data == NULL);
 }		
 
-void _expand_by_one(DArray* array) {
-	unsigned int expand_amount = EXPAND_AMOUNT / array->item_size;
+static void _expand_by_count(DArray* array, unsigned int count) {
+	unsigned int expand_amount = EXPAND_AMOUNT / (array->item_size);
 	if(expand_amount == 0)
 		expand_amount = 1;
 
 	unsigned int new_reservation = array->reserved * array->item_size > DOUBLING_BOUND ?	
 		array->reserved + expand_amount : array->reserved * 2;
+
+	if(new_reservation <= array->size + count)
+		new_reservation = array->size + count;
+
 	darray_reserve(array, new_reservation);	
 }
 
@@ -83,7 +87,7 @@ void darray_append(DArray* array, const void* item_ptr) {
 	assert(array->size <= array->reserved);
 
 	if(array->size == array->reserved) 
-		_expand_by_one(array);
+		_expand_by_count(array, 1);
 
 	assert(array->size < array->reserved);
 
@@ -105,7 +109,7 @@ void darray_insert(DArray* array, unsigned int index, const void* item_ptr) {
 	}	
 
 	if(array->size == array->reserved)
-		_expand_by_one(array);
+		_expand_by_count(array, 1);
 
 	assert(array->size < array->reserved);	
 
@@ -118,20 +122,6 @@ void darray_insert(DArray* array, unsigned int index, const void* item_ptr) {
 	memcpy(addr, item_ptr, array->item_size);
 
 	array->size++;
-}
-
-static void _expand_by_count(DArray* array, unsigned int count) {
-	unsigned int expand_amount = EXPAND_AMOUNT / (array->item_size);
-	if(expand_amount == 0)
-		expand_amount = 1;
-
-	unsigned int new_reservation = array->reserved  * array->item_size > DOUBLING_BOUND ?
-		array->reserved + expand_amount : array->reserved * 2;
-
-	if(new_reservation <= array->size + count)
-		new_reservation = array->size + count;
-
-	darray_reserve(array, new_reservation);	
 }
 
 void darray_append_multi(DArray* array, const void* item_ptr, unsigned int count) {

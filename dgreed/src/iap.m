@@ -93,6 +93,8 @@ void _iap_received_products_response(SKProductsResponse* response) {
         can_make_payments = true;
     }
     
+    [numberFormatter release];
+
     _iap_get_products(_iap_product_cb);
 }
 
@@ -120,6 +122,9 @@ void _iap_updated_transaction(SKPaymentQueue* queue, SKPaymentTransaction* trans
     switch (transaction.transactionState)
     {
         case SKPaymentTransactionStatePurchased:
+            (*_iap_purchase_cb)(_id, true);
+            [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+            break;
         case SKPaymentTransactionStateRestored:
             (*_iap_purchase_cb)(_id, true);
             [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
@@ -127,6 +132,7 @@ void _iap_updated_transaction(SKPaymentQueue* queue, SKPaymentTransaction* trans
         case SKPaymentTransactionStateFailed:
             (*_iap_purchase_cb)(_id, false);
             [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+            LOG_INFO([transaction.error.description UTF8String]);
             break;
         default:
             break;

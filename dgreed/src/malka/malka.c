@@ -155,6 +155,7 @@ void malka_init_ex(bool use_pools) {
 	}
 	else {
 		l = luaL_newstate();
+        lua_atpanic(l, malka_panic);
 	}
 
 	luaL_openlibs(l);

@@ -8,9 +8,12 @@
 extern void dgreed_preinit(void);
 extern bool dgreed_init(int argc, const char** argv);
 extern void dgreed_close(void);
+extern bool dgreed_render(void);
+extern void dgreed_open_url(const char* url);
 extern uint time_ms_current(void);
 extern void keyval_app_suspend(void);
 extern void gamecenter_app_suspend(void);
+extern void malka_states_app_suspend(void);
 extern void _set_gamecenter_app_delegate(DGreedAppDelegate* _app_delegate);
 extern void _set_iap_app_delegate(DGreedAppDelegate* _app_delegate);
 extern void _set_camera_app_delegate(DGreedAppDelegate* _app_delegate);
@@ -20,6 +23,10 @@ extern void _camera_did_cancel(UIImagePickerController* picker);
 extern void _camera_did_finish_picking(UIImagePickerController* picker, NSDictionary* info);
 extern void _ios_mail_did_finish(MFMailComposeViewController* controller, MFMailComposeResult result);
 extern void _ios_mail_set_delegate(DGreedAppDelegate* delegate);
+extern void _loc_write_base(void);
+extern double malka_call(const char* func_name, const char* fmt, ...);
+extern void malka_full_gc(void);
+
 extern float inactive_time;
 extern Color clear_color;
 extern float screen_widthf, screen_heightf;
@@ -52,6 +59,7 @@ float resign_active_t;
     gl_controller = [[GLESViewController alloc] init];
     controller = [[AutoRotateViewController alloc] init];
     
+    // Use different autorotate policies for iOS6 and pre-iOS6
     NSString *reqSysVer = @"6.0";
     NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
     if ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedAscending) {
@@ -66,12 +74,17 @@ float resign_active_t;
     
     gl_view = [gl_controller.gl_view retain];
 	
-    [application setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
+    if([application respondsToSelector:@selector(setStatusBarHidden:withAnimation:)]) {
+        [application setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
+    }
+    else {
+        [application setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
+    }
     
     /* Determine if we're on iPad */
     self.is_ipad = false;
     if ([[UIDevice currentDevice] respondsToSelector: @selector(userInterfaceIdiom)])
-        self.is_ipad = ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad);
+            self.is_ipad = ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad);
 	
 	/* Get home directory for utils.c */
 	NSString* home = NSHomeDirectory();
@@ -86,6 +99,7 @@ float resign_active_t;
     _set_gamecenter_app_delegate(self);
     _set_iap_app_delegate(self);
     _set_camera_app_delegate(self);
+    _ios_mail_set_delegate(self);
     
     [UIAccelerometer sharedAccelerometer].delegate = self;
 	
@@ -105,6 +119,13 @@ float resign_active_t;
     if(screen_widthf > screen_heightf)
         gl_view.rotate_touches = YES;
     
+    // Prerender first frame to cache everything in
+    [gl_controller.gl_view setRunning:true];
+    dgreed_render();
+    [gl_controller.gl_view setRunning:false];
+    
+    LOG_INFO("Init done: %ums", time_ms_current() - start_t);
+    
     return YES;
 }
 
@@ -116,6 +137,7 @@ float resign_active_t;
      */
 	LOG_INFO("iOS: applicationWillResignActive");
 	[gl_view stopAnimation];
+    [[GLESView singleton] setRunning:NO];
     
     // Starting from now, do not count time
     did_resign_active = true;
@@ -135,8 +157,10 @@ float resign_active_t;
     if(enter_background_cb)
         (*enter_background_cb)();
     
-    keyval_app_suspend();
     gamecenter_app_suspend();
+    malka_states_app_suspend();
+    keyval_app_suspend();
+    _loc_write_base();
 }
 
 
@@ -158,7 +182,8 @@ float resign_active_t;
      */
 	LOG_INFO("iOS: applicationDidBecomeActive");
 	[gl_view startAnimation];
-    
+    [[GLESView singleton] setRunning:YES];
+        
     // Update time counters
     if(did_resign_active) {
         did_resign_active = false;
@@ -169,6 +194,9 @@ float resign_active_t;
 
 - (void)applicationWillTerminate:(UIApplication *)application {
 	LOG_INFO("iOS: applicationWillTerminte");
+    gamecenter_app_suspend();
+    malka_states_app_suspend();
+    keyval_app_suspend();
 	dgreed_close();
 	MEM_FREE(g_storage_dir);
 	MEM_FREE(g_home_dir);
@@ -208,8 +236,8 @@ float resign_active_t;
 
 bool isAccelerating(UIAcceleration* last, UIAcceleration* current, double threshold) {
     return fabs(last.x - current.x) > threshold 
-    || fabs(last.y - current.y) > threshold
-    || fabs(last.z - current.z) > threshold;
+        || fabs(last.y - current.y) > threshold
+        || fabs(last.z - current.z) > threshold;
 }
 
 - (void) accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
@@ -239,14 +267,22 @@ bool isAccelerating(UIAcceleration* last, UIAcceleration* current, double thresh
     }
 }
 
+- (BOOL)popoverControllerShouldDismissPopover:(UIPopoverController *)popoverController {
+    _camera_did_cancel(NULL);
+    [[GLESView singleton] setRunning:YES];
+    return YES;
+}
+
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     _camera_did_cancel(picker);
+    [[GLESView singleton] setRunning:YES];
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     _camera_did_finish_picking(picker, info);
+    [[GLESView singleton] setRunning:YES];
 }
 
 - (void)mailComposeController:(MFMailComposeViewController *)mail_controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error

@@ -1,5 +1,6 @@
 #import "GLESView.h"
 
+#include "utils.h"
 
 @implementation GLESView
 
@@ -18,7 +19,11 @@ static GLESView* global_gles_view = NULL;
         // Aquire EAGL layer
 		CAEAGLLayer* eagl_layer = (CAEAGLLayer*)super.layer;
 		eagl_layer.opaque = YES;
-		
+        eagl_layer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
+            [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking, 
+            kEAGLColorFormatRGB565, kEAGLDrawablePropertyColorFormat, nil];
+        
+        
 		// Init OpenGL ES 1.1 context
 		context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
 		
@@ -61,6 +66,14 @@ static GLESView* global_gles_view = NULL;
 		[self setMultipleTouchEnabled: YES];
 	}
     return self;
+}
+
+- (BOOL) isRunning {
+    return running;
+}
+
+- (void) setRunning:(BOOL)r {
+    running = r;
 }
 
 - (void) startAnimation {

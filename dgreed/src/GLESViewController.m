@@ -19,7 +19,7 @@ static GLESViewController* global_gles_view_controller = NULL;
 - (void)didReceiveMemoryWarning
 {
     // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
+    //[super didReceiveMemoryWarning];
     
     // Release any cached data, images, etc that aren't in use.
 }
@@ -30,7 +30,7 @@ static GLESViewController* global_gles_view_controller = NULL;
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
 - (void)loadView
 {
-    self.view = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    self.view = [[[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds] autorelease];;
 }
 
 
@@ -39,11 +39,11 @@ static GLESViewController* global_gles_view_controller = NULL;
     [super viewDidLoad];
     
     // Create gl view
-    self.gl_view = [[GLESView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    self.gl_view = [[[GLESView alloc] initWithFrame:[UIScreen mainScreen].bounds] autorelease];
     [self.view addSubview:self.gl_view];
     
     // Create invisible text capture view
-    self.text_view = [[TextCapturerView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 10.0f, 10.0f)];
+    self.text_view = [[[TextCapturerView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 10.0f, 10.0f)] autorelease];
     self.text_view.hidden = YES;
     self.text_view.autocorrectionType = UITextAutocorrectionTypeNo;
     self.text_view.autocapitalizationType = UITextAutocapitalizationTypeNone;
@@ -61,6 +61,11 @@ extern bool txtinput_return;
     return NO;
 }
 
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    txtinput_return = true;
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
@@ -76,7 +81,7 @@ extern bool txtinput_return;
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    return (interfaceOrientation == UIInterfaceOrientationPortrait || interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown);
 }
 
 + (GLESViewController*) singleton {
