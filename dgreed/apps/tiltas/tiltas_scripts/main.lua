@@ -2,11 +2,15 @@
 asset_dir = 'tiltas_assets/'
 
 scr_size = vec2(480, 320)
+scr_rect = rect(0, 0, 480, 320)
 screen_rect = rect(0, 0, scr_size.x, scr_size.y)
 
 glow_layer = 1
 tile_layer = 2
 ghost_layer = 3
+overlay_layer = 14
+
+bg_color = rgba(148/255, 74/255, 38/255)
 
 local game = require('game')
 
@@ -27,7 +31,7 @@ end
 function game_init()
 	local scale = 2
 	local real_size = scr_size * scale
-	video.init_exr(real_size.x, real_size.y, scr_size.x, scr_size.y, 'tiltas', false)
+	video.init_ex(real_size.x, real_size.y, scr_size.x, scr_size.y, 'tiltas', false)
 	sound.init()
 
 --	mfx.init(pre..'effects.mml')

@@ -19,4 +19,8 @@
 		(tex atlas1.png)
 		(src 32,0,48,16)
 	)
+	(img overlay
+		(tex overlay.png)
+		(src 0,0,512,512)
+	)
 )

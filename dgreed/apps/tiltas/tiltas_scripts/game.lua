@@ -9,6 +9,7 @@ local player_pos = nil
 function game.init()
 	video.set_blendmode(glow_layer, 'add')
 	video.set_blendmode(ghost_layer, 'add')
+	video.set_blendmode(overlay_layer, 'multiply')
 	player_pos = levels.reset(1)
 
 	player = ghost.make(player_pos, rgba(0.5, 0.5, 0.5))
@@ -37,8 +38,11 @@ function game.update()
 	end
 
 	if delta then
-		ghost.move(player, delta)
-		player_pos = player_pos + delta
+		local new_pos = player_pos + delta
+		if not levels.is_solid(new_pos) then
+			ghost.move(player, delta)
+			player_pos = new_pos
+		end
 	end
 
 	levels.update(player_pos)
@@ -48,6 +52,9 @@ end
 
 function game.render(t)
 	local ts = time.s()
+
+	sprsheet.draw('empty', 0, scr_rect, bg_color)
+	sprsheet.draw('overlay', overlay_layer, scr_rect)
 
 	levels.draw()
 	ghost.draw(player, ts)
