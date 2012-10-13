@@ -22,6 +22,42 @@ levels[2] = {
 	'#################'
 }
 
+levels[3] = {
+	'   ###############             ',
+	' ####  #     #   #             ',
+	'## E#    ### # # #             ',
+	'#  #######   # # #             ',
+	'#   #   #  ### # #             ',
+	'##  # #     #  #               ',
+	'#   # ####### ####             ',
+	'# ###    #      #              ',
+	'# #   #  ##    #               ',
+	'# # #       # #                ',
+	'#   ######## #              S  ',
+	'#####                          '
+}
+
+levels[4] = {
+	'###########################',
+	'#                         #',
+	'#               0  00     #',
+	'#                00  0    #',
+	'#               000   0   #',
+	'#             0 0  0  0  1#',
+	'#             0   0E  0   #',
+	'#             0 0  0000   #',
+	'#             0   0       #',
+	'#   S         0000        #',
+	'#                         #',
+	'###########################'
+}
+
+local key_colors = {
+	[1] = rgba(0.3, 0.1, 0.1),
+	[3] = rgba(0.1, 0.3, 0.1),
+	[5] = rgba(0.1, 0.1, 0.3)
+}
+
 local tiles = nil
 local collision = nil
 local ghosts = nil
@@ -47,16 +83,25 @@ function levels.reset(n)
 		local x = 0
 		for c in line:gmatch('.') do
 			local p = vec2(x - half_w, y-1 - half_h)
-			if c == '#' then
+			local n = tonumber(c)
+
+			if c == '#' or (n ~= nil and math.fmod(n, 2) == 0) then
 				local wall = {
 					pos = p,
 					away_pos = p + rand_vec2(4),
-					away_rot = rand.float(-4 * math.pi, 4 * math.pi), 
+					away_rot = rand.float(-3 * math.pi, 3 * math.pi), 
 					away_factor = 1.0,
-					rand = rand.float(0, 1)
+					rand = rand.float(0, 1),
+					number = n,
+					visible = (n == 0 or n == nil)
 				}
 				table.insert(tiles, wall)
-				collision[p.y][p.x] = true
+				if wall.visible then
+					collision[p.y][p.x] = true
+				end
+			elseif (n ~= nil and math.fmod(n, 2) == 1) then
+				collision[p.y][p.x] = n
+				table.insert(ghosts, ghost.make(p, key_colors[n]))
 			elseif c == 'S' then
 				player_pos = p 
 			elseif c == 'E' then
@@ -69,11 +114,34 @@ function levels.reset(n)
 	return player_pos
 end
 
+function levels.take_switch(n)
+	for i, t in ipairs(tiles) do
+		if t.number == n-1 then
+			-- turn tile off
+			t.visible = false
+			collision[t.pos.y][t.pos.x] = nil
+		end
+
+		if t.number == n+1 then
+			-- turn tile on
+			t.visible = true
+			collision[t.pos.y][t.pos.x] = true
+		end
+	end
+end
+
 function levels.is_solid(pos)
 	if math.abs(pos.x) > 15 or math.abs(pos.y) > 10 then
 		return true 
 	end
 	if collision[pos.y] then
+		local c = collision[pos.y][pos.x]
+		if type(c) == 'number' then
+			levels.take_switch(c)
+			collision[pos.y][pos.x] = nil
+			return false
+		end
+
 		return collision[pos.y][pos.x]
 	else
 		return false
@@ -110,7 +178,7 @@ function levels.draw()
 
 	-- walls
 	for i, t in ipairs(tiles) do
-		if t.away_factor < 0.99 then
+		if t.visible and t.away_factor < 0.99 then
 			local p = lerp(t.pos, t.away_pos, t.away_factor)
 			local a = lerp(0, t.away_rot, t.away_factor)
 

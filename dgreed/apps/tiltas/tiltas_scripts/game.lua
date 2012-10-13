@@ -7,6 +7,7 @@ local player = nil
 local player_pos = nil
 
 local level_end_t = nil
+local last_input_t = 0
 local current_level = 1
 
 function game.init()
@@ -31,8 +32,9 @@ function game.close()
 end
 
 function game.update()
+	local ts = time.s()
 
-	local take_input = length_sq(player[1].pos - player[1].target_pos) < 0.06
+	local take_input = ts - last_input_t > 0.13
 
 	if level_end_t == nil then
 		if take_input then
@@ -55,6 +57,7 @@ function game.update()
 				if not levels.is_solid(new_pos) then
 					ghost.move(player, delta)
 					player_pos = new_pos
+					last_input_t = ts
 				end
 			end
 		end
@@ -62,7 +65,7 @@ function game.update()
 		-- update level, perform level finish logic
 		if levels.update(player_pos) then
 			player_pos = vec2(-100, -100)
-			level_end_t = time.s()
+			level_end_t = ts
 			current_level = current_level + 1
 		end
 	end
@@ -77,6 +80,8 @@ function game.render(t)
 
 	sprsheet.draw('empty', 0, scr_rect, bg_color)
 	sprsheet.draw('overlay', overlay_layer, scr_rect)
+	--local frame = math.fmod(math.floor(ts*15), 9)
+	--sprsheet.draw_anim('grain', frame, overlay_layer, scr_rect, rgba(1, 1, 1, 0.5))
 
 	levels.draw()
 	ghost.draw(player, ts)
