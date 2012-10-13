@@ -1,0 +1,22 @@
+(sprsheet tiltas 
+	(prefix "tiltas_assets/")
+	(img empty
+		(tex empty.png)
+	)
+	(img wall
+		(tex atlas1.png)
+		(src 0,0,16,16)
+	)
+	(img wall_glow
+		(tex atlas1.png)
+		(src 0,16,48,64)
+	)
+	(img blob_big
+		(tex atlas1.png)
+		(src 16,0,32,16)
+	)
+	(img blob_small
+		(tex atlas1.png)
+		(src 32,0,48,16)
+	)
+)
