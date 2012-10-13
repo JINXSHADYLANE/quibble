@@ -2,14 +2,14 @@ local levels = {}
 
 levels[1] = {
 	'#################',
-	'#################',
-	'#            ####',
-	'#            ####',
-	'#            ####',
-	'#     S      ####',
-	'#            ####',
-	'#         #  ####',
-	'#         #    E#',
+	'###############E#',
+	'#             # #',
+	'#             # #',
+	'#             # #',
+	'#     S       # #',
+	'#             # #',
+	'#         #   # #',
+	'#         #     #',
 	'#################',
 	'#################'
 }
@@ -31,7 +31,7 @@ function levels.reset(n)
 
 	-- iterate over lines
 	for y, line in ipairs(desc) do
-		collision[y-1] = {}
+		collision[y-1 - half_h] = {}
 		-- itarate over chars
 		local x = 0
 		for c in line:gmatch('.') do
@@ -45,7 +45,7 @@ function levels.reset(n)
 					rand = rand.float(0, 1)
 				}
 				table.insert(tiles, wall)
-				collision[y-1][x] = true
+				collision[p.y][p.x] = true
 			end
 			if c == 'S' then
 				player_pos = p 
@@ -55,6 +55,10 @@ function levels.reset(n)
 	end
 
 	return player_pos
+end
+
+function levels.is_solid(pos)
+	return collision[pos.y][pos.x]
 end
 
 function levels.update(player_pos)
