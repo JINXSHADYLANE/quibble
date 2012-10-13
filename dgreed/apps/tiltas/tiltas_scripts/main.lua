@@ -36,8 +36,8 @@ function game_init()
 
 --	mfx.init(pre..'effects.mml')
 	sprsheet.init(asset_dir..'sprsheet.mml')
---	mus = sound.load_stream(pre..'aidas.ogg')
---	sound.play(mus, true)
+	mus = sound.load_stream(asset_dir..'aftermath.ogg')
+	sound.play(mus, true)
 
 --	fnt = font.load(pre..'gentium_60px.bft', 0.5, pre)
 
@@ -47,7 +47,7 @@ end
 
 function game_close()
 --	font.free(fnt)
---	sound.free(mus)
+	sound.free(mus)
 	sprsheet.close()
 --	mfx.close()
 	sound.close()
