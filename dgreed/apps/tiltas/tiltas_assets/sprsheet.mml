@@ -27,4 +27,11 @@
 		(tex noise.png)
 		(src 0,0,128,128)
 	)
+	(anim grain
+		(tex grain.png)
+		(src 0,0,300,300)
+		(offset 16,16)
+		(frames 9)
+		(grid 3,3)
+	)
 )
