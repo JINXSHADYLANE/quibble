@@ -4,7 +4,7 @@ move_len = 0.5
 color_counter = 1
 
 local function map2world(p)
-	return p * 64 + vec2(32, 32)
+	return p * 64 + vec2(63, 63)
 end
 
 -- candies
@@ -357,7 +357,7 @@ end
 function game.render(t)
 	local msg = 'antrasekranas.lt -> ' .. tostring(aitvaras.id())
 
-	video.draw_text(fnt, 4, msg, vec2(90, 85), rgba(0.2, 0.2, 0.2, 1))
+	video.draw_text(fnt, 6, msg, vec2(90, 25), rgba(1, 1, 1, 1))
 
 	sprsheet.draw('background', 0, vec2(0, 0))
 	sprsheet.draw('wall', 5, vec2(0, 0))
