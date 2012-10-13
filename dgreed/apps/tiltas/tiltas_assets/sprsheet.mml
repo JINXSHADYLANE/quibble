@@ -23,4 +23,8 @@
 		(tex overlay.png)
 		(src 0,0,512,512)
 	)
+	(img noise
+		(tex noise.png)
+		(src 0,0,128,128)
+	)
 )
