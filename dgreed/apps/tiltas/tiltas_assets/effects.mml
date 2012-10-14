@@ -1,13 +1,13 @@
 (mfx _
-	(prefix "plikledis_assets/")
+	(prefix "tiltas_assets/")
 	(sounds _
-		(s fiend.wav
+		(s noise.wav
 			(volume 0.3)
 		)
 	)
 	(effects _
 		(e noise 
-			(sound fiend.wav)
+			(sound noise.wav)
 		)
 	)
 )

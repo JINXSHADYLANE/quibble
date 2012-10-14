@@ -41,7 +41,7 @@ function game_init()
 	mfx.init(asset_dir..'effects.mml')
 	sprsheet.init(asset_dir..'sprsheet.mml')
 	mus = sound.load_stream(asset_dir..'aftermath.ogg')
-	fnt = font.load('Georgia_60px.bft', 0.5, asset_dir)
+	fnt = font.load(asset_dir..'Georgia_60px.bft', 0.5, asset_dir)
 	sound.play(mus, true)
 
 	states.register('game', game)
