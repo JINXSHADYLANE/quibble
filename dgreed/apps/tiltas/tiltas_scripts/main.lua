@@ -12,7 +12,11 @@ overlay_layer = 14
 
 bg_color = rgba(148/255, 74/255, 38/255)
 
+fnt = nil
+
 local game = require('game')
+
+noise = 0
 
 function rand_vec2(maxlen)
 	return vec2(
@@ -34,22 +38,21 @@ function game_init()
 	video.init_ex(real_size.x, real_size.y, scr_size.x, scr_size.y, 'tiltas', false)
 	sound.init()
 
---	mfx.init(pre..'effects.mml')
+	mfx.init(asset_dir..'effects.mml')
 	sprsheet.init(asset_dir..'sprsheet.mml')
 	mus = sound.load_stream(asset_dir..'aftermath.ogg')
+	fnt = font.load('Georgia_60px.bft', 0.5, asset_dir)
 	sound.play(mus, true)
-
---	fnt = font.load(pre..'gentium_60px.bft', 0.5, pre)
 
 	states.register('game', game)
 	states.push('game')
 end
 
 function game_close()
---	font.free(fnt)
+	font.free(fnt)
 	sound.free(mus)
 	sprsheet.close()
---	mfx.close()
+	mfx.close()
 	sound.close()
 	video.close()
 end

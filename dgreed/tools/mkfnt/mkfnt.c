@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <gfx_utils.h>
 #include <memory.h>
+#include <image.h>
 
 #include "fnt.h"
 #include "binpacking.h"
@@ -23,7 +24,25 @@ int currencies[] = {
 	0x20A8, // Rupee
 	0x20AB, // Dong
 	0x20B1, // Peso
-	0x20A3  // Frank
+	0x20A3, // Frank
+	0x0105,
+	0x010D,
+	0x0119,
+	0x0117,
+	0x012F,
+	0x0161,
+	0x0173,
+	0x016B,
+	0x017E,
+	0x0104,
+	0x010C,
+	0x0118,
+	0x0116,
+	0x012E,
+	0x0160,
+	0x0172,
+	0x016A,
+	0x017D
 };
 
 int cmp_int(const void *a, const void *b) {
@@ -115,7 +134,7 @@ void mkfnt_bake(uint size, const char* tex_path) {
 		);
 	}
 
-	gfx_save_tga(tex_path, baked_font, size, size);
+	image_write_png(tex_path, size, size, baked_font);
 }
 
 #pragma pack(1)
@@ -205,7 +224,7 @@ int dgreed_main(int argc, const char** argv) {
 	char* font_name = path_change_ext(filename, "");	
 	char texture_name[256];
 	assert(strlen(font_name) + 10 < 256);
-	sprintf(texture_name, "%s_%dpx.tga", font_name, px_size);
+	sprintf(texture_name, "%s_%dpx.png", font_name, px_size);
 	MEM_FREE(font_name);
 
 	mkfnt_bake(size, texture_name);

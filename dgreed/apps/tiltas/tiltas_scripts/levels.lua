@@ -1,8 +1,88 @@
 local levels = {}
+local texts = {}
 
 local ghost = require('ghost')
 
 local exit_color = rgba(0.0, 0.4, 0.3)
+
+texts[1] = {{
+		text = 'tiltas',
+		pos = vec2(10, 30)
+	}
+}
+
+texts[2] = {{
+		text = 'Kaip netikėta, kaip visada.',
+		pos = vec2(100, 310)
+	}
+}
+
+texts[3] = {{
+		text = 'Aplink - sienos. O kas toliau?',
+		pos = vec2(140, 30)
+	}
+}
+
+texts[4] = {{
+		text = 'Aš irgi ne bejėgis.',
+		pos = vec2(10, 30)
+	}
+}
+
+texts[5] = {{
+		text = 'Ne, čia ne mano pasaulis.',
+		pos = vec2(10, 313)
+	}
+}
+
+texts[6] = {{
+		text = 'Ar šie tiltai nutiesti man?',
+		pos = vec2(180, 310)
+	}
+}
+
+texts[7] = {{
+		text = 'Nieko naujo, kaipnors pabėgsiu.',
+		pos = vec2(50, 30)
+	}
+}
+
+texts[8] = {{
+		text = 'Smalsu. Pasitraukti ar prieiti?',
+		pos = vec2(120, 310)
+	}
+}
+
+texts[9] = {
+	{
+		text = 'Vienas čia atsidūriau,',
+		pos = vec2(10, 30)
+	},
+	{
+		text = 'vienas čia ir numirsiu.',
+		pos = vec2(200, 310)
+	}
+}
+
+local end_text = {
+	{
+		text = 'Tyliai šnabžda pienės - ir gerai,',
+		pos = vec2(80, 50)
+	},
+	{
+		text = 'Kad paklydo tie didžiuliai milžinai.',
+		pos = vec2(80, 90)
+	},
+	{
+		text = 'Susipynė rankos - ir gerai,',
+		pos = vec2(80, 130)
+	},
+	{
+		text = 'Kad takelio nebeieško milžinai.',
+		pos = vec2(80, 170)
+	}
+}
+
 
 levels[1] = {
 	' S                  E '
@@ -69,7 +149,7 @@ levels[6] = {
 	'#    1          44444444444#',
 	'#               42222222000#',
 	'#               444444##42##',
-	'# S                  03242E#',
+	'#           S        03242E#',
 	'#    2          444444##42##',
 	'#   202         46666666000#',
 	'#  20502        44444444444#',
@@ -81,8 +161,8 @@ levels[7] = {
 	'                    4     00000',
 	'                   4      02220',
 	'              44444       02E20',
-	'222222222222  4           02220',
-	'2             4       444400000',
+	'222222222222    4         02220',
+	'2             4 4     444400000',
 	'2 2222222222  4   4444   4 4444',
 	'2          2  4 44     4  4   4',
 	' 2222222   2  4 4  4444       4',
@@ -96,12 +176,45 @@ levels[7] = {
 }
 
 levels[8] = {
+	'                              ',
+	'     666666666666666666       ',
+	'     6   42222222244446       ',
+	'     6  42444444442 546       ',
+	'     6 42   22222  24 6       ',
+	'888886 24442000002 42 6       ',
+	'888886 24220   010242 6       ',
+	'887886 24  0 0 0 0242       E ',
+	'888886 42220S0   0242 6       ',
+	'888886 423 2000002 42 6       ',
+	'     6  42  22222 42  6       ',
+	'     6  24444444442   6       ',
+	'     6   222222222    6       ',
+	'     666666666666666666       ', 
+	'                              '
 }
+
+levels[9] = {
+	'################    7   # ####',
+	'#               # ###### #1  #',
+	'# ####   ######  #       ### #',
+	'#       #        #   ##      #',
+	'#  #####  ######## #    # #  #',
+	'#  ##5 # #         ### #   ## ',
+	'#   #  #      S   #  ##  #  # ',
+	'#   #   ##         #   #  # # ',
+	'#   #  #  ######## # #  # # # ',
+	'#  #  #    ##3   #   #  # # # ',
+	'#         #E# #  ####   # # # ',
+	' #       #  # #        #    # ',
+	'  #######   ## #############  ' 
+}
+
 
 local key_colors = {
 	[1] = rgba(0.3, 0.1, 0.1),
 	[3] = rgba(0.1, 0.3, 0.1),
-	[5] = rgba(0.1, 0.1, 0.3)
+	[5] = rgba(0.1, 0.1, 0.3),
+	[7] = rgba(0.4, 0.4, 0.4)
 }
 
 local tiles = nil
@@ -113,6 +226,7 @@ function levels.reset(n)
 	tiles = {}
 	collision = {}
 	ghosts = {}
+	text = texts[n]
 	local desc = levels[n]
 
 	local w, h = desc[1]:len(), #desc
@@ -161,6 +275,10 @@ function levels.reset(n)
 end
 
 function levels.take_switch(n)
+	noise = 3
+	if n == 7 then
+		text = end_text
+	end
 	ghosts[n] = nil
 	for i, t in ipairs(tiles) do
 		if t.number == n-1 then
