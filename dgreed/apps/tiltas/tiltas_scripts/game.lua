@@ -8,7 +8,7 @@ local player_pos = nil
 
 local level_end_t = nil
 local last_input_t = 0
-local current_level = 7
+local current_level = 1
 
 function game.init()
 	video.set_blendmode(glow_layer, 'add')
@@ -67,12 +67,25 @@ function game.update()
 			player_pos = vec2(-100, -100)
 			level_end_t = ts
 			current_level = current_level + 1
+			mfx.trigger('noise')
 		end
 	end
 
 	sound.update()
+	mfx.update()
 
 	return not key.down(key.quit)
+end
+
+function game.render_noise()
+	local tex, src = sprsheet.get('noise')
+	local rand_rect = rect(
+		rand.int(0, 64),
+		rand.int(0, 64),
+		rand.int(64, 128),
+		rand.int(64, 128)
+	)
+	video.draw_rect(tex, 15, rand_rect, scr_rect)
 end
 
 function game.render(t)
@@ -86,6 +99,12 @@ function game.render(t)
 	levels.draw()
 	ghost.draw(player, ts)
 
+	if text then
+		for i,t in ipairs(text) do
+			video.draw_text(fnt, 1, t.text, t.pos, rgba(0.8, 0.8, 0.8, 0.8))
+		end
+	end
+
 	if level_end_t then
 		local tt = (ts - level_end_t) / 0.5
 		if tt > 1 then
@@ -97,15 +116,16 @@ function game.render(t)
 		end
 
 		if tt > 0.8 then
-			local tex, src = sprsheet.get('noise')
-			local rand_rect = rect(
-				rand.int(0, 64),
-				rand.int(0, 64),
-				rand.int(64, 128),
-				rand.int(64, 128)
-			)
-			video.draw_rect(tex, 15, rand_rect, scr_rect)
+			game.render_noise()
 		end
+	end
+
+	if noise > 0 then
+		if noise == 1 then
+			mfx.trigger('noise')
+		end
+		noise = noise - 1
+		game.render_noise()
 	end
 
 	return true
