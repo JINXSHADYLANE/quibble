@@ -8,7 +8,7 @@ local player_pos = nil
 
 local level_end_t = nil
 local last_input_t = 0
-local current_level = 1
+local current_level = 7
 
 function game.init()
 	video.set_blendmode(glow_layer, 'add')
@@ -40,16 +40,16 @@ function game.update()
 		if take_input then
 			local delta = vec2(0, 0) 
 			if key.pressed(key._up) or char.pressed('w') then
-				delta = delta + vec2(0, -1)
+				delta = vec2(0, -1)
 			end
 			if key.pressed(key._right) or char.pressed('d') then
-				delta = delta + vec2(1, 0)
+				delta = vec2(1, 0)
 			end
 			if key.pressed(key._down) or char.pressed('s') then
-				delta = delta + vec2(0, 1)
+				delta = vec2(0, 1)
 			end
 			if key.pressed(key._left) or char.pressed('a') then
-				delta = delta + vec2(-1, 0)
+				delta = vec2(-1, 0)
 			end
 
 			if delta then
