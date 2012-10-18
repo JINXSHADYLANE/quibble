@@ -7,6 +7,7 @@
 
 typedef struct {
 	GameObject header;
+	bool touching_ground;
 } ObjRabbit;
 
 extern GameObjectDesc obj_rabbit_desc;

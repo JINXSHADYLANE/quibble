@@ -8,6 +8,8 @@
 static void game_init(void) {
 	objects_init();
 
+	video_set_blendmode(15, BM_MULTIPLY);
+
 	objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), NULL);
 
 	objects_create(&obj_ground_desc, vec2(128.0f, 683.0f), (void*)0);
@@ -31,7 +33,11 @@ static bool game_update(void) {
 }
 
 static bool game_render(float t) {
+	spr_draw("background", 0, rectf_null(), COLOR_WHITE);
+	spr_draw("vignette", 15, rectf_null(), COLOR_WHITE);
+
 	objects_tick();
+
 	return true;
 }
 
