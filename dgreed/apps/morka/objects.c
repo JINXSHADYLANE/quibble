@@ -46,7 +46,7 @@ void objects_init(void) {
 	to_remove = darray_create(sizeof(GameObject*), 0);
 	to_add = darray_create(sizeof(NewObject), 0);
 
-	coldet_init(objects_cdworld, 128.0f);
+	coldet_init(objects_cdworld, 256.0f);
 }
 
 void objects_close(void) {
@@ -132,16 +132,18 @@ static void objects_physics_tick(uint n_components) {
 	PhysicsComponent* phys = darray_get(&physics, 0);
 
 	for(uint i = 0; i < n_components; ++i) {
+		CDObj* cd = phys[i].cd_obj;
+
 		Vector2 a = vec2_scale(phys[i].acc, phys[i].inv_mass * PHYSICS_DT);
 		Vector2 vel = vec2_add(phys[i].vel, a);
 		phys[i].acc = vec2(0.0f, 0.0f);
-		Vector2 pos = phys[i].cd_obj->pos;
+		Vector2 pos = cd->pos;
 
 		pos = vec2_add(pos, vec2_scale(vel, PHYSICS_DT));
 		phys[i].vel = vel;
 
-		Vector2 offset = vec2_sub(pos, phys[i].cd_obj->pos);
-		phys[i].cd_obj->offset = offset;
+		Vector2 offset = vec2_sub(pos, cd->pos);
+		cd->offset = vec2_add(cd->offset, offset);
 	}
 
 	coldet_process(objects_cdworld, objects_collision_callback);

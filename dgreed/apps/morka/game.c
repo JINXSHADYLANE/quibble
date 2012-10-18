@@ -1,6 +1,7 @@
 #include "game.h"
 #include "objects.h"
 #include "obj_rabbit.h"
+#include "obj_ground.h"
 
 // Game state
 
@@ -8,6 +9,11 @@ static void game_init(void) {
 	objects_init();
 
 	objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), NULL);
+
+	objects_create(&obj_ground_desc, vec2(128.0f, 683.0f), (void*)0);
+	objects_create(&obj_ground_desc, vec2(384.0f, 683.0f), (void*)1);
+	objects_create(&obj_ground_desc, vec2(640.0f, 683.0f), (void*)2);
+	objects_create(&obj_ground_desc, vec2(896.0f, 683.0f), (void*)3);
 }
 
 static void game_close(void) {
