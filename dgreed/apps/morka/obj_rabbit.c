@@ -1,17 +1,13 @@
 #include "obj_rabbit.h"
+#include "obj_ground.h"
 
 #include <system.h>
 
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
+	ObjRabbit* rabbit = (ObjRabbit*)self;
 	PhysicsComponent* p = self->physics;
 
 	Vector2 dir = {.x = 0.0f, .y = 0.0f};
-
-	if(key_pressed(KEY_UP))
-		dir.y -= 4000.0f;
-
-	if(key_pressed(KEY_DOWN))
-		dir.y += 4000.0f;
 
 	if(key_pressed(KEY_LEFT))
 		dir.x -= 4000.0f;
@@ -19,13 +15,20 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	if(key_pressed(KEY_RIGHT))
 		dir.x += 4000.0f;
 
-	if(key_pressed(KEY_A))
-		objects_destroy(self);
+	if(rabbit->touching_ground && key_down(KEY_A)) {
+		rabbit->touching_ground = false;
+		objects_apply_force(self, vec2(0.0f, -100000.0f));
+	}
 
 	objects_apply_force(self, dir);
 
 	// Damp
-	p->vel = vec2_scale(p->vel, 0.8f);
+	p->vel.x = p->vel.x * 0.8f;
+
+	// Gravity
+	if(!rabbit->touching_ground) {
+		objects_apply_force(self, vec2(0.0f, 1000.0f));
+	}
 }
 
 static void obj_rabbit_update_pos(GameObject* self) {
@@ -33,8 +36,8 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	RenderComponent* r = self->render;
 	PhysicsComponent* p = self->physics;
 	r->world_pos = vec2_add(p->cd_obj->pos, vec2(90.0f, 90.0f));
-	r->extent_min = r->world_pos.x;
-	r->extent_max = r->world_pos.x + 180.0f;
+	r->extent_min = r->world_pos.x - 90.0f;
+	r->extent_max = r->world_pos.x + 90.0f;
 }
 
 static void obj_rabbit_became_visible(GameObject* self) {
@@ -46,10 +49,29 @@ static void obj_rabbit_became_invisible(GameObject* self) {
 }
 
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
-	objects_apply_force(self, vec2(0.0f, -5000.0f));
+	ObjRabbit* rabbit = (ObjRabbit*)self;
+
+	if(other->type == OBJ_GROUND_TYPE) {
+		//const float ground_overlap = 0.01f;
+		CDObj* cd_rabbit = self->physics->cd_obj;
+		CDObj* cd_ground = other->physics->cd_obj;
+		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
+		float ground_top = cd_ground->pos.y;
+		float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
+		if(penetration > 0.0f) {
+			rabbit->touching_ground = true;
+			cd_rabbit->offset = vec2_add(
+					cd_rabbit->offset, 
+					vec2(0.0f, -penetration)
+			);
+		}
+	}
 }
 
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
+	ObjRabbit* rabbit = (ObjRabbit*)self;
+	rabbit->touching_ground = false;
+
 	// Init physics
 	PhysicsComponent* physics = self->physics;
 	RectF rect = {
