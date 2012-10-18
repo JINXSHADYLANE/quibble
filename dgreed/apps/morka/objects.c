@@ -25,8 +25,16 @@ static DArray physics;
 static DArray render;
 static DArray update;
 
-// Ptrs to objects to remove
+// Ptrs to objects to remove and to add
 static DArray to_remove;
+static DArray to_add;
+
+typedef struct {
+	Vector2 pos;
+	GameObject* obj;
+	GameObjectDesc* desc;
+	void* user_data;
+} NewObject;
 
 void objects_init(void) {
 	aatree_init(&desc_map);
@@ -36,6 +44,7 @@ void objects_init(void) {
 	render = darray_create(sizeof(RenderComponent), 0);
 	update = darray_create(sizeof(UpdateComponent), 0);
 	to_remove = darray_create(sizeof(GameObject*), 0);
+	to_add = darray_create(sizeof(NewObject), 0);
 
 	coldet_init(objects_cdworld, 128.0f);
 }
@@ -43,6 +52,7 @@ void objects_init(void) {
 void objects_close(void) {
 	coldet_close(objects_cdworld);
 
+	darray_free(&to_add);
 	darray_free(&to_remove);
 	darray_free(&physics);
 	darray_free(&render);
@@ -58,49 +68,19 @@ GameObject* objects_create(GameObjectDesc* desc, Vector2 pos, void* user_data) {
 	assert(desc->construct);
 
 	GameObject* obj = mempool_alloc(&objects);
-	obj->type = desc->type;
+	obj->type = 0;
 
-	if(desc->has_physics) {
-		darray_append_nulls(&physics, 1);
-		obj->physics = darray_get(&physics, physics.size-1);
-		obj->physics->owner = obj;
-	}
-	else {
-		obj->physics = NULL;
-	}
+	NewObject new = {
+		.pos = pos,
+		.obj = obj,
+		.desc = desc,
+		.user_data = user_data
+	};
 
-	if(desc->has_render) {
-		darray_append_nulls(&render, 1);
-		obj->render = darray_get(&render, render.size-1);
-		obj->render->owner = obj;
-	}
-	else {
-		obj->render = NULL;
-	}
-
-	if(desc->has_update) {
-		darray_append_nulls(&update, 1);
-		obj->update = darray_get(&update, update.size-1);
-		obj->update->owner = obj;
-	}
-	else {
-		obj->update = NULL;
-	}
-
-	desc->construct(obj, pos, user_data);
-
-	if(desc->has_physics) {
-		obj->physics->cd_obj->userdata = obj;
-	}
-
-	if(desc_cache != desc) {
-		aatree_insert(&desc_map, desc->type, desc);
-		desc_cache = desc;
-	}
+	darray_append(&to_add, &new);
 
 	return obj;
 }
-
 void objects_destroy(GameObject* obj) {
 	assert(obj);
 	assert(mempool_owner(&objects, obj));
@@ -280,24 +260,73 @@ static void objects_remove_tick(void) {
 	to_remove.size = 0;
 }
 
+static void objects_create_internal(NewObject* new) {
+	GameObjectDesc* desc = new->desc;
+	GameObject* obj = new->obj;
+	obj->type = desc->type;
+
+	if(desc->has_physics) {
+		darray_append_nulls(&physics, 1);
+		obj->physics = darray_get(&physics, physics.size-1);
+		obj->physics->owner = obj;
+	}
+	else {
+		obj->physics = NULL;
+	}
+
+	if(desc->has_render) {
+		darray_append_nulls(&render, 1);
+		obj->render = darray_get(&render, render.size-1);
+		obj->render->owner = obj;
+	}
+	else {
+		obj->render = NULL;
+	}
+
+	if(desc->has_update) {
+		darray_append_nulls(&update, 1);
+		obj->update = darray_get(&update, update.size-1);
+		obj->update->owner = obj;
+	}
+	else {
+		obj->update = NULL;
+	}
+
+	desc->construct(obj, new->pos, new->user_data);
+
+	if(desc->has_physics) {
+		obj->physics->cd_obj->userdata = obj;
+	}
+
+	if(desc_cache != desc) {
+		aatree_insert(&desc_map, desc->type, desc);
+		desc_cache = desc;
+	}
+}
+
+static void objects_add_tick(void) {
+	for(uint i = 0; i < to_add.size; ++i) {
+		NewObject* obj = darray_get(&to_add, i);
+		objects_create_internal(obj);
+	}
+	to_add.size = 0;
+}
+
 void objects_tick(void) {
-	// Count all components before doing any work,
-	// so that newly created components won't
-	// get processed immediately
 	uint n_update = update.size;
 	uint n_physics = physics.size;
 	uint n_render = render.size;
 
-	float ts = time_s();
-
 	if(n_update)
-		objects_update_tick(n_update, ts);
+		objects_update_tick(n_update, time_s());
+
 	if(n_physics)
 		objects_physics_tick(n_physics);
+
 	if(n_render)
 		objects_render_tick(n_render);
 
-	if(to_remove.size)
-		objects_remove_tick();
+	objects_remove_tick();
+	objects_add_tick();
 }
 
