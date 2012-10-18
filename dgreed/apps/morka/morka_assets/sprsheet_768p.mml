@@ -1,6 +1,0 @@
-(sprsheet morka
-	(prefix "morka_assets/")
-	(img rabbit
-		(tex empty.png)
-	)
-)

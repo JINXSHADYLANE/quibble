@@ -32,9 +32,9 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	// Update render data
 	RenderComponent* r = self->render;
 	PhysicsComponent* p = self->physics;
-	r->world_pos = p->cd_obj->pos;
-	r->extent_min = r->world_pos.x - 10.0f;
-	r->extent_max = r->world_pos.x + 10.0f;
+	r->world_pos = vec2_add(p->cd_obj->pos, vec2(90.0f, 90.0f));
+	r->extent_min = r->world_pos.x;
+	r->extent_max = r->world_pos.x + 180.0f;
 }
 
 static void obj_rabbit_became_visible(GameObject* self) {
@@ -45,27 +45,32 @@ static void obj_rabbit_became_invisible(GameObject* self) {
 	printf("Rabbit became invisible\n");
 }
 
+static void obj_rabbit_collide(GameObject* self, GameObject* other) {
+	objects_apply_force(self, vec2(0.0f, -5000.0f));
+}
+
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
 	// Init physics
 	PhysicsComponent* physics = self->physics;
 	RectF rect = {
-		pos.x - 16.0f, pos.y - 16.0f,
-		pos.x + 16.0f, pos.y + 16.0f
+		pos.x - 90.0f, pos.y - 90.0f,
+		pos.x + 90.0f, pos.y + 90.0f
 	};
-	physics->cd_obj = coldet_new_aabb(objects_cdworld, &rect, 0xFFFFFFFF, physics);
+	physics->cd_obj = coldet_new_aabb(objects_cdworld, &rect, 1, NULL);
 	float mass = 3.0f;
 	physics->inv_mass = 1.0f / mass;
 	physics->vel = vec2(0.0f, 0.0f);
+	physics->hit_callback = obj_rabbit_collide;
 
 	// Init render
 	RenderComponent* render = self->render;
 	render->world_pos = pos;
 	render->extent_min = rect.left;
 	render->extent_max = rect.right;
-	render->scale = 10.0f;
+	render->scale = 1.0f;
 	render->angle = 0.0f;
-	render->layer = 1;
-	render->anim_frame = MAX_UINT16;
+	render->layer = 2;
+	render->anim_frame = 0;
 	render->spr = sprsheet_get_handle("rabbit");
 	render->update_pos = obj_rabbit_update_pos;
 	render->became_visible = obj_rabbit_became_visible;
