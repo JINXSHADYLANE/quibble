@@ -3,9 +3,7 @@
 #include <mempool.h>
 #include <utils.h>
 
-#include "objects.h"
-#include "obj_ground.h"
-#include "obj_deco.h"
+#include "obj_types.h"
 
 static WorldPage current_page;
 static WorldPage next_page;

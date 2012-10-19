@@ -1,4 +1,4 @@
-#include "obj_deco.h"
+#include "obj_types.h"
 
 static void obj_deco_became_invisible(GameObject* self) {
 	objects_destroy(self);

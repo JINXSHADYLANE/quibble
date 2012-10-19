@@ -1,7 +1,6 @@
 #include "game.h"
 #include "objects.h"
-#include "obj_rabbit.h"
-#include "obj_ground.h"
+#include "obj_types.h"
 
 #include "worldgen.h"
 
