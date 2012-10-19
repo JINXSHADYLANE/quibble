@@ -17,7 +17,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 	if(rabbit->touching_ground && key_down(KEY_A)) {
 		rabbit->touching_ground = false;
-		objects_apply_force(self, vec2(0.0f, -100000.0f));
+		objects_apply_force(self, vec2(0.0f, -170000.0f));
 	}
 
 	objects_apply_force(self, dir);
@@ -27,7 +27,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 	// Gravity
 	if(!rabbit->touching_ground) {
-		objects_apply_force(self, vec2(0.0f, 1000.0f));
+		objects_apply_force(self, vec2(0.0f, 5000.0f));
 	}
 }
 
@@ -35,7 +35,8 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	// Update render data
 	RenderComponent* r = self->render;
 	PhysicsComponent* p = self->physics;
-	r->world_pos = vec2_add(p->cd_obj->pos, vec2(90.0f, 90.0f));
+	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+	r->world_pos = vec2_add(pos, vec2(90.0f, 90.0f));
 	r->extent_min = r->world_pos.x - 90.0f;
 	r->extent_max = r->world_pos.x + 90.0f;
 }
@@ -59,6 +60,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		float ground_top = cd_ground->pos.y;
 		float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
 		if(penetration > 0.0f) {
+			self->physics->vel.y = 0.0f;
 			rabbit->touching_ground = true;
 			cd_rabbit->offset = vec2_add(
 					cd_rabbit->offset, 

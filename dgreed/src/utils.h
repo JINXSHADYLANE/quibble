@@ -280,6 +280,19 @@ float rand_float(void);
 // Returns random float in specified range
 float rand_float_range(float min, float max);
 
+// Extended interface, does exactly the same,
+// but supports multiple independent randomized
+// data streams (contexts):
+
+typedef void* RndContext;
+
+void rand_init_ex(RndContext* ctx, uint seed);
+void rand_free_ex(RndContext* ctx);
+uint rand_uint_ex(RndContext* ctx);
+int rand_int_ex(RndContext* ctx, int min, int max);
+float rand_float_ex(RndContext* ctx);
+float rand_float_range_ex(RndContext* ctx, float min, float max);
+
 /*
 ---------------
 --- Logging ---
