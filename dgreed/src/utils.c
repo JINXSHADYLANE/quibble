@@ -700,20 +700,28 @@ Color color_lerp(Color c1, Color c2, float t) {
 #define MT19937_N 624
 #define MT19937_M 397
 
-static uint mt_state[MT19937_N];
-static uint mt_index;
+typedef struct {
+	uint mt_state[MT19937_N];
+	uint mt_index;
+} RndState;
 
-static void _mt_init(uint seed) {
-	mt_state[0] = seed;
-	for(mt_index = 1; mt_index < MT19937_N; ++mt_index) {
-		uint t = (mt_state[mt_index-1] ^ (mt_state[mt_index-1] >> 30));
-		mt_state[mt_index] = 1812433253UL * (t + mt_index);
+static RndState global_rnd;
+static RndContext global_rndctx = &global_rnd; 
+
+static void _mt_init(RndState* state, uint seed) {
+	state->mt_state[0] = seed;
+	for(uint i = 1; i < MT19937_N; ++i) {
+		uint t = (state->mt_state[i-1] ^ (state->mt_state[i-1] >> 30));
+		state->mt_state[i] = 1812433253UL * (t + i);
 	}
+	state->mt_index = MT19937_N;
 }
 
-static void _mt_update(void) {
+static void _mt_update(RndState* state) {
 	int kk;
 	uint y;
+
+	uint* mt_state = state->mt_state;
 
 	const uint upper = 0x80000000UL;
 	const uint lower = 0x7fffffffUL;
@@ -735,14 +743,14 @@ static void _mt_update(void) {
 	mt_state[kk] = mt_state[kk + (MT19937_M - MT19937_N)] ^ (y >> 1);
 	mt_state[kk] ^= (y & 1) ? 0 : matrix;
 
-	mt_index = 0;
+	state->mt_index = 0;
 }
 
-static uint _mt_uint(void) {
-	if(mt_index >= MT19937_N)
-		_mt_update();
+static uint _mt_uint(RndState* state) {
+	if(state->mt_index >= MT19937_N)
+		_mt_update(state);
 	
-	uint result = mt_state[mt_index++];
+	uint result = state->mt_state[state->mt_index++];
 
 	result ^= (result >> 11);
 	result ^= (result << 7) & 0x9d2c5680UL;
@@ -755,28 +763,55 @@ static uint _mt_uint(void) {
 // Public interface
 
 void rand_init(uint seed) {
-	_mt_init(seed);
+	rand_init_ex(&global_rndctx, seed);
 }
 
 uint rand_uint(void) {
-	return _mt_uint();
+	return rand_uint_ex(&global_rndctx);
 }
 
 int rand_int(int min, int max) {
+	return rand_int_ex(&global_rndctx, min, max);
+}
+
+float rand_float(void) {
+	return rand_float_ex(&global_rndctx);
+}
+
+float rand_float_range(float min, float max) {
+	return rand_float_range_ex(&global_rndctx, min, max);
+}
+
+void rand_init_ex(RndContext* ctx, uint seed) {
+	*ctx = malloc(sizeof(RndState));
+	RndState* st = *ctx;
+	_mt_init(st, seed);
+}
+
+void rand_free_ex(RndContext* ctx) {
+	free(*ctx);
+}
+
+uint rand_uint_ex(RndContext* ctx) {
+	RndState* st = *ctx;
+	return _mt_uint(st);
+}
+
+int rand_int_ex(RndContext* ctx, int min, int max) {
 	int range;
 
 	assert(min < max);
 
 	range = max - min;
-	return (rand_uint()%range) + min;
+	return (rand_uint_ex(ctx)%range) + min;
 }
 
-float rand_float(void) {
-	return (float)rand_uint() / (float)MAX_UINT32;
+float rand_float_ex(RndContext* ctx) {
+	return (float)(rand_uint_ex(ctx)>>1) / (float)(MAX_UINT32>>1);
 }
 
-float rand_float_range(float min, float max) {
-	return min + rand_float() * (max - min);
+float rand_float_range_ex(RndContext* ctx, float min, float max) {
+	return min + rand_float_ex(ctx) * (max - min);
 }
 
 /*
