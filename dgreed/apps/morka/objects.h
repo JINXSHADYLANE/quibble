@@ -4,6 +4,8 @@
 #include <sprsheet.h>
 #include <coldet.h>
 
+#define PHYSICS_DT (1.0 / 60.0)
+
 // Game object
 
 typedef struct {

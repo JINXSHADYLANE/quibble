@@ -286,8 +286,14 @@ float rand_float_range(float min, float max);
 
 typedef void* RndContext;
 
+// Allocs new context
 void rand_init_ex(RndContext* ctx, uint seed);
+// Seeds/resets already alloced context
+void rand_seed_ex(RndContext* ctx, uint seed);
+// Frees alloced context
 void rand_free_ex(RndContext* ctx);
+
+// Same as earlier functions, just with contexts
 uint rand_uint_ex(RndContext* ctx);
 int rand_int_ex(RndContext* ctx, int min, int max);
 float rand_float_ex(RndContext* ctx);

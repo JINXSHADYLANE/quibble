@@ -784,6 +784,10 @@ float rand_float_range(float min, float max) {
 
 void rand_init_ex(RndContext* ctx, uint seed) {
 	*ctx = malloc(sizeof(RndState));
+	rand_seed_ex(ctx, seed);
+}
+
+void rand_seed_ex(RndContext* ctx, uint seed) {
 	RndState* st = *ctx;
 	_mt_init(st, seed);
 }

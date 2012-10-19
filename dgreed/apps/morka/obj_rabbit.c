@@ -10,10 +10,9 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	Vector2 dir = {.x = 0.0f, .y = 0.0f};
 
 	if(key_pressed(KEY_LEFT))
-		dir.x -= 4000.0f;
+		dir.x -= 9000.0f;
 
-	if(key_pressed(KEY_RIGHT))
-		dir.x += 4000.0f;
+	dir.x += 8000.0f;
 
 	if(rabbit->touching_ground && key_down(KEY_A)) {
 		rabbit->touching_ground = false;
