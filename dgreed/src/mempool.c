@@ -23,6 +23,19 @@ void mempool_init_ex(MemPool* pool, size_t item_size, size_t chunk_size) {
 	list_init(&pool->chunks);
 }
 
+void mempool_free_all(MemPool* pool) {
+	size_t items_per_chunk = pool->chunk_size / pool->item_size;
+	MemPoolChunk* pos;
+	list_for_each_entry(pos, &pool->chunks, list) {
+		// Reset freelist
+		pos->freelist_head = 0;
+		for(uint i = 0; i < items_per_chunk; ++i) {
+			int* freelist_entry = pos->data + pool->item_size * i;
+			*freelist_entry = (i == items_per_chunk-1) ? -1 : i + 1;
+		}
+	}
+}
+
 void mempool_drain(MemPool* pool) {
 	assert(pool);
 

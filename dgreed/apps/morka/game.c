@@ -3,7 +3,12 @@
 #include "obj_rabbit.h"
 #include "obj_ground.h"
 
+#include "worldgen.h"
+
 // Game state
+
+float camera_speed = 100.0f;
+uint last_page = 0;
 
 static void game_init(void) {
 	objects_init();
@@ -12,13 +17,13 @@ static void game_init(void) {
 
 	objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), NULL);
 
-	objects_create(&obj_ground_desc, vec2(128.0f, 683.0f), (void*)0);
-	objects_create(&obj_ground_desc, vec2(384.0f, 683.0f), (void*)1);
-	objects_create(&obj_ground_desc, vec2(640.0f, 683.0f), (void*)2);
-	objects_create(&obj_ground_desc, vec2(896.0f, 683.0f), (void*)3);
+	worldgen_reset(20);
+	worldgen_show(worldgen_current());
+	worldgen_show(worldgen_next());
 }
 
 static void game_close(void) {
+	worldgen_close();
 	objects_close();
 }
 
@@ -29,6 +34,17 @@ static void game_leave(void) {
 }
 
 static bool game_update(void) {
+	
+	float camera_offset = camera_speed * PHYSICS_DT;
+	objects_camera.left += camera_offset;
+	objects_camera.right += camera_offset;
+
+	uint page = (uint)floorf(objects_camera.left / 1024.0f);
+	if(page != last_page) {
+		worldgen_show(worldgen_new_page());
+		last_page = page;
+	}
+
 	return true;
 }
 

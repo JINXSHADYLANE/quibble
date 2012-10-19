@@ -5,7 +5,6 @@
 #include <mempool.h>
 
 #define MAX_GAMEOBJECT_SIZE (sizeof(GameObject) * 2)
-#define PHYSICS_DT (1.0 / 60.0)
 
 RectF objects_camera = {0.0f, 0.0f, 1024.0f, 768.0f};
 
@@ -268,7 +267,15 @@ static void objects_create_internal(NewObject* new) {
 	obj->type = desc->type;
 
 	if(desc->has_physics) {
+		PhysicsComponent* old_place = physics.data;
 		darray_append_nulls(&physics, 1);
+		if(old_place != physics.data) {
+			// Triggerred realloc, update owner pointer
+			for(uint i = 0; i < physics.size-1; ++i) {
+				PhysicsComponent* p = darray_get(&physics, i);
+				p->owner->physics = p;
+			}
+		}
 		obj->physics = darray_get(&physics, physics.size-1);
 		obj->physics->owner = obj;
 	}
@@ -277,7 +284,15 @@ static void objects_create_internal(NewObject* new) {
 	}
 
 	if(desc->has_render) {
+		RenderComponent* old_place = render.data;
 		darray_append_nulls(&render, 1);
+		if(old_place != render.data) {
+			// Triggered realloc, update owner pointer
+			for(uint i = 0; i < render.size-1; ++i) {
+				RenderComponent* r = darray_get(&render, i);
+				r->owner->render = r;
+			}
+		}
 		obj->render = darray_get(&render, render.size-1);
 		obj->render->owner = obj;
 	}
@@ -286,7 +301,15 @@ static void objects_create_internal(NewObject* new) {
 	}
 
 	if(desc->has_update) {
+		UpdateComponent* old_place = update.data;
 		darray_append_nulls(&update, 1);
+		if(old_place != update.data) {
+			// Triggered realloc, update owner pointer
+			for(uint i = 0; i < update.size-1; ++i) {
+				UpdateComponent* u = darray_get(&update, i);
+				u->owner->update = u;
+			}
+		}
 		obj->update = darray_get(&update, update.size-1);
 		obj->update->owner = obj;
 	}
