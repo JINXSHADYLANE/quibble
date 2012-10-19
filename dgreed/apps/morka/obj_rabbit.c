@@ -1,5 +1,4 @@
-#include "obj_rabbit.h"
-#include "obj_ground.h"
+#include "obj_types.h"
 
 #include <system.h>
 
