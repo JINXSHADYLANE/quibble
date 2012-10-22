@@ -9,17 +9,25 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	Vector2 dir = {.x = 0.0f, .y = 0.0f};
 
 	// Constantly move right
-	dir.x += 1000.0f;
+	dir.x += 500.0f;
 
 	// Jump
 	if(rabbit->touching_ground && key_down(KEY_A)) {
 		rabbit->touching_ground = false;
+		rabbit->can_double_jump = true;
 		rabbit->jump_time = ts;
 		objects_apply_force(self, vec2(0.0f, -100000.0f));
 	}
-	else if (key_pressed(KEY_A) && !rabbit->touching_ground) {
-		if((ts - rabbit->jump_time) < 0.2f) {
-			objects_apply_force(self, vec2(0.0f, -8000.0f));
+	else {
+		if (key_pressed(KEY_A) && !rabbit->touching_ground) {
+			if((ts - rabbit->jump_time) < 0.2f) {
+				objects_apply_force(self, vec2(0.0f, -8000.0f));
+			}
+		}
+		if(rabbit->can_double_jump && !rabbit->touching_ground && key_down(KEY_A)) {
+			// Double jump
+			rabbit->can_double_jump = false;
+			objects_apply_force(self, vec2(0.0f, -100000.0f));
 		}
 	}
 
