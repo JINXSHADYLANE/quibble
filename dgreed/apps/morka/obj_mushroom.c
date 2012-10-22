@@ -18,8 +18,8 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 	
 	// Take upper half of image rect as a collider geometry
 	RectF collider = {
-		pos.x - width, pos.y - height,
-		pos.x, pos.y - height / 2.0f
+		pos.x - width / 2.0f, pos.y - height / 2.0f,
+		pos.x + height / 2.0f, pos.y
 	};
 
 	// Physics

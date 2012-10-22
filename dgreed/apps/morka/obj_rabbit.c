@@ -8,11 +8,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 	Vector2 dir = {.x = 0.0f, .y = 0.0f};
 
-	if(key_pressed(KEY_LEFT))
-		dir.x -= 9000.0f;
+	// Constantly move right
+	dir.x += 1000.0f;
 
-	dir.x += 8000.0f;
-
+	// Jump
 	if(rabbit->touching_ground && key_down(KEY_A)) {
 		rabbit->touching_ground = false;
 		objects_apply_force(self, vec2(0.0f, -170000.0f));
@@ -21,7 +20,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	objects_apply_force(self, dir);
 
 	// Damp
-	p->vel.x = p->vel.x * 0.8f;
+	p->vel.x = p->vel.x * 0.98f;
 
 	// Gravity
 	if(!rabbit->touching_ground) {
@@ -34,7 +33,7 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	RenderComponent* r = self->render;
 	PhysicsComponent* p = self->physics;
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-	r->world_pos = vec2_add(pos, vec2(90.0f, 90.0f));
+	r->world_pos = vec2_add(pos, vec2(45.0f, 40.0f));
 	r->extent_min = r->world_pos.x - 90.0f;
 	r->extent_max = r->world_pos.x + 90.0f;
 }
@@ -42,6 +41,7 @@ static void obj_rabbit_update_pos(GameObject* self) {
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 
+	// Collision with ground
 	if(other->type == OBJ_GROUND_TYPE) {
 		//const float ground_overlap = 0.01f;
 		CDObj* cd_rabbit = self->physics->cd_obj;
@@ -58,6 +58,13 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			);
 		}
 	}
+
+	// Collision with mushroom
+	Vector2 vel = self->physics->vel;
+	if(other->type == OBJ_MUSHROOM_TYPE && !rabbit->touching_ground && vel.y > 0.0f) {
+		vel.y = -vel.y;
+		objects_apply_force(self, vec2_scale(vel, 400.0f));
+	}
 }
 
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
@@ -67,8 +74,8 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	// Init physics
 	PhysicsComponent* physics = self->physics;
 	RectF rect = {
-		pos.x - 90.0f, pos.y - 90.0f,
-		pos.x + 90.0f, pos.y + 90.0f
+		pos.x - 45.0f, pos.y - 40.0f,
+		pos.x + 45.0f, pos.y + 40.0f
 	};
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &rect, 1, NULL);
 	float mass = 3.0f;
@@ -83,7 +90,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->extent_max = rect.right;
 	render->scale = 1.0f;
 	render->angle = 0.0f;
-	render->layer = 2;
+	render->layer = 3;
 	render->anim_frame = 0;
 	render->spr = sprsheet_get_handle("rabbit");
 	render->update_pos = obj_rabbit_update_pos;

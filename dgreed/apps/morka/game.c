@@ -12,12 +12,14 @@ extern bool draw_physics_debug;
 float camera_speed = 100.0f;
 uint last_page = 0;
 
+ObjRabbit* rabbit = NULL;
+
 static void game_init(void) {
 	objects_init();
 
 	video_set_blendmode(15, BM_MULTIPLY);
 
-	objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), NULL);
+	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), NULL);
 
 	worldgen_reset(20);
 	worldgen_show(worldgen_current());
@@ -43,9 +45,14 @@ static bool game_update(void) {
 		draw_physics_debug = !draw_physics_debug;
 #endif
 	
-	float camera_offset = camera_speed * PHYSICS_DT;
-	objects_camera.left += camera_offset;
-	objects_camera.right += camera_offset;
+	// Make camera follow rabbit
+	if(rabbit && rabbit->header.type) {
+		float camera_x = (objects_camera.left + objects_camera.right) / 2.0f;
+		float new_camera_x = lerp(camera_x, rabbit->header.render->world_pos.x, 0.1f);
+		float camera_offset = new_camera_x - camera_x;
+		objects_camera.left += camera_offset;
+		objects_camera.right += camera_offset;
+	}
 
 	uint page = (uint)floorf(objects_camera.left / 1024.0f);
 	if(page != last_page) {
