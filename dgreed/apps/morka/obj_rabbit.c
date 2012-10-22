@@ -39,14 +39,6 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	r->extent_max = r->world_pos.x + 90.0f;
 }
 
-static void obj_rabbit_became_visible(GameObject* self) {
-	printf("Rabbit became visible\n");
-}
-
-static void obj_rabbit_became_invisible(GameObject* self) {
-	printf("Rabbit became invisible\n");
-}
-
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 
@@ -95,19 +87,11 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->anim_frame = 0;
 	render->spr = sprsheet_get_handle("rabbit");
 	render->update_pos = obj_rabbit_update_pos;
-	render->became_visible = obj_rabbit_became_visible;
-	render->became_invisible = obj_rabbit_became_invisible;
 
 	// Init update
 	UpdateComponent* update = self->update;
 	update->interval = 1;
 	update->update = obj_rabbit_update;
-
-	printf("Rabbit created\n");
-}
-
-static void obj_rabbit_destruct(GameObject* self) {
-	printf("Rabbit destroyed\n");
 }
 
 GameObjectDesc obj_rabbit_desc = {
@@ -117,6 +101,6 @@ GameObjectDesc obj_rabbit_desc = {
 	.has_render = true,
 	.has_update = true,
 	.construct = obj_rabbit_construct,
-	.destruct = obj_rabbit_destruct
+	.destruct = NULL 
 };
 
