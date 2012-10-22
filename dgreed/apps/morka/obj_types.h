@@ -15,6 +15,8 @@ enum {
 typedef struct {
 	GameObject header;
 	bool touching_ground;
+	float jump_time;
+	float mushroom_hit_time;
 } ObjRabbit;
 
 extern GameObjectDesc obj_rabbit_desc;
