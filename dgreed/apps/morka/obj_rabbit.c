@@ -14,13 +14,31 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	// Jump
 	if(rabbit->touching_ground && key_down(KEY_A)) {
 		rabbit->touching_ground = false;
-		objects_apply_force(self, vec2(0.0f, -170000.0f));
+		rabbit->jump_time = ts;
+		objects_apply_force(self, vec2(0.0f, -100000.0f));
+	}
+	else if (key_pressed(KEY_A) && !rabbit->touching_ground) {
+		if((ts - rabbit->jump_time) < 0.2f) {
+			objects_apply_force(self, vec2(0.0f, -8000.0f));
+		}
 	}
 
-	objects_apply_force(self, dir);
+	// Jump off mushroom
+	float hit_dt = ts - rabbit->mushroom_hit_time;
+	if(key_pressed(KEY_A) && hit_dt < 0.3f) {
+		float t = (0.3f - hit_dt) / 0.3f;
+		objects_apply_force(self, vec2(0.0f, -5000.0f * t));
+	}
 
-	// Damp
-	p->vel.x = p->vel.x * 0.98f;
+	// Damping
+	if(p->vel.x > 300.0f)
+		p->vel.x *= 0.99f;
+	else if(p->vel.x > 800.0f)
+		p->vel.x *= 0.97f;
+	else if(p->vel.x > 1500.0f)
+		p->vel.x *= 0.90f;
+
+	objects_apply_force(self, dir);
 
 	// Gravity
 	if(!rabbit->touching_ground) {
@@ -43,7 +61,6 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 	// Collision with ground
 	if(other->type == OBJ_GROUND_TYPE) {
-		//const float ground_overlap = 0.01f;
 		CDObj* cd_rabbit = self->physics->cd_obj;
 		CDObj* cd_ground = other->physics->cd_obj;
 		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
@@ -61,9 +78,15 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 	// Collision with mushroom
 	Vector2 vel = self->physics->vel;
-	if(other->type == OBJ_MUSHROOM_TYPE && !rabbit->touching_ground && vel.y > 0.0f) {
+	if(other->type == OBJ_MUSHROOM_TYPE && !rabbit->touching_ground && vel.y > 500.0f) {
+		rabbit->mushroom_hit_time = time_s();
 		vel.y = -vel.y;
-		objects_apply_force(self, vec2_scale(vel, 400.0f));
+		Vector2 f = {
+			.x = MIN(vel.x*200.0f, 280000.0f),
+			.y = MAX(vel.y*400.0f,-350000.0f)
+		};
+		objects_apply_force(self, f);
+
 	}
 }
 

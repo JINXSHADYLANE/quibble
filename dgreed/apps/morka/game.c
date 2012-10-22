@@ -47,8 +47,8 @@ static bool game_update(void) {
 	
 	// Make camera follow rabbit
 	if(rabbit && rabbit->header.type) {
-		float camera_x = (objects_camera.left + objects_camera.right) / 2.0f;
-		float new_camera_x = lerp(camera_x, rabbit->header.render->world_pos.x, 0.1f);
+		float camera_x = (objects_camera.left*3.0f + objects_camera.right) / 4.0f;
+		float new_camera_x = lerp(camera_x, rabbit->header.render->world_pos.x, 0.2f);
 		float camera_offset = new_camera_x - camera_x;
 		objects_camera.left += camera_offset;
 		objects_camera.right += camera_offset;
