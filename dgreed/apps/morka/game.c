@@ -4,6 +4,9 @@
 
 #include "worldgen.h"
 
+extern bool draw_gfx_debug;
+extern bool draw_physics_debug;
+
 // Game state
 
 float camera_speed = 100.0f;
@@ -33,6 +36,12 @@ static void game_leave(void) {
 }
 
 static bool game_update(void) {
+#ifndef NO_DEVMODE
+	if(char_down('g'))
+		draw_gfx_debug = !draw_gfx_debug;
+	if(char_down('p'))
+		draw_physics_debug = !draw_physics_debug;
+#endif
 	
 	float camera_offset = camera_speed * PHYSICS_DT;
 	objects_camera.left += camera_offset;

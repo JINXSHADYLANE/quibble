@@ -3,6 +3,7 @@
 #include <datastruct.h>
 #include <darray.h>
 #include <mempool.h>
+#include <gfx_utils.h>
 
 #define MAX_GAMEOBJECT_SIZE (sizeof(GameObject) * 2)
 
@@ -126,6 +127,8 @@ static void objects_collision_callback(CDObj* a, CDObj* b) {
 		(ob->physics->hit_callback)(ob, oa);
 }
 
+bool draw_physics_debug = false;
+
 static void objects_physics_tick(uint n_components) {
 	assert(physics.size >= n_components);
 	PhysicsComponent* phys = darray_get(&physics, 0);
@@ -143,6 +146,23 @@ static void objects_physics_tick(uint n_components) {
 
 		Vector2 offset = vec2_sub(pos, cd->pos);
 		cd->offset = vec2_add(cd->offset, offset);
+
+#ifndef NO_DEVMODE
+		if(draw_physics_debug) {
+			Vector2 collider_pos = vec2_add(cd->pos, cd->offset);
+			collider_pos = vec2_sub(collider_pos, vec2(
+				objects_camera.left,
+				objects_camera.top
+			));
+			RectF collider = {
+				collider_pos.x, 
+				collider_pos.y,
+				collider_pos.x + cd->size.size.x,
+				collider_pos.y + cd->size.size.y
+			};
+			gfx_draw_rect(15, &collider, COLOR_RGBA(128, 128, 128, 255));
+		}
+#endif
 	}
 
 	coldet_process(objects_cdworld, objects_collision_callback);

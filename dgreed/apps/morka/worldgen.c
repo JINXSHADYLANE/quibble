@@ -20,6 +20,13 @@ static char* bg_elements[] = {
 	"bg_mushrooms_4"
 };
 
+static char* mushroom_sprites[] = {
+	"mushroom_1",
+	"mushroom_2",
+	"mushroom_3",
+	"mushroom_4"
+};
+
 static void _gen_page(WorldPage* prev, WorldPage* new) {
 	assert(list_empty(&new->background));
 	assert(list_empty(&new->mushrooms));
@@ -35,15 +42,30 @@ static void _gen_page(WorldPage* prev, WorldPage* new) {
 
 	// Add background mushrooms
 	uint n_back_shrooms = rand_int_ex(&rnd, 0, 4);
+	float shroom_spacing = page_width / n_back_shrooms;
 	for(uint i = 0; i < n_back_shrooms; ++i) {
 		WorldElement* shroom = mempool_alloc(&element_pool);
 		shroom->desc = &obj_deco_desc;
 		shroom->pos = vec2(
-				page_cursor + rand_float_range_ex(&rnd, 128.0f, page_width-128.0f),
+				page_cursor + i * shroom_spacing + rand_float_range_ex(&rnd, -100.0f, 100.0f),
 				483.0f + rand_int_ex(&rnd, -10, 10)
 		);
 		shroom->userdata = bg_elements[rand_int_ex(&rnd, 0, 4)];
 		list_push_back(&new->background, &shroom->list);
+	}
+
+	// Add foreground mushrooms
+	uint n_front_shrooms = rand_int_ex(&rnd, 0, 4);
+	shroom_spacing = page_width / n_front_shrooms;
+	for(uint i = 0; i < n_front_shrooms; ++i) {
+		WorldElement* shroom = mempool_alloc(&element_pool);
+		shroom->desc = &obj_mushroom_desc;
+		shroom->pos = vec2(
+				page_cursor + i * shroom_spacing + rand_float_range_ex(&rnd, -200.0f, 200.0f),
+				583.0f + rand_int_ex(&rnd, -20, 20)
+		);
+		shroom->userdata = mushroom_sprites[rand_int_ex(&rnd, 0, 4)];
+		list_push_back(&new->mushrooms, &shroom->list);
 	}
 
 	page_cursor += page_width;
@@ -135,11 +157,8 @@ void worldgen_show(WorldPage* page) {
 		objects_create(el->desc, el->pos, el->userdata);
 	}
 
-	// Don't show mushrooms for now
-	/*
 	list_for_each_entry(el, &page->mushrooms, list) {
 		objects_create(el->desc, el->pos, el->userdata);
 	}
-	*/
 }
 
