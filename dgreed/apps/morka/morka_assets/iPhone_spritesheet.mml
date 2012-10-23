@@ -1,59 +1,63 @@
-(img background
-	(tex iPhone_atlas_1.png)
-	(src 0,0,480,320)
-)
-(img grass
-	(tex iPhone_atlas_1.png)
-	(src 0,422,480,512)
-)
-(img vignette
-	(tex iPhone_atlas_2.png)
-	(src 0,0,480,320)
-)
-(anim rabbit
-	(tex iPhone_atlas_0.png)
-	(src 0,0,90,90)
-	(offset 90,90)
-	(frames 5)
-	(grid 5,1)
-)
-(img bg_mushroom_1
-	(tex atlas.png)
-	(src 287,2,501,277)
-	(cntr 394,139)
-)
-(img bg_mushroom_2
-	(tex atlas.png)
-	(src 144,222,285,487)
-	(cntr 214,355)
-)
-(img bg_mushrooms_5
-	(tex atlas.png)
-	(src 2,279,142,490)
-	(cntr 72,384)
-)
-(img bg_mushrooms_7
-	(tex atlas.png)
-	(src 2,2,285,220)
-	(cntr 144,122)
-)
-(img mushroom_1
-	(tex atlas.png)
-	(src 287,385,376,479)
-	(cntr 332,437)
-)
-(img mushroom_2
-	(tex atlas.png)
-	(src 287,279,368,383)
-	(cntr 328,332)
-)
-(img mushroom_3
-	(tex atlas.png)
-	(src 429,279,474,336)
-	(cntr 451,307)
-)
-(img mushroom_4
-	(tex atlas.png)
-	(src 370,279,427,361)
-	(cntr 399,322)
+(sprsheet morka
+	(prefix "morka_assets/")
+
+	(img background
+		(tex iPhone_atlas_1.png)
+		(src 0,0,480,320)
+	)
+	(img grass
+		(tex iPhone_atlas_1.png)
+		(src 0,422,480,512)
+	)
+	(img vignette
+		(tex iPhone_atlas_2.png)
+		(src 0,0,480,320)
+	)
+	(anim rabbit
+		(tex iPhone_atlas_0.png)
+		(src 0,0,90,90)
+		(offset 90,90)
+		(frames 7)
+		(grid 5,2)
+	)
+	(img bg_mushroom_1
+		(tex atlas.png)
+		(src 287,2,501,277)
+		(cntr 394,139)
+	)
+	(img bg_mushroom_2
+		(tex atlas.png)
+		(src 144,222,285,487)
+		(cntr 214,355)
+	)
+	(img bg_mushrooms_5
+		(tex atlas.png)
+		(src 2,279,142,490)
+		(cntr 72,384)
+	)
+	(img bg_mushrooms_7
+		(tex atlas.png)
+		(src 2,2,285,220)
+		(cntr 144,122)
+	)
+	(img mushroom_1
+		(tex atlas.png)
+		(src 287,385,376,479)
+		(cntr 332,437)
+	)
+	(img mushroom_2
+		(tex atlas.png)
+		(src 287,279,368,383)
+		(cntr 328,332)
+	)
+	(img mushroom_3
+		(tex atlas.png)
+		(src 429,279,474,336)
+		(cntr 451,307)
+	)
+	(img mushroom_4
+		(tex atlas.png)
+		(src 370,279,427,361)
+		(cntr 399,322)
+	)
 )

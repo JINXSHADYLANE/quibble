@@ -1,59 +1,63 @@
-(img background
-	(tex iPad_r_atlas_1.png)
-	(src 0,0,2048,1536)
-)
-(img grass
-	(tex iPad_r_atlas_1.png)
-	(src 0,1690,2048,2048)
-)
-(img vignette
-	(tex iPad_r_atlas_2.png)
-	(src 0,0,2048,1536)
-)
-(anim rabbit
-	(tex iPad_r_atlas_0.png)
-	(src 0,0,358,358)
-	(offset 358,358)
-	(frames 5)
-	(grid 5,1)
-)
-(img bg_mushroom_1
-	(tex iPad_r_atlas_3.png)
-	(src 1129,2,1982,1098)
-	(cntr 1554,551)
-)
-(img bg_mushroom_2
-	(tex iPad_r_atlas_3.png)
-	(src 558,870,1115,1924)
-	(cntr 835,1399)
-)
-(img bg_mushrooms_3
-	(tex iPad_r_atlas_3.png)
-	(src 2,1100,556,1942)
-	(cntr 280,1521)
-)
-(img bg_mushrooms_4
-	(tex iPad_r_atlas_3.png)
-	(src 2,2,1127,868)
-	(cntr 565,478)
-)
-(img mushroom_1
-	(tex iPad_r_atlas_3.png)
-	(src 1117,1509,1467,1880)
-	(cntr 1293,1713)
-)
-(img mushroom_2
-	(tex iPad_r_atlas_3.png)
-	(src 1117,1100,1434,1507)
-	(cntr 1276,1305)
-)
-(img mushroom_3
-	(tex iPad_r_atlas_3.png)
-	(src 2,870,174,1097)
-	(cntr 87,983)
-)
-(img mushroom_4
-	(tex iPad_r_atlas_3.png)
-	(src 1436,1100,1664,1422)
-	(cntr 1554,1266)
+(sprsheet morka
+	(prefix "morka_assets/")
+
+	(img background
+		(tex iPad_r_atlas_1.png)
+		(src 0,0,2048,1536)
+	)
+	(img grass
+		(tex iPad_r_atlas_1.png)
+		(src 0,1690,2048,2048)
+	)
+	(img vignette
+		(tex iPad_r_atlas_2.png)
+		(src 0,0,2048,1536)
+	)
+	(anim rabbit
+		(tex iPad_r_atlas_0.png)
+		(src 0,0,358,358)
+		(offset 358,358)
+		(frames 7)
+		(grid 5,2)
+	)
+	(img bg_mushroom_1
+		(tex iPad_r_atlas_3.png)
+		(src 1129,2,1982,1098)
+		(cntr 1554,551)
+	)
+	(img bg_mushroom_2
+		(tex iPad_r_atlas_3.png)
+		(src 558,870,1115,1924)
+		(cntr 835,1399)
+	)
+	(img bg_mushrooms_3
+		(tex iPad_r_atlas_3.png)
+		(src 2,1100,556,1942)
+		(cntr 280,1521)
+	)
+	(img bg_mushrooms_4
+		(tex iPad_r_atlas_3.png)
+		(src 2,2,1127,868)
+		(cntr 565,478)
+	)
+	(img mushroom_1
+		(tex iPad_r_atlas_3.png)
+		(src 1117,1509,1467,1880)
+		(cntr 1293,1713)
+	)
+	(img mushroom_2
+		(tex iPad_r_atlas_3.png)
+		(src 1117,1100,1434,1507)
+		(cntr 1276,1305)
+	)
+	(img mushroom_3
+		(tex iPad_r_atlas_3.png)
+		(src 2,870,174,1097)
+		(cntr 87,983)
+	)
+	(img mushroom_4
+		(tex iPad_r_atlas_3.png)
+		(src 1436,1100,1664,1422)
+		(cntr 1554,1266)
+	)
 )
