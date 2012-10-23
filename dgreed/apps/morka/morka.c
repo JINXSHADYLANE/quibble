@@ -2,6 +2,7 @@
 #include <malka/ml_states.h>
 #include <system.h>
 #include <sprsheet.h>
+#include <anim.h>
 #include <mfx.h>
 #include <keyval.h>
 
@@ -38,6 +39,7 @@ bool dgreed_init(int argc, const char** argv) {
 
 	keyval_init("morka.db");
 
+	anim_init(ASSETS_DIR "animations.mml");
 //	mfx_init(ASSETS_PRE "effects.mml");
 
 	malka_init();
@@ -62,6 +64,7 @@ void dgreed_close(void) {
 	malka_close();
 
 //	mfx_close();
+	anim_close();
 
 	keyval_close();
 

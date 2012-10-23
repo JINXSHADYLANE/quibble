@@ -1,6 +1,9 @@
 #ifndef ANIM_H
 #define ANIM_H
 
+#include "utils.h"
+#include "sprsheet.h"
+
 // Sprite animation system
 
 // Everything is based around sequences, which are simply lists of 
@@ -38,11 +41,11 @@ typedef enum {
 	AS_PLAY = 3
 } AnimSeqFinish;
 
-typedef struct {
-	uint16 n_frames;
-	uint16 on_finish;
-	AnimSeq* play_seq;
-	byte frames[]; // unsized array of frames
+typedef struct FwdAnimSeq {
+	byte* frames;
+	uint n_frames;
+	uint on_finish;
+	struct FwdAnimSeq* play_seq;
 } AnimSeq;
 
 typedef struct {

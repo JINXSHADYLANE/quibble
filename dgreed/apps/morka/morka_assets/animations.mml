@@ -1,11 +1,11 @@
-(anims character
+(anims morka
 	(anim rabbit
 		(fps 15)
 		(start_seq run)
 
 		(seq still
 			(frames "0")
-			(on_finish loop)
+			(on_finish stop)
 		)
 
 		(seq run
