@@ -281,3 +281,52 @@ void anim_close(void) {
 	*/
 }
 
+Anim* anim_new(const char* name) {
+	DictEntry* ent = dict_get(&anim_dict, name);
+	assert(ent);
+	const AnimDesc* desc = ent->data;
+	assert(desc);
+
+	Anim* new = mempool_alloc(&anim_pool);
+	new->name = ent->key;
+	new->desc = desc;
+	new->seq = desc->start_seq;
+	new->play_t = time_s();
+
+	return new;
+}
+
+void anim_del(Anim* anim) {
+	assert(anim);
+
+	mempool_free(&anim_pool, anim);
+}
+
+void anim_play(Anim* anim, const char* seq) {
+	// Find seq
+	char key[64];
+	assert(strlen(anim->name) + strlen(seq) + 2 < 64);
+	sprintf(key, "%s$%s", anim->name, seq);
+	const AnimSeq* s = dict_get(&anim_dict, key);
+	assert(s);
+
+	// Set seq, start playing at the beginning
+	anim->seq = s;
+	anim->play_t = time_s();
+}
+
+uint anim_frame(Anim* anim) {
+	assert(anim);
+
+	const AnimDesc* desc = anim->desc;
+	const AnimSeq* seq = anim->seq;
+
+	float dt = time_s() - anim->play_t;
+	float fframe = dt * (float)desc->fps;
+
+	if(seq->on_finish == AS_LOOP) {
+		return lrintf(fframe - 0.5f) % seq->n_frames;
+	}
+	// TODO - other cases 
+}
+
