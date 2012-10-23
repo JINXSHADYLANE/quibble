@@ -56,8 +56,9 @@ typedef struct {
 } AnimDesc;
 
 typedef struct {
-	AnimDesc* desc;
-	AnimSeq* seq;
+	const char* name;		// This is used to construct seq lookup keys
+	const AnimDesc* desc;
+	const AnimSeq* seq;
 	float play_t;
 } Anim;
 
