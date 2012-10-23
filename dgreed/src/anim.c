@@ -91,15 +91,21 @@ static uint _parse_seq(MMLObject* mml, NodeIdx seq_node,
 	seq->n_frames = 0;
 	seq->play_seq = NULL;
 
-	NodeIdx child = mml_get_next(mml, seq_node);
+	NodeIdx child = mml_get_first_child(mml, seq_node);
 	for(; child != 0; child = mml_get_next(mml, child)) {
 		const char* type = mml_get_name(mml, child);
 		const char* content = mml_getval_str(mml, child);
 
 		if(strcmp(type, "frames") == 0) {
-			uint num;
-			while(sscanf(content, "%u", &num)) {
+			uint num; 
+			while(*content && sscanf(content, "%u", &num) > 0) {
 				seq->frames[seq->n_frames++] = num;
+
+				// Skip to next number
+				while(*content && _is_whitespace(*content))
+					content++;
+				while(*content && !_is_whitespace(*content))
+					content++;
 			}
 		}
 		else if(strcmp(type, "on_finish") == 0) {
@@ -109,7 +115,7 @@ static uint _parse_seq(MMLObject* mml, NodeIdx seq_node,
 			else if(strcmp(content, "loop") == 0) {
 				seq->on_finish = AS_LOOP;
 			}
-			else if(strfind(content, "play.") == 0) {
+			else if(strfind("play.", content) == 0) {
 				// '.' is 4th char, seq name starts after.
 				// Force it into AnimSeq* place, it will
 				// get resolved to proper pointer later,
