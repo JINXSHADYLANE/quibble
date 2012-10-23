@@ -1,0 +1,990 @@
+
+malka - aesthetic game framework
+
+
+---------
+2d vector
+---------
+
+Vector is a table with fields 'x', 'y' and some overloaded operators
+for addition, subtraction, negation, multiplication/division by 
+scalar number and conversion to string. All functions actually accept
+any table, as long as it has scalar 'x' and 'y' fields.
+
+- vec2(x, y), vec2()
+returns new vector, sets components to zero if no parms are used
+
+- vec2(v)
+makes copy of vector v
+
+- dot(a, b)
+dot product of two vectors a and b
+
+- length(a), length_sq(a)
+magnitude and squared magnitude of vector a
+
+- normalize(a)
+returns unit length vector with same direction
+
+- rotate(a, angle)
+returns vector a rotated by 'angle' radians
+
+
+---------
+rectangle
+---------
+
+Axis-aligned rectangle in CG coordinate space (y axis goes down). It is a table
+with fields 'l', 't', 'r' and 'b', coresponding to left, top, right and bottom
+sides of rectangle.
+
+- rect(l, t, r, b), rect(l, t), rect()
+constructs new rectangle, unspecified sides are set to zero
+
+- rect(r)
+makes copy of rect r
+
+- width(a), height(a)
+signed width and height of rectangle a
+
+- rect_rect_collision(a, b)
+returns boolean, indicating if two rectangles overlap
+
+- rect_point_collision(a, point)
+returns boolean, indicating if point is inside rectangle
+
+- rect_circle_collision(a, center, radius)
+returns boolean, indicating if rectangle and circle overlap
+
+- rect_tri_collision(r, a, b, c)
+returns true if rectangle r and clock-wise triangle with vertices a, b and c
+intersect
+
+- rect_raycast(r, start, end)
+returns point where ray hits rectangle, or end if there is no intersection;
+start is assumed to be outside of rect
+
+- rect_rect_sweep(a, b, offset)
+moves b along offset vector, returns how much b did move until collision with
+a
+
+
+--------------
+misc. geometry
+--------------
+
+- segment_intersect(a1, a2, b1, b2)
+returns intersection point between to segments or nil
+
+------
+colors
+------
+
+Color can be in one of two color spaces - rgb or hsv. In both cases it is a
+table, with 'r', 'g', 'b', 'a' or 'h', 's', 'v', 'a' fields. All components are
+supposed to be in range [0, 1], but it is not strictly neccessary during
+intermediate calculations. Same operators are overloaded as for vectors.
+
+- rgba(r, g, b, a), rgba(r, g, b), hsva(h, s, v, a), hsva(h, s, v)
+constructs new color
+
+- to_rgba(c), to_hsva(c)
+converts between color spaces
+
+
+----------
+misc. math
+----------
+
+- lerp(a, b, t)
+linear interpolation between a and b, t must be scalar in range [0, 1]
+(otherwise, extrapolation will occur). a and b must be of same type, and can be
+vectors, scalars, colors or any types with overloaded addition and 
+multiplication by scalar operator.
+
+- smoothstep(a, b, t)
+smoothstep interpolation; lerp rules apply, but t is automatically clamped this
+time
+
+- clamp(a, b, t)
+clamps scalar value t into range [a, b]
+
+- hash(str), hash(str, seed)
+hashes string to a 32 bit integer, using optional integer seed
+
+
+------
+params
+------
+
+You can supply command line arguments to lua scripts by calling malka_params()
+C function before malka_run() or malka_run_ex().
+
+- argv
+this is a table of command line arguments (strings), or nil if malka_params
+wasn't called
+
+
+----
+rand
+----
+
+- rand.seed(s)
+seeds randomizer with s; useful only when predictable output is needed, system
+time is used as seed by default
+
+- rand.int(min, max)
+random integer in range [min, max)
+
+- rand.float(), rand.float(min, max)
+random scalar number, either in range [0, 1) or [min, max)
+
+
+---
+log
+---
+
+- log.error(msg), log.warning(msg), log.info(msg)
+outputs log messages of various seriousness, log.error also halts application
+
+
+----
+file
+----
+
+- file.exists(name)
+returns boolean, indicating if file exists
+
+- file.read(name)
+reads text file contents, returns them as string
+
+- file.write(name, content)
+writes string to a text file
+
+
+----
+time
+----
+
+- time.ms()
+milliseconds since app start till last video.present()
+
+- time.s()
+seconds since app start till last video.present()
+
+- time.dt()
+milliseconds between two last frames
+
+- time.fps()
+number of frames drawn last second
+
+
+-------
+texture
+-------
+
+- tex.load(filename)
+loads png texture (which must have power-of-2 size), returns handle to it
+
+- tex.size(texhandle)
+returns vector, width and height of texture in pixels
+
+- tex.free(texhandle)
+releases texture
+
+
+----
+font
+----
+
+Fast & simple text renderint out of precomputed glyph atlases.
+
+- font.load(filename, scale, prefix)
+loads bft font, returns handle, optionally allows to provide scaling factor
+and/or asset prefix
+
+- font.size(fonthandle, text)
+returns width and height of text drawn using a font
+
+- font.rect(fonthandle, text, pos, scale)
+returns rectangle bounding scaled, centered text
+
+- font.free(fonthandle)
+releases font
+
+
+-----
+vfont
+-----
+
+Slow & pretty text rendering with full unicode support.
+
+- vfont.init(cache_w, cache_h)
+intializes vfont subsystem, you can optionally specify cache size in pixels
+
+- vfont.close()
+closes vfont subsystem
+
+- vfont.select(font_name, size)
+select font and its size in points
+
+- vfont.draw(text, layer, pos, tint)
+draw a line of text using currently selected font; tint is optional
+
+- vfont.draw_input(text, layer, pos, tint)
+draw a line of text with caching strategy optimized for user-input text display
+
+- vfont.size(text)
+returns vec2 text size in pixels
+
+- vfont.precache(text)
+precache text so it can be rendered without delays
+
+- vfont.invalidate(text)
+remove text from cache; default caching strategy should work
+well enough most of the time, with no need to precache/invalidate manually
+
+
+-----
+video
+-----
+
+- video.native_resolution()
+returns width and height pair of native (desktop) screen resolution
+
+- video.init(width, height, name)
+opens a window of specified size for rendering
+
+- video.init_ex(width, height, virtual_width, virtual_height, name, fullscreen)
+same as init, also sets up virtual resolution, allows to run in fullscreen
+
+- video.init_exr(width, height, virtual_width, virtual_height, name, fullscreen)
+same as init_ex, does no texture filtering for retro look
+
+- video.close()
+closes rendering window, it is polite to call this when your app exits
+
+- video.clear_color(c)
+sets background color, default is black
+
+- video.present()
+presents current frame to the screen, returns boolean indicating if app should
+continue running
+
+- video.draw_rect(tex, layer, source, dest, rot, tint)
+draws textured rectangle, arguments:
+	tex: 	texture handle, from tex.load
+	layer: 	integer in range [0, 16), higher layer rects are drawn on top
+	source: optional, rectangle of texture portion to use
+	dest: 	rectangle or vector (top-left corner), destination of rect on screen
+	rot: 	optional, angle of rotation around rect center in radians
+	tint: 	optional, tint color
+
+- video.draw_rect_centered(tex, layer, source, dest, rot, scale, tint)
+draws textured rectangle, same as draw_rect, except dest is vector of where rect
+center should be.
+
+- video.draw_seg(layer, start, end, color)
+draws 1 pixel wide line segment, color is optional
+
+- video.draw_text(font, layer, text, pos, color)
+draws piece of text, arguments:
+	font: 	font handle, from font.load
+	layer: 	look video.draw_rect
+	text:	text string
+	pos: 	vector, top-left corner of text
+	color: 	optional, color of text; default is black
+
+- video.draw_text_centered(font, layer, text, pos, scale, color)
+draws text, same as draw_text, except you provide center coordinates and can
+optionally scale text by a scalar factor
+
+- video.draw_text_rotated(font, layer, text, pos, rot, scale color)
+draws centered, rotated text; scale and color is optional
+
+- video.set_blendmode(layer, mode)
+sets blending mode for a single layer; valid mode values are 'normal'
+(default), 'add' and 'multiply'
+
+- video.set_transform(layer, matrix)
+apply 3x2 affine transform for a single layer, nil means identity
+
+
+--------
+sprsheet
+--------
+
+Abstraction over video which allows to describe sprite source rectangles outside
+of code and handles texture loading.
+
+- sprsheet.init(filename)
+initializes sprsheet system, loads sprite descriptions
+
+- sprsheet.close()
+closes sound system
+
+- sprsheet.get_handle(name)
+returns handle for sprite (accessing sprites by handle is faster)
+
+- sprsheet.get(spr)
+returns texhandle and source rect, spr can be string or sprhandle
+
+- sprsheet.get_anim(spr, frame)
+returns texhandle and source rect for animation frame
+
+- sprsheet.anim_frames(spr)
+returns number of frames in animation
+
+- sprsheet.draw(spr, layer, dest, tint)
+draws sprite, dest is vec2 or rect, tint is optional
+
+- sprsheet.draw_anim(spr, frame, layer, dest, tint)
+same as sprsheet.draw, just for animations
+
+- sprsheet.draw_centered(spr, layer, dest, rot, scale, tint)
+draws centered sprite; rot, scale and tint are optional 
+
+- sprsheet.draw_anim_centered(spr, frame, layer, dest, rot, scale, tint)
+same as sprsheet.draw_centered, for animations
+
+
+---
+mfx
+---
+
+Metaeffect system - a way to define events and what happens when they are
+triggered.
+
+- mfx.init(desc)
+initializes mfx, load events description
+
+- mfx.close()
+closes mfx system
+
+- mfx.update()
+must be called once per frame
+
+- mfx.trigger(name, pos, dir)
+triggers an event; pos and dir are optional
+
+- mfx.snd_volume(), mfx.snd_set_volume(volume)
+gets/sets sound volume
+
+- mfx.snd_play(name)
+plays sound
+
+- mfx.snd_ambient(name, volume)
+sets ambient sound intensity to specified volume
+
+
+-----
+sound
+-----
+
+- sound.init()
+initializes sound system
+
+- sound.close()
+closes sound system
+
+- sound.update()
+updates internal buffers, should be called periodically; once a frame is ok
+
+- sound.load_stream(filename), sound.load_sample(filename)
+loads either streamed ogg or in memory kept wav file, returns handle to it
+
+- sound.free(soundhandle)
+releases sound
+
+- sound.set_volume(soundhandle, volume), sound.volume(soundhandle)
+sets/gets volume, scalar number in range [0, 1]
+
+- sound.length(soundhandle)
+returns length of sound in seconds
+
+- sound.play(soundhandle, loop)
+plays sound, optionally looping it, returns handle to sound source
+
+- sound.pause(sourcehandle), sound.resume(sourcehandle),
+pauses/resumes
+
+- sound.stop(sourcehandle)
+stops sound and consequently, destroys source, source handle becomes invalid
+
+- sound.src_volume(sourchandle), sound.set_src_volume(sourcehandle, volume)
+sets/gets volume of specific sound sources
+
+- sound.pos(sourcehandle), sound.set_pos(sourcehandle, pos)
+sets/gets playing cursor position, pos is in seconds
+
+
+-----
+input
+-----
+
+key constants:
+	key._up		- up arrow
+	key._down	- down arrow
+	key._left	- left arrow
+	key._right	- right arrow
+	key.a		- z 
+	key.b		- x
+	key.pause	- p
+	key.quit	- esc
+
+mouse button constants:
+	mouse.primary
+	mouse.secondary
+	mouse.middle
+
+- key.pressed(k), key.down(k), key.up(k)
+returns boolean, indicating if key is pressed, just went down or just went up
+
+- char.pressed(c), char.down(c), char.up(c)
+same as key.*, lets you use complete keyboard, but is not compatible with
+keyboard-less devices and joysticks
+
+- mouse.pressed(m), mouse.down(m), mouse.up(m)
+same as key.*, only for mouse buttons; primary key presses are also emulated on
+touch screens
+
+- mouse.pos()
+returns vector with current absolute mouse position
+
+- touch.count()
+returns number of fingers on the screen
+
+- touch.get(i)
+returns i-th touch object, which is a table with fields pos, hit_pos and
+hit_time
+
+
+----------
+text input
+----------
+
+- txtinput.start()
+start capturing text
+
+- txtinput.get()
+currently entered text
+
+- txtinput.set(str)
+override entered text
+
+- txtinput.did_end()
+returns string if user ended text capture, nil otherwise
+
+- txtinput.finish()
+end text capture
+
+- txtinput.clear()
+clear entered text
+
+
+-----------
+orientation
+-----------
+
+constants:
+	orientation.landscape_left
+	orientation.landscape_right
+	orientation.portrait
+	orientation.portrait_upside_down
+
+- orientation.current()
+current device orientation
+
+- orientation.did_change()
+returns next device orientation, animation start and length if device was
+rotated; otherwise returns nil
+
+- orientation.angle(orient)
+returns angle by which you have to rotate items in order for them to be
+upside-up
+
+- orientation.basis(orient)
+returns right and down vectors in screenspace for provided orientation
+
+
+------------
+acceleration
+------------
+
+- acceleration.shake_callback(cb)
+sets a callback which will be invoked when device shakes
+
+
+--------
+runstate
+--------
+
+- runstate.background_callback(cb)
+sets a callback for entering background state
+
+- runstate.foreground_callback(cb)
+sets a callback for entering foreground state
+
+
+---
+gui
+---
+
+GUI style is defined by guidesc table, it has following fields:
+	texture				: texhandle to gui texture
+	font				: fonthandle of gui font
+	text_color			: text color
+
+	first_layer			: gui uses three layers for drawing
+	second_layer
+	text_layer
+	
+	src_button_down		: rects of two button states
+	src_button_up
+
+	src_switch_on_up	: rects of four switch states
+	src_switch_on_down
+	src_switch_off_up
+	src_switch_off_down
+
+	src_slider			: rects of slider and two knob states
+	src_slider_knob_up
+	src_slider_knob_up
+
+
+- gui.default_style(prefix)
+returns default guidesc, prefix is folder, where default gui resources are kept
+
+- gui.init(guidesc)
+initializes gui, using provided style description
+
+- gui.close()
+closes gui, frees resources
+
+- gui.label(pos, text)
+draws label at specified position
+
+- gui.button(pos, text)
+draws interactive button, returns boolean of its state - pressed or not pressed
+
+- gui.switch(pos, text)
+draws interactive switch, returns boolean state
+
+- gui.slider(pos)
+draws interactive slider, returns number ir range [0, 1]
+
+- gui.switch_state(pos), gui.switch_set_state(pos, state)
+access to switch state without drawing anything
+
+- gui.slider_state(pos), gui.slider_set_state(pos, state)
+access to slider state without drawing anything
+
+
+---------
+particles
+---------
+
+- particles.init(prefix, layer)
+loads particle system descriptions from prefix/particles.mml, sets layer in
+which drawing will occur
+
+- particles.close()
+frees internal resources
+
+- particles.spawn(name, pos, dir)
+spawns particle system, dir defaults to 0
+
+- particles.update(time)
+updates particle animation, time is optional and defaults to time.s()
+
+- particles.draw()
+draws all active particle systems
+
+
+-------
+tilemap
+-------
+
+- tilemap.load(filename)
+loads tilemap from btm file, returns handle to it
+
+- tilemap.free(tmaphandle)
+frees tilemap
+
+- tilemap.camera(tmaphandle), tilemap.set_camera(tmaphandle, pos, z, rot)
+sets/gets camera, which is described by position (vector), optional z depth 
+(number, usually 1) and optional rotation in radians
+
+- tilemap.objects(tmaphandle)
+returns array of tilemap objects; object is a table with fields 'id' (number)
+and 'pos' (vector)
+
+- tilemap.render(tmaphandle, viewport, time)
+renders tilemap; viewport is screen rectangle of where rendered view will end
+up, time is optional and defaults to time.s()  
+
+- tilemap.collide(tmaphandle, rect) / tilemap.collide(tmaphandle, point)
+returns boolean, indicating if world-space rect or a vector collides with a 
+solid area of tilemap
+
+- tilemap.raycast(tmaphandle, start, end)
+casts ray from vector start to end, returns first intersection with solid or
+end if no intersections occured
+
+- tilemap.collide_swept(tmaphandle, rect, offset)
+does swept rectangle collision, returns maximum offset along which rect can move
+without colliding; initially, rect is assumed to not be colliding with anything!
+
+- tilemap.world2screen(tmaphandle, viewport, rect)
+- tilemap.world2screen(tmaphandle, viewport, point)
+- tilemap.screen2world(tmaphandle, viewport, rect)
+- tilemap.screen2world(tmaphandle, viewport, point)
+converts between screen-space and tilemap world-space
+
+
+------
+coldet
+------
+
+Collission detection system.
+
+- coldet.init(max_obj_size, w, h)
+creates instance of coldet world, returns handle to it; w and h are optional and
+only needed if you want a world with vertical or horizontal wrap-around
+
+- coldet.close(cdhandle)
+destroys coldet world
+
+- coldet.new_circle(cdhandle, center, radius, mask, userdata)
+creates a circle, returns cdobjhandle; arguments:
+	cdhandle: 	coldet world handle
+	center:		vector, circle center
+	radius:		number, circle radius
+	mask:		optional, filtering bitmask
+	userdata:	optional, anything
+
+- coldet.new_aabb(cdhandle, rect, mask, userdata)
+creates an axis-aligned bounding box, returns cdobjhandle; arguments:
+	cdhandle:	coldet world handle
+	rect:		aabb rectangle
+	mask:		optional, filtering bitmask
+	userdata:	optional, anything
+
+- coldet.remove(cdhandle, cdobjhandle)
+removes object from coldet world
+
+- coldet.query_circle(cdhandle, center, radius, mask, callback)
+does a circle query, returns number of objects within circle; arguments:
+	cdhandle:	coldet world handle
+	center:		vector, circle center
+	radius:		number, circle radius
+	mask:		optional, filtering bitmask
+	callback:	optional, unary function, called once for each object within 	
+
+- coldet.query_aabb(cdhandle, rect, mask, callback)
+does a aabb query, returns number of objects within aabb; arguments:
+	cdhandle:	coldet world handle
+	rect:		aabb
+	mask:		optional, filtering bitmask
+	callback:	optional, unary function, called once for each object within
+
+- coldet.cast_segment(cdhandle, start, end, mask)
+casts a segment from start to end, returns first intersection point and
+cdobjhandle of intersection point; in case no object was hit - returns end
+
+- coldet.process(cdhandle, callback)
+moves objects, invokes callback once for each colliding object pair
+
+- cdobj.is_circle(cdobjhandle), cdobj.is_aabb(cdobjhandle)
+return boolean, indicating object type
+
+- cdobj.pos(cdobjhandle), cdobj.set_pos(cdobjhandle, pos)
+gets/sets position of object; use cdobj.move for simple continous movement!
+
+- cdobj.move(cdobjhandle, offset)
+sets object movement offset; position actually changes only after coldet.process()!
+
+- cdobj.size(cdobjhandle)
+- cdobj.set_size(cdobjhandle, radius)
+- cdobj.set_size(cdobjhandle, width, height)
+gets/sets radius of circle or width and height for aabb
+
+- cdobj.rect(cdobjhandle)
+returns aabb object rectangle or circle bounding box
+
+- cdobj.userdata(cdobjhandle), cdobj.set_userdata(cdobjhandle, data)
+gets/sets object userdata
+
+- cdobj.mask(cdobjhandle), cdobj.set_mask(cdobjhandle, mask)
+gets/sets collission and query filtering mask
+
+
+---
+mml
+---
+
+Node is table with three members - 'name', 'value' strings and a 'childs' table of
+nodes.
+
+- mml.read(filename), mml.read_str(string)
+parses contents of a file or a text string, returns root node
+
+- mml.write(node, filename), mml.write_str(node)
+serializes node into text, writes it to a file or returns as a string
+
+
+------
+keyval
+------
+
+Persistent key-value storage.
+
+- keyval.init(filename)
+initializes keyval, loads previous data if there is any
+
+- keyval.close()
+closes keyval, flushes cached data to disk
+
+- keyval.get(key, default)
+returns value for key, converted to same type as default;
+if key does not exist - returns default
+
+- keyval.set(key, value)
+sets a key's value
+
+- keyval.flush()
+flushes data to disk
+
+- keyval.gc()
+performs garbage collection on in-memory data 
+
+- keyval.wipe()
+wipes all data
+
+
+------
+states
+------
+
+Game states system is a way to avoid writing your own game loop with transitions
+and spaghetti logic for different game states. You are not forced to use it!
+Making your own main loop in lua is perfectly valid too.
+
+State is a table with methods (all optional):
+	init() : called before entering main loop 
+	close() : called on program exit
+	enter() : called when state is about to become active 
+	leave() : called when state is no longer active
+
+	save() : called when saving states stack, should return string or nil 
+	load(str) : called when loading saved states, with string returned by save() 
+
+	update() : called once every frame (not in transitions tough), must return 
+		bool (false means stop the horses and break out of main loop); do not 
+		do any rendering here!
+
+	render(t) : just like update, but you're supposed to do rendering here;
+		also called in transitions - t is transition param, 0 when not in 
+		transition, varies from -1 to 0 when transitioning to this state,
+		from 0 to 1 when transitioning out
+
+
+Enter game loop by calling malka_states_run(mainfile) from C code, it runs the
+file you provided through interpreter, calls global game_init() method if such
+exists (init subsystems, register states and push initial state there), runs
+game up to the point when stack becomes empty, calls game_close() and exits.
+
+- states.time(name)
+returns current time for a state, or active state if no name provided
+
+- states.register(name, state)
+registers a state
+
+- states.push(name), states.pop(), states.replace(name)
+state stack handling
+
+- states.prerender_callback(cb)
+set a callback to be inovoked once every frame, before video present
+
+- states.size()
+number of states in the stack
+
+- states.top()
+name of currently active state
+
+- states.at(n)
+name of the n-th state, counting from the top (0-based)
+
+- states.save(filename)
+saves states stack to disk
+
+- states.load(filename)
+loads saved stack, returns true on success
+
+- states.transition_len 
+a number of seconds for transitioning between states, 0 by default
+
+
+----
+http
+----
+
+Async http requests. All callbacks have this form:
+callback(retcode, data, header),
+where retcode is integer http response code, data is 
+string and header is nil or string
+
+- http.get(addr, callback, get_header)
+perform a get request, get_header is optional boolean
+
+- http.post(addr, data, content_type, callback, get_header)
+perform a post request, content_type is optional string
+
+
+------------
+localization
+------------
+
+- loc.init(files, production)
+initializes localization system; files is comma separated list of localization
+files, production - boolean indicating if base.loc should be generated
+
+- loc.close()
+closes localization system, writes base.loc if not in production mode
+
+- loc.select(lang)
+selects a localization; for example 'de' selects de.loc file
+
+- loc.str(str)
+translates a string
+
+
+-------
+devmode (not implemented)
+-------
+
+Displays various technical stats.
+
+- devmode.color(), devmode.set_color(c)
+gets/sets devmode stats text color
+
+- devmode.show_memory(pos, fonthandle)
+displays memory stats
+
+- devmode.show_video(pos, fonthandle)
+displays video stats
+
+- devmode.show_sound(pos, fonthandle)
+displays sound stats
+
+- devmode.show_particles(pos, fonthandle)
+displays particle stats
+
+- devmode.show_states(pos, fonthandle)
+displays state system stats and time spent in lua code
+
+- devmode.video_debug(flag)
+turns video debug mode on/off, flag is bool
+
+
+----------
+gamecenter
+----------
+
+Available only in iOS 4.2 or higher, gamecenter == nil
+if not on iOS or version is too low.
+
+- gamecenter.init()
+initializes gamecenter
+
+- gamecenter.close()
+closes gamecenter
+
+- gamecenter.is_active()
+returns false if you can't use gamecenter - there's no internet
+connection or some other horrible thing happened
+
+- gamecenter.report_score(category, context, value)
+reports score
+
+- gamecenter.get_scores(start, len, timescope, playerscope, callback)
+gets score table, params:
+	start: 		n-th position to start listing scores from	
+	len:		how many scores to return
+	timescope:	'day', 'week' or 'all'
+	playerscope:'friends' or 'everyone'
+	callback:	function which takes a list 
+		of {category, context, value, player} tables
+
+- gamecenter.show_leaderboard(category, timescope)
+pauses game, shows default gamecenter leaderboard ui
+
+- gamecenter.report_achievement(id, progress)
+reports achievement, id is name, progress is number in range 0 - 100
+
+- gamecenter.get_achievements(callback)
+gets all achievements and calls callback with a list of
+{id, desc, title, progress, completed} tables
+
+- gamecenter.show_achievements()
+pauses game, shows default gamecenter achievement ui
+
+
+---
+iap
+---
+
+In-App purchases. Available only in iOS, iap == nil if 
+not supported.
+
+- iap.init(ids, product_callback, purchase_callback)
+initializes iap subsystem; ids is comma-separated list of product ids,
+product_callback is invoked with a list of {id, title, description, price_str} 
+whenever this info becomes available, purchase_callback is invoked with id 
+and boolean success when purchase is made
+
+- iap.close()
+closes iap
+
+- iap.is_active()
+returns false if you can't use iap
+
+- iap.purchase(id)
+purchase a product
+
+
+--
+os
+--
+
+- os.open(url)
+opens web browser with specified url
+
+- os.alert(title, text)
+displays alert box with 'ok' button
+
+- os.has_twitter()
+returns true if we can send tweets
+
+- os.tweet(msg, url)
+sends a twitter message, with optional web url
+
+- os.has_facebook()
+returns true if we can send facebook posts
+
+- os.facebook_post(msg, url)
+posts on facebook, with optional url
+
+- os.has_mail()
+returns true if we can send mail
+
+- os.mail(subject, body, callback)
+opens mail compose screen, invokes callback when closed; callback arg:
+'cancelled', 'saved', 'sent', 'failed'
+
+- os.move(old, new)
+renames file
+
+- os.remove(name)
+deletes file
+
