@@ -17,6 +17,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		rabbit->can_double_jump = true;
 		rabbit->jump_time = ts;
 		objects_apply_force(self, vec2(0.0f, -100000.0f));
+		anim_play(rabbit->anim, "jump");
 	}
 	else {
 		if (key_pressed(KEY_A) && !rabbit->touching_ground) {
@@ -62,6 +63,9 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	r->world_pos = vec2_add(pos, vec2(45.0f, 40.0f));
 	r->extent_min = r->world_pos.x - 90.0f;
 	r->extent_max = r->world_pos.x + 90.0f;
+
+	ObjRabbit* rabbit = (ObjRabbit*)self;
+	r->anim_frame = anim_frame(rabbit->anim);
 }
 
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
@@ -76,6 +80,8 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
 		if(penetration > 0.0f) {
 			self->physics->vel.y = 0.0f;
+			if(!rabbit->touching_ground)
+				anim_play(rabbit->anim, "land");
 			rabbit->touching_ground = true;
 			cd_rabbit->offset = vec2_add(
 					cd_rabbit->offset, 
@@ -130,6 +136,14 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	UpdateComponent* update = self->update;
 	update->interval = 1;
 	update->update = obj_rabbit_update;
+
+	// Make animation
+	rabbit->anim = anim_new("rabbit");
+}
+
+static void obj_rabbit_destruct(GameObject* self) {
+	ObjRabbit* rabbit = (ObjRabbit*)self;
+	anim_del(rabbit->anim);
 }
 
 GameObjectDesc obj_rabbit_desc = {
@@ -139,6 +153,6 @@ GameObjectDesc obj_rabbit_desc = {
 	.has_render = true,
 	.has_update = true,
 	.construct = obj_rabbit_construct,
-	.destruct = NULL 
+	.destruct = obj_rabbit_destruct
 };
 

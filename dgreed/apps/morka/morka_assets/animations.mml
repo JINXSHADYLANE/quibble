@@ -20,7 +20,7 @@
 
 		(seq glide
 			(frames "4")
-			(on_finish loop)
+			(on_finish stop)
 		)
 
 		(seq land

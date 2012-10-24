@@ -282,7 +282,7 @@ void anim_close(void) {
 }
 
 Anim* anim_new(const char* name) {
-	DictEntry* ent = dict_get(&anim_dict, name);
+	DictEntry* ent = dict_entry(&anim_dict, name);
 	assert(ent);
 	const AnimDesc* desc = ent->data;
 	assert(desc);
@@ -321,12 +321,42 @@ uint anim_frame(Anim* anim) {
 	const AnimDesc* desc = anim->desc;
 	const AnimSeq* seq = anim->seq;
 
+	float fps = (float)desc->fps;
 	float dt = time_s() - anim->play_t;
-	float fframe = dt * (float)desc->fps;
+	float fframe = dt * fps;
+	uint iframe = lrintf(fframe - 0.5f);
 
 	if(seq->on_finish == AS_LOOP) {
-		return lrintf(fframe - 0.5f) % seq->n_frames;
+		return seq->frames[iframe % seq->n_frames];
 	}
-	// TODO - other cases 
+	else if(seq->on_finish == AS_STOP) {
+		return seq->frames[MIN(seq->n_frames-1, iframe)];
+	}
+	else {
+		assert(seq->on_finish == AS_PLAY);
+
+		uint n_frames = seq->n_frames;
+		if(iframe < n_frames) {
+			return seq->frames[iframe];
+		}
+		else {
+			float s_per_frame = 1.0f / fps;
+			anim->seq = seq->play_seq;
+			anim->play_t += s_per_frame * (float)n_frames;	
+			return anim_frame(anim);
+		}
+	}
+}
+
+void anim_draw(Anim* anim, const char* spr, uint layer, Vector2 dest,
+		float rot, float scale, Color tint) {
+
+	spr_draw_anim_cntr(spr, anim_frame(anim), layer, dest, rot, scale, tint);
+}
+
+void anim_draw_h(Anim* anim, SprHandle spr, uint layer, Vector2 dest,
+		float rot, float scale, Color tint) {
+
+	spr_draw_anim_cntr_h(spr, anim_frame(anim), layer, dest, rot, scale, tint);
 }
 
