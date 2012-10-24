@@ -21,6 +21,7 @@ typedef struct {
 	float jump_time;
 	float mushroom_hit_time;
 	Anim* anim;
+	Vector2 bounce_force;
 } ObjRabbit;
 
 extern GameObjectDesc obj_rabbit_desc;

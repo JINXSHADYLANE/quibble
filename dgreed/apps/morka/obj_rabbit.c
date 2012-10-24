@@ -1,6 +1,7 @@
 #include "obj_types.h"
 
 #include <system.h>
+#include <async.h>
 
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
@@ -29,6 +30,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			// Double jump
 			rabbit->can_double_jump = false;
 			objects_apply_force(self, vec2(0.0f, -100000.0f));
+			anim_play(rabbit->anim, "double_jump");
 		}
 	}
 
@@ -68,6 +70,13 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	r->anim_frame = anim_frame(rabbit->anim);
 }
 
+static void _rabbit_delayed_bounce(void* r) {
+	ObjRabbit* rabbit = r;
+	GameObject* self = r;
+	objects_apply_force(self, rabbit->bounce_force); 
+	rabbit->bounce_force = vec2(0.0f, 0.0f);
+}
+
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 
@@ -93,14 +102,23 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	// Collision with mushroom
 	Vector2 vel = self->physics->vel;
 	if(other->type == OBJ_MUSHROOM_TYPE && !rabbit->touching_ground && vel.y > 500.0f) {
-		rabbit->mushroom_hit_time = time_s();
-		vel.y = -vel.y;
-		Vector2 f = {
-			.x = MIN(vel.x*200.0f, 280000.0f),
-			.y = MAX(vel.y*400.0f,-350000.0f)
-		};
-		objects_apply_force(self, f);
+		if(rabbit->bounce_force.y == 0.0f) {
+			rabbit->mushroom_hit_time = time_s();
+			anim_play(rabbit->anim, "bounce");
 
+			vel.y = -vel.y;
+			Vector2 f = {
+				.x = MIN(vel.x*200.0f, 280000.0f),
+				.y = MAX(vel.y*400.0f,-350000.0f)
+			};
+			rabbit->bounce_force = f;
+
+			// Slow down vertical movevment
+			self->physics->vel.y *= 0.2f;
+
+			// Delay actual bouncing 0.1s
+			async_schedule(_rabbit_delayed_bounce, 100, self);
+		}
 	}
 }
 
