@@ -1,4 +1,3 @@
-#include "ml_gamecenter.h"
 #include "ml_common.h"
 
 #include "lua/lauxlib.h"

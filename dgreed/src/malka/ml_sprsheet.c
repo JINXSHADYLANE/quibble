@@ -1,4 +1,3 @@
-#include "ml_sprsheet.h"
 #include "ml_common.h"
 
 #include "lua/lauxlib.h"
