@@ -348,6 +348,34 @@ draws centered sprite; rot, scale and tint are optional
 same as sprsheet.draw_centered, for animations
 
 
+----
+anim
+----
+
+Sprite animation system, see src/anim.h for description example.
+
+- anim.init(filename)
+initializes subsystem, loads descriptions
+
+- anim.close()
+closes subsystem
+
+- anim.new(name)
+returns instance of animation with particular name
+
+- anim.del(an)
+deletes instance of animation created with anim.new
+
+- anim.play(an, seq)
+plays a sequence 
+
+- anim.frame(an)
+returns current frame
+
+- anim.draw(an, spr, layer, dest, rot, scale, tint)
+draws a particular sprite with animation
+
+
 ---
 mfx
 ---

@@ -129,8 +129,6 @@ void malka_init(void) {
 	malka_init_ex(false);
 }
 
-extern int luaopen_luatrace_c_hook(lua_State *L);
-
 // Forward defs for subsystems
 extern int malka_open_vec2(lua_State* l);
 extern int malka_open_rect(lua_State* l);
@@ -150,6 +148,7 @@ extern int malka_open_os(lua_State* l);
 extern int malka_open_iap(lua_State* l);
 extern int malka_open_http(lua_State* l);
 extern int malka_open_localization(lua_State* l);
+extern int malka_open_anim(lua_State* l);
 
 void malka_init_ex(bool use_pools) {
 	if(use_pools) {
@@ -187,6 +186,7 @@ void malka_init_ex(bool use_pools) {
 	malka_open_iap(l);
 	malka_open_http(l);
 	malka_open_localization(l);
+	malka_open_anim(l);
 
 	ml_states_init(l);
 }

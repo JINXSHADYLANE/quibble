@@ -262,7 +262,7 @@ error:
 	return luaL_error(l, "bad arguments to sprsheet.draw_centered");
 }
 
-static int ml_sprsheet_draw_anim_centered(lua_State* l) {
+int ml_sprsheet_draw_anim_centered(lua_State* l) {
 	int n = lua_gettop(l);
 	if(n < 4 || n > 7)
 		goto error;
