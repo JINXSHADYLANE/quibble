@@ -1,6 +1,8 @@
 #ifndef OBJ_TYPES_H
 #define OBJ_TYPES_H
 
+#include <anim.h>
+
 #include "objects.h"
 
 enum {
@@ -18,6 +20,7 @@ typedef struct {
 	bool can_double_jump;
 	float jump_time;
 	float mushroom_hit_time;
+	Anim* anim;
 } ObjRabbit;
 
 extern GameObjectDesc obj_rabbit_desc;
