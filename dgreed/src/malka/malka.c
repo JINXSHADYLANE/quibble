@@ -1,20 +1,7 @@
 #include "malka.h"
 
 #include "profiler.h"
-#include "ml_utils.h"
-#include "ml_system.h"
-#include "ml_mml.h"
 #include "ml_states.h"
-#include "ml_sprsheet.h"
-#include "ml_mfx.h"
-#include "ml_coldet.h"
-#include "ml_keyval.h"
-#include "ml_gamecenter.h"
-#include "ml_os.h"
-#include "ml_iap.h"
-#include "ml_http.h"
-#include "ml_localization.h"
-
 #include "memory.h"
 #include "mempool.h"
 #include "system.h"
@@ -143,6 +130,26 @@ void malka_init(void) {
 }
 
 extern int luaopen_luatrace_c_hook(lua_State *L);
+
+// Forward defs for subsystems
+extern int malka_open_vec2(lua_State* l);
+extern int malka_open_rect(lua_State* l);
+extern int malka_open_colors(lua_State* l);
+extern int malka_open_misc(lua_State* l);
+extern int malka_open_rand(lua_State* l);
+extern int malka_open_log(lua_State* l);
+extern int malka_open_file(lua_State* l);
+extern int malka_open_mml(lua_State* l);
+extern int malka_open_system(lua_State* l);
+extern int malka_open_sprsheet(lua_State* l);
+extern int malka_open_mfx(lua_State* l);
+extern int malka_open_coldet(lua_State* l);
+extern int malka_open_keyval(lua_State* l);
+extern int malka_open_gamecenter(lua_State* l);
+extern int malka_open_os(lua_State* l);
+extern int malka_open_iap(lua_State* l);
+extern int malka_open_http(lua_State* l);
+extern int malka_open_localization(lua_State* l);
 
 void malka_init_ex(bool use_pools) {
 	if(use_pools) {
