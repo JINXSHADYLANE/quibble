@@ -27,6 +27,8 @@ size_t allocations_count = 0;
 MemoryStats stats = {0, 0, 0, 0};
 
 void* mem_alloc(size_t size, const char* file, int line) {
+	//printf("alloc in %s:%d: %zu\n", file, line, size);
+
 	// Actual memory allocation
 	void* ptr = malloc(size + sizeof(MemBlockHeader));
 	
@@ -72,6 +74,8 @@ void* mem_realloc(void* p, size_t size, const char* file, int line) {
 	void* ptr;
 	unsigned int i;
 	
+	//printf("realloc in %s:%d: %zu\n", file, line, size);
+
 	assert(size);
 	assert(allocations_count < MAX_ALLOCATIONS);
 

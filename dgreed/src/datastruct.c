@@ -98,7 +98,7 @@ static uint _heap_smaller_child(Heap* heap, uint i) {
 }
 
 void heap_init(Heap* heap) {
-	*heap = darray_create(sizeof(HeapNode), 0);
+	*heap = darray_create(sizeof(HeapNode), 16);
 }
 
 void heap_free(Heap* heap) {
@@ -339,7 +339,7 @@ void aatree_init(AATree* tree) {
 	assert(tree);
 
 	tree->root = INVALID_IDX;
-	tree->tree = darray_create(sizeof(AATNode), 0);
+	tree->tree = darray_create(sizeof(AATNode), 16);
 }
 
 void aatree_free(AATree* tree) {

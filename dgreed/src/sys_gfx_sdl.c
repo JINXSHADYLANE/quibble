@@ -285,9 +285,9 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height, const
 	// Init renderer state darrays
 	rects_out = darray_create(sizeof(TexturedRectDesc), 32);
 	textures = darray_create(sizeof(Texture), 16);
+	memset(rect_buckets, 0, sizeof(rect_buckets));
+	memset(line_buckets, 0, sizeof(line_buckets));
 	for(uint i = 0; i < BUCKET_COUNT; ++i) {
-		rect_buckets[i] = darray_create(sizeof(TexturedRectDesc), 32);
-		line_buckets[i] = darray_create(sizeof(LineDesc), 32);
 		blend_modes[i] = BM_NORMAL;
 		transform[i] = NULL;
 	}
@@ -322,8 +322,10 @@ void video_close(void) {
 	darray_free(&textures);
 	darray_free(&rects_out);
 	for(uint i = 0; i < BUCKET_COUNT; ++i) {
-		darray_free(&rect_buckets[i]);
-		darray_free(&line_buckets[i]);
+		if(rect_buckets[i].reserved)
+			darray_free(&rect_buckets[i]);
+		if(line_buckets[i].reserved)
+			darray_free(&line_buckets[i]);
 	}
 
 	LOG_INFO("Video closed");
@@ -781,6 +783,9 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 	real_source.bottom /= (float)texture_height * scale;
 
 	TexturedRectDesc new = {tex, real_source, real_dest, tint, rotation};
+
+	if(!rect_buckets[layer].reserved)
+		rect_buckets[layer] = darray_create(sizeof(TexturedRectDesc), 32);
 	darray_append(&rect_buckets[layer], &new);
 }
 
@@ -796,5 +801,9 @@ void video_draw_line(uint layer, const Vector2* start,
 	assert(end);
 
 	LineDesc new = {*start, *end, color};
+
+	if(!line_buckets[layer].reserved)
+		line_buckets[layer] = darray_create(sizeof(LineDesc), 32);
 	darray_append(&line_buckets[layer], &new);
 }
+
