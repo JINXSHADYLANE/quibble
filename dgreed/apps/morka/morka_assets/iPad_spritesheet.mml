@@ -18,10 +18,10 @@
 	)
 	(anim rabbit
 		(tex iPad_atlas_0.png)
-		(src 0,0,180,180)
-		(offset 180,180)
-		(frames 7)
-		(grid 5,2)
+		(src 0,0,179,179)
+		(offset 179,179)
+		(frames 11)
+		(grid 5,3)
 	)
 	(img bg_mushroom_1
 		(tex iPad_atlas_3.png)
