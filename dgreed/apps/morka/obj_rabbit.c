@@ -125,6 +125,11 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	rabbit->touching_ground = false;
+	rabbit->can_double_jump = false;
+	rabbit->jump_time = -100.0f;
+	rabbit->mushroom_hit_time = -100.0f;
+	rabbit->anim = anim_new("rabbit");
+	rabbit->bounce_force = vec2(0.0f, 0.0f);
 
 	// Init physics
 	PhysicsComponent* physics = self->physics;
@@ -154,9 +159,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	UpdateComponent* update = self->update;
 	update->interval = 1;
 	update->update = obj_rabbit_update;
-
-	// Make animation
-	rabbit->anim = anim_new("rabbit");
 }
 
 static void obj_rabbit_destruct(GameObject* self) {
