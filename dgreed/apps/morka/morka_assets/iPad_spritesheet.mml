@@ -20,7 +20,7 @@
 		(tex iPad_atlas_0.png)
 		(src 0,0,179,179)
 		(offset 179,179)
-		(frames 11)
+		(frames 12)
 		(grid 5,3)
 	)
 	(img bg_mushroom_1
