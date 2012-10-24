@@ -763,7 +763,7 @@ static uint _mt_uint(RndState* state) {
 // Public interface
 
 void rand_init(uint seed) {
-	rand_init_ex(&global_rndctx, seed);
+	rand_seed_ex(&global_rndctx, seed);
 }
 
 uint rand_uint(void) {
@@ -783,7 +783,7 @@ float rand_float_range(float min, float max) {
 }
 
 void rand_init_ex(RndContext* ctx, uint seed) {
-	*ctx = malloc(sizeof(RndState));
+	*ctx = MEM_ALLOC(sizeof(RndState));
 	rand_seed_ex(ctx, seed);
 }
 
@@ -793,7 +793,7 @@ void rand_seed_ex(RndContext* ctx, uint seed) {
 }
 
 void rand_free_ex(RndContext* ctx) {
-	free(*ctx);
+	MEM_FREE(*ctx);
 }
 
 uint rand_uint_ex(RndContext* ctx) {
