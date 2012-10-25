@@ -7,6 +7,7 @@
 #include <keyval.h>
 
 #include "game.h"
+#include "mchains.h"
 
 extern bool draw_gfx_debug;
 
@@ -39,8 +40,8 @@ bool dgreed_init(int argc, const char** argv) {
 
 	keyval_init("morka.db");
 
-	anim_init(ASSETS_DIR "animations.mml");
 //	mfx_init(ASSETS_PRE "effects.mml");
+	anim_init(ASSETS_DIR "animations.mml");
 
 	malka_init();
 	malka_params(argc, argv);
@@ -48,6 +49,7 @@ bool dgreed_init(int argc, const char** argv) {
 	malka_states_push("game");
 
 	sprsheet_init(sprsheet);
+	mchains_init(ASSETS_DIR "mchains.mml");
 
 	malka_states_init(SCRIPTS_DIR "main.lua");
 	malka_states_start();
@@ -59,12 +61,13 @@ void dgreed_close(void) {
 	malka_states_end();
 	malka_states_close();
 
+	mchains_close();
 	sprsheet_close();
 
 	malka_close();
 
-//	mfx_close();
 	anim_close();
+//	mfx_close();
 
 	keyval_close();
 
