@@ -25,7 +25,7 @@ bool dgreed_init(int argc, const char** argv) {
 
 	rand_init(432);
 
-	const char* sprsheet = ASSETS_DIR "iPad_spritesheet.mml";
+	const char* sprsheet = ASSETS_DIR "spritesheet.mml";
 	uint width = 1024;
 	uint height = 768;
 	uint v_width = 1024;
