@@ -5,8 +5,7 @@ static void obj_deco_became_invisible(GameObject* self) {
 }
 
 static void obj_deco_construct(GameObject* self, Vector2 pos, void* user_data) {
-	const char* spr_name = user_data;
-	SprHandle spr_handle = sprsheet_get_handle(spr_name);
+	SprHandle spr_handle = (SprHandle)user_data;
 
 	TexHandle tex;
 	RectF src;

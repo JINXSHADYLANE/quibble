@@ -14,14 +14,8 @@ static RndContext rnd = NULL;
 static const float page_width = 1024.0f;
 static float page_cursor = 0.0f;
 
-static char* bg_elements[] = {
-	"bg_mushroom_1",
-	"bg_mushroom_2",
-	"bg_mushrooms_3",
-	"bg_mushrooms_4"
-};
-
-Chain* fg_chain;
+static Chain* fg_chain;
+static Chain* bg_chain;
 
 static void _gen_page(WorldPage* prev, WorldPage* new) {
 	assert(list_empty(&new->background));
@@ -36,38 +30,43 @@ static void _gen_page(WorldPage* prev, WorldPage* new) {
 		list_push_back(&new->background, &ground->list);	
 	}
 
-	// Add background mushrooms
-	uint n_back_shrooms = rand_int_ex(&rnd, 0, 4);
-	float shroom_spacing = page_width / n_back_shrooms;
-	for(uint i = 0; i < n_back_shrooms; ++i) {
-		WorldElement* shroom = mempool_alloc(&element_pool);
-		shroom->desc = &obj_deco_desc;
-		shroom->pos = vec2(
-				page_cursor + i * shroom_spacing + rand_float_range_ex(&rnd, -100.0f, 100.0f),
-				483.0f + rand_int_ex(&rnd, -10, 10)
-		);
-		shroom->userdata = bg_elements[rand_int_ex(&rnd, 0, 4)];
-		list_push_back(&new->background, &shroom->list);
-	}
-
-	// Add foreground mushrooms
 	SprHandle spr;	
 	uint advance;
-	static float x = page_width;
-	x -= page_width;
-	while(x < page_width) {
-		char sym = mchains_next(fg_chain, &rnd);
-		mchain_symbol_info(fg_chain, sym, &advance, &spr);
+
+	// Add background mushrooms
+	static float bg_x = page_width;
+	bg_x -= page_width;	
+	while(bg_x < page_width) {
+		char sym = mchains_next(bg_chain, &rnd);
+		mchains_symbol_info(bg_chain, sym, &advance, &spr);
 
 		if(spr) {
 			WorldElement* shroom = mempool_alloc(&element_pool);
-			shroom->desc = &obj_mushroom_desc;
-			shroom->pos = vec2(page_cursor + x, 583.0f);
+			shroom->desc = &obj_deco_desc;
+			shroom->pos = vec2(page_cursor + bg_x, 483.0f);
 			shroom->userdata = (void*)spr;
 			list_push_back(&new->mushrooms, &shroom->list);
 		}
 
-		x += (float)advance;
+		bg_x += (float)advance;
+	}
+
+	// Add foreground mushrooms
+	static float fg_x = page_width;
+	fg_x -= page_width;
+	while(fg_x < page_width) {
+		char sym = mchains_next(fg_chain, &rnd);
+		mchains_symbol_info(fg_chain, sym, &advance, &spr);
+
+		if(spr) {
+			WorldElement* shroom = mempool_alloc(&element_pool);
+			shroom->desc = &obj_mushroom_desc;
+			shroom->pos = vec2(page_cursor + fg_x, 583.0f);
+			shroom->userdata = (void*)spr;
+			list_push_back(&new->mushrooms, &shroom->list);
+		}
+
+		fg_x += (float)advance;
 	}
 
 	page_cursor += page_width;
@@ -99,9 +98,11 @@ void worldgen_reset(uint seed) {
 		mempool_free_all(&element_pool);
 		page_cursor = 0.0f;
 		mchains_del(fg_chain);
+		mchains_del(bg_chain);
 	}
 
 	fg_chain = mchains_new("fg");
+	bg_chain = mchains_new("bg");
 
 	// Reset & generate current page
 	list_init(&current_page.background);
@@ -115,6 +116,8 @@ void worldgen_reset(uint seed) {
 }
 
 void worldgen_close(void) {
+	mchains_del(fg_chain);
+	mchains_del(bg_chain);
 	mempool_drain(&element_pool);
 	rand_free_ex(&rnd);
 }
