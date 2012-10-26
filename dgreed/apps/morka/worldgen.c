@@ -43,7 +43,7 @@ static void _gen_page(WorldPage* prev, WorldPage* new) {
 		if(spr) {
 			WorldElement* shroom = mempool_alloc(&element_pool);
 			shroom->desc = &obj_deco_desc;
-			shroom->pos = vec2(page_cursor + bg_x, 483.0f);
+			shroom->pos = vec2(page_cursor + bg_x + 100.0f, 483.0f);
 			shroom->userdata = (void*)spr;
 			list_push_back(&new->mushrooms, &shroom->list);
 		}
@@ -61,7 +61,7 @@ static void _gen_page(WorldPage* prev, WorldPage* new) {
 		if(spr) {
 			WorldElement* shroom = mempool_alloc(&element_pool);
 			shroom->desc = &obj_mushroom_desc;
-			shroom->pos = vec2(page_cursor + fg_x, 583.0f);
+			shroom->pos = vec2(page_cursor + fg_x + 100.0f, 583.0f);
 			shroom->userdata = (void*)spr;
 			list_push_back(&new->mushrooms, &shroom->list);
 		}
