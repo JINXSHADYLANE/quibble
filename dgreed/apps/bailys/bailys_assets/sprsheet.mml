@@ -1,0 +1,8 @@
+(sprsheet bailys 
+	(prefix "bailys_assets/")
+
+	(img empty
+		(tex empty.png)
+	)
+)
+
