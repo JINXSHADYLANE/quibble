@@ -92,6 +92,7 @@ static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs) {
 		}
 	}
 
+	rs->n_symbols = n;
 	const uint nn = n*n;
 	const uint nnn = n*n*n;
 
@@ -245,17 +246,44 @@ void mchains_del(Chain* c) {
 }
 
 char mchains_next(Chain* c, RndContext* rnd) {
-	if(c->cursor >= 0) {
-		return c->buffer[c->cursor--];
-	}
-	else {
+	if(c->cursor < 0) {
 		// Buffer is empty, fill it backwards
 		uint n = c->rules->n_symbols;
-		byte ctx0 = _get_idx(c->buffer[0], c->rules->symbols, n);
-		byte ctx1 = _get_idx(c->buffer[1], c->rules->symbols, n);
+		byte ctx0 = _get_idx(c->buffer[1], c->rules->symbols, n);
+		byte ctx1 = _get_idx(c->buffer[0], c->rules->symbols, n);
 
-		// ...
+		uint16* trans = c->rules->trans;
+		const uint nn = n * n;
+
+		int i = c->cursor = chain_buffer_size-1;
+		while(i >= 0) {
+			// Generate random number in range (0, symbol_probabilities_sum)
+			uint base_idx = nn * ctx0 + n * ctx1;
+			int max_r = trans[base_idx + n-1]; 
+			int r = rand_int_ex(rnd, 0, max_r);
+
+			// Linear search for the first cumulative probability that is 
+			// higher than generated number. (No point in doing binary 
+			// search here, we have < 10 symbols most of the time).
+			byte sym = 0;
+			for(int j = base_idx + n-2; j >= base_idx; --j) {
+				if(trans[j] <= r) {
+					sym = (j - base_idx) + 1;
+					break;
+				}
+			}
+			// If linear search fell through, it means the very first symbol
+			// must be chosen, which is default sym value.
+
+			ctx0 = ctx1;
+			ctx1 = sym;
+			c->buffer[i] = c->rules->symbols[sym];
+
+			i--;
+		}
 	}
+	
+	return c->buffer[c->cursor--];
 }
 
 
