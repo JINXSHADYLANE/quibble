@@ -86,7 +86,8 @@ static const luaL_Reg anim_fun[] = {
 	{"del", ml_anim_del},
 	{"play", ml_anim_play},
 	{"frame", ml_anim_frame},
-	{"draw", ml_anim_draw}
+	{"draw", ml_anim_draw},
+	{NULL, NULL}
 };
 
 int malka_open_anim(lua_State* l) {
