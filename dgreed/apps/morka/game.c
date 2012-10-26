@@ -65,7 +65,6 @@ static bool game_update(void) {
 
 static bool game_render(float t) {
 	spr_draw("background", 0, rectf_null(), COLOR_WHITE);
-	spr_draw("vignette", 15, rectf_null(), COLOR_WHITE);
 
 	objects_tick();
 

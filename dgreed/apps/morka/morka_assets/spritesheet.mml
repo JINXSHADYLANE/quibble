@@ -12,10 +12,6 @@
 		(frames 4)
 		(grid 4,1)
 	)
-	(img vignette
-		(tex atlas_3.png)
-		(src 0,0,1024,768)
-	)
 	(anim rabbit
 		(tex atlas_0.png)
 		(src 0,0,179,179)

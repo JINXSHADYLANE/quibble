@@ -7,39 +7,44 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	PhysicsComponent* p = self->physics;
 
+	if(key_down(KEY_A))
+		rabbit->last_keypress_t = ts;
+
 	Vector2 dir = {.x = 0.0f, .y = 0.0f};
 
 	// Constantly move right
-	dir.x += 500.0f;
+	dir.x += 650.0f;
 
 	// Jump
 	if(rabbit->touching_ground && key_down(KEY_A)) {
 		rabbit->touching_ground = false;
 		rabbit->can_double_jump = true;
+		rabbit->jump_off_mushroom = false;
 		rabbit->jump_time = ts;
-		objects_apply_force(self, vec2(0.0f, -100000.0f));
+		objects_apply_force(self, vec2(50000.0f, -100000.0f));
 		anim_play(rabbit->anim, "jump");
 	}
 	else {
-		if (key_pressed(KEY_A) && !rabbit->touching_ground) {
+		if(ts - rabbit->mushroom_hit_time < 0.1f) {
+			if(fabsf(rabbit->mushroom_hit_time - rabbit->last_keypress_t) < 0.1f)
+				rabbit->jump_off_mushroom = true;
+		}
+		else if(key_pressed(KEY_A) && !rabbit->touching_ground) {
 			if((ts - rabbit->jump_time) < 0.2f) {
 				objects_apply_force(self, vec2(0.0f, -8000.0f));
 			}
 		}
+
+		/*
 		if(rabbit->can_double_jump && !rabbit->touching_ground && key_down(KEY_A)) {
 			// Double jump
 			rabbit->can_double_jump = false;
-			objects_apply_force(self, vec2(0.0f, -100000.0f));
+			objects_apply_force(self, vec2(50000.0f, -100000.0f));
 			anim_play(rabbit->anim, "double_jump");
 		}
+		*/
 	}
 
-	// Jump off mushroom
-	float hit_dt = ts - rabbit->mushroom_hit_time;
-	if(key_pressed(KEY_A) && hit_dt < 0.3f) {
-		float t = (0.3f - hit_dt) / 0.3f;
-		objects_apply_force(self, vec2(0.0f, -5000.0f * t));
-	}
 
 	// Damping
 	if(p->vel.x > 300.0f)
@@ -72,8 +77,13 @@ static void obj_rabbit_update_pos(GameObject* self) {
 
 static void _rabbit_delayed_bounce(void* r) {
 	ObjRabbit* rabbit = r;
-	GameObject* self = r;
-	objects_apply_force(self, rabbit->bounce_force); 
+
+	if(rabbit->jump_off_mushroom) {
+		GameObject* self = r;
+		objects_apply_force(self, rabbit->bounce_force); 
+		rabbit->jump_off_mushroom = false;
+	}
+
 	rabbit->bounce_force = vec2(0.0f, 0.0f);
 }
 
@@ -108,8 +118,8 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 			vel.y = -vel.y;
 			Vector2 f = {
-				.x = MIN(vel.x*200.0f, 280000.0f),
-				.y = MAX(vel.y*400.0f,-350000.0f)
+				.x = MIN(vel.x*200.0f, 220000.0f),
+				.y = MAX(vel.y*400.0f,-250000.0f)
 			};
 			rabbit->bounce_force = f;
 
@@ -125,10 +135,12 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	rabbit->touching_ground = false;
+	rabbit->jump_off_mushroom = false;
 	rabbit->can_double_jump = false;
 	rabbit->jump_time = -100.0f;
 	rabbit->mushroom_hit_time = -100.0f;
 	rabbit->anim = anim_new("rabbit");
+	rabbit->last_keypress_t = -100.0f;
 	rabbit->bounce_force = vec2(0.0f, 0.0f);
 
 	// Init physics
