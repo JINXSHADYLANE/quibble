@@ -3,6 +3,7 @@
 #include <mempool.h>
 #include <utils.h>
 
+#include "mchains.h"
 #include "obj_types.h"
 
 static WorldPage current_page;
@@ -20,12 +21,7 @@ static char* bg_elements[] = {
 	"bg_mushrooms_4"
 };
 
-static char* mushroom_sprites[] = {
-	"mushroom_1",
-	"mushroom_2",
-	"mushroom_3",
-	"mushroom_4"
-};
+Chain* fg_chain;
 
 static void _gen_page(WorldPage* prev, WorldPage* new) {
 	assert(list_empty(&new->background));
@@ -55,17 +51,23 @@ static void _gen_page(WorldPage* prev, WorldPage* new) {
 	}
 
 	// Add foreground mushrooms
-	uint n_front_shrooms = rand_int_ex(&rnd, 0, 4);
-	shroom_spacing = page_width / n_front_shrooms;
-	for(uint i = 0; i < n_front_shrooms; ++i) {
-		WorldElement* shroom = mempool_alloc(&element_pool);
-		shroom->desc = &obj_mushroom_desc;
-		shroom->pos = vec2(
-				page_cursor + i * shroom_spacing + rand_float_range_ex(&rnd, -200.0f, 200.0f),
-				583.0f + rand_int_ex(&rnd, -20, 20)
-		);
-		shroom->userdata = mushroom_sprites[rand_int_ex(&rnd, 0, 4)];
-		list_push_back(&new->mushrooms, &shroom->list);
+	SprHandle spr;	
+	uint advance;
+	static float x = page_width;
+	x -= page_width;
+	while(x < page_width) {
+		char sym = mchains_next(fg_chain, &rnd);
+		mchain_symbol_info(fg_chain, sym, &advance, &spr);
+
+		if(spr) {
+			WorldElement* shroom = mempool_alloc(&element_pool);
+			shroom->desc = &obj_mushroom_desc;
+			shroom->pos = vec2(page_cursor + x, 583.0f);
+			shroom->userdata = (void*)spr;
+			list_push_back(&new->mushrooms, &shroom->list);
+		}
+
+		x += (float)advance;
 	}
 
 	page_cursor += page_width;
@@ -96,7 +98,10 @@ void worldgen_reset(uint seed) {
 		rand_seed_ex(&rnd, seed);
 		mempool_free_all(&element_pool);
 		page_cursor = 0.0f;
+		mchains_del(fg_chain);
 	}
+
+	fg_chain = mchains_new("fg");
 
 	// Reset & generate current page
 	list_init(&current_page.background);
