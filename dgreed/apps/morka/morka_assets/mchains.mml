@@ -1,10 +1,10 @@
 (mchains morka
 	(ruleset fg
-		(def a (mushroom_1 100))
-		(def b (mushroom_2 100))
-		(def c (mushroom_3 100))
-		(def d (mushroom_4 100))
-		(def _ (.empty 100))
+		(def a (mushroom_1 150))
+		(def b (mushroom_2 150))
+		(def c (mushroom_3 150))
+		(def d (mushroom_4 150))
+		(def _ (.empty 200))
 
 		(init "__")
 

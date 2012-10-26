@@ -286,4 +286,11 @@ char mchains_next(Chain* c, RndContext* rnd) {
 	return c->buffer[c->cursor--];
 }
 
+void mchain_symbol_info(Chain* c, char symbol, uint* advance, SprHandle* spr) {
+	Ruleset* rs = c->rules;
+	uint i = _get_idx(symbol, rs->symbols, rs->n_symbols);
+	*advance = rs->sym_advance[i];
+	*spr = rs->sym_spr[i];
+}
+
 
