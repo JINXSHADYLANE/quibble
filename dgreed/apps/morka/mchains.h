@@ -36,7 +36,7 @@ Chain* mchains_new(const char* ruleset);
 void mchains_del(Chain* c);
 char mchains_next(Chain* c, RndContext* rnd);
 
-void mchain_symbol_info(Chain* c, char symbol, uint* advance, SprHandle* spr);
+void mchains_symbol_info(Chain* c, char symbol, uint* advance, SprHandle* spr);
 
 #endif
 
