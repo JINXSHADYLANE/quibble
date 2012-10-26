@@ -11,7 +11,7 @@ static WorldPage next_page;
 static MemPool element_pool;
 static RndContext rnd = NULL;
 
-static const float page_width = 1024.0f;
+#define page_width 1024.0f
 static float page_cursor = 0.0f;
 
 static Chain* fg_chain;
