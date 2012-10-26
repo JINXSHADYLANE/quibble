@@ -24,7 +24,7 @@
 		)
 
 		(seq bounce
-			(frames "8 9 10 11 12")
+			(frames "8 10 12")
 			(on_finish play.jump)
 		)
 
