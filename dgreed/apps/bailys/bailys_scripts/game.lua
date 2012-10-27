@@ -18,6 +18,7 @@ local player_has_egg = false
 
 -- list of grid space vec2s
 local eggs = nil
+local exploded_eggs = nil
 
 -- flattened 2d list of level tiles
 local lvl = nil
@@ -33,6 +34,9 @@ local laser_off_len = 1
 
 -- laser column
 local laser_start_x = nil
+
+-- path of laser beam
+local laser_path = nil
 
 -- game logic:
 
@@ -132,6 +136,8 @@ function game.laser_path(x)
 		p = p + dir
 	end
 
+	laser_path = path
+
 	return path
 end
 
@@ -157,6 +163,27 @@ function game.update_laser()
 		-- level end check
 		if laser_start_x == level_size.x then
 			print('level end')
+		end
+	end
+
+	if laser_path then
+		for i,p in ipairs(laser_path) do
+			-- if egg was hit - explode it
+			for j,egg in ipairs(eggs) do
+				if egg.x == p.x and egg.y == p.y then
+					table.remove(eggs, j)
+					table.insert(exploded_eggs, p)
+					break
+				end
+			end
+
+			-- explode egg being carried by player
+			if player_has_egg then
+				if player_pos.x == p.x and player_pos.y == p.y then
+					player_has_egg = false
+					table.insert(exploded_eggs, p)
+				end
+			end
 		end
 	end
 
@@ -205,6 +232,7 @@ function game.load_level(lvldesc)
 	player_pos = nil
 	player_draw_pos = nil
 	eggs = {}
+	exploded_eggs = {}
 	lvl = {}
 
 	laser_on_t = time.s() + 2
@@ -242,6 +270,11 @@ function game.draw_objs(layer)
 	-- eggs
 	for i,egg in ipairs(eggs) do
 		sprsheet.draw_centered('egg', layer, grid2screen(egg))
+	end
+
+	-- exploded eggs
+	for i,egg in ipairs(exploded_eggs) do
+		sprsheet.draw_centered('egg_explode', layer, grid2screen(egg))
 	end
 
 	-- player

@@ -30,6 +30,9 @@
 	(img egg
 		(tex egg.png)
 	)
+	(img egg_explode
+		(tex egg_explode.png)
+	)
 	(img player
 		(tex player.png)
 	)
