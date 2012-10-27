@@ -1,7 +1,7 @@
 local game = {}
 
 local levels = require('levels')
-local laser = require('laser')
+local laser = require('laser_mock')
 
 local bg_color = rgba(0.92, 0.9, 0.85, 1)
 
@@ -110,15 +110,19 @@ function game.laser_path(x)
 
 	local nx, ny = level_size.x, level_size.y
 
+	-- advance laser beam while it's in the level grid
 	while p.x >= 0 and p.x < nx and p.y >= 0 and p.y <= ny do
 
 		local tile = lvl[grid_idx(p.x, p.y)]
+
+		-- stop at walls
 		if tile == '#' then
 			break
 		end
 		
 		table.insert(path, p)
 
+		-- change direction at mirrors
 		if tile == 'r' then
 			dir = vec2(dir.y, -dir.x)
 		elseif tile == 'l' then
