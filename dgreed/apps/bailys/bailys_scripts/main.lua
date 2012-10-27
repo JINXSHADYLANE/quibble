@@ -13,8 +13,15 @@ grid_size = 64
 level_size = nil
 
 -- converts grid space to screen space
+local half_grid = vec2(grid_size / 2, grid_size / 2)
 function grid2screen(pos)
-	return scr_size / 2 + (pos - level_size / 2) * grid_size
+	return (scr_size / 2 + (pos - level_size / 2) * grid_size) + half_grid
+end
+
+-- converts grid space x, y pair into 
+-- flattened 2d list index
+function grid_idx(x, y)
+	return y * level_size.x + x
 end
 
 local game = require('game')
