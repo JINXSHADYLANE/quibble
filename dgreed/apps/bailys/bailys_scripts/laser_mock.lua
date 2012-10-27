@@ -27,11 +27,13 @@ end
 -- called once every frame
 function laser.draw(layer)
 	if laser_path then
-		local p = grid2screen(laser_path[1] - vec2(0, 1))
-		for i = 1,#laser_path do
-			local p2 = grid2screen(laser_path[i])
-			video.draw_seg(layer, p, p2, rgba(0.1, 0.1, 0.1))
-			p = p2
+		if #laser_path > 0 then
+			local p = grid2screen(laser_path[1] - vec2(0, 1))
+			for i = 1,#laser_path do
+				local p2 = grid2screen(laser_path[i])
+				video.draw_seg(layer, p, p2, rgba(0.1, 0.1, 0.1))
+				p = p2
+			end
 		end
 	end
 end

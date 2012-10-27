@@ -7,7 +7,7 @@ local bg_color = rgba(0.8, 0.8, 0.8, 1)
 
 -- game state:
 
-local current_level = 1
+local current_level = 5
 
 -- logical player position
 local player_pos = nil
@@ -80,7 +80,7 @@ function game.update_player()
 	end
 
 	-- egg take logic
-	if key.down(key.a) then
+	if key.down(key.a) or char.down(' ') then
 		if not player_has_egg then
 			-- linear search for the egg player is standing on
 			for i,egg in ipairs(eggs) do
@@ -280,6 +280,10 @@ function game.load_level(lvldesc)
 	laser_on_t = time.s() + 2
 	laser_off_t = laser_on_t + laser_on_len
 	laser_start_x = 0
+	if laser_path then
+		laser_path = nil
+		laser.off()
+	end
 
 	local w, h = lvldesc[1]:len(), #lvldesc
 	level_size = vec2(w, h)
