@@ -4,25 +4,12 @@
 	(img empty
 		(tex empty.png)
 	)
-
-	(img corner
-		(tex corner.png)
+	(img laser
+		(tex laser.png)
+	)
+	(img beam
+		(tex beam.png)
 	)
 
-	(img edge
-		(tex edge.png)
-	)
-
-	(img tile
-		(tex tile.png)
-	)
-
-	(img wall
-		(tex wall.png)
-	)
-
-	(img mirror
-		(tex mirror.png)
-	)
 )
 

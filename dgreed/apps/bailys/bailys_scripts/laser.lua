@@ -22,6 +22,14 @@ end
 
 -- called once every frame
 function laser.draw(layer)
+	local start0 = vec2(32, 32)
+	local end0 = vec2(64, 32)
+	sprsheet.draw_centered('beam', layer, lerp(start0, end0, 0))
+	video.draw_seg(layer, start0, end0, rgba(0, 0, 0, 1))
+	
+end
+
+function laser.update(delta)
 end
 
 return laser
