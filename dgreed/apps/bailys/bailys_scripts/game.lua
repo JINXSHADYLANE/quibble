@@ -215,6 +215,8 @@ function game.update()
 		return false
 	end
 
+	sound.update()
+
 	if char.down('r') then
 		fadeout_t = time.s()
 		did_reset = false

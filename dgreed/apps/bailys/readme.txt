@@ -12,6 +12,9 @@ r - reset level
 q - exit game
 
 
+Music by Kevin MacLeod, licensed under CC-BY.
+
+
 Designed and made by:
 
 Žilvinas Bražukas
