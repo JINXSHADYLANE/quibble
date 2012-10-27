@@ -1,8 +1,21 @@
+-- let's define some generally useful data before
+-- loading submodules, so that it will be available in
+-- their global scopes
 
 asset_dir = 'bailys_assets/'
 
 scr_size = vec2(960, 640)
 scr_rect = rect(0, 0, scr_size.x, scr_size.y)
+
+grid_size = 64
+
+-- game.load_level sets this
+level_size = nil
+
+-- converts grid space to screen space
+function grid2screen(pos)
+	return scr_size / 2 + (pos - level_size / 2) * grid_size
+end
 
 local game = require('game')
 
