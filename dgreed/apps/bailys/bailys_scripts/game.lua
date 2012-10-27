@@ -1,6 +1,7 @@
 local game = {}
 
 local levels = require('levels')
+local laser = require('laser')
 
 local bg_color = rgba(0.92, 0.9, 0.85, 1)
 
@@ -21,21 +22,30 @@ local eggs = nil
 -- flattened 2d list of level tiles
 local lvl = nil
 
+
+-- time when laser will be turned on/off
+local laser_on_t = nil
+local laser_off_t = nil
+
+-- how long laser is turned on/off
+local laser_on_len = 4
+local laser_off_len = 1
+
+-- laser column
+local laser_start_x = nil
+
 -- game logic:
 
 function game.init()
+	laser.init()
 	game.load_level(levels[1])
 end
 
 function game.close()
+	laser.close()
 end
 
-function game.update()
-	-- exit game if esc or q was pressed
-	if key.down(key.quit) or char.down('q') then
-		return false
-	end
-
+function game.update_player()
 	-- control player
 	local player_off = vec2(0, 0)
 	local move_dirs = {
@@ -91,6 +101,72 @@ function game.update()
 
 	-- smooth player movement by lerping visual pos to logical pos
 	player_draw_pos = lerp(player_draw_pos, player_pos, 0.2)
+end
+
+function game.laser_path(x)
+	local path = {}
+	local dir = vec2(0, 1)
+	local p = vec2(x, 0)
+
+	local nx, ny = level_size.x, level_size.y
+
+	while p.x >= 0 and p.x < nx and p.y >= 0 and p.y <= ny do
+
+		local tile = lvl[grid_idx(p.x, p.y)]
+		if tile == '#' then
+			break
+		end
+		
+		table.insert(path, p)
+
+		if tile == 'r' then
+			dir = vec2(dir.y, -dir.x)
+		elseif tile == 'l' then
+			dir = vec2(-dir.y, dir.x)
+		end
+
+		p = p + dir
+	end
+
+	return path
+end
+
+function game.update_laser()
+	local t = time.s()
+
+	if t >= laser_on_t then
+		--print('laser on')
+		local path = game.laser_path(laser_start_x)
+		laser.on(path)
+
+		laser_on_t = laser_off_t + laser_off_len
+	end
+
+	if t >= laser_off_t then
+		--print('laser off')
+
+		laser.off()
+
+		laser_off_t = laser_on_t + laser_on_len
+		laser_start_x = laser_start_x + 1
+
+		-- level end check
+		if laser_start_x == level_size.x then
+			print('level end')
+		end
+	end
+
+	laser.update(time.dt())
+end
+
+function game.update()
+	-- exit game if esc or q was pressed
+	if key.down(key.quit) or char.down('q') then
+		return false
+	end
+	
+	game.update_player()
+	game.update_laser()
 
 	return true
 end
@@ -101,6 +177,7 @@ function game.render(t)
 
 	game.draw_level(1)
 	game.draw_objs(2)
+	laser.draw(3)
 	
 	return true
 end
@@ -125,6 +202,10 @@ function game.load_level(lvldesc)
 	player_draw_pos = nil
 	eggs = {}
 	lvl = {}
+
+	laser_on_t = time.s() + 2
+	laser_off_t = laser_on_t + laser_on_len
+	laser_start_x = 0
 
 	local w, h = lvldesc[1]:len(), #lvldesc
 	level_size = vec2(w, h)
