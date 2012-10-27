@@ -336,7 +336,9 @@ function game.draw_objs(layer)
 
 	-- player
 	local player_screen_pos = grid2screen(player_draw_pos)
-	sprsheet.draw_centered('player', layer, player_screen_pos)
+	local frames =  {'player1', 'player2', 'player3'} 
+	local frame = frames[math.floor(time.s()*8)%3 + 1]
+	sprsheet.draw_centered(frame, layer, player_screen_pos)
 	if player_has_egg then
 		sprsheet.draw_centered('egg', layer+1, player_screen_pos) 
 	end

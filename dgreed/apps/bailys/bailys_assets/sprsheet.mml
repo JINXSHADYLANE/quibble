@@ -33,8 +33,14 @@
 	(img egg_explode
 		(tex egg_explode.png)
 	)
-	(img player
-		(tex player.png)
+	(img player1
+		(tex player1.png)
+	)
+	(img player2
+		(tex player2.png)
+	)
+	(img player3
+		(tex player3.png)
 	)
 
 	(img vignette
