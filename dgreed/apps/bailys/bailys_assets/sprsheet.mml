@@ -26,5 +26,12 @@
 	(img mirror
 		(tex mirror.png)
 	)
+
+	(img egg
+		(tex egg.png)
+	)
+	(img player
+		(tex player.png)
+	)
 )
 
