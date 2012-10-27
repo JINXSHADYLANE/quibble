@@ -7,7 +7,7 @@ local bg_color = rgba(0.8, 0.8, 0.8, 1)
 
 -- game state:
 
-local current_level = 5
+local current_level = 1
 
 -- logical player position
 local player_pos = nil
@@ -251,6 +251,7 @@ function game.render(t)
 	game.draw_level(1)
 	game.draw_objs(2)
 	laser.draw(3)
+	game.draw_title(4)
 	
 	return true
 end
@@ -383,6 +384,21 @@ function game.draw_level(layer)
 	sprsheet.draw_centered('corner', layer, grid2screen(vec2(nx, -1)), math.pi/2)
 	sprsheet.draw_centered('corner', layer, grid2screen(vec2(-1, ny)), math.pi*3/2)
 	sprsheet.draw_centered('corner', layer, grid2screen(vec2(nx, ny)), math.pi)
+end
+
+function game.draw_title(layer)
+	local t = (time.s() - 1) / 3
+	if t >= 0 and t <= 1 then
+		local spr = math.floor(time.s() * lerp(10, 2, t)) % 2
+		if spr == 0 then
+			spr = 'title1'
+		else
+			spr = 'title2'
+		end
+		sprsheet.draw_centered(spr, layer, vec2(140, 540),
+			math.sin(t/2)/6, 0.4
+		)
+	end
 end
 
 return game
