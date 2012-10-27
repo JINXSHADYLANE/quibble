@@ -34,9 +34,9 @@ function game_init()
 
 	--mfx.init(asset_dir..'effects.mml')
 	sprsheet.init(asset_dir..'sprsheet.mml')
-	--mus = sound.load_stream(asset_dir..'aftermath.ogg')
+	mus = sound.load_stream(asset_dir..'distressed.ogg')
+	sound.play(mus, true)
 	--fnt = font.load(asset_dir..'Georgia_60px.bft', 0.5, asset_dir)
-	--sound.play(mus, true)
 
 	states.register('game', game)
 	states.push('game')
@@ -44,7 +44,7 @@ end
 
 function game_close()
 	--font.free(fnt)
-	--sound.free(mus)
+	sound.free(mus)
 	sprsheet.close()
 	--mfx.close()
 	sound.close()
