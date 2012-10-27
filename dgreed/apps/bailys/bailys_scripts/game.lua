@@ -13,6 +13,8 @@ local player_pos = nil
 -- interpolations and everything
 local player_draw_pos = nil
 
+local player_has_egg = false
+
 -- list of grid space vec2s
 local eggs = nil
 
@@ -52,6 +54,39 @@ function game.update()
 	local new_pos = player_pos + player_off
 	if not game.is_solid(new_pos) then
 		player_pos = new_pos
+	end
+
+	-- egg take logic
+	if key.down(key.a) then
+		if not player_has_egg then
+			-- linear search for the egg player is standing on
+			for i,egg in ipairs(eggs) do
+				if egg.x == player_pos.x and egg.y == player_pos.y then
+					-- found right egg, take it
+					player_has_egg = true
+
+					-- remove egg from eggs list
+					table.remove(eggs, i)
+				end
+			end
+		else
+			-- put egg down
+			if lvl[grid_idx(player_pos.x, player_pos.y)] == nil then
+				-- make sure we're not putting egg on top of another egg
+				local can_put = true
+				for i,egg in ipairs(eggs) do
+					if egg.x == player_pos.x and egg.y == player_pos.y then
+						can_put = false
+						break
+					end
+				end
+
+				if can_put then
+					player_has_egg = false
+					table.insert(eggs, player_pos)
+				end
+			end
+		end
 	end
 
 	-- smooth player movement by lerping visual pos to logical pos
@@ -125,7 +160,11 @@ function game.draw_objs(layer)
 	end
 
 	-- player
-	sprsheet.draw_centered('player', layer, grid2screen(player_draw_pos))
+	local player_screen_pos = grid2screen(player_draw_pos)
+	sprsheet.draw_centered('player', layer, player_screen_pos)
+	if player_has_egg then
+		sprsheet.draw_centered('egg', layer+1, player_screen_pos) 
+	end
 end
 
 -- draws level geometry - walls, mirrors 
