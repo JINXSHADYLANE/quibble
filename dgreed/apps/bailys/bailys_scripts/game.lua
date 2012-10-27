@@ -3,7 +3,8 @@ local game = {}
 local levels = require('levels')
 local laser = require('laser_mock')
 
-local bg_color = rgba(0.92, 0.9, 0.85, 1)
+--local bg_color = rgba(0.92, 0.9, 0.85, 1)
+local bg_color = rgba(0.8, 0.8, 0.8, 1)
 
 -- game state:
 
@@ -43,6 +44,8 @@ local laser_path = nil
 function game.init()
 	laser.init()
 	game.load_level(levels[1])
+
+	video.set_blendmode(15, 'multiply')
 end
 
 function game.close()
@@ -205,6 +208,9 @@ end
 function game.render(t)
 	-- slightly off-white background
 	sprsheet.draw('empty', 0, scr_rect, bg_color)
+
+	-- vignette
+	sprsheet.draw('vignette', 15, scr_rect, rgba(1, 1, 1, 1))
 
 	game.draw_level(1)
 	game.draw_objs(2)

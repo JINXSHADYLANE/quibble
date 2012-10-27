@@ -36,5 +36,10 @@
 	(img player
 		(tex player.png)
 	)
+
+	(img vignette
+		(tex vignette.png)
+		(src 0,0,1024,1024)
+	)
 )
 
