@@ -44,6 +44,8 @@ local laser_path = nil
 local fadeout_t = nil
 -- did game reset at fadeout middle happen?
 local did_reset = false
+-- should we show ending screen
+local draw_end = false
 
 -- game logic:
 
@@ -218,7 +220,7 @@ function game.update()
 		did_reset = false
 	end
 	
-	if fadeout_t == nil then
+	if fadeout_t == nil and not draw_end then
 		game.update_player()
 		game.update_laser()
 	end
@@ -236,7 +238,11 @@ function game.render(t)
 		local ts = time.s()
 		c = (ts - fadeout_t) / 2
 		if c > 0.5 and not did_reset then
-			game.load_level(levels[current_level])
+			if levels[current_level] then
+				game.load_level(levels[current_level])
+			else
+				draw_end = true
+			end
 			did_reset = true
 		end
 		if c >= 1 then
@@ -248,10 +254,14 @@ function game.render(t)
 	end
 	sprsheet.draw('vignette', 15, scr_rect, rgba(c, c, c, 1))
 
-	game.draw_level(1)
-	game.draw_objs(2)
-	laser.draw(3)
-	game.draw_title(4)
+	if draw_end then
+		game.draw_end(1)
+	else
+		game.draw_level(1)
+		game.draw_objs(2)
+		laser.draw(3)
+		game.draw_title(4)
+	end
 	
 	return true
 end
@@ -332,6 +342,13 @@ function game.draw_objs(layer)
 	end
 end
 
+function game.draw_end(layer)
+	eggs = {}
+	exploded_eggs = {}
+	player_pos = nil
+	sprsheet.draw_centered('draco', layer, scr_size/2)
+end
+
 -- draws level geometry - walls, mirrors 
 -- and outer edges/corners
 function game.draw_level(layer)
@@ -395,8 +412,8 @@ function game.draw_title(layer)
 		else
 			spr = 'title2'
 		end
-		sprsheet.draw_centered(spr, layer, vec2(140, 540),
-			math.sin(t/2)/6, 0.4
+		sprsheet.draw_centered(spr, layer, vec2(180, 520),
+			math.sin(t/2)/6, 0.6
 		)
 	end
 end
