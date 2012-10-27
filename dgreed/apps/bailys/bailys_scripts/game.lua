@@ -1,7 +1,7 @@
 local game = {}
 
 local levels = require('levels')
-local laser = require('laser_mock')
+local laser = require('laser')
 
 local bg_color = rgba(0.8, 0.8, 0.8, 1)
 
