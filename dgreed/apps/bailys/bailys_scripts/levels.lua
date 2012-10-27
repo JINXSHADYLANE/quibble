@@ -1,11 +1,19 @@
 local levels = {}
 
 levels[1] = {
-	'          ',
-	'  ##  r   ',
-	'     e  S ',
-	'l    e    ',
-	'          '
+	'         ',
+	'  ##     ',
+	'     e S ',
+	'     e   ',
+	'         '
+}
+
+levels[2] = {
+	'         ',
+	'  ##     ',
+	' r    l S',
+	'    ee l ',
+	'        l'
 }
 
 return levels

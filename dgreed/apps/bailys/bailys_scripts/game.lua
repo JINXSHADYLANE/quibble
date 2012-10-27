@@ -3,10 +3,11 @@ local game = {}
 local levels = require('levels')
 local laser = require('laser_mock')
 
---local bg_color = rgba(0.92, 0.9, 0.85, 1)
 local bg_color = rgba(0.8, 0.8, 0.8, 1)
 
 -- game state:
+
+local current_level = 1
 
 -- logical player position
 local player_pos = nil
@@ -39,11 +40,16 @@ local laser_start_x = nil
 -- path of laser beam
 local laser_path = nil
 
+-- time when fadeout starts
+local fadeout_t = nil
+-- did game reset at fadeout middle happen?
+local did_reset = false
+
 -- game logic:
 
 function game.init()
 	laser.init()
-	game.load_level(levels[1])
+	game.load_level(levels[current_level])
 
 	video.set_blendmode(15, 'multiply')
 end
@@ -131,9 +137,9 @@ function game.laser_path(x)
 
 		-- change direction at mirrors
 		if tile == 'r' then
-			dir = vec2(dir.y, -dir.x)
+			dir = vec2(dir.y, dir.x) 
 		elseif tile == 'l' then
-			dir = vec2(-dir.y, dir.x)
+			dir = vec2(-dir.y, -dir.x)
 		end
 
 		p = p + dir
@@ -159,13 +165,21 @@ function game.update_laser()
 		--print('laser off')
 
 		laser.off()
+		laser_path = nil
 
 		laser_off_t = laser_on_t + laser_on_len
 		laser_start_x = laser_start_x + 1
 
 		-- level end check
 		if laser_start_x == level_size.x then
-			print('level end')
+			fadeout_t = time.s()
+			did_reset = false
+			if #exploded_eggs == 0 then
+				-- level solved
+				current_level = current_level + 1
+			else
+				-- level failed, autoreset
+			end
 		end
 	end
 
@@ -198,9 +212,16 @@ function game.update()
 	if key.down(key.quit) or char.down('q') then
 		return false
 	end
+
+	if char.down('r') then
+		fadeout_t = time.s()
+		did_reset = false
+	end
 	
-	game.update_player()
-	game.update_laser()
+	if fadeout_t == nil then
+		game.update_player()
+		game.update_laser()
+	end
 
 	return true
 end
@@ -210,7 +231,22 @@ function game.render(t)
 	sprsheet.draw('empty', 0, scr_rect, bg_color)
 
 	-- vignette
-	sprsheet.draw('vignette', 15, scr_rect, rgba(1, 1, 1, 1))
+	local c = 1
+	if fadeout_t then
+		local ts = time.s()
+		c = (ts - fadeout_t) / 2
+		if c > 0.5 and not did_reset then
+			game.load_level(levels[current_level])
+			did_reset = true
+		end
+		if c >= 1 then
+			c = 1
+			fadeout_t = nil
+		end
+
+		c = 1 - math.sin(c * math.pi)
+	end
+	sprsheet.draw('vignette', 15, scr_rect, rgba(c, c, c, 1))
 
 	game.draw_level(1)
 	game.draw_objs(2)
