@@ -182,9 +182,11 @@ function game.draw_level(layer)
 			elseif tile == '#' then
 				sprsheet.draw_centered('wall', layer, screen_pos)
 			elseif tile == 'l' then
+				sprsheet.draw_centered('tile', layer, screen_pos)
 				sprsheet.draw_centered('mirror', layer, screen_pos)
 			elseif tile == 'r' then
-				sprsheet.draw_centered('mirror', layer, screen_pos, math.pi/2)
+				sprsheet.draw_centered('tile', layer, screen_pos)
+				sprsheet.draw_centered('mirror', layer+1, screen_pos, math.pi/2)
 			end
 		end
 	end
