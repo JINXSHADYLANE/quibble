@@ -41,5 +41,14 @@
 		(tex vignette.png)
 		(src 0,0,1024,1024)
 	)
+
+	(img title1
+		(tex title1.png)
+		(src 0,0,512,512)
+	)
+	(img title2
+		(tex title2.png)
+		(src 0,0,512,512)
+	)
 )
 
