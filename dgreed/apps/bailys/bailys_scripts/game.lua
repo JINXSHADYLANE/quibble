@@ -34,6 +34,29 @@ function game.update()
 		return false
 	end
 
+	-- control player
+	local player_off = vec2(0, 0)
+	local move_dirs = {
+		[key._up] = vec2(0, -1),
+		[key._right] = vec2(1, 0),
+		[key._down] = vec2(0, 1),
+		[key._left] = vec2(-1, 0)
+	}
+
+	for dir, off in pairs(move_dirs) do
+		if key.down(dir) then
+			player_off = player_off + off
+		end
+	end
+	
+	local new_pos = player_pos + player_off
+	if not game.is_solid(new_pos) then
+		player_pos = new_pos
+	end
+
+	-- smooth player movement by lerping visual pos to logical pos
+	player_draw_pos = lerp(player_draw_pos, player_pos, 0.2)
+
 	return true
 end
 
@@ -42,8 +65,21 @@ function game.render(t)
 	sprsheet.draw('empty', 0, scr_rect, bg_color)
 
 	game.draw_level(1)
+	game.draw_objs(2)
 	
 	return true
+end
+
+-- returns true if there is a wall or edge of 
+-- the level at specific grid pos
+function game.is_solid(grid_pos)
+	if grid_pos.x < 0 or grid_pos.x >= level_size.x then
+		return true
+	elseif grid_pos.y < 0 or grid_pos.y >= level_size.y then
+		return true
+	end
+
+	return lvl[grid_idx(grid_pos.x, grid_pos.y)] ~= nil
 end
 
 -- parses levels and preps everything up for rendering
@@ -79,6 +115,17 @@ function game.load_level(lvldesc)
 			x = x + 1
 		end
 	end
+end
+
+-- draws objects - player and eggs
+function game.draw_objs(layer)
+	-- eggs
+	for i,egg in ipairs(eggs) do
+		sprsheet.draw_centered('egg', layer, grid2screen(egg))
+	end
+
+	-- player
+	sprsheet.draw_centered('player', layer, grid2screen(player_draw_pos))
 end
 
 -- draws level geometry - walls, mirrors 
