@@ -7,7 +7,7 @@ local bg_color = rgba(0.8, 0.8, 0.8, 1)
 
 -- game state:
 
-local current_level = 1
+local current_level = 7
 
 -- logical player position
 local player_pos = nil
@@ -307,6 +307,7 @@ function game.load_level(lvldesc)
 	-- reset game state
 	player_pos = nil
 	player_draw_pos = nil
+	player_has_egg = false
 	eggs = {}
 	exploded_eggs = {}
 	lvl = {}
