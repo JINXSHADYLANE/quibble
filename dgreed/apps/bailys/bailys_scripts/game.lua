@@ -81,8 +81,9 @@ function game.update_player()
 	end
 	
 	local new_pos = player_pos + player_off
-	if not game.is_solid(new_pos) then
+	if length_sq(player_off) > 0 and not game.is_solid(new_pos) then
 		player_pos = new_pos
+		mfx.trigger('walk')
 	end
 
 	-- egg take logic
@@ -96,6 +97,7 @@ function game.update_player()
 
 					-- remove egg from eggs list
 					table.remove(eggs, i)
+					mfx.trigger('egg_take')
 				end
 			end
 		else
@@ -113,6 +115,7 @@ function game.update_player()
 				if can_put then
 					player_has_egg = false
 					table.insert(eggs, player_pos)
+					mfx.trigger('egg_take')
 				end
 			end
 		end
@@ -177,6 +180,7 @@ function game.update_laser()
 		laser.on(path)
 
 		laser_on_t = laser_off_t + laser_off_len
+		mfx.trigger('laser')
 	end
 
 	if t >= laser_off_t then
@@ -195,8 +199,10 @@ function game.update_laser()
 			if #exploded_eggs == 0 then
 				-- level solved
 				current_level = current_level + 1
+				mfx.trigger('lvlend_good')
 			else
 				-- level failed, autoreset
+				mfx.trigger('lvlend_bad')
 			end
 		end
 	end
@@ -210,6 +216,7 @@ function game.update_laser()
 				if egg.x == p.x and egg.y == p.y then
 					table.remove(eggs, j)
 					table.insert(exploded_eggs, p)
+					mfx.trigger('egg_explode')
 					break
 				end
 			end
@@ -219,6 +226,7 @@ function game.update_laser()
 				if player_pos.x == p.x and player_pos.y == p.y then
 					player_has_egg = false
 					table.insert(exploded_eggs, p)
+					mfx.trigger('egg_explode')
 				end
 			end
 		end
@@ -234,6 +242,7 @@ function game.update()
 	end
 
 	sound.update()
+	mfx.update()
 
 	-- reset level
 	if char.down('r') then
@@ -365,9 +374,9 @@ function game.draw_objs(layer)
 	local player_screen_pos = grid2screen(player_draw_pos)
 	local frames =  {'player1', 'player2', 'player3'} 
 	local frame = frames[math.floor(player_frame)]
-	sprsheet.draw_centered(frame, layer, player_screen_pos)
+	sprsheet.draw_centered(frame, layer+1, player_screen_pos)
 	if player_has_egg then
-		sprsheet.draw_centered('egg', layer+1, player_screen_pos) 
+		sprsheet.draw_centered('egg', layer+2, player_screen_pos) 
 	end
 end
 
