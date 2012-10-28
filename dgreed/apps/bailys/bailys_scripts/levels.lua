@@ -60,7 +60,7 @@ levels[7] = {
 levels[8] = {
 	' e re l ',
 	'Sr    el',
-	'  r  l  ',
+	'##r  l  ',
 }
 
 levels[9] = {
