@@ -1,8 +1,9 @@
 
-[ bailys ]
+ [ bailys ]
 
 A little game about a walking nest, some eggs,
-laser and cowardliness. Keep the eggs alive!
+steam-powered laser and heroic courage. 
+Keep the eggs alive!
 
 
 Controls:
