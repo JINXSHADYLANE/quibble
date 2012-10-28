@@ -4,9 +4,6 @@
 	(img empty
 		(tex empty.png)
 	)
-	(img laser
-		(tex laser.png)
-	)
 	(img beam
 		(tex beam.png)
 	)
@@ -60,6 +57,11 @@
 	(img draco
 		(tex draco.png)
 		(src 0,0,512,512)
+	)
+
+	(img laser_box
+		(tex laser_box.png)
+		(src 0,0,64,64)
 	)
 )
 
