@@ -169,6 +169,8 @@ function game.update_laser()
 		-- time to turn laser on
 
 		local path = game.laser_path(laser_start_x)
+		-- insert initial segment at the beginning
+		table.insert(path, 1, vec2(laser_start_x, -1))
 		laser.on(path)
 
 		laser_on_t = laser_off_t + laser_off_len
