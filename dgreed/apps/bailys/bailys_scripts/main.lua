@@ -32,21 +32,19 @@ function game_init()
 	video.init_ex(real_size.x, real_size.y, scr_size.x, scr_size.y, 'bailys', false)
 	sound.init()
 
-	--mfx.init(asset_dir..'effects.mml')
+	mfx.init(asset_dir..'effects.mml')
 	sprsheet.init(asset_dir..'sprsheet.mml')
 	mus = sound.load_stream(asset_dir..'distressed.ogg')
 	sound.play(mus, true)
-	--fnt = font.load(asset_dir..'Georgia_60px.bft', 0.5, asset_dir)
 
 	states.register('game', game)
 	states.push('game')
 end
 
 function game_close()
-	--font.free(fnt)
 	sound.free(mus)
 	sprsheet.close()
-	--mfx.close()
+	mfx.close()
 	sound.close()
 	video.close()
 end
