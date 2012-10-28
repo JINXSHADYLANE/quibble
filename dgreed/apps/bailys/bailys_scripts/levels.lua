@@ -38,12 +38,22 @@ levels[5] = {
 }
 
 levels[6] = {
+	'       e  ',
+	'      e#  ',
+	'     e   l',
+	'    e#  l ',
+	'   e     #',
+	'  e#      ',
+	' e#   l  S'
+}
+
+levels[7] = {
 	' e re l ',
 	'Sr    el',
 	'  r  l  ',
 }
 
-levels[7] = {
+levels[8] = {
 	' l     r ',
 	' rr  e  #',
 	' # eS e #',
