@@ -3,7 +3,7 @@ local laser = {}
 -- called once in the beginning
 function laser.init()
 	the_beam = {}
-	ph_count = 10
+	ph_count = 20
 	laser_on = false
 end
 
@@ -19,24 +19,15 @@ end
 function laser.on(path)
 	the_beam = {
 		path = path,
-		beams = {}	
+		photon = {}	
 		}
 
-	local pos1 = grid2screen(the_beam.path[1])
-	local pos2 = nil
-	for i = 2,#the_beam.path do
-		the_beam.beams[i-1] = {
-			photon = {}
-		}
-		pos2 = grid2screen(the_beam.path[i])
-		for j = 1,ph_count do
-			the_beam.beams[i-1].photon[j] = {
-				size = rand.float(0.5, 1.0),
-				rand = rand.float(0, 2),
-				pos = lerp(pos1, pos2, rand.float(0, 1))
+	for j = 1,ph_count*#path do
+		the_beam.photon[j] = {
+				size = 0.8,
+				rand = rand.float(0.5, 2),
+				pos = rand.float(0, 1)
 			}
-		end
-		pos1 = pos2
 	end
 	laser_on = true
 end
@@ -58,30 +49,35 @@ function laser.draw(layer)
 			video.draw_seg(layer, pos1, pos2, rgba(0, 0, 0.2, 1))
 			pos1 = pos2
 		end
-		for i, b in ipairs(the_beam.beams) do			
-			for j, ph in ipairs(b.photon) do
-				sprsheet.draw_centered('beam', layer, ph.pos, 0, ph.size)
-			end
+		for i, ph in ipairs(the_beam.photon) do
+			local pos = pos_in_beam(ph.pos)	
+			local size = ph.size + 0.6*math.sin(ph.rand * time.s() + ph.rand)
+			sprsheet.draw_centered('beam', layer, pos, 0, size)
 		end
 	end
 end
 
 function laser.update(dt)
 	if laser_on then
-		for i, b in ipairs(the_beam.beams) do
-			for j, ph in ipairs(b.photon) do
-				local diff = the_beam.path[i+1] - the_beam.path[i]
-				local dx = sign(diff.x) * ph.rand*0.4
-				local dy = sign(diff.y) * ph.rand*0.4
-				
-				ph.pos = ph.pos + vec2(dx, dy)
-			end
+		for i, ph in ipairs(the_beam.photon) do
+				ph.pos = ph.pos + 0.05/#the_beam.path
+				if ph.pos >= 1 then
+					ph.pos = ph.pos-1
+				end
+			--	ph.size = ph.size + 0.005
 		end
 	end
 end
 
-function sign(x)
-  return x>0 and 1 or x<0 and -1 or 0
+function pos_in_beam(t)
+	assert(t >= 0 and t < 1)
+	local n = (#the_beam.path-1) * t
+	local i = math.floor(n) + 1
+	local j = n - i + 1
+	assert(i >= 1 and i < #the_beam.path)
+	local pos1 = grid2screen(the_beam.path[i])
+	local pos2 = grid2screen(the_beam.path[i+1])
+	return lerp(pos1, pos2, j)
 end
 
 return laser
