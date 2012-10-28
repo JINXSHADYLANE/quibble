@@ -20,9 +20,6 @@ function laser.on(path)
 		path = path,
 		beams = {}	
 		}
-	table.insert(the_beam.path, 1, vec2(path[1].x, path[1].y - 1))
-	local diff = (path[#path] - path[#path-1])*0.5
-	table.insert(the_beam.path, path[#path] + diff)
 
 	local pos1 = grid2screen(the_beam.path[1])
 	local pos2 = nil
@@ -30,7 +27,7 @@ function laser.on(path)
 		the_beam.beams[i] = {
 			photon = {}
 		}
-		pos2 = grid2screen(path[i])
+		pos2 = grid2screen(the_beam.path[i])
 		for j = 1,3 do
 			the_beam.beams[i].photon[j] = {
 				size = rand.float(0.5, 1.0),
@@ -72,7 +69,7 @@ function laser.update(dt)
 	if laser_on then
 		for i, b in ipairs(the_beam.beams) do
 			for j, ph in ipairs(b.photon) do
-				ph.pos = ph.pos + vec2(math.sin(ph.rand + dt)*0.05, math.cos(ph.rand)*0.1)
+				ph.pos = ph.pos-- + vec2(0.05*math.cos(ph.rand), 0.1*math.sin(ph.rand + dt))
 			end
 		end
 	end
