@@ -3,6 +3,7 @@ local laser = {}
 -- called once in the beginning
 function laser.init()
 	the_beam = {}
+	ph_count = 10
 	laser_on = false
 end
 
@@ -24,14 +25,14 @@ function laser.on(path)
 	local pos1 = grid2screen(the_beam.path[1])
 	local pos2 = nil
 	for i = 2,#the_beam.path do
-		the_beam.beams[i] = {
+		the_beam.beams[i-1] = {
 			photon = {}
 		}
 		pos2 = grid2screen(the_beam.path[i])
-		for j = 1,3 do
-			the_beam.beams[i].photon[j] = {
+		for j = 1,ph_count do
+			the_beam.beams[i-1].photon[j] = {
 				size = rand.float(0.5, 1.0),
-				rand = rand.float(0, 1),
+				rand = rand.float(0, 2),
 				pos = lerp(pos1, pos2, rand.float(0, 1))
 			}
 		end
@@ -59,7 +60,7 @@ function laser.draw(layer)
 		end
 		for i, b in ipairs(the_beam.beams) do			
 			for j, ph in ipairs(b.photon) do
-				sprsheet.draw_centered('beam', layer, ph.pos)
+				sprsheet.draw_centered('beam', layer, ph.pos, 0, ph.size)
 			end
 		end
 	end
@@ -69,10 +70,18 @@ function laser.update(dt)
 	if laser_on then
 		for i, b in ipairs(the_beam.beams) do
 			for j, ph in ipairs(b.photon) do
-				ph.pos = ph.pos-- + vec2(0.05*math.cos(ph.rand), 0.1*math.sin(ph.rand + dt))
+				local diff = the_beam.path[i+1] - the_beam.path[i]
+				local dx = sign(diff.x) * ph.rand*0.4
+				local dy = sign(diff.y) * ph.rand*0.4
+				
+				ph.pos = ph.pos + vec2(dx, dy)
 			end
 		end
 	end
+end
+
+function sign(x)
+  return x>0 and 1 or x<0 and -1 or 0
 end
 
 return laser
