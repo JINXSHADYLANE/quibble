@@ -12,6 +12,9 @@ local current_level = 1
 -- logical player position
 local player_pos = nil
 
+-- frame number, 1-3
+local player_frame = 1
+
 -- visual player position, with nice 
 -- interpolations and everything
 local player_draw_pos = nil
@@ -53,6 +56,7 @@ function game.init()
 	laser.init()
 	game.load_level(levels[current_level])
 
+	-- set 15 layer to multiply blend, for vignette
 	video.set_blendmode(15, 'multiply')
 end
 
@@ -116,6 +120,12 @@ function game.update_player()
 
 	-- smooth player movement by lerping visual pos to logical pos
 	player_draw_pos = lerp(player_draw_pos, player_pos, 0.2)
+	if length_sq(player_draw_pos - player_pos) > 0.1 then
+		player_frame = player_frame + 0.38
+		if player_frame >= 4 then
+			player_frame = 1
+		end
+	end
 end
 
 function game.laser_path(x)
@@ -156,7 +166,8 @@ function game.update_laser()
 	local t = time.s()
 
 	if t >= laser_on_t then
-		--print('laser on')
+		-- time to turn laser on
+
 		local path = game.laser_path(laser_start_x)
 		laser.on(path)
 
@@ -164,8 +175,8 @@ function game.update_laser()
 	end
 
 	if t >= laser_off_t then
-		--print('laser off')
-
+		-- time to turn laser off and move it right
+		
 		laser.off()
 		laser_path = nil
 
@@ -186,6 +197,8 @@ function game.update_laser()
 	end
 
 	if laser_path then
+		-- check if laser path hits an egg
+
 		for i,p in ipairs(laser_path) do
 			-- if egg was hit - explode it
 			for j,egg in ipairs(eggs) do
@@ -217,11 +230,14 @@ function game.update()
 
 	sound.update()
 
+	-- reset level
 	if char.down('r') then
 		fadeout_t = time.s()
 		did_reset = false
 	end
 	
+	-- if game not finished and not in transition -
+	-- perform logic update
 	if fadeout_t == nil and not draw_end then
 		game.update_player()
 		game.update_laser()
@@ -240,6 +256,7 @@ function game.render(t)
 		local ts = time.s()
 		c = (ts - fadeout_t) / 2
 		if c > 0.5 and not did_reset then
+			-- reset/load next level at the blackest fadeout point (c=0.5)
 			if levels[current_level] then
 				game.load_level(levels[current_level])
 			else
@@ -257,8 +274,10 @@ function game.render(t)
 	sprsheet.draw('vignette', 15, scr_rect, rgba(c, c, c, 1))
 
 	if draw_end then
+		-- draw end screen
 		game.draw_end(1)
 	else
+		-- draw all game elements
 		game.draw_level(1)
 		game.draw_objs(2)
 		laser.draw(3)
@@ -339,7 +358,7 @@ function game.draw_objs(layer)
 	-- player
 	local player_screen_pos = grid2screen(player_draw_pos)
 	local frames =  {'player1', 'player2', 'player3'} 
-	local frame = frames[math.floor(time.s()*8)%3 + 1]
+	local frame = frames[math.floor(player_frame)]
 	sprsheet.draw_centered(frame, layer, player_screen_pos)
 	if player_has_egg then
 		sprsheet.draw_centered('egg', layer+1, player_screen_pos) 
@@ -409,13 +428,17 @@ end
 
 function game.draw_title(layer)
 	local t = (time.s() - 1) / 3
+	-- show title only between seconds 1 - 3
 	if t >= 0 and t <= 1 then
+		-- dramatically flicker between two images
 		local spr = math.floor(time.s() * lerp(10, 2, t)) % 2
 		if spr == 0 then
 			spr = 'title1'
 		else
 			spr = 'title2'
 		end
+
+		-- draw, slightly turning it clockwise for even more drama
 		sprsheet.draw_centered(spr, layer, vec2(180, 520),
 			math.sin(t/2)/6, 0.6
 		)
