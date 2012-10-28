@@ -43,6 +43,9 @@ local laser_start_x = nil
 -- path of laser beam
 local laser_path = nil
 
+-- laser box position
+local laser_box_pos = nil
+
 -- time when fadeout starts
 local fadeout_t = nil
 -- did game reset at fadeout middle happen?
@@ -230,6 +233,14 @@ function game.update_laser()
 				end
 			end
 		end
+	else
+		local t = 1 + (time.s() - laser_on_t)
+		laser_box_pos = smoothstep(
+			vec2(laser_start_x-1, -1.4),
+			vec2(laser_start_x, -1.4),
+			t
+		)
+		laser_box_pos = grid2screen(laser_box_pos)
 	end
 
 	laser.update(time.dt())
@@ -277,6 +288,7 @@ function game.render(t)
 				draw_end = true
 			end
 			did_reset = true
+			laser_box_pos = nil
 		end
 		if c >= 1 then
 			c = 1
@@ -295,6 +307,9 @@ function game.render(t)
 		game.draw_level(1)
 		game.draw_objs(2)
 		laser.draw(3)
+		if laser_box_pos then
+			sprsheet.draw_centered('laser_box', 3, laser_box_pos)
+		end
 		game.draw_title(4)
 	end
 	
