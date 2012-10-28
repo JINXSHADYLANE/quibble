@@ -7,7 +7,7 @@ local bg_color = rgba(0.8, 0.8, 0.8, 1)
 
 -- game state:
 
-local current_level = 7
+local current_level = 1
 
 -- logical player position
 local player_pos = nil
@@ -136,7 +136,7 @@ function game.laser_path(x)
 	local nx, ny = level_size.x, level_size.y
 
 	-- advance laser beam while it's in the level grid
-	while p.x >= 0 and p.x < nx and p.y >= 0 and p.y <= ny do
+	while p.x >= 0 and p.x < nx and p.y >= 0 and p.y < ny do
 
 		local tile = lvl[grid_idx(p.x, p.y)]
 
@@ -156,6 +156,9 @@ function game.laser_path(x)
 
 		p = p + dir
 	end
+	-- add half a tile at the end
+	p = p - dir * 0.5
+	table.insert(path, p)
 
 	laser_path = path
 
