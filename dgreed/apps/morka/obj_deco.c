@@ -25,6 +25,7 @@ static void obj_deco_construct(GameObject* self, Vector2 pos, void* user_data) {
 	render->extent_max = dest.right;
 	render->scale = 1.0f;
 	render->layer = 1;
+	render->camera = 1;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
 	render->became_invisible = obj_deco_became_invisible;
