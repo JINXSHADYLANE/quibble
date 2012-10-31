@@ -40,7 +40,8 @@ typedef struct FwdRenderComponent {
 	float extent_min, extent_max;
 	Vector2 world_pos;
 	float scale, angle;
-	uint16 layer;
+	uint8 layer;
+	uint8 camera;
 	uint16 anim_frame;
 	SprHandle spr;
 	bool was_visible;
@@ -88,7 +89,7 @@ typedef struct {
 // Public api:
 
 extern CDWorld* objects_cdworld;
-extern RectF objects_camera;
+extern RectF objects_camera[2];
 
 void objects_init(void);
 void objects_close(void);

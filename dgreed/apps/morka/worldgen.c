@@ -89,10 +89,10 @@ void worldgen_close(void) {
 	rand_free_ex(&rnd);
 }
 
-void worldgen_update(float camera_extent_max) {
-	if(camera_extent_max >= fg_page_cursor)
+void worldgen_update(float fg_camera_extent_max, float bg_camera_extent_max) {
+	if(fg_camera_extent_max >= fg_page_cursor)
 		_gen_fg_page();
-	if(camera_extent_max >= bg_page_cursor)
+	if(bg_camera_extent_max >= bg_page_cursor)
 		_gen_bg_page();
 }
 

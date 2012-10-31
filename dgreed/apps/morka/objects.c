@@ -7,7 +7,10 @@
 
 #define MAX_GAMEOBJECT_SIZE (sizeof(GameObject) * 2)
 
-RectF objects_camera = {0.0f, 0.0f, 1024.0f, 768.0f};
+RectF objects_camera[2] = {
+	{0.0f, 0.0f, 1024.0f, 768.0f},
+	{0.0f, 0.0f, 1024.0f, 768.0f}
+};
 
 static CDWorld cdworld;
 CDWorld* objects_cdworld = &cdworld;
@@ -151,8 +154,8 @@ static void objects_physics_tick(uint n_components) {
 		if(draw_physics_debug) {
 			Vector2 collider_pos = vec2_add(cd->pos, cd->offset);
 			collider_pos = vec2_sub(collider_pos, vec2(
-				objects_camera.left,
-				objects_camera.top
+				objects_camera[0].left,
+				objects_camera[0].top
 			));
 			RectF collider = {
 				collider_pos.x, 
@@ -171,17 +174,7 @@ static void objects_physics_tick(uint n_components) {
 static void objects_render_tick(uint n_components) {
 	assert(render.size >= n_components);
 	RenderComponent* rndr = darray_get(&render, 0);
-
-	// Precalc useful camera data
-	Vector2 camera_topleft = {
-		.x = objects_camera.left, 
-		.y = objects_camera.top
-	};
-	Vector2 camera_center = rectf_center(&objects_camera);
-	float camera_half_width = rectf_width(&objects_camera) / 2.0f;
-	float camera_extent_min = camera_center.x - camera_half_width;
-	float camera_extent_max = camera_center.x + camera_half_width;
-
+	
 	// This checks visibility of every object,
 	// might be a good idea to optimize later on
 	for(uint i = 0; i < n_components; ++i) {
@@ -189,10 +182,12 @@ static void objects_render_tick(uint n_components) {
 
 		if(r->update_pos)
 			(r->update_pos)(r->owner);
+	
+		RectF* camera = &objects_camera[r->camera];
 
 		bool is_visible = 
-			(r->extent_max >= camera_extent_min) 
-			&& (r->extent_min <= camera_extent_max);
+			(r->extent_max >= camera->left) 
+			&& (r->extent_min <= camera->right);
 
 		if(is_visible) {
 			if(!r->was_visible && r->became_visible)
@@ -200,6 +195,11 @@ static void objects_render_tick(uint n_components) {
 
 			if(r->pre_render)
 				(r->pre_render)(r->owner);
+
+			Vector2 camera_topleft = {
+				.x = camera->left,
+				.y = camera->top
+			};
 
 			Vector2 screen_pos = vec2_sub(r->world_pos, camera_topleft);
 
