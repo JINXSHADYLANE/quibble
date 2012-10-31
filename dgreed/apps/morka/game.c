@@ -22,8 +22,6 @@ static void game_init(void) {
 	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), NULL);
 
 	worldgen_reset(20);
-	worldgen_show(worldgen_current());
-	worldgen_show(worldgen_next());
 }
 
 static void game_close(void) {
@@ -54,11 +52,7 @@ static bool game_update(void) {
 		objects_camera.right += camera_offset;
 	}
 
-	uint page = (uint)floorf(objects_camera.left / 1024.0f);
-	if(page != last_page) {
-		worldgen_show(worldgen_new_page());
-		last_page = page;
-	}
+	worldgen_update(objects_camera.right);
 
 	return true;
 }
