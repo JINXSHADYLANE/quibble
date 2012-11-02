@@ -17,7 +17,7 @@ Example
 	)
 
 	(def title
-		(add _ (middle _ (get_rect screen)) (vec2 0,-100))
+		(add <- (middle <- (get_rect screen)) (vec2 0,-100))
 		(spr title)
 	)
 )
@@ -45,20 +45,20 @@ Example
 // (get_vec2 name)
 // Constructs vec2 of named ui element
 //
-// (add _ list)
+// (add <- list)
 // Adds a list of vec2 elements, constructs result vec2 element
 //
-// (radd _ list)
+// (radd <- list)
 // First list element must be rect, others - vec2;
 // constructs rect shifted by all the vec2s.
 //
-// (avg _ list)
+// (avg <- list)
 // Constructs average of a list of vec2s
 //
-// (middle _ rect)
+// (middle rect)
 // Constructs vec2 with middle point of rect
 //
-// (tl|tr|bl|br _ rect)
+// (tl|tr|bl|br rect)
 // Top-left, top-right... corner of rect 
 
 typedef enum {
@@ -69,8 +69,6 @@ typedef enum {
 
 typedef struct {
 	const char* name;
-	// If name fits, we store it here
-	char name_storage[8];
 
 	// Empty if no children
 	ListHead child_list;
