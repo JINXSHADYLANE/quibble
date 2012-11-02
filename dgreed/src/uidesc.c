@@ -223,16 +223,16 @@ UIElement* _parse_def(MMLObject* mml, NodeIdx node) {
 		}
 		else {
 			// Eval a function
-			if(_is_vec2_fun(mml, node)) {
-				new->vec2 = _vec2_fun(mml, node);
+			if(_is_vec2_fun(mml, element)) {
+				new->vec2 = _vec2_fun(mml, element);
 				new->members |= UI_EL_VEC2;
 			}
-			else if(_is_rect_fun(mml, node)) {
-				new->rect = _rect_fun(mml, node);
+			else if(_is_rect_fun(mml, element)) {
+				new->rect = _rect_fun(mml, element);
 				new->members |= UI_EL_RECT;
 			}
-			else if(_is_spr_fun(mml, node)) {
-				new->spr = _spr_fun(mml, node);
+			else if(_is_spr_fun(mml, element)) {
+				new->spr = _spr_fun(mml, element);
 				new->members |= UI_EL_SPR;
 			}
 		}
