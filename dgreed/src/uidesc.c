@@ -22,9 +22,9 @@ static bool _is_vec2_fun(MMLObject* mml, NodeIdx node) {
 	return false;
 }
 
-static RectF _rect_fun(MMLObject* mml, NodeIdx node);
+static RectF _rect_fun(MMLObject* mml, NodeIdx node, UIElement* context);
 
-static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node) {
+static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
 	assert(_is_vec2_fun(mml, node));
 
 	const char* name = mml_get_name(mml, node);
@@ -35,7 +35,12 @@ static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node) {
 	else if(strcmp(name, "get_vec2") == 0) {
 		// TODO: check local defs too
 		const char* element_name = mml_getval_str(mml, node);
-		const UIElement* el = dict_get(&ui_dict, element_name);
+
+		const UIElement* el = uidesc_get_child(context, element_name);
+
+		if(!el)
+			el = dict_get(&ui_dict, element_name);
+
 		if(el && (el->members & UI_EL_VEC2)) {
 			return el->vec2;
 		}
@@ -53,7 +58,7 @@ static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node) {
 			Vector2 sum = vec2(0.0f, 0.0f);
 			NodeIdx child = mml_get_first_child(mml, node);
 			for(; child != 0; child = mml_get_next(mml, child)) {
-				sum = vec2_add(sum, _vec2_fun(mml, child));
+				sum = vec2_add(sum, _vec2_fun(mml, child, context));
 				n++;
 			}
 
@@ -71,7 +76,7 @@ static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node) {
 		}
 		else if(strcmp(name, "middle") == 0) {
 			NodeIdx child = mml_get_first_child(mml, node);
-			RectF rect = _rect_fun(mml, child);
+			RectF rect = _rect_fun(mml, child, context);
 			return rectf_center(&rect);
 		}
 		else {
@@ -82,15 +87,15 @@ static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node) {
 
 			if(tl || tr || bl || br) {
 				NodeIdx child = mml_get_first_child(mml, node);
-				RectF rect = _rect_fun(mml, child);
+				RectF rect = _rect_fun(mml, child, context);
 				if(tl)
-					return vec2(rect.top, rect.left);
+					return vec2(rect.left, rect.top);
 				if(tr)
-					return vec2(rect.top, rect.right);
+					return vec2(rect.right, rect.top);
 				if(bl)
-					return vec2(rect.bottom, rect.left);
+					return vec2(rect.left, rect.bottom);
 				if(br)
-					return vec2(rect.bottom, rect.right);
+					return vec2(rect.right, rect.bottom);
 			}
 
 			LOG_WARNING("Unable to eval vec2 function %s", name);
@@ -113,7 +118,7 @@ static bool _is_rect_fun(MMLObject* mml, NodeIdx node) {
 	return false;
 }
 
-static RectF _rect_fun(MMLObject* mml, NodeIdx node) {
+static RectF _rect_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
 	assert(_is_rect_fun(mml, node));
 
 	const char* name = mml_get_name(mml, node);
@@ -124,7 +129,12 @@ static RectF _rect_fun(MMLObject* mml, NodeIdx node) {
 	else if(strcmp(name, "get_rect") == 0) {
 		// TODO: Check local defs too
 		const char* element_name = mml_getval_str(mml, node);
-		const UIElement* el = dict_get(&ui_dict, element_name);
+
+		const UIElement* el = uidesc_get_child(context, element_name);
+
+		if(!el)
+			el = dict_get(&ui_dict, element_name);
+
 		if(el && (el->members & UI_EL_RECT)) {
 			return el->rect;
 		}
@@ -137,9 +147,9 @@ static RectF _rect_fun(MMLObject* mml, NodeIdx node) {
 		uint n = 0;
 		Vector2 sum = vec2(0.0f, 0.0f);
 		NodeIdx child = mml_get_first_child(mml, node);
-		RectF rect = _rect_fun(mml, child);
+		RectF rect = _rect_fun(mml, child, context);
 		for(child = mml_get_next(mml, child); child != 0; child = mml_get_next(mml, child)) {
-			sum = vec2_add(sum, _vec2_fun(mml, child));
+			sum = vec2_add(sum, _vec2_fun(mml, child, context));
 			n++;
 		}
 		rect.left += sum.x; rect.right += sum.x;
@@ -224,11 +234,11 @@ UIElement* _parse_def(MMLObject* mml, NodeIdx node) {
 		else {
 			// Eval a function
 			if(_is_vec2_fun(mml, element)) {
-				new->vec2 = _vec2_fun(mml, element);
+				new->vec2 = _vec2_fun(mml, element, new);
 				new->members |= UI_EL_VEC2;
 			}
 			else if(_is_rect_fun(mml, element)) {
-				new->rect = _rect_fun(mml, element);
+				new->rect = _rect_fun(mml, element, new);
 				new->members |= UI_EL_RECT;
 			}
 			else if(_is_spr_fun(mml, element)) {
