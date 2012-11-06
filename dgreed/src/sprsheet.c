@@ -405,6 +405,17 @@ uint sprsheet_get_anim_frames_h(SprHandle handle) {
 	return desc->frames;
 }
 
+Vector2 sprsheet_get_size(const char* name) {
+	return sprsheet_get_size_h(sprsheet_get_handle(name));
+}
+
+Vector2 sprsheet_get_size_h(SprHandle handle) {
+	SprDesc* desc = _get_desc(handle);
+	float w = rectf_width(&desc->src) * sprsheet_scale;
+	float h = rectf_height(&desc->src) * sprsheet_scale;
+	return vec2(w, h);
+}
+
 
 // Rendering helpers
 
