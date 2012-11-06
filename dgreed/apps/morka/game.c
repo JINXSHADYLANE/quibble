@@ -3,6 +3,7 @@
 #include "obj_types.h"
 
 #include "worldgen.h"
+#include "hud.h"
 
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
@@ -16,6 +17,7 @@ ObjRabbit* rabbit = NULL;
 
 static void game_init(void) {
 	objects_init();
+	hud_init();
 
 	video_set_blendmode(15, BM_MULTIPLY);
 
@@ -26,6 +28,7 @@ static void game_init(void) {
 
 static void game_close(void) {
 	worldgen_close();
+	hud_close();
 	objects_close();
 }
 
@@ -62,6 +65,7 @@ static bool game_update(void) {
 static bool game_render(float t) {
 	spr_draw("background", 0, rectf_null(), COLOR_WHITE);
 
+	hud_render();
 	objects_tick();
 
 	return true;
