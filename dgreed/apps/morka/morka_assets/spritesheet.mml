@@ -22,12 +22,12 @@
 	(img pause
 		(tex atlas_2.png)
 		(src 2,978,38,1014)
-		(cntr 20,996)
+		(cntr 2,978)
 	)
 	(img clock_arrow
 		(tex atlas_2.png)
 		(src 998,2,1007,37)
-		(cntr 1002,19)
+		(cntr 1002,32)
 	)
 	(img clock_slots
 		(tex atlas_2.png)
@@ -37,27 +37,23 @@
 	(img clock_body
 		(tex atlas_2.png)
 		(src 724,554,826,694)
-		(cntr 775,624)
+		(cntr 826,554)
 	)
 	(img bg_mushroom_1
 		(tex atlas_2.png)
 		(src 282,438,562,966)
-		(cntr 418,705)
 	)
 	(img bg_mushroom_2
 		(tex atlas_2.png)
 		(src 568,2,996,552)
-		(cntr 796,283)
 	)
 	(img bg_mushroom_3
 		(tex atlas_2.png)
 		(src 2,554,280,976)
-		(cntr 151,720)
 	)
 	(img bg_mushroom_4
 		(tex atlas_2.png)
 		(src 2,2,566,436)
-		(cntr 286,214)
 	)
 	(img clock
 		(tex atlas_2.png)
@@ -67,26 +63,22 @@
 	(img fluff
 		(tex atlas_2.png)
 		(src 90,438,133,509)
-		(cntr 112,473)
+		(cntr 113,502)
 	)
 	(img mushroom_1
 		(tex atlas_2.png)
 		(src 564,554,722,762)
-		(cntr 641,660)
 	)
 	(img mushroom_2
 		(tex atlas_2.png)
 		(src 714,764,828,926)
-		(cntr 768,841)
 	)
 	(img mushroom_3
 		(tex atlas_2.png)
 		(src 2,438,88,552)
-		(cntr 44,458)
 	)
 	(img mushroom_4
 		(tex atlas_2.png)
 		(src 564,764,712,942)
-		(cntr 637,843)
 	)
 )
