@@ -1,0 +1,12 @@
+(uidesc morka
+	(def screen
+		(rect 0,0,1024,768)
+	)
+
+	(def hud_clock
+		(sub <-
+			(tr (get_rect screen))
+			(x (spr_size clock_body))
+		)
+	)
+)
