@@ -3,6 +3,7 @@
 #include <system.h>
 #include <sprsheet.h>
 #include <anim.h>
+#include <uidesc.h>
 #include <mfx.h>
 #include <keyval.h>
 
@@ -50,6 +51,7 @@ bool dgreed_init(int argc, const char** argv) {
 
 	sprsheet_init(sprsheet);
 	mchains_init(ASSETS_DIR "mchains.mml");
+	uidesc_init(ASSETS_DIR "uidesc.mml");
 
 	malka_states_init(SCRIPTS_DIR "main.lua");
 	malka_states_start();
@@ -61,6 +63,7 @@ void dgreed_close(void) {
 	malka_states_end();
 	malka_states_close();
 
+	uidesc_close();
 	mchains_close();
 	sprsheet_close();
 
