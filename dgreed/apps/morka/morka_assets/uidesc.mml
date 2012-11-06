@@ -1,0 +1,26 @@
+(uidesc morka
+	(def screen
+		(rect 0,0,1024,768)
+	)
+
+	(def hud_clock
+
+		(def topleft
+			(sub <-
+				(tr <- (get_rect screen))
+				(x <- (spr_size clock_body))
+			)
+		)
+
+		(def numbers
+			(spr clock_slots)
+			(add <-
+				(get_vec2 topleft)
+				(vec2 9,8)
+			)
+		)
+
+		(spr clock_body)
+		(get_vec2 topleft)
+	)
+)
