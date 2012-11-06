@@ -48,13 +48,19 @@ void sprsheet_close(void);
 SprHandle sprsheet_get_handle(const char* name);
 
 void sprsheet_get(const char* name, TexHandle* tex, RectF* src);
-void sprsheet_get_ex(const char* name, TexHandle* tex, RectF* src, Vector2* cntr_off);
 void sprsheet_get_h(SprHandle handle, TexHandle* tex, RectF* src);
+
+void sprsheet_get_ex(const char* name, TexHandle* tex, RectF* src, Vector2* cntr_off);
 void sprsheet_get_ex_h(SprHandle handle, TexHandle* tex, RectF* src, Vector2* cntr_off);
+
 void sprsheet_get_anim(const char* name, uint frame, TexHandle* tex, RectF* src);
 void sprsheet_get_anim_h(SprHandle handle, uint frame, TexHandle* tex, RectF* src);
+
 uint sprsheet_get_anim_frames(const char* name);
 uint sprsheet_get_anim_frames_h(SprHandle handle);
+
+Vector2 sprsheet_get_size(const char* name);
+Vector2 sprsheet_get_size_h(SprHandle handle);
 
 // Helper rendering methods:
 

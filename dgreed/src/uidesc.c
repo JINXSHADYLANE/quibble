@@ -10,7 +10,8 @@ static Dict ui_dict;
 
 static bool _is_vec2_fun(MMLObject* mml, NodeIdx node) {
 	static const char* vec2_fun_names[] = {
-		"vec2", "get_vec2", "add", "avg", "middle", "tl", "tr", "bl", "br"
+		"vec2", "get_vec2", "add", "sub", "avg", "middle", 
+		"x", "y", "tl", "tr", "bl", "br", "spr_size"
 	};
 
 	const char* name = mml_get_name(mml, node);
@@ -52,13 +53,17 @@ static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
 	else {
 		bool add = strcmp(name, "add") == 0;
 		bool avg = !add && (strcmp(name, "avg") == 0);
-		if(add || avg) {
+		bool sub = !add && !avg && (strcmp(name, "sub") == 0);
+		if(add || avg || sub) {
 			// Iterate over children, add them
 			uint n = 0;
 			Vector2 sum = vec2(0.0f, 0.0f);
 			NodeIdx child = mml_get_first_child(mml, node);
 			for(; child != 0; child = mml_get_next(mml, child)) {
-				sum = vec2_add(sum, _vec2_fun(mml, child, context));
+				if(n > 0 && sub)
+					sum = vec2_sub(sum, _vec2_fun(mml, child, context));
+				else
+					sum = vec2_add(sum, _vec2_fun(mml, child, context));
 				n++;
 			}
 
@@ -78,6 +83,22 @@ static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
 			NodeIdx child = mml_get_first_child(mml, node);
 			RectF rect = _rect_fun(mml, child, context);
 			return rectf_center(&rect);
+		}
+		else if(strcmp(name, "spr_size") == 0) {
+			const char* spr_name = mml_getval_str(mml, node);
+			return sprsheet_get_size(spr_name);
+		}
+		else if(strcmp(name, "x") == 0) {
+			NodeIdx child = mml_get_first_child(mml, node);
+			Vector2 vec2 = _vec2_fun(mml, child, context);
+			vec2.y = 0.0f;
+			return vec2;
+		}
+		else if(strcmp(name, "y") == 0) {
+			NodeIdx child = mml_get_first_child(mml, node);
+			Vector2 vec2 = _vec2_fun(mml, child, context);
+			vec2.x = 0.0f;
+			return vec2;
 		}
 		else {
 			bool tl = strcmp(name, "tl") == 0;

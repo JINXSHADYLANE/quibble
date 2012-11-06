@@ -39,6 +39,9 @@ Example
 // (spr name)
 // Constructs spr
 //
+// (spr_size name)
+// Returns vec2 size of spr
+//
 // (get_rect name)
 // Constructs rect of named ui element
 //
@@ -47,6 +50,15 @@ Example
 //
 // (add <- list)
 // Adds a list of vec2 elements, constructs result vec2 element
+//
+// (sub <- list)
+// Subtracts a list of vec2 elements from the first element
+//
+// (x vec2)
+// Returns vec2 with zeroed y component
+//
+// (y vec2)
+// Returns vec2 with zeroed x component
 //
 // (radd <- list)
 // First list element must be rect, others - vec2;
