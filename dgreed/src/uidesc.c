@@ -23,9 +23,9 @@ static bool _is_vec2_fun(MMLObject* mml, NodeIdx node) {
 	return false;
 }
 
-static RectF _rect_fun(MMLObject* mml, NodeIdx node, UIElement* context);
+static RectF _rect_fun(MMLObject* mml, NodeIdx node, UIElement* context, UIElement* parent);
 
-static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
+static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node, UIElement* context, UIElement* parent) {
 	assert(_is_vec2_fun(mml, node));
 
 	const char* name = mml_get_name(mml, node);
@@ -38,6 +38,9 @@ static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
 		const char* element_name = mml_getval_str(mml, node);
 
 		const UIElement* el = uidesc_get_child(context, element_name);
+
+		if(!el && parent)
+			el = uidesc_get_child(parent, element_name);
 
 		if(!el)
 			el = dict_get(&ui_dict, element_name);
@@ -61,9 +64,9 @@ static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
 			NodeIdx child = mml_get_first_child(mml, node);
 			for(; child != 0; child = mml_get_next(mml, child)) {
 				if(n > 0 && sub)
-					sum = vec2_sub(sum, _vec2_fun(mml, child, context));
+					sum = vec2_sub(sum, _vec2_fun(mml, child, context, parent));
 				else
-					sum = vec2_add(sum, _vec2_fun(mml, child, context));
+					sum = vec2_add(sum, _vec2_fun(mml, child, context, parent));
 				n++;
 			}
 
@@ -81,7 +84,7 @@ static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
 		}
 		else if(strcmp(name, "middle") == 0) {
 			NodeIdx child = mml_get_first_child(mml, node);
-			RectF rect = _rect_fun(mml, child, context);
+			RectF rect = _rect_fun(mml, child, context, parent);
 			return rectf_center(&rect);
 		}
 		else if(strcmp(name, "spr_size") == 0) {
@@ -90,13 +93,13 @@ static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
 		}
 		else if(strcmp(name, "x") == 0) {
 			NodeIdx child = mml_get_first_child(mml, node);
-			Vector2 vec2 = _vec2_fun(mml, child, context);
+			Vector2 vec2 = _vec2_fun(mml, child, context, parent);
 			vec2.y = 0.0f;
 			return vec2;
 		}
 		else if(strcmp(name, "y") == 0) {
 			NodeIdx child = mml_get_first_child(mml, node);
-			Vector2 vec2 = _vec2_fun(mml, child, context);
+			Vector2 vec2 = _vec2_fun(mml, child, context, parent);
 			vec2.x = 0.0f;
 			return vec2;
 		}
@@ -108,7 +111,7 @@ static Vector2 _vec2_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
 
 			if(tl || tr || bl || br) {
 				NodeIdx child = mml_get_first_child(mml, node);
-				RectF rect = _rect_fun(mml, child, context);
+				RectF rect = _rect_fun(mml, child, context, parent);
 				if(tl)
 					return vec2(rect.left, rect.top);
 				if(tr)
@@ -139,7 +142,7 @@ static bool _is_rect_fun(MMLObject* mml, NodeIdx node) {
 	return false;
 }
 
-static RectF _rect_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
+static RectF _rect_fun(MMLObject* mml, NodeIdx node, UIElement* context, UIElement* parent) {
 	assert(_is_rect_fun(mml, node));
 
 	const char* name = mml_get_name(mml, node);
@@ -152,6 +155,9 @@ static RectF _rect_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
 		const char* element_name = mml_getval_str(mml, node);
 
 		const UIElement* el = uidesc_get_child(context, element_name);
+
+		if(!el && parent)
+			el = uidesc_get_child(parent, element_name);
 
 		if(!el)
 			el = dict_get(&ui_dict, element_name);
@@ -168,9 +174,9 @@ static RectF _rect_fun(MMLObject* mml, NodeIdx node, UIElement* context) {
 		uint n = 0;
 		Vector2 sum = vec2(0.0f, 0.0f);
 		NodeIdx child = mml_get_first_child(mml, node);
-		RectF rect = _rect_fun(mml, child, context);
+		RectF rect = _rect_fun(mml, child, context, parent);
 		for(child = mml_get_next(mml, child); child != 0; child = mml_get_next(mml, child)) {
-			sum = vec2_add(sum, _vec2_fun(mml, child, context));
+			sum = vec2_add(sum, _vec2_fun(mml, child, context, parent));
 			n++;
 		}
 		rect.left += sum.x; rect.right += sum.x;
@@ -216,7 +222,7 @@ static void _rebase_strs(void* min, void* max, ptrdiff_t delta) {
 	}
 }
 
-UIElement* _parse_def(MMLObject* mml, NodeIdx node) {
+UIElement* _parse_def(MMLObject* mml, NodeIdx node, UIElement* parent) {
 	assert(strcmp(mml_get_name(mml, node), "def") == 0);
 
 	// Set the name, keep it in name_strings darray
@@ -248,18 +254,18 @@ UIElement* _parse_def(MMLObject* mml, NodeIdx node) {
 
 		if(strcmp(type, "def") == 0) {
 			// Add child
-			UIElement* child = _parse_def(mml, element);
+			UIElement* child = _parse_def(mml, element, new);
 			new = darray_get(&ui_elements, i);
 			list_push_back(&new->child_list, &child->list); 
 		}
 		else {
 			// Eval a function
 			if(_is_vec2_fun(mml, element)) {
-				new->vec2 = _vec2_fun(mml, element, new);
+				new->vec2 = _vec2_fun(mml, element, new, parent);
 				new->members |= UI_EL_VEC2;
 			}
 			else if(_is_rect_fun(mml, element)) {
-				new->rect = _rect_fun(mml, element, new);
+				new->rect = _rect_fun(mml, element, new, parent);
 				new->members |= UI_EL_RECT;
 			}
 			else if(_is_spr_fun(mml, element)) {
@@ -279,7 +285,7 @@ static void _uidesc_load(MMLObject* mml) {
 
 	NodeIdx child = mml_get_first_child(mml, root);
 	for(; child != 0; child = mml_get_next(mml, child)) {
-		UIElement* el = _parse_def(mml, child);
+		UIElement* el = _parse_def(mml, child, NULL);
 		dict_insert(&ui_dict, el->name, el);
 	}
 }

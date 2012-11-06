@@ -325,3 +325,50 @@ TEST_(radd) {
 	uidesc_close();
 }
 
+TEST_(contexts) {
+	uidesc_init_str(
+		"(uidesc def"
+		"	(def el1"
+		"		(def el2"
+		"			(rect 5,6,7,8)"
+		"		)"
+		"		(def el3"
+		"			(get_rect el2)"
+		"		)"
+		"		(get_rect el3)"
+		"		(vec2 1,2)"
+		"	)"
+		")"
+	);
+
+	UIElement* el1 = uidesc_get("el1");
+	ASSERT_(el1);
+	UIElement* el2 = uidesc_get_child(el1, "el2");
+	ASSERT_(el2);
+	UIElement* el3 = uidesc_get_child(el1, "el3");
+	ASSERT_(el3);
+
+	ASSERT_(el1->members  == (UI_EL_VEC2 | UI_EL_RECT));
+	ASSERT_(el2->members == UI_EL_RECT);
+	ASSERT_(el3->members  == UI_EL_RECT);
+
+	ASSERT_(el1->vec2.x == 1.0f);
+	ASSERT_(el1->vec2.y == 2.0f);
+	ASSERT_(el1->rect.left == 5.0f);
+	ASSERT_(el1->rect.top == 6.0f);
+	ASSERT_(el1->rect.right == 7.0f);
+	ASSERT_(el1->rect.bottom == 8.0f);
+
+	ASSERT_(el2->rect.left == 5.0f);
+	ASSERT_(el2->rect.top == 6.0f);
+	ASSERT_(el2->rect.right == 7.0f);
+	ASSERT_(el2->rect.bottom == 8.0f);
+
+	ASSERT_(el3->rect.left == 5.0f);
+	ASSERT_(el3->rect.top == 6.0f);
+	ASSERT_(el3->rect.right == 7.0f);
+	ASSERT_(el3->rect.bottom == 8.0f);
+
+	uidesc_close();
+}
+
