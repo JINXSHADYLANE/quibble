@@ -5,6 +5,8 @@
 #include "mchains.h"
 #include "obj_types.h"
 
+extern ObjRabbit* rabbit;
+
 #define page_width 1024.0f
 static float fg_page_cursor = 0.0f;
 static float bg_page_cursor = 0.0f;
@@ -55,20 +57,42 @@ static void _gen_fg_page(void) {
 		if(spr) {
 			Vector2 pos = vec2(fg_page_cursor + fg_x + 100.0f, 583.0f);
 			objects_create(&obj_mushroom_desc, pos, (void*)spr);
+
+			// Add clocks after the mushroom:
+			// 5% on the ground
+			// 10% in the air
+			// 85% no clocks
+			int r = rand_int_ex(&rnd, 0, 20);
+			if(r == 0) {
+				// On the ground
+				uint n = rand_int_ex(&rnd, 3, 6);
+				for(uint i = 0; i < n; ++i) {
+					Vector2 pos = {
+						.x = fg_page_cursor + fg_x + 100.0f + (i+1) * 60.0f,
+						.y = 560.0f  
+					};
+					objects_create(&obj_clock_desc, pos, NULL);
+				}
+			}
+			else if(r < 3) {
+				// In the air
+				float f = sqrtf(rabbit->header.physics->vel.x / 350.0f);
+				uint n = rand_int_ex(&rnd, 4, 7);
+				float y = 430.0f;
+				float dy = 60.0f + (10.0f * f);
+				for(uint i = 0; i < n; ++i) {
+					Vector2 pos = {
+						.x = fg_page_cursor + fg_x + 100.0f + (i) * 90.0f * f,
+						.y = y
+					};
+					y -= dy;
+					dy -= 17.0f;
+					objects_create(&obj_clock_desc, pos, NULL);
+				}
+			}
 		}
-
+	
 		fg_x += (float)advance;
-	}
-
-	// Add clocks
-	uint n_clocks = rand_int_ex(&rnd, 3, 10);
-	for(uint i = 0; i < n_clocks; ++i) {
-		Vector2 pos = {
-			.x = fg_page_cursor + rand_float_range_ex(&rnd, 20.0f, page_width - 20.0f),
-			.y = rand_float_range_ex(&rnd, 80.0f, 500.0f) 
-		};
-
-		objects_create(&obj_clock_desc, pos, NULL);
 	}
 
 	fg_page_cursor += page_width;
