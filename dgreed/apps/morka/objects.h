@@ -8,8 +8,11 @@
 
 // Game object
 
+#define TYPE_MASK 0xffff
+#define DESTROY_BIT 0x10000
+
 typedef struct {
-	uint32 type;
+	uint32 type;	// This holds type id and if destroyed - DESTROY_BIT is set
 	struct FwdPhysicsComponent* physics;
 	struct FwdRenderComponent* render;
 	struct FwdUpdateComponent* update;
@@ -41,6 +44,7 @@ typedef struct FwdRenderComponent {
 	Vector2 world_pos;
 	float scale, angle;
 	uint8 layer;
+	Color color;
 	uint8 camera;
 	uint16 anim_frame;
 	SprHandle spr;

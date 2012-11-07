@@ -25,6 +25,10 @@ static void _hud_render_ui(UIElement* element, uint layer) {
 	}
 }
 
+static void _hud_render_clock_needle(UIElement* element, uint layer, float angle) {
+	spr_draw_cntr_h(element->spr, layer, element->vec2, angle, 1.0f, COLOR_WHITE);
+}
+
 void hud_init(void) {
 
 }
@@ -34,7 +38,10 @@ void hud_close(void) {
 }
 
 void hud_render(void) {
-	UIElement* hud_clock = uidesc_get("hud_clock");
-	_hud_render_ui(hud_clock, hud_layer);
+	_hud_render_ui(uidesc_get("hud_pause"), hud_layer);
+	_hud_render_ui(uidesc_get("hud_clock"), hud_layer);
+
+	UIElement* hud_clock_needle = uidesc_get("hud_clock_needle");
+	_hud_render_clock_needle(hud_clock_needle, hud_layer, time_s()/6.0f);
 }
 
