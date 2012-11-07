@@ -9,7 +9,9 @@ enum {
 	OBJ_RABBIT_TYPE = 1,
 	OBJ_GROUND_TYPE,
 	OBJ_DECO_TYPE,
-	OBJ_MUSHROOM_TYPE
+	OBJ_MUSHROOM_TYPE,
+	OBJ_CLOCK_TYPE,
+	OBJ_CLOCK_FADING_TYPE
 };
 
 // Rabbit
@@ -51,6 +53,25 @@ typedef struct {
 } ObjMushroom;
 
 extern GameObjectDesc obj_mushroom_desc;
+
+// Clock
+
+typedef struct {
+	GameObject header;
+} ObjClock;
+
+extern GameObjectDesc obj_clock_desc;
+
+// Fading clock
+
+typedef struct {
+	GameObject header;
+	float t;
+	float birth_time;
+	Vector2 original_pos;
+} ObjClockFading;
+
+extern GameObjectDesc obj_clock_fading_desc;
 
 #endif
 
