@@ -169,7 +169,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 
 	// Init update
 	UpdateComponent* update = self->update;
-	update->interval = 1;
 	update->update = obj_rabbit_update;
 }
 

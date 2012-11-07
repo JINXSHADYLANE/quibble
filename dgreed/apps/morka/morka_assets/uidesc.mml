@@ -3,8 +3,12 @@
 		(rect 0,0,1024,768)
 	)
 
-	(def hud_clock
+	(def hud_pause
+		(spr pause)
+		(tl <- (get_rect screen))
+	)
 
+	(def hud_clock
 		(def topleft
 			(sub <-
 				(tr <- (get_rect screen))
@@ -20,7 +24,27 @@
 			)
 		)
 
+		(def digit1
+			(add <-
+				(get_vec2 numbers)
+				(vec2 4,4)
+			)
+		)
+
+		(def digit_offset
+			(vec2 12,0)
+		)
+
 		(spr clock_body)
 		(get_vec2 topleft)
 	)
+
+	(def hud_clock_needle
+		(spr clock_arrow)
+		(add <-
+			(get_vec2 hud_clock)
+			(vec2 51,88)
+		)
+	)
+
 )

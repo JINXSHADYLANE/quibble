@@ -60,6 +60,17 @@ static void _gen_fg_page(void) {
 		fg_x += (float)advance;
 	}
 
+	// Add clocks
+	uint n_clocks = rand_int_ex(&rnd, 3, 10);
+	for(uint i = 0; i < n_clocks; ++i) {
+		Vector2 pos = {
+			.x = fg_page_cursor + rand_float_range_ex(&rnd, 20.0f, page_width - 20.0f),
+			.y = rand_float_range_ex(&rnd, 80.0f, 500.0f) 
+		};
+
+		objects_create(&obj_clock_desc, pos, NULL);
+	}
+
 	fg_page_cursor += page_width;
 }
 void worldgen_reset(uint seed) {
