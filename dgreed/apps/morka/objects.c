@@ -97,6 +97,27 @@ void objects_destroy(GameObject* obj) {
 	}
 }
 
+void objects_destroy_all(void) {
+	mempool_free_all(&objects);
+
+	// Empty coldet world
+	for(uint i = 0; i < physics.size; ++i) {
+		PhysicsComponent* p = darray_get(&physics, i);
+		coldet_remove_obj(objects_cdworld, p->cd_obj);
+	}
+
+	// Reset cameras
+	for(uint i = 0; i < ARRAY_SIZE(objects_camera); ++i) {
+		objects_camera[i] = rectf(0.0f, 0.0f, 1024.0f, 768.0f);
+	}
+
+	physics.size = 0;
+	render.size = 0;
+	update.size = 0;
+	to_remove.size = 0;
+	to_add.size = 0;
+}
+
 void objects_apply_force(GameObject* obj, Vector2 f) {
 	assert(obj->physics);
 

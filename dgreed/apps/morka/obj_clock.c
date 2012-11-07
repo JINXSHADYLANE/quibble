@@ -5,14 +5,15 @@
 // Clock
 
 extern float rabbit_remaining_time;
+extern bool game_over;
 
 static void obj_clock_hit_callback(GameObject* self, GameObject* other) {
-	if(other->type == OBJ_RABBIT_TYPE) {
+	if(other->type == OBJ_RABBIT_TYPE && !game_over) {
 		// Destroy self, make fading clock
 		objects_destroy(self);
 		objects_create(&obj_clock_fading_desc, self->render->world_pos, NULL);
 
-		rabbit_remaining_time = MIN(60.0f, rabbit_remaining_time + 1.0f);
+		rabbit_remaining_time = MIN(60.0f, rabbit_remaining_time + 0.5f);
 	}
 }
 

@@ -14,7 +14,11 @@ float camera_speed = 100.0f;
 uint last_page = 0;
 
 ObjRabbit* rabbit = NULL;
-float rabbit_remaining_time = 60.0f;
+float camera_follow_weight;
+float rabbit_remaining_time;
+float rabbit_distance;
+
+bool game_over;
 
 static void game_init(void) {
 	objects_init();
@@ -22,9 +26,20 @@ static void game_init(void) {
 
 	video_set_blendmode(15, BM_MULTIPLY);
 
-	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), NULL);
+	game_reset();
+}
 
+void game_reset(void) {
+	if(rabbit) {
+		objects_destroy_all();
+	}
+
+	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), NULL);
 	worldgen_reset(20);
+
+	camera_follow_weight = 0.2f;
+	rabbit_remaining_time = 30.0f;
+	game_over = false;
 }
 
 static void game_close(void) {
@@ -46,11 +61,23 @@ static bool game_update(void) {
 	if(char_down('p'))
 		draw_physics_debug = !draw_physics_debug;
 #endif
-	
-	// Make camera follow rabbit
+
+	if(rabbit_remaining_time <= 0.0f) {
+		rabbit_remaining_time = 0.0f;
+
+		if(!game_over)
+			rabbit_distance = rabbit->header.render->world_pos.x / 512.0f;
+
+		game_over = true;
+
+		// Game over
+		camera_follow_weight *= 0.95f;
+	}
+
 	if(rabbit && rabbit->header.type) {
+		// Make camera follow rabbit
 		float camera_x = (objects_camera[0].left*3.0f + objects_camera[0].right) / 4.0f;
-		float new_camera_x = lerp(camera_x, rabbit->header.render->world_pos.x, 0.2f);
+		float new_camera_x = lerp(camera_x, rabbit->header.render->world_pos.x, camera_follow_weight);
 		float camera_offset = new_camera_x - camera_x;
 		objects_camera[0].left += camera_offset;
 		objects_camera[0].right += camera_offset;
@@ -61,12 +88,6 @@ static bool game_update(void) {
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
 
 	rabbit_remaining_time -= time_delta() / 1000.0f;
-
-	if(rabbit_remaining_time <= 0.0f) {
-		rabbit_remaining_time = 0.0f;
-
-		// Game over
-	}
 
 	return true;
 }
