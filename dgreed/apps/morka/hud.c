@@ -7,6 +7,7 @@
 
 extern float rabbit_remaining_time;
 extern float rabbit_distance;
+extern float rabbit_current_distance;
 
 extern bool game_over;
 float game_over_alpha = 0.0f;
@@ -73,6 +74,27 @@ static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 	}
 }
 
+static void _hud_render_distance(UIElement* element, uint layer, uint number) {
+	uint digits[4];
+	digits[3] = number % 10;
+	digits[2] = (number / 10) % 10;
+	digits[1] = (number / 100) % 10;
+	digits[0] = (number / 1000);
+
+	vfont_select("Baskerville-Bold", 18.0f);
+
+	UIElement* digit1 = uidesc_get_child(element, "digit1");
+	UIElement* digit_offset = uidesc_get_child(element, "digit_offset");
+	Vector2 cursor = digit1->vec2;
+	char str[] = {'\0', '\0'};
+	for(uint i = 0; i < 4; ++i) {
+		str[0] = '0' + digits[i];
+		vfont_draw(str, layer, cursor, COLOR_BLACK);
+		cursor = vec2_add(cursor, digit_offset->vec2);
+		cursor.x = floorf(cursor.x);
+	}
+}
+
 void hud_init(void) {
 	vfont_init();
 }
@@ -83,7 +105,10 @@ void hud_close(void) {
 
 void hud_render(void) {
 	_hud_render_ui(uidesc_get("hud_pause"), hud_layer);
-	_hud_render_ui(uidesc_get("hud_clock"), hud_layer);
+
+	UIElement* clock = uidesc_get("hud_clock");
+	_hud_render_ui(clock, hud_layer);
+	_hud_render_distance(clock, hud_layer+1, lrintf(rabbit_current_distance));
 
 	UIElement* hud_clock_needle = uidesc_get("hud_clock_needle");
 
