@@ -3,6 +3,8 @@
 
 #define hud_layer 7
 
+extern float rabbit_remaining_time;
+
 static void _hud_render_ui(UIElement* element, uint layer) {
 	// Render
 	if(element->members & UI_EL_SPR) {
@@ -42,6 +44,8 @@ void hud_render(void) {
 	_hud_render_ui(uidesc_get("hud_clock"), hud_layer);
 
 	UIElement* hud_clock_needle = uidesc_get("hud_clock_needle");
-	_hud_render_clock_needle(hud_clock_needle, hud_layer, time_s()/6.0f);
+
+	float angle = (rabbit_remaining_time / 60.0f) * 2.0f * M_PI;
+	_hud_render_clock_needle(hud_clock_needle, hud_layer, angle);
 }
 

@@ -14,6 +14,7 @@ float camera_speed = 100.0f;
 uint last_page = 0;
 
 ObjRabbit* rabbit = NULL;
+float rabbit_remaining_time = 60.0f;
 
 static void game_init(void) {
 	objects_init();
@@ -58,6 +59,14 @@ static bool game_update(void) {
 	}
 
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
+
+	rabbit_remaining_time -= time_delta() / 1000.0f;
+
+	if(rabbit_remaining_time <= 0.0f) {
+		rabbit_remaining_time = 0.0f;
+
+		// Game over
+	}
 
 	return true;
 }
