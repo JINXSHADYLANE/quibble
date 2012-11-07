@@ -5,4 +5,6 @@
 
 extern StateDesc game_state;
 
+void game_reset(void);
+
 #endif

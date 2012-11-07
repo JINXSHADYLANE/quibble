@@ -1,9 +1,15 @@
 #include "hud.h"
+
 #include <uidesc.h>
+#include <vfont.h>
 
 #define hud_layer 7
 
 extern float rabbit_remaining_time;
+extern float rabbit_distance;
+
+extern bool game_over;
+float game_over_alpha = 0.0f;
 
 static void _hud_render_ui(UIElement* element, uint layer) {
 	// Render
@@ -31,12 +37,48 @@ static void _hud_render_clock_needle(UIElement* element, uint layer, float angle
 	spr_draw_cntr_h(element->spr, layer, element->vec2, angle, 1.0f, COLOR_WHITE);
 }
 
-void hud_init(void) {
+extern void game_reset(void);
 
+static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
+	UIElement* text = uidesc_get_child(element, "text");
+	UIElement* dist_text = uidesc_get_child(element, "distance_text");
+	UIElement* button = uidesc_get_child(element, "button");
+
+	byte a = lrintf(255.0f * alpha);
+	Color col = COLOR_RGBA(255, 255, 255, a);
+
+	// Text
+	vfont_select("Baskerville-Bold", 48.0f); 
+	const char* str = "The time is over.";
+	static Vector2 half_size = {0.0f, 0.0f};
+	if(half_size.x == 0.0f) {
+		half_size = vec2_scale(vfont_size(str), 0.5f);
+	}
+	vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
+
+	// Distance text
+	char distance_str[32];
+	sprintf(distance_str, "You ran %d meters", (int)lrintf(rabbit_distance));
+	Vector2 half_dist_size = vec2_scale(vfont_size(distance_str), 0.5f);
+	vfont_draw(distance_str, layer, vec2_sub(dist_text->vec2, half_dist_size), col);
+
+	// Button
+	spr_draw_cntr_h(button->spr, layer, button->vec2, 0.0f, 1.0f, col);	
+
+	if(touches_count() > 0) {
+		Touch* t = touches_get();
+		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button->vec2)) < 40.0f * 40.0f) {
+			game_reset();
+		}
+	}
+}
+
+void hud_init(void) {
+	vfont_init();
 }
 
 void hud_close(void) {
-
+	vfont_close();
 }
 
 void hud_render(void) {
@@ -47,5 +89,12 @@ void hud_render(void) {
 
 	float angle = (rabbit_remaining_time / 60.0f) * 2.0f * M_PI;
 	_hud_render_clock_needle(hud_clock_needle, hud_layer, angle);
+
+	game_over_alpha += game_over ? 0.03f : -0.05f;
+	game_over_alpha = clamp(0.0f, 1.0f, game_over_alpha);
+
+	if(game_over_alpha > 0.0f) {
+		_hud_render_game_over(uidesc_get("game_over"), hud_layer+1, game_over_alpha);
+	}
 }
 

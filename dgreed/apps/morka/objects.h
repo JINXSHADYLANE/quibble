@@ -100,6 +100,7 @@ void objects_close(void);
 
 GameObject* objects_create(GameObjectDesc* desc, Vector2 pos, void* user_data);
 void objects_destroy(GameObject* obj);
+void objects_destroy_all(void);
 
 void objects_apply_force(GameObject* obj, Vector2 f);
 
