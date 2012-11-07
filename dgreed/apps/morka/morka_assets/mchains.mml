@@ -18,7 +18,7 @@
 		(def a (bg_mushroom_1 400))
 		(def b (bg_mushroom_2 400))
 		(def c (bg_mushroom_3 400))
-		(def d (bg_mushroom_3 400))
+		(def d (bg_mushroom_4 400))
 		(def _ (.empty 500))
 
 		(init "__")
