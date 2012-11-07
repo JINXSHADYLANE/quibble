@@ -166,6 +166,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->anim_frame = 0;
 	render->spr = sprsheet_get_handle("rabbit");
 	render->update_pos = obj_rabbit_update_pos;
+	render->became_invisible = NULL;
 
 	// Init update
 	UpdateComponent* update = self->update;

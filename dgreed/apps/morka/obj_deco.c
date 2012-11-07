@@ -1,9 +1,5 @@
 #include "obj_types.h"
 
-static void obj_deco_became_invisible(GameObject* self) {
-	objects_destroy(self);
-}
-
 static void obj_deco_construct(GameObject* self, Vector2 pos, void* user_data) {
 	SprHandle spr_handle = (SprHandle)user_data;
 
@@ -28,7 +24,6 @@ static void obj_deco_construct(GameObject* self, Vector2 pos, void* user_data) {
 	render->camera = 1;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
-	render->became_invisible = obj_deco_became_invisible;
 }
 
 GameObjectDesc obj_deco_desc = {

@@ -4,10 +4,6 @@
 
 // Clock
 
-static void obj_clock_became_invisible(GameObject* self) {
-	objects_destroy(self);
-}
-
 static void obj_clock_hit_callback(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
 		// Destroy self, make fading clock
@@ -40,7 +36,6 @@ static void obj_clock_construct(GameObject* self, Vector2 pos, void* user_data) 
 	render->layer = 2;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
-	render->became_invisible = obj_clock_became_invisible;
 }
 
 GameObjectDesc obj_clock_desc = {
@@ -91,7 +86,6 @@ static void obj_clock_fading_construct(GameObject* self, Vector2 pos, void* user
 	render->layer = 2;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
-	render->became_invisible = obj_clock_became_invisible;
 	render->update_pos = obj_clock_fading_update_pos;
 
 	// Update
