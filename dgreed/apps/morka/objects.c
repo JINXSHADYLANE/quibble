@@ -71,6 +71,8 @@ GameObject* objects_create(GameObjectDesc* desc, Vector2 pos, void* user_data) {
 	assert(desc->construct);
 
 	GameObject* obj = mempool_alloc(&objects);
+	assert(((size_t)obj & 1) == 0);
+
 	obj->type = 0;
 
 	NewObject new = {
@@ -84,11 +86,15 @@ GameObject* objects_create(GameObjectDesc* desc, Vector2 pos, void* user_data) {
 
 	return obj;
 }
+
 void objects_destroy(GameObject* obj) {
 	assert(obj);
 	assert(mempool_owner(&objects, obj));
 
-	darray_append(&to_remove, &obj);
+	if((obj->type & DESTROY_BIT) == 0) {
+		darray_append(&to_remove, &obj);
+		obj->type |= DESTROY_BIT;
+	}
 }
 
 void objects_apply_force(GameObject* obj, Vector2 f) {
@@ -208,14 +214,14 @@ static void objects_render_tick(uint n_components) {
 				// Animation sprite
 				spr_draw_anim_cntr_h(
 						r->spr, r->anim_frame, r->layer,
-						screen_pos, r->angle, r->scale, COLOR_WHITE
+						screen_pos, r->angle, r->scale, r->color
 				);
 			}
 			else {
 				// Static sprite
 				spr_draw_cntr_h(
 						r->spr, r->layer, screen_pos,
-						r->angle, r->scale, COLOR_WHITE
+						r->angle, r->scale, r->color
 				);
 			}
 
@@ -233,9 +239,10 @@ static void objects_render_tick(uint n_components) {
 
 static void objects_destroy_internal(GameObject* obj) {
 	// Get description
-	GameObjectDesc* desc = desc_cache->type == obj->type ? desc_cache : NULL;
+	uint32 type = obj->type & TYPE_MASK;
+	GameObjectDesc* desc = desc_cache->type == type ? desc_cache : NULL;
 	if(!desc) {
-		desc = aatree_find(&desc_map, obj->type);
+		desc = aatree_find(&desc_map, type);
 		desc_cache = desc;
 	}
 
@@ -315,6 +322,7 @@ static void objects_create_internal(NewObject* new) {
 		}
 		obj->render = darray_get(&render, render.size-1);
 		obj->render->owner = obj;
+		obj->render->color = COLOR_WHITE;
 	}
 	else {
 		obj->render = NULL;
@@ -332,6 +340,7 @@ static void objects_create_internal(NewObject* new) {
 		}
 		obj->update = darray_get(&update, update.size-1);
 		obj->update->owner = obj;
+		obj->update->interval = 1;
 	}
 	else {
 		obj->update = NULL;
