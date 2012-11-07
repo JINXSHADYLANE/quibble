@@ -1,0 +1,31 @@
+(mchains morka
+	(ruleset fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_2 150))
+		(def c (mushroom_3 150))
+		(def d (mushroom_4 150))
+		(def _ (.empty 200))
+
+		(init "__")
+
+		(learn "__a__b__a__b")
+		(learn "a_a_d__b_a")
+		(learn "___")
+		(learn "a_c_d_b_db__ca_a_c")
+	)
+
+	(ruleset bg
+		(def a (bg_mushroom_1 400))
+		(def b (bg_mushroom_2 400))
+		(def c (bg_mushroom_3 400))
+		(def d (bg_mushroom_3 400))
+		(def _ (.empty 500))
+
+		(init "__")
+
+		(learn "__a_b_c_d_a")
+		(learn "__a__b__c__d")
+		(learn "__d_a_c_d_b")
+	)
+)
+
