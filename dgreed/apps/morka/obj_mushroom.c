@@ -2,10 +2,6 @@
 
 #include <system.h>
 
-static void obj_mushroom_became_invisible(GameObject* self) {
-	objects_destroy(self);
-}
-
 static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_data) {
 	SprHandle spr_handle = (SprHandle)user_data;
 
@@ -35,7 +31,6 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 	render->layer = 2;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
-	render->became_invisible = obj_mushroom_became_invisible;
 }
 
 GameObjectDesc obj_mushroom_desc = {

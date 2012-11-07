@@ -323,6 +323,7 @@ static void objects_create_internal(NewObject* new) {
 		obj->render = darray_get(&render, render.size-1);
 		obj->render->owner = obj;
 		obj->render->color = COLOR_WHITE;
+		obj->render->became_invisible = objects_destroy;
 	}
 	else {
 		obj->render = NULL;

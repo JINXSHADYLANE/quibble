@@ -2,10 +2,6 @@
 
 #include <system.h>
 
-static void obj_ground_became_invisible(GameObject* self) {
-	objects_destroy(self);
-}
-
 static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data) {
 	const float ground_height = 170.0f;
 	const float slice_width = 256.0f;
@@ -29,7 +25,6 @@ static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->layer = 4;
 	render->anim_frame = frame_number;
 	render->spr = sprsheet_get_handle("grass");
-	render->became_invisible = obj_ground_became_invisible;
 }
 
 GameObjectDesc obj_ground_desc = {
