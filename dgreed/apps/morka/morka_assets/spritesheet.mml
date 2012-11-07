@@ -24,6 +24,10 @@
 		(src 2,978,38,1014)
 		(cntr 2,978)
 	)
+	(img restart
+		(tex atlas_2.png)
+		(src 830,558,931,659)
+	)
 	(img clock_arrow
 		(tex atlas_2.png)
 		(src 998,2,1007,37)
