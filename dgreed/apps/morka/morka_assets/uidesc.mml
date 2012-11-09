@@ -63,7 +63,7 @@
 		)
 
 		(def button
-			(spr restart)
+			(spr restart_2)
 			(add <-
 				(middle <- (get_rect screen))
 				(vec2 0,200)
