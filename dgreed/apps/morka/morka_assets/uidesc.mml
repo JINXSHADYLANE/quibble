@@ -1,0 +1,73 @@
+(uidesc morka
+	(def screen
+		(rect 0,0,1024,768)
+	)
+
+	(def hud_pause
+		(spr pause)
+		(tl <- (get_rect screen))
+	)
+
+	(def hud_clock
+		(def topleft
+			(sub <-
+				(tr <- (get_rect screen))
+				(x <- (spr_size clock_body))
+			)
+		)
+
+		(def numbers
+			(spr clock_slots)
+			(add <-
+				(get_vec2 topleft)
+				(vec2 9,8)
+			)
+		)
+
+		(def digit1
+			(add <-
+				(get_vec2 numbers)
+				(vec2 6,-3)
+			)
+		)
+
+		(def digit_offset
+			(vec2 22,0)
+		)
+
+		(spr clock_body)
+		(get_vec2 topleft)
+	)
+
+	(def hud_clock_needle
+		(spr clock_arrow)
+		(add <-
+			(get_vec2 hud_clock)
+			(vec2 51,88)
+		)
+	)
+
+	(def game_over
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-200)
+			)
+		)
+
+		(def distance_text
+			(add <-
+				(get_vec2 text)
+				(vec2 0,100)
+			)
+		)
+
+		(def button
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,200)
+			)
+		)
+	)
+)
