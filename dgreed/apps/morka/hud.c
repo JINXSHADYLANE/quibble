@@ -76,10 +76,10 @@ static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 
 static void _hud_render_distance(UIElement* element, uint layer, uint number) {
 	uint digits[4];
-	digits[3] = number % 10;
-	digits[2] = (number / 10) % 10;
-	digits[1] = (number / 100) % 10;
-	digits[0] = (number / 1000);
+	for(uint i = 0; i < 4; ++i) {
+		digits[3-i] = number % 10;
+		number /= 10;
+	}
 
 	vfont_select("Baskerville-Bold", 18.0f);
 

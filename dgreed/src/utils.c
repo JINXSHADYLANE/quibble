@@ -1546,6 +1546,124 @@ int strfind(const char* needle, const char* haystack) {
 	return -1;
 }
 
+
+/*
+---------------
+--- Sorting ---
+---------------
+*/
+
+#define heap_parent(i) ((i)-1) / 2
+#define heap_left_child(i) (i)*2 + 1
+#define swap_int(a, b) {int temp; temp = (a); (a) = (b); (b) = temp;}
+
+void sort_heapsort_int(int* data, size_t num) {
+	int i, j, p, c, cl;
+
+	// Heapify
+	for(i = 1; i < num; ++i) {
+		// Insert element at i to the heap,
+		// swapping it with its parent
+		// until heap property is satisfied
+		p = heap_parent(i);
+		while(i && data[i] > data[p]) {
+			swap_int(data[i], data[p]);
+			i = p;
+			p = i ? heap_parent(i) : 0;
+		}
+	}
+
+	// Unheapify, j is index for the beginning of sorted
+	// section (and the end of the heap)
+	for(j = num-1; j > 0; --j) {
+		// Start by swaping largest element at index 0
+		// and last unsorted element
+		c = 0;
+		i = j;
+
+		// Element which was at index j is now at the top
+		// of the heap, fix heap property by swapping it
+		// down with its children
+		do {
+			swap_int(data[c], data[i]);
+
+			i = c;
+			cl = heap_left_child(i);
+
+			// Make c equal to index of smaller child,
+			// or 0 if i has no children
+			if(cl >= j)
+				// No children at all
+				c = 0;
+			else if(cl+1 >= j)
+				// No right child, choose left
+				c = cl;
+			else
+				// Choose smaller children
+				c = (data[cl] < data[cl+1]) ? cl+1 : cl;
+		}
+		while(c && data[c] > data[i]);
+	}
+}
+
+// Swaps two non-overlapping regions of memory
+static void _mem_swap(void* a, void* b, size_t size) {
+	size_t i;
+	uint32* ai = a;
+	uint32* bi = b;
+	for(i = 0; i < size / 4; ++i) {
+		uint32 temp = ai[i];
+		ai[i] = bi[i];
+		bi[i] = temp;
+	}
+
+	if(size % 4 != 0) {
+		byte* ab = a;
+		byte* bb = b;
+		for(i = i * 4; i < size; ++i) {
+			byte temp = ab[i];
+			ab[i] = bb[i];
+			bb[i] = temp;
+		}
+	}
+}
+
+void sort_heapsort(void* data, size_t num, size_t size,
+		int (*compar) (const void*, const void*)) {
+
+	int i, j, p, c, cl;
+
+	for(i = 1; i < num; ++i) {
+		p = heap_parent(i);
+		while(i && compar(data + i * size, data + p * size) > 0) {
+			_mem_swap(data + i * size, data + p * size, size);
+			i = p;
+			p = i ? heap_parent(i) : 0;
+		}
+	}
+
+	for(j = num-1; j > 0; --j) {
+		c = 0;
+		i = j;
+		do {
+			_mem_swap(data + c * size, data + i * size, size);
+			i = c;
+			cl = heap_left_child(i);
+			if(cl >= j)
+				c = 0;
+			else if(cl+1 >= j)
+				c = cl;
+			else {
+				if(compar(data + cl * size, data + (cl + 1) * size) < 0)
+					c = cl + 1;
+				else
+					c = cl;
+			}
+		}
+		while(c && compar(data + c * size, data + i * size) > 0);
+	}
+}
+
 /*
 -------------------
 --- Compression ---

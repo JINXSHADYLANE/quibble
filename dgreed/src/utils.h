@@ -472,6 +472,22 @@ uint next_pow2(uint n);
 // Finds a needle in the haystask.
 int strfind(const char* needle, const char* haystack);
 
+
+/*
+---------------
+--- Sorting ---
+---------------
+*/
+
+// Heapsort - worst case O(N log N) in-place non-recursive unstable sort
+
+// Special case of heapsort for ints
+void sort_heapsort_int(int* data, size_t num);
+
+// General case of heapsort
+void sort_heapsort(void* data, size_t num, size_t size,
+		int (*compar) (const void*, const void*));
+
 /*
 -------------------
 --- Compression ---

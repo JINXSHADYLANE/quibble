@@ -406,3 +406,28 @@ TEST_(strfind) {
 	ASSERT_(strfind("ABCDABD", "ABC ABCDAB ABCDABCDABDE") == 15);
 }
 
+TEST_(sort_heapsort_int) {
+	int a[] = {6, 5, 3, 1, 8, 7, 2, 4};
+	int a_sorted[] = {1, 2, 3, 4, 5, 6, 7, 8};
+	sort_heapsort_int(a, ARRAY_SIZE(a));
+	ASSERT_(memcmp(a, a_sorted, sizeof(a)) == 0);
+
+	int b[] = {1, 1};
+	sort_heapsort_int(b, ARRAY_SIZE(b));
+	ASSERT_(b[0] == 1 && b[1] == 1);
+
+	int c[] = {
+		46, 47, 44, 63, 12, 19, 47, 61,
+		44, 58, 67, -9, 87, 13, 42, 49,
+		43, 62, 55, 100, 46, -12, 61, 12
+	};
+	int c_sorted[] = {
+		-12, -9, 12, 12, 13, 19, 42, 43, 
+		44, 44, 46, 46, 47, 47, 49, 55, 
+		58, 61, 61, 62, 63, 67, 87, 100
+	};
+	sort_heapsort_int(c, ARRAY_SIZE(c));
+	
+	ASSERT_(memcmp(c, c_sorted, sizeof(c)) == 0);
+}
+
