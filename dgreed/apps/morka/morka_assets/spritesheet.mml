@@ -1,0 +1,115 @@
+(sprsheet morka
+	(prefix "morka_assets/")
+
+	(img background
+		(tex atlas_1.png)
+		(src 0,0,1024,768)
+	)
+	(anim grass
+		(tex atlas_1.png)
+		(src 0,845,256,1024)
+		(offset 256,0)
+		(frames 4)
+		(grid 4,1)
+	)
+	(anim rabbit
+		(tex atlas_0.png)
+		(src 0,0,179,179)
+		(offset 179,179)
+		(frames 13)
+		(grid 5,3)
+	)
+	(img bg_mushroom_1
+		(tex atlas_2.png)
+		(src 2,438,282,966)
+	)
+	(img bg_mushroom_2
+		(tex atlas_2.png)
+		(src 568,2,996,552)
+	)
+	(img bg_mushroom_3
+		(tex atlas_2.png)
+		(src 284,438,562,860)
+	)
+	(img bg_mushroom_4
+		(tex atlas_2.png)
+		(src 2,2,566,436)
+	)
+	(img blue_shade
+		(tex atlas_2.png)
+		(src 965,673,966,674)
+	)
+	(img clock
+		(tex atlas_2.png)
+		(src 680,764,712,809)
+	)
+	(img clock_arrow
+		(tex atlas_2.png)
+		(src 680,811,689,846)
+		(cntr 684,841)
+	)
+	(img clock_body
+		(tex atlas_2.png)
+		(src 844,734,946,875)
+		(cntr 946,734)
+	)
+	(img clock_slots
+		(tex atlas_2.png)
+		(src 874,670,962,696)
+	)
+	(img fluff
+		(tex atlas_2.png)
+		(src 962,554,1005,625)
+		(cntr 984,589)
+	)
+	(img mushroom_1
+		(tex atlas_2.png)
+		(src 564,554,722,762)
+	)
+	(img mushroom_2
+		(tex atlas_2.png)
+		(src 564,764,678,926)
+	)
+	(img mushroom_3
+		(tex atlas_2.png)
+		(src 874,554,960,668)
+	)
+	(img mushroom_4
+		(tex atlas_2.png)
+		(src 724,554,872,732)
+	)
+	(img music
+		(tex atlas_2.png)
+		(src 404,862,522,950)
+		(cntr 406,864)
+	)
+	(img off
+		(tex atlas_2.png)
+		(src 920,877,976,935)
+	)
+	(img pause
+		(tex atlas_2.png)
+		(src 962,627,998,663)
+		(cntr 962,627)
+	)
+	(img play
+		(tex atlas_2.png)
+		(src 680,848,798,960)
+		(cntr 682,849)
+	)
+	(img restart_1
+		(tex atlas_2.png)
+		(src 284,862,402,950)
+		(cntr 286,864)
+	)
+	(img restart_2
+		(tex atlas_2.png)
+		(src 724,734,842,846)
+		(cntr 726,735)
+	)
+	(img sound
+		(tex atlas_2.png)
+		(src 800,877,918,965)
+		(cntr 802,879)
+	)
+)
