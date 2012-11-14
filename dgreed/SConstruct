@@ -83,7 +83,7 @@ elif str(Platform()) == 'darwin':
 			Exit(1)
 	conf.Finish()
 else:
-	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal', 'curl', 'pthread','freetype'],
+	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal', 'curl', 'pthread', 'freetype', 'm', 'dl'],
 		DGREED_FONT_TOOL=default_font_tool, 
 		DGREED_TEST_TOOL=default_test_tool,
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool,

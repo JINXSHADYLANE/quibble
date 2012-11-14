@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 # Converts xml tilemaps made using Ogmo Editor to a much more efficient BTM
 #
