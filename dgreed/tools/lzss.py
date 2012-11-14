@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 # slow and simple lzss compresion/decompression,
 # compatible with C version in dgreed utils.c

@@ -1,5 +1,6 @@
 #include "hud.h"
 
+#include <utils.h>
 #include <uidesc.h>
 #include <vfont.h>
 
@@ -112,7 +113,7 @@ void hud_render(void) {
 
 	UIElement* hud_clock_needle = uidesc_get("hud_clock_needle");
 
-	float angle = (rabbit_remaining_time / 60.0f) * 2.0f * M_PI;
+	float angle = (rabbit_remaining_time / 60.0f) * 2.0f * PI;
 	_hud_render_clock_needle(hud_clock_needle, hud_layer, angle);
 
 	game_over_alpha += game_over ? 0.03f : -0.05f;
