@@ -301,6 +301,27 @@ static void _states_push(lua_State* l, uint idx) {
 		states_transition_t = time_s();
 	}
 
+static void _states_push_multi(lua_State* l, const char** names, uint n_names) {
+	bool stack_empty = _stack_size() == 0;
+
+	int top;
+	if(!stack_empty) {
+		int top = _stack_get(_stack_size()-1);
+		_call_state_func(l, _names_get(top), "leave", NULL, NULL, NULL);
+		states_acc_t[top] += time_s() - states_enter_t[top];
+	}
+
+	for(uint i = 0; i < n_names; ++i) {
+		uint idx = _names_find(names[i]);
+		_stack_push(idx);
+	}
+
+	if(!stack_empty) {
+		states_from = top;
+		top = _stack_get(_stack_size()-1);
+		states_to = top;
+		states_transition_t = time_s();
+	}
 }
 
 static int ml_states_push(lua_State* l) {
@@ -313,6 +334,35 @@ static int ml_states_push(lua_State* l) {
 		return luaL_error(l, "No such state!");
 
 	_states_push(l, idx);
+
+	return 0;
+}
+
+static int ml_states_push_multi(lua_State* l) {
+	checkargs(1, "states.push_multi");
+	assert(lua_istable(l, 1));
+
+	char str_pool[256];
+    char* str = str_pool;
+	char* orig_str = str;
+	const char* ptrs[8] = { NULL };
+
+	uint n_names = lua_objlen(l, 1);
+	assert(n_names <= 8);
+
+	for(uint i = 0; i < n_names; ++i) {
+		lua_rawgeti(l, 1, i+1);
+		size_t len;
+		const char* s = lua_tolstring(l, -1, &len);
+		ptrs[i] = str;
+		memcpy(str, s, len+1);
+		str += len+1;
+		assert(str < orig_str + 256);
+
+		lua_pop(l, 1);
+	}
+
+	_states_push_multi(l, ptrs, n);
 
 	return 0;
 }
@@ -501,6 +551,7 @@ static const luaL_Reg states_fun[] = {
 	{"time", ml_states_time},
 	{"register", ml_states_register},
 	{"push", ml_states_push},
+	{"push_multi", ml_states_push_multi},
 	{"pop", ml_states_pop},
 	{"replace", ml_states_replace},
 	{"prerender_callback", ml_states_prerender_callback},
@@ -536,6 +587,10 @@ void malka_states_push(const char* name) {
 	uint idx = _names_find(name);
 	assert(idx != ~0);
 	_states_push(malka_lua_state(), idx);
+}
+
+void malka_states_push_multi(const char** names, int n_names) {
+	_states_push_multi(malka_lua_state(), names, (uint)n_names);
 }
 
 void malka_states_replace(const char* name) {

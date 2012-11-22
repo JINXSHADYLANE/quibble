@@ -27,6 +27,7 @@ typedef struct {
 
 void malka_states_register(const char* name, StateDesc* state); 
 void malka_states_push(const char* name);
+void malka_states_push_multi(const char** names, int n_names);
 void malka_states_replace(const char* name);
 void malka_states_pop(void);
 void malka_states_set_transition_len(float len);

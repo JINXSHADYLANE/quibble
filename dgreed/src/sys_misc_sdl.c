@@ -1,6 +1,10 @@
 #include "system.h"
 
+#ifndef OSX_XCODE
 #include <SDL/SDL.h>
+#else
+#include <SDL.h>
+#endif
 
 /*
 --------------------------
