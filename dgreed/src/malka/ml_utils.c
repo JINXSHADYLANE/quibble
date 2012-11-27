@@ -43,6 +43,18 @@ static int ml_vec2(lua_State* l) {
 	return 1;	
 }
 
+static int ml_vec2_from_str(lua_State* l) {
+	checkargs(1, "vec2_from_str");
+
+	const char* str = luaL_checkstring(l, 1);
+
+	double x, y;
+	sscanf(str, "%lf,%lf", &x, &y);
+	_new_vec2(l, x, y);
+
+	return 1;
+}
+
 static int ml_dot(lua_State* l) {
 	checkargs(2, "dot");
 	
@@ -258,6 +270,7 @@ static int ml_vec2_newindex(lua_State* l) {
 
 static const luaL_Reg vec2_fun[] = {
 	{"vec2", ml_vec2},
+	{"vec2_from_str", ml_vec2_from_str},
 	{"dot", ml_dot},
 	{"length", ml_length},
 	{"length_sq", ml_length_sq},
@@ -348,6 +361,23 @@ static int ml_rect(lua_State* l) {
 	else
 		return luaL_error(l, "wrong number of arguments provided to rect");
 	return 1;	
+}
+
+static int ml_rect_from_str(lua_State* l) {
+	int n = lua_gettop(l);
+	if(n != 1 && n != 2)
+		return luaL_error(l, "wrong number of arguments provided to rect_from_str");
+
+	const char* str = luaL_checkstring(l, 1);
+	double scale = 1.0;
+	if(n == 2)
+		scale = luaL_checknumber(l, 2);
+
+	double _l, t, r, b;
+	sscanf(str, "%lf,%lf,%lf,%lf", &_l, &t, &r, &b);
+	_new_rect(l, _l*scale, t*scale, r*scale, b*scale);
+
+	return 1;
 }
 
 static int ml_width(lua_State* l) {
@@ -777,6 +807,7 @@ static int ml_segment_to_point(lua_State* l) {
 
 static const luaL_Reg rect_fun[] = {
 	{"rect", ml_rect},
+	{"rect_from_str", ml_rect_from_str},
 	{"width", ml_width},
 	{"height", ml_height},
 	{"rect_rect_collision", ml_rect_rect_collision},
