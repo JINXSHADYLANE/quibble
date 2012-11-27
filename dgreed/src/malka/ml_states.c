@@ -300,13 +300,14 @@ static void _states_push(lua_State* l, uint idx) {
 		states_to = top;
 		states_transition_t = time_s();
 	}
+}
 
 static void _states_push_multi(lua_State* l, const char** names, uint n_names) {
 	bool stack_empty = _stack_size() == 0;
 
-	int top;
+	int top = 0;
 	if(!stack_empty) {
-		int top = _stack_get(_stack_size()-1);
+		top = _stack_get(_stack_size()-1);
 		_call_state_func(l, _names_get(top), "leave", NULL, NULL, NULL);
 		states_acc_t[top] += time_s() - states_enter_t[top];
 	}
@@ -321,6 +322,7 @@ static void _states_push_multi(lua_State* l, const char** names, uint n_names) {
 		top = _stack_get(_stack_size()-1);
 		states_to = top;
 		states_transition_t = time_s();
+		_call_state_func(l, _names_get(top), "preenter", NULL, NULL, NULL);
 	}
 }
 
@@ -344,7 +346,6 @@ static int ml_states_push_multi(lua_State* l) {
 
 	char str_pool[256];
     char* str = str_pool;
-	char* orig_str = str;
 	const char* ptrs[8] = { NULL };
 
 	uint n_names = lua_objlen(l, 1);
@@ -357,12 +358,12 @@ static int ml_states_push_multi(lua_State* l) {
 		ptrs[i] = str;
 		memcpy(str, s, len+1);
 		str += len+1;
-		assert(str < orig_str + 256);
+		assert(str < str_pool + 256);
 
 		lua_pop(l, 1);
 	}
 
-	_states_push_multi(l, ptrs, n);
+	_states_push_multi(l, ptrs, n_names);
 
 	return 0;
 }

@@ -17,6 +17,9 @@ returns new vector, sets components to zero if no parms are used
 - vec2(v)
 makes copy of vector v
 
+- vec2_from_str(str)
+returns new vector parsed from string in format "x,y"
+
 - dot(a, b)
 dot product of two vectors a and b
 
@@ -43,6 +46,10 @@ constructs new rectangle, unspecified sides are set to zero
 
 - rect(r)
 makes copy of rect r
+
+- rect_from_str(str, scale)
+returns new rect parsed from string in format "l,t,r,b", optionally 
+multiplies everything by scale
 
 - width(a), height(a)
 signed width and height of rectangle a
