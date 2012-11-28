@@ -260,6 +260,15 @@ char mchains_next(Chain* c, RndContext* rnd) {
 			// Generate random number in range (0, symbol_probabilities_sum)
 			uint base_idx = nn * ctx0 + n * ctx1;
 			int max_r = trans[base_idx + n-1]; 
+#ifdef _DEBUG
+			if(max_r <= 0) {
+				printf("Unable to follow context %c%c", 
+						c->rules->symbols[ctx0],
+						c->rules->symbols[ctx1]
+				);
+				LOG_ERROR("mchains error");
+			}
+#endif
 			int r = rand_int_ex(rnd, 0, max_r);
 
 			// Linear search for the first cumulative probability that is 

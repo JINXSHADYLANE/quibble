@@ -23,7 +23,7 @@
 		(def f (bg_mushroom_6 400))
 		(def _ (.empty 150))
 
-		(init "____")
+		(init "__")
 
 		(learn "___a_fc__d_a")
 		(learn "_a__b__c__d")
