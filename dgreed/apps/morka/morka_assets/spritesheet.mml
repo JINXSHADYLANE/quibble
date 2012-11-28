@@ -16,7 +16,7 @@
 		(tex atlas_0.png)
 		(src 0,0,179,179)
 		(offset 179,179)
-		(frames 13)
+		(frames 14)
 		(grid 5,3)
 	)
 	(img bg_mushroom_1
@@ -45,7 +45,7 @@
 	)
 	(img blue_shade
 		(tex atlas_2.png)
-		(src 1015,2,1021,8)
+		(src 1016,3,1020,7)
 	)
 	(img clock
 		(tex atlas_2.png)
@@ -53,6 +53,7 @@
 	)
 	(img clock_arrow
 		(tex atlas_2.png)
+		(cntr 989,297)
 		(src 985,267,994,302)
 	)
 	(img clock_body

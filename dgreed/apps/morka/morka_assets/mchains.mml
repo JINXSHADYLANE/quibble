@@ -16,19 +16,19 @@
 
 	(ruleset bg
 		(def a (bg_mushroom_1 400))
-		(def b (bg_mushroom_2 400))
+		(def b (bg_mushroom_2 300))
 		(def c (bg_mushroom_3 400))
-		(def d (bg_mushroom_4 400))
-		(def e (bg_mushroom_5 400))
-		(def f (bg_mushroom_6 400))
+		(def d (bg_mushroom_4 300))
+		(def e (bg_mushroom_5 250))
+		(def f (bg_mushroom_6 200))
 		(def _ (.empty 150))
 
 		(init "__")
 
-		(learn "___a_fc__d_a")
+		(learn "__e_a_c__d_a")
 		(learn "_a__b__c__d")
 		(learn "__d_a_c_d_b")
-		(learn "___ef_a_d__b")
+		(learn "___ef_a_d_")
 		(learn "__c_f__e_")
 	)
 )
