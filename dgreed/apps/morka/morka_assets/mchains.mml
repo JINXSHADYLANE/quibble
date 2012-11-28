@@ -19,13 +19,17 @@
 		(def b (bg_mushroom_2 400))
 		(def c (bg_mushroom_3 400))
 		(def d (bg_mushroom_4 400))
-		(def _ (.empty 500))
+		(def e (bg_mushroom_5 400))
+		(def f (bg_mushroom_6 400))
+		(def _ (.empty 150))
 
-		(init "__")
+		(init "____")
 
-		(learn "__a_b_c_d_a")
-		(learn "__a__b__c__d")
+		(learn "___a_fc__d_a")
+		(learn "_a__b__c__d")
 		(learn "__d_a_c_d_b")
+		(learn "___ef_a_d__b")
+		(learn "__c_f__e_")
 	)
 )
 
