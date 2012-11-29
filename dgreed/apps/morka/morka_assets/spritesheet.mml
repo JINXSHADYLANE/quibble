@@ -19,29 +19,49 @@
 		(frames 14)
 		(grid 5,3)
 	)
+	(img bg2_mushroom_1
+		(tex atlas_2.png)
+		(src 443,2,882,424)
+	)
+	(img bg2_mushroom_2
+		(tex atlas_2.png)
+		(src 523,1615,740,1998)
+	)
+	(img bg2_mushroom_3
+		(tex atlas_2.png)
+		(src 424,426,844,977)
+	)
+	(img bg2_mushroom_4
+		(tex atlas_2.png)
+		(src 230,1065,456,1595)
+	)
+	(img bg2_mushroom_5
+		(tex atlas_2.png)
+		(src 726,1122,992,1613)
+	)
 	(img bg_mushroom_1
 		(tex atlas_2.png)
 		(src 2,2,441,424)
 	)
 	(img bg_mushroom_2
 		(tex atlas_2.png)
-		(src 2,426,302,850)
+		(src 2,1597,302,2021)
 	)
 	(img bg_mushroom_3
 		(tex atlas_2.png)
-		(src 443,2,863,553)
+		(src 2,426,422,977)
 	)
 	(img bg_mushroom_4
 		(tex atlas_2.png)
-		(src 2,852,228,1382)
+		(src 2,1065,228,1595)
 	)
 	(img bg_mushroom_5
 		(tex atlas_2.png)
-		(src 420,555,686,1046)
+		(src 458,1065,724,1556)
 	)
 	(img bg_mushroom_6
 		(tex atlas_2.png)
-		(src 688,765,905,1148)
+		(src 304,1597,521,1980)
 	)
 	(img blue_shade
 		(tex atlas_2.png)
@@ -49,67 +69,67 @@
 	)
 	(img clock
 		(tex atlas_2.png)
-		(src 985,220,1017,265)
+		(src 846,464,878,509)
 	)
 	(img clock_arrow
 		(tex atlas_2.png)
-		(cntr 989,297)
-		(src 985,267,994,302)
+		(src 1004,2,1013,37)
+		(cntr 1008,33)
 	)
 	(img clock_body
 		(tex atlas_2.png)
-		(src 304,680,406,821)
+		(src 726,979,828,1120)
 	)
 	(img clock_slots
 		(tex atlas_2.png)
-		(src 304,823,392,849)
+		(src 2,979,90,1005)
 	)
 	(img fluff
 		(tex atlas_2.png)
-		(src 230,912,273,983)
+		(src 962,961,1005,1032)
 	)
 	(img mushroom_1
 		(tex atlas_2.png)
-		(src 688,555,846,763)
+		(src 846,511,1004,719)
 	)
 	(img mushroom_2
 		(tex atlas_2.png)
-		(src 304,516,418,678)
+		(src 846,901,960,1063)
 	)
 	(img mushroom_3
 		(tex atlas_2.png)
-		(src 304,851,390,965)
+		(src 742,1615,828,1729)
 	)
 	(img mushroom_4
 		(tex atlas_2.png)
-		(src 865,2,1013,180)
+		(src 846,721,994,899)
 	)
 	(img music
 		(tex atlas_2.png)
-		(src 304,426,422,514)
+		(src 884,410,1002,498)
 	)
 	(img off
 		(tex atlas_2.png)
-		(src 230,852,286,910)
+		(src 962,901,1018,959)
 	)
 	(img pause
 		(tex atlas_2.png)
-		(src 985,182,1021,218)
+		(src 846,426,882,462)
 	)
 	(img play
 		(tex atlas_2.png)
-		(src 865,296,983,408)
+		(src 884,116,1002,228)
 	)
 	(img restart_1
 		(tex atlas_2.png)
-		(src 865,500,983,588)
+		(src 884,320,1002,408)
 	)
 	(img restart_2
 		(tex atlas_2.png)
-		(src 865,182,983,294)
+		(src 884,2,1002,114)
 	)
 	(img sound
 		(tex atlas_2.png)
-		(src 865,410,983,498)
+		(src 884,230,1002,318)
 	)
 )
