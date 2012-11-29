@@ -39,7 +39,12 @@
 		)
 
 		(seq dive
-			(frames "8 9 14")
+			(frames "8 9 13")
+			(on_finish stop)
+		)
+
+		(seq scoot
+			(frames "10 11 12 14")
 			(on_finish stop)
 		)
 	)
