@@ -3,11 +3,11 @@
 
 	(img background
 		(tex atlas_1.png)
-		(src 0,0,1024,768)
+		(src 0,256,1024,1024)
 	)
 	(anim grass
-		(tex atlas_1.png)
-		(src 0,845,256,1024)
+		(tex atlas_2.png)
+		(src 0,1,256,179)
 		(offset 256,0)
 		(frames 4)
 		(grid 4,1)
@@ -19,133 +19,165 @@
 		(frames 15)
 		(grid 5,3)
 	)
-	(img bg2_mushroom_1
+	(img sparkle_1
 		(tex atlas_2.png)
-		(src 424,534,863,956)
+		(src 274,469,314,511)
 	)
-	(img bg2_mushroom_2
+	(img sparkle_10
 		(tex atlas_2.png)
-		(src 639,1604,856,1987)
+		(src 124,350,142,368)
 	)
-	(img bg2_mushroom_3
+	(img sparkle_11
 		(tex atlas_2.png)
-		(src 2,555,422,1106)
+		(src 459,295,497,329)
 	)
-	(img bg2_mushroom_4
+	(img sparkle_2
 		(tex atlas_2.png)
-		(src 443,1072,669,1602)
+		(src 316,469,356,506)
 	)
-	(img bg2_mushroom_5
+	(img sparkle_3
 		(tex atlas_2.png)
-		(src 671,1048,937,1539)
+		(src 260,324,279,339)
 	)
-	(img bg_mushroom_1
+	(img sparkle_4
 		(tex atlas_2.png)
-		(src 2,1108,441,1530)
+		(src 124,370,137,402)
 	)
-	(img bg_mushroom_2
+	(img sparkle_5
 		(tex atlas_2.png)
-		(src 2,1532,302,1956)
+		(src 104,439,142,485)
 	)
-	(img bg_mushroom_3
+	(img sparkle_6
 		(tex atlas_2.png)
-		(src 2,2,422,553)
+		(src 236,324,258,340)
 	)
-	(img bg_mushroom_4
+	(img sparkle_7
 		(tex atlas_2.png)
-		(src 424,2,650,532)
+		(src 126,487,149,507)
 	)
-	(img bg_mushroom_5
+	(img sparkle_8
 		(tex atlas_2.png)
-		(src 652,2,918,493)
+		(src 374,295,408,339)
 	)
-	(img bg_mushroom_6
+	(img sparkle_9
 		(tex atlas_2.png)
-		(src 420,1604,637,1987)
+		(src 241,482,272,508)
 	)
 	(img blue_shade
 		(tex atlas_2.png)
-		(src 653,524,657,528)
+		(src 47,500,51,504)
+	)
+	(img blur_1
+		(tex atlas_2.png)
+		(src 124,181,234,348)
+	)
+	(img blur_2
+		(tex atlas_2.png)
+		(src 1,181,122,437)
+	)
+	(img blur_3
+		(tex atlas_2.png)
+		(src 252,342,380,467)
 	)
 	(img clock
 		(tex atlas_2.png)
-		(src 225,1958,257,2003)
+		(src 340,295,372,340)
 	)
 	(img clock_arrow
 		(tex atlas_2.png)
-		(src 420,1532,429,1567)
-		(cntr 424,1562)
+		(src 448,295,457,330)
+		(cntr 452,325)
 	)
 	(img clock_body
 		(tex atlas_2.png)
-		(src 304,1696,406,1837)
+		(src 236,181,338,322)
 	)
 	(img clock_slots
 		(tex atlas_2.png)
-		(src 652,495,740,521)
+		(src 151,482,239,508)
 	)
 	(img fluff
 		(tex atlas_2.png)
-		(src 180,1958,223,2029)
+		(src 1,439,44,510)
 	)
 	(img frost
 		(tex atlas_2.png)
-		(src 304,1839,410,1969)
-	)
-	(img mushroom_1
-		(tex atlas_2.png)
-		(src 858,1541,1016,1749)
-	)
-	(img mushroom_2
-		(tex atlas_2.png)
-		(src 304,1532,418,1694)
-	)
-	(img mushroom_3
-		(tex atlas_2.png)
-		(src 865,698,951,812)
-	)
-	(img mushroom_4
-		(tex atlas_2.png)
-		(src 865,518,1013,696)
+		(src 144,350,250,480)
 	)
 	(img music
 		(tex atlas_2.png)
-		(src 2,1958,120,2046)
+		(src 580,181,698,269)
 	)
 	(img off
 		(tex atlas_2.png)
-		(src 122,1958,178,2016)
+		(src 46,439,102,497)
 	)
 	(img pause
 		(tex atlas_2.png)
-		(src 780,495,816,531)
+		(src 410,295,446,331)
 	)
 	(img play
 		(tex atlas_2.png)
-		(src 544,958,662,1070)
+		(src 382,341,500,453)
 	)
 	(img restart_1
 		(tex atlas_2.png)
-		(src 784,958,902,1046)
+		(src 502,271,620,359)
 	)
 	(img restart_2
 		(tex atlas_2.png)
-		(src 424,958,542,1070)
+		(src 340,181,458,293)
 	)
 	(img snowflake1
 		(tex atlas_2.png)
-		(src 742,495,778,532)
+		(src 358,469,394,506)
 	)
 	(img snowflake2
 		(tex atlas_2.png)
-		(src 818,495,846,520)
+		(src 396,455,424,480)
 	)
 	(img snowflake3
 		(tex atlas_2.png)
-		(src 848,495,868,516)
+		(src 104,487,124,508)
 	)
 	(img sound
 		(tex atlas_2.png)
-		(src 664,958,782,1046)
+		(src 460,181,578,269)
+	)
+	(img bg_mushroom_1
+		(tex atlas_3.png)
+		(src 304,555,743,977)
+	)
+	(img bg_mushroom_2
+		(tex atlas_3.png)
+		(src 2,555,302,979)
+	)
+	(img bg_mushroom_3
+		(tex atlas_3.png)
+		(src 2,2,422,553)
+	)
+	(img bg_mushroom_5
+		(tex atlas_3.png)
+		(src 745,2,1011,493)
+	)
+	(img bg_mushroom_6
+		(tex atlas_3.png)
+		(src 745,495,962,878)
+	)
+	(img mushroom_1
+		(tex atlas_3.png)
+		(src 424,2,582,210)
+	)
+	(img mushroom_2
+		(tex atlas_3.png)
+		(src 584,182,698,344)
+	)
+	(img mushroom_3
+		(tex atlas_3.png)
+		(src 745,880,831,994)
+	)
+	(img mushroom_4
+		(tex atlas_3.png)
+		(src 584,2,732,180)
 	)
 )
