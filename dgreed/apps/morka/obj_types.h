@@ -19,8 +19,8 @@ enum {
 typedef struct {
 	GameObject header;
 	bool touching_ground;
-	bool can_double_jump;
 	bool jump_off_mushroom;
+	bool can_dive;
 	float jump_time;
 	float mushroom_hit_time;
 	float last_keypress_t;
