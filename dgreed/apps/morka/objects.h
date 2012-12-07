@@ -22,6 +22,7 @@ typedef struct {
 
 typedef void (*PhysicsHitCallback)(GameObject* self, GameObject* collider);
 
+// 32 bytes
 typedef struct FwdPhysicsComponent {
 	// Data
 	GameObject* owner;
@@ -37,6 +38,7 @@ typedef struct FwdPhysicsComponent {
 
 typedef void (*RenderCallback)(GameObject* self);
 
+// 64 bytes
 typedef struct FwdRenderComponent {
 	// Data
 	GameObject* owner;
@@ -62,6 +64,7 @@ typedef struct FwdRenderComponent {
 
 typedef void (*UpdateCallback)(GameObject* self, float ts, float dt);
 
+// 16 bytes
 typedef struct FwdUpdateComponent {
 	// Data
 	GameObject* owner;
