@@ -18,6 +18,7 @@ float camera_follow_weight;
 float rabbit_remaining_time;
 float rabbit_distance;
 float rabbit_current_distance;
+float bg_scroll = 0.0f;
 
 bool game_over;
 
@@ -86,6 +87,7 @@ static bool game_update(void) {
 		objects_camera[0].right += camera_offset;
 		objects_camera[1].left += camera_offset/2.0f;
 		objects_camera[1].right += camera_offset/2.0f;
+		bg_scroll += camera_offset/8.0f;
 	}
 
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
@@ -96,7 +98,12 @@ static bool game_update(void) {
 }
 
 static bool game_render(float t) {
-	spr_draw("background", 0, rectf_null(), COLOR_WHITE);
+	// Draw scrolling background
+	float off_x = fmodf(bg_scroll, 1024.0f);
+	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);
+	spr_draw("background", 0, dest, COLOR_WHITE);
+	dest = rectf(1024.0f - off_x, 0.0f, 0.0f, 0.0f);
+	spr_draw("background", 0, dest, COLOR_WHITE);
 
 	hud_render();
 	objects_tick();
