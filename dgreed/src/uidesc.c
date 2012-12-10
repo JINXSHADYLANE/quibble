@@ -214,17 +214,17 @@ static void _rebase_ui_elements(void* min, void* max, ptrdiff_t delta) {
 
 	for(uint i = 0; i < ui_elements.size; ++i) {
 		UIElement* el = darray_get(&ui_elements, i);
-		if((void*)el->list.next >= min && (void*)el->list.next <= max) {
-			el->list.next += delta;
+		if((void*)el->list.next >= min && (void*)el->list.next < max) {
+			el->list.next = (void*)el->list.next + delta;
 		}
-		if((void*)el->list.prev >= min && (void*)el->list.prev <= max) {
-			el->list.prev += delta;
+		if((void*)el->list.prev >= min && (void*)el->list.prev < max) {
+			el->list.prev = (void*)el->list.next + delta;
 		}
-		if((void*)el->child_list.next >= min && (void*)el->child_list.next <= max) {
-			el->child_list.next += delta;
+		if((void*)el->child_list.next >= min && (void*)el->child_list.next < max) {
+			el->child_list.next = (void*)el->child_list.next + delta;
 		}
-		if((void*)el->child_list.prev >= min && (void*)el->child_list.prev <= max) {
-			el->child_list.prev += delta;
+		if((void*)el->child_list.prev >= min && (void*)el->child_list.prev < max) {
+			el->child_list.prev = (void*)el->child_list.prev + delta;
 		}
 	}
 }

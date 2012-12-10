@@ -71,10 +71,10 @@
 		)
 	)
 
-	#(def combo_text
-	#	(add <-
-	#		(middle <- (get_rect screen))
-	#		(vec2 0,-400)
-	#	)
-	#)
+	(def combo_text
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 0,-350)
+		)
+	)
 )
