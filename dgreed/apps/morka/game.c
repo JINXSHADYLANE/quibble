@@ -64,9 +64,6 @@ static bool game_update(void) {
 		draw_physics_debug = !draw_physics_debug;
 #endif
 
-	if(char_down('c'))
-		hud_trigger_combo(7);
-
 	if(rabbit_remaining_time <= 0.0f) {
 		rabbit_remaining_time = 0.0f;
 

@@ -1,7 +1,10 @@
 #include "obj_types.h"
+#include "hud.h"
 
 #include <system.h>
 #include <async.h>
+
+static uint combo_counter = 0;
 
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
@@ -22,6 +25,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		rabbit->jump_time = ts;
 		objects_apply_force(self, vec2(50000.0f, -100000.0f));
 		anim_play(rabbit->anim, "jump");
+		combo_counter = 0;
 	}
 	else {
 		if(ts - rabbit->mushroom_hit_time < 0.1f) {
@@ -84,7 +88,11 @@ static void _rabbit_delayed_bounce(void* r) {
 		GameObject* self = r;
 		objects_apply_force(self, rabbit->bounce_force); 
 		rabbit->jump_off_mushroom = false;
+		if(combo_counter++ > 1)
+			hud_trigger_combo(combo_counter);
 	}
+	else
+		combo_counter = 0;
 
 	rabbit->bounce_force = vec2(0.0f, 0.0f);
 }
