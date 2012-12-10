@@ -18,7 +18,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	// Jump
 	if(rabbit->touching_ground && key_down(KEY_A)) {
 		rabbit->touching_ground = false;
-		rabbit->can_dive = true;
 		rabbit->jump_off_mushroom = false;
 		rabbit->jump_time = ts;
 		objects_apply_force(self, vec2(50000.0f, -100000.0f));
@@ -33,15 +32,21 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			if(key_pressed(KEY_A) && (ts - rabbit->jump_time) < 0.2f) {
 				objects_apply_force(self, vec2(0.0f, -8000.0f));
 			}
-			else if(rabbit->can_dive && key_down(KEY_A)) {
+			else if(!rabbit->is_diving && key_down(KEY_A)) {
 				// Dive 	
-				rabbit->can_dive = false;
-				objects_apply_force(self, vec2(0.0f, 60000.0f));
+				rabbit->is_diving = true;
+				objects_apply_force(self, vec2(0.0f, 6000.0f));
 				anim_play(rabbit->anim, "dive");
+			}
+			else if(rabbit->is_diving && key_pressed(KEY_A)) {
+				objects_apply_force(self, vec2(0.0f, 6000.0f));
+			}
+			else if(rabbit->is_diving && !key_pressed(KEY_A)) {
+				rabbit->is_diving = false;
+				anim_play(rabbit->anim, "glide");
 			}
 		}
 	}
-
 
 	// Damping
 	if(p->vel.x > 300.0f)
@@ -75,11 +80,10 @@ static void obj_rabbit_update_pos(GameObject* self) {
 static void _rabbit_delayed_bounce(void* r) {
 	ObjRabbit* rabbit = r;
 
-	if(rabbit->jump_off_mushroom) {
+	if(rabbit->jump_off_mushroom || rabbit->is_diving) {
 		GameObject* self = r;
 		objects_apply_force(self, rabbit->bounce_force); 
 		rabbit->jump_off_mushroom = false;
-		rabbit->can_dive = true;
 	}
 
 	rabbit->bounce_force = vec2(0.0f, 0.0f);
@@ -134,7 +138,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	rabbit->touching_ground = false;
 	rabbit->jump_off_mushroom = false;
-	rabbit->can_dive = false;
+	rabbit->is_diving = false;
 	rabbit->jump_time = -100.0f;
 	rabbit->mushroom_hit_time = -100.0f;
 	rabbit->anim = anim_new("rabbit");
