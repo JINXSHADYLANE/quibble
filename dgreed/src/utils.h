@@ -454,6 +454,9 @@ float lerp(float a, float b, float t);
 // Smoothstep
 float smoothstep(float a, float b, float t);
 
+// Smootherstep
+float smootherstep(float a, float b, float t);
+
 // Normalizes value to 0 - 1 range
 float normalize(float val, float min, float max);
 
