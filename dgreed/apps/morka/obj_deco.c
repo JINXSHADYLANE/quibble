@@ -21,6 +21,7 @@ static void obj_deco_construct(GameObject* self, Vector2 pos, void* user_data) {
 	render->extent_max = dest.right;
 	render->scale = 1.0f;
 	render->layer = 1;
+	render->color = COLOR_RGBA(96, 96, 128, 255);
 	render->camera = 1;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
