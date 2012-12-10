@@ -122,8 +122,7 @@ static void _hud_render_combo(UIElement* element, uint layer, uint mult, float t
 	sprintf(text, "Combo x%u", mult);
 	Vector2 half_size = vec2_scale(vfont_size(text), 0.5f);
 
-	//Vector2 pos = vec2_sub(element->vec2, half_size);
-	Vector2 pos = vec2_sub(vec2(512.0f, 80.0f), half_size);
+	Vector2 pos = vec2_sub(element->vec2, half_size);
 	pos.x -= x * 200.0f;
 	vfont_draw(text, layer, pos, COLOR_FTRANSP(a));
 }
