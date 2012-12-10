@@ -1464,6 +1464,10 @@ float smoothstep(float a, float b, float t) {
 	return lerp(a, b, t * t * (3.0f - 2.0f * t));
 }	
 
+float smootherstep(float a, float b, float t) {
+	return lerp(a, b, t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f));
+}
+
 float normalize(float val, float min, float max) {
 	assert(min < max);
 

@@ -1,6 +1,5 @@
 #include "hud.h"
 
-#include <utils.h>
 #include <uidesc.h>
 #include <vfont.h>
 
@@ -12,6 +11,15 @@ extern float rabbit_current_distance;
 
 extern bool game_over;
 float game_over_alpha = 0.0f;
+
+typedef struct {
+	uint multiplier;
+	float t;
+} Combo;
+
+#define max_combos 4
+static Combo combos[4];
+static uint n_combos = 0;
 
 static void _hud_render_ui(UIElement* element, uint layer) {
 	// Render
@@ -96,12 +104,43 @@ static void _hud_render_distance(UIElement* element, uint layer, uint number) {
 	}
 }
 
+static void _hud_render_combo(UIElement* element, uint layer, uint mult, float t) {
+	vfont_select("Baskerville-Bold", 48.0f);
+
+	// Combine two smootherstep functions into a new one,
+	// where x stays constant for a while near t = 0.5
+	float x;
+	if(t < 0.5f)
+		x = smootherstep(-1.0f, 0.0f, t * 2.0f);
+	else
+		x = smootherstep(0.0f, 1.0f, (t - 0.5f) * 2.0f);
+
+	// Classic sine there-and-back-again for alpha
+	float a = MAX(0.0f, sinf((t*1.4f - 0.2f) * PI));
+
+	char text[64];
+	sprintf(text, "Combo x%u", mult);
+	Vector2 half_size = vec2_scale(vfont_size(text), 0.5f);
+
+	//Vector2 pos = vec2_sub(element->vec2, half_size);
+	Vector2 pos = vec2_sub(vec2(512.0f, 80.0f), half_size);
+	pos.x -= x * 200.0f;
+	vfont_draw(text, layer, pos, COLOR_FTRANSP(a));
+}
+
 void hud_init(void) {
 	vfont_init();
 }
 
 void hud_close(void) {
 	vfont_close();
+}
+
+void hud_trigger_combo(uint multiplier) {
+	assert(n_combos < max_combos);
+	uint i = n_combos++;
+	combos[i].multiplier = multiplier;
+	combos[i].t = time_s();
 }
 
 void hud_render(void) {
@@ -115,6 +154,16 @@ void hud_render(void) {
 
 	float angle = (rabbit_remaining_time / 60.0f) * 2.0f * PI;
 	_hud_render_clock_needle(hud_clock_needle, hud_layer, angle);
+
+	UIElement* combo_text = uidesc_get("combo_text");
+	float ts = time_s();
+	for(uint i = 0; i < n_combos; ++i) {
+		float t = (ts - combos[i].t) / 0.8f;
+		if(t > 1.0f) 
+			combos[i--] = combos[--n_combos];
+		else
+			_hud_render_combo(combo_text, hud_layer+1, combos[i].multiplier, t);
+	}
 
 	game_over_alpha += game_over ? 0.03f : -0.05f;
 	game_over_alpha = clamp(0.0f, 1.0f, game_over_alpha);

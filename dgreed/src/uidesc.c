@@ -211,9 +211,32 @@ static void _rebase_ui_elements(void* min, void* max, ptrdiff_t delta) {
 			m[i].data += delta;
 		}
 	}
+
+	for(uint i = 0; i < ui_elements.size; ++i) {
+		UIElement* el = darray_get(&ui_elements, i);
+		if((void*)el->list.next >= min && (void*)el->list.next <= max) {
+			el->list.next += delta;
+		}
+		if((void*)el->list.prev >= min && (void*)el->list.prev <= max) {
+			el->list.prev += delta;
+		}
+		if((void*)el->child_list.next >= min && (void*)el->child_list.next <= max) {
+			el->child_list.next += delta;
+		}
+		if((void*)el->child_list.prev >= min && (void*)el->child_list.prev <= max) {
+			el->child_list.prev += delta;
+		}
+	}
 }
 
 static void _rebase_strs(void* min, void* max, ptrdiff_t delta) {
+	DictEntry* m = ui_dict.map;
+	for(uint i = 0; i < ui_dict.mask+1; ++i) {
+		if(m[i].key && ((void*)m[i].key >= min) && ((void*)m[i].key < max)) {
+			m[i].key += delta;
+		}
+	}
+
 	for(uint i = 0; i < ui_elements.size; ++i) {
 		UIElement* el = darray_get(&ui_elements, i);	
 		if((void*)el->name >= min && (void*)el->name < max) {
