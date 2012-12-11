@@ -56,7 +56,10 @@ static bool _call_c_state_func(CState* state, const char* func, float* arg,
 	}
 
 	if(strcmp(func, "save") == 0) {
-		assert(str_out);
+        if(!str_out) {
+            LOG_WARNING("Skipped save");
+            return false;
+        }
 		if(state->desc.save) {
 			const char* data = (*state->desc.save)();
 			*str_out = data;

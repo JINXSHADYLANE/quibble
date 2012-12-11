@@ -141,6 +141,8 @@ void acc_shake_cb(ShakeCallback cb) {
 */
 
 bool key_pressed(Key key) {
+    if(key == KEY_A)
+        return mouse_pressed(MBTN_LEFT);
 	return false;
 }
 
@@ -149,6 +151,8 @@ bool char_pressed(char c) {
 }
 
 bool key_down(Key key) {
+    if(key == KEY_A)
+        return mouse_down(MBTN_LEFT);
 	return false;
 }
 
@@ -157,6 +161,8 @@ bool char_down(char c) {
 }
 
 bool key_up(Key key) {
+    if(key == KEY_A)
+        return mouse_up(MBTN_LEFT);
 	return false;
 }
 

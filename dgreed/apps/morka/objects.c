@@ -5,7 +5,7 @@
 #include <mempool.h>
 #include <gfx_utils.h>
 
-#define MAX_GAMEOBJECT_SIZE (sizeof(GameObject) * 2)
+#define MAX_GAMEOBJECT_SIZE (sizeof(GameObject) * 3)
 
 RectF objects_camera[2] = {
 	{0.0f, 0.0f, 1024.0f, 768.0f},
