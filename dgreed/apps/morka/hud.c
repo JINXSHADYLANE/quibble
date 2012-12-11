@@ -59,6 +59,8 @@ static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
+	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+
 	// Text
 	vfont_select("Baskerville-Bold", 48.0f); 
 	const char* str = "The time is over.";
@@ -88,6 +90,8 @@ static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 static void _hud_render_pause(UIElement* element, uint layer) {
 	UIElement* text = uidesc_get_child(element, "text");
 	UIElement* button = uidesc_get_child(element, "button");
+
+	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), COLOR_WHITE); 
 
 	// Text
 	vfont_select("Baskerville-Bold", 48.0f); 
