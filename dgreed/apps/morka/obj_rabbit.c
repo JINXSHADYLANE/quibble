@@ -85,6 +85,7 @@ static void _rabbit_delayed_bounce(void* r) {
 	ObjRabbit* rabbit = r;
 
 	if(rabbit->jump_off_mushroom || rabbit->is_diving) {
+		rabbit->is_diving = false;
 		GameObject* self = r;
 		objects_apply_force(self, rabbit->bounce_force); 
 		rabbit->jump_off_mushroom = false;
