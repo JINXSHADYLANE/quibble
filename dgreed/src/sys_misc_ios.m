@@ -310,27 +310,32 @@ void txtinput_clear(void) {
 -----------
 */
 
+static float t_acc = 0.0f, t_scale = 1.0f;
 static float t_s = 0.0f, t_d = 0.0f;
 static float last_frame_time = 0.0f, last_fps_update = 0.0f;
 static uint fps = 0;
 float inactive_time = 0.0f;
 
 float time_s(void) {
-    return t_s / 1000.0f;
+    return t_acc / 1000.0f;
 }
 
 float time_ms(void) {
-	return t_s;
+	return t_acc;
 }
 
 float time_delta(void) {
 	// TODO: fix timestep here?
 	//return t_d * 1000.0f;
-	return 1000.0f / 60.0f;
+	return (1000.0f / 60.0f) * t_scale;
 }
 
 uint time_fps(void) {
 	return fps;
+}
+
+void time_scale(float s) {
+	t_scale = s;
 }
 
 uint time_ms_current(void) {
@@ -361,6 +366,7 @@ static float _get_t(void) {
 void _time_update(float current_time) {
 	t_s = current_time - inactive_time;
 	t_d = t_s - last_frame_time;
+	t_acc += t_d * t_scale;
 	if(last_fps_update + 1000.0f < t_s) {
 		fps = fps_count;
 		fps_count = 0;
