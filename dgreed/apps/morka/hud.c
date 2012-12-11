@@ -17,14 +17,9 @@ extern bool game_is_paused(void);
 extern bool game_over;
 float game_over_alpha = 0.0f;
 
-typedef struct {
-	uint multiplier;
-	float t;
-} Combo;
-
-#define max_combos 4
-static Combo combos[max_combos];
-static uint n_combos = 0;
+static uint last_combo = 0;
+static uint current_combo = 0;
+static float combo_flip_t = 0.0f;
 
 static void _hud_render_ui(UIElement* element, uint layer) {
 	// Render
@@ -167,10 +162,9 @@ void hud_close(void) {
 }
 
 void hud_trigger_combo(uint multiplier) {
-	assert(n_combos < max_combos);
-	uint i = n_combos++;
-	combos[i].multiplier = multiplier;
-	combos[i].t = time_s();
+	last_combo = current_combo;
+	current_combo = multiplier;
+	combo_flip_t = time_s();
 }
 
 void hud_render(void) {
@@ -200,12 +194,16 @@ void hud_render(void) {
 
 	UIElement* combo_text = uidesc_get("combo_text");
 	float ts = time_s();
-	for(uint i = 0; i < n_combos; ++i) {
-		float t = (ts - combos[i].t) / 0.8f;
-		if(t > 1.0f) 
-			combos[i--] = combos[--n_combos];
-		else
-			_hud_render_combo(combo_text, hud_layer+1, combos[i].multiplier, t);
+	float t = (ts - combo_flip_t) / 0.4f;
+	if(t < 1.0f) {
+		if(current_combo)
+			_hud_render_combo(combo_text, hud_layer+1, current_combo, t * 0.5f);
+		if(last_combo)
+			_hud_render_combo(combo_text, hud_layer+1, last_combo, 0.5f + t * 0.5f);
+	}
+	else {
+		if(current_combo)
+			_hud_render_combo(combo_text, hud_layer+1, current_combo, 0.5f);
 	}
 
 	game_over_alpha += game_over ? 0.03f : -0.05f;
