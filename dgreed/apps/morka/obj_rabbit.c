@@ -23,7 +23,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		rabbit->touching_ground = false;
 		rabbit->jump_off_mushroom = false;
 		rabbit->jump_time = ts;
-		objects_apply_force(self, vec2(50000.0f, -100000.0f));
+		objects_apply_force(self, vec2(50000.0f, -160000.0f));
 		anim_play(rabbit->anim, "jump");
 		combo_counter = 0;
 	}
@@ -34,7 +34,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		}
 		else if(!rabbit->touching_ground) {
 			if(key_pressed(KEY_A) && (ts - rabbit->jump_time) < 0.2f) {
-				objects_apply_force(self, vec2(0.0f, -8000.0f));
+			//	objects_apply_force(self, vec2(0.0f, -8000.0f));
 			}
 			else if(!rabbit->is_diving && key_down(KEY_A)) {
 				// Dive 	
