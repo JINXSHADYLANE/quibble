@@ -107,7 +107,7 @@ void objects_destroy_all(void);
 
 void objects_apply_force(GameObject* obj, Vector2 f);
 
-void objects_tick(void);
+void objects_tick(bool paused);
 
 #endif
 

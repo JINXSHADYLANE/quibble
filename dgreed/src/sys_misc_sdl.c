@@ -181,6 +181,7 @@ void txtinput_clear(void) {
 */
 
 float t_ms = 0.0f, t_d = 0.0f;
+float t_scale = 1.0f;
 uint last_frame_time = 0, last_fps_update = 0;
 uint fps_count = 0;
 uint fps = 0;
@@ -203,13 +204,17 @@ uint time_fps(void) {
 	return fps;
 }
 
+void time_scale(float s) {
+	t_scale = s;
+}
+
 uint time_ms_current(void) {
 	return SDL_GetTicks();
 }
 
 void _time_update(uint current_time) {
-	t_ms = (float)current_time;
-	t_d = (float)(current_time - last_frame_time);
+	t_ms += (float)(current_time - last_frame_time) * t_scale;
+	t_d = (float)(current_time - last_frame_time) * t_scale;
 	if(last_fps_update + 1000 < current_time) {
 		fps = fps_count;
 		fps_count = 0;
