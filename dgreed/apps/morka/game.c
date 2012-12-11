@@ -21,6 +21,7 @@ float rabbit_current_distance;
 float bg_scroll = 0.0f;
 
 bool game_over;
+bool game_paused = false;
 
 static void game_init(void) {
 	objects_init();
@@ -29,6 +30,18 @@ static void game_init(void) {
 	video_set_blendmode(15, BM_MULTIPLY);
 
 	game_reset();
+}
+
+bool game_is_paused(void) {
+	return game_paused;
+}
+
+void game_pause(void) {
+	game_paused = true;
+}
+
+void game_unpause(void) {
+	game_paused = false;
 }
 
 void game_reset(void) {
@@ -63,6 +76,9 @@ static bool game_update(void) {
 	if(char_down('p'))
 		draw_physics_debug = !draw_physics_debug;
 #endif
+
+	if(game_is_paused())
+		return true;
 
 	if(rabbit_remaining_time <= 0.0f) {
 		rabbit_remaining_time = 0.0f;
@@ -106,7 +122,7 @@ static bool game_render(float t) {
 	spr_draw("background", 0, dest, COLOR_WHITE);
 
 	hud_render();
-	objects_tick();
+	objects_tick(game_is_paused());
 
 	return true;
 }

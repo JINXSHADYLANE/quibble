@@ -9,6 +9,11 @@ extern float rabbit_remaining_time;
 extern float rabbit_distance;
 extern float rabbit_current_distance;
 
+extern void game_reset(void);
+extern void game_pause(void);
+extern void game_unpause(void);
+extern bool game_is_paused(void);
+
 extern bool game_over;
 float game_over_alpha = 0.0f;
 
@@ -18,7 +23,7 @@ typedef struct {
 } Combo;
 
 #define max_combos 4
-static Combo combos[4];
+static Combo combos[max_combos];
 static uint n_combos = 0;
 
 static void _hud_render_ui(UIElement* element, uint layer) {
@@ -46,9 +51,6 @@ static void _hud_render_ui(UIElement* element, uint layer) {
 static void _hud_render_clock_needle(UIElement* element, uint layer, float angle) {
 	spr_draw_cntr_h(element->spr, layer, element->vec2, angle, 1.0f, COLOR_WHITE);
 }
-
-extern void game_reset(void);
-
 static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 	UIElement* text = uidesc_get_child(element, "text");
 	UIElement* dist_text = uidesc_get_child(element, "distance_text");
@@ -79,6 +81,31 @@ static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 		Touch* t = touches_get();
 		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button->vec2)) < 40.0f * 40.0f) {
 			game_reset();
+		}
+	}
+}
+
+static void _hud_render_pause(UIElement* element, uint layer) {
+	UIElement* text = uidesc_get_child(element, "text");
+	UIElement* button = uidesc_get_child(element, "button");
+
+	// Text
+	vfont_select("Baskerville-Bold", 48.0f); 
+	const char* str = "The game is paused.";
+	static Vector2 half_size = {0.0f, 0.0f};
+	if(half_size.x == 0.0f) {
+		half_size = vec2_scale(vfont_size(str), 0.5f);
+	}
+	vfont_draw(str, layer, vec2_sub(text->vec2, half_size), COLOR_WHITE);
+
+	// TODO: Button
+	spr_draw_cntr_h(button->spr, layer, button->vec2, 0.0f, 1.0f, COLOR_WHITE);
+
+	if(touches_count() > 0) {
+		Touch* t = touches_get();
+		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button->vec2)) < 40.0f * 40.0f) {
+			game_unpause();
+			time_scale(1.0f);
 		}
 	}
 }
@@ -143,7 +170,20 @@ void hud_trigger_combo(uint multiplier) {
 }
 
 void hud_render(void) {
-	_hud_render_ui(uidesc_get("hud_pause"), hud_layer);
+	UIElement* pause = uidesc_get("hud_pause");
+	_hud_render_ui(pause, hud_layer);
+	if(touches_count() > 0) {
+		Touch* t = touches_get();
+		if(vec2_length_sq(vec2_sub(t[0].hit_pos, pause->vec2)) < 40.0f * 40.0f) {
+			time_scale(0.0f);
+			game_pause();
+		}
+	}
+
+	if(game_is_paused()) {
+		UIElement* pause_screen = uidesc_get("pause");
+		_hud_render_pause(pause_screen, hud_layer+1);
+	}
 
 	UIElement* clock = uidesc_get("hud_clock");
 	_hud_render_ui(clock, hud_layer);

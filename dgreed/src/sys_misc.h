@@ -1,3 +1,6 @@
+#ifndef SYS_MISC_H
+#define SYS_MISC_H
+
 /*
 --------------------------
 --- Device orientation ---
@@ -143,6 +146,8 @@ float time_ms(void);
 float time_delta(void);
 uint time_fps(void);
 
+void time_scale(float s);
+
 // This returns precise current time, updated continiously
 uint time_ms_current(void);
 
@@ -154,4 +159,4 @@ uint time_ms_current(void);
 
 bool system_update(void);
 
-
+#endif

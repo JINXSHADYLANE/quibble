@@ -71,6 +71,23 @@
 		)
 	)
 
+	(def pause
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-200)
+			)
+		)
+
+		(def button
+			(spr play)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,200)
+			)
+		)
+	)
+
 	(def combo_text
 		(add <-
 			(middle <- (get_rect screen))

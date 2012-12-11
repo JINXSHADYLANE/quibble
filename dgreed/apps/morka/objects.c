@@ -388,16 +388,18 @@ static void objects_add_tick(void) {
 	to_add.size = 0;
 }
 
-void objects_tick(void) {
+void objects_tick(bool paused) {
 	uint n_update = update.size;
 	uint n_physics = physics.size;
 	uint n_render = render.size;
 
-	if(n_update)
-		objects_update_tick(n_update, time_s());
+	if(!paused) {
+		if(n_update)
+			objects_update_tick(n_update, time_s());
 
-	if(n_physics)
-		objects_physics_tick(n_physics);
+		if(n_physics)
+			objects_physics_tick(n_physics);
+	}
 
 	if(n_render)
 		objects_render_tick(n_render);
