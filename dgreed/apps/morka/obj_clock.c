@@ -13,7 +13,7 @@ static void obj_clock_hit_callback(GameObject* self, GameObject* other) {
 		objects_destroy(self);
 		objects_create(&obj_clock_fading_desc, rectf_center(&self->render->world_dest), NULL);
 
-		rabbit_remaining_time = MIN(60.0f, rabbit_remaining_time + 0.5f);
+		rabbit_remaining_time = MIN(60.0f, rabbit_remaining_time + 1.0f);
 	}
 }
 

@@ -5,6 +5,8 @@
 #include <async.h>
 
 static uint combo_counter = 0;
+static float last_keypress_t = 0.0f;
+static float last_keyrelease_t = 0.0f;
 
 const static float rabbit_hitbox_width = 70.0f;
 const static float rabbit_hitbox_height = 62.0f;
@@ -14,12 +16,14 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	PhysicsComponent* p = self->physics;
 
 	if(key_down(KEY_A))
-		rabbit->last_keypress_t = ts;
+		last_keypress_t = ts;
+	if(key_up(KEY_A))
+		last_keyrelease_t = ts;
 
 	Vector2 dir = {.x = 0.0f, .y = 0.0f};
 
 	// Constantly move right
-	dir.x += 650.0f;
+	dir.x += 550.0f;
 
 	// Jump
 	if(rabbit->touching_ground && key_down(KEY_A)) {
@@ -32,7 +36,9 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	}
 	else {
 		if(ts - rabbit->mushroom_hit_time < 0.1f) {
-			if(fabsf(rabbit->mushroom_hit_time - rabbit->last_keypress_t) < 0.1f)
+			if(fabsf(rabbit->mushroom_hit_time - last_keypress_t) < 0.1f)
+				rabbit->jump_off_mushroom = true;
+			if(fabsf(rabbit->mushroom_hit_time - last_keyrelease_t) < 0.1f)
 				rabbit->jump_off_mushroom = true;
 		}
 		else if(!rabbit->touching_ground) {
@@ -56,11 +62,11 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	}
 
 	// Damping
-	if(p->vel.x > 300.0f)
+	if(p->vel.x > 100.0f)
 		p->vel.x *= 0.99f;
-	else if(p->vel.x > 800.0f)
+	else if(p->vel.x > 400.0f)
 		p->vel.x *= 0.97f;
-	else if(p->vel.x > 1500.0f)
+	else if(p->vel.x > 800.0f)
 		p->vel.x *= 0.90f;
 
 	objects_apply_force(self, dir);
@@ -159,7 +165,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	rabbit->jump_time = -100.0f;
 	rabbit->mushroom_hit_time = -100.0f;
 	rabbit->anim = anim_new("rabbit");
-	rabbit->last_keypress_t = -100.0f;
 	rabbit->bounce_force = vec2(0.0f, 0.0f);
 
 	// Init physics
