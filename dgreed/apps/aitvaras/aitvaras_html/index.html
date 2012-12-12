@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=0.4, maximum-scale=0.4, user-scalable=no" />
+		<meta charset="utf-8" />
+		<title>aitvaras lobby</title>
+		<script type="text/javascript" charset="utf-8" src="http://code.jquery.com/jquery-1.7.2.js"></script>
+		<link href="style.css" rel="stylesheet" type="text/css" />
+		<script language="javascript">
+			var lobby_addr = "http://antrasekranas.lt";
+
+			function getControls(form) {
+				var req = new XMLHttpRequest();
+				req.onreadystatechange = function() {
+					if(req.readyState == 4 && req.status == 200) {
+						// Get controls page here
+						location.href = "/inputs.html?server=" + req.responseText;
+					}
+				}
+
+				req.open("GET", lobby_addr + "/" + form.id.value, true);
+				req.send();
+			}
+
+			//Enter presses submit button
+			$("#code").keyup(function(event){
+    			if(event.keyCode == 13){
+        			$("#play").click();
+    			}
+			});
+		</script>
+	</head>	
+	<body>
+		<div>
+		<h1 id="magic">Enter a magic number:</h1>
+		<form>
+			<p><input id="code" type="tel" name="id" maxlength="4" /></p>
+			<p><input id="play" type="button" name="submit" value="" onClick="getControls(this.form)" /></p>
+		</form>
+		</div>
+	</body>
+</html>
