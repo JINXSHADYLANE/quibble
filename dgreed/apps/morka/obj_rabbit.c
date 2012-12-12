@@ -6,6 +6,9 @@
 
 static uint combo_counter = 0;
 
+const static float rabbit_hitbox_width = 70.0f;
+const static float rabbit_hitbox_height = 62.0f;
+
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	PhysicsComponent* p = self->physics;
@@ -73,7 +76,7 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	RenderComponent* r = self->render;
 	PhysicsComponent* p = self->physics;
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-	pos = vec2_add(pos, vec2(45.0f, 40.0f));
+	pos = vec2_add(pos, vec2(rabbit_hitbox_width / 2.0f, rabbit_hitbox_height / 2.0f));
 	float half_w = rectf_width(&r->world_dest) / 2.0f;
 	float half_h = rectf_height(&r->world_dest) / 2.0f;
 	r->world_dest = rectf(
@@ -161,9 +164,11 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 
 	// Init physics
 	PhysicsComponent* physics = self->physics;
+	float hw = rabbit_hitbox_width / 2.0f;
+	float hh = rabbit_hitbox_height / 2.0f;
 	RectF rect = {
-		pos.x - 45.0f, pos.y - 40.0f,
-		pos.x + 45.0f, pos.y + 40.0f
+		pos.x - hw, pos.y - hh,
+		pos.x + hw, pos.y + hh 
 	};
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &rect, 1, NULL);
 	float mass = 3.0f;
