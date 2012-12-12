@@ -1,0 +1,209 @@
+(mfx _
+	(prefix "nulis2_assets/")
+	(sounds _
+		(s Bounce.wav
+			(volume 0.5)
+		)
+		(s Join2.wav
+			(volume 0.5)
+		)
+		(s Join2+1.wav
+			(volume 0.5)
+		)
+		(s Join3.wav
+			(volume 0.5)
+		)
+		(s GravityStick.wav)
+		(s Gravity_grow.wav)
+		(s Gravity_shrink.wav)
+		(s Vanish2.wav)
+		(s Explode.wav)
+		(s Vanish.wav)
+		(s Win.wav
+			(volume 0.6)
+		)
+		(s Spawn.wav
+			(volume 0.8)
+		)
+
+		(s field.wav
+			(type ambient)
+			(volume 0.3)
+			(decay 2)
+			(attack 1)
+			(trigger 0.2)
+		)
+
+		(s GravityField.wav
+			(type ambient)
+			(volume 0.3)
+			(decay 1)
+			(attack 1)
+			(trigger 0.2)
+		)
+		
+		(s TimeWarp.wav
+			(type ambient)
+			(volume 0.3)
+			(decay 1)
+			(attack 1)
+			(trigger 0.2)
+		)
+	)
+	(effects _
+		(e a+b
+			(particles collision0
+				(dir_offset 90)
+			)
+			(particles collision0
+				(dir_offset -90)
+			)
+			(sound Bounce.wav)
+		)
+
+		(e grav+b
+			(particles b_hit
+				(dir_offset 90)
+			)
+			(particles b_hit
+				(dir_offset -90)
+			)
+			(sound Bounce.wav)
+		)
+		(e time+b
+			(particles w_hit
+				(dir_offset 90)
+			)
+			(particles w_hit
+				(dir_offset -90)
+			)
+			(sound Bounce.wav)
+		)
+
+		(e a+a
+			(particles fusion)
+			(particles blast)
+			(sound Join2.wav)
+		)
+		(e aa+a
+			(particles wicked_blast)
+			(sound Join3.wav)
+		)
+		(e aa+aa
+			(particles wicked_blast)
+			(particles collision2
+				(dir_offset 0)
+			)
+			(particles collision2
+				(dir_offset 180)
+			)
+			(particles collision2
+				(dir_offset 90)
+			)
+			(particles collision2
+				(dir_offset -90)
+			)
+			(sound Join3.wav)
+		)
+		(e aa+b
+			(particles diffusion)
+			(particles collision1
+				(dir_offset 0)
+			)
+			(particles collision1
+				(dir_offset 180)
+			)
+			(particles collision1
+				(dir_offset 90)
+			)
+			(particles collision1
+				(dir_offset -90)
+			)
+			(sound Join2+1.wav)
+		)
+		(e aa+bb
+			(particles diffusion)
+			(particles collision2)
+			(particles collision2
+				(dir_offset 180)
+			)
+			(particles collision2
+				(dir_offset 90)
+			)
+			(particles collision2
+				(dir_offset -90)
+			)
+			(sound Join2+1.wav)
+		)
+
+		(e grav_grow
+			(particles g_grow)
+			(sound Gravity_grow.wav)
+		)
+		(e grav_shrink
+			(particles g_shrink)
+			(sound Gravity_shrink.wav)
+		)
+		(e grav_vanish
+			(particles sparkles)
+			(particles g_vanish)
+			(sound Vanish2.wav)
+		)
+		(e grav_explode
+			(particles g_blast_child)
+			(particles g_blast)
+			(sound Explode.wav)
+		)
+		(e grav_join
+			(particles w_hit
+				(dir_offset 90)
+			)
+			(particles w_hit
+				(dir_offset -90)
+			)
+			(sound GravityStick.wav)
+		)
+
+
+		(e time_grow
+			(particles t_grow)
+			(sound Gravity_grow.wav)
+		)
+		(e time_shrink
+			(particles t_shrink)
+			(sound Gravity_shrink.wav)
+		)
+		(e time_vanish
+			(particles sparkles)
+			(particles t_vanish)
+			(sound Vanish2.wav)
+		)
+		(e time_explode
+			(particles t_blast)
+			(particles t_blast_parent)
+			(sound Explode.wav)
+		)
+
+
+		(e lose_vanish
+			(particles gameover)
+			(sound Vanish.wav)
+		)
+		(e win
+			(sound Win.wav)
+		)
+		(e spawn
+			(particles appear)
+			(sound Spawn.wav)
+		)
+		(e random_spawn
+			(particles spawn)
+			(sound Spawn.wav)
+		)
+
+		(e force_field
+			(sound field.wav)
+		)
+	)
+)
+
