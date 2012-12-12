@@ -24,10 +24,10 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 
 	// Render
 	RenderComponent* render = self->render;
-	render->world_pos = pos;
-	render->extent_min = pos.x - width / 2.0f;
-	render->extent_max = pos.x + width / 2.0f;
-	render->scale = 1.0f;
+	render->world_dest = rectf(
+			pos.x - width / 2.0f, pos.y - height / 2.0f,
+			pos.x + width / 2.0f, pos.y + height / 2.0f
+	);
 	render->layer = 2;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;

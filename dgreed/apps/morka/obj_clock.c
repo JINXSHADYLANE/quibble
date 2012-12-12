@@ -11,7 +11,7 @@ static void obj_clock_hit_callback(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE && !game_over) {
 		// Destroy self, make fading clock
 		objects_destroy(self);
-		objects_create(&obj_clock_fading_desc, self->render->world_pos, NULL);
+		objects_create(&obj_clock_fading_desc, rectf_center(&self->render->world_dest), NULL);
 
 		rabbit_remaining_time = MIN(60.0f, rabbit_remaining_time + 0.5f);
 	}
@@ -34,10 +34,7 @@ static void obj_clock_construct(GameObject* self, Vector2 pos, void* user_data) 
 
 	// Render
 	RenderComponent* render = self->render;
-	render->world_pos = pos;
-	render->extent_min = pos.x - size.x / 2.0f;
-	render->extent_max = pos.x + size.x / 2.0f;
-	render->scale = 1.0f;
+	render->world_dest = collider;
 	render->layer = 2;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
@@ -61,7 +58,10 @@ static void obj_clock_fading_update_pos(GameObject* self) {
 
 	float t = clock->t;
 	Vector2 offset = vec2(0.0f, - t*t * 60.0f);
-	render->world_pos = vec2_add(clock->original_pos, offset); 
+	render->world_dest = rectf(
+			clock->original_pos.left + offset.x, clock->original_pos.top + offset.y,
+			clock->original_pos.right + offset.x, clock->original_pos.bottom + offset.y 
+	); 
 	byte alpha = 255 - lrintf(t * 255.0f);
 	render->color = COLOR_RGBA(255, 255, 255, alpha);
 }
@@ -84,10 +84,10 @@ static void obj_clock_fading_construct(GameObject* self, Vector2 pos, void* user
 
 	// Render
 	RenderComponent* render = self->render;
-	render->world_pos = pos;
-	render->extent_min = pos.x - size.x / 2.0f;
-	render->extent_max = pos.x + size.x / 2.0f;
-	render->scale = 1.0f;
+	render->world_dest = rectf(
+			pos.x - size.x / 2.0f, pos.y - size.y / 2.0f,
+			pos.x + size.x / 2.0f, pos.y + size.y / 2.0f
+	);
 	render->layer = 2;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
@@ -100,7 +100,7 @@ static void obj_clock_fading_construct(GameObject* self, Vector2 pos, void* user
 	ObjClockFading* clock = (ObjClockFading*)self;
 	clock->t = 0.0f;
 	clock->birth_time = time_s();
-	clock->original_pos = render->world_pos;
+	clock->original_pos = render->world_dest;
 }
 
 GameObjectDesc obj_clock_fading_desc = {

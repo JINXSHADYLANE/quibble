@@ -73,9 +73,12 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	RenderComponent* r = self->render;
 	PhysicsComponent* p = self->physics;
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-	r->world_pos = vec2_add(pos, vec2(45.0f, 40.0f));
-	r->extent_min = r->world_pos.x - 90.0f;
-	r->extent_max = r->world_pos.x + 90.0f;
+	pos = vec2_add(pos, vec2(45.0f, 40.0f));
+	float half_w = rectf_width(&r->world_dest) / 2.0f;
+	float half_h = rectf_height(&r->world_dest) / 2.0f;
+	r->world_dest = rectf(
+			pos.x - half_w, pos.y - half_h, pos.x + half_w, pos.y + half_h
+	);
 
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	r->anim_frame = anim_frame(rabbit->anim);
@@ -169,11 +172,16 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	physics->hit_callback = obj_rabbit_collide;
 
 	// Init render
+	TexHandle h;
+	RectF src;
+	sprsheet_get_anim("rabbit", 0, &h, &src);
 	RenderComponent* render = self->render;
-	render->world_pos = pos;
-	render->extent_min = rect.left;
-	render->extent_max = rect.right;
-	render->scale = 1.0f;
+	float half_w = rectf_width(&src) / 2.0f;
+	float half_h = rectf_height(&src) / 2.0f;
+	render->world_dest = rectf(
+		pos.x - half_w, pos.y - half_h,
+		pos.x + half_w, pos.y + half_h 
+	);
 	render->angle = 0.0f;
 	render->layer = 3;
 	render->anim_frame = 0;

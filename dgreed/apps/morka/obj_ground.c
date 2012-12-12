@@ -18,10 +18,12 @@ static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data)
 
 	// Render
 	RenderComponent* render = self->render;
-	render->world_pos = pos;
-	render->extent_min = dest.left;
-	render->extent_max = dest.right;
-	render->scale = 1.0f;
+	dest.top = pos.y - ground_height / 2.0f;
+	render->world_dest = dest;
+	//render->world_pos = pos;
+	//render->extent_min = dest.left;
+	//render->extent_max = dest.right;
+	//render->scale = 1.0f;
 	render->layer = 4;
 	render->anim_frame = frame_number;
 	render->spr = sprsheet_get_handle("grass");

@@ -50,6 +50,7 @@ extern GameObjectDesc obj_deco_desc;
 
 typedef struct {
 	GameObject header;
+	float h, dh;
 } ObjMushroom;
 
 extern GameObjectDesc obj_mushroom_desc;
@@ -68,7 +69,7 @@ typedef struct {
 	GameObject header;
 	float t;
 	float birth_time;
-	Vector2 original_pos;
+	RectF original_pos;
 } ObjClockFading;
 
 extern GameObjectDesc obj_clock_fading_desc;

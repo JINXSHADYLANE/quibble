@@ -38,15 +38,14 @@ typedef struct FwdPhysicsComponent {
 
 typedef void (*RenderCallback)(GameObject* self);
 
-// 64 bytes
+// 60-64 bytes
 typedef struct FwdRenderComponent {
 	// Data
 	GameObject* owner;
-	float extent_min, extent_max;
-	Vector2 world_pos;
-	float scale, angle;
-	uint8 layer;
+	float angle;
+	RectF world_dest;
 	Color color;
+	uint8 layer;
 	uint8 camera;
 	uint16 anim_frame;
 	SprHandle spr;

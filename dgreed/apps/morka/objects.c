@@ -212,9 +212,7 @@ static void objects_render_tick(uint n_components) {
 	
 		RectF* camera = &objects_camera[r->camera];
 
-		bool is_visible = 
-			(r->extent_max >= camera->left) 
-			&& (r->extent_min <= camera->right);
+		bool is_visible = rectf_rectf_collision(&r->world_dest, camera); 
 
 		if(is_visible) {
 			if(!r->was_visible && r->became_visible)
@@ -228,22 +226,21 @@ static void objects_render_tick(uint n_components) {
 				.y = camera->top
 			};
 
-			Vector2 screen_pos = vec2_sub(r->world_pos, camera_topleft);
+			RectF screen_dest = rectf(
+				r->world_dest.left - camera_topleft.x, 
+				r->world_dest.top - camera_topleft.y,
+				r->world_dest.right - camera_topleft.x,
+				r->world_dest.bottom - camera_topleft.y
+			);
 
 			// Render
 			if(r->anim_frame != MAX_UINT16) {
 				// Animation sprite
-				spr_draw_anim_cntr_h(
-						r->spr, r->anim_frame, r->layer,
-						screen_pos, r->angle, r->scale, r->color
-				);
+				spr_draw_anim_h(r->spr, r->anim_frame, r->layer, screen_dest, r->color);
 			}
 			else {
 				// Static sprite
-				spr_draw_cntr_h(
-						r->spr, r->layer, screen_pos,
-						r->angle, r->scale, r->color
-				);
+				spr_draw_h(r->spr, r->layer, screen_dest, r->color);
 			}
 
 			if(r->post_render)
