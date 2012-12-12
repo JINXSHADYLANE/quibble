@@ -19,7 +19,10 @@ float game_over_alpha = 0.0f;
 
 static uint last_combo = 0;
 static uint current_combo = 0;
+static uint longest_combo = 0;
 static float combo_flip_t = 0.0f;
+
+uint clocks_collected = 0;
 
 static void _hud_render_ui(UIElement* element, uint layer) {
 	// Render
@@ -49,6 +52,8 @@ static void _hud_render_clock_needle(UIElement* element, uint layer, float angle
 static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 	UIElement* text = uidesc_get_child(element, "text");
 	UIElement* dist_text = uidesc_get_child(element, "distance_text");
+	UIElement* combo_text = uidesc_get_child(element, "combo_text");
+	UIElement* clocks_text = uidesc_get_child(element, "clocks_text");
 	UIElement* button = uidesc_get_child(element, "button");
 
 	byte a = lrintf(255.0f * alpha);
@@ -70,6 +75,18 @@ static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 	sprintf(distance_str, "You ran %d meters", (int)lrintf(rabbit_distance));
 	Vector2 half_dist_size = vec2_scale(vfont_size(distance_str), 0.5f);
 	vfont_draw(distance_str, layer, vec2_sub(dist_text->vec2, half_dist_size), col);
+
+	// Combo text
+	char combo_str[32];
+	sprintf(combo_str, "Longest combo - %u", longest_combo);
+	Vector2 half_combo_size = vec2_scale(vfont_size(combo_str), 0.5f);
+	vfont_draw(combo_str, layer, vec2_sub(combo_text->vec2, half_combo_size), col);
+	
+	// Clocks text
+	char clocks_str[32];
+	sprintf(clocks_str, "Clocks collected - %u", clocks_collected);
+	Vector2 half_clocks_size = vec2_scale(vfont_size(clocks_str), 0.5f);
+	vfont_draw(clocks_str, layer, vec2_sub(clocks_text->vec2, half_clocks_size), col);
 
 	// Button
 	spr_draw_cntr_h(button->spr, layer, button->vec2, 0.0f, 1.0f, col);	
@@ -164,6 +181,7 @@ void hud_close(void) {
 void hud_trigger_combo(uint multiplier) {
 	last_combo = current_combo;
 	current_combo = multiplier;
+	longest_combo = MAX(longest_combo, current_combo);
 	combo_flip_t = time_s();
 }
 
@@ -178,9 +196,24 @@ void hud_render(void) {
 		}
 	}
 
-	if(game_is_paused()) {
-		UIElement* pause_screen = uidesc_get("pause");
-		_hud_render_pause(pause_screen, hud_layer+1);
+	game_over_alpha += game_over ? 0.03f : -0.05f;
+	game_over_alpha = clamp(0.0f, 1.0f, game_over_alpha);
+
+	static bool showed_game_over_last_frame = false;
+	if(game_over_alpha > 0.0f) {
+		showed_game_over_last_frame = true;
+		_hud_render_game_over(uidesc_get("game_over"), hud_layer+1, game_over_alpha);
+	}
+	else {
+		if(showed_game_over_last_frame) {
+			showed_game_over_last_frame = false;
+			longest_combo = 0;
+			clocks_collected = 0;
+		}
+		if(game_is_paused()) {
+			UIElement* pause_screen = uidesc_get("pause");
+			_hud_render_pause(pause_screen, hud_layer+1);
+		}
 	}
 
 	UIElement* clock = uidesc_get("hud_clock");
@@ -204,13 +237,6 @@ void hud_render(void) {
 	else {
 		if(current_combo)
 			_hud_render_combo(combo_text, hud_layer+1, current_combo, 0.5f);
-	}
-
-	game_over_alpha += game_over ? 0.03f : -0.05f;
-	game_over_alpha = clamp(0.0f, 1.0f, game_over_alpha);
-
-	if(game_over_alpha > 0.0f) {
-		_hud_render_game_over(uidesc_get("game_over"), hud_layer+1, game_over_alpha);
 	}
 }
 

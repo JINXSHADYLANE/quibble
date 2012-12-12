@@ -62,6 +62,21 @@
 			)
 		)
 
+		(def combo_text
+			(add <-
+				(get_vec2 text)
+				(vec2 0,150)
+			)
+		)
+
+		(def clocks_text
+			(add <-
+				(get_vec2 text)
+				(vec2 0,200)
+			)
+		)
+
+
 		(def button
 			(spr restart_2)
 			(add <-
