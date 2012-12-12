@@ -23,7 +23,6 @@ typedef struct {
 	bool is_diving;
 	float jump_time;
 	float mushroom_hit_time;
-	float last_keypress_t;
 	Anim* anim;
 	Vector2 bounce_force;
 } ObjRabbit;
