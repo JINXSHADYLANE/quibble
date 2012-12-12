@@ -7,6 +7,8 @@
 static uint combo_counter = 0;
 static float last_keypress_t = 0.0f;
 static float last_keyrelease_t = 0.0f;
+static float jump_time = 0.0f;
+static float mushroom_hit_time = 0.0f;
 
 const static float rabbit_hitbox_width = 70.0f;
 const static float rabbit_hitbox_height = 62.0f;
@@ -29,20 +31,20 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	if(rabbit->touching_ground && key_down(KEY_A)) {
 		rabbit->touching_ground = false;
 		rabbit->jump_off_mushroom = false;
-		rabbit->jump_time = ts;
+		jump_time = ts;
 		objects_apply_force(self, vec2(50000.0f, -160000.0f));
 		anim_play(rabbit->anim, "jump");
 		combo_counter = 0;
 	}
 	else {
-		if(ts - rabbit->mushroom_hit_time < 0.1f) {
-			if(fabsf(rabbit->mushroom_hit_time - last_keypress_t) < 0.1f)
+		if(ts - mushroom_hit_time < 0.1f) {
+			if(fabsf(mushroom_hit_time - last_keypress_t) < 0.1f)
 				rabbit->jump_off_mushroom = true;
-			if(fabsf(rabbit->mushroom_hit_time - last_keyrelease_t) < 0.1f)
+			if(fabsf(mushroom_hit_time - last_keyrelease_t) < 0.1f)
 				rabbit->jump_off_mushroom = true;
 		}
 		else if(!rabbit->touching_ground) {
-			if(key_pressed(KEY_A) && (ts - rabbit->jump_time) < 0.2f) {
+			if(key_pressed(KEY_A) && (ts - jump_time) < 0.2f) {
 			//	objects_apply_force(self, vec2(0.0f, -8000.0f));
 			}
 			else if(!rabbit->is_diving && key_down(KEY_A)) {
@@ -138,7 +140,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	Vector2 vel = self->physics->vel;
 	if(other->type == OBJ_MUSHROOM_TYPE && !rabbit->touching_ground && vel.y > 500.0f) {
 		if(rabbit->bounce_force.y == 0.0f) {
-			rabbit->mushroom_hit_time = time_s();
+			mushroom_hit_time = time_s();
 			anim_play(rabbit->anim, "bounce");
 
 			vel.y = -vel.y;
@@ -162,8 +164,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	rabbit->touching_ground = false;
 	rabbit->jump_off_mushroom = false;
 	rabbit->is_diving = false;
-	rabbit->jump_time = -100.0f;
-	rabbit->mushroom_hit_time = -100.0f;
 	rabbit->anim = anim_new("rabbit");
 	rabbit->bounce_force = vec2(0.0f, 0.0f);
 

@@ -21,8 +21,6 @@ typedef struct {
 	bool touching_ground;
 	bool jump_off_mushroom;
 	bool is_diving;
-	float jump_time;
-	float mushroom_hit_time;
 	Anim* anim;
 	Vector2 bounce_force;
 } ObjRabbit;
