@@ -27,8 +27,6 @@ static void game_init(void) {
 	objects_init();
 	hud_init();
 
-	video_set_blendmode(15, BM_MULTIPLY);
-
 	game_reset();
 }
 

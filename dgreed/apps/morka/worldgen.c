@@ -69,7 +69,7 @@ static void _gen_fg_page(void) {
 				for(uint i = 0; i < n; ++i) {
 					Vector2 pos = {
 						.x = fg_page_cursor + fg_x + 100.0f + (i+1) * 60.0f,
-						.y = 560.0f  
+						.y = 570.0f  
 					};
 					objects_create(&obj_clock_desc, pos, NULL);
 				}

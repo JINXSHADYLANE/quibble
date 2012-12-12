@@ -2,14 +2,42 @@
 
 #include <system.h>
 
+static void obj_mushroom_collide(GameObject* self, GameObject* other) {
+	if(other->type == OBJ_RABBIT_TYPE) {
+		PhysicsComponent* rabbit_physics = other->physics;
+		if(rabbit_physics->vel.y > 0.0f) {
+			ObjMushroom* mushroom = (ObjMushroom*)self;
+			mushroom->dh -= 10.0f;
+		}
+	}
+}
+
+static void obj_mushroom_update_pos(GameObject* self) {
+	ObjMushroom* mushroom = (ObjMushroom*)self;
+	RenderComponent* r = self->render;
+
+	float f = 30.0f * (mushroom->oh - mushroom->h);
+	mushroom->dh += f * (time_delta()/1000.0f);
+	mushroom->h += (mushroom->dh * 10.0f) * (time_delta()/1000.0f);
+	mushroom->dh *= 0.9f;
+
+	r->world_dest.top = r->world_dest.bottom - mushroom->h;
+}
+
 static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_data) {
 	SprHandle spr_handle = (SprHandle)user_data;
+
+	ObjMushroom* mushroom = (ObjMushroom*)self;
 
 	TexHandle tex;
 	RectF src;
 	sprsheet_get_h(spr_handle, &tex, &src);
 	float width = rectf_width(&src);
 	float height = rectf_height(&src);
+
+	mushroom->oh = height;
+	mushroom->h = height;
+	mushroom->dh = 0.0f;
 	
 	// Take 10 pixel slice at the top as a collider geometry
 	RectF collider = {
@@ -21,6 +49,7 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 	PhysicsComponent* physics = self->physics;
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, 1, NULL);
 	physics->inv_mass = 0.0f;
+	physics->hit_callback = obj_mushroom_collide;
 
 	// Render
 	RenderComponent* render = self->render;
@@ -31,6 +60,7 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 	render->layer = 2;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
+	render->update_pos = obj_mushroom_update_pos;
 }
 
 GameObjectDesc obj_mushroom_desc = {

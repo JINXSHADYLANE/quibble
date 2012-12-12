@@ -50,7 +50,7 @@ extern GameObjectDesc obj_deco_desc;
 
 typedef struct {
 	GameObject header;
-	float h, dh;
+	float oh, h, dh;
 } ObjMushroom;
 
 extern GameObjectDesc obj_mushroom_desc;
