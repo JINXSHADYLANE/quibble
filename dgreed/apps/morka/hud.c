@@ -171,7 +171,7 @@ static void _hud_render_combo(UIElement* element, uint layer, uint mult, float t
 }
 
 void hud_init(void) {
-	vfont_init();
+	vfont_init_ex(1024, 1024);
 }
 
 void hud_close(void) {

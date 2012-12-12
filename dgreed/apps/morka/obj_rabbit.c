@@ -64,12 +64,20 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	}
 
 	// Damping
-	if(p->vel.x > 100.0f)
+	if(p->vel.x < 300.0f) {
+	}	
+	else if(p->vel.x < 600.0f)
+		p->vel.x *= 0.995f;
+	else if(p->vel.x < 1000.0f)
 		p->vel.x *= 0.99f;
-	else if(p->vel.x > 400.0f)
-		p->vel.x *= 0.97f;
-	else if(p->vel.x > 800.0f)
-		p->vel.x *= 0.90f;
+	else
+		p->vel.x *= 0.985f;
+//	else if(p->vel.x < 700.0f)
+//		p->vel.x *= 0.96f;
+//	else if(p->vel.x < 1000.0f)
+//		p->vel.x *= 0.95f;
+
+	
 
 	objects_apply_force(self, dir);
 
