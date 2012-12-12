@@ -6,6 +6,7 @@
 #include <uidesc.h>
 #include <mfx.h>
 #include <keyval.h>
+#include <vfont.h>
 
 #include "game.h"
 #include "mchains.h"
