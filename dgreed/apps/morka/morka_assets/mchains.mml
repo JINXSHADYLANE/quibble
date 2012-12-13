@@ -6,7 +6,7 @@
 		(def d (mushroom_4 150))
 		(def e (mushroom_5 150))
 		(def f (mushroom_6 150))
-		(def x (spikehroom_1 150))
+		(def x (spikeshroom_1 150))
 		(def _ (.empty 200))
 
 		(init "__")
