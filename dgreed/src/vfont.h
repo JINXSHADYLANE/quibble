@@ -9,6 +9,56 @@
 //
 // Can be quite fast if you're drawing static strings!
 
+#ifdef __APPLE__
+
+typedef struct {
+    const char* name;
+    float size;
+	void* uifont;
+} Font;
+
+#else
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_GLYPH_H
+
+typedef struct {
+    const char* name;
+    float size;
+    FT_Face face;
+} Font;
+
+#endif
+
+typedef struct {
+    float width, height;
+    RectF occupied;
+    TexHandle tex;
+} CachePage;
+
+typedef struct {
+    char text[96];
+    const char* font_name;
+    float size;
+    
+    TexHandle tex;
+    RectF src;
+    CachePage* page;
+} CachedText;
+
+typedef struct {
+    CachePage* page;
+    RectF free;
+} FreeRect;
+
+#define _key(str) \
+    Font* font = darray_get(&fonts, vfont_selected_font); \
+    size_t text_len = strlen(str); \
+    size_t font_len = strlen(font->name); \
+    char* key = alloca(text_len + font_len + 16); \
+    sprintf(key, "%s:%s:%f", str, font->name, font->size)
+
 void vfont_init(void);
 void vfont_init_ex(uint cache_w, uint cache_h);
 void vfont_close(void);
