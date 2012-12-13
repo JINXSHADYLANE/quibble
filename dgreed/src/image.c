@@ -55,6 +55,8 @@ typedef struct {
 #define RGB565_ENCODE(r, g, b) \
 	(((r)&0x1f)<<11)|(((g)&0x3f)<<5)|(((b)&0x1f))
 
+#if 0
+
 static void _enc_delta_rgb565(void* data, uint w, uint h) {
 	uint16* img = data;
 	uint16 prev = img[0], curr;
@@ -83,6 +85,8 @@ static void _enc_delta_rgb565(void* data, uint w, uint h) {
 		img[i] = RGB565_ENCODE(dr, dg, db);
 	}
 }
+
+#endif
 
 static void _dec_delta_rgb565(void* data, uint w, uint h) {
 	uint16* img = data;
