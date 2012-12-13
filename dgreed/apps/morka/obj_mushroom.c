@@ -3,10 +3,10 @@
 #include <system.h>
 
 static void obj_mushroom_collide(GameObject* self, GameObject* other) {
-	if(other->type == OBJ_RABBIT_TYPE) {
+	ObjMushroom* mushroom = (ObjMushroom*)self;
+	if(other->type == OBJ_RABBIT_TYPE && mushroom->damage == 0.0f) {
 		PhysicsComponent* rabbit_physics = other->physics;
 		if(rabbit_physics->vel.y > 0.0f) {
-			ObjMushroom* mushroom = (ObjMushroom*)self;
 			mushroom->dh -= 10.0f;
 		}
 	}
@@ -38,6 +38,7 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 	mushroom->oh = height;
 	mushroom->h = height;
 	mushroom->dh = 0.0f;
+	//mushroom->damage = 0.0f;
 	
 	// Take 10 pixel slice at the top as a collider geometry
 	RectF collider = {

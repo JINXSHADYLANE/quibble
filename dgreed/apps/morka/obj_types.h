@@ -48,6 +48,7 @@ extern GameObjectDesc obj_deco_desc;
 typedef struct {
 	GameObject header;
 	float oh, h, dh;
+	float damage;
 } ObjMushroom;
 
 extern GameObjectDesc obj_mushroom_desc;
