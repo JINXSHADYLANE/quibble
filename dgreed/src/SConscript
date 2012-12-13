@@ -8,7 +8,6 @@ sources += Glob('lib9-utf/*.c', strings=True)
 if str(Platform()) == 'darwin':
 	sources.remove('vfont_ft2.c')
 	sources += ['NSFileManager+DirectoryLocations.m', 'SDLMain.m', 'vfont_apple.m']
-	print sources
 	env.Append(LINKFLAGS=' -all_load')
 
 dgreed = env.Library('dgreed' + env['DGREED_POSTFIX'], sources)
