@@ -52,7 +52,6 @@
 		219BEA2D16776A3F002B614C /* uidesc.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BE9FF16776A3E002B614C /* uidesc.c */; };
 		219BEA2E16776A3F002B614C /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 219BEA0216776A3E002B614C /* UIImage+Resize.m */; };
 		219BEA2F16776A3F002B614C /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BEA0316776A3E002B614C /* utils.c */; };
-		219BEA3116776A3F002B614C /* vfont.m in Sources */ = {isa = PBXBuildFile; fileRef = 219BEA0716776A3E002B614C /* vfont.m */; };
 		219BEA3216776A3F002B614C /* wav.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BEA0816776A3E002B614C /* wav.c */; };
 		219BEA4716776A6C002B614C /* malka.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BEA3316776A6C002B614C /* malka.c */; };
 		219BEA4816776A6C002B614C /* ml_anim.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BEA3516776A6C002B614C /* ml_anim.c */; };
@@ -150,6 +149,8 @@
 		219BEB2616776F8E002B614C /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BEB2516776F8E002B614C /* MessageUI.framework */; };
 		219BEB2816776F94002B614C /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BEB2716776F94002B614C /* CoreData.framework */; };
 		219BEB2A16776FB4002B614C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BEB2916776FB4002B614C /* SystemConfiguration.framework */; };
+		21D53BA5167A23F0009E6CFC /* vfont_apple.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA3167A23F0009E6CFC /* vfont_apple.m */; };
+		21D53BA6167A23F0009E6CFC /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA4167A23F0009E6CFC /* vfont.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -241,7 +242,6 @@
 		219BEA0316776A3E002B614C /* utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utils.c; path = ../../src/utils.c; sourceTree = "<group>"; };
 		219BEA0416776A3E002B614C /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utils.h; path = ../../src/utils.h; sourceTree = "<group>"; };
 		219BEA0616776A3E002B614C /* vfont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vfont.h; path = ../../src/vfont.h; sourceTree = "<group>"; };
-		219BEA0716776A3E002B614C /* vfont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = vfont.m; path = ../../src/vfont.m; sourceTree = "<group>"; };
 		219BEA0816776A3E002B614C /* wav.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wav.c; path = ../../src/wav.c; sourceTree = "<group>"; };
 		219BEA0916776A3E002B614C /* wav.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wav.h; path = ../../src/wav.h; sourceTree = "<group>"; };
 		219BEA3316776A6C002B614C /* malka.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = malka.c; path = ../../src/malka/malka.c; sourceTree = "<group>"; };
@@ -389,6 +389,8 @@
 		219BEB2516776F8E002B614C /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		219BEB2716776F94002B614C /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		219BEB2916776FB4002B614C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		21D53BA3167A23F0009E6CFC /* vfont_apple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = vfont_apple.m; path = ../../src/vfont_apple.m; sourceTree = "<group>"; };
+		21D53BA4167A23F0009E6CFC /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../src/vfont.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -593,9 +595,10 @@
 				219BEA0316776A3E002B614C /* utils.c */,
 				219BEA0416776A3E002B614C /* utils.h */,
 				219BEA0616776A3E002B614C /* vfont.h */,
-				219BEA0716776A3E002B614C /* vfont.m */,
 				219BEA0816776A3E002B614C /* wav.c */,
 				219BEA0916776A3E002B614C /* wav.h */,
+				21D53BA3167A23F0009E6CFC /* vfont_apple.m */,
+				21D53BA4167A23F0009E6CFC /* vfont.c */,
 			);
 			name = dgreed;
 			sourceTree = "<group>";
@@ -850,7 +853,6 @@
 				219BEA2D16776A3F002B614C /* uidesc.c in Sources */,
 				219BEA2E16776A3F002B614C /* UIImage+Resize.m in Sources */,
 				219BEA2F16776A3F002B614C /* utils.c in Sources */,
-				219BEA3116776A3F002B614C /* vfont.m in Sources */,
 				219BEA3216776A3F002B614C /* wav.c in Sources */,
 				219BEA4716776A6C002B614C /* malka.c in Sources */,
 				219BEA4816776A6C002B614C /* ml_anim.c in Sources */,
@@ -928,6 +930,8 @@
 				219BEAFA16776B3A002B614C /* objects.c in Sources */,
 				219BEAFB16776B3A002B614C /* worldgen.c in Sources */,
 				219BEB1C16776EC5002B614C /* miniz.c in Sources */,
+				21D53BA5167A23F0009E6CFC /* vfont_apple.m in Sources */,
+				21D53BA6167A23F0009E6CFC /* vfont.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
