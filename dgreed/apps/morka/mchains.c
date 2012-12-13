@@ -262,7 +262,7 @@ char mchains_next(Chain* c, RndContext* rnd) {
 			int max_r = trans[base_idx + n-1]; 
 #ifdef _DEBUG
 			if(max_r <= 0) {
-				printf("Unable to follow context %c%c", 
+				printf("Unable to follow context %c%c\n", 
 						c->rules->symbols[ctx0],
 						c->rules->symbols[ctx1]
 				);
