@@ -81,7 +81,9 @@ static void _gen_fg_page(void) {
 			}
 			else if(r < 3) {
 				// In the air
-				float f = sqrtf(rabbit->header.physics->vel.x / 350.0f);
+				GameObject* h = &rabbit->header;
+				float x = (h->type == OBJ_RABBIT_TYPE) ? h->physics->vel.x : 200.0f;
+				float f = sqrtf(x / 350.0f);
 				uint n = rand_int_ex(&rnd, 4, 7);
 				float y = 430.0f;
 				float dy = 60.0f + (10.0f * f);
