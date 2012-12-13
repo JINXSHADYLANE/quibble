@@ -37,7 +37,7 @@
 	)
 	(img clock
 		(tex atlas_2.png)
-		(src 396,451,428,496)
+		(src 396,456,428,501)
 	)
 	(img clock_arrow
 		(tex atlas_2.png)
@@ -66,7 +66,7 @@
 	)
 	(img music
 		(tex atlas_2.png)
-		(src 502,363,620,451)
+		(src 501,363,619,451)
 	)
 	(img off
 		(tex atlas_2.png)
@@ -78,7 +78,7 @@
 	)
 	(img play
 		(tex atlas_2.png)
-		(src 382,337,500,449)
+		(src 382,337,499,454)
 	)
 	(img restart_1
 		(tex atlas_2.png)
@@ -102,7 +102,7 @@
 	)
 	(img sound
 		(tex atlas_2.png)
-		(src 502,273,620,361)
+		(src 501,273,619,361)
 	)
 	(img sparkle_1
 		(tex atlas_2.png)
@@ -142,12 +142,13 @@
 	)
 	(img sparkle_8
 		(tex atlas_2.png)
-		(src 430,451,464,495)
+		(src 430,456,464,500)
 	)
 	(img sparkle_9
 		(tex atlas_2.png)
 		(src 241,482,272,508)
 	)
+
 	(img bg_mushroom_1
 		(tex atlas_3.png)
 		(src 551,5,917,357)
