@@ -11,6 +11,7 @@
 #include "darray.h"
 #include "datastruct.h"
 #include "memory.h"
+#include "mempool.h"
 
 typedef struct {
     const char* name;
@@ -29,7 +30,7 @@ typedef struct {
 } CachePage;
 
 typedef struct {
-    const char* text;
+    char text[96];
     const char* font_name;
     float size;
     
@@ -52,6 +53,11 @@ static Dict cache;
 static DArray fonts;
 static DArray cache_pages;
 static DArray free_rects;
+
+static MemPool cached_text_pool;
+static MemPool key_str_pool;
+
+static DArray render_scratchpad;
 
 static uint selected_font = 0;
 
@@ -166,8 +172,10 @@ static void _render_text(const char* string, CachePage* page, RectF* dest) {
     uint w = (uint)ceilf(rectf_width(dest));
     uint h = (uint)ceilf(rectf_height(dest));
     
-    Color* data = MEM_ALLOC(w * h * sizeof(Color));
-    memset(data, 0, w * h * sizeof(Color));
+	uint s = w * h * sizeof(Color);
+	darray_reserve(&render_scratchpad, s);
+    Color* data = render_scratchpad.data;
+    memset(data, 0, s);
     CGColorSpaceRef color_space = CGColorSpaceCreateDeviceRGB();
     CGContextRef ctx = CGBitmapContextCreate(
         data, w, h, 8, w*4,
@@ -246,8 +254,6 @@ static void _render_text(const char* string, CachePage* page, RectF* dest) {
 
     CGContextRelease(ctx);
     CGColorSpaceRelease(color_space);
-    
-    MEM_FREE(data);
 }
 
 static const CachedText* _precache(const char* string, const char* key, bool input) {
@@ -322,19 +328,19 @@ static const CachedText* _precache(const char* string, const char* key, bool inp
     
     // Fill text cache entry
     Font* font = darray_get(&fonts, selected_font);
-    CachedText new = {
-    	.text = strclone(string),
-		.font_name = font->name,
-		.size = font->size,
-		.tex = page->tex,
-		.src = bbox,
-        .page = page
-    };
 
-	CachedText* hnew = MEM_ALLOC(sizeof(CachedText));
-	memcpy(hnew, &new, sizeof(CachedText));
+	CachedText* hnew = mempool_alloc(&cached_text_pool);
+	strcpy(hnew->text, string);
+	hnew->font_name = font->name;
+	hnew->size = font->size;
+	hnew->tex = page->tex;
+	hnew->src = bbox;
+	hnew->page = page; 
 
-	dict_set(&cache, strclone(key), hnew); 
+	assert(strlen(key) < 64);
+	char* pkey = mempool_alloc(&key_str_pool);
+	strcpy(pkey, key);
+	dict_set(&cache, pkey, hnew); 
 
 	return hnew;
 }
@@ -372,6 +378,11 @@ void vfont_init_ex(uint cache_w, uint cache_h) {
 	fonts = darray_create(sizeof(Font), 0);
 	cache_pages = darray_create(sizeof(CachePage), 0);
 	free_rects = darray_create(sizeof(FreeRect), 0);
+
+	mempool_init_ex(&cached_text_pool, sizeof(CachedText), 8*1024);
+	mempool_init_ex(&key_str_pool, 64, 2*1024);
+
+	render_scratchpad = darray_create(1, 1024);
     
 #ifdef TARGET_IOS
     UIScreen* main = [UIScreen mainScreen];
@@ -383,6 +394,7 @@ void vfont_init_ex(uint cache_w, uint cache_h) {
 }
 
 void vfont_close(void) {
+	darray_free(&render_scratchpad);
 	darray_free(&free_rects);
 
 	// Free texture pages
@@ -401,16 +413,10 @@ void vfont_close(void) {
 	darray_free(&fonts);
 
 	// Free cached texts
-	for(uint i = 0; i < cache.mask+1; ++i) {
-		DictEntry e = cache.map[i];
-		if(e.key && e.data) {
-			const CachedText* text = e.data;
-			MEM_FREE(text->text);
-			MEM_FREE(e.data);
-			MEM_FREE(e.key);
-		}
-	}
 	dict_free(&cache);
+
+	mempool_drain(&key_str_pool);
+	mempool_drain(&cached_text_pool);
 }
 
 void vfont_select(const char* font_name, float size) {
@@ -505,7 +511,7 @@ void vfont_cache_invalidate_ex(const char* string, bool strict) {
         return;
 
 	assert(text_entry);
-    const CachedText* text = (const CachedText*)text_entry->data;
+    CachedText* text = (CachedText*)text_entry->data;
 	assert(text);
 
 	// Mark new free rect
@@ -516,30 +522,23 @@ void vfont_cache_invalidate_ex(const char* string, bool strict) {
 	darray_append(&free_rects, &new);
 
 	// Free memory
-	MEM_FREE(text->text);
-	MEM_FREE(text);
-	const char* key_text = text_entry->key;
+	mempool_free(&cached_text_pool, text);
+	char* key_text = (char*)text_entry->key;
 
 	// Remove cache entry
 	dict_delete(&cache, key);
 
-	MEM_FREE(key_text);
+	mempool_free(&key_str_pool, key_text);
 }
 
 void vfont_invalidate_all(void) {
     free_rects.size = 0;
 
-	for(uint i = 0; i < cache.mask+1; ++i) {
-		DictEntry e = cache.map[i];
-		if(e.key && e.data) {
-			const CachedText* text = e.data;
-			MEM_FREE(text->text);
-			MEM_FREE(e.data);
-			MEM_FREE(e.key);
-		}
-	}
     dict_free(&cache);
     dict_init(&cache);
+
+	mempool_free_all(&key_str_pool);
+	mempool_free_all(&cached_text_pool);
 
     for(uint i = 0; i < cache_pages.size; ++i) {
         CachePage* page = darray_get(&cache_pages, i);
