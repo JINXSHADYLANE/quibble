@@ -11,12 +11,12 @@
 
 		(init "__")
 
-		(learn "__a__b__a__b_x__")
-		(learn "a_e_d__b_ax__")
+		(learn "__a__b__a__b_")
+		(learn "a_e_d__b_a__")
 		(learn "___")
 		(learn "a_c_d_b_db__ca_f_c")
-		(learn "e__d_b_x__")
-		(learn "db_x__a_x__b_x__")
+		(learn "e__d_b__")
+		(learn "db_x__")
 	)
 
 	(ruleset bg
