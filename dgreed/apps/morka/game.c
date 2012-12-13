@@ -48,7 +48,7 @@ void game_reset(void) {
 	}
 
 	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), NULL);
-	worldgen_reset(20);
+	worldgen_reset(rand_uint());
 
 	camera_follow_weight = 0.2f;
 	rabbit_remaining_time = 45.0f;

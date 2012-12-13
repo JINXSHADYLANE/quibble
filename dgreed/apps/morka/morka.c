@@ -8,6 +8,8 @@
 #include <keyval.h>
 #include <vfont.h>
 
+#include <time.h>
+
 #include "game.h"
 #include "mchains.h"
 
@@ -26,7 +28,7 @@ bool dgreed_init(int argc, const char** argv) {
 	params_init(1, NULL);
 #endif
 
-	rand_init(432);
+	rand_init(time(NULL));
 
 	const char* sprsheet = ASSETS_DIR "spritesheet.mml";
 	uint width = 1024;
