@@ -49,7 +49,7 @@ void objects_init(void) {
 	to_remove = darray_create(sizeof(GameObject*), 0);
 	to_add = darray_create(sizeof(NewObject), 0);
 
-	coldet_init(objects_cdworld, 256.0f);
+	coldet_init(objects_cdworld, 400.0f);
 }
 
 void objects_close(void) {
