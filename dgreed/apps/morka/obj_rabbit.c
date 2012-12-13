@@ -77,8 +77,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 //	else if(p->vel.x < 1000.0f)
 //		p->vel.x *= 0.95f;
 
-	
-
 	objects_apply_force(self, dir);
 
 	// Gravity
@@ -148,15 +146,25 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	Vector2 vel = self->physics->vel;
 	if(other->type == OBJ_MUSHROOM_TYPE && !rabbit->touching_ground && vel.y > 500.0f) {
 		if(rabbit->bounce_force.y == 0.0f) {
+			ObjMushroom* mushroom = (ObjMushroom*)other;
 			mushroom_hit_time = time_s();
 			anim_play(rabbit->anim, "bounce");
-
 			vel.y = -vel.y;
-			Vector2 f = {
-				.x = MIN(vel.x*200.0f, 220000.0f),
-				.y = MAX(vel.y*400.0f,-250000.0f)
-			};
-			rabbit->bounce_force = f;
+
+			if(mushroom->damage == 0.0f) {
+				Vector2 f = {
+					.x = MIN(vel.x*200.0f, 220000.0f),
+					.y = MAX(vel.y*400.0f,-250000.0f)
+				};
+				rabbit->bounce_force = f;
+			}
+			else {
+				Vector2 f = {
+					.x = MAX(-vel.x*200.0f, -80000.0f),
+					.y = MAX(vel.y*300.0f,-180000.0f)
+				};
+				rabbit->bounce_force = f;
+			}
 
 			// Slow down vertical movevment
 			self->physics->vel.y *= 0.2f;

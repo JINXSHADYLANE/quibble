@@ -56,7 +56,12 @@ static void _gen_fg_page(void) {
 
 		if(spr) {
 			Vector2 pos = vec2(fg_page_cursor + fg_x + 100.0f, 583.0f);
-			objects_create(&obj_mushroom_desc, pos, (void*)spr);
+			GameObject* g = objects_create(&obj_mushroom_desc, pos, (void*)spr);
+			ObjMushroom* shroom = (ObjMushroom*)g;
+			if(sym == 'x')
+				shroom->damage = 1.0f;
+			else
+				shroom->damage = 0.0f;
 
 			// Add clocks after the mushroom:
 			// 5% on the ground
