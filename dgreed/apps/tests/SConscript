@@ -1,0 +1,40 @@
+Import('env')
+
+NAME='test'
+
+postfix = env['DGREED_POSTFIX']
+
+if postfix == '':
+	sources = Split("""
+		test_runner.c
+		test_data.c
+	""")
+else:
+	sources = Split("""
+		test_runner.c
+		test_datad.c
+	""")
+
+objects = env.Object(sources)
+
+tests = Split("""
+	async.c
+	coldet.c
+	darray.c
+	datastruct.c
+	keyval.c
+	memory.c
+	mempool.c
+	mml.c
+	utils.c
+	uidesc.c
+""")
+
+test_data = env.Command('test_data' + postfix + '.c', tests,
+	env['DGREED_TEST_TOOL'])
+test_data = env.Install('#apps/tests/', test_data)
+test_runner = env.Program(NAME + postfix,
+	objects, LIBS=env['DGREED_LIBS'])
+env.Depends(objects[0], test_data)
+env.Install('#'+env['DGREED_BIN_DIR'], test_runner)
+
