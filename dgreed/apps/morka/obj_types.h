@@ -10,8 +10,7 @@ enum {
 	OBJ_GROUND_TYPE,
 	OBJ_DECO_TYPE,
 	OBJ_MUSHROOM_TYPE,
-	OBJ_CLOCK_TYPE,
-	OBJ_CLOCK_FADING_TYPE
+	OBJ_PIN
 };
 
 // Rabbit
@@ -52,6 +51,16 @@ typedef struct {
 } ObjMushroom;
 
 extern GameObjectDesc obj_mushroom_desc;
+
+// Race marker pin
+
+typedef struct {
+	GameObject header;
+	float speed;
+} ObjPin;
+
+extern GameObjectDesc obj_pin_desc;
+
 
 #endif
 

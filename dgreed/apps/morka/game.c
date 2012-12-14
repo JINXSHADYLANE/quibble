@@ -42,12 +42,21 @@ void game_unpause(void) {
 	game_paused = false;
 }
 
+float pin_speed_a = 16.0f;
+float pin_speed_b = 18.0f;
+float pin_speed_c = 20.0f;
+
 void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
 	}
 
 	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), NULL);
+
+	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_a);
+	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_b);
+	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_c);
+
 	worldgen_reset(rand_uint());
 
 	camera_follow_weight = 0.2f;
