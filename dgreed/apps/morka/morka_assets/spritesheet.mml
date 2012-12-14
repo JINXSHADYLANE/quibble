@@ -19,6 +19,14 @@
 		(frames 15)
 		(grid 5,3)
 	)
+	(img pin
+		(tex atlas_2.png)
+		(src 920,435,967,511)
+	)
+	(img checkers
+		(tex atlas_2.png)
+		(src 972,460,1022,510)
+	)
 	(img blue_shade
 		(tex atlas_2.png)
 		(src 47,500,51,504)

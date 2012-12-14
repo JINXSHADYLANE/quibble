@@ -50,11 +50,11 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			else if(!rabbit->is_diving && key_down(KEY_A)) {
 				// Dive 	
 				rabbit->is_diving = true;
-				objects_apply_force(self, vec2(0.0f, 14000.0f));
+				objects_apply_force(self, vec2(0.0f, 20000.0f));
 				anim_play(rabbit->anim, "dive");
 			}
 			else if(rabbit->is_diving && key_pressed(KEY_A)) {
-				objects_apply_force(self, vec2(0.0f, 14000.0f));
+				objects_apply_force(self, vec2(0.0f, 25000.0f));
 			}
 			else if(rabbit->is_diving && !key_pressed(KEY_A)) {
 				rabbit->is_diving = false;
