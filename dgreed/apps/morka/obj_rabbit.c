@@ -82,7 +82,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	objects_apply_force(self, dir);
 
 	// Gravity
-	if(!rabbit->touching_ground /*&& p->vel.y < 0.0f*/) {
+	if(!rabbit->touching_ground) {
 		objects_apply_force(self, vec2(0.0f, 5000.0f));
 	}
 }
