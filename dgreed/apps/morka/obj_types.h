@@ -53,24 +53,5 @@ typedef struct {
 
 extern GameObjectDesc obj_mushroom_desc;
 
-// Clock
-
-typedef struct {
-	GameObject header;
-} ObjClock;
-
-extern GameObjectDesc obj_clock_desc;
-
-// Fading clock
-
-typedef struct {
-	GameObject header;
-	float t;
-	float birth_time;
-	RectF original_pos;
-} ObjClockFading;
-
-extern GameObjectDesc obj_clock_fading_desc;
-
 #endif
 
