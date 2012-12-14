@@ -46,14 +46,10 @@ static void _hud_render_ui(UIElement* element, uint layer) {
 	}
 }
 
-static void _hud_render_clock_needle(UIElement* element, uint layer, float angle) {
-	spr_draw_cntr_h(element->spr, layer, element->vec2, angle, 1.0f, COLOR_WHITE);
-}
 static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 	UIElement* text = uidesc_get_child(element, "text");
 	UIElement* dist_text = uidesc_get_child(element, "distance_text");
 	UIElement* combo_text = uidesc_get_child(element, "combo_text");
-	UIElement* clocks_text = uidesc_get_child(element, "clocks_text");
 	UIElement* button = uidesc_get_child(element, "button");
 
 	byte a = lrintf(255.0f * alpha);
@@ -82,12 +78,6 @@ static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 	Vector2 half_combo_size = vec2_scale(vfont_size(combo_str), 0.5f);
 	vfont_draw(combo_str, layer, vec2_sub(combo_text->vec2, half_combo_size), col);
 	
-	// Clocks text
-	char clocks_str[32];
-	sprintf(clocks_str, "Clocks collected - %u", clocks_collected);
-	Vector2 half_clocks_size = vec2_scale(vfont_size(clocks_str), 0.5f);
-	vfont_draw(clocks_str, layer, vec2_sub(clocks_text->vec2, half_clocks_size), col);
-
 	// Button
 	spr_draw_cntr_h(button->spr, layer, button->vec2, 0.0f, 1.0f, col);	
 
@@ -123,27 +113,6 @@ static void _hud_render_pause(UIElement* element, uint layer) {
 			game_unpause();
 			time_scale(1.0f);
 		}
-	}
-}
-
-static void _hud_render_distance(UIElement* element, uint layer, uint number) {
-	uint digits[4];
-	for(uint i = 0; i < 4; ++i) {
-		digits[3-i] = number % 10;
-		number /= 10;
-	}
-
-	vfont_select("Baskerville-Bold", 18.0f);
-
-	UIElement* digit1 = uidesc_get_child(element, "digit1");
-	UIElement* digit_offset = uidesc_get_child(element, "digit_offset");
-	Vector2 cursor = digit1->vec2;
-	char str[] = {'\0', '\0'};
-	for(uint i = 0; i < 4; ++i) {
-		str[0] = '0' + digits[i];
-		vfont_draw(str, layer, cursor, COLOR_BLACK);
-		cursor = vec2_add(cursor, digit_offset->vec2);
-		cursor.x = floorf(cursor.x);
 	}
 }
 
@@ -208,22 +177,12 @@ void hud_render(void) {
 		if(showed_game_over_last_frame) {
 			showed_game_over_last_frame = false;
 			longest_combo = 0;
-			clocks_collected = 0;
 		}
 		if(game_is_paused()) {
 			UIElement* pause_screen = uidesc_get("pause");
 			_hud_render_pause(pause_screen, hud_layer+1);
 		}
 	}
-
-	UIElement* clock = uidesc_get("hud_clock");
-	_hud_render_ui(clock, hud_layer);
-	_hud_render_distance(clock, hud_layer+1, lrintf(rabbit_current_distance));
-
-	UIElement* hud_clock_needle = uidesc_get("hud_clock_needle");
-
-	float angle = (rabbit_remaining_time / 60.0f) * 2.0f * PI;
-	_hud_render_clock_needle(hud_clock_needle, hud_layer, angle);
 
 	UIElement* combo_text = uidesc_get("combo_text");
 	float ts = time_s();

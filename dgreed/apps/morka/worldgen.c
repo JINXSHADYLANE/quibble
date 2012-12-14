@@ -63,40 +63,6 @@ static void _gen_fg_page(void) {
 			else
 				shroom->damage = 0.0f;
 
-			// Add clocks after the mushroom:
-			// 5% on the ground
-			// 10% in the air
-			// 85% no clocks
-			int r = rand_int_ex(&rnd, 0, 20);
-			if(r == 0) {
-				// On the ground
-				uint n = rand_int_ex(&rnd, 3, 6);
-				for(uint i = 0; i < n; ++i) {
-					Vector2 pos = {
-						.x = fg_page_cursor + fg_x + 100.0f + (i+1) * 60.0f,
-						.y = 570.0f  
-					};
-					objects_create(&obj_clock_desc, pos, NULL);
-				}
-			}
-			else if(r < 3) {
-				// In the air
-				GameObject* h = &rabbit->header;
-				float x = (h->type == OBJ_RABBIT_TYPE) ? h->physics->vel.x : 200.0f;
-				float f = sqrtf(x / 350.0f);
-				uint n = rand_int_ex(&rnd, 4, 7);
-				float y = 430.0f;
-				float dy = 60.0f + (10.0f * f);
-				for(uint i = 0; i < n; ++i) {
-					Vector2 pos = {
-						.x = fg_page_cursor + fg_x + 100.0f + (i) * 90.0f * f,
-						.y = y
-					};
-					y -= dy;
-					dy -= 17.0f;
-					objects_create(&obj_clock_desc, pos, NULL);
-				}
-			}
 		}
 	
 		fg_x += (float)advance;
