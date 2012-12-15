@@ -5,15 +5,23 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
+#include "darray.h"
+#include "memory.h"
+
 DArray fonts;
 bool vfont_retina = false;
 uint vfont_selected_font;
 
-static void _vfont_init(void) {
+static FT_Library library;
+
+void _vfont_init(void) {
 	fonts = darray_create(sizeof(Font), 0);
+	FT_Init_FreeType(&library);
 }
 
-static void _vfont_close(void) {
+void _vfont_close(void) {
+	FT_Done_FreeType(library);
+
 	// Free fonts
 	for(uint i = 0; i < fonts.size; ++i) {
 		Font* font = darray_get(&fonts, i);
@@ -22,7 +30,7 @@ static void _vfont_close(void) {
 	darray_free(&fonts);
 }
 
-static RectF _bbox(const char* string) {
+RectF _vfont_bbox(const char* string) {
     int error = 0;
     Font* font = darray_get(&fonts, vfont_selected_font);
     
@@ -78,7 +86,7 @@ static RectF _bbox(const char* string) {
     return rectf(0.0f, 0.0f, width, height);
 }
 
-static void _render_text(const char* string, CachePage* page, RectF* dest) {
+void _vfont_render_text(const char* string, CachePage* page, RectF* dest) {
     uint x = (uint)ceilf(dest->left);
     uint y = (uint)ceilf(dest->top);
     uint w = (uint)ceilf(rectf_width(dest));
@@ -189,6 +197,7 @@ void vfont_select(const char* font_name, float size) {
     if(error)
         LOG_ERROR("Failed to create new face err no.%d font name: %s, lib: %u, face: %u",
             error, new.name, library, &new.face);
+
     error = FT_Select_Charmap(new.face, FT_ENCODING_UNICODE);
     error = FT_Set_Char_Size(new.face, size * 64, size * 64, 72, 72); // 100-dpi  
     if(error)
