@@ -1,14 +1,14 @@
 
 asset_dir = 'urvas_assets/'
 
-scr_size = vec2(480, 320)
-scr_rect = rect(0, 0, 480, 320)
+scr_size = vec2(640, 400)
+scr_rect = rect(0, 0, 640, 400)
 screen_rect = rect(0, 0, scr_size.x, scr_size.y)
 
 local game = require('game')
 
 function game_init()
-	local scale = 2
+	local scale = 1
 	local real_size = scr_size * scale
 	video.init_ex(real_size.x, real_size.y, scr_size.x, scr_size.y, 'urvas', false)
 	sound.init()
