@@ -1,14 +1,6 @@
 local textmode = {}
-
-textmode.size = vec2(40, 20)
-textmode.n_chars = textmode.size.x * textmode.size.y
-
-textmode.bg_color = {}
-textmode.fg_color = {}
-textmode.char = {}
-
-textmode.selected_fg = nil
-textmode.selected_bg = nil
+local textmode_mt = {}
+textmode_mt.__index = textmode
 
 textmode.texture = nil
 
@@ -20,55 +12,78 @@ function textmode.close()
 	tex.free(textmode.texture)
 end
 
-function textmode.clear(color)
+function textmode:new()
+	assert(self.texture)
+	local o = {
+		size = vec2(40, 20),
+		n_chars = 40 * 20,
+		bg_color = {},
+		fg_color = {},
+		char = {},
+		selected_fg = nil,
+		selected_bg = nil
+	}
+
+	setmetatable(o, textmode_mt)
+	return o
+end
+
+function textmode:clear(color)
 	local col = color or rgba(0, 0, 0)
 	local space = string.byte(' ')
-	for i,c in ipairs(textmode.char) do
-		textmode.char[i] = space 
-		textmode.bg_color[i] = col
+	for i=0,self.n_chars-1 do
+		self.char[i] = space 
+		self.bg_color[i] = col
 	end
 end
 
-function textmode.rect(l, t, r, b, char)
+function textmode:rect(l, t, r, b, char)
 	local c = char:byte()
 	for y=t,b do
-		local idx1 = textmode.size.x * y + l	
-		local idx2 = textmode.size.x * y + r	
-		textmode.char[idx1] = c
-		textmode.char[idx2] = c
-		textmode.fg_color[idx1] = textmode.selected_fg
-		textmode.bg_color[idx1] = textmode.selected_bg
-		textmode.fg_color[idx2] = textmode.selected_fg
-		textmode.bg_color[idx2] = textmode.selected_bg
+		local idx1 = self.size.x * y + l	
+		local idx2 = self.size.x * y + r	
+		self.char[idx1] = c
+		self.char[idx2] = c
+		self.fg_color[idx1] = self.selected_fg
+		self.bg_color[idx1] = self.selected_bg
+		self.fg_color[idx2] = self.selected_fg
+		self.bg_color[idx2] = self.selected_bg
 	end
 	for x=l+1,r-1 do
-		local idx1 = textmode.size.x * t + x	
-		local idx2 = textmode.size.x * b + x	
-		textmode.char[idx1] = c
-		textmode.char[idx2] = c
-		textmode.fg_color[idx1] = textmode.selected_fg
-		textmode.bg_color[idx1] = textmode.selected_bg
-		textmode.fg_color[idx2] = textmode.selected_fg
-		textmode.bg_color[idx2] = textmode.selected_bg
+		local idx1 = self.size.x * t + x	
+		local idx2 = self.size.x * b + x	
+		self.char[idx1] = c
+		self.char[idx2] = c
+		self.fg_color[idx1] = self.selected_fg
+		self.bg_color[idx1] = self.selected_bg
+		self.fg_color[idx2] = self.selected_fg
+		self.bg_color[idx2] = self.selected_bg
 	end
 end
 
-function textmode.write_middle(y, str)
+function textmode:write_middle(y, str)
 	local l = str:len()
-	textmode.write(math.floor(20 - l/2), y, str)
+	self:write(math.floor(20 - l/2), y, str)
 end
 
-function textmode.write(x, y, str)
-	local idx = textmode.size.x * y + x
+function textmode:put(x, y, c)
+	local idx = self.size.x * y + x
+	self.char[idx] = c:byte()
+	self.fg_color[idx] = self.selected_fg
+	self.bg_color[idx] = self.selected_bg
+end
+
+function textmode:write(x, y, str)
+	local idx = self.size.x * y + x
 	for c in str:gmatch('.') do
-		textmode.char[idx] = c:byte()
-		textmode.fg_color[idx] = textmode.selected_fg
-		textmode.bg_color[idx] = textmode.selected_bg
+		self.char[idx] = c:byte()
+		self.fg_color[idx] = self.selected_fg
+		self.bg_color[idx] = self.selected_bg
 		idx = idx + 1
 	end
 end
 
-function textmode.present(layer)
+function textmode:present(layer, t)
 	local char_width = 24
 	local char_height = 28
 
@@ -76,10 +91,10 @@ function textmode.present(layer)
 	local src = rect()
 	local src_empty = rect(0, 512-char_height, 512, 512)
 	local cursor = vec2(0, 0)
-	for y=0,textmode.size.y-1 do
-		for x=0,textmode.size.x-1 do
-			local idx = textmode.size.x * y + x	
-			local char = textmode.char[idx] 
+	for y=0,self.size.y-1 do
+		for x=0,self.size.x-1 do
+			local idx = self.size.x * y + x	
+			local char = self.char[idx] 
 			if char then
 				local texture_x = char % 16
 				local texture_y = (char - texture_x) / 16
@@ -88,16 +103,37 @@ function textmode.present(layer)
 				src.r = src.l + char_width - 8
 				src.b = src.t + char_height - 8 
 
+				local col = self.fg_color[idx] or white
+
+				if t then
+					col.a = 1 - math.abs(t)
+				end
+
+
 				video.draw_rect(
-					textmode.texture, layer, src,
-					cursor, 0, textmode.fg_color[idx] or white
+					self.texture, layer, src,
+					cursor, 0, col
 				)
 
-				if textmode.bg_color[idx] then
+				if t then
+					col.a = 1
+				end
+
+				if self.bg_color[idx] then
+					col = self.bg_color[idx]
+					
+					if t then
+						col.a = 1 - math.abs(t)
+					end
+
 					video.draw_rect(
-						textmode.texture, layer-1, src_empty,
-						cursor, 0, textmode.bg_color[idx]
+						self.texture, layer-1, src_empty,
+						cursor, 0, col
 					)
+
+					if t then
+						col.a = 1
+					end
 				end
 			end
 
