@@ -5,6 +5,8 @@ scr_size = vec2(640, 400)
 scr_rect = rect(0, 0, 640, 400)
 screen_rect = rect(0, 0, scr_size.x, scr_size.y)
 
+local textmode = require('textmode')
+local intro = require('intro')
 local game = require('game')
 
 function game_init()
@@ -19,8 +21,13 @@ function game_init()
 --	fnt = font.load(asset_dir..'Georgia_60px.bft', 0.5, asset_dir)
 --	sound.play(mus, true)
 
+	textmode.init()
+
+	states.register('intro', intro)
 	states.register('game', game)
-	states.push('game')
+	states.push('intro')
+
+	states.transition_len = 0.5
 end
 
 function game_close()
@@ -28,6 +35,7 @@ function game_close()
 --	sound.free(mus)
 --	sprsheet.close()
 --	mfx.close()
+	textmode.close()
 	sound.close()
 	video.close()
 end
