@@ -100,9 +100,12 @@ function room:render(textmode)
 
 	-- render text
 	if self.text then
+		local t = time.s() - self.text_start_t
+		local syms = math.ceil(t / 0.05)
+		local text = self.text:sub(1, syms)
 		-- greedily split text into lines
 		local lines = {}
-		for word in self.text:gmatch('%S+') do
+		for word in text:gmatch('%S+') do
 			local line = lines[#lines]
 			if not line or line:len() + 1 + word:len() >= 40 then
 				table.insert(lines, '')
