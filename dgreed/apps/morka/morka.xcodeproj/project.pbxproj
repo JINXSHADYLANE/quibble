@@ -121,7 +121,6 @@
 		219BEAF216776B3A002B614C /* hud.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BEAE216776B3A002B614C /* hud.c */; };
 		219BEAF316776B3A002B614C /* mchains.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BEAE416776B3A002B614C /* mchains.c */; };
 		219BEAF416776B3A002B614C /* morka.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BEAE616776B3A002B614C /* morka.c */; };
-		219BEAF516776B3A002B614C /* obj_clock.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BEAE716776B3A002B614C /* obj_clock.c */; };
 		219BEAF616776B3A002B614C /* obj_deco.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BEAE816776B3A002B614C /* obj_deco.c */; };
 		219BEAF716776B3A002B614C /* obj_ground.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BEAE916776B3A002B614C /* obj_ground.c */; };
 		219BEAF816776B3A002B614C /* obj_mushroom.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BEAEA16776B3A002B614C /* obj_mushroom.c */; };
@@ -151,6 +150,7 @@
 		219BEB2A16776FB4002B614C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BEB2916776FB4002B614C /* SystemConfiguration.framework */; };
 		21D53BA5167A23F0009E6CFC /* vfont_apple.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA3167A23F0009E6CFC /* vfont_apple.m */; };
 		21D53BA6167A23F0009E6CFC /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA4167A23F0009E6CFC /* vfont.c */; };
+		21DAACE51681CB55002464CD /* obj_pin.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DAACE41681CB55002464CD /* obj_pin.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -358,7 +358,6 @@
 		219BEAE416776B3A002B614C /* mchains.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mchains.c; sourceTree = SOURCE_ROOT; };
 		219BEAE516776B3A002B614C /* mchains.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mchains.h; sourceTree = SOURCE_ROOT; };
 		219BEAE616776B3A002B614C /* morka.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = morka.c; sourceTree = SOURCE_ROOT; };
-		219BEAE716776B3A002B614C /* obj_clock.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_clock.c; sourceTree = SOURCE_ROOT; };
 		219BEAE816776B3A002B614C /* obj_deco.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_deco.c; sourceTree = SOURCE_ROOT; };
 		219BEAE916776B3A002B614C /* obj_ground.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_ground.c; sourceTree = SOURCE_ROOT; };
 		219BEAEA16776B3A002B614C /* obj_mushroom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_mushroom.c; sourceTree = SOURCE_ROOT; };
@@ -391,6 +390,7 @@
 		219BEB2916776FB4002B614C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		21D53BA3167A23F0009E6CFC /* vfont_apple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = vfont_apple.m; path = ../../src/vfont_apple.m; sourceTree = "<group>"; };
 		21D53BA4167A23F0009E6CFC /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../src/vfont.c; sourceTree = "<group>"; };
+		21DAACE41681CB55002464CD /* obj_pin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_pin.c; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -482,7 +482,7 @@
 				219BEAE416776B3A002B614C /* mchains.c */,
 				219BEAE516776B3A002B614C /* mchains.h */,
 				219BEAE616776B3A002B614C /* morka.c */,
-				219BEAE716776B3A002B614C /* obj_clock.c */,
+				21DAACE41681CB55002464CD /* obj_pin.c */,
 				219BEAE816776B3A002B614C /* obj_deco.c */,
 				219BEAE916776B3A002B614C /* obj_ground.c */,
 				219BEAEA16776B3A002B614C /* obj_mushroom.c */,
@@ -922,7 +922,6 @@
 				219BEAF216776B3A002B614C /* hud.c in Sources */,
 				219BEAF316776B3A002B614C /* mchains.c in Sources */,
 				219BEAF416776B3A002B614C /* morka.c in Sources */,
-				219BEAF516776B3A002B614C /* obj_clock.c in Sources */,
 				219BEAF616776B3A002B614C /* obj_deco.c in Sources */,
 				219BEAF716776B3A002B614C /* obj_ground.c in Sources */,
 				219BEAF816776B3A002B614C /* obj_mushroom.c in Sources */,
@@ -932,6 +931,7 @@
 				219BEB1C16776EC5002B614C /* miniz.c in Sources */,
 				21D53BA5167A23F0009E6CFC /* vfont_apple.m in Sources */,
 				21D53BA6167A23F0009E6CFC /* vfont.c in Sources */,
+				21DAACE51681CB55002464CD /* obj_pin.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
