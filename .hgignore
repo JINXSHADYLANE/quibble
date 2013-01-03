@@ -1,5 +1,7 @@
 syntax: glob
 
+*/android-project/obj/local/*
+*/android-project/libs/*
 dgreed/bin/*
 dgreed/build*
 dgreed/src/ldrb/ldrb.db
