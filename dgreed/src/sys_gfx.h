@@ -1,3 +1,6 @@
+#ifndef SYS_GFX_H
+#define SYS_GFX_H
+
 #include "utils.h"
 
 /*
@@ -90,3 +93,5 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 // Draws a line
 void video_draw_line(uint layer,
 	const Vector2* start, const Vector2* end, Color color);
+
+#endif

@@ -1,15 +1,13 @@
-#include "utils.h"
+#ifndef SYS_SND_H
+#define SYS_SND_H
 
-#define BUCKET_COUNT 16
-#define FPS_LIMIT 60
-#define MS_PER_FRAME (1000 / FPS_LIMIT)
+#include "utils.h"
 
 /*
 -------------
 --- Sound ---
 -------------
 */
-
 
 #ifndef NO_DEVMODE
 typedef struct {
@@ -72,4 +70,6 @@ float sound_get_volume_ex(SourceHandle source);
 float sound_get_pos_ex(SourceHandle source);
 // Sets play cursor position
 void sound_set_pos_ex(SourceHandle source, float pos);
+
+#endif
 

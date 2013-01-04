@@ -52,15 +52,51 @@ LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.cpp \
 	dgreed/malka/lua/loadlib.c \
 	dgreed/malka/lua/linit.c \
 	dgreed/malka/lua/bit.c \
+	dgreed/malka/malka.c \
+	dgreed/malka/profiler.c \
+	dgreed/malka/ml_utils.c \
+	dgreed/malka/ml_system.c \
+	dgreed/malka/ml_states.c \
+	dgreed/malka/ml_sprsheet.c \
+	dgreed/malka/ml_os.c \
+	dgreed/malka/ml_mml.c \
+	dgreed/malka/ml_mfx.c \
+	dgreed/malka/ml_localization.c \
+	dgreed/malka/ml_keyval.c \
+	dgreed/malka/ml_iap.c \
+	dgreed/malka/ml_gamecenter.c \
+	dgreed/malka/ml_coldet.c \
+	dgreed/malka/ml_anim.c \
+	dgreed/sys_misc_android.c \
+	dgreed/sys_snd_android.c \
+	dgreed/sys_gfx_gles2.c \
+	dgreed/stb_image.c \
 	dgreed/utils.c \
 	dgreed/darray.c \
 	dgreed/datastruct.c \
 	dgreed/async.c \
 	dgreed/mml.c \
+	dgreed/keyval.c \
 	dgreed/memory.c \
 	dgreed/mempool.c \
 	dgreed/wav.c \
-	dgreed/coldet.c
+	dgreed/coldet.c \
+	dgreed/anim.c \
+	dgreed/font.c \
+	dgreed/gfx_utils.c \
+	dgreed/gui.c \
+	dgreed/image.c \
+	dgreed/localization.c \
+	dgreed/lz4.c \
+	dgreed/lz4hc.c \
+	dgreed/mfx.c \
+	dgreed/miniz.c \
+	dgreed/particles.c \
+	dgreed/sprsheet.c \
+	dgreed/tilemap.c \
+	dgreed/touch_ctrls.c \
+	dgreed/tweakables.c \
+	dgreed/uidesc.c
 
 LOCAL_SHARED_LIBRARIES := SDL2
 

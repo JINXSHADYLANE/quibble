@@ -5,6 +5,11 @@
 
 #include <ctype.h>
 
+// For android logging
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
 // For alloca
 #ifdef _WIN32
 #include <malloc.h>
@@ -864,7 +869,7 @@ static const char* log_level_to_cstr(uint log_level) {
 
 bool log_init(const char* log_path, uint level) {
 	// Log to stderr on iOS
-#ifdef TARGET_IOS
+#if defined(TARGET_IOS) | defined(ANDROID)
 	log_file = stderr;
 #else	
 	#ifdef MACOSX_BUNDLE
@@ -911,7 +916,11 @@ void log_send(uint level, const char* format, va_list args) {
 	vsnprintf(msg_buffer, LOG_MSG_BUFFER_SIZE, format, args);
 	
 	async_enter_cs(log_cs);
+#ifndef ANDROID
 	fprintf(log_file, "%s: %s\n", log_level_to_cstr(log_level), msg_buffer);
+#else
+	__android_log_print(ANDROID_LOG_INFO, "dgreed", "%s: %s\n", log_level_to_cstr(log_level), msg_buffer);
+#endif
 	async_leave_cs(log_cs);
 }
 
