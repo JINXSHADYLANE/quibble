@@ -15,6 +15,10 @@
 #include "gfx_utils.h"
 #include "image.h"
 
+#define BUCKET_COUNT 16
+#define FPS_LIMIT 60
+#define MS_PER_FRAME (1000 / FPS_LIMIT)
+
 float x_size_factor, y_size_factor;
 
 typedef struct {

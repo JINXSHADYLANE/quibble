@@ -146,7 +146,9 @@ extern int malka_open_keyval(lua_State* l);
 extern int malka_open_gamecenter(lua_State* l);
 extern int malka_open_os(lua_State* l);
 extern int malka_open_iap(lua_State* l);
+#ifndef ANDROID
 extern int malka_open_http(lua_State* l);
+#endif
 extern int malka_open_localization(lua_State* l);
 extern int malka_open_anim(lua_State* l);
 
@@ -184,7 +186,9 @@ void malka_init_ex(bool use_pools) {
 	malka_open_gamecenter(l);
 	malka_open_os(l);
 	malka_open_iap(l);
+	#ifndef ANDROID
 	malka_open_http(l);
+	#endif
 	malka_open_localization(l);
 	malka_open_anim(l);
 

@@ -29,13 +29,13 @@ import java.lang.*;
 /**
     SDL Activity
 */
-public class tiltas extends Activity {
+public class SDLActivity extends Activity {
 
     // Keep track of the paused state
     public static boolean mIsPaused;
 
     // Main components
-    private static tiltas mSingleton;
+    private static SDLActivity mSingleton;
     private static SDLSurface mSurface;
     private static View mTextEdit;
     private static ViewGroup mLayout;
@@ -89,20 +89,20 @@ public class tiltas extends Activity {
     /*protected void onPause() {
         Log.v("SDL", "onPause()");
         super.onPause();
-        // Don't call tiltas.nativePause(); here, it will be called by SDLSurface::surfaceDestroyed
+        // Don't call SDLActivity.nativePause(); here, it will be called by SDLSurface::surfaceDestroyed
     }
 
     protected void onResume() {
         Log.v("SDL", "onResume()");
         super.onResume();
-        // Don't call tiltas.nativeResume(); here, it will be called via SDLSurface::surfaceChanged->tiltas::startApp
+        // Don't call SDLActivity.nativeResume(); here, it will be called via SDLSurface::surfaceChanged->SDLActivity::startApp
     }*/
 
     protected void onDestroy() {
         super.onDestroy();
         Log.v("SDL", "onDestroy()");
         // Send a quit message to the application
-        tiltas.nativeQuit();
+        SDLActivity.nativeQuit();
 
         // Now wait for the SDL thread to quit
         if (mSDLThread != null) {
@@ -200,8 +200,8 @@ public class tiltas extends Activity {
              * every time we get one of those events, only if it comes after surfaceDestroyed
              */
             if (mIsPaused) {
-                tiltas.nativeResume();
-                tiltas.mIsPaused = false;
+                SDLActivity.nativeResume();
+                SDLActivity.mIsPaused = false;
             }
         }
     }
@@ -253,7 +253,7 @@ public class tiltas extends Activity {
     // EGL functions
     public static boolean initEGL(int majorVersion, int minorVersion, int[] attribs) {
         try {
-            if (tiltas.mEGLDisplay == null) {
+            if (SDLActivity.mEGLDisplay == null) {
                 Log.v("SDL", "Starting up OpenGL ES " + majorVersion + "." + minorVersion);
 
                 EGL10 egl = (EGL10)EGLContext.getEGL();
@@ -271,12 +271,12 @@ public class tiltas extends Activity {
                 }
                 EGLConfig config = configs[0];
 
-                tiltas.mEGLDisplay = dpy;
-                tiltas.mEGLConfig = config;
-                tiltas.mGLMajor = majorVersion;
-                tiltas.mGLMinor = minorVersion;
+                SDLActivity.mEGLDisplay = dpy;
+                SDLActivity.mEGLConfig = config;
+                SDLActivity.mGLMajor = majorVersion;
+                SDLActivity.mGLMinor = minorVersion;
             }
-            return tiltas.createEGLSurface();
+            return SDLActivity.createEGLSurface();
 
         } catch(Exception e) {
             Log.v("SDL", e + "");
@@ -290,9 +290,9 @@ public class tiltas extends Activity {
     public static boolean createEGLContext() {
         EGL10 egl = (EGL10)EGLContext.getEGL();
         int EGL_CONTEXT_CLIENT_VERSION=0x3098;
-        int contextAttrs[] = new int[] { EGL_CONTEXT_CLIENT_VERSION, tiltas.mGLMajor, EGL10.EGL_NONE };
-        tiltas.mEGLContext = egl.eglCreateContext(tiltas.mEGLDisplay, tiltas.mEGLConfig, EGL10.EGL_NO_CONTEXT, contextAttrs);
-        if (tiltas.mEGLContext == EGL10.EGL_NO_CONTEXT) {
+        int contextAttrs[] = new int[] { EGL_CONTEXT_CLIENT_VERSION, SDLActivity.mGLMajor, EGL10.EGL_NONE };
+        SDLActivity.mEGLContext = egl.eglCreateContext(SDLActivity.mEGLDisplay, SDLActivity.mEGLConfig, EGL10.EGL_NO_CONTEXT, contextAttrs);
+        if (SDLActivity.mEGLContext == EGL10.EGL_NO_CONTEXT) {
             Log.e("SDL", "Couldn't create context");
             return false;
         }
@@ -300,32 +300,32 @@ public class tiltas extends Activity {
     }
 
     public static boolean createEGLSurface() {
-        if (tiltas.mEGLDisplay != null && tiltas.mEGLConfig != null) {
+        if (SDLActivity.mEGLDisplay != null && SDLActivity.mEGLConfig != null) {
             EGL10 egl = (EGL10)EGLContext.getEGL();
-            if (tiltas.mEGLContext == null) createEGLContext();
+            if (SDLActivity.mEGLContext == null) createEGLContext();
 
             Log.v("SDL", "Creating new EGL Surface");
-            EGLSurface surface = egl.eglCreateWindowSurface(tiltas.mEGLDisplay, tiltas.mEGLConfig, tiltas.mSurface, null);
+            EGLSurface surface = egl.eglCreateWindowSurface(SDLActivity.mEGLDisplay, SDLActivity.mEGLConfig, SDLActivity.mSurface, null);
             if (surface == EGL10.EGL_NO_SURFACE) {
                 Log.e("SDL", "Couldn't create surface");
                 return false;
             }
 
-            if (egl.eglGetCurrentContext() != tiltas.mEGLContext) {
-                if (!egl.eglMakeCurrent(tiltas.mEGLDisplay, surface, surface, tiltas.mEGLContext)) {
+            if (egl.eglGetCurrentContext() != SDLActivity.mEGLContext) {
+                if (!egl.eglMakeCurrent(SDLActivity.mEGLDisplay, surface, surface, SDLActivity.mEGLContext)) {
                     Log.e("SDL", "Old EGL Context doesnt work, trying with a new one");
                     // TODO: Notify the user via a message that the old context could not be restored, and that textures need to be manually restored.
                     createEGLContext();
-                    if (!egl.eglMakeCurrent(tiltas.mEGLDisplay, surface, surface, tiltas.mEGLContext)) {
+                    if (!egl.eglMakeCurrent(SDLActivity.mEGLDisplay, surface, surface, SDLActivity.mEGLContext)) {
                         Log.e("SDL", "Failed making EGL Context current");
                         return false;
                     }
                 }
             }
-            tiltas.mEGLSurface = surface;
+            SDLActivity.mEGLSurface = surface;
             return true;
         } else {
-            Log.e("SDL", "Surface creation failed, display = " + tiltas.mEGLDisplay + ", config = " + tiltas.mEGLConfig);
+            Log.e("SDL", "Surface creation failed, display = " + SDLActivity.mEGLDisplay + ", config = " + SDLActivity.mEGLConfig);
             return false;
         }
     }
@@ -341,7 +341,7 @@ public class tiltas extends Activity {
 
             egl.eglWaitGL();
 
-            egl.eglSwapBuffers(tiltas.mEGLDisplay, tiltas.mEGLSurface);
+            egl.eglSwapBuffers(SDLActivity.mEGLDisplay, SDLActivity.mEGLSurface);
 
 
         } catch(Exception e) {
@@ -456,7 +456,7 @@ public class tiltas extends Activity {
 class SDLMain implements Runnable {
     public void run() {
         // Runs SDL_main()
-        tiltas.nativeInit();
+        SDLActivity.nativeInit();
 
         //Log.v("SDL", "SDL thread terminated");
     }
@@ -506,9 +506,9 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     // Called when we lose the surface
     public void surfaceDestroyed(SurfaceHolder holder) {
         Log.v("SDL", "surfaceDestroyed()");
-        if (!tiltas.mIsPaused) {
-            tiltas.mIsPaused = true;
-            tiltas.nativePause();
+        if (!SDLActivity.mIsPaused) {
+            SDLActivity.mIsPaused = true;
+            SDLActivity.nativePause();
         }
         enableSensor(Sensor.TYPE_ACCELEROMETER, false);
     }
@@ -565,10 +565,10 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
         mWidth = (float) width;
         mHeight = (float) height;
-        tiltas.onNativeResize(width, height, sdlFormat);
+        SDLActivity.onNativeResize(width, height, sdlFormat);
         Log.v("SDL", "Window size:" + width + "x"+height);
 
-        tiltas.startApp();
+        SDLActivity.startApp();
     }
 
     // unused
@@ -582,12 +582,12 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             //Log.v("SDL", "key down: " + keyCode);
-            tiltas.onNativeKeyDown(keyCode);
+            SDLActivity.onNativeKeyDown(keyCode);
             return true;
         }
         else if (event.getAction() == KeyEvent.ACTION_UP) {
             //Log.v("SDL", "key up: " + keyCode);
-            tiltas.onNativeKeyUp(keyCode);
+            SDLActivity.onNativeKeyUp(keyCode);
             return true;
         }
         
@@ -616,10 +616,10 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
                     x = event.getX(i) / mWidth;
                     y = event.getY(i) / mHeight;
                     p = event.getPressure(i);
-                    tiltas.onNativeTouch(touchDevId, pointerFingerId, action, x, y, p);
+                    SDLActivity.onNativeTouch(touchDevId, pointerFingerId, action, x, y, p);
                 }
              } else {
-                tiltas.onNativeTouch(touchDevId, pointerFingerId, action, x, y, p);
+                SDLActivity.onNativeTouch(touchDevId, pointerFingerId, action, x, y, p);
              }
         }
       return true;
@@ -644,7 +644,7 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            tiltas.onNativeAccel(event.values[0] / SensorManager.GRAVITY_EARTH,
+            SDLActivity.onNativeAccel(event.values[0] / SensorManager.GRAVITY_EARTH,
                                       event.values[1] / SensorManager.GRAVITY_EARTH,
                                       event.values[2] / SensorManager.GRAVITY_EARTH);
         }
@@ -681,10 +681,10 @@ class DummyEdit extends View implements View.OnKeyListener {
         }
 
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            tiltas.onNativeKeyDown(keyCode);
+            SDLActivity.onNativeKeyDown(keyCode);
             return true;
         } else if (event.getAction() == KeyEvent.ACTION_UP) {
-            tiltas.onNativeKeyUp(keyCode);
+            SDLActivity.onNativeKeyUp(keyCode);
             return true;
         }
 
@@ -719,11 +719,11 @@ class SDLInputConnection extends BaseInputConnection {
         int keyCode = event.getKeyCode();
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
 
-            tiltas.onNativeKeyDown(keyCode);
+            SDLActivity.onNativeKeyDown(keyCode);
             return true;
         } else if (event.getAction() == KeyEvent.ACTION_UP) {
 
-            tiltas.onNativeKeyUp(keyCode);
+            SDLActivity.onNativeKeyUp(keyCode);
             return true;
         }
         return super.sendKeyEvent(event);
