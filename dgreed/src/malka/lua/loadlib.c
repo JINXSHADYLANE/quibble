@@ -328,6 +328,18 @@ static int ll_loadlib (lua_State *L) {
 ** =======================================================
 */
 
+#ifdef ANDROID
+
+#include <SDL.h>
+
+static int readable (const char *filename) {
+  SDL_RWops *f = SDL_RWFromFile(filename, "r");  /* try to open file */
+  if (f == NULL) return 0;  /* open failed */
+  SDL_RWclose(f);
+  return 1;
+}
+
+#else
 
 static int readable (const char *filename) {
   FILE *f = fopen(filename, "r");  /* try to open file */
@@ -336,6 +348,7 @@ static int readable (const char *filename) {
   return 1;
 }
 
+#endif
 
 static const char *pushnexttemplate (lua_State *L, const char *path) {
   const char *l;

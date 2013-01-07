@@ -239,7 +239,9 @@ static void _malka_prep(const char* luafile) {
 	}
 
 	// chdir there
-	chdir(real_folder);
+	int res = chdir(real_folder);
+	if(res != 0)
+		LOG_WARNING("Unable to chdir to %s", real_folder);
 
 	MEM_FREE(real_path);
 	MEM_FREE(real_folder);
@@ -247,9 +249,14 @@ static void _malka_prep(const char* luafile) {
 
 	// Register module path
 	char* module_path = path_get_folder(luafile);
+	LOG_INFO("module_path = %s", module_path);
 	lua_getglobal(l, "package"); 
 	int package = lua_gettop(l);
+#ifdef ANDROID
+	lua_pushfstring(l, "%s?.lc;%s?.lua", module_path, module_path);
+#else
 	lua_pushfstring(l, "./%s?.lc;./%s?.lua", module_path, module_path);
+#endif
 	lua_setfield(l, package, "path");
 	lua_pop(l, 1);
 	MEM_FREE(module_path);
@@ -301,11 +308,13 @@ int malka_run_ex(const char* luafile) {
 
 	_malka_prep(file);
 
+	LOG_INFO("Running main.lua..");
 	if(luaL_dofile(l, file)) {
 		const char* err = luaL_checkstring(l, -1);
 		LOG_WARNING("error in lua script:\n%s\n", err);
 		printf("An error occured:\n%s\n", err);
 	}
+	LOG_INFO("Running main.lua ... success");
 
 	MEM_FREE(file);
 

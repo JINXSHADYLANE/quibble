@@ -1,6 +1,7 @@
 #include "system.h"
 
 #include <SDL.h>
+#include <unistd.h>
 
 #define MS_PER_FRAME (1000.0f/60.0f)
 
@@ -9,6 +10,8 @@
 extern void _async_init(void);
 extern void _async_close(void);
 extern int dgreed_main(int, char**);
+
+void _sys_video_init(void);
 
 int SDL_main(int argc, char** argv) {
 	
@@ -23,6 +26,8 @@ int SDL_main(int argc, char** argv) {
 
 	_async_init();
 	log_init(logfile, LOG_LEVEL_INFO);
+
+	_sys_video_init();
 
 	int res = dgreed_main(argc, argv);
 
@@ -252,7 +257,7 @@ bool system_update(void) {
 	SDL_Event evt;
 	//int n_keys;
 	//byte* curr_keystate;
-
+	
 	//memcpy(old_mousestate, mousestate, sizeof(mousestate));
 	//memcpy(old_keystate, keystate, sizeof(keystate));
 	while(SDL_PollEvent(&evt)) {
