@@ -519,12 +519,35 @@ LUALIB_API void luaL_unref (lua_State *L, int t, int ref) {
 ** =======================================================
 */
 
+#ifdef ANDROID
+#include <SDL.h>
+#endif
+
 typedef struct LoadF {
   int extraline;
+#ifdef ANDROID
+  SDL_RWops *f;
+#else
   FILE *f;
+#endif
   char buff[LUAL_BUFFERSIZE];
 } LoadF;
 
+#ifdef ANDROID
+
+static const char *getF (lua_State *L, void *ud, size_t *size) {
+  LoadF *lf = (LoadF *)ud;
+  (void)L;
+  if (lf->extraline) {
+    lf->extraline = 0;
+    *size = 1;
+    return "\n";
+  }
+  *size = SDL_RWread(lf->f, lf->buff, 1, sizeof(lf->buff));
+  return (*size > 0) ? lf->buff : NULL;
+}
+
+#else
 
 static const char *getF (lua_State *L, void *ud, size_t *size) {
   LoadF *lf = (LoadF *)ud;
@@ -539,6 +562,7 @@ static const char *getF (lua_State *L, void *ud, size_t *size) {
   return (*size > 0) ? lf->buff : NULL;
 }
 
+#endif
 
 static int errfile (lua_State *L, const char *what, int fnameindex) {
   const char *serr = strerror(errno);
@@ -548,6 +572,49 @@ static int errfile (lua_State *L, const char *what, int fnameindex) {
   return LUA_ERRFILE;
 }
 
+#ifdef ANDROID
+
+LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
+  LoadF lf;
+  int status, readstatus;
+  int c;
+  int fnameindex = lua_gettop(L) + 1;  /* index of filename on the stack */
+  lf.extraline = 0;
+  if (filename == NULL) {
+    return errfile(L, "read", fnameindex);
+  }
+  else {
+    lua_pushfstring(L, "@%s", filename);
+    lf.f = SDL_RWFromFile(filename, "r");
+    if (lf.f == NULL) return errfile(L, "open", fnameindex);
+  }
+  c = SDL_ReadU8(lf.f);
+  if (c == '#') {  /* Unix exec. file? */
+    lf.extraline = 1;
+    while ((c = SDL_ReadU8(lf.f)) != EOF && c != '\n') ;  /* skip first line */
+    if (c == '\n') c = SDL_ReadU8(lf.f);
+  }
+  if (c == LUA_SIGNATURE[0] && filename) {  /* binary file? */
+	SDL_RWclose(lf.f);
+	lf.f = SDL_RWFromFile(filename, "rb"); /* reopen in binary mode */
+    if (lf.f == NULL) return errfile(L, "reopen", fnameindex);
+    /* skip eventual `#!...' */
+   while ((c = SDL_ReadU8(lf.f)) != EOF && c != LUA_SIGNATURE[0]) ;
+    lf.extraline = 0;
+  }
+  SDL_RWseek(lf.f, -1, SEEK_CUR);
+  status = lua_load(L, getF, &lf, lua_tostring(L, -1));
+  readstatus = 0;
+  if (filename) SDL_RWclose(lf.f);  /* close file (even in case of errors) */
+  if (readstatus) {
+    lua_settop(L, fnameindex);  /* ignore results from `lua_load' */
+    return errfile(L, "read", fnameindex);
+  }
+  lua_remove(L, fnameindex);
+  return status;
+}
+
+#else
 
 LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   LoadF lf;
@@ -589,6 +656,7 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   return status;
 }
 
+#endif
 
 typedef struct LoadS {
   const char *s;

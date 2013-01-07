@@ -995,6 +995,46 @@ static const char* _storage_fpath(const char* name) {
 }
 #endif
 
+#ifdef ANDROID
+
+#include <SDL.h>
+
+static FILE* _storage_fopen(const char* name, const char* mode) {
+	char storage_path[256];
+	const char* storage = SDL_AndroidGetInternalStoragePath();
+	assert(strlen(storage) + strlen(name) < 254);
+	sprintf(storage_path, "%s/%s", storage, name);
+	return fopen(storage_path, mode);
+}
+
+static const char* _storage_fpath(const char* name) {
+	char storage_path[256];
+	const char* storage = SDL_AndroidGetInternalStoragePath();
+	assert(strlen(storage) + strlen(name) < 254);
+	sprintf(storage_path, "%s/%s", storage, name);
+	return strclone(storage_path);
+}
+
+bool file_exists(const char* name) {
+	assert(name);
+
+	SDL_RWops* file = SDL_RWFromFile(name, "rb");
+	if(file != NULL) {
+		SDL_RWclose(file);
+		return true;
+	}
+	
+	FILE* f = _storage_fopen(name, "rb");
+	if(f != NULL) {
+		fclose(f);
+		return true;
+	}
+
+	return false;
+}
+
+#else
+
 bool file_exists(const char* name) {
 	assert(name);
 
@@ -1037,6 +1077,37 @@ bool file_exists(const char* name) {
 	return false;
 }
 
+#endif
+
+#ifdef ANDROID
+
+void file_move(const char* old_name, const char* new_name) {
+	assert(old_name && new_name);
+
+	const char* path = NULL;
+
+	FILE* file = _storage_fopen(old_name, "rb");
+	if(file != NULL) {
+		fclose(file);
+		path = _storage_fpath(old_name);
+	}
+
+	if(!path)
+		LOG_ERROR("Unable to move file %s to %s", old_name, new_name);
+
+	const char* folder = path_get_folder(path);
+	assert(folder);
+
+	char* new_path = alloca(strlen(folder) + strlen(new_name) + 8);
+	sprintf(new_path, "%s%s", folder, new_name);
+
+	rename(path, new_path);
+
+	MEM_FREE(path);
+}
+
+#else
+
 void file_move(const char* old_name, const char* new_name) {
 	assert(old_name && new_name);
 
@@ -1071,6 +1142,32 @@ void file_move(const char* old_name, const char* new_name) {
 	MEM_FREE(path);
 }
 
+#endif
+
+#ifdef ANDROID
+
+void file_remove(const char* name) {
+	assert(name);
+
+	const char* path = NULL;
+
+	FILE* file = _storage_fopen(name, "rb");
+	if(file != NULL) {
+		fclose(file);
+		path = _storage_fpath(name);
+	}
+
+	if(!path)
+		LOG_ERROR("Unable to remove file %s", name);
+
+	remove(path);
+
+	MEM_FREE(path);
+
+}
+
+#else
+
 void file_remove(const char* name) {
 	assert(name);
 
@@ -1098,6 +1195,35 @@ void file_remove(const char* name) {
 
 	MEM_FREE(path);
 }
+
+#endif
+
+#ifdef ANDROID
+
+FileHandle file_open(const char* name) {
+	assert(name);
+
+	SDL_RWops* f = SDL_RWFromFile(name, "rb");
+	if(f)
+		return (FileHandle)f;
+
+	FILE* file = _storage_fopen(name, "rb");
+	if(file) {
+		f = SDL_RWFromFP(file, true);
+		return (FileHandle)f;
+	}
+
+	LOG_ERROR("Unable to open file %s", name);
+	return 0;
+}
+
+void file_close(FileHandle f) {
+	assert(f);
+	SDL_RWops* file = (SDL_RWops*)f;
+	SDL_RWclose(file);
+}
+
+#else
 
 FileHandle file_open(const char* name) {
 	assert(name);
@@ -1134,11 +1260,50 @@ FileHandle file_open(const char* name) {
 	return (FileHandle)f;
 }
 
+
 void file_close(FileHandle f) {
 	FILE* file = (FILE*)f;
 
 	fclose(file);
 }
+
+#endif
+
+#ifdef ANDROID
+
+uint file_size(FileHandle f) {
+	return SDL_RWsize((SDL_RWops*)f);
+}
+
+void file_seek(FileHandle f, uint pos) {
+	SDL_RWseek((SDL_RWops*)f, pos, SEEK_SET);
+}
+
+byte file_read_byte(FileHandle f) {
+	return SDL_ReadU8((SDL_RWops*)f);
+}
+
+uint16 file_read_uint16(FileHandle f) {
+	return SDL_ReadLE16((SDL_RWops*)f);
+}
+
+uint32 file_read_uint32(FileHandle f) {
+	return SDL_ReadLE32((SDL_RWops*)f);
+}
+
+float file_read_float(FileHandle f) {
+	uint32 fl = SDL_ReadLE32((SDL_RWops*)f);
+	return *((float*)&fl);
+}
+
+void file_read(FileHandle f, void* dest, uint size) {
+	assert(f && dest && size);
+	int read = SDL_RWread((SDL_RWops*)f, dest, 1, size);
+	if(read != size)
+		LOG_ERROR("File reading error. Unexpected EOF?");
+}
+
+#else
 
 uint file_size(FileHandle f) {
 	FILE* file = (FILE*)f;
@@ -1224,6 +1389,46 @@ void file_read(FileHandle f, void* dest, uint size) {
 
 }		
 
+#endif
+
+#ifdef ANDROID
+
+FileHandle file_create(const char* name) {
+	assert(name);
+
+	FILE* f = _storage_fopen(name, "wb");
+	if(!f) 
+		LOG_ERROR("Unable to create file %s", name);
+
+	return (FileHandle)SDL_RWFromFP(f, true);
+}
+
+void file_write_byte(FileHandle f, byte data) {
+	SDL_WriteU8((SDL_RWops*)f, data);
+}
+
+void file_write_uint16(FileHandle f, uint16 data) {
+	SDL_WriteLE16((SDL_RWops*)f, data);
+}
+
+void file_write_uint32(FileHandle f, uint32 data) {
+	SDL_WriteLE32((SDL_RWops*)f, data);
+}
+
+void file_write_float(FileHandle f, float data) {
+	SDL_WriteLE32((SDL_RWops*)f, *((uint32*)&data));
+}
+
+void file_write(FileHandle f, const void* data, uint size) {
+	assert(f && data && size);
+
+	uint bytes = SDL_RWwrite((SDL_RWops*)f, data, 1, size);
+	if(bytes != size)
+		LOG_ERROR("File writing error");
+}
+
+#else
+
 FileHandle file_create(const char* name) {
 	assert(name);
 
@@ -1284,11 +1489,13 @@ void file_write(FileHandle f, const void* data, uint size) {
 		LOG_ERROR("File writing error");
 }
 
+#endif
+
 void txtfile_write(const char* name, const char* text) {
 	assert(name);
 	assert(text);
 	
-#ifdef MACOSX_BUNDLE
+#if defined(MACOSX_BUNDLE) || defined(ANDROID)
 	FILE* file = _storage_fopen(name, "w");
 #else
 	FILE* file = fopen(name, "w");
@@ -1313,7 +1520,7 @@ char* txtfile_read(const char* name) {
 	return out;
 }	
 
-bool _is_delim(char c) {
+static bool _is_delim(char c) {
 	return c == '/' || c == '\\';
 }	
 
