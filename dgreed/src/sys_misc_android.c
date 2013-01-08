@@ -303,6 +303,8 @@ bool system_update(void) {
 uint _sys_native_width = 0;
 uint _sys_native_height = 0;
 bool _sys_video_initialized = false;
+SDL_Window* _sys_window = NULL;
+SDL_GLContext _sys_glcontext;
 
 void _sys_video_init(void) {
 	assert(!_sys_video_initialized);
@@ -311,16 +313,31 @@ void _sys_video_init(void) {
 	if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO) < 0)
 		LOG_ERROR("Unable to initialize SDL");
 
-
 	SDL_DisplayMode mode;
 	SDL_GetCurrentDisplayMode(0, &mode);
 	_sys_native_width = mode.w;
 	_sys_native_height = mode.h;
+
+	SDL_Window* window = SDL_CreateWindow("dgreed", 
+			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+			_sys_native_width, _sys_native_height,
+			SDL_WINDOW_FULLSCREEN | SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS
+	);
+
+	_sys_glcontext = SDL_GL_CreateContext(window);
+	_sys_window = window;
+}
+
+void _sys_set_title(const char* title) {
+	assert(_sys_window);
+	SDL_SetWindowTitle(_sys_window, title);
 }
 
 void _sys_video_close(void) {
 	assert(_sys_video_initialized);
 	_sys_video_initialized = false;
+	SDL_GL_DeleteContext(_sys_glcontext);
+	SDL_DestroyWindow(_sys_window);
 	SDL_Quit();
 }
 

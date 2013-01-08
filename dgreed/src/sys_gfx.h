@@ -64,7 +64,7 @@ void video_set_blendmode(uint layer, BlendMode bmode);
 // NULL means identity.
 void video_set_transform(uint layer, float* matrix);
 
-typedef uint TexHandle;
+typedef size_t TexHandle;
 typedef void (*TexFilter)(Color* texels, uint w, uint h);
 
 // Creates empty texture, filled with transparent white
