@@ -5,6 +5,10 @@ malka = SConscript('malka/SConscript', exports='env')
 sources = Glob('*.c', strings=True)
 sources += Glob('lib9-utf/*.c', strings=True)
 
+sources.remove('sys_gfx_gles2.c')
+sources.remove('sys_snd_android.c')
+sources.remove('sys_misc_android.c')
+
 if str(Platform()) == 'darwin':
 	sources.remove('vfont_ft2.c')
 	sources += ['NSFileManager+DirectoryLocations.m', 'SDLMain.m', 'vfont_apple.m']

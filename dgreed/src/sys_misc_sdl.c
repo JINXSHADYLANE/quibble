@@ -6,6 +6,9 @@
 #include <SDL.h>
 #endif
 
+#define FPS_LIMIT 60
+#define MS_PER_FRAME (1000 / FPS_LIMIT)
+
 /*
 --------------------------
 --- Device orientation ---
