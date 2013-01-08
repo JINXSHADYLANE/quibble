@@ -16,7 +16,7 @@ typedef struct {
 	char file_storage[16];
 	uint retain_count, width, height;
 	uint gl_id;
-	float scale;
+	uint scale;
 	ListHead list;
 } Texture;
 
@@ -60,6 +60,11 @@ static DArray lines;
 static DArray vertices;
 static DArray indices;
 
+static const float tex_mul = 32767.0f;
+static const float pos_mul = 16.0f;
+static const float rot_mul = 65536.0f;
+static const uint16 tex_scale_1 = 32768;
+
 // Renderer state
 static Color clear_color = 0;
 static int32 screen_width, screen_height;
@@ -73,6 +78,51 @@ static bool _check_extension(const char* name) {
         exts = (char*)glGetString(GL_EXTENSIONS);
     return strfind(name, exts) != -1;
 }
+
+static void _check_error(void) {
+#ifdef _DEBUG
+	int error = glGetError();
+	if(error != GL_NO_ERROR)
+		LOG_ERROR("OpenGL ES2 error: %d", error);
+#endif
+}
+
+static uint _compile_shader(const char* source, uint type) {
+	uint gl_id = glCreateShader(type);
+
+	int len = strlen(source);
+	glShaderSource(gl_id, 1, &source, &len);
+	glCompileShader(gl_id);
+
+	int status;
+	glGetShaderiv(gl_id, GL_COMPILE_STATUS, &status);
+	if(status) {
+		// Success, return new shader!
+		return gl_id;
+	}
+	else {
+		// Failure, log errors
+		int log_length;
+		glGetShaderiv(gl_id, GL_INFO_LOG_LENGTH, &log_length); 
+		char* log = alloca(log_length);
+		glGetShaderInfoLog(gl_id, log_length, &log_length, log);
+		LOG_ERROR("Compile log: %s", log);
+		return gl_id;
+	}
+}
+
+static void _free_shader(uint id) {
+	glDeleteShader(id);
+}
+
+// TODO
+/*
+static uint _link_program(uint vert, uint frag) {
+}
+
+static void _free_program(uint id) {
+}
+*/
 
 // sys_gfx.h interface implementation
 
@@ -108,6 +158,8 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 	indices = darray_create(sizeof(uint16), 1024 * 6);
 
 	filter_textures = _filter_textures;
+
+	_check_error();
 }
 
 void video_init(uint width, uint height, const char* name) {
@@ -142,9 +194,66 @@ void video_close(void) {
 }
 
 void video_clear_color(Color c) {
+	byte r, g, b, a;
+	COLOR_DECONSTRUCT(c, r, g, b, a);
+	glClearColor(
+		(float)r / 255.0f, 
+		(float)g / 255.0f,
+		(float)b / 255.0f,
+		(float)a / 255.0f
+	);
+}
+
+static int _rect_compar(const void* a, const void* b) {
+	const TexturedRect* rect_a = a;
+	const TexturedRect* rect_b = b;
+
+	if(rect_a->layer != rect_b->layer);
+		return rect_a->layer - rect_b->layer;
+
+	if(rect_a->tex != rect_b->tex)
+		return (int)(size_t)(rect_a->tex - rect_b->tex);
+
+	// This makes sort stable
+	return (int)(size_t)(rect_a - rect_b);
+}
+
+static int _line_compar(const void* a, const void* b) {
+	const Line* line_a = a;
+	const Line* line_b = b;
+
+	if(line_a->layer != line_b->layer)
+		return line_a->layer - line_b->layer;
+
+	// This makes sort stable
+	return (int)(size_t)(line_a - line_b);
 }
 
 void video_present(void) {
+	// Sort rects by layer and then by texture
+	if(rects.size > 4) {
+		sort_heapsort(
+			rects.data, rects.size, 
+			sizeof(TexturedRect), _rect_compar
+		);
+	}
+	
+	// Sort lines by layer
+	if(lines.size > 4) {
+		sort_heapsort(
+			lines.data, lines.size,
+			sizeof(Line), _line_compar
+		);
+	}
+
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Render loop here
+	
+	_check_error();
+
+	rects.size = 0;
+	lines.size = 0;
 }
 
 uint video_get_frame(void) {
@@ -223,6 +332,7 @@ static uint _make_gl_texture(void* data, uint width, uint height, PixelFormat fo
 	uint gl_id;
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenTextures(1, &gl_id);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, gl_id);
 
 	uint filter = filter_textures ? GL_LINEAR : GL_NEAREST;
@@ -261,7 +371,7 @@ static uint _make_gl_texture(void* data, uint width, uint height, PixelFormat fo
 
 static Texture* _new_texture( 
 		const char* filename, uint width, uint height, 
-		uint gl_id, float scale) {
+		uint gl_id, uint scale) {
 
 	Texture* new = mempool_alloc(&texture_pool);
 
@@ -315,7 +425,9 @@ TexHandle tex_create(uint width, uint height) {
 	uint gl_id = _make_gl_texture(data, width, height, PF_RGBA8888);
 	MEM_FREE(data);
 
-	Texture* new_tex = _new_texture(NULL, width, height, gl_id, 1.0f);
+	Texture* new_tex = _new_texture(NULL, width, height, gl_id, tex_scale_1);
+
+	_check_error();
 
 	return (TexHandle)new_tex;
 }
@@ -353,7 +465,9 @@ TexHandle tex_load_filter(const char* filename, TexFilter filter) {
 	// be actually allocated by some external library
 	free(data); 
 
-	texture = _new_texture(filename, width, height, gl_id, 1.0f);
+	texture = _new_texture(filename, width, height, gl_id, tex_scale_1);
+
+	_check_error();
 
     LOG_INFO("Loaded texture from file %s in %ums", filename, time_ms_current() - t);
 
@@ -379,6 +493,8 @@ void tex_blit(TexHandle tex, Color* data, uint x, uint y, uint w, uint h) {
 				GL_RGBA, GL_UNSIGNED_BYTE, data
 		);
 	}
+
+	_check_error();
 }
 
 void tex_size(TexHandle tex, uint* width, uint* height) {
@@ -402,7 +518,8 @@ void tex_free(TexHandle tex) {
 
 void tex_scale(TexHandle tex, float s) {
 	Texture* t = (Texture*)tex;
-	t->scale = s;
+
+	t->scale = (uint)(s * (tex_mul+1.0f));
 }
 
 void video_draw_rect(TexHandle tex, uint layer,
@@ -410,12 +527,78 @@ void video_draw_rect(TexHandle tex, uint layer,
 	video_draw_rect_rotated(tex, layer, source, dest, 0.0f, tint);
 }
 
+// Fast integer log2 when n is a power of two
+static uint _ilog2(uint v) {
+	const uint b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0, 0xFF00FF00, 0xFFFF0000}; 
+	uint r = (v & b[0]) != 0;
+	for (uint i = 4; i > 0; i--) 
+	{
+		r |= ((v & b[i]) != 0) << i;
+	}
+	return r;
+}
+
 void video_draw_rect_rotated(TexHandle tex, uint layer, const RectF* source, 
 		const RectF* dest, float rotation, Color tint) {
 
+	Texture* texture = (Texture*)tex;
+
+	TexturedRect rect = {
+		.layer = layer,
+		.tex = texture,
+		.tint = tint,
+		.angle = (int32)(rotation * rot_mul),
+	};
+
+	if(source != NULL) {
+		rect.src_l = (int16)source->left;
+		rect.src_t = (int16)source->top;
+		rect.src_r = (int16)source->right;
+		rect.src_b = (int16)source->bottom;
+	}
+	else {
+		rect.src_l = 0;
+		rect.src_t = 0;
+		rect.src_r = texture->width;
+		rect.src_b = texture->height;
+	}
+
+	rect.dest_l = (int16)(dest->left * pos_mul);
+	rect.dest_t = (int16)(dest->top * pos_mul);
+	rect.dest_r = (int16)(dest->right * pos_mul);
+	rect.dest_b = (int16)(dest->bottom * pos_mul);
+
+	if((rect.dest_r | rect.dest_b) == 0) {
+		rect.dest_r = rect.dest_l + (rect.src_r - rect.src_l);
+		rect.dest_b = rect.dest_t + (rect.src_b - rect.src_t);
+	}
+
+	assert(is_pow2((texture->width * texture->scale) >> 15));
+	assert(is_pow2((texture->height * texture->scale) >> 15));
+
+	uint wlog2 = _ilog2((texture->width * texture->scale) >> 15);
+	uint hlog2 = _ilog2((texture->height * texture->scale) >> 15);
+
+	rect.src_l = ((rect.src_l << 15) - 1) >> wlog2;
+	rect.src_t = ((rect.src_t << 15) - 1) >> hlog2;
+	rect.src_r = ((rect.src_r << 15) - 1) >> wlog2;
+	rect.src_b = ((rect.src_b << 15) - 1) >> hlog2;
+
+	darray_append(&rects, &rect);
 }
 
 void video_draw_line(uint layer, const Vector2* start,
 		const Vector2* end, Color color) {
 
+	Line new = {
+		.layer = layer,
+		.tint = color,
+		.start_x = (int16)(start->x * pos_mul),
+		.start_y = (int16)(start->y * pos_mul),
+		.end_x = (int16)(end->x * pos_mul),
+		.end_y = (int16)(end->y * pos_mul)
+	};
+
+	darray_append(&lines, &new);
 }
+
