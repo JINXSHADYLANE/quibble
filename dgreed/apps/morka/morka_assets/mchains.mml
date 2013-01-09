@@ -27,22 +27,17 @@
 	)
 
 	(ruleset bg
-		(def a (bg_mushroom_1 400))
-		(def b (bg_mushroom_2 350))
-		(def c (bg_mushroom_3 400))
-		(def d (bg_mushroom_4 300))
-		(def e (bg_mushroom_5 250))
-		(def f (bg_mushroom_6 250))
-		(def _ (.empty 100))
+		(def a (element_1 600))
+		(def b (element_2 600))
+		(def c (element_3 600))
+		(def d (element_4 600))
+		(def _ (.empty 10))
 
 		(init "__")
 
-		(learn "__e_a_c_d_a")
-		(learn "d_aef_b")
-		(learn "ae_cdf_d")
-		(learn "ef_bac_")
-		(learn "acae_ef_fa")
-		(learn "fa_a_c_")
+		(learn "__a_b_c_d")
+		(learn "_c_b_a_d")
+		(learn "_d_a_c_b")
 	)
 )
 
