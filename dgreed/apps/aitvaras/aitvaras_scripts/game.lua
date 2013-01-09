@@ -4,7 +4,7 @@ move_len = 0.5
 color_counter = 1
 
 local function map2world(p)
-	return p * 64 + vec2(63, 63)
+	return p * 64 + vec2(32, 32)
 end
 
 -- candies
