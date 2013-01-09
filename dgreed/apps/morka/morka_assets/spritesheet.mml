@@ -179,7 +179,7 @@
 
 	(img bg_mushroom_2
 		(tex atlas_3.png)
-		(src 233,472,484,827)
+		(src 233,472,484,900)
 	)
 	(img bg_mushroom_3
 		(tex atlas_3.png)
