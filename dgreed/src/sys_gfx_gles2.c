@@ -44,6 +44,12 @@ typedef struct {
 	uint16 u, v;
 } Vertex;
 
+typedef enum {
+	GLSL_ATTRIB_POS = 0,
+	GLSL_ATTRIB_COLOR = 1,
+	GLSL_ATTRIB_UV = 2
+} Attrib;
+
 typedef struct {
 	uint32 layer;
 	BlendMode mode;
@@ -71,6 +77,45 @@ static int32 screen_width, screen_height;
 static int32 scale_x, scale_y;
 static uint frame = 0;
 static bool filter_textures = true;
+static int vert_shader_id;
+static int frag_shader_id;
+static int program_id;
+
+static int glsl_screen_size;
+static int glsl_texture;
+
+// Shaders
+
+const char* vert_shader = 
+"uniform vec2 screen_size;\n"
+"\n"
+"attribute vec2 pos;\n"
+"attribute vec4 color;\n"
+"attribute vec2 uv;\n"
+"\n"
+"varying vec2 v_uv;\n"
+"varying vec4 v_tint;\n"
+"\n"
+"void main(void) {\n"
+"	v_uv = uv;\n"
+"	v_tint = color;\n"
+"	gl_Position = vec4(\n"
+"		(pos.x / 16.0f) / screen_size.x * 2.0f - 1.0f,\n"
+"		(pos.y / 16.0f) / screen_size.y * 2.0f - 1.0f,\n"
+"		0.0f, 1.0f\n"
+"	);\n"
+"}";
+
+const char* frag_shader = 
+"precision mediump float;\n"
+"uniform sampler2D texture;\n"
+"\n"
+"varying vec2 v_uv;\n"
+"varying vec4 v_tint;\n"
+"\n"
+"void main(void) {\n"
+"	gl_FragColor = v_tint * texture2D(texture, v_uv);\n"
+"}";
 
 static bool _check_extension(const char* name) {
     static const char* exts = NULL;
@@ -88,6 +133,8 @@ static void _check_error(void) {
 }
 
 static uint _compile_shader(const char* source, uint type) {
+	uint t = time_ms_current();
+
 	uint gl_id = glCreateShader(type);
 
 	int len = strlen(source);
@@ -98,6 +145,7 @@ static uint _compile_shader(const char* source, uint type) {
 	glGetShaderiv(gl_id, GL_COMPILE_STATUS, &status);
 	if(status) {
 		// Success, return new shader!
+		LOG_INFO("Compiled glsl shader in %ums", time_ms_current() - t);
 		return gl_id;
 	}
 	else {
@@ -115,14 +163,38 @@ static void _free_shader(uint id) {
 	glDeleteShader(id);
 }
 
-// TODO
-/*
 static uint _link_program(uint vert, uint frag) {
+	uint t = time_ms_current();
+
+	uint gl_id = glCreateProgram();
+	glAttachShader(gl_id, vert);
+	glAttachShader(gl_id, frag);
+
+	glBindAttribLocation(gl_id, GLSL_ATTRIB_POS, "pos");
+	glBindAttribLocation(gl_id, GLSL_ATTRIB_COLOR, "color");
+	glBindAttribLocation(gl_id, GLSL_ATTRIB_UV, "uv");
+
+	glLinkProgram(gl_id);
+	
+	int status;
+	glGetProgramiv(gl_id, GL_LINK_STATUS, &status);
+	if(!status) {
+		LOG_ERROR("Can't link glsl program");
+	}
+
+	glsl_screen_size = glGetUniformLocation(gl_id, "screen_size");
+	glsl_texture = glGetUniformLocation(gl_id, "texture");
+
+	_check_error();
+
+	LOG_INFO("Linked glsl program in %ums", time_ms_current() - t);
+
+	return gl_id;
 }
 
 static void _free_program(uint id) {
+	glDeleteProgram(id);
 }
-*/
 
 // sys_gfx.h interface implementation
 
@@ -159,6 +231,13 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 
 	filter_textures = _filter_textures;
 
+	vert_shader_id = _compile_shader(vert_shader, GL_VERTEX_SHADER);
+	frag_shader_id = _compile_shader(frag_shader, GL_FRAGMENT_SHADER);
+	program_id = _link_program(vert_shader_id, frag_shader_id);
+
+	glReleaseShaderCompiler();
+	glUseProgram(program_id);
+
 	_check_error();
 }
 
@@ -181,6 +260,10 @@ void video_init_exr(uint width, uint height, uint v_width, uint v_height,
 
 void video_close(void) {
 	_sys_video_close();
+
+	_free_shader(vert_shader_id);
+	_free_shader(frag_shader_id);
+	_free_program(program_id);
 
 	if(!list_empty(&textures))
 		LOG_WARNING("There stil are active textures!");
