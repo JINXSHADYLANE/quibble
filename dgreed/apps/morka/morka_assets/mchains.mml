@@ -1,0 +1,48 @@
+(mchains morka
+	(ruleset fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_2 150))
+		(def c (mushroom_3 150))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_6 150))
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		(def x (spikeshroom_1 150))
+		(def _ (.empty 100))
+		(def = (.empty 350))
+		(def - (.empty 200))
+
+		(init "__")
+
+		(learn "=i__a__b__a__b_")
+		(learn "a_e_d__b_a__")
+		(learn "___")
+		(learn "a_c_d_b_db__ca_f_c")
+		(learn "e__d_b_g")
+		(learn "db_x__")
+		(learn "_e_g==g=x=_h=x=-i=x=-i__a")
+	)
+
+	(ruleset bg
+		(def a (bg_mushroom_1 400))
+		(def b (bg_mushroom_2 350))
+		(def c (bg_mushroom_3 400))
+		(def d (bg_mushroom_4 300))
+		(def e (bg_mushroom_5 250))
+		(def f (bg_mushroom_6 250))
+		(def _ (.empty 100))
+
+		(init "__")
+
+		(learn "__e_a_c_d_a")
+		(learn "d_aef_b")
+		(learn "ae_cdf_d")
+		(learn "ef_bac_")
+		(learn "acae_ef_fa")
+		(learn "fa_a_c_")
+	)
+)
+
