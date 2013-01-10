@@ -4,6 +4,7 @@
 #include "darray.h"
 #include "wav.h"
 #include "gfx_utils.h"
+#include "image.h"
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
@@ -44,6 +45,95 @@ int main(int argc, char *argv[]) {
 
     [pool release];
     return retVal;
+}
+
+/*
+-----------------------------------
+--- System-specific video stuff ---
+-----------------------------------
+*/
+
+bool _sys_video_initialized = false;
+
+void _sys_video_init(void) {
+    _sys_video_initialized = true;
+}
+
+void _sys_video_close(void) {
+    _sys_video_initialized = false;
+}
+
+void _sys_set_title(const char* title) {
+}
+
+void _sys_video_get_native_resolution(uint* width, uint* height) {
+    CGRect screen_rect = [[UIScreen mainScreen] bounds];
+    *width = MAX(screen_rect.size.width, screen_rect.size.height);
+    *height = MIN(screen_rect.size.width, screen_rect.size.height);
+
+    CGFloat screen_scale;
+
+    if([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+        screen_scale = [[UIScreen mainScreen] scale];
+    }
+    else {
+        screen_scale = 1.0f;
+    }
+
+    *width *= screen_scale;
+    *height *= screen_scale;
+}
+
+void _sys_present(void) {
+    [[GLESView singleton] present];
+
+    if(true) {
+    //if(has_discard_extension) {
+        const GLenum discards[]  = {GL_COLOR_ATTACHMENT0_OES, GL_DEPTH_ATTACHMENT_OES};
+        glDiscardFramebufferEXT(GL_FRAMEBUFFER_OES, 2, discards);
+    }
+}
+
+static void* _load_image(const char* filename, uint* width, uint* height, CFDataRef* image_data) {
+    FileHandle f = file_open(filename);
+    size_t s = file_size(f);
+    void* fdata = malloc(s);
+    file_read(f, fdata, s);
+    file_close(f);
+
+    NSData* img_data = [[NSData alloc] initWithBytesNoCopy:fdata length:s freeWhenDone:YES];
+
+	// Load texture
+    UIImage* image = [[UIImage alloc] initWithData:img_data];
+    [img_data release];
+
+	CGImageRef cg_image = image.CGImage;
+	*width = CGImageGetWidth(cg_image);
+	*height = CGImageGetHeight(cg_image);
+    CGColorSpaceRef color_space = CGImageGetColorSpace(cg_image);
+	CGColorSpaceModel color_model = CGColorSpaceGetModel(color_space);
+	uint bits_per_component = CGImageGetBitsPerComponent(cg_image);
+	if(color_model != kCGColorSpaceModelRGB || bits_per_component != 8)
+		LOG_ERROR("Bad image color space - please use 24 or 32 bit rgb/rgba");
+	if(!(is_pow2(*width) && is_pow2(*height)))
+		LOG_ERROR("Texture dimensions must be a power of 2");
+	*image_data = CGDataProviderCopyData(CGImageGetDataProvider(cg_image));
+	void* data = (void*)CFDataGetBytePtr(*image_data);
+
+    [image release];
+
+	return data;
+}
+
+void* ios_load_image(const char* filename, uint* w, uint* h, PixelFormat* format) {
+	CFDataRef image_data;
+	void* data = _load_image(filename, w, h, &image_data);
+    size_t s = 4 * *w * *h;
+	void* data_copy = malloc(s);
+	memcpy(data_copy, data, s);
+	CFRelease(image_data);
+	*format = PF_RGBA8888;
+	return data_copy;
 }
 
 /*
