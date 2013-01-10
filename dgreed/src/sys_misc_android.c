@@ -351,3 +351,7 @@ void _sys_video_get_native_resolution(uint* width, uint* height) {
 	*height = _sys_native_height;
 }
 
+void _sys_present(void) {
+	SDL_GL_SwapWindow(_sys_window);
+}
+

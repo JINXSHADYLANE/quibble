@@ -26,22 +26,22 @@ typedef struct {
 	Texture* tex;
 	Color tint;
 	int32 angle;
-	uint16 src_l, src_t, src_r, src_b;
-	uint16 dest_l, dest_t, dest_r, dest_b;
+	int16 src_l, src_t, src_r, src_b;
+	int16 dest_l, dest_t, dest_r, dest_b;
 } TexturedRect;
 
 // 16 bytes
 typedef struct {
 	uint32 layer;
 	Color tint;
-	uint16 start_x, start_y, end_x, end_y;
+	int16 start_x, start_y, end_x, end_y;
 } Line;
 
 // 12 bytes
 typedef struct {
-	uint16 x, y;
+	int16 x, y;
 	uint32 color;
-	uint16 u, v;
+	int16 u, v;
 } Vertex;
 
 typedef enum {
@@ -72,11 +72,14 @@ static const float rot_mul = 65536.0f;
 static const uint16 tex_scale_1 = 32768;
 
 // Renderer state
-static Color clear_color = 0;
 static int32 screen_width, screen_height;
 static int32 scale_x, scale_y;
 static uint frame = 0;
 static bool filter_textures = true;
+static bool drawing_lines = false;
+static bool drawing_rects = false;
+static BlendMode blend_mode = ~0;
+static Texture* active_texture = NULL;
 static int vert_shader_id;
 static int frag_shader_id;
 static int program_id;
@@ -96,14 +99,11 @@ const char* vert_shader =
 "varying vec2 v_uv;\n"
 "varying vec4 v_tint;\n"
 "\n"
-"void main(void) {\n"
-"	v_uv = uv;\n"
+"void main() {\n"
+"	v_uv = uv / 32767.0f;\n"
 "	v_tint = color;\n"
-"	gl_Position = vec4(\n"
-"		(pos.x / 16.0f) / screen_size.x * 2.0f - 1.0f,\n"
-"		(pos.y / 16.0f) / screen_size.y * 2.0f - 1.0f,\n"
-"		0.0f, 1.0f\n"
-"	);\n"
+"	vec2 p = (pos / 16.0f) / screen_size * 2.0f - 1.0f;\n"
+"	gl_Position = vec4(p, 0.0f, 1.0f);\n"
 "}";
 
 const char* frag_shader = 
@@ -113,8 +113,9 @@ const char* frag_shader =
 "varying vec2 v_uv;\n"
 "varying vec4 v_tint;\n"
 "\n"
-"void main(void) {\n"
-"	gl_FragColor = v_tint * texture2D(texture, v_uv);\n"
+"void main() {\n"
+"//	gl_FragColor = v_tint * texture2D(texture, v_uv);\n"
+"	gl_FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
 "}";
 
 static bool _check_extension(const char* name) {
@@ -196,6 +197,24 @@ static void _free_program(uint id) {
 	glDeleteProgram(id);
 }
 
+static void _set_blend_mode(BlendMode mode) {
+	assert(mode != blend_mode);
+
+	switch(mode) {
+		case BM_NORMAL:
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		case BM_ADD:
+			glBlendFunc(GL_ONE, GL_ONE);
+			break;
+		case BM_MULTIPLY:
+			glBlendFunc(GL_DST_COLOR, GL_ZERO);
+			break;
+	}
+
+	blend_mode = mode;
+}
+
 // sys_gfx.h interface implementation
 
 extern bool _sys_video_initialized;
@@ -203,6 +222,7 @@ extern void _sys_video_init(void);
 extern void _sys_video_close(void);
 extern void _sys_set_title(const char* title);
 extern void _sys_video_get_native_resolution(uint* width, uint* height);
+extern void _sys_present(void);
 
 void video_get_native_resolution(uint* width, uint* height) {
 	_sys_video_get_native_resolution(width, height);
@@ -220,6 +240,9 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
     LOG_INFO("Renderer   : %s", glGetString(GL_RENDERER));
     LOG_INFO("Version    : %s", glGetString(GL_VERSION));
     LOG_INFO("Extensions : %s", glGetString(GL_EXTENSIONS));
+	LOG_INFO("Framebuffer: %d", 
+		glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE
+	);
 
 	list_init(&textures);
 	mempool_init_ex(&texture_pool, sizeof(Texture), sizeof(Texture)*16);
@@ -229,11 +252,25 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 	vertices = darray_create(sizeof(Vertex), 4096);
 	indices = darray_create(sizeof(uint16), 1024 * 6);
 
+	glViewport(0, 0, screen_width, screen_height);
+
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_STENCIL_TEST);
+	glDisable(GL_SCISSOR_TEST);
+	glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
+	glDisable(GL_SAMPLE_COVERAGE);
+
+	glEnable(GL_BLEND);
+	_set_blend_mode(BM_NORMAL);
+
 	filter_textures = _filter_textures;
 
 	vert_shader_id = _compile_shader(vert_shader, GL_VERTEX_SHADER);
 	frag_shader_id = _compile_shader(frag_shader, GL_FRAGMENT_SHADER);
 	program_id = _link_program(vert_shader_id, frag_shader_id);
+
+	glUniform2f(glsl_screen_size, (float)screen_width, (float)screen_height);
 
 	glReleaseShaderCompiler();
 	glUseProgram(program_id);
@@ -312,6 +349,63 @@ static int _line_compar(const void* a, const void* b) {
 	return (int)(size_t)(line_a - line_b);
 }
 
+static void _draw_rects(uint* count) {
+	static Vertex* old_vb = NULL;
+
+	if(!drawing_rects) {
+		drawing_rects = true;
+		drawing_lines = false;
+
+		glEnableVertexAttribArray(GLSL_ATTRIB_POS);
+		glEnableVertexAttribArray(GLSL_ATTRIB_COLOR);
+		glEnableVertexAttribArray(GLSL_ATTRIB_UV);
+	}
+
+	assert(sizeof(Vertex) == 12);
+	Vertex* vb = vertices.data;
+	if(old_vb != vb) {
+		glVertexAttribPointer(GLSL_ATTRIB_POS, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), &vb->x); 
+		glVertexAttribPointer(GLSL_ATTRIB_COLOR, 4, GL_BYTE, GL_TRUE, sizeof(Vertex), &vb->color);
+		glVertexAttribPointer(GLSL_ATTRIB_UV, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), &vb->u);
+		old_vb = vb;
+	}
+
+	assert(vertices.size % 4 == 0);
+
+#if 0
+	LOG_INFO("--- Draw elements");
+	for(uint i = 0; i < vertices.size; ++i) {
+		LOG_INFO("v[%u].pos = %hd %hd", i, vb[i].x, vb[i].y);
+		LOG_INFO("v[%u].color = %x", i, vb[i].color);
+		LOG_INFO("v[%u].uv = %hd %hd", i, vb[i].u, vb[i].v);
+	}
+	for(uint i = 0; i < vertices.size/4 * 6; ++i) {
+		uint16* idx = darray_get(&indices, i);
+		LOG_INFO("i[%u] = %hu", i, *idx);
+	}
+	LOG_INFO("---");
+#endif
+
+	glDrawElements(GL_TRIANGLES, vertices.size / 2 * 3, GL_UNSIGNED_SHORT, indices.data);
+
+	_check_error();
+
+	*count = 0;
+	vertices.size = 0;
+} 
+
+static void _draw_lines(uint* count) {
+	if(!drawing_lines) {
+		drawing_lines = true;
+		drawing_rects = false;
+
+		// setup state
+	}
+
+	// draw
+	*count = 0;
+}
+
 void video_present(void) {
 	// Sort rects by layer and then by texture
 	if(rects.size > 4) {
@@ -329,11 +423,141 @@ void video_present(void) {
 		);
 	}
 
+	TexturedRect* r = rects.data;
+	Line* l = lines.data;
+
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Render loop here
+	uint r_cur = 0, r_ready = 0;
+	uint l_cur = 0, l_ready = 0;
+
+	while(r_cur < rects.size || l_cur < lines.size) {
+		uint layer = ~0;
+		if(rects.size) {
+			layer = r[r_cur].layer;
+		}
+		if(lines.size) {
+			layer = MIN(layer, l[l_cur].layer);
+		}
+
+		// Find layer tag
+		BlendMode mode = blend_mode;
+		for(uint i = 0; i < tags.size; ++i) {
+			LayerTag* t = darray_get(&tags, i);
+			if(t->layer == layer) {
+				mode = t->mode;
+				break;
+			}
+		}
+
+		// Switch blend mode
+		if(mode != blend_mode) {
+			if(r_ready)
+				_draw_rects(&r_ready);
+			if(l_ready)
+				_draw_lines(&l_ready);
+
+			_set_blend_mode(mode);
+		}
+
+		if(layer == r[r_cur].layer) {
+			// Flush lines to free up vbuffer
+			if(l_ready)
+				_draw_lines(&l_ready);
+
+			// Switch texture, flushing currently ready rects
+			Texture* tex = r[r_cur].tex;
+			if(tex != active_texture) {
+				if(r_ready)
+					_draw_rects(&r_ready);
+				
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, tex->gl_id);
+				glUniform1i(glsl_texture, 0);
+				active_texture = tex;
+			}
+
+			// Fill up vbuffer
+			do {
+				darray_reserve(&vertices, (l_ready+1)*4);
+				Vertex* vb = vertices.data;
+
+				byte cr, cg, cb, ca;
+				TexturedRect rect = r[r_cur];
+
+				// Premultiply alpha
+				COLOR_DECONSTRUCT(rect.tint, cr, cg, cb, ca);
+				Color c = COLOR_RGBA(
+					(cr * ca) >> 8, (cg * ca) >> 8, (cb * ca) >> 8, ca
+				);
+
+				int16 pos[] = {
+					rect.dest_l, rect.dest_t,
+					rect.dest_r, rect.dest_t,
+					rect.dest_r, rect.dest_b,
+					rect.dest_l, rect.dest_b
+				};
+
+				int16 src[] = {
+					rect.src_l, rect.src_t,
+					rect.src_r, rect.src_t,
+					rect.src_r, rect.src_b,
+					rect.src_l, rect.src_b
+				};
+
+				if(rect.angle != 0) {
+					// TODO
+				}
+
+				uint k = vertices.size;
+				for(uint v = 0; v < 4; ++v) {
+					vb[k+v].x = pos[v*2+0];
+					vb[k+v].y = pos[v*2+1];
+					vb[k+v].color = c;
+					vb[k+v].u = src[v*2+0];
+					vb[k+v].v = src[v*2+1];
+				}
+				vertices.size += 4;
+
+				r_ready++;
+			} while(
+				++r_cur < rects.size && 
+				r[r_cur].layer == layer && 
+				r[r_cur].tex == tex
+			);
+
+			// Make sure index buffer has enough indices
+			if(indices.size < r_ready * 6) {
+				darray_reserve(&indices, r_ready * 6);
+				uint16* idx = indices.data;
+				for(uint i = indices.size; i < r_ready * 6; i += 6) {
+					idx[i + 0] = (i/6)*4 + 0;
+					idx[i + 1] = (i/6)*4 + 1;
+					idx[i + 2] = (i/6)*4 + 3;
+					idx[i + 3] = (i/6)*4 + 1;
+					idx[i + 4] = (i/6)*4 + 3;
+					idx[i + 5] = (i/6)*4 + 2;
+				}
+				indices.size = r_ready * 6;
+			}
+		}
+
+		if(layer == l[l_cur].layer) {
+			// TODO
+		}
+	}
+
+	if(r_ready)
+		_draw_rects(&r_ready);
+	if(l_ready)
+		_draw_lines(&l_ready);
 	
 	_check_error();
+
+	_sys_present();
+//	LOG_INFO("swap");
+	frame++;
 
 	rects.size = 0;
 	lines.size = 0;
