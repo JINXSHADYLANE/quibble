@@ -151,6 +151,8 @@
 		21D53BA5167A23F0009E6CFC /* vfont_apple.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA3167A23F0009E6CFC /* vfont_apple.m */; };
 		21D53BA6167A23F0009E6CFC /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA4167A23F0009E6CFC /* vfont.c */; };
 		21DAACE51681CB55002464CD /* obj_pin.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DAACE41681CB55002464CD /* obj_pin.c */; };
+		AA8213B4169DA89200A7EBA8 /* icon~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B3169DA89200A7EBA8 /* icon~ipad.png */; };
+		AA8213B7169DA89500A7EBA8 /* icon@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -391,6 +393,8 @@
 		21D53BA3167A23F0009E6CFC /* vfont_apple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = vfont_apple.m; path = ../../src/vfont_apple.m; sourceTree = "<group>"; };
 		21D53BA4167A23F0009E6CFC /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../src/vfont.c; sourceTree = "<group>"; };
 		21DAACE41681CB55002464CD /* obj_pin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_pin.c; sourceTree = SOURCE_ROOT; };
+		AA8213B3169DA89200A7EBA8 /* icon~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon~ipad.png"; sourceTree = "<group>"; };
+		AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x~ipad.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -428,6 +432,8 @@
 		219BE98816776981002B614C = {
 			isa = PBXGroup;
 			children = (
+				AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */,
+				AA8213B3169DA89200A7EBA8 /* icon~ipad.png */,
 				219BE9B4167769CB002B614C /* dgreed */,
 				219BE99D16776981002B614C /* morka */,
 				219BEAFC16776B4F002B614C /* Resources */,
@@ -805,6 +811,8 @@
 				219BE9AE16776981002B614C /* Default-568h@2x.png in Resources */,
 				219BEAFF16776B6B002B614C /* morka_assets in Resources */,
 				219BEB0016776B6B002B614C /* morka_scripts in Resources */,
+				AA8213B4169DA89200A7EBA8 /* icon~ipad.png in Resources */,
+				AA8213B7169DA89500A7EBA8 /* icon@2x~ipad.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
