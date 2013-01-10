@@ -308,13 +308,11 @@ int malka_run_ex(const char* luafile) {
 
 	_malka_prep(file);
 
-	LOG_INFO("Running main.lua..");
 	if(luaL_dofile(l, file)) {
 		const char* err = luaL_checkstring(l, -1);
 		LOG_WARNING("error in lua script:\n%s\n", err);
 		printf("An error occured:\n%s\n", err);
 	}
-	LOG_INFO("Running main.lua ... success");
 
 	MEM_FREE(file);
 

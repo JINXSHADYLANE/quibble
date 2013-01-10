@@ -6,15 +6,20 @@
 #include "image.h"
 #include "gfx_utils.h"
 
+#ifdef TARGET_IOS
+#import <OpenGLES/ES2/gl.h>
+#import <OpenGLES/ES2/glext.h>
+#else
 #include <SDL_opengles2.h>
+#endif
 
 // Types
 
-// 48 bytes
+// 56 bytes
 typedef struct {
 	char* file;
 	char file_storage[16];
-	uint retain_count, width, height;
+	uint retain_count, width, height, hlog2, wlog2;
 	uint gl_id;
 	uint scale;
 	ListHead list;
@@ -41,7 +46,7 @@ typedef struct {
 typedef struct {
 	int16 x, y;
 	uint32 color;
-	int16 u, v;
+	uint16 u, v;
 } Vertex;
 
 typedef enum {
@@ -66,14 +71,15 @@ static DArray lines;
 static DArray vertices;
 static DArray indices;
 
-static const float tex_mul = 32767.0f;
+static const float tex_mul = 32768.0f;
 static const float pos_mul = 16.0f;
 static const float rot_mul = 65536.0f;
 static const uint16 tex_scale_1 = 32768;
 
 // Renderer state
+float screen_widthf, screen_heightf;
+Color clear_color;
 static int32 screen_width, screen_height;
-static int32 scale_x, scale_y;
 static uint frame = 0;
 static bool filter_textures = true;
 static bool drawing_lines = false;
@@ -100,10 +106,11 @@ const char* vert_shader =
 "varying vec4 v_tint;\n"
 "\n"
 "void main() {\n"
-"	v_uv = uv / 32767.0f;\n"
+"	v_uv = uv / 32768.0;\n"
 "	v_tint = color;\n"
-"	vec2 p = (pos / 16.0f) / screen_size * 2.0f - 1.0f;\n"
-"	gl_Position = vec4(p, 0.0f, 1.0f);\n"
+"	vec2 p = (pos / (8.0 * screen_size)) - 1.0;\n"
+"	gl_Position = vec4(-p.y, -p.x, 0.0, 1.0);\n"
+//"gl_Position = vec4(pos, 0.0, 1.0);\n"
 "}";
 
 const char* frag_shader = 
@@ -114,8 +121,8 @@ const char* frag_shader =
 "varying vec4 v_tint;\n"
 "\n"
 "void main() {\n"
-"//	gl_FragColor = v_tint * texture2D(texture, v_uv);\n"
-"	gl_FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
+"	gl_FragColor = v_tint * texture2D(texture, v_uv);\n"
+//"	gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
 "}";
 
 static bool _check_extension(const char* name) {
@@ -129,7 +136,7 @@ static void _check_error(void) {
 #ifdef _DEBUG
 	int error = glGetError();
 	if(error != GL_NO_ERROR)
-		LOG_ERROR("OpenGL ES2 error: %d", error);
+		LOG_WARNING("OpenGL ES2 error: %d", error);
 #endif
 }
 
@@ -153,8 +160,8 @@ static uint _compile_shader(const char* source, uint type) {
 		// Failure, log errors
 		int log_length;
 		glGetShaderiv(gl_id, GL_INFO_LOG_LENGTH, &log_length); 
-		char* log = alloca(log_length);
-		glGetShaderInfoLog(gl_id, log_length, &log_length, log);
+		char log[1024];
+		glGetShaderInfoLog(gl_id, 1024, &log_length, log);
 		LOG_ERROR("Compile log: %s", log);
 		return gl_id;
 	}
@@ -235,6 +242,10 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 		_sys_video_init();
 
 	_sys_set_title(name);
+    
+    
+    screen_widthf = v_width;
+    screen_heightf = v_height;
 
     LOG_INFO("Vendor     : %s", glGetString(GL_VENDOR));
     LOG_INFO("Renderer   : %s", glGetString(GL_RENDERER));
@@ -251,8 +262,14 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 	lines = darray_create(sizeof(Line), 16);
 	vertices = darray_create(sizeof(Vertex), 4096);
 	indices = darray_create(sizeof(uint16), 1024 * 6);
+    
+    screen_width = v_width;
+    screen_height = v_height;
 
-	glViewport(0, 0, screen_width, screen_height);
+    if(width > height)
+        glViewport(0, 0, height, width);
+    else
+        glViewport(0, 0, width, height);
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
@@ -264,16 +281,20 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 	glEnable(GL_BLEND);
 	_set_blend_mode(BM_NORMAL);
 
+	video_clear_color(COLOR_BLACK);
+
 	filter_textures = _filter_textures;
 
 	vert_shader_id = _compile_shader(vert_shader, GL_VERTEX_SHADER);
 	frag_shader_id = _compile_shader(frag_shader, GL_FRAGMENT_SHADER);
 	program_id = _link_program(vert_shader_id, frag_shader_id);
 
+    glUseProgram(program_id);
 	glUniform2f(glsl_screen_size, (float)screen_width, (float)screen_height);
 
+    _check_error();
+
 	glReleaseShaderCompiler();
-	glUseProgram(program_id);
 
 	_check_error();
 }
@@ -314,13 +335,14 @@ void video_close(void) {
 }
 
 void video_clear_color(Color c) {
+    clear_color = c;
 	byte r, g, b, a;
 	COLOR_DECONSTRUCT(c, r, g, b, a);
 	glClearColor(
 		(float)r / 255.0f, 
 		(float)g / 255.0f,
 		(float)b / 255.0f,
-		(float)a / 255.0f
+		1.0f	
 	);
 }
 
@@ -365,26 +387,12 @@ static void _draw_rects(uint* count) {
 	Vertex* vb = vertices.data;
 	if(old_vb != vb) {
 		glVertexAttribPointer(GLSL_ATTRIB_POS, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), &vb->x); 
-		glVertexAttribPointer(GLSL_ATTRIB_COLOR, 4, GL_BYTE, GL_TRUE, sizeof(Vertex), &vb->color);
-		glVertexAttribPointer(GLSL_ATTRIB_UV, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), &vb->u);
+		glVertexAttribPointer(GLSL_ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), &vb->color);
+		glVertexAttribPointer(GLSL_ATTRIB_UV, 2, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(Vertex), &vb->u);
 		old_vb = vb;
 	}
 
 	assert(vertices.size % 4 == 0);
-
-#if 0
-	LOG_INFO("--- Draw elements");
-	for(uint i = 0; i < vertices.size; ++i) {
-		LOG_INFO("v[%u].pos = %hd %hd", i, vb[i].x, vb[i].y);
-		LOG_INFO("v[%u].color = %x", i, vb[i].color);
-		LOG_INFO("v[%u].uv = %hd %hd", i, vb[i].u, vb[i].v);
-	}
-	for(uint i = 0; i < vertices.size/4 * 6; ++i) {
-		uint16* idx = darray_get(&indices, i);
-		LOG_INFO("i[%u] = %hu", i, *idx);
-	}
-	LOG_INFO("---");
-#endif
 
 	glDrawElements(GL_TRIANGLES, vertices.size / 2 * 3, GL_UNSIGNED_SHORT, indices.data);
 
@@ -404,6 +412,67 @@ static void _draw_lines(uint* count) {
 
 	// draw
 	*count = 0;
+}
+
+void video_present_dummy(void) {
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	const GLfloat tri[] = { 0.0f, 0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f };
+
+	glUseProgram(program_id);
+	glVertexAttribPointer(GLSL_ATTRIB_POS, 2, GL_FLOAT, GL_FALSE, 0, tri);
+	glEnableVertexAttribArray(GLSL_ATTRIB_POS);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	_check_error();
+
+	_sys_present();
+	frame++;
+
+	rects.size = 0;
+	lines.size = 0;
+}
+
+// Some fixed point math for rotating rects with fixed point coords
+
+typedef int32 fix16_t;
+
+static const fix16_t fix16_pi = 205887;
+
+static fix16_t fix16_mul(fix16_t inArg0, fix16_t inArg1)
+{
+    int64_t product = (int64_t)inArg0 * inArg1;
+    return product >> 16;
+}
+
+static fix16_t fix16_sin(fix16_t inAngle)
+{
+    fix16_t tempAngle = inAngle % (fix16_pi << 1);
+
+    if(tempAngle > fix16_pi)
+        tempAngle -= (fix16_pi << 1);
+    else if(tempAngle < -fix16_pi)
+        tempAngle += (fix16_pi << 1);
+
+    fix16_t tempAngleSq = fix16_mul(tempAngle, tempAngle);
+
+    fix16_t tempOut = tempAngle;
+    tempAngle = fix16_mul(tempAngle, tempAngleSq);
+    tempOut -= (tempAngle / 6);
+    tempAngle = fix16_mul(tempAngle, tempAngleSq);
+    tempOut += (tempAngle / 120);
+    tempAngle = fix16_mul(tempAngle, tempAngleSq);
+    tempOut -= (tempAngle / 5040);
+    tempAngle = fix16_mul(tempAngle, tempAngleSq);
+    tempOut += (tempAngle / 362880);
+
+    return tempOut;
+}
+
+fix16_t fix16_cos(fix16_t inAngle)
+{
+    return fix16_sin(inAngle + (fix16_pi >> 1));
 }
 
 void video_present(void) {
@@ -472,9 +541,7 @@ void video_present(void) {
 				if(r_ready)
 					_draw_rects(&r_ready);
 				
-				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, tex->gl_id);
-				glUniform1i(glsl_texture, 0);
 				active_texture = tex;
 			}
 
@@ -507,7 +574,20 @@ void video_present(void) {
 				};
 
 				if(rect.angle != 0) {
-					// TODO
+					const fix16_t a = rect.angle;
+					const fix16_t s = fix16_sin(a);
+                    const fix16_t c = fix16_cos(a);
+
+					const int16 cx = (rect.dest_l + rect.dest_r) / 2;
+					const int16 cy = (rect.dest_t + rect.dest_b) / 2;
+
+					int16 dx, dy;
+					for(uint v = 0; v < 4; ++v) {
+						dx = pos[v*2+0] - cx;
+						dy = pos[v*2+1] - cy;
+						pos[v*2+0] = ((c * dx) >> 16) - ((s * dy) >> 16) + cx;
+						pos[v*2+1] = ((s * dx) >> 16) + ((c * dy) >> 16) + cy;
+					}
 				}
 
 				uint k = vertices.size;
@@ -556,7 +636,6 @@ void video_present(void) {
 	_check_error();
 
 	_sys_present();
-//	LOG_INFO("swap");
 	frame++;
 
 	rects.size = 0;
@@ -624,9 +703,11 @@ static void _pf_to_gles(PixelFormat format, GLenum* fmt, GLenum* type) {
 			*fmt = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 			*type = -1;
 			return;
+#ifndef TARGET_IOS
 		case PF_ETC1:
 			*fmt = GL_ETC1_RGB8_OES;
 			*type = -1;
+#endif
 		default:
             *fmt = *type = 0;
 			LOG_ERROR("Unknown pixel format");
@@ -655,10 +736,12 @@ static uint _make_gl_texture(void* data, uint width, uint height, PixelFormat fo
         image_size = (MAX(width, 16) * MAX(height, 8) * 2 + 7) / 8;
     if(fmt == GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG)
         image_size = (MAX(width, 8) * MAX(height, 8) * 4 + 7) / 8;
+#ifndef TARGET_IOS
 	if(fmt == GL_ETC1_RGB8_OES) {
 		assert(width % 4 == 0 && height % 4 == 0);
 		image_size = (width * height * 3) / 6;
 	}
+#endif
     
     if(image_size) {
         glCompressedTexImage2D(
@@ -674,6 +757,17 @@ static uint _make_gl_texture(void* data, uint width, uint height, PixelFormat fo
     }
 
 	return gl_id;
+}
+
+// Fast integer log2 when n is a power of two
+static uint _ilog2(uint v) {
+	const uint b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0, 0xFF00FF00, 0xFFFF0000}; 
+	uint r = (v & b[0]) != 0;
+	for (uint i = 4; i > 0; i--) 
+	{
+		r |= ((v & b[i]) != 0) << i;
+	}
+	return r;
 }
 
 static Texture* _new_texture( 
@@ -700,6 +794,8 @@ static Texture* _new_texture(
 	new->retain_count = 1;
 	new->width = width;
 	new->height = height;
+    new->wlog2 = _ilog2((width * scale) >> 15);
+	new->hlog2 = _ilog2((height * scale) >> 15);
 	new->gl_id = gl_id;
 	new->scale = scale;
 
@@ -806,7 +902,7 @@ void tex_blit(TexHandle tex, Color* data, uint x, uint y, uint w, uint h) {
 
 void tex_size(TexHandle tex, uint* width, uint* height) {
 	Texture* t = (Texture*)tex;
-	*width = t->width;
+    	*width = t->width;
 	*height = t->height;
 }
 
@@ -825,8 +921,9 @@ void tex_free(TexHandle tex) {
 
 void tex_scale(TexHandle tex, float s) {
 	Texture* t = (Texture*)tex;
-
 	t->scale = (uint)(s * (tex_mul+1.0f));
+    t->wlog2 = _ilog2((t->width * t->scale) >> 15);
+	t->hlog2 = _ilog2((t->height * t->scale) >> 15);
 }
 
 void video_draw_rect(TexHandle tex, uint layer,
@@ -834,16 +931,7 @@ void video_draw_rect(TexHandle tex, uint layer,
 	video_draw_rect_rotated(tex, layer, source, dest, 0.0f, tint);
 }
 
-// Fast integer log2 when n is a power of two
-static uint _ilog2(uint v) {
-	const uint b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0, 0xFF00FF00, 0xFFFF0000}; 
-	uint r = (v & b[0]) != 0;
-	for (uint i = 4; i > 0; i--) 
-	{
-		r |= ((v & b[i]) != 0) << i;
-	}
-	return r;
-}
+
 
 void video_draw_rect_rotated(TexHandle tex, uint layer, const RectF* source, 
 		const RectF* dest, float rotation, Color tint) {
@@ -883,13 +971,10 @@ void video_draw_rect_rotated(TexHandle tex, uint layer, const RectF* source,
 	assert(is_pow2((texture->width * texture->scale) >> 15));
 	assert(is_pow2((texture->height * texture->scale) >> 15));
 
-	uint wlog2 = _ilog2((texture->width * texture->scale) >> 15);
-	uint hlog2 = _ilog2((texture->height * texture->scale) >> 15);
-
-	rect.src_l = ((rect.src_l << 15) - 1) >> wlog2;
-	rect.src_t = ((rect.src_t << 15) - 1) >> hlog2;
-	rect.src_r = ((rect.src_r << 15) - 1) >> wlog2;
-	rect.src_b = ((rect.src_b << 15) - 1) >> hlog2;
+	rect.src_l = ((rect.src_l << 15)) >> texture->wlog2;
+	rect.src_t = ((rect.src_t << 15)) >> texture->hlog2;
+	rect.src_r = ((rect.src_r << 15)) >> texture->wlog2;
+	rect.src_b = ((rect.src_b << 15)) >> texture->hlog2;
 
 	darray_append(&rects, &rect);
 }
