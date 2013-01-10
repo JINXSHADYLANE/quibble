@@ -33,7 +33,7 @@ function world2screen(p)
 end
 
 function game_init()
-	local scale = 2
+	local scale = 1
 	local real_size = scr_size * scale
 	video.init_ex(real_size.x, real_size.y, scr_size.x, scr_size.y, 'tiltas', false)
 	sound.init()
