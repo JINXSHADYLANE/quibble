@@ -209,13 +209,13 @@ static void _set_blend_mode(BlendMode mode) {
 
 	switch(mode) {
 		case BM_NORMAL:
-			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 			break;
 		case BM_ADD:
-			glBlendFunc(GL_ONE, GL_ONE);
+			glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 			break;
 		case BM_MULTIPLY:
-			glBlendFunc(GL_DST_COLOR, GL_ZERO);
+			glBlendFuncSeparate(GL_DST_COLOR, GL_ZERO, GL_ONE, GL_ZERO);
 			break;
 	}
 
@@ -242,7 +242,6 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 		_sys_video_init();
 
 	_sys_set_title(name);
-    
     
     screen_widthf = v_width;
     screen_heightf = v_height;
@@ -342,7 +341,7 @@ void video_clear_color(Color c) {
 		(float)r / 255.0f, 
 		(float)g / 255.0f,
 		(float)b / 255.0f,
-		1.0f	
+		(float)a / 255.0f	
 	);
 }
 
@@ -412,26 +411,6 @@ static void _draw_lines(uint* count) {
 
 	// draw
 	*count = 0;
-}
-
-void video_present_dummy(void) {
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	const GLfloat tri[] = { 0.0f, 0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f };
-
-	glUseProgram(program_id);
-	glVertexAttribPointer(GLSL_ATTRIB_POS, 2, GL_FLOAT, GL_FALSE, 0, tri);
-	glEnableVertexAttribArray(GLSL_ATTRIB_POS);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	_check_error();
-
-	_sys_present();
-	frame++;
-
-	rects.size = 0;
-	lines.size = 0;
 }
 
 // Some fixed point math for rotating rects with fixed point coords
@@ -511,7 +490,7 @@ void video_present(void) {
 		}
 
 		// Find layer tag
-		BlendMode mode = blend_mode;
+		BlendMode mode = BM_NORMAL;
 		for(uint i = 0; i < tags.size; ++i) {
 			LayerTag* t = darray_get(&tags, i);
 			if(t->layer == layer) {
@@ -755,6 +734,8 @@ static uint _make_gl_texture(void* data, uint width, uint height, PixelFormat fo
             0, fmt, type, data
         );
     }
+
+	_check_error();
 
 	return gl_id;
 }
