@@ -3,4 +3,4 @@
 # See CPLUSPLUS-SUPPORT.html in the NDK documentation for more information
 # APP_STL := stlport_static 
 APP_OPTIM := debug
-APP_ABI := armeabi
+APP_ABI := armeabi armeabi-v7a

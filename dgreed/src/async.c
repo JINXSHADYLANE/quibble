@@ -62,7 +62,9 @@ static void _check_async_threads(void);
 static void _check_io_thread(void);
 
 void _async_init(void) {
-	assert(!async_initialized);
+//	assert(!async_initialized);
+	if(async_initialized)
+		return;
 
 	// Init critical sections
 	for(uint i = 0; i < MAX_CRITICAL_SECTIONS; ++i) {
@@ -152,11 +154,11 @@ void async_leave_cs(CriticalSection cs) {
 
 // Task state tracking
 
-bool async_task_state_initialized = false;
-TaskId async_next_taskid = 1;
-TaskId async_highest_finished_taskid = 0;
-TaskId async_lowest_unfinished_taskid = 0;
-AATree async_unfinished_taskids;
+static bool async_task_state_initialized = false;
+static TaskId async_next_taskid = 1;
+static TaskId async_highest_finished_taskid = 0;
+static TaskId async_lowest_unfinished_taskid = 0;
+static AATree async_unfinished_taskids;
 
 static void _async_init_task_state(void) {
 	assert(async_initialized);
@@ -267,11 +269,11 @@ bool async_is_finished(TaskId id) {
 
 // Task queues
 
-TaskQueue tq_async;
-TaskQueue tq_io;
+static TaskQueue tq_async;
+static TaskQueue tq_io;
 
-DArray taskdef_pool;
-Heap taskdef_pool_freecells;
+static DArray taskdef_pool;
+static Heap taskdef_pool_freecells;
 
 static void _async_init_task_queue(TaskQueue* tq) {
 	assert(tq);
@@ -438,9 +440,9 @@ typedef struct {
 	void* userdata;
 } ScheduledTaskDef;
 
-DArray async_sched_tasks;
-Heap async_sched_freecells;
-Heap async_schedule_pq;
+static DArray async_sched_tasks;
+static Heap async_sched_freecells;
+static Heap async_schedule_pq;
 
 // Current time in miliseconds
 static int _async_time(void) {
