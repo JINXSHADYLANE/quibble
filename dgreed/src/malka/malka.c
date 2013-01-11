@@ -261,10 +261,14 @@ static void _malka_prep(const char* luafile) {
 	lua_pop(l, 1);
 	MEM_FREE(module_path);
 
-    // Set flag running_on_ios
 #ifdef TARGET_IOS
     lua_pushboolean(l, true);
     lua_setglobal(l, "running_on_ios"); 
+#endif
+
+#ifdef ANDROID
+	lua_pushboolean(l, true);
+	lua_setglobal(l, "android");
 #endif
 
     // Set debug flag
