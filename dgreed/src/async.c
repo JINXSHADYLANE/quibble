@@ -62,9 +62,7 @@ static void _check_async_threads(void);
 static void _check_io_thread(void);
 
 void _async_init(void) {
-//	assert(!async_initialized);
-	if(async_initialized)
-		return;
+	assert(!async_initialized);
 
 	// Init critical sections
 	for(uint i = 0; i < MAX_CRITICAL_SECTIONS; ++i) {

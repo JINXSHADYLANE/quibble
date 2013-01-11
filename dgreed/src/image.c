@@ -350,16 +350,18 @@ void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format) {
 		data = stbi_load_from_callbacks(&io_cb, (void*)f, &x, &y, &comp, 4);
 
 		// Premultiply alpha
-		Color* c = data;
-		for(uint iy = 0; iy < y; ++iy) {
-			for(uint ix = 0; ix < x; ++ix) {
-				uint idx = iy * x + ix;
-				byte r, g, b, a;
-				COLOR_DECONSTRUCT(c[idx], r, g, b, a);
-				r = (r * a) >> 8;	
-				g = (g * a) >> 8;	
-				b = (b * a) >> 8;	
-				c[idx] = COLOR_RGBA(r, g, b, a);
+		if(comp == 4) {
+			Color* c = data;
+			for(uint iy = 0; iy < y; ++iy) {
+				for(uint ix = 0; ix < x; ++ix) {
+					uint idx = iy * x + ix;
+					byte r, g, b, a;
+					COLOR_DECONSTRUCT(c[idx], r, g, b, a);
+					r = (r * a) >> 8;	
+					g = (g * a) >> 8;	
+					b = (b * a) >> 8;	
+					c[idx] = COLOR_RGBA(r, g, b, a);
+				}
 			}
 		}
 
