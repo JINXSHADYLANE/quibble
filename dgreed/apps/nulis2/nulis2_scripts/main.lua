@@ -12,7 +12,7 @@ ed = false
 
 function setup_screen()
 	levels_file = 'levels.mml' 
-	if argv then
+	if argv and not android then
 		for i,arg in ipairs(argv) do
 			if arg == '-iphone5' then
 				iphone5 = true

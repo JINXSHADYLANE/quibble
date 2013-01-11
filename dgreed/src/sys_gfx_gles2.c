@@ -270,6 +270,7 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
     else
         glViewport(0, 0, width, height);
 
+	glDisable(GL_DITHER);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_STENCIL_TEST);
