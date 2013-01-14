@@ -224,20 +224,19 @@
 
 	(img element_1
 		(tex atlas_4.png)
-		(src 2,460,338,860)
+		(src 2,450,334,848)
 	)
 	(img element_2
 		(tex atlas_4.png)
-		(src 526,2,956,372)
+		(src 524,2,954,372)
 	)
 	(img element_3
 		(tex atlas_4.png)
-		(src 526,374,936,768)
+		(src 524,374,930,768)
 	)
 	(img element_4
 		(tex atlas_4.png)
-		(src 2,2,524,458)
+		(src 2,2,522,448)
 	)
-
 
 )
