@@ -15,17 +15,8 @@ void _sys_video_init(void);
 
 int SDL_main(int argc, char** argv) {
 	
-	// Construct log file name
-	assert(argc >= 1);
-	const char* prog_name = path_get_file(argv[0]);
-	const char* postfix = ".log";
-	char logfile[128];
-	assert(strlen(prog_name) + strlen(postfix) < 128);
-	strcpy(logfile, prog_name);
-	strcat(logfile, postfix);
-
 	_async_init();
-	log_init(logfile, LOG_LEVEL_INFO);
+	log_init(NULL, LOG_LEVEL_INFO);
 
 	_sys_video_init();
 
@@ -96,69 +87,170 @@ void acc_shake_cb(ShakeCallback cb) {
 -------------
 */
 
-bool key_pressed(Key key) {
+static const int keybindings[8] = {
+	SDLK_UP,
+	SDLK_DOWN,
+	SDLK_LEFT,
+	SDLK_RIGHT,
+	SDLK_z,
+	SDLK_x,
+	SDLK_p,
+	SDLK_AC_BACK
+};
+
+#define max_keys 16
+
+static int keys_down[max_keys];
+static int keys_down_n = 0;
+static int keys_up[max_keys];
+static int keys_up_n = 0;
+static int keys_pressed[max_keys];
+static int keys_pressed_n = 0;
+
+static void _add_key(int* list, int* count, int key) {
+	if(*count < max_keys) {
+		list[*count] = key;
+		(*count)++;
+	}
+}
+
+static void _rem_key(int* list, int* count, int key) {
+	for(uint i = 0; i < *count; ++i) {
+		if(list[i] == key) {
+			list[i] = list[*count - 1];
+			(*count)--;
+			return;
+		}
+	}
+}
+
+static bool _check_key(int* list, int* count, int key) {
+	for(uint i = 0; i < *count; ++i) {
+		if(list[i] == key)
+			return true;
+	}
 	return false;
+}
+
+bool key_pressed(Key key) {
+	int k = keybindings[key];
+	return _check_key(keys_pressed, &keys_pressed_n, k);
 }
 
 bool char_pressed(char c) {
-	return false;
+	return _check_key(keys_pressed, &keys_pressed_n,
+		(int)c
+	);
 }
 
 bool key_down(Key key) {
-	return false;
+	int k = keybindings[key];
+	return _check_key(keys_down, &keys_down_n, k);
 }
 
 bool char_down(char c) {
-	return false;
+	return _check_key(keys_down, &keys_down_n,
+		(int)c
+	);
 }
 
 bool key_up(Key key) {
-	return false;
+	int k = keybindings[key];
+	return _check_key(keys_up, &keys_up_n, k);
 }
 
 bool char_up(char c) {
-	return false;
+	return _check_key(keys_up, &keys_up_n, 
+		(int)c
+	);
 }
 
+// Current state
+static uint cmouse_x, cmouse_y;
+static bool cmouse_pressed, cmouse_up, cmouse_down;
+
+// Cached last frame state
+static uint lmouse_x, lmouse_y;
+static bool lmouse_pressed, lmouse_up, lmouse_down;
+
 bool mouse_pressed(MouseButton button) {
-	return false;
+	return lmouse_pressed;
 }
 
 bool mouse_down(MouseButton button) {
-	return false;
+	return lmouse_down;
 }
 
 bool mouse_up(MouseButton button) {
-	return false;
+	return lmouse_up;
 }
 
 void mouse_pos(uint* x, uint* y) {
-	x = 0;
-	y = 0;
+	*x = lmouse_x;
+	*y = lmouse_y;
 }
 
 Vector2 mouse_vec(void) {
-	uint x, y;
-	mouse_pos(&x, &y);
-	return vec2((float)x, (float)y);
+	return vec2((float)lmouse_x, (float)lmouse_y);
 }
 
-static Vector2 touch_hitpos;
-static float touch_hittime;
-static Touch touch;
+
+#define max_touches 11
+uint touch_count = 0;
+Touch touches[max_touches];
+
+static void _touch_down(float x, float y) {
+	if(touch_count < max_touches) {
+		uint i = touch_count;
+		touches[i].hit_time = time_s();
+		touches[i].hit_pos = vec2(x, y);
+		touches[i].pos = vec2(x, y);
+		touch_count++;
+	}
+}
+
+static void _touch_move(float old_x, float old_y, float new_x, float new_y) {
+	if(!touch_count)
+		return;
+    uint count = touch_count;
+	float min_d = 10000.0f;
+	uint min_i = 0;
+	for(uint i = 0; i < count && i < max_touches; ++i) {
+		float dx = touches[i].pos.x - old_x;
+		float dy = touches[i].pos.y - old_y;
+		float d = dx*dx + dy*dy;
+		if(dx*dx + dy*dy < min_d) {
+			min_d = d;
+			min_i = i;
+		}
+	}
+    touches[min_i].pos = vec2(new_x, new_y);
+}
+
+static void _touch_up(float old_x, float old_y) {
+	if(!touch_count)
+		return;
+	uint count = touch_count;
+	float min_d = 10000.0f;
+	uint min_i = 0;
+	for(uint i = 0; i < count && i < max_touches; ++i) {
+		float dx = touches[i].pos.x - old_x;
+		float dy = touches[i].pos.y - old_y;
+		float d = dx*dx + dy*dy;
+		if(dx*dx + dy*dy < min_d) {
+			min_d = d;
+			min_i = i;
+		}
+	}
+	touches[min_i] = touches[--touch_count];
+}
 
 uint touches_count(void) {
-	return mouse_pressed(MBTN_PRIMARY) ? 1 : 0;
+	return touch_count;
 }
 
 Touch* touches_get(void) {
-	if(mouse_pressed(MBTN_PRIMARY)) {
-		touch.hit_pos = touch_hitpos;
-		touch.hit_time = touch_hittime;
-		touch.pos = mouse_vec();
-		return &touch;
-	}
-	return NULL;
+	return touch_count ? &touches[0] : NULL;
 }
 
 /*
@@ -253,55 +345,89 @@ uint _sdl_to_greed_mbtn(uint mbtn_id) {
 
 extern void async_process_schedule(void);
 
+uint _sys_native_width = 0;
+uint _sys_native_height = 0;
+
+static Vector2 _conv_touch(uint16 x, uint16 y) {
+	uint ix = ((y * _sys_native_height) / MAX_INT16);
+	uint iy = ((x * _sys_native_width) / MAX_INT16);
+	return vec2(ix, _sys_native_width - iy);
+}
+
 bool system_update(void) {
 	SDL_Event evt;
-	//int n_keys;
-	//byte* curr_keystate;
-	
-	//memcpy(old_mousestate, mousestate, sizeof(mousestate));
-	//memcpy(old_keystate, keystate, sizeof(keystate));
-	while(SDL_PollEvent(&evt)) {
-		/*
-		if(evt.type == SDL_MOUSEMOTION) {
-			mouse_x = evt.motion.x;
-			mouse_y = evt.motion.y;
-		}
-		if(evt.type == SDL_MOUSEBUTTONUP) {
-			mousestate[_sdl_to_greed_mbtn(evt.button.button)] = 0;
-		}
-		if(evt.type == SDL_MOUSEBUTTONDOWN) {
-			mousestate[_sdl_to_greed_mbtn(evt.button.button)] = 1;
 
-			touch_hitpos = mouse_vec();
-			touch_hittime = time_s();
+	keys_down_n = 0;
+	keys_up_n = 0;
+	while(SDL_PollEvent(&evt)) {
+		if(evt.type == SDL_FINGERDOWN) {
+			Vector2 t = _conv_touch(evt.tfinger.x, evt.tfinger.y);
+			cmouse_x = lrintf(t.x);
+			cmouse_y = lrintf(t.y);
+			cmouse_down = cmouse_pressed = true;
+			_touch_down(t.x, t.y);
 		}
-		*/
+		if(evt.type == SDL_FINGERUP) {
+			Vector2 t = _conv_touch(evt.tfinger.x, evt.tfinger.y);
+			cmouse_x = lrintf(t.x);
+			cmouse_y = lrintf(t.y);
+			cmouse_up = true;
+			cmouse_pressed = false;
+			_touch_up(t.x, t.y);
+		}
+		if(evt.type == SDL_FINGERMOTION) {
+			Vector2 t = _conv_touch(evt.tfinger.x, evt.tfinger.y);
+			Vector2 old = _conv_touch(
+				evt.tfinger.x - evt.tfinger.dx,
+				evt.tfinger.y - evt.tfinger.dy
+			);
+			cmouse_x = lrintf(t.x);
+			cmouse_y = lrintf(t.y);
+			cmouse_pressed = true;
+
+			_touch_move(old.x, old.y, t.x, t.y);
+		}
+
+		if(evt.type == SDL_KEYDOWN) {
+			int keycode = evt.key.keysym.sym;
+			_add_key(keys_down, &keys_down_n, keycode);
+			_add_key(keys_pressed, &keys_pressed_n, keycode);
+		}
+		if(evt.type == SDL_KEYUP) {
+			int keycode = evt.key.keysym.sym;
+			_add_key(keys_up, &keys_up_n, keycode);
+			_rem_key(keys_pressed, &keys_pressed_n, keycode);
+		}
+		if(evt.type == SDL_WINDOWEVENT) {
+			LOG_INFO("SDL_WINDOWEVENT");
+		}
+		if(evt.type == SDL_SYSWMEVENT) {
+			LOG_INFO("SDL_SYSWMEVENT");
+		}
+
 		if(evt.type == SDL_QUIT)
 			return false;
 	}
-	//curr_keystate = SDL_GetKeyState(&n_keys);
-	//memcpy(keystate, curr_keystate, n_keys);
 
 	async_process_schedule();
 
-	uint curr_time;
-	do {
-		curr_time = SDL_GetTicks();
-		if(MS_PER_FRAME - (curr_time - last_time) > 15)
-			SDL_Delay(5);
-	} while(curr_time - last_time < MS_PER_FRAME);
-
-	last_time = curr_time;
+	uint curr_time = SDL_GetTicks();
 
 	_time_update(curr_time);
+	
+	lmouse_x = cmouse_x;
+	lmouse_y = cmouse_y;
+	lmouse_up = cmouse_up;
+	lmouse_down = cmouse_down;
+	lmouse_pressed = cmouse_pressed;
+	
+	cmouse_up = false;
+	cmouse_down = false;
 
 	return true;
 }
 
 // non-OpenGL video stuff
-
-uint _sys_native_width = 0;
-uint _sys_native_height = 0;
 bool _sys_video_initialized = false;
 SDL_Window* _sys_window = NULL;
 SDL_GLContext _sys_glcontext;
@@ -321,7 +447,7 @@ void _sys_video_init(void) {
 	SDL_Window* window = SDL_CreateWindow("dgreed", 
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			_sys_native_width, _sys_native_height,
-			SDL_WINDOW_FULLSCREEN | SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS
+			SDL_WINDOW_OPENGL
 	);
 
 	_sys_glcontext = SDL_GL_CreateContext(window);
@@ -349,5 +475,9 @@ void _sys_video_get_native_resolution(uint* width, uint* height) {
 
 	*width = _sys_native_width;
 	*height = _sys_native_height;
+}
+
+void _sys_present(void) {
+	SDL_GL_SwapWindow(_sys_window);
 }
 

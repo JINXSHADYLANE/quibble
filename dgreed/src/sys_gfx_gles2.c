@@ -6,15 +6,20 @@
 #include "image.h"
 #include "gfx_utils.h"
 
+#ifdef TARGET_IOS
+#import <OpenGLES/ES2/gl.h>
+#import <OpenGLES/ES2/glext.h>
+#else
 #include <SDL_opengles2.h>
+#endif
 
 // Types
 
-// 48 bytes
+// 56 bytes
 typedef struct {
 	char* file;
 	char file_storage[16];
-	uint retain_count, width, height;
+	uint retain_count, width, height, hlog2, wlog2;
 	uint gl_id;
 	uint scale;
 	ListHead list;
@@ -26,20 +31,20 @@ typedef struct {
 	Texture* tex;
 	Color tint;
 	int32 angle;
-	uint16 src_l, src_t, src_r, src_b;
-	uint16 dest_l, dest_t, dest_r, dest_b;
+	int16 src_l, src_t, src_r, src_b;
+	int16 dest_l, dest_t, dest_r, dest_b;
 } TexturedRect;
 
 // 16 bytes
 typedef struct {
 	uint32 layer;
 	Color tint;
-	uint16 start_x, start_y, end_x, end_y;
+	int16 start_x, start_y, end_x, end_y;
 } Line;
 
 // 12 bytes
 typedef struct {
-	uint16 x, y;
+	int16 x, y;
 	uint32 color;
 	uint16 u, v;
 } Vertex;
@@ -66,17 +71,21 @@ static DArray lines;
 static DArray vertices;
 static DArray indices;
 
-static const float tex_mul = 32767.0f;
+static const float tex_mul = 32768.0f;
 static const float pos_mul = 16.0f;
 static const float rot_mul = 65536.0f;
 static const uint16 tex_scale_1 = 32768;
 
 // Renderer state
-static Color clear_color = 0;
+float screen_widthf, screen_heightf;
+Color clear_color;
 static int32 screen_width, screen_height;
-static int32 scale_x, scale_y;
 static uint frame = 0;
 static bool filter_textures = true;
+static bool drawing_lines = false;
+static bool drawing_rects = false;
+static BlendMode blend_mode = ~0;
+static Texture* active_texture = NULL;
 static int vert_shader_id;
 static int frag_shader_id;
 static int program_id;
@@ -96,14 +105,12 @@ const char* vert_shader =
 "varying vec2 v_uv;\n"
 "varying vec4 v_tint;\n"
 "\n"
-"void main(void) {\n"
-"	v_uv = uv;\n"
+"void main() {\n"
+"	v_uv = uv / 32768.0;\n"
 "	v_tint = color;\n"
-"	gl_Position = vec4(\n"
-"		(pos.x / 16.0f) / screen_size.x * 2.0f - 1.0f,\n"
-"		(pos.y / 16.0f) / screen_size.y * 2.0f - 1.0f,\n"
-"		0.0f, 1.0f\n"
-"	);\n"
+"	vec2 p = (pos / (8.0 * screen_size)) - 1.0;\n"
+"	gl_Position = vec4(-p.y, -p.x, 0.0, 1.0);\n"
+//"gl_Position = vec4(pos, 0.0, 1.0);\n"
 "}";
 
 const char* frag_shader = 
@@ -113,8 +120,9 @@ const char* frag_shader =
 "varying vec2 v_uv;\n"
 "varying vec4 v_tint;\n"
 "\n"
-"void main(void) {\n"
+"void main() {\n"
 "	gl_FragColor = v_tint * texture2D(texture, v_uv);\n"
+//"	gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
 "}";
 
 static bool _check_extension(const char* name) {
@@ -128,7 +136,7 @@ static void _check_error(void) {
 #ifdef _DEBUG
 	int error = glGetError();
 	if(error != GL_NO_ERROR)
-		LOG_ERROR("OpenGL ES2 error: %d", error);
+		LOG_WARNING("OpenGL ES2 error: %d", error);
 #endif
 }
 
@@ -152,8 +160,8 @@ static uint _compile_shader(const char* source, uint type) {
 		// Failure, log errors
 		int log_length;
 		glGetShaderiv(gl_id, GL_INFO_LOG_LENGTH, &log_length); 
-		char* log = alloca(log_length);
-		glGetShaderInfoLog(gl_id, log_length, &log_length, log);
+		char log[1024];
+		glGetShaderInfoLog(gl_id, 1024, &log_length, log);
 		LOG_ERROR("Compile log: %s", log);
 		return gl_id;
 	}
@@ -196,6 +204,24 @@ static void _free_program(uint id) {
 	glDeleteProgram(id);
 }
 
+static void _set_blend_mode(BlendMode mode) {
+	assert(mode != blend_mode);
+
+	switch(mode) {
+		case BM_NORMAL:
+			glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+			break;
+		case BM_ADD:
+			glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+			break;
+		case BM_MULTIPLY:
+			glBlendFuncSeparate(GL_DST_COLOR, GL_ZERO, GL_ONE, GL_ZERO);
+			break;
+	}
+
+	blend_mode = mode;
+}
+
 // sys_gfx.h interface implementation
 
 extern bool _sys_video_initialized;
@@ -203,6 +229,7 @@ extern void _sys_video_init(void);
 extern void _sys_video_close(void);
 extern void _sys_set_title(const char* title);
 extern void _sys_video_get_native_resolution(uint* width, uint* height);
+extern void _sys_present(void);
 
 void video_get_native_resolution(uint* width, uint* height) {
 	_sys_video_get_native_resolution(width, height);
@@ -215,11 +242,17 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 		_sys_video_init();
 
 	_sys_set_title(name);
+    
+    screen_widthf = v_width;
+    screen_heightf = v_height;
 
     LOG_INFO("Vendor     : %s", glGetString(GL_VENDOR));
     LOG_INFO("Renderer   : %s", glGetString(GL_RENDERER));
     LOG_INFO("Version    : %s", glGetString(GL_VERSION));
     LOG_INFO("Extensions : %s", glGetString(GL_EXTENSIONS));
+	LOG_INFO("Framebuffer: %d", 
+		glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE
+	);
 
 	list_init(&textures);
 	mempool_init_ex(&texture_pool, sizeof(Texture), sizeof(Texture)*16);
@@ -228,6 +261,27 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 	lines = darray_create(sizeof(Line), 16);
 	vertices = darray_create(sizeof(Vertex), 4096);
 	indices = darray_create(sizeof(uint16), 1024 * 6);
+    
+    screen_width = v_width;
+    screen_height = v_height;
+
+    if(width > height)
+        glViewport(0, 0, height, width);
+    else
+        glViewport(0, 0, width, height);
+
+	glDisable(GL_DITHER);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_STENCIL_TEST);
+	glDisable(GL_SCISSOR_TEST);
+	glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
+	glDisable(GL_SAMPLE_COVERAGE);
+
+	glEnable(GL_BLEND);
+	_set_blend_mode(BM_NORMAL);
+
+	video_clear_color(COLOR_BLACK);
 
 	filter_textures = _filter_textures;
 
@@ -235,8 +289,12 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 	frag_shader_id = _compile_shader(frag_shader, GL_FRAGMENT_SHADER);
 	program_id = _link_program(vert_shader_id, frag_shader_id);
 
+    glUseProgram(program_id);
+	glUniform2f(glsl_screen_size, (float)screen_width, (float)screen_height);
+
+    _check_error();
+
 	glReleaseShaderCompiler();
-	glUseProgram(program_id);
 
 	_check_error();
 }
@@ -277,13 +335,14 @@ void video_close(void) {
 }
 
 void video_clear_color(Color c) {
+    clear_color = c;
 	byte r, g, b, a;
 	COLOR_DECONSTRUCT(c, r, g, b, a);
 	glClearColor(
 		(float)r / 255.0f, 
 		(float)g / 255.0f,
 		(float)b / 255.0f,
-		(float)a / 255.0f
+		(float)a / 255.0f	
 	);
 }
 
@@ -312,6 +371,90 @@ static int _line_compar(const void* a, const void* b) {
 	return (int)(size_t)(line_a - line_b);
 }
 
+static void _draw_rects(uint* count) {
+	static Vertex* old_vb = NULL;
+
+	if(!drawing_rects) {
+		drawing_rects = true;
+		drawing_lines = false;
+
+		glEnableVertexAttribArray(GLSL_ATTRIB_POS);
+		glEnableVertexAttribArray(GLSL_ATTRIB_COLOR);
+		glEnableVertexAttribArray(GLSL_ATTRIB_UV);
+	}
+
+	assert(sizeof(Vertex) == 12);
+	Vertex* vb = vertices.data;
+	if(old_vb != vb) {
+		glVertexAttribPointer(GLSL_ATTRIB_POS, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), &vb->x); 
+		glVertexAttribPointer(GLSL_ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), &vb->color);
+		glVertexAttribPointer(GLSL_ATTRIB_UV, 2, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(Vertex), &vb->u);
+		old_vb = vb;
+	}
+
+	assert(vertices.size % 4 == 0);
+
+	glDrawElements(GL_TRIANGLES, vertices.size / 2 * 3, GL_UNSIGNED_SHORT, indices.data);
+
+	_check_error();
+
+	*count = 0;
+	vertices.size = 0;
+} 
+
+static void _draw_lines(uint* count) {
+	if(!drawing_lines) {
+		drawing_lines = true;
+		drawing_rects = false;
+
+		// setup state
+	}
+
+	// draw
+	*count = 0;
+}
+
+// Some fixed point math for rotating rects with fixed point coords
+
+typedef int32 fix16_t;
+
+static const fix16_t fix16_pi = 205887;
+
+static fix16_t fix16_mul(fix16_t inArg0, fix16_t inArg1)
+{
+    int64_t product = (int64_t)inArg0 * inArg1;
+    return product >> 16;
+}
+
+static fix16_t fix16_sin(fix16_t inAngle)
+{
+    fix16_t tempAngle = inAngle % (fix16_pi << 1);
+
+    if(tempAngle > fix16_pi)
+        tempAngle -= (fix16_pi << 1);
+    else if(tempAngle < -fix16_pi)
+        tempAngle += (fix16_pi << 1);
+
+    fix16_t tempAngleSq = fix16_mul(tempAngle, tempAngle);
+
+    fix16_t tempOut = tempAngle;
+    tempAngle = fix16_mul(tempAngle, tempAngleSq);
+    tempOut -= (tempAngle / 6);
+    tempAngle = fix16_mul(tempAngle, tempAngleSq);
+    tempOut += (tempAngle / 120);
+    tempAngle = fix16_mul(tempAngle, tempAngleSq);
+    tempOut -= (tempAngle / 5040);
+    tempAngle = fix16_mul(tempAngle, tempAngleSq);
+    tempOut += (tempAngle / 362880);
+
+    return tempOut;
+}
+
+fix16_t fix16_cos(fix16_t inAngle)
+{
+    return fix16_sin(inAngle + (fix16_pi >> 1));
+}
+
 void video_present(void) {
 	// Sort rects by layer and then by texture
 	if(rects.size > 4) {
@@ -329,11 +472,151 @@ void video_present(void) {
 		);
 	}
 
+	TexturedRect* r = rects.data;
+	Line* l = lines.data;
+
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Render loop here
+	uint r_cur = 0, r_ready = 0;
+	uint l_cur = 0, l_ready = 0;
+
+	while(r_cur < rects.size || l_cur < lines.size) {
+		uint layer = ~0;
+		if(rects.size) {
+			layer = r[r_cur].layer;
+		}
+		if(lines.size) {
+			layer = MIN(layer, l[l_cur].layer);
+		}
+
+		// Find layer tag
+		BlendMode mode = BM_NORMAL;
+		for(uint i = 0; i < tags.size; ++i) {
+			LayerTag* t = darray_get(&tags, i);
+			if(t->layer == layer) {
+				mode = t->mode;
+				break;
+			}
+		}
+
+		// Switch blend mode
+		if(mode != blend_mode) {
+			if(r_ready)
+				_draw_rects(&r_ready);
+			if(l_ready)
+				_draw_lines(&l_ready);
+
+			_set_blend_mode(mode);
+		}
+
+		if(layer == r[r_cur].layer) {
+			// Flush lines to free up vbuffer
+			if(l_ready)
+				_draw_lines(&l_ready);
+
+			// Switch texture, flushing currently ready rects
+			Texture* tex = r[r_cur].tex;
+			if(tex != active_texture) {
+				if(r_ready)
+					_draw_rects(&r_ready);
+				
+				glBindTexture(GL_TEXTURE_2D, tex->gl_id);
+				active_texture = tex;
+			}
+
+			// Fill up vbuffer
+			do {
+				darray_reserve(&vertices, (l_ready+1)*4);
+				Vertex* vb = vertices.data;
+
+				byte cr, cg, cb, ca;
+				TexturedRect rect = r[r_cur];
+
+				// Premultiply alpha
+				COLOR_DECONSTRUCT(rect.tint, cr, cg, cb, ca);
+				Color c = COLOR_RGBA(
+					(cr * ca) >> 8, (cg * ca) >> 8, (cb * ca) >> 8, ca
+				);
+
+				int16 pos[] = {
+					rect.dest_l, rect.dest_t,
+					rect.dest_r, rect.dest_t,
+					rect.dest_r, rect.dest_b,
+					rect.dest_l, rect.dest_b
+				};
+
+				int16 src[] = {
+					rect.src_l, rect.src_t,
+					rect.src_r, rect.src_t,
+					rect.src_r, rect.src_b,
+					rect.src_l, rect.src_b
+				};
+
+				if(rect.angle != 0) {
+					const fix16_t a = rect.angle;
+					const fix16_t s = fix16_sin(a);
+                    const fix16_t c = fix16_cos(a);
+
+					const int16 cx = (rect.dest_l + rect.dest_r) / 2;
+					const int16 cy = (rect.dest_t + rect.dest_b) / 2;
+
+					int16 dx, dy;
+					for(uint v = 0; v < 4; ++v) {
+						dx = pos[v*2+0] - cx;
+						dy = pos[v*2+1] - cy;
+						pos[v*2+0] = ((c * dx) >> 16) - ((s * dy) >> 16) + cx;
+						pos[v*2+1] = ((s * dx) >> 16) + ((c * dy) >> 16) + cy;
+					}
+				}
+
+				uint k = vertices.size;
+				for(uint v = 0; v < 4; ++v) {
+					vb[k+v].x = pos[v*2+0];
+					vb[k+v].y = pos[v*2+1];
+					vb[k+v].color = c;
+					vb[k+v].u = src[v*2+0];
+					vb[k+v].v = src[v*2+1];
+				}
+				vertices.size += 4;
+
+				r_ready++;
+			} while(
+				++r_cur < rects.size && 
+				r[r_cur].layer == layer && 
+				r[r_cur].tex == tex
+			);
+
+			// Make sure index buffer has enough indices
+			if(indices.size < r_ready * 6) {
+				darray_reserve(&indices, r_ready * 6);
+				uint16* idx = indices.data;
+				for(uint i = indices.size; i < r_ready * 6; i += 6) {
+					idx[i + 0] = (i/6)*4 + 0;
+					idx[i + 1] = (i/6)*4 + 1;
+					idx[i + 2] = (i/6)*4 + 3;
+					idx[i + 3] = (i/6)*4 + 1;
+					idx[i + 4] = (i/6)*4 + 3;
+					idx[i + 5] = (i/6)*4 + 2;
+				}
+				indices.size = r_ready * 6;
+			}
+		}
+
+		if(layer == l[l_cur].layer) {
+			// TODO
+		}
+	}
+
+	if(r_ready)
+		_draw_rects(&r_ready);
+	if(l_ready)
+		_draw_lines(&l_ready);
 	
 	_check_error();
+
+	_sys_present();
+	frame++;
 
 	rects.size = 0;
 	lines.size = 0;
@@ -400,9 +683,11 @@ static void _pf_to_gles(PixelFormat format, GLenum* fmt, GLenum* type) {
 			*fmt = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 			*type = -1;
 			return;
+#ifndef TARGET_IOS
 		case PF_ETC1:
 			*fmt = GL_ETC1_RGB8_OES;
 			*type = -1;
+#endif
 		default:
             *fmt = *type = 0;
 			LOG_ERROR("Unknown pixel format");
@@ -431,10 +716,12 @@ static uint _make_gl_texture(void* data, uint width, uint height, PixelFormat fo
         image_size = (MAX(width, 16) * MAX(height, 8) * 2 + 7) / 8;
     if(fmt == GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG)
         image_size = (MAX(width, 8) * MAX(height, 8) * 4 + 7) / 8;
+#ifndef TARGET_IOS
 	if(fmt == GL_ETC1_RGB8_OES) {
 		assert(width % 4 == 0 && height % 4 == 0);
 		image_size = (width * height * 3) / 6;
 	}
+#endif
     
     if(image_size) {
         glCompressedTexImage2D(
@@ -449,7 +736,20 @@ static uint _make_gl_texture(void* data, uint width, uint height, PixelFormat fo
         );
     }
 
+	_check_error();
+
 	return gl_id;
+}
+
+// Fast integer log2 when n is a power of two
+static uint _ilog2(uint v) {
+	const uint b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0, 0xFF00FF00, 0xFFFF0000}; 
+	uint r = (v & b[0]) != 0;
+	for (uint i = 4; i > 0; i--) 
+	{
+		r |= ((v & b[i]) != 0) << i;
+	}
+	return r;
 }
 
 static Texture* _new_texture( 
@@ -476,6 +776,8 @@ static Texture* _new_texture(
 	new->retain_count = 1;
 	new->width = width;
 	new->height = height;
+    new->wlog2 = _ilog2((width * scale) >> 15);
+	new->hlog2 = _ilog2((height * scale) >> 15);
 	new->gl_id = gl_id;
 	new->scale = scale;
 
@@ -582,7 +884,7 @@ void tex_blit(TexHandle tex, Color* data, uint x, uint y, uint w, uint h) {
 
 void tex_size(TexHandle tex, uint* width, uint* height) {
 	Texture* t = (Texture*)tex;
-	*width = t->width;
+    	*width = t->width;
 	*height = t->height;
 }
 
@@ -601,8 +903,9 @@ void tex_free(TexHandle tex) {
 
 void tex_scale(TexHandle tex, float s) {
 	Texture* t = (Texture*)tex;
-
 	t->scale = (uint)(s * (tex_mul+1.0f));
+    t->wlog2 = _ilog2((t->width * t->scale) >> 15);
+	t->hlog2 = _ilog2((t->height * t->scale) >> 15);
 }
 
 void video_draw_rect(TexHandle tex, uint layer,
@@ -610,16 +913,7 @@ void video_draw_rect(TexHandle tex, uint layer,
 	video_draw_rect_rotated(tex, layer, source, dest, 0.0f, tint);
 }
 
-// Fast integer log2 when n is a power of two
-static uint _ilog2(uint v) {
-	const uint b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0, 0xFF00FF00, 0xFFFF0000}; 
-	uint r = (v & b[0]) != 0;
-	for (uint i = 4; i > 0; i--) 
-	{
-		r |= ((v & b[i]) != 0) << i;
-	}
-	return r;
-}
+
 
 void video_draw_rect_rotated(TexHandle tex, uint layer, const RectF* source, 
 		const RectF* dest, float rotation, Color tint) {
@@ -659,13 +953,10 @@ void video_draw_rect_rotated(TexHandle tex, uint layer, const RectF* source,
 	assert(is_pow2((texture->width * texture->scale) >> 15));
 	assert(is_pow2((texture->height * texture->scale) >> 15));
 
-	uint wlog2 = _ilog2((texture->width * texture->scale) >> 15);
-	uint hlog2 = _ilog2((texture->height * texture->scale) >> 15);
-
-	rect.src_l = ((rect.src_l << 15) - 1) >> wlog2;
-	rect.src_t = ((rect.src_t << 15) - 1) >> hlog2;
-	rect.src_r = ((rect.src_r << 15) - 1) >> wlog2;
-	rect.src_b = ((rect.src_b << 15) - 1) >> hlog2;
+	rect.src_l = ((rect.src_l << 15)) >> texture->wlog2;
+	rect.src_t = ((rect.src_t << 15)) >> texture->hlog2;
+	rect.src_r = ((rect.src_r << 15)) >> texture->wlog2;
+	rect.src_b = ((rect.src_b << 15)) >> texture->hlog2;
 
 	darray_append(&rects, &rect);
 }

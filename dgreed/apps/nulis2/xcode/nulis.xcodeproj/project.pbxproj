@@ -9,10 +9,8 @@
 /* Begin PBXBuildFile section */
 		21107C3215E77B13004AC47F /* miniz.c in Sources */ = {isa = PBXBuildFile; fileRef = 21107C3115E77B13004AC47F /* miniz.c */; };
 		21107C3515E77BAA004AC47F /* profiler.c in Sources */ = {isa = PBXBuildFile; fileRef = 21107C3315E77BAA004AC47F /* profiler.c */; };
-		211523C315AADC1400C38EEC /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523C215AADC1400C38EEC /* sys_gfx_ios.m */; };
 		211523C515AADC2500C38EEC /* sys_snd_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523C415AADC2500C38EEC /* sys_snd_ios.m */; };
 		211523CA15AAE16300C38EEC /* camera.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523C915AAE16300C38EEC /* camera.m */; };
-		211523CD15AAE18B00C38EEC /* vfont.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523CC15AAE18B00C38EEC /* vfont.m */; };
 		211523D015AAE1B800C38EEC /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = 211523CE15AAE1B800C38EEC /* image.c */; };
 		211523D315AAECB600C38EEC /* TextCapturerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 211523D215AAECB600C38EEC /* TextCapturerView.m */; };
 		211523DA15AAECCA00C38EEC /* localization.c in Sources */ = {isa = PBXBuildFile; fileRef = 211523D415AAECC900C38EEC /* localization.c */; };
@@ -130,6 +128,11 @@
 		2174AAC81624184000C8B682 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2174AAC61624182F00C8B682 /* Social.framework */; };
 		2183CA2114E285BF00ECDC45 /* ml_gamecenter.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */; };
 		2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1F14E285BF00ECDC45 /* ml_keyval.c */; };
+		21903DF2169ED0CB00DBDC1B /* vfont_apple.m in Sources */ = {isa = PBXBuildFile; fileRef = 21903DF0169ED0CB00DBDC1B /* vfont_apple.m */; };
+		21903DF3169ED0CB00DBDC1B /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21903DF1169ED0CB00DBDC1B /* vfont.c */; };
+		21903DF6169ED10D00DBDC1B /* anim.c in Sources */ = {isa = PBXBuildFile; fileRef = 21903DF4169ED10D00DBDC1B /* anim.c */; };
+		21903DF8169ED14600DBDC1B /* ml_anim.c in Sources */ = {isa = PBXBuildFile; fileRef = 21903DF7169ED14600DBDC1B /* ml_anim.c */; };
+		21903DFA169ED2A400DBDC1B /* sys_gfx_gles2.c in Sources */ = {isa = PBXBuildFile; fileRef = 21903DF9169ED2A400DBDC1B /* sys_gfx_gles2.c */; };
 		2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 2194F0C414D7FF5900147A0C /* ml_coldet.c */; };
 		21A6736714DC0D3700665A26 /* AutoRotateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 21A6736614DC0D3700665A26 /* AutoRotateViewController.m */; };
 		21A92A0E150A2D6F004AE2C3 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A92A0C150A2D61004AE2C3 /* StoreKit.framework */; };
@@ -152,14 +155,12 @@
 		21107C3315E77BAA004AC47F /* profiler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = profiler.c; path = ../../../src/malka/profiler.c; sourceTree = "<group>"; };
 		21107C3415E77BAA004AC47F /* profiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = profiler.h; path = ../../../src/malka/profiler.h; sourceTree = "<group>"; };
 		211523BF15AADBF600C38EEC /* sys_gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sys_gfx.h; path = ../../../src/sys_gfx.h; sourceTree = "<group>"; };
-		211523C215AADC1400C38EEC /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
 		211523C415AADC2500C38EEC /* sys_snd_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_snd_ios.m; path = ../../../src/sys_snd_ios.m; sourceTree = "<group>"; };
 		211523C615AADC3100C38EEC /* sys_misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sys_misc.h; path = ../../../src/sys_misc.h; sourceTree = "<group>"; };
 		211523C715AADC3C00C38EEC /* sys_snd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sys_snd.h; path = ../../../src/sys_snd.h; sourceTree = "<group>"; };
 		211523C815AAE16300C38EEC /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = ../../../src/camera.h; sourceTree = "<group>"; };
 		211523C915AAE16300C38EEC /* camera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = camera.m; path = ../../../src/camera.m; sourceTree = "<group>"; };
 		211523CB15AAE18B00C38EEC /* vfont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vfont.h; path = ../../../src/vfont.h; sourceTree = "<group>"; };
-		211523CC15AAE18B00C38EEC /* vfont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = vfont.m; path = ../../../src/vfont.m; sourceTree = "<group>"; };
 		211523CE15AAE1B800C38EEC /* image.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = image.c; path = ../../../src/image.c; sourceTree = "<group>"; };
 		211523CF15AAE1B800C38EEC /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image.h; path = ../../../src/image.h; sourceTree = "<group>"; };
 		211523D115AAECB600C38EEC /* TextCapturerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextCapturerView.h; path = ../../../src/TextCapturerView.h; sourceTree = "<group>"; };
@@ -171,7 +172,6 @@
 		211523D815AAECCA00C38EEC /* lz4hc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lz4hc.c; path = ../../../src/lz4hc.c; sourceTree = "<group>"; };
 		211523D915AAECCA00C38EEC /* lz4hc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lz4hc.h; path = ../../../src/lz4hc.h; sourceTree = "<group>"; };
 		211523DD15AAED5200C38EEC /* ml_localization.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_localization.c; path = ../../../src/malka/ml_localization.c; sourceTree = "<group>"; };
-		211523DE15AAED5200C38EEC /* ml_localization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_localization.h; path = ../../../src/malka/ml_localization.h; sourceTree = "<group>"; };
 		212518D914CE9FCE000E8BD2 /* icon 57x57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 57x57.png"; sourceTree = "<group>"; };
 		212518DB14CE9FD4000E8BD2 /* icon 114x114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 114x114.png"; sourceTree = "<group>"; };
 		212518DD14CE9FE7000E8BD2 /* icon 72x72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 72x72.png"; sourceTree = "<group>"; };
@@ -233,17 +233,12 @@
 		2137773A14CD5B27004F01D2 /* malka.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = malka.h; path = ../../../src/malka/malka.h; sourceTree = "<group>"; };
 		2137773B14CD5B27004F01D2 /* ml_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_common.h; path = ../../../src/malka/ml_common.h; sourceTree = "<group>"; };
 		2137773C14CD5B27004F01D2 /* ml_mfx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_mfx.c; path = ../../../src/malka/ml_mfx.c; sourceTree = "<group>"; };
-		2137773D14CD5B27004F01D2 /* ml_mfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_mfx.h; path = ../../../src/malka/ml_mfx.h; sourceTree = "<group>"; };
 		2137773E14CD5B27004F01D2 /* ml_mml.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_mml.c; path = ../../../src/malka/ml_mml.c; sourceTree = "<group>"; };
-		2137773F14CD5B27004F01D2 /* ml_mml.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_mml.h; path = ../../../src/malka/ml_mml.h; sourceTree = "<group>"; };
 		2137774014CD5B27004F01D2 /* ml_sprsheet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_sprsheet.c; path = ../../../src/malka/ml_sprsheet.c; sourceTree = "<group>"; };
-		2137774114CD5B27004F01D2 /* ml_sprsheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_sprsheet.h; path = ../../../src/malka/ml_sprsheet.h; sourceTree = "<group>"; };
 		2137774214CD5B27004F01D2 /* ml_states.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_states.c; path = ../../../src/malka/ml_states.c; sourceTree = "<group>"; };
 		2137774314CD5B27004F01D2 /* ml_states.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_states.h; path = ../../../src/malka/ml_states.h; sourceTree = "<group>"; };
 		2137774414CD5B27004F01D2 /* ml_system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_system.c; path = ../../../src/malka/ml_system.c; sourceTree = "<group>"; };
-		2137774514CD5B27004F01D2 /* ml_system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_system.h; path = ../../../src/malka/ml_system.h; sourceTree = "<group>"; };
 		2137774614CD5B27004F01D2 /* ml_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_utils.c; path = ../../../src/malka/ml_utils.c; sourceTree = "<group>"; };
-		2137774714CD5B27004F01D2 /* ml_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_utils.h; path = ../../../src/malka/ml_utils.h; sourceTree = "<group>"; };
 		2137775014CD5B65004F01D2 /* bit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bit.c; path = ../../../src/malka/lua/bit.c; sourceTree = "<group>"; };
 		2137775114CD5B65004F01D2 /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lapi.c; path = ../../../src/malka/lua/lapi.c; sourceTree = "<group>"; };
 		2137775214CD5B65004F01D2 /* lapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lapi.h; path = ../../../src/malka/lua/lapi.h; sourceTree = "<group>"; };
@@ -317,9 +312,7 @@
 		2137781C14CD5D4C004F01D2 /* nulis2_scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = nulis2_scripts; path = ../nulis2_scripts; sourceTree = "<group>"; };
 		2137782514CD5E34004F01D2 /* nulis-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "nulis-Info.plist"; path = "nulis/nulis-Info.plist"; sourceTree = "<group>"; };
 		216A5F2B1511E7DC00BFE24D /* ml_http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_http.c; path = ../../../src/malka/ml_http.c; sourceTree = "<group>"; };
-		216A5F2C1511E7DC00BFE24D /* ml_http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_http.h; path = ../../../src/malka/ml_http.h; sourceTree = "<group>"; };
 		216A5F2D1511E7DC00BFE24D /* ml_os.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_os.c; path = ../../../src/malka/ml_os.c; sourceTree = "<group>"; };
-		216A5F2E1511E7DC00BFE24D /* ml_os.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_os.h; path = ../../../src/malka/ml_os.h; sourceTree = "<group>"; };
 		216A5F311511E81500BFE24D /* http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = http.h; path = ../../../src/http.h; sourceTree = "<group>"; };
 		216A5F321511E81500BFE24D /* http.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = http.m; path = ../../../src/http.m; sourceTree = "<group>"; };
 		216A5F351511F01300BFE24D /* ASICacheDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ASICacheDelegate.h; path = "../../../src/asi-http-request/ASICacheDelegate.h"; sourceTree = "<group>"; };
@@ -363,16 +356,18 @@
 		2174AAC3162416D100C8B682 /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImage+Resize.m"; path = "../../../src/UIImage+Resize.m"; sourceTree = "<group>"; };
 		2174AAC61624182F00C8B682 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_gamecenter.c; path = ../../../src/malka/ml_gamecenter.c; sourceTree = "<group>"; };
-		2183CA1E14E285BF00ECDC45 /* ml_gamecenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_gamecenter.h; path = ../../../src/malka/ml_gamecenter.h; sourceTree = "<group>"; };
 		2183CA1F14E285BF00ECDC45 /* ml_keyval.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_keyval.c; path = ../../../src/malka/ml_keyval.c; sourceTree = "<group>"; };
-		2183CA2014E285BF00ECDC45 /* ml_keyval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_keyval.h; path = ../../../src/malka/ml_keyval.h; sourceTree = "<group>"; };
+		21903DF0169ED0CB00DBDC1B /* vfont_apple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = vfont_apple.m; path = ../../../src/vfont_apple.m; sourceTree = "<group>"; };
+		21903DF1169ED0CB00DBDC1B /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../../src/vfont.c; sourceTree = "<group>"; };
+		21903DF4169ED10D00DBDC1B /* anim.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = anim.c; path = ../../../src/anim.c; sourceTree = "<group>"; };
+		21903DF5169ED10D00DBDC1B /* anim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = anim.h; path = ../../../src/anim.h; sourceTree = "<group>"; };
+		21903DF7169ED14600DBDC1B /* ml_anim.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_anim.c; path = ../../../src/malka/ml_anim.c; sourceTree = "<group>"; };
+		21903DF9169ED2A400DBDC1B /* sys_gfx_gles2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sys_gfx_gles2.c; path = ../../../src/sys_gfx_gles2.c; sourceTree = "<group>"; };
 		2194F0C414D7FF5900147A0C /* ml_coldet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_coldet.c; path = ../../../src/malka/ml_coldet.c; sourceTree = "<group>"; };
-		2194F0C514D7FF5900147A0C /* ml_coldet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_coldet.h; path = ../../../src/malka/ml_coldet.h; sourceTree = "<group>"; };
 		21A6736514DC0D3700665A26 /* AutoRotateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AutoRotateViewController.h; path = ../../../src/AutoRotateViewController.h; sourceTree = "<group>"; };
 		21A6736614DC0D3700665A26 /* AutoRotateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AutoRotateViewController.m; path = ../../../src/AutoRotateViewController.m; sourceTree = "<group>"; };
 		21A92A0C150A2D61004AE2C3 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		21A92A0F150A64F5004AE2C3 /* ml_iap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_iap.c; path = ../../../src/malka/ml_iap.c; sourceTree = "<group>"; };
-		21A92A10150A64F5004AE2C3 /* ml_iap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ml_iap.h; path = ../../../src/malka/ml_iap.h; sourceTree = "<group>"; };
 		21A92A12150A778D004AE2C3 /* icon 144x144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon 144x144.png"; sourceTree = "<group>"; };
 		21B8B4AA15AD560800F2AADD /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		21CA05DF16075D81008F2DF5 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -504,12 +499,14 @@
 				211523C615AADC3100C38EEC /* sys_misc.h */,
 				211523C415AADC2500C38EEC /* sys_snd_ios.m */,
 				211523C715AADC3C00C38EEC /* sys_snd.h */,
-				211523C215AADC1400C38EEC /* sys_gfx_ios.m */,
+				21903DF9169ED2A400DBDC1B /* sys_gfx_gles2.c */,
 				211523BF15AADBF600C38EEC /* sys_gfx.h */,
 				2137771614CD5AFB004F01D2 /* system.h */,
 				21107C3115E77B13004AC47F /* miniz.c */,
 				21CF3BF415AC237400BF33BC /* DGreedAppDelegate.h */,
 				21CF3BF515AC237400BF33BC /* DGreedAppDelegate.m */,
+				21903DF4169ED10D00DBDC1B /* anim.c */,
+				21903DF5169ED10D00DBDC1B /* anim.h */,
 				211523D415AAECC900C38EEC /* localization.c */,
 				211523D515AAECC900C38EEC /* localization.h */,
 				211523D615AAECC900C38EEC /* lz4.c */,
@@ -521,7 +518,8 @@
 				211523CE15AAE1B800C38EEC /* image.c */,
 				211523CF15AAE1B800C38EEC /* image.h */,
 				211523CB15AAE18B00C38EEC /* vfont.h */,
-				211523CC15AAE18B00C38EEC /* vfont.m */,
+				21903DF0169ED0CB00DBDC1B /* vfont_apple.m */,
+				21903DF1169ED0CB00DBDC1B /* vfont.c */,
 				211523C815AAE16300C38EEC /* camera.h */,
 				2174AAC2162416D100C8B682 /* UIImage+Resize.h */,
 				2174AAC3162416D100C8B682 /* UIImage+Resize.m */,
@@ -588,34 +586,23 @@
 			children = (
 				2137774F14CD5B2B004F01D2 /* lua */,
 				211523DD15AAED5200C38EEC /* ml_localization.c */,
-				211523DE15AAED5200C38EEC /* ml_localization.h */,
 				2137773914CD5B27004F01D2 /* malka.c */,
 				2137773A14CD5B27004F01D2 /* malka.h */,
 				2137773B14CD5B27004F01D2 /* ml_common.h */,
 				2137773C14CD5B27004F01D2 /* ml_mfx.c */,
-				2137773D14CD5B27004F01D2 /* ml_mfx.h */,
 				2137773E14CD5B27004F01D2 /* ml_mml.c */,
-				2137773F14CD5B27004F01D2 /* ml_mml.h */,
 				21A92A0F150A64F5004AE2C3 /* ml_iap.c */,
-				21A92A10150A64F5004AE2C3 /* ml_iap.h */,
 				2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */,
-				2183CA1E14E285BF00ECDC45 /* ml_gamecenter.h */,
 				2183CA1F14E285BF00ECDC45 /* ml_keyval.c */,
-				2183CA2014E285BF00ECDC45 /* ml_keyval.h */,
 				2137774014CD5B27004F01D2 /* ml_sprsheet.c */,
-				2137774114CD5B27004F01D2 /* ml_sprsheet.h */,
 				2137774214CD5B27004F01D2 /* ml_states.c */,
 				2137774314CD5B27004F01D2 /* ml_states.h */,
 				2137774414CD5B27004F01D2 /* ml_system.c */,
-				2137774514CD5B27004F01D2 /* ml_system.h */,
 				2137774614CD5B27004F01D2 /* ml_utils.c */,
-				2137774714CD5B27004F01D2 /* ml_utils.h */,
 				2194F0C414D7FF5900147A0C /* ml_coldet.c */,
-				2194F0C514D7FF5900147A0C /* ml_coldet.h */,
 				216A5F2B1511E7DC00BFE24D /* ml_http.c */,
-				216A5F2C1511E7DC00BFE24D /* ml_http.h */,
 				216A5F2D1511E7DC00BFE24D /* ml_os.c */,
-				216A5F2E1511E7DC00BFE24D /* ml_os.h */,
+				21903DF7169ED14600DBDC1B /* ml_anim.c */,
 				21107C3315E77BAA004AC47F /* profiler.c */,
 				21107C3415E77BAA004AC47F /* profiler.h */,
 			);
@@ -903,10 +890,8 @@
 				216A5F521511F22000BFE24D /* ASIAuthenticationDialog.m in Sources */,
 				216A5F531511F22000BFE24D /* Reachability.m in Sources */,
 				21DBAB04151F4BD800DCFFFB /* achievements.c in Sources */,
-				211523C315AADC1400C38EEC /* sys_gfx_ios.m in Sources */,
 				211523C515AADC2500C38EEC /* sys_snd_ios.m in Sources */,
 				211523CA15AAE16300C38EEC /* camera.m in Sources */,
-				211523CD15AAE18B00C38EEC /* vfont.m in Sources */,
 				211523D015AAE1B800C38EEC /* image.c in Sources */,
 				211523D315AAECB600C38EEC /* TextCapturerView.m in Sources */,
 				211523DA15AAECCA00C38EEC /* localization.c in Sources */,
@@ -918,6 +903,11 @@
 				21107C3215E77B13004AC47F /* miniz.c in Sources */,
 				21107C3515E77BAA004AC47F /* profiler.c in Sources */,
 				2174AAC4162416D100C8B682 /* UIImage+Resize.m in Sources */,
+				21903DF2169ED0CB00DBDC1B /* vfont_apple.m in Sources */,
+				21903DF3169ED0CB00DBDC1B /* vfont.c in Sources */,
+				21903DF6169ED10D00DBDC1B /* anim.c in Sources */,
+				21903DF8169ED14600DBDC1B /* ml_anim.c in Sources */,
+				21903DFA169ED2A400DBDC1B /* sys_gfx_gles2.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

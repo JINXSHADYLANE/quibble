@@ -261,10 +261,14 @@ static void _malka_prep(const char* luafile) {
 	lua_pop(l, 1);
 	MEM_FREE(module_path);
 
-    // Set flag running_on_ios
 #ifdef TARGET_IOS
     lua_pushboolean(l, true);
     lua_setglobal(l, "running_on_ios"); 
+#endif
+
+#ifdef ANDROID
+	lua_pushboolean(l, true);
+	lua_setglobal(l, "android");
 #endif
 
     // Set debug flag
@@ -308,13 +312,11 @@ int malka_run_ex(const char* luafile) {
 
 	_malka_prep(file);
 
-	LOG_INFO("Running main.lua..");
 	if(luaL_dofile(l, file)) {
 		const char* err = luaL_checkstring(l, -1);
 		LOG_WARNING("error in lua script:\n%s\n", err);
 		printf("An error occured:\n%s\n", err);
 	}
-	LOG_INFO("Running main.lua ... success");
 
 	MEM_FREE(file);
 
