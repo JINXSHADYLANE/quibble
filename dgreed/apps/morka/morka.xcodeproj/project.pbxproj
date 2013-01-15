@@ -42,7 +42,6 @@
 		219BEA2316776A3F002B614C /* NSFileManager+DirectoryLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = 219BE9EA16776A3E002B614C /* NSFileManager+DirectoryLocations.m */; };
 		219BEA2416776A3F002B614C /* particles.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BE9EB16776A3E002B614C /* particles.c */; };
 		219BEA2516776A3F002B614C /* sprsheet.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BE9EE16776A3E002B614C /* sprsheet.c */; };
-		219BEA2616776A3F002B614C /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 219BE9F016776A3E002B614C /* sys_gfx_ios.m */; };
 		219BEA2716776A3F002B614C /* sys_misc_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 219BE9F216776A3E002B614C /* sys_misc_ios.m */; };
 		219BEA2816776A3F002B614C /* sys_snd_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 219BE9F416776A3E002B614C /* sys_snd_ios.m */; };
 		219BEA2916776A3F002B614C /* TextCapturerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 219BE9F816776A3E002B614C /* TextCapturerView.m */; };
@@ -151,6 +150,7 @@
 		21D53BA5167A23F0009E6CFC /* vfont_apple.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA3167A23F0009E6CFC /* vfont_apple.m */; };
 		21D53BA6167A23F0009E6CFC /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA4167A23F0009E6CFC /* vfont.c */; };
 		21DAACE51681CB55002464CD /* obj_pin.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DAACE41681CB55002464CD /* obj_pin.c */; };
+		21ED799A16A54CBB002CA25B /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 21ED799916A54CBB002CA25B /* sys_gfx_ios.m */; };
 		AA8213B4169DA89200A7EBA8 /* icon~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B3169DA89200A7EBA8 /* icon~ipad.png */; };
 		AA8213B7169DA89500A7EBA8 /* icon@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */; };
 /* End PBXBuildFile section */
@@ -222,7 +222,6 @@
 		219BE9ED16776A3E002B614C /* sophist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sophist.h; path = ../../src/sophist.h; sourceTree = "<group>"; };
 		219BE9EE16776A3E002B614C /* sprsheet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sprsheet.c; path = ../../src/sprsheet.c; sourceTree = "<group>"; };
 		219BE9EF16776A3E002B614C /* sprsheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sprsheet.h; path = ../../src/sprsheet.h; sourceTree = "<group>"; };
-		219BE9F016776A3E002B614C /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
 		219BE9F116776A3E002B614C /* sys_gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sys_gfx.h; path = ../../src/sys_gfx.h; sourceTree = "<group>"; };
 		219BE9F216776A3E002B614C /* sys_misc_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_misc_ios.m; path = ../../src/sys_misc_ios.m; sourceTree = "<group>"; };
 		219BE9F316776A3E002B614C /* sys_misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sys_misc.h; path = ../../src/sys_misc.h; sourceTree = "<group>"; };
@@ -393,6 +392,7 @@
 		21D53BA3167A23F0009E6CFC /* vfont_apple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = vfont_apple.m; path = ../../src/vfont_apple.m; sourceTree = "<group>"; };
 		21D53BA4167A23F0009E6CFC /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../src/vfont.c; sourceTree = "<group>"; };
 		21DAACE41681CB55002464CD /* obj_pin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_pin.c; sourceTree = SOURCE_ROOT; };
+		21ED799916A54CBB002CA25B /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
 		AA8213B3169DA89200A7EBA8 /* icon~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon~ipad.png"; sourceTree = "<group>"; };
 		AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x~ipad.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -579,8 +579,8 @@
 				219BE9ED16776A3E002B614C /* sophist.h */,
 				219BE9EE16776A3E002B614C /* sprsheet.c */,
 				219BE9EF16776A3E002B614C /* sprsheet.h */,
-				219BE9F016776A3E002B614C /* sys_gfx_ios.m */,
 				219BE9F116776A3E002B614C /* sys_gfx.h */,
+				21ED799916A54CBB002CA25B /* sys_gfx_ios.m */,
 				219BE9F216776A3E002B614C /* sys_misc_ios.m */,
 				219BE9F316776A3E002B614C /* sys_misc.h */,
 				219BE9F416776A3E002B614C /* sys_snd_ios.m */,
@@ -851,7 +851,6 @@
 				219BEA2316776A3F002B614C /* NSFileManager+DirectoryLocations.m in Sources */,
 				219BEA2416776A3F002B614C /* particles.c in Sources */,
 				219BEA2516776A3F002B614C /* sprsheet.c in Sources */,
-				219BEA2616776A3F002B614C /* sys_gfx_ios.m in Sources */,
 				219BEA2716776A3F002B614C /* sys_misc_ios.m in Sources */,
 				219BEA2816776A3F002B614C /* sys_snd_ios.m in Sources */,
 				219BEA2916776A3F002B614C /* TextCapturerView.m in Sources */,
@@ -940,6 +939,7 @@
 				21D53BA5167A23F0009E6CFC /* vfont_apple.m in Sources */,
 				21D53BA6167A23F0009E6CFC /* vfont.c in Sources */,
 				21DAACE51681CB55002464CD /* obj_pin.c in Sources */,
+				21ED799A16A54CBB002CA25B /* sys_gfx_ios.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

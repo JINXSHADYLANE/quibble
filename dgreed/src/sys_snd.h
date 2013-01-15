@@ -27,7 +27,7 @@ void sound_close(void);
 // Must be called once each frame
 void sound_update(void);
 
-typedef uint SoundHandle;
+typedef size_t SoundHandle;
 
 // Loads sound sample from .wav file
 SoundHandle sound_load_sample(const char* filename);
@@ -51,7 +51,7 @@ float sound_get_length(SoundHandle handle);
 
 // Extented API for controlling specific sound sources
 
-typedef uint SourceHandle;
+typedef size_t SourceHandle;
 
 // Plays stream or sample, optionally looping it, returns source.
 // If result is null - sound was skipped.
