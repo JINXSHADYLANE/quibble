@@ -27,7 +27,9 @@ static GLESView* global_gles_view = NULL;
         
         
 		// Init OpenGL ES 2.0 context
-		context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+		//context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        // Init OpenGL ES 1.1 context
+        context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
         
 		// Set context as current
 		if(!context || ![EAGLContext setCurrentContext:context]) {
