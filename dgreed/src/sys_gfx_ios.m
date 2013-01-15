@@ -538,7 +538,7 @@ void video_present(void) {
 	#endif
 	}
 
-    [[GLESView singleton] present];
+    _sys_present();
 
     if(has_discard_extension) {
         const GLenum discards[]  = {GL_COLOR_ATTACHMENT0_OES, GL_DEPTH_ATTACHMENT_OES};
@@ -567,37 +567,6 @@ void video_set_transform(uint layer, float* matrix) {
 	assert(layer < bucket_count);
 
 	transform[layer] = matrix;
-}
-
-static void* _load_image(const char* filename, uint* width, uint* height, CFDataRef* image_data) {
-    FileHandle f = file_open(filename);
-    size_t s = file_size(f);
-    void* fdata = malloc(s);
-    file_read(f, fdata, s);
-    file_close(f);
-
-    NSData* img_data = [[NSData alloc] initWithBytesNoCopy:fdata length:s freeWhenDone:YES];
-
-	// Load texture
-    UIImage* image = [[UIImage alloc] initWithData:img_data];
-    [img_data release];
-
-	CGImageRef cg_image = image.CGImage;
-	*width = CGImageGetWidth(cg_image);
-	*height = CGImageGetHeight(cg_image);
-    CGColorSpaceRef color_space = CGImageGetColorSpace(cg_image);
-	CGColorSpaceModel color_model = CGColorSpaceGetModel(color_space);
-	uint bits_per_component = CGImageGetBitsPerComponent(cg_image);
-	if(color_model != kCGColorSpaceModelRGB || bits_per_component != 8)
-		LOG_ERROR("Bad image color space - please use 24 or 32 bit rgb/rgba");
-	if(!(is_pow2(*width) && is_pow2(*height)))
-		LOG_ERROR("Texture dimensions must be a power of 2");
-	*image_data = CGDataProviderCopyData(CGImageGetDataProvider(cg_image));
-	void* data = (void*)CFDataGetBytePtr(*image_data);
-
-    [image release];
-
-	return data;
 }
 
 static uint _make_gl_texture(void* data, uint width, uint height) {
@@ -662,7 +631,7 @@ TexHandle tex_create(uint width, uint height) {
 TexHandle tex_load(const char* filename) {
 	return tex_load_filter(filename, NULL);
 }
-
+extern void* ios_load_image(const char* filename, uint* w, uint* h, PixelFormat* format);
 TexHandle tex_load_filter(const char* filename, TexFilter filter) {
 	assert(filename);
 
@@ -682,14 +651,13 @@ TexHandle tex_load_filter(const char* filename, TexFilter filter) {
 
 	Texture new_tex;
 
-    CFDataRef image_data;
-	void* data = _load_image(filename, &new_tex.width, &new_tex.height, &image_data);
+    PixelFormat fmt;
+	void* data = image_load(filename, &new_tex.width, &new_tex.height, &fmt);
 
 	if(filter)
 		(*filter)((Color*)data, new_tex.width, new_tex.height);
 
     uint gl_id = _make_gl_texture(data, new_tex.width, new_tex.height);
-    CFRelease(image_data);
 
 	new_tex.gl_id = gl_id;
 	new_tex.file = strclone(filename);
@@ -882,15 +850,4 @@ void video_draw_line(uint layer, const Vector2* start,
 	if(!line_buckets[layer].reserved)
 		line_buckets[layer] = darray_create(sizeof(LineDesc), 32);
 	darray_append(&line_buckets[layer], &new_line);
-}
-
-void* ios_load_image(const char* filename, uint* w, uint* h, PixelFormat* format) {
-	CFDataRef image_data;
-	void* data = _load_image(filename, w, h, &image_data);
-    size_t s = 4 * *w * *h;
-	void* data_copy = malloc(s);
-	memcpy(data_copy, data, s);
-	CFRelease(image_data);
-	*format = PF_RGBA8888;
-	return data_copy;
 }
