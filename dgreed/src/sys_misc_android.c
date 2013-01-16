@@ -83,7 +83,10 @@ void runstate_foreground_cb(RunStateCallback cb) {
 --------------------
 */
 
+static ShakeCallback shake_cb = NULL;
+
 void acc_shake_cb(ShakeCallback cb) {
+	shake_cb = cb;
 }
 
 /*
@@ -382,6 +385,9 @@ static void _invoke_sound(const char* f) {
 	(*env)->CallVoidMethod(env, singleton, pause_id);
 }
 
+static int joystick_axes[3] = {0, 0, 0};
+static int last_shake_t = 0;
+
 extern bool dgreed_sleeping;
 bool system_update(void) {
 	SDL_Event evt;
@@ -484,6 +490,21 @@ bool system_update(void) {
 			LOG_INFO("SDL_SYSWMEVENT");
 		}
 
+		if(evt.type == SDL_JOYAXISMOTION) {
+			int a = evt.jaxis.axis;
+			if(evt.jaxis.axis < 3) {
+				int d = evt.jaxis.value - joystick_axes[a];
+				if(d > 10000) {
+					int t = time_ms_current();
+					if(shake_cb && t - last_shake_t > 1000) {
+						last_shake_t = t;
+						(*shake_cb)();
+					}
+				}
+				joystick_axes[a] = evt.jaxis.value;
+			}
+		}
+
 		if(evt.type == SDL_QUIT)
 			return false;
 	}
@@ -513,12 +534,13 @@ bool system_update(void) {
 bool _sys_video_initialized = false;
 SDL_Window* _sys_window = NULL;
 SDL_GLContext _sys_glcontext;
+SDL_Joystick* _sys_joystick = NULL;
 
 void _sys_video_init(void) {
 	assert(!_sys_video_initialized);
 	_sys_video_initialized = true;
 
-	if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO) < 0)
+	if(SDL_Init(SDL_INIT_TIMER|SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) < 0)
 		LOG_ERROR("Unable to initialize SDL");
 
 	SDL_DisplayMode mode;
@@ -538,6 +560,11 @@ void _sys_video_init(void) {
 			SDL_WINDOW_OPENGL
 	);
 
+	if(SDL_NumJoysticks()) {
+		_sys_joystick = SDL_JoystickOpen(0);
+		SDL_JoystickEventState(SDL_ENABLE);
+	}
+
 	_sys_glcontext = SDL_GL_CreateContext(window);
 	_sys_window = window;
 }
@@ -552,6 +579,10 @@ void _sys_video_close(void) {
 	_sys_video_initialized = false;
 	SDL_GL_DeleteContext(_sys_glcontext);
 	SDL_DestroyWindow(_sys_window);
+
+	if(_sys_joystick) {
+		SDL_JoystickClose(_sys_joystick);
+	}
 
 	SDL_Quit();
 }
