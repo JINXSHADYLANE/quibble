@@ -1,5 +1,8 @@
 #include "system.h"
 
+#include "keyval.h"
+
+#include <jni.h>
 #include <SDL.h>
 #include <unistd.h>
 
@@ -37,6 +40,8 @@ int SDL_main(int argc, char** argv) {
 		mem_dump("memory.txt");
 	}
 #endif
+
+	exit(0);
 
 	return res;	
 }
@@ -285,12 +290,18 @@ void txtinput_clear(void) {
 -------------------
 */
 
-float t_ms = 0.0f, t_d = 0.0f;
-float t_scale = 1.0f;
-uint last_frame_time = 0, last_fps_update = 0;
-uint fps_count = 0;
-uint fps = 0;
-uint last_time = 0;
+extern void malka_states_app_suspend(void);
+extern void _loc_write_base(void);
+
+static float inactive_time = 0.0f;
+static bool did_resign_active = false;
+static float resign_active_t;
+
+static float t_ms = 0.0f, t_d = 0.0f;
+static float t_scale = 1.0f;
+static int last_frame_time = 0, last_fps_update = 0;
+static uint fps_count = 0;
+static uint fps = 0;
 
 float time_s(void) {
 	return t_ms / 1000.0f;
@@ -318,15 +329,16 @@ uint time_ms_current(void) {
 }
 
 void _time_update(uint current_time) {
-	t_ms += (float)(current_time - last_frame_time) * t_scale;
-	t_d = (float)(current_time - last_frame_time) * t_scale;
+	int t = current_time - inactive_time;
+	t_d = (float)(t - last_frame_time) * t_scale;
+	t_ms += t_d;
 	if(last_fps_update + 1000 < current_time) {
 		fps = fps_count;
 		fps_count = 0;
 		last_fps_update = current_time;
 	}
 	fps_count++;
-	last_frame_time = current_time;
+	last_frame_time = t;
 }
 
 uint _sdl_to_greed_mbtn(uint mbtn_id) {
@@ -354,6 +366,12 @@ static Vector2 _conv_touch(uint16 x, uint16 y) {
 	return vec2(ix, _sys_native_width - iy);
 }
 
+#define sdl_window_event(name) \
+	case (name):	\
+	LOG_INFO(#name); \
+	break;
+
+extern bool dgreed_sleeping;
 bool system_update(void) {
 	SDL_Event evt;
 
@@ -398,8 +416,58 @@ bool system_update(void) {
 			_add_key(keys_up, &keys_up_n, keycode);
 			_rem_key(keys_pressed, &keys_pressed_n, keycode);
 		}
+
 		if(evt.type == SDL_WINDOWEVENT) {
-			LOG_INFO("SDL_WINDOWEVENT");
+			if(evt.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+				// Focus lost, stop sound & rendering somehow
+
+				did_resign_active = true;
+				resign_active_t = time_ms_current();
+			}
+
+			if(evt.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+				// Focus gained, resume sound & rendering
+
+				did_resign_active = false;
+				inactive_time += (time_ms_current() - resign_active_t);
+			}
+
+			if(evt.window.event == SDL_WINDOWEVENT_MINIMIZED) {
+				// Enter background
+				if(enter_background_cb)
+					(*enter_background_cb)();
+				malka_states_app_suspend();
+				keyval_app_suspend();
+				_loc_write_base();
+				dgreed_sleeping = true;
+			}
+
+			if(evt.window.event == SDL_WINDOWEVENT_RESTORED) {
+				// Enter foreground
+				if(enter_foreground_cb)
+					(*enter_foreground_cb)();
+				dgreed_sleeping = false;
+			}
+
+			/*
+			switch(evt.window.event) {
+				sdl_window_event(SDL_WINDOWEVENT_NONE);
+				sdl_window_event(SDL_WINDOWEVENT_SHOWN);
+				sdl_window_event(SDL_WINDOWEVENT_HIDDEN);
+				sdl_window_event(SDL_WINDOWEVENT_EXPOSED);
+				sdl_window_event(SDL_WINDOWEVENT_MOVED);
+				sdl_window_event(SDL_WINDOWEVENT_RESIZED);
+				sdl_window_event(SDL_WINDOWEVENT_SIZE_CHANGED);
+				sdl_window_event(SDL_WINDOWEVENT_MINIMIZED);
+				sdl_window_event(SDL_WINDOWEVENT_MAXIMIZED);
+				sdl_window_event(SDL_WINDOWEVENT_RESTORED);
+				sdl_window_event(SDL_WINDOWEVENT_ENTER);
+				sdl_window_event(SDL_WINDOWEVENT_LEAVE);
+				sdl_window_event(SDL_WINDOWEVENT_FOCUS_GAINED);
+				sdl_window_event(SDL_WINDOWEVENT_FOCUS_LOST);
+				sdl_window_event(SDL_WINDOWEVENT_CLOSE);
+			}
+			*/
 		}
 		if(evt.type == SDL_SYSWMEVENT) {
 			LOG_INFO("SDL_SYSWMEVENT");
@@ -408,6 +476,9 @@ bool system_update(void) {
 		if(evt.type == SDL_QUIT)
 			return false;
 	}
+
+	if(dgreed_sleeping)
+		SDL_Delay(16);
 
 	async_process_schedule();
 
@@ -470,6 +541,7 @@ void _sys_video_close(void) {
 	_sys_video_initialized = false;
 	SDL_GL_DeleteContext(_sys_glcontext);
 	SDL_DestroyWindow(_sys_window);
+
 	SDL_Quit();
 }
 
@@ -484,6 +556,7 @@ void _sys_video_get_native_resolution(uint* width, uint* height) {
 }
 
 void _sys_present(void) {
-	SDL_GL_SwapWindow(_sys_window);
+	if(!dgreed_sleeping)
+		SDL_GL_SwapWindow(_sys_window);
 }
 
