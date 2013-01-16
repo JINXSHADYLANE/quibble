@@ -371,6 +371,17 @@ static Vector2 _conv_touch(uint16 x, uint16 y) {
 	LOG_INFO(#name); \
 	break;
 
+static void _invoke_sound(const char* f) {
+	JNIEnv* env = SDL_AndroidGetJNIEnv();
+	jclass sound_class = (*env)->FindClass(env, "com/quibble/dgreed/Sound");
+	jfieldID singleton_id = (*env)->GetStaticFieldID(env, sound_class, "singleton", 
+		"Lcom/quibble/dgreed/Sound;"
+	);
+	jobject singleton = (*env)->GetStaticObjectField(env, sound_class, singleton_id);
+	jmethodID pause_id = (*env)->GetMethodID(env, sound_class, f, "()V");
+	(*env)->CallVoidMethod(env, singleton, pause_id);
+}
+
 extern bool dgreed_sleeping;
 bool system_update(void) {
 	SDL_Event evt;
@@ -419,21 +430,20 @@ bool system_update(void) {
 
 		if(evt.type == SDL_WINDOWEVENT) {
 			if(evt.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
-				// Focus lost, stop sound & rendering somehow
-
+				// Focus lost
 				did_resign_active = true;
 				resign_active_t = time_ms_current();
 			}
 
 			if(evt.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-				// Focus gained, resume sound & rendering
-
+				// Focus gained
 				did_resign_active = false;
 				inactive_time += (time_ms_current() - resign_active_t);
 			}
 
 			if(evt.window.event == SDL_WINDOWEVENT_MINIMIZED) {
 				// Enter background
+				_invoke_sound("Pause");
 				if(enter_background_cb)
 					(*enter_background_cb)();
 				malka_states_app_suspend();
@@ -447,6 +457,7 @@ bool system_update(void) {
 				if(enter_foreground_cb)
 					(*enter_foreground_cb)();
 				dgreed_sleeping = false;
+				_invoke_sound("Resume");
 			}
 
 			/*
