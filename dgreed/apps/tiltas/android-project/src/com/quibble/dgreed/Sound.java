@@ -12,8 +12,11 @@ import android.util.Log;
 
 public class Sound {
 	private SoundPool pool;
+	private MediaPlayerSound music;
+	public static Sound singleton;
 
 	public Sound() {
+		singleton = this;
 	}
 
 	public void Init() {
@@ -33,7 +36,22 @@ public class Sound {
 	}
 
 	public IPlayable LoadStream(String filename) {
-		return new MediaPlayerSound(filename);
+		music = new MediaPlayerSound(filename);
+		return music;
+	}
+
+	public void Pause() {
+		if(music != null)
+			music.Pause();
+		if(pool != null)
+			pool.autoPause();
+	}
+
+	public void Resume() {
+		if(music != null) 
+			music.Resume();
+		if(pool != null)
+			pool.autoResume();
 	}
 }
 
