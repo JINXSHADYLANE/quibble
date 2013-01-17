@@ -4,6 +4,26 @@ var crypto = require('crypto');
 var path = require('path');
 var url = require('url');
 
+// reading lobby port number from config file
+var lobby_port = getLobbyPort();
+
+function getLobbyPort(){
+	var fs = require('fs');
+
+	var temp = 80;
+	var data = fs.readFileSync('./aitvaras_scripts/config.lua', 'utf8');
+	var lines = data.split("\n");
+	for (var i in lines) {
+		var regex = /^(?!--)config.lobby_port/;
+		var result = lines[i].match(regex);
+		if(result !== null){
+			temp = parseInt(lines[i].replace(/.*?=/,''));
+		}
+	}
+	if(temp == 80) console.log('Lobby port is undefined in the config file, using default: 80');
+	return temp;
+}
+
 function startsWith(str, prefix) {
 	return str.indexOf(prefix) === 0;
 }
@@ -23,6 +43,7 @@ function getIp(req) {
 var servers = {}
 
 http.createServer(function (req, res) {
+
 	if(req.url === '/')
 		req.url = '/index.html'
 
@@ -145,5 +166,5 @@ http.createServer(function (req, res) {
 			}
 		});
 	}
-}).listen(80);
+}).listen(lobby_port);
 
