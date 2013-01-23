@@ -59,7 +59,7 @@ static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 
 	// Text
 	vfont_select("Baskerville-Bold", 48.0f); 
-	const char* str = "The time is over.";
+	const char* str = "The race is over.";
 	static Vector2 half_size = {0.0f, 0.0f};
 	if(half_size.x == 0.0f) {
 		half_size = vec2_scale(vfont_size(str), 0.5f);
@@ -97,7 +97,7 @@ static void _hud_render_pause(UIElement* element, uint layer) {
 
 	// Text
 	vfont_select("Baskerville-Bold", 48.0f); 
-	const char* str = "The game is paused.";
+	const char* str = "Paused";
 	static Vector2 half_size = {0.0f, 0.0f};
 	if(half_size.x == 0.0f) {
 		half_size = vec2_scale(vfont_size(str), 0.5f);
