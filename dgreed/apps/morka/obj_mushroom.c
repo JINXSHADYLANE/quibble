@@ -29,11 +29,9 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 
 	ObjMushroom* mushroom = (ObjMushroom*)self;
 
-	TexHandle tex;
-	RectF src;
-	sprsheet_get_h(spr_handle, &tex, &src);
-	float width = rectf_width(&src);
-	float height = rectf_height(&src);
+	Vector2 size = sprsheet_get_size_h(spr_handle);
+	float width = size.x;
+	float height = size.y;
 
 	mushroom->oh = height;
 	mushroom->h = height;

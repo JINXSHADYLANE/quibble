@@ -43,13 +43,13 @@ else:
 
 if str(Platform()) == 'win32':
 	Tool('mingw')(env)
-	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32', 'curl', 'pthread', 'wsock32'],
+	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32', 'curl', 'pthread', 'wsock32','freetype'],
 		DGREED_FONT_TOOL=default_font_tool.replace('/', '\\'),
 		DGREED_TEST_TOOL=default_test_tool.replace('/', '\\'),
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool.replace('/', '\\'),
 		DGREED_OGMO_TOOL=default_ogmo_tool.replace('/', '\\'),
 		DGREED_LUA=luac,
-		DGREED_DIR_SEPARATOR='\\', LINKFLAGS=' -mwindows')
+		DGREED_DIR_SEPARATOR='\\')
 elif str(Platform()) == 'darwin':
 	env.Append(DGREED_LIBS=['curl'], 
 		DGREED_FONT_TOOL=default_font_tool,
@@ -104,6 +104,7 @@ else:
 			Exit(1)
 	conf.Finish()
 
+	
 dbg_flags = '-D_DEBUG -g '
 rel_flags = '-DNDEBUG -O2 '
 
@@ -116,6 +117,9 @@ env_rel.Prepend(CCFLAGS=rel_flags, CXXFLAGS=rel_flags, DGREED_POSTFIX='',
 	DGREED_LIBS=['dgreed'], DGREED_EGO_LIB=['ego'],
 	MALKA_LIBS=['malka', 'lua'])
 
+if str(Platform()) == 'win32':
+	env_rel.Append(LINKFLAGS=' -mwindows')	
+	
 for sub in SUBS:
 	build_postfix = '' if sub=='src' else sub+'_'
 	env = env_dbg

@@ -5,13 +5,6 @@
 		(tex atlas_1.png)
 		(src 0,256,1024,1024)
 	)
-	(anim grass
-		(tex atlas_2.png)
-		(src 0,1,256,187)
-		(offset 256,0)
-		(frames 4)
-		(grid 4,1)
-	)
 	(anim rabbit
 		(tex atlas_0.png)
 		(src 0,0,130,130)
@@ -59,13 +52,37 @@
 		(tex atlas_2.png)
 		(src 250,815,304,905)
 	)
-	(img grass_end
+	(img grass_end1
 		(tex atlas_2.png)
-		(src 324,741,609,928)
+		(src 324,741,466,928)
 	)
-	(img grass_start
+	(img grass_end2
 		(tex atlas_2.png)
-		(src 372,550,664,737)
+		(src 466,741,609,928)
+	)
+	(img grass1
+		(tex atlas_2.png)
+		(src 0,1,256,187)
+	)
+	(img grass2
+		(tex atlas_2.png)
+		(src 256,1,512,187)
+	)
+	(img grass3
+		(tex atlas_2.png)
+		(src 512,1,768,187)
+	)
+	(img grass4
+		(tex atlas_2.png)
+		(src 768,1,1024,187)
+	)
+	(img grass_start1
+		(tex atlas_2.png)
+		(src 372,550,518,737)
+	)
+	(img grass_start2
+		(tex atlas_2.png)
+		(src 518,550,664,737)
 	)
 	(img muffin
 		(tex atlas_2.png)
@@ -143,19 +160,38 @@
 		(tex atlas_2.png)
 		(src 239,550,308,614)
 	)
-	(img water
+	(img water1
 		(tex atlas_2.png)
-		(src 0,191,1024,350)
+		(src 0,191,256,350)
 	)
-	(img water_end
+	(img water2
 		(tex atlas_2.png)
-		(src 0,624,320,811)
+		(src 256,191,512,350)
 	)
-	(img water_start
+	(img water3
 		(tex atlas_2.png)
-		(src 239,354,559,529)
+		(src 512,191,768,350)
 	)
-
+	(img water4
+		(tex atlas_2.png)
+		(src 768,191,1024,350)
+	)
+	(img water_end1
+		(tex atlas_2.png)
+		(src 0,624,160,811)
+	)
+	(img water_end2
+		(tex atlas_2.png)
+		(src 160,624,320,811)
+	)
+	(img water_start1
+		(tex atlas_2.png)
+		(src 239,354,399,529)
+	)
+	(img water_start2
+		(tex atlas_2.png)
+		(src 399,354,559,529)
+	)
 
 
 	(img bg_mushroom_2

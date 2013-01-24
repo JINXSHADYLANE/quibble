@@ -14,6 +14,7 @@ static float bg_page_cursor = 0.0f;
 static RndContext rnd = NULL;
 static Chain* fg_chain;
 static Chain* bg_chain;
+static Chain* ground_chain;
 
 static void _gen_bg_page(void) {
 	SprHandle spr;	
@@ -38,14 +39,23 @@ static void _gen_bg_page(void) {
 }
 
 static void _gen_fg_page(void) {
-	// Add ground
-	for(uint i = 0; i < 4; ++i) {
-		Vector2 pos = vec2(fg_page_cursor + 128.0f + i * 256.0f, 683.0f);
-		objects_create(&obj_ground_desc, pos, (void*)i);
-	}
-
 	SprHandle spr;	
-	uint advance;
+	uint advance = 0;
+	
+	// Add ground
+	static float ground_x = page_width;
+	ground_x -= page_width;
+	while(ground_x < page_width) {
+		char sym = mchains_next(ground_chain, &rnd);
+		mchains_symbol_info(ground_chain, sym, &advance, &spr);
+		if(spr) {
+			Vector2 pos = vec2(fg_page_cursor + ground_x + 100.0f, 768.0f);
+			GameObject* g = objects_create(&obj_ground_desc, pos, (void*)spr);
+			advance = (uint) sprsheet_get_size_h(spr).x;
+			
+		}
+		ground_x += (float)advance;
+	}
 	
 	// Add foreground mushrooms
 	static float fg_x = page_width;
@@ -82,10 +92,12 @@ void worldgen_reset(uint seed) {
 		bg_page_cursor = 0.0f;
 		mchains_del(fg_chain);
 		mchains_del(bg_chain);
+		mchains_del(ground_chain);
 	}
 
 	fg_chain = mchains_new("fg");
 	bg_chain = mchains_new("bg");
+	ground_chain = mchains_new("ground");
 
 	_gen_bg_page();
 	_gen_fg_page();
@@ -94,6 +106,7 @@ void worldgen_reset(uint seed) {
 void worldgen_close(void) {
 	mchains_del(fg_chain);
 	mchains_del(bg_chain);
+	mchains_del(ground_chain);
 	rand_free_ex(&rnd);
 }
 
