@@ -20,7 +20,7 @@ static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data)
 		pos.x + width, pos.y
 	};
 		
-	if(spr_handle == 13 || spr_handle == 18){
+	if(spr_handle == 11 || spr_handle == 12){
 		dest.top = pos.y-10;
 	}		
 		

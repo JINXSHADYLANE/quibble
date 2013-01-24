@@ -72,7 +72,7 @@ static void _gen_fg_page(void) {
 		mchains_symbol_info(fg_chain, sym, &advance, &spr);
 
 		if(spr) {
-			Vector2 pos = vec2(fg_page_cursor + fg_x + 100.0f, 660.0f);
+			Vector2 pos = vec2(fg_page_cursor + fg_x + 100.0f, 641.0f);
 			GameObject* g = objects_create(&obj_mushroom_desc, pos, (void*)spr);
 			ObjMushroom* shroom = (ObjMushroom*)g;
 			if(sym == 'x')
