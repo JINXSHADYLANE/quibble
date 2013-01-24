@@ -100,6 +100,13 @@ static bool game_update(void) {
 	}
 
 	if(rabbit && rabbit->header.type) {
+		if(rabbit->is_oob){
+			rabbit_distance = rabbit_current_distance;
+			game_over = true;
+			rabbit->is_oob = false;
+		}
+	
+	
 		// Make camera follow rabbit
 		if(!game_over)
 			rabbit_current_distance = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;

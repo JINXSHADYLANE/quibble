@@ -20,6 +20,8 @@ typedef struct {
 	bool touching_ground;
 	bool jump_off_mushroom;
 	bool is_diving;
+	bool is_oob;
+	float speed_adjust;
 	Anim* anim;
 	Vector2 bounce_force;
 } ObjRabbit;
@@ -30,6 +32,7 @@ extern GameObjectDesc obj_rabbit_desc;
 
 typedef struct {
 	GameObject header;
+	float speed_adjust;
 } ObjGround;
 
 extern GameObjectDesc obj_ground_desc;
