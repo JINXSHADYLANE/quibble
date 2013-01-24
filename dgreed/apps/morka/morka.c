@@ -12,11 +12,9 @@
 
 #include "game.h"
 #include "mchains.h"
+#include "common.h"
 
 extern bool draw_gfx_debug;
-
-#define ASSETS_DIR "morka_assets/"
-#define SCRIPTS_DIR "morka_scripts/"
 
 void dgreed_preinit(void) {
 }
