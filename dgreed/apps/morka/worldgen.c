@@ -47,12 +47,19 @@ static void _gen_fg_page(void) {
 	ground_x -= page_width;
 	while(ground_x < page_width) {
 		char sym = mchains_next(ground_chain, &rnd);
+		//printf("sym: %c ",sym);
 		mchains_symbol_info(ground_chain, sym, &advance, &spr);
+		//printf("sym: %i\n",spr);
 		if(spr) {
 			Vector2 pos = vec2(fg_page_cursor + ground_x + 100.0f, 768.0f);
 			GameObject* g = objects_create(&obj_ground_desc, pos, (void*)spr);
-			advance = (uint) sprsheet_get_size_h(spr).x;
-			
+			ObjGround* ground = (ObjGround*)g;
+			if(sym == 'k' || sym == 'l' || sym == 'm' || sym == 'n' || sym == 'o' || sym == 'p'){
+				ground->speed_adjust = 0.500;
+			} else {
+				ground->speed_adjust = 1.000;
+			}
+			advance = (uint) sprsheet_get_size_h(spr).x;			
 		}
 		ground_x += (float)advance;
 	}
@@ -65,7 +72,7 @@ static void _gen_fg_page(void) {
 		mchains_symbol_info(fg_chain, sym, &advance, &spr);
 
 		if(spr) {
-			Vector2 pos = vec2(fg_page_cursor + fg_x + 100.0f, 580.0f);
+			Vector2 pos = vec2(fg_page_cursor + fg_x + 100.0f, 660.0f);
 			GameObject* g = objects_create(&obj_mushroom_desc, pos, (void*)spr);
 			ObjMushroom* shroom = (ObjMushroom*)g;
 			if(sym == 'x')
