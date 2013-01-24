@@ -7,7 +7,7 @@
 
 #include "common.h"
 
-#ifndef APPLE
+#ifndef __APPLE__
 	#define FONT_NAME ASSETS_DIR "Chango-Regular.ttf"
 #else
 	#define FONT_NAME "Baskerville-Bold"
