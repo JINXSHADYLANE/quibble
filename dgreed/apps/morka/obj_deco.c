@@ -10,14 +10,14 @@ static void obj_deco_construct(GameObject* self, Vector2 pos, void* user_data) {
 	float height = rectf_height(&src);
 
 	RectF dest = {
-		pos.x - width / 2.0f, pos.y - height / 2.0f,
-		pos.x + width / 2.0f, pos.y + height / 2.0f
+		pos.x, pos.y - height,
+		pos.x + width, pos.y
 	};
 
 	// Render
 	RenderComponent* render = self->render;
 	render->world_dest = dest;
-	render->layer = 1;
+	render->layer = self->type == OBJ_DECO_TYPE ? 1 : 4;
 	render->color = COLOR_RGBA(255, 255, 255, 255);
 	render->camera = self->type == OBJ_DECO_TYPE ? 1 : 0;
 	render->anim_frame = MAX_UINT16;

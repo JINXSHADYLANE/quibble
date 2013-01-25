@@ -100,10 +100,9 @@ static bool game_update(void) {
 	}
 
 	if(rabbit && rabbit->header.type) {
-		if(rabbit->is_oob){
+		if(rabbit->is_dead){
 			rabbit_distance = rabbit_current_distance;
 			game_over = true;
-			rabbit->is_oob = false;
 		}
 	
 	

@@ -13,8 +13,6 @@ static float mushroom_hit_time = 0.0f;
 const static float rabbit_hitbox_width = 70.0f;
 const static float rabbit_hitbox_height = 62.0f;
 
-//static float original_velocity = 0.0f;
-
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	PhysicsComponent* p = self->physics;
@@ -25,9 +23,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 	Vector2 dir = {.x = 0.0f, .y = 0.0f};
 
-	// Falling out of screen
-	if(p->cd_obj->pos.y > 700 && !rabbit->is_oob) rabbit->is_oob = true;
-	
 	// Constantly move right
 	dir.x += 550.0f;
 	
@@ -80,16 +75,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 //		p->vel.x *= 0.96f;
 //	else if(p->vel.x < 1000.0f)
 //		p->vel.x *= 0.95f;
-
-	if(rabbit->touching_ground && (p->vel.x > 550.0 * rabbit->speed_adjust))
-		p->vel.x -= (p->vel.x - (550.0 * rabbit->speed_adjust)) / 10.0f;
 		
-	//printf("vel.x: %f ->",p->vel.x);
-	
 	p->vel.y *= 0.995f;
-	
-
-
 	
 	objects_apply_force(self, dir);
 
@@ -97,8 +84,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	if(!rabbit->touching_ground) {
 		objects_apply_force(self, vec2(0.0f, 5000.0f));
 	}
-	rabbit->touching_ground = false;
-	rabbit->speed_adjust = 1.0f;
 }
 
 static void obj_rabbit_update_pos(GameObject* self) {
@@ -115,6 +100,11 @@ static void obj_rabbit_update_pos(GameObject* self) {
 
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	r->anim_frame = anim_frame(rabbit->anim);
+}
+
+static void obj_rabbit_became_invisible(GameObject* self) {
+	ObjRabbit* rabbit = (ObjRabbit*)self;
+	rabbit->is_dead = true;
 }
 
 static void _rabbit_delayed_bounce(void* r) {
@@ -138,30 +128,27 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	// Collision with ground
 	if(other->type == OBJ_GROUND_TYPE) {
-		ObjGround* ground = (ObjGround*) other;
+		//ObjGround* ground = (ObjGround*) other;
 		CDObj* cd_rabbit = self->physics->cd_obj;
 		CDObj* cd_ground = other->physics->cd_obj;
 		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
 		float ground_top = cd_ground->pos.y;
 		float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
-		if(penetration > 0.0f && penetration < cd_rabbit->size.size.y) {
+		if(penetration > 0.0f) {
 			self->physics->vel.y = 0.0f;
-			if(!rabbit->touching_ground && penetration > 0.1f) {
+			if(!rabbit->touching_ground) {
 				hud_trigger_combo(0);
 				anim_play(rabbit->anim, "land");
 			}
+			cd_rabbit->offset = vec2_add(
+				cd_rabbit->offset, 
+				vec2(0.0f, -penetration)
+			);
 			if(cd_rabbit->pos.y < cd_ground->pos.y){
 				rabbit->touching_ground = true;
-				rabbit->speed_adjust = ground->speed_adjust;
-				cd_rabbit->offset = vec2_add(
-						cd_rabbit->offset, 
-						vec2(0.0f, -penetration+0.1)
-				);
 			} else {
 				rabbit->touching_ground = false;
 			}
-		} else {
-			rabbit->touching_ground = false;
 		}
 	}
 
@@ -203,6 +190,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	rabbit->touching_ground = false;
 	rabbit->jump_off_mushroom = false;
 	rabbit->is_diving = false;
+	rabbit->is_dead = false;
 	rabbit->anim = anim_new("rabbit");
 	rabbit->bounce_force = vec2(0.0f, 0.0f);
 
@@ -236,10 +224,8 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->anim_frame = 0;
 	render->spr = sprsheet_get_handle("rabbit");
 	render->update_pos = obj_rabbit_update_pos;
-	render->became_invisible = NULL;
+	render->became_invisible = obj_rabbit_became_invisible;
 	
-	rabbit->speed_adjust = 1.0;
-
 	// Init update
 	UpdateComponent* update = self->update;
 	update->update = obj_rabbit_update;

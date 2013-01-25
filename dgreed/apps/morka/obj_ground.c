@@ -16,11 +16,7 @@ static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data)
 	RectF dest = {
 		pos.x, pos.y - col_height + 60,
 		pos.x + width, pos.y
-	};
-		
-	if(spr_handle == 11 || spr_handle == 12){
-		dest.top = pos.y-10;
-	}		
+	};	
 		
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &dest, 1, NULL);
 
