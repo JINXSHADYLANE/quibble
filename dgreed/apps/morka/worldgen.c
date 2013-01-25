@@ -38,9 +38,12 @@ static void _gen_bg_page(void) {
 	bg_page_cursor += page_width;
 }
 
+
+
 static void _gen_fg_page(void) {
 	SprHandle spr;	
 	uint advance = 0;
+	uint prev_advance = 0;
 	
 	// Add ground
 	static float ground_x = page_width;
@@ -51,14 +54,21 @@ static void _gen_fg_page(void) {
 		if(spr) {
 			Vector2 pos = vec2(fg_page_cursor + ground_x + 100.0f, 768.0f);
 			if(sym == 'a' || sym == 'h'){	// no collision for grass_start1 and grass_end2
-				GameObject* g = objects_create(&obj_fg_deco_desc, pos, (void*)spr);
+				objects_create(&obj_fg_deco_desc, pos, (void*)spr);
 			} else {
-				GameObject* g = objects_create(&obj_ground_desc, pos, (void*)spr);
+				objects_create(&obj_ground_desc, pos, (void*)spr);
 				if(sym == 'j' || sym == 'k' || sym == 'l' || sym == 'm' || sym == 'n' || sym == 'o'){
-					// TODO: Add Water slow triggers
+					ObjSpeedTrigger* t = (ObjSpeedTrigger*)objects_create(&obj_speed_trigger_desc, pos, (void*)spr);
+					t->drag_coef = 0.9;
 				}
 			}
-			advance = (uint) sprsheet_get_size_h(spr).x;			
+			advance = (uint) sprsheet_get_size_h(spr).x;
+			prev_advance = advance;			
+		} else {
+			if(sym == '_' || sym == '-' || sym == '='){
+				Vector2 pos = vec2(fg_page_cursor + ground_x + 100.0f - prev_advance, 768.0f);
+				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
+			}
 		}
 		ground_x += (float)advance;
 	}
