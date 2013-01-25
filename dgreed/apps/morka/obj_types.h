@@ -9,6 +9,7 @@ enum {
 	OBJ_RABBIT_TYPE = 1,
 	OBJ_GROUND_TYPE,
 	OBJ_DECO_TYPE,
+	OBJ_FG_DECO_TYPE,
 	OBJ_MUSHROOM_TYPE,
 	OBJ_PIN
 };
@@ -37,13 +38,21 @@ typedef struct {
 
 extern GameObjectDesc obj_ground_desc;
 
-// Deco (static image, destroys itself when not visible)
+// Background deco (static image, destroys itself when not visible)
 
 typedef struct {
 	GameObject header;
 } ObjDeco;
 
 extern GameObjectDesc obj_deco_desc;
+
+// Foreground Deco (static image, destroys itself when not visible)
+
+typedef struct {
+	GameObject header;
+} ObjFgDeco;
+
+extern GameObjectDesc obj_fg_deco_desc;
 
 // Mushroom
 
