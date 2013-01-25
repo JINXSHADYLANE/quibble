@@ -405,3 +405,17 @@ void objects_tick(bool paused) {
 	objects_add_tick();
 }
 
+RectF objects_world2screen(RectF world, uint camera_id){
+	RectF* camera = &objects_camera[camera_id];
+	Vector2 camera_topleft = {
+		.x = camera->left,
+		.y = camera->top
+	};
+	return	rectf(
+		world.left - camera_topleft.x, 
+		world.top - camera_topleft.y,
+		world.right - camera_topleft.x,
+		world.bottom - camera_topleft.y
+	);
+}
+

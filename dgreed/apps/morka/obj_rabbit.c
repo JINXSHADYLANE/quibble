@@ -140,12 +140,12 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 				hud_trigger_combo(0);
 				anim_play(rabbit->anim, "land");
 			}
-			cd_rabbit->offset = vec2_add(
-				cd_rabbit->offset, 
-				vec2(0.0f, -penetration)
-			);
 			if(cd_rabbit->pos.y < cd_ground->pos.y){
 				rabbit->touching_ground = true;
+				cd_rabbit->offset = vec2_add(
+					cd_rabbit->offset, 
+					vec2(0.0f, -penetration)
+				);
 			} else {
 				rabbit->touching_ground = false;
 			}

@@ -11,7 +11,8 @@ enum {
 	OBJ_DECO_TYPE,
 	OBJ_FG_DECO_TYPE,
 	OBJ_MUSHROOM_TYPE,
-	OBJ_PIN
+	OBJ_PIN,
+	OBJ_TRIGGER_TYPE
 };
 
 // Rabbit
@@ -71,6 +72,22 @@ typedef struct {
 
 extern GameObjectDesc obj_pin_desc;
 
+// Fall trigger
+
+typedef struct {
+	GameObject header;
+} ObjFallTrigger;
+
+extern GameObjectDesc obj_fall_trigger_desc;
+
+// Speed trigger
+
+typedef struct {
+	GameObject header;
+	float drag_coef;
+} ObjSpeedTrigger;
+
+extern GameObjectDesc obj_speed_trigger_desc;
 
 #endif
 
