@@ -134,21 +134,17 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
 		float ground_top = cd_ground->pos.y;
 		float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
-		if(penetration > 0.0f) {
+		if(penetration > 0.0f && cd_rabbit->pos.y < cd_ground->pos.y) {
 			self->physics->vel.y = 0.0f;
 			if(!rabbit->touching_ground) {
 				hud_trigger_combo(0);
 				anim_play(rabbit->anim, "land");
 			}
-			if(cd_rabbit->pos.y < cd_ground->pos.y){
-				rabbit->touching_ground = true;
-				cd_rabbit->offset = vec2_add(
-					cd_rabbit->offset, 
-					vec2(0.0f, -penetration)
-				);
-			} else {
-				rabbit->touching_ground = false;
-			}
+			rabbit->touching_ground = true;
+			cd_rabbit->offset = vec2_add(
+				cd_rabbit->offset, 
+				vec2(0.0f, -penetration)
+			);
 		}
 	}
 
