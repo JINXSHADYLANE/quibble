@@ -5,9 +5,9 @@
 
 #include <string.h>
 #include <utils.h>
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
+#include "lua/lua.h"
+#include "lua/lauxlib.h"
+#include "lua/lualib.h"
 
 #define INVALID_UTF8 "invalid utf-8 string"
 #define POINTS_ASCII(p) (*((unsigned char*)p) < 128)
