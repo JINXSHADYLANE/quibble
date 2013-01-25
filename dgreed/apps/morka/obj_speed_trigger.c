@@ -13,7 +13,7 @@ static void obj_speed_trigger_collide(GameObject* self, GameObject* other) {
 static void obj_speed_trigger_update(GameObject* self){
 	PhysicsComponent* physics = self->physics;
 	RectF pos = {
-		.right = physics->cd_obj->pos.x
+		.right = physics->cd_obj->pos.x + physics->cd_obj->size.size.x
 	};
 	RectF result = objects_world2screen(pos,0);
 	
