@@ -1,9 +1,5 @@
 #include "profiler.h"
 
-#include "darray.h"
-#include "datastruct.h"
-#include "memory.h"
-
 // Timing code, from luatrace
 
 #ifdef __MACH__
@@ -30,6 +26,9 @@ typedef clock_t hook_time_t;
 #define CLOCK_FUNCTION clock
 #endif
 
+#include "darray.h"
+#include "datastruct.h"
+#include "memory.h"
 
 /*============================================================================*/
 

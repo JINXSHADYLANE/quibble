@@ -19,6 +19,7 @@ if env['DGREED_POSTFIX'] == 'd':
 				asset, env['DGREED_FONT_TOOL'])
 		elif asset.endswith('.png') or asset.endswith('.wav') or \
 			asset.endswith('.ogg') or asset.endswith('.mml') or \
+			asset.endswith('.ttf') or \
 			asset.endswith('.bft'):
 			env.Install(dest_dir, asset)
 	

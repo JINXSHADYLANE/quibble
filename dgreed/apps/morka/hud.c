@@ -5,6 +5,14 @@
 
 #define hud_layer 7
 
+#include "common.h"
+
+#ifndef __APPLE__
+	#define FONT_NAME ASSETS_DIR "Chango-Regular.ttf"
+#else
+	#define FONT_NAME "Baskerville-Bold"
+#endif
+
 extern float rabbit_remaining_time;
 extern float rabbit_distance;
 extern float rabbit_current_distance;
@@ -58,8 +66,8 @@ static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
 
 	// Text
-	vfont_select("Baskerville-Bold", 48.0f); 
-	const char* str = "The time is over.";
+	vfont_select(FONT_NAME, 48.0f); 
+	const char* str = "The race is over.";
 	static Vector2 half_size = {0.0f, 0.0f};
 	if(half_size.x == 0.0f) {
 		half_size = vec2_scale(vfont_size(str), 0.5f);
@@ -96,15 +104,14 @@ static void _hud_render_pause(UIElement* element, uint layer) {
 	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), COLOR_WHITE); 
 
 	// Text
-	vfont_select("Baskerville-Bold", 48.0f); 
-	const char* str = "The game is paused.";
+	vfont_select(FONT_NAME, 48.0f); 
+	const char* str = "Paused";
 	static Vector2 half_size = {0.0f, 0.0f};
 	if(half_size.x == 0.0f) {
 		half_size = vec2_scale(vfont_size(str), 0.5f);
 	}
 	vfont_draw(str, layer, vec2_sub(text->vec2, half_size), COLOR_WHITE);
 
-	// TODO: Button
 	spr_draw_cntr_h(button->spr, layer, button->vec2, 0.0f, 1.0f, COLOR_WHITE);
 
 	if(touches_count() > 0) {
@@ -117,7 +124,8 @@ static void _hud_render_pause(UIElement* element, uint layer) {
 }
 
 static void _hud_render_combo(UIElement* element, uint layer, uint mult, float t) {
-	vfont_select("Baskerville-Bold", 48.0f);
+	vfont_select(FONT_NAME, 48.0f);
+
 
 	// Combine two smootherstep functions into a new one,
 	// where x stays constant for a while near t = 0.5

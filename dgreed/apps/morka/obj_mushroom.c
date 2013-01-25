@@ -29,11 +29,9 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 
 	ObjMushroom* mushroom = (ObjMushroom*)self;
 
-	TexHandle tex;
-	RectF src;
-	sprsheet_get_h(spr_handle, &tex, &src);
-	float width = rectf_width(&src);
-	float height = rectf_height(&src);
+	Vector2 size = sprsheet_get_size_h(spr_handle);
+	float width = size.x;
+	float height = size.y;
 
 	mushroom->oh = height;
 	mushroom->h = height;
@@ -42,8 +40,8 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 	
 	// Take 10 pixel slice at the top as a collider geometry
 	RectF collider = {
-		pos.x - width / 2.0f + 20.0f, pos.y - height / 2.0f,
-		pos.x + width / 2.0f - 20.0f, pos.y - height / 2.0f + 10.0f
+		pos.x - width / 2.0f + 20.0f, pos.y - height,
+		pos.x + width / 2.0f - 20.0f, pos.y - height + 10.0f
 	};
 
 	// Physics
@@ -55,8 +53,8 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 	// Render
 	RenderComponent* render = self->render;
 	render->world_dest = rectf(
-			pos.x - width / 2.0f, pos.y - height / 2.0f,
-			pos.x + width / 2.0f, pos.y + height / 2.0f
+			pos.x - width / 2.0f, pos.y - height,
+			pos.x + width / 2.0f, pos.y
 	);
 	render->layer = 2;
 	render->anim_frame = MAX_UINT16;
