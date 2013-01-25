@@ -62,6 +62,7 @@ int malka_run(const char* luafile) {
 }
 
 extern int luaopen_bit(lua_State* l);
+extern int luaopen_libluautf8(lua_State* l);
 
 static void* malka_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
     (void)ud;
@@ -168,6 +169,7 @@ void malka_init_ex(bool use_pools) {
 
 	luaL_openlibs(l);
 	luaopen_bit(l);
+	luaopen_libluautf8(l);
 
 	malka_open_vec2(l);
 	malka_open_rect(l);
