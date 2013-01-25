@@ -5,8 +5,6 @@
 static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data) {
 	SprHandle spr_handle = (SprHandle)user_data;
 
-	ObjGround* ground = (ObjGround*)self;
-
 	Vector2 size = sprsheet_get_size_h(spr_handle);
 	float width = size.x;
 	float height = size.y;

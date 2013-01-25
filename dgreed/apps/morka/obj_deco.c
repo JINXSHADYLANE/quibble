@@ -19,7 +19,7 @@ static void obj_deco_construct(GameObject* self, Vector2 pos, void* user_data) {
 	render->world_dest = dest;
 	render->layer = 1;
 	render->color = COLOR_RGBA(255, 255, 255, 255);
-	render->camera = 1;
+	render->camera = self->type == OBJ_DECO_TYPE ? 1 : 0;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
 }
@@ -33,4 +33,15 @@ GameObjectDesc obj_deco_desc = {
 	.construct = obj_deco_construct,
 	.destruct = NULL
 };
+
+GameObjectDesc obj_fg_deco_desc = {
+	.type = OBJ_FG_DECO_TYPE,
+	.size = sizeof(ObjDeco),
+	.has_physics = false,
+	.has_render = true,
+	.has_update = false,
+	.construct = obj_deco_construct,
+	.destruct = NULL
+};
+
 
