@@ -337,6 +337,7 @@ void video_clear_color(Color c) {
 }
 
 static bool rect_draw_state = false;
+extern void _sys_present();
 
 void video_present(void) {
 	uint i, j;
