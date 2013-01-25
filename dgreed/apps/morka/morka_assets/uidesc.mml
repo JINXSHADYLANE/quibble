@@ -34,7 +34,7 @@
 		)
 
 		(def button
-			(spr restart_2)
+			(spr restart)
 			(add <-
 				(middle <- (get_rect screen))
 				(vec2 0,200)
@@ -46,7 +46,7 @@
 		(def text
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-200)
+				(vec2 0,-100)
 			)
 		)
 
@@ -54,7 +54,7 @@
 			(spr play)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,200)
+				(vec2 0,42)
 			)
 		)
 	)
