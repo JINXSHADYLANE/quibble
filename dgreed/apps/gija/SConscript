@@ -17,6 +17,10 @@ if env['DGREED_POSTFIX'] == 'd':
 		if asset.endswith('.fnt'):
 			env.Command('#' + env['DGREED_BIN_DIR']+'/'+ asset.replace('.fnt', '.bft'), 
 				asset, env['DGREED_FONT_TOOL'])
+		elif asset.endswith('.oel'):
+			env.Command('#' + env['DGREED_BIN_DIR']+'/'+ asset.replace('.oel', '.btm'),
+				[asset, ASSETS_DIR + '/gija.oep'],
+				env['DGREED_OGMO_TOOL'] + ' -p gija_assets/')
 		elif asset.endswith('.png') or asset.endswith('.wav') or \
 			asset.endswith('.ogg') or asset.endswith('.mml') or \
 			asset.endswith('.bft'):
