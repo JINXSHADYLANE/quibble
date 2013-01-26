@@ -64,7 +64,7 @@ function game.reset(level_name)
 	doors = {}
 
 	if level_name == nil then
-		level_name = 'level3'
+		level_name = 'level2'
 	end
 
 	tmap0 = tilemap.load(pre..level_name..'.0.btm')

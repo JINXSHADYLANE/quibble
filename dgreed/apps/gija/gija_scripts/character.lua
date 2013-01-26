@@ -51,7 +51,7 @@ function character:new(obj, i)
 		height = 64,
 		move_acc = 0.5,
 		move_damp = 0.8,
-		jump_acc = 7.6,
+		jump_acc = 9.0,
 
 		pos = obj.pos + vec2(32/2, 64/2),
 		vel = vec2(0, 0),
