@@ -13,6 +13,8 @@
 		<object name="start0" image="obj_start0.png" width="32" height="64" />
 		<object name="start1" image="obj_start1.png" width="32" height="64" />
 		<object name="end" image="obj_end.png" width="32" height="64" />
+		<object name="door0" image="obj_door0.png" width="32" height="64" />
+		<object name="door1" image="obj_door1.png" width="32" height="64" />
 	</objects>
 	
 	<layers>
