@@ -25,8 +25,11 @@ function sweep_rect(r, offset, no_push)
 	local off, d
 
 	-- collide against level
-	if tmap0 then
+	if char0.heart then
 		off = tilemap.collide_swept(tmap0, r, offset)
+		d = length_sq(off)
+	else
+		off = tilemap.collide_swept(tmap1, r, offset)
 		d = length_sq(off)
 	end
 
@@ -63,6 +66,11 @@ function game.reset(level_name)
 	end
 end
 
+function game.death()
+	print('reset level')
+	game.reset()
+end
+
 function game.close()
 	if tmap0 and tmap1 then
 		tilemap.free(tmap0)
@@ -79,12 +87,31 @@ function game.update_camera()
 		target = char1.pos
 	end
 	local d = camera.center - target
-	camera.center = camera.center - d * 0.05
+	camera.center = camera.center - d * 0.02
 	pos = vec2(camera.center)
 	pos.x = math.floor(pos.x)
 	pos.y = math.floor(pos.y)
 	tilemap.set_camera(tmap0, pos, scale, rot)
 	tilemap.set_camera(tmap1, pos, scale, rot)
+end
+
+function game.switch_hearts()
+	char0.heart = not char0.heart
+	char1.heart = not char1.heart
+
+	-- if one of the players is stuck - reset level
+	local col0, col1
+	if char0.heart then
+		col0 = tilemap.collide(tmap0, char0.bbox) 
+		col1 = tilemap.collide(tmap0, char1.bbox)
+	else
+		col0 = tilemap.collide(tmap1, char0.bbox)
+		col1 = tilemap.collide(tmap1, char1.bbox)
+	end
+
+	if col0 or col1 then
+		game.death()
+	end
 end
 
 function game.update()
@@ -94,11 +121,14 @@ function game.update()
 
 	game.update_camera()
 
-	if char0 then
-		char0:update(sweep_rect)
-	end
-	if char1 then
-		char1:update(sweep_rect)
+	assert(char0 and char1)
+	char0:update(sweep_rect, game.switch_hearts)
+	char1:update(sweep_rect, game.switch_hearts)
+
+	if char0.bbox and char1.bbox then
+		if char0.bbox.b >= 576 * 3 or char1.bbox.b >= 576 * 3 then
+			game.death()
+		end
 	end
 
 	return not key.down(key.quit)
@@ -109,7 +139,11 @@ function game.render(t)
 
 	sprsheet.draw('empty', 0, scr_rect)
 
-	if tmap1 then
+	if char0.heart and tmap0 then
+		tilemap.render(tmap0, scr_rect)
+	end
+	
+	if char1.heart and tmap1 then
 		tilemap.render(tmap1, scr_rect)
 	end
 

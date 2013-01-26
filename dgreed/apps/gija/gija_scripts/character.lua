@@ -2,7 +2,7 @@ local character = {}
 local character_mt = {}
 character_mt.__index = character
 
-local function controls1(self)
+local function controls1(self, switch_hearts)
 	if key.pressed(key._left) then
 		self.vel.x = self.vel.x - self.move_acc
 		self.dir = true
@@ -16,9 +16,13 @@ local function controls1(self)
 		self.vel.y = -self.jump_acc
 		--mfx.trigger('jump')
 	end
+	
+	if self.heart and key.down(key._down) then
+		switch_hearts()
+	end
 end
 
-local function controls2(self)
+local function controls2(self, switch_hearts)
 	if char.pressed('a') then
 		self.vel.x = self.vel.x - self.move_acc
 		self.dir = true
@@ -31,6 +35,10 @@ local function controls2(self)
 		self.ground = false
 		self.vel.y = -self.jump_acc
 		--mfx.trigger('jump')
+	end
+
+	if self.heart and char.down('s') then
+		switch_hearts()
 	end
 end
 
@@ -60,8 +68,8 @@ function character:new(obj, i)
 	return o
 end
 
-function character:update(sweep_rect)
-	self:controls()
+function character:update(sweep_rect, switch_hearts)
+	self:controls(switch_hearts)
 
 	self.vel.y = self.vel.y + gravity
 	self.vel.x = self.vel.x * self.move_damp
