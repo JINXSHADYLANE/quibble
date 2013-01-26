@@ -1,26 +1,8 @@
 local character = {}
 local character_mt = {}
 character_mt.__index = character
- 
-function character:new(obj)
-	local o = {
-		width = 32,
-		height = 64,
-		move_acc = 0.5,
-		move_damp = 0.8,
-		jump_acc = 12,
 
-		pos = obj.pos + vec2(32/2, 64/2),
-		vel = vec2(0, 0),
-		dir = false,
-		ground = true,
-		frame = 0
-	}
-	setmetatable(o, character_mt)
-	return o
-end
-
-function character:update(sweep_rect)
+local function controls1(self)
 	if key.pressed(key._left) then
 		self.vel.x = self.vel.x - self.move_acc
 		self.dir = true
@@ -29,11 +11,58 @@ function character:update(sweep_rect)
 		self.vel.x = self.vel.x + self.move_acc
 		self.dir = false
 	end
-	if (key.down(key._up) or key.down(key.a)) and self.ground then
+	if key.down(key._up) and self.ground then
 		self.ground = false
 		self.vel.y = -self.jump_acc
 		--mfx.trigger('jump')
 	end
+end
+
+local function controls2(self)
+	if char.pressed('a') then
+		self.vel.x = self.vel.x - self.move_acc
+		self.dir = true
+	end
+	if char.pressed('d') then
+		self.vel.x = self.vel.x + self.move_acc
+		self.dir = false
+	end
+	if char.down('w') and self.ground then
+		self.ground = false
+		self.vel.y = -self.jump_acc
+		--mfx.trigger('jump')
+	end
+end
+
+local controls = {controls1, controls2}
+local sprites = {'char1', 'char2'}
+
+function character:new(obj, i)
+	local o = {
+		width = 32,
+		height = 64,
+		move_acc = 0.5,
+		move_damp = 0.8,
+		jump_acc = 7.6,
+
+		pos = obj.pos + vec2(32/2, 64/2),
+		vel = vec2(0, 0),
+		dir = false,
+		ground = true,
+		frame = 0,
+		sprite = sprites[i],
+		controls = controls[i]
+	}
+	if i == 1 then
+		o.heart = true
+	end
+	setmetatable(o, character_mt)
+	return o
+end
+
+function character:update(sweep_rect)
+	self:controls()
+
 	self.vel.y = self.vel.y + gravity
 	self.vel.x = self.vel.x * self.move_damp
 
@@ -88,7 +117,11 @@ function character:render(level)
 			pos.l, pos.r = pos.r, pos.l
 		end
 
-		sprsheet.draw('char1', 3, pos)
+		local spr = self.sprite
+		if self.heart then
+			spr = spr .. 'h'
+		end
+		sprsheet.draw(spr, 3, pos)
 	end
 end
 
