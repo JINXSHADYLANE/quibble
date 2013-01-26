@@ -1,6 +1,6 @@
 local game = {}
 
-gravity = 1
+gravity = 0.4 
 
 local character = require('character')
 
@@ -54,11 +54,11 @@ function game.reset(level_name)
 	for i,obj in ipairs(objs) do
 		print(obj.id, obj.pos)
 		if obj.id == obj_type.start0 then
-			char0 = character:new(obj)
+			char0 = character:new(obj, 1)
 			camera.center = vec2(obj.pos)
 		end
 		if obj.id == obj_type.start1 then
-			char1 = character:new(obj)
+			char1 = character:new(obj, 2)
 		end
 	end
 end
@@ -72,10 +72,17 @@ end
 
 function game.update_camera()
 	local pos, scale, rot = tilemap.camera(tmap0)
-	--local d = camera.center - cat.p
-	local d = vec2(0, 0)
+	local target = nil
+	if char0.heart then
+		target = char0.pos
+	else
+		target = char1.pos
+	end
+	local d = camera.center - target
 	camera.center = camera.center - d * 0.05
 	pos = vec2(camera.center)
+	pos.x = math.floor(pos.x)
+	pos.y = math.floor(pos.y)
 	tilemap.set_camera(tmap0, pos, scale, rot)
 	tilemap.set_camera(tmap1, pos, scale, rot)
 end
@@ -100,7 +107,7 @@ end
 function game.render(t)
 	local ts = time.s()
 
-	--sprsheet.draw('empty', 0, scr_rect)
+	sprsheet.draw('empty', 0, scr_rect)
 
 	if tmap1 then
 		tilemap.render(tmap1, scr_rect)
