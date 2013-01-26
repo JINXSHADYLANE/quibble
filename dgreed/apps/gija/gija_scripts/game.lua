@@ -1,5 +1,9 @@
 local game = {}
 
+gravity = 1
+
+local character = require('character')
+
 local tmap0 = nil
 local tmap1 = nil
 local objs = nil
@@ -8,11 +12,26 @@ local camera = {
 	center = vec2()
 }
 
+local char0 = nil
+local char1 = nil
+
 local obj_type = {
 	start0 = 0,
 	start1 = 1,
 	finish = 2
 }
+
+function sweep_rect(r, offset, no_push)
+	local off, d
+
+	-- collide against level
+	if tmap0 then
+		off = tilemap.collide_swept(tmap0, r, offset)
+		d = length_sq(off)
+	end
+
+	return off
+end
 
 function game.init()
 	game.reset()
@@ -35,7 +54,11 @@ function game.reset(level_name)
 	for i,obj in ipairs(objs) do
 		print(obj.id, obj.pos)
 		if obj.id == obj_type.start0 then
+			char0 = character:new(obj)
 			camera.center = vec2(obj.pos)
+		end
+		if obj.id == obj_type.start1 then
+			char1 = character:new(obj)
 		end
 	end
 end
@@ -64,16 +87,31 @@ function game.update()
 
 	game.update_camera()
 
+	if char0 then
+		char0:update(sweep_rect)
+	end
+	if char1 then
+		char1:update(sweep_rect)
+	end
+
 	return not key.down(key.quit)
 end
 
 function game.render(t)
 	local ts = time.s()
 
-	sprsheet.draw('empty', 0, scr_rect)
+	--sprsheet.draw('empty', 0, scr_rect)
 
-	if tmap0 then
+	if tmap1 then
 		tilemap.render(tmap1, scr_rect)
+	end
+
+	if char0 then
+		char0:render(tmap0)
+	end
+
+	if char1 then
+		char1:render(tmap1)
 	end
 
 	return true
