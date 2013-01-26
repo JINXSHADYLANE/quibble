@@ -141,6 +141,9 @@ function game.switch_hearts()
 	char0.heart = not char0.heart
 	char1.heart = not char1.heart
 
+	char0:switch_heart()
+	char1:switch_heart()
+
 	-- if one of the players is stuck - reset level
 	local col0, col1
 	if char0.heart then

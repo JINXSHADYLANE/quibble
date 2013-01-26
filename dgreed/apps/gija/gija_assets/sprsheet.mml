@@ -21,6 +21,22 @@
 		(src 96,0,128,64)
 	)
 
+	(anim red
+		(tex red.png)
+		(src 0,0,32,64)
+		(offset 32,64)
+		(grid 8,3)
+		(frames 24)
+	)
+
+	(anim blue 
+		(tex blue.png)
+		(src 0,0,32,64)
+		(offset 32,64)
+		(grid 8,3)
+		(frames 24)
+	)
+
 	(anim beat
 		(tex raibulys256.png)
 		(src 0,0,256,256)
