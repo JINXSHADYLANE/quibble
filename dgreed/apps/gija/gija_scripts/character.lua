@@ -43,7 +43,7 @@ local function controls2(self, switch_hearts)
 end
 
 local controls = {controls1, controls2}
-local sprites = {'char1', 'char2'}
+local sprites = {'red', 'blue'}
 
 function character:new(obj, i)
 	local o = {
@@ -64,6 +64,10 @@ function character:new(obj, i)
 	}
 	if i == 1 then
 		o.heart = true
+		o.anim = anim.new('character')
+	else
+		o.heart = false
+		o.anim = anim.new('character_heartless')
 	end
 	o.heartbeat = anim.new('heartbeat')
 	setmetatable(o, character_mt)
@@ -112,11 +116,25 @@ function character:update(sweep_rect, switch_hearts, w)
 
 	if self.ground then
 		if math.abs(self.vel.x) > 0.01 then
-			local t = time.s()
-			--self.frame = math.fmod(math.floor(t * 10), 3)
+			if not self.walking then
+				anim.play(self.anim, 'walk')
+				self.walking = true
+			end
 		else
-			--self.frame = 0
+			anim.play(self.anim, 'stand')
+			self.walking = false
 		end
+	end
+end
+
+function character:switch_heart()
+	anim.del(self.anim)
+	if self.heart then
+		self.anim = anim.new('character')
+		self.walking = false
+	else
+		self.anim = anim.new('character_heartless')
+		self.walking = true
 	end
 end
 
@@ -128,10 +146,9 @@ function character:render(level)
 		end
 
 		local spr = self.sprite
-		if self.heart then
-			spr = spr .. 'h'
-		end
-		sprsheet.draw(spr, 3, pos)
+
+		local f = anim.frame(self.anim)
+		sprsheet.draw_anim(spr, f, 3, pos)
 		local p = vec2(
 	 		pos.l + pos.r,
 	 		pos.t + pos.b
