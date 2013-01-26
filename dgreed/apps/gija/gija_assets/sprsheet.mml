@@ -1,0 +1,23 @@
+(sprsheet tiltas 
+	(prefix "gija_assets/")
+	(img empty
+		(tex empty.png)
+	)
+
+	(img char1
+		(tex character.png)
+		(src 0,0,32,64)
+	)
+	(img char1h
+		(tex character.png)
+		(src 32,0,64,64)
+	)
+	(img char2
+		(tex character.png)
+		(src 64,0,96,64)
+	)
+	(img char2h
+		(tex character.png)
+		(src 96,0,128,64)
+	)
+)
