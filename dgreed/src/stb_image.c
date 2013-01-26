@@ -483,8 +483,10 @@ static stbi_uc *stbi_tga_load(stbi *s, int *x, int *y, int *comp, int req_comp);
 static int      stbi_tga_info(stbi *s, int *x, int *y, int *comp);
 static int      stbi_psd_test(stbi *s);
 static stbi_uc *stbi_psd_load(stbi *s, int *x, int *y, int *comp, int req_comp);
+#ifndef STBI_NO_HDR
 static int      stbi_hdr_test(stbi *s);
 static float   *stbi_hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp);
+#endif
 static int      stbi_pic_test(stbi *s);
 static stbi_uc *stbi_pic_load(stbi *s, int *x, int *y, int *comp, int req_comp);
 static int      stbi_gif_test(stbi *s);
@@ -533,8 +535,8 @@ static stbi_uc *hdr_to_ldr(float   *data, int x, int y, int comp);
 
 static unsigned char *stbi_load_main(stbi *s, int *x, int *y, int *comp, int req_comp)
 {
-   if (stbi_jpeg_test(s)) return stbi_jpeg_load(s,x,y,comp,req_comp);
    if (stbi_png_test(s))  return stbi_png_load(s,x,y,comp,req_comp);
+   if (stbi_jpeg_test(s)) return stbi_jpeg_load(s,x,y,comp,req_comp);
    if (stbi_bmp_test(s))  return stbi_bmp_load(s,x,y,comp,req_comp);
    if (stbi_gif_test(s))  return stbi_gif_load(s,x,y,comp,req_comp);
    if (stbi_psd_test(s))  return stbi_psd_load(s,x,y,comp,req_comp);

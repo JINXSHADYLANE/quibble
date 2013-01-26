@@ -15,6 +15,8 @@
 #include "gfx_utils.h"
 #include "image.h"
 
+#define BUCKET_COUNT 16
+
 float x_size_factor, y_size_factor;
 
 typedef struct {

@@ -14,6 +14,7 @@ static float bg_page_cursor = 0.0f;
 static RndContext rnd = NULL;
 static Chain* fg_chain;
 static Chain* bg_chain;
+static Chain* ground_chain;
 
 static void _gen_bg_page(void) {
 	SprHandle spr;	
@@ -27,7 +28,7 @@ static void _gen_bg_page(void) {
 		mchains_symbol_info(bg_chain, sym, &advance, &spr);
 
 		if(spr) {
-			Vector2 pos = vec2(bg_page_cursor + bg_x + 100.0f, 483.0f);
+			Vector2 pos = vec2(bg_page_cursor + bg_x + 100.0f, 680.0f);
 			objects_create(&obj_deco_desc, pos, (void*)spr);
 		}
 
@@ -37,15 +38,40 @@ static void _gen_bg_page(void) {
 	bg_page_cursor += page_width;
 }
 
-static void _gen_fg_page(void) {
-	// Add ground
-	for(uint i = 0; i < 4; ++i) {
-		Vector2 pos = vec2(fg_page_cursor + 128.0f + i * 256.0f, 683.0f);
-		objects_create(&obj_ground_desc, pos, (void*)i);
-	}
 
+
+static void _gen_fg_page(void) {
 	SprHandle spr;	
-	uint advance;
+	uint advance = 0;
+	uint prev_advance = 0;
+	
+	// Add ground
+	static float ground_x = page_width;
+	ground_x -= page_width;
+	while(ground_x < page_width) {
+		char sym = mchains_next(ground_chain, &rnd);
+		mchains_symbol_info(ground_chain, sym, &advance, &spr);
+		if(spr) {
+			Vector2 pos = vec2(fg_page_cursor + ground_x + 100.0f, 768.0f);
+			if(sym == 'a' || sym == 'h'){	// no collision for grass_start1 and grass_end2
+				objects_create(&obj_fg_deco_desc, pos, (void*)spr);
+			} else {
+				objects_create(&obj_ground_desc, pos, (void*)spr);
+				if(sym == 'j' || sym == 'k' || sym == 'l' || sym == 'm' || sym == 'n' || sym == 'o'){
+					ObjSpeedTrigger* t = (ObjSpeedTrigger*)objects_create(&obj_speed_trigger_desc, pos, (void*)spr);
+					t->drag_coef = 0.9;
+				}
+			}
+			advance = (uint) sprsheet_get_size_h(spr).x;
+			prev_advance = advance;			
+		} else {
+			if(sym == '_' || sym == '-' || sym == '='){
+				Vector2 pos = vec2(fg_page_cursor + ground_x + 100.0f - prev_advance, 768.0f);
+				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
+			}
+		}
+		ground_x += (float)advance;
+	}
 	
 	// Add foreground mushrooms
 	static float fg_x = page_width;
@@ -55,7 +81,7 @@ static void _gen_fg_page(void) {
 		mchains_symbol_info(fg_chain, sym, &advance, &spr);
 
 		if(spr) {
-			Vector2 pos = vec2(fg_page_cursor + fg_x + 100.0f, 583.0f);
+			Vector2 pos = vec2(fg_page_cursor + fg_x + 100.0f, 641.0f);
 			GameObject* g = objects_create(&obj_mushroom_desc, pos, (void*)spr);
 			ObjMushroom* shroom = (ObjMushroom*)g;
 			if(sym == 'x')
@@ -82,10 +108,12 @@ void worldgen_reset(uint seed) {
 		bg_page_cursor = 0.0f;
 		mchains_del(fg_chain);
 		mchains_del(bg_chain);
+		mchains_del(ground_chain);
 	}
 
 	fg_chain = mchains_new("fg");
 	bg_chain = mchains_new("bg");
+	ground_chain = mchains_new("ground");
 
 	_gen_bg_page();
 	_gen_fg_page();
@@ -94,6 +122,7 @@ void worldgen_reset(uint seed) {
 void worldgen_close(void) {
 	mchains_del(fg_chain);
 	mchains_del(bg_chain);
+	mchains_del(ground_chain);
 	rand_free_ex(&rnd);
 }
 

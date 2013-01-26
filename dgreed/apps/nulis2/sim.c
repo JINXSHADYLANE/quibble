@@ -1194,7 +1194,7 @@ static void _render_ffield(void) {
 	}
 }
 
-#ifdef TARGET_IOS
+#if defined(TARGET_IOS) || defined(ANDROID)
 static void _process_touch(void) {
 	uint tcount = touches_count();
 
@@ -1344,7 +1344,7 @@ void sim_update(void) {
 	// Accumulate forces and time scale factors
 	
 	// Force field
-#ifdef TARGET_IOS
+#if defined(TARGET_IOS) || defined(ANDROID)
 	_process_touch();
 #else
 	_process_mouse();

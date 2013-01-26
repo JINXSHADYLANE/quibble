@@ -16,7 +16,6 @@ const static float rabbit_hitbox_height = 62.0f;
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	PhysicsComponent* p = self->physics;
-
 	if(key_down(KEY_A))
 		last_keypress_t = ts;
 	if(key_up(KEY_A))
@@ -26,7 +25,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 	// Constantly move right
 	dir.x += 550.0f;
-
+	
 	// Jump
 	if(rabbit->touching_ground && key_down(KEY_A)) {
 		rabbit->touching_ground = false;
@@ -61,8 +60,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				anim_play(rabbit->anim, "glide");
 			}
 		}
-	}
-
+	}	
+	
 	// Damping
 	if(p->vel.x < 300.0f) {
 	}	
@@ -76,9 +75,9 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 //		p->vel.x *= 0.96f;
 //	else if(p->vel.x < 1000.0f)
 //		p->vel.x *= 0.95f;
-
+		
 	p->vel.y *= 0.995f;
-
+	
 	objects_apply_force(self, dir);
 
 	// Gravity
@@ -103,6 +102,11 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	r->anim_frame = anim_frame(rabbit->anim);
 }
 
+static void obj_rabbit_became_invisible(GameObject* self) {
+	ObjRabbit* rabbit = (ObjRabbit*)self;
+	rabbit->is_dead = true;
+}
+
 static void _rabbit_delayed_bounce(void* r) {
 	ObjRabbit* rabbit = r;
 
@@ -122,15 +126,15 @@ static void _rabbit_delayed_bounce(void* r) {
 
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
-
 	// Collision with ground
 	if(other->type == OBJ_GROUND_TYPE) {
+		//ObjGround* ground = (ObjGround*) other;
 		CDObj* cd_rabbit = self->physics->cd_obj;
 		CDObj* cd_ground = other->physics->cd_obj;
 		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
 		float ground_top = cd_ground->pos.y;
 		float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
-		if(penetration > 0.0f) {
+		if(penetration > 0.0f && cd_rabbit->pos.y < cd_ground->pos.y) {
 			self->physics->vel.y = 0.0f;
 			if(!rabbit->touching_ground) {
 				hud_trigger_combo(0);
@@ -138,8 +142,8 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			}
 			rabbit->touching_ground = true;
 			cd_rabbit->offset = vec2_add(
-					cd_rabbit->offset, 
-					vec2(0.0f, -penetration)
+				cd_rabbit->offset, 
+				vec2(0.0f, -penetration)
 			);
 		}
 	}
@@ -182,6 +186,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	rabbit->touching_ground = false;
 	rabbit->jump_off_mushroom = false;
 	rabbit->is_diving = false;
+	rabbit->is_dead = false;
 	rabbit->anim = anim_new("rabbit");
 	rabbit->bounce_force = vec2(0.0f, 0.0f);
 
@@ -215,8 +220,8 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->anim_frame = 0;
 	render->spr = sprsheet_get_handle("rabbit");
 	render->update_pos = obj_rabbit_update_pos;
-	render->became_invisible = NULL;
-
+	render->became_invisible = obj_rabbit_became_invisible;
+	
 	// Init update
 	UpdateComponent* update = self->update;
 	update->update = obj_rabbit_update;

@@ -39,17 +39,42 @@ function game.update()
 	if level_end_t == nil then
 		if take_input then
 			local delta = vec2(0, 0) 
-			if key.pressed(key._up) or char.pressed('w') then
-				delta = vec2(0, -1)
-			end
-			if key.pressed(key._right) or char.pressed('d') then
-				delta = vec2(1, 0)
-			end
-			if key.pressed(key._down) or char.pressed('s') then
-				delta = vec2(0, 1)
-			end
-			if key.pressed(key._left) or char.pressed('a') then
-				delta = vec2(-1, 0)
+			if android and mouse.pressed(0) then
+				local p = mouse.pos()
+				local dt = p.y
+				local db = scr_size.y - p.y
+				local dl = p.x
+				local dr = scr_size.x - p.x
+				local m = math.min(
+					math.min(dt, db),
+					math.min(dl, dr)
+				)
+
+				if m == dt then
+					delta = vec2(0, -1)
+				end
+				if m == dr then
+					delta = vec2(1, 0)
+				end
+				if m == db then
+					delta = vec2(0, 1)
+				end
+				if m == dl then
+					delta = vec2(-1, 0)
+				end
+			else
+				if key.pressed(key._up) or char.pressed('w') then
+					delta = vec2(0, -1)
+				end
+				if key.pressed(key._right) or char.pressed('d') then
+					delta = vec2(1, 0)
+				end
+				if key.pressed(key._down) or char.pressed('s') then
+					delta = vec2(0, 1)
+				end
+				if key.pressed(key._left) or char.pressed('a') then
+					delta = vec2(-1, 0)
+				end
 			end
 
 			if delta then

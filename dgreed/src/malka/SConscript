@@ -8,6 +8,7 @@ postfix = env['DGREED_POSTFIX']
 sources = Split("""
 	malka.c
 	profiler.c
+	lua_utf8.c
 	ml_utils.c
 	ml_system.c
 	ml_mml.c

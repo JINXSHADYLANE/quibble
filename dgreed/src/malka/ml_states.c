@@ -746,11 +746,15 @@ void malka_states_end(void) {
 		_call_state_func(l, _names_get(i), "close", NULL, NULL, NULL);
 }
 
+bool dgreed_sleeping = false;
 bool malka_states_step(void) {
 	assert(states_in_mainloop);
 	lua_State* l = malka_lua_state();
 
-	if(_in_transition()) {
+	if(dgreed_sleeping) {
+		// Do nothing
+	}
+	else if(_in_transition()) {
 		float time = time_s();
 		float len = _get_transition_len(l);
 

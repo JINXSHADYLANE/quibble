@@ -125,7 +125,7 @@ static const luaL_Reg tex_fun[] = {
 // font
 
 #define checkfonthandle(l, i) \
-	(TexHandle*)luaL_checkudata(l, i, "_FontHandle.mt")
+	(FontHandle*)luaL_checkudata(l, i, "_FontHandle.mt")
 
 static void _new_fonthandle(lua_State* l, FontHandle h) {
 	FontHandle* t = (FontHandle*)lua_newuserdata(l, sizeof(FontHandle));
@@ -940,7 +940,7 @@ static const luaL_Reg vfont_fun[] = {
 // sound
 
 #define checksoundhandle(l, i) \
-	(TexHandle*)luaL_checkudata(l, i, "_SoundHandle.mt")
+	(SoundHandle*)luaL_checkudata(l, i, "_SoundHandle.mt")
 
 static void _new_soundhandle(lua_State* l, SoundHandle h) {
 	SoundHandle* t = (SoundHandle*)lua_newuserdata(l, sizeof(SoundHandle));
@@ -950,7 +950,7 @@ static void _new_soundhandle(lua_State* l, SoundHandle h) {
 }
 
 #define checksourcehandle(l, i) \
-	(TexHandle*)luaL_checkudata(l, i, "_SourceHandle.mt")
+	(SourceHandle*)luaL_checkudata(l, i, "_SourceHandle.mt")
 
 static void _new_sourcehandle(lua_State* l, SourceHandle h) {
 	SourceHandle* t = (SourceHandle*)lua_newuserdata(l, sizeof(SourceHandle));

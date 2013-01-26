@@ -37,9 +37,12 @@ bool dgreed_init(int argc, const char** argv) {
     uint n_width, n_height;
     video_get_native_resolution(&n_width, &n_height);
 
+	LOG_INFO("Native resolution %u %u", n_width, n_height);
+
 	// Select screen size
 	scr_size = SCR_IPAD;
     if(params_find("-iphone5") != ~0 || (n_width == 1136 && n_height == 640)) {
+		LOG_INFO("iphone5");
         sprsheet = ASSETS_PRE "sprsheet_640p.mml";
 		particles = "particles_small.mml";
 		scr_size = SCR_IPHONE;
@@ -50,12 +53,14 @@ bool dgreed_init(int argc, const char** argv) {
 		retina = true;
     }
 	else if(params_find("-retinaipad") != ~0 || (n_width == 2048 && n_height == 1536)) {
+		LOG_INFO("retina ipad");
 		sprsheet = ASSETS_PRE "sprsheet_1536p.mml";
 		width = 2048;
 		height = 1536;
 		retina = true;
 	}
 	else if(params_find("-iphone") != ~0 || (n_width < 960 || n_height < 640)) {
+		LOG_INFO("iphone");
 		sprsheet = ASSETS_PRE "sprsheet_320p.mml";
 		particles = "particles_small.mml";
 		scr_size = SCR_IPHONE;
@@ -63,6 +68,7 @@ bool dgreed_init(int argc, const char** argv) {
 		v_height = height = 320;
 	}
 	else if(params_find("-retina") != ~0 || (n_width < 1024 || n_height < 768)) {
+		LOG_INFO("retina iphone");
 		sprsheet = ASSETS_PRE "sprsheet_640p.mml";
 		particles = "particles_small.mml";
 		scr_size = SCR_IPHONE;

@@ -62,6 +62,7 @@ int malka_run(const char* luafile) {
 }
 
 extern int luaopen_bit(lua_State* l);
+extern int luaopen_libluautf8(lua_State* l);
 
 static void* malka_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
     (void)ud;
@@ -146,7 +147,9 @@ extern int malka_open_keyval(lua_State* l);
 extern int malka_open_gamecenter(lua_State* l);
 extern int malka_open_os(lua_State* l);
 extern int malka_open_iap(lua_State* l);
+#ifndef ANDROID
 extern int malka_open_http(lua_State* l);
+#endif
 extern int malka_open_localization(lua_State* l);
 extern int malka_open_anim(lua_State* l);
 
@@ -166,6 +169,7 @@ void malka_init_ex(bool use_pools) {
 
 	luaL_openlibs(l);
 	luaopen_bit(l);
+	luaopen_libluautf8(l);
 
 	malka_open_vec2(l);
 	malka_open_rect(l);
@@ -184,7 +188,9 @@ void malka_init_ex(bool use_pools) {
 	malka_open_gamecenter(l);
 	malka_open_os(l);
 	malka_open_iap(l);
+	#ifndef ANDROID
 	malka_open_http(l);
+	#endif
 	malka_open_localization(l);
 	malka_open_anim(l);
 
@@ -235,7 +241,9 @@ static void _malka_prep(const char* luafile) {
 	}
 
 	// chdir there
-	chdir(real_folder);
+	int res = chdir(real_folder);
+	if(res != 0)
+		LOG_WARNING("Unable to chdir to %s", real_folder);
 
 	MEM_FREE(real_path);
 	MEM_FREE(real_folder);
@@ -243,17 +251,26 @@ static void _malka_prep(const char* luafile) {
 
 	// Register module path
 	char* module_path = path_get_folder(luafile);
+	LOG_INFO("module_path = %s", module_path);
 	lua_getglobal(l, "package"); 
 	int package = lua_gettop(l);
+#ifdef ANDROID
+	lua_pushfstring(l, "%s?.lc;%s?.lua", module_path, module_path);
+#else
 	lua_pushfstring(l, "./%s?.lc;./%s?.lua", module_path, module_path);
+#endif
 	lua_setfield(l, package, "path");
 	lua_pop(l, 1);
 	MEM_FREE(module_path);
 
-    // Set flag running_on_ios
 #ifdef TARGET_IOS
     lua_pushboolean(l, true);
     lua_setglobal(l, "running_on_ios"); 
+#endif
+
+#ifdef ANDROID
+	lua_pushboolean(l, true);
+	lua_setglobal(l, "android");
 #endif
 
     // Set debug flag

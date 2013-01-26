@@ -1,15 +1,13 @@
-#include "utils.h"
+#ifndef SYS_SND_H
+#define SYS_SND_H
 
-#define BUCKET_COUNT 16
-#define FPS_LIMIT 60
-#define MS_PER_FRAME (1000 / FPS_LIMIT)
+#include "utils.h"
 
 /*
 -------------
 --- Sound ---
 -------------
 */
-
 
 #ifndef NO_DEVMODE
 typedef struct {
@@ -29,7 +27,7 @@ void sound_close(void);
 // Must be called once each frame
 void sound_update(void);
 
-typedef uint SoundHandle;
+typedef size_t SoundHandle;
 
 // Loads sound sample from .wav file
 SoundHandle sound_load_sample(const char* filename);
@@ -53,7 +51,7 @@ float sound_get_length(SoundHandle handle);
 
 // Extented API for controlling specific sound sources
 
-typedef uint SourceHandle;
+typedef size_t SourceHandle;
 
 // Plays stream or sample, optionally looping it, returns source.
 // If result is null - sound was skipped.
@@ -72,4 +70,6 @@ float sound_get_volume_ex(SourceHandle source);
 float sound_get_pos_ex(SourceHandle source);
 // Sets play cursor position
 void sound_set_pos_ex(SourceHandle source, float pos);
+
+#endif
 

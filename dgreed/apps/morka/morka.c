@@ -12,11 +12,9 @@
 
 #include "game.h"
 #include "mchains.h"
+#include "common.h"
 
 extern bool draw_gfx_debug;
-
-#define ASSETS_DIR "morka_assets/"
-#define SCRIPTS_DIR "morka_scripts/"
 
 void dgreed_preinit(void) {
 }
@@ -31,15 +29,13 @@ bool dgreed_init(int argc, const char** argv) {
 	rand_init(time(NULL));
 
 	const char* sprsheet = ASSETS_DIR "spritesheet.mml";
-	uint width = 1024;
-	uint height = 768;
 	uint v_width = 1024;
 	uint v_height = 768;
     
     uint n_width, n_height;
     video_get_native_resolution(&n_width, &n_height);
 
-	video_init_ex(width, height, v_width, v_height, "morka", false);
+	video_init_ex(WIDTH, HEIGHT, v_width, v_height, "morka", false);
 	sound_init();
 
 	keyval_init("morka.db");

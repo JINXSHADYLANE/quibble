@@ -1,10 +1,12 @@
 local game = {}
 
+local config = require('config')
+
 move_len = 0.5
 color_counter = 1
 
 local function map2world(p)
-	return p * 64 + vec2(63, 63)
+	return p * 64 + vec2(32, 32)
 end
 
 -- candies
@@ -316,9 +318,9 @@ function game.control(id, msg)
 end
 
 function game.init()
-	aitvaras.lobby_addr = 'http://www.antrasekranas.lt'
-	aitvaras.server_addr = 'http://89.249.93.114:8008'
-	aitvaras.listening_port = 8008
+	aitvaras.lobby_addr = config.lobby_addr
+	aitvaras.server_addr = config.server_addr
+	aitvaras.listening_port = config.server_port
 	aitvaras.document_root = 'aitvaras_html/'
 	aitvaras.join_cb = game.join
 	aitvaras.leave_cb = game.leave

@@ -1,3 +1,6 @@
+#ifndef SYS_GFX_H
+#define SYS_GFX_H
+
 #include "utils.h"
 
 /*
@@ -61,7 +64,7 @@ void video_set_blendmode(uint layer, BlendMode bmode);
 // NULL means identity.
 void video_set_transform(uint layer, float* matrix);
 
-typedef uint TexHandle;
+typedef size_t TexHandle;
 typedef void (*TexFilter)(Color* texels, uint w, uint h);
 
 // Creates empty texture, filled with transparent white
@@ -90,3 +93,5 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 // Draws a line
 void video_draw_line(uint layer,
 	const Vector2* start, const Vector2* end, Color color);
+
+#endif

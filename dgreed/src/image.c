@@ -255,7 +255,7 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 		}
 		void* decompr_data = malloc(decompr_size);
 
-		size_t processed = decompr_size;
+		mz_ulong processed = decompr_size;
 		if(hdr.compression & DC_LZ4)
 			processed = LZ4_uncompress(pixdata, decompr_data, decompr_size);
 		else {
@@ -308,6 +308,24 @@ static void* _load_dig(FileHandle f, uint* w, uint* h, PixelFormat* format) {
 extern void* ios_load_image(const char* filename, uint* w, uint* h, PixelFormat* format);
 #endif
 
+#ifdef ANDROID
+
+#include <SDL.h>
+
+static int _stbi_read(void* user, char* data, int size) {
+	return SDL_RWread((SDL_RWops*)user, data, 1, size);
+}
+
+static void _stbi_skip(void* user, unsigned n) {
+	SDL_RWseek((SDL_RWops*)user, n, SEEK_CUR);
+}
+
+static int _stbi_eof(void* user) {
+	return SDL_RWtell((SDL_RWops*)user) == SDL_RWsize((SDL_RWops*)user);
+}
+
+#endif
+
 void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format) {
 	assert(filename && w && h && format);
 
@@ -321,6 +339,40 @@ void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format) {
 #ifdef TARGET_IOS
 		file_close(f);
 		data = ios_load_image(filename, w, h, format);
+#elif ANDROID
+		int x, y, comp;
+		stbi_io_callbacks io_cb = {
+			.read = _stbi_read,
+			.skip = _stbi_skip,
+			.eof = _stbi_eof
+		};
+
+		data = stbi_load_from_callbacks(&io_cb, (void*)f, &x, &y, &comp, 4);
+
+		// Premultiply alpha
+		if(comp == 4) {
+			Color* c = data;
+			for(uint iy = 0; iy < y; ++iy) {
+				for(uint ix = 0; ix < x; ++ix) {
+					uint idx = iy * x + ix;
+					byte r, g, b, a;
+					COLOR_DECONSTRUCT(c[idx], r, g, b, a);
+					r = (r * a) >> 8;	
+					g = (g * a) >> 8;	
+					b = (b * a) >> 8;	
+					c[idx] = COLOR_RGBA(r, g, b, a);
+				}
+			}
+		}
+
+		if(data == NULL)
+			LOG_WARNING("Unable to load image %s", filename);
+		if(stbi_failure_reason())
+			LOG_WARNING("Fail %s", stbi_failure_reason());
+		file_close(f);
+		*w = x;
+		*h = y;
+		*format = PF_RGBA8888;
 #else
 		int x, y, comp;
 		data = stbi_load_from_file((FILE*)f, &x, &y, &comp, 4);
@@ -493,7 +545,7 @@ void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format
 	size_t size_uncompr = (w * h * bpp) / 8;
 
 	void* pixels_defl = malloc(size_uncompr);
-	size_t size_defl = size_uncompr;
+	mz_ulong size_defl = size_uncompr;
     int err = mz_compress2(pixels_defl, &size_defl, pixels, size_uncompr, 9);
 	if(err != MZ_OK) {
         printf("miniz error %d\n", err);
@@ -505,7 +557,7 @@ void image_write_dig_hc(const char* filename, uint w, uint h, PixelFormat format
 	if(palettize) {
 		void* pixels_dc = _palettize_rgb565(pixels, w*h, &pixels_dc_size);
 		void* pixels_defldc = malloc(pixels_dc_size);
-		size_t size_defldc = pixels_dc_size;
+		mz_ulong size_defldc = pixels_dc_size;
 		err = mz_compress2(pixels_defldc, &size_defldc, pixels_dc, pixels_dc_size, 9);
         if(err != MZ_OK) {
             printf("miniz error %d\n", err);
