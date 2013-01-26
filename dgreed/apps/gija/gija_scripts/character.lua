@@ -59,17 +59,17 @@ function character:new(obj, i)
 		ground = true,
 		frame = 0,
 		sprite = sprites[i],
-		controls = controls[i]
+		controls = controls[i],
+		color = i
 	}
 	if i == 1 then
 		o.heart = true
 	end
-	o.beat = anim.new('heartbeat')
 	setmetatable(o, character_mt)
 	return o
 end
 
-function character:update(sweep_rect, switch_hearts)
+function character:update(sweep_rect, switch_hearts, w)
 	self:controls(switch_hearts)
 
 	self.vel.y = self.vel.y + gravity
@@ -82,13 +82,13 @@ function character:update(sweep_rect, switch_hearts)
 	bbox.r = bbox.l + self.width
 	bbox.b = bbox.t + self.height
 
-	local dx = sweep_rect(bbox, vec2(self.vel.x, 0), not self.ground)
+	local dx = sweep_rect(bbox, vec2(self.vel.x, 0), self.color, w)
 	self.pos = self.pos + dx
 	bbox.l = bbox.l + dx.x
 	bbox.r = bbox.r + dx.x
 	self.vel.x = dx.x
 	
-	local dy = sweep_rect(bbox, vec2(0, self.vel.y), true)
+	local dy = sweep_rect(bbox, vec2(0, self.vel.y), self.color, w)
 	local was_on_ground = self.ground
 	if self.vel.y > 0 then
 		self.ground = dy.y == 0
@@ -131,16 +131,6 @@ function character:render(level)
 			spr = spr .. 'h'
 		end
 		sprsheet.draw(spr, 3, pos)
-
-		local p = vec2(
-			pos.l + pos.r,
-			pos.t + pos.b
-		)
-		p = p / 2
-
-		if self.heart then
-			anim.draw(self.beat, 'beat', 4, p)
-		end
 	end
 end
 
