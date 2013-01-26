@@ -18,10 +18,12 @@ local char1 = nil
 local obj_type = {
 	start0 = 0,
 	start1 = 1,
-	finish = 2
+	finish = 2,
+	door0 = 3,
+	door1 = 4
 }
 
-function sweep_rect(r, offset, no_push)
+function sweep_rect(r, offset)
 	local off, d
 
 	-- collide against level
@@ -46,7 +48,7 @@ function game.reset(level_name)
 	objs = nil
 
 	if level_name == nil then
-		level_name = 'level1'
+		level_name = 'level2'
 	end
 
 	tmap0 = tilemap.load(pre..level_name..'.0.btm')

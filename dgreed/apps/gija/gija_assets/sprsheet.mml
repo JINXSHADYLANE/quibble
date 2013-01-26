@@ -20,4 +20,12 @@
 		(tex character.png)
 		(src 96,0,128,64)
 	)
+
+	(anim beat
+		(tex raibulys256.png)
+		(src 0,0,256,256)
+		(offset 256,256)
+		(grid 4,4)
+		(frames 16)
+	)
 )
