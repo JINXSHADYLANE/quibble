@@ -65,6 +65,7 @@ function character:new(obj, i)
 	if i == 1 then
 		o.heart = true
 	end
+	o.heartbeat = anim.new('heartbeat')
 	setmetatable(o, character_mt)
 	return o
 end
@@ -131,6 +132,15 @@ function character:render(level)
 			spr = spr .. 'h'
 		end
 		sprsheet.draw(spr, 3, pos)
+		local p = vec2(
+	 		pos.l + pos.r,
+	 		pos.t + pos.b
+	 	)
+	 	p = p / 2
+	 	
+	 	if self.heart then
+		 	anim.draw(self.heartbeat, 'beat', 4, p)
+	 	end
 	end
 end
 
