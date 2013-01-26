@@ -1,0 +1,67 @@
+(sprsheet bailys 
+	(prefix "bailys_assets/")
+
+	(img empty
+		(tex empty.png)
+	)
+	(img beam
+		(tex beam.png)
+	)
+
+	(img edge
+		(tex edge.png)
+	)
+	(img corner
+		(tex corner.png)
+	)
+	(img tile 
+		(tex tile.png)
+	)
+	(img wall
+		(tex wall.png)
+	)
+	(img mirror
+		(tex mirror.png)
+	)
+
+	(img egg
+		(tex egg.png)
+	)
+	(img egg_explode
+		(tex egg_explode.png)
+	)
+	(img player1
+		(tex player1.png)
+	)
+	(img player2
+		(tex player2.png)
+	)
+	(img player3
+		(tex player3.png)
+	)
+
+	(img vignette
+		(tex vignette.png)
+		(src 0,0,1024,1024)
+	)
+
+	(img title1
+		(tex title1.png)
+		(src 0,0,512,512)
+	)
+	(img title2
+		(tex title2.png)
+		(src 0,0,512,512)
+	)
+
+	(img draco
+		(tex draco.png)
+		(src 0,0,512,512)
+	)
+
+	(img laser_box
+		(tex laser_box.png)
+		(src 0,0,64,64)
+	)
+)
+
