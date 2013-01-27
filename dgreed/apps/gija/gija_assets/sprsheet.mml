@@ -52,4 +52,14 @@
 		(tex atlas.png)
 		(src 0,0,5,5)
 	)
+
+	(img blue_end
+		(tex blue_end.png)
+		(src 0,0,1024,576)
+	)
+
+	(img red_end
+		(tex red_end.png)
+		(src 0,0,1024,576)
+	)
 )

@@ -4,6 +4,9 @@ gravity = 0.4
 
 local character = require('character')
 
+local finished = false
+local finished_alpha = 0.0
+local finished_spr = 'red_end'
 local update = true
 local game_reset = false
 local death_t = nil
@@ -34,10 +37,10 @@ local obj_type = {
 
 local levels = {
 	'level1',
-	'level2',
-	'ma',
-	'level3',
-	'mb'
+	--'level2',
+	--'ma',
+	--'level3',
+	--'mb'
 }
 
 local current_level = 1
@@ -336,6 +339,10 @@ function game.render(t)
 			if not game_reset and t > 0.5 then
 				game_reset = true
 				current_level = current_level + 1
+				if current_level > #levels then
+					current_level = 1
+					finished = true
+				end
 				game.reset(current_level)
 			end
 		else
@@ -391,6 +398,12 @@ function game.render(t)
 			update = true
 			switch_t = nil
 		end
+	end
+
+	if finished then
+		finished_alpha = math.min(1, finished_alpha + 0.01)
+		local c = rgba(1, 1, 1, finished_alpha)
+		sprsheet.draw(finished_spr, 15, vec2(0, 0), c)
 	end
 
 	return true
