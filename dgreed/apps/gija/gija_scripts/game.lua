@@ -12,6 +12,7 @@ local switch_t = nil
 
 local tmap0 = nil
 local tmap1 = nil
+local last_tmap = nil
 local objs = nil
 
 local camera = {
@@ -21,6 +22,7 @@ local camera = {
 local char0 = nil
 local char1 = nil
 local doors = {} 
+local exits = {}
 
 local obj_type = {
 	start0 = 0,
@@ -29,6 +31,14 @@ local obj_type = {
 	door0 = 3,
 	door1 = 4
 }
+
+local levels = {
+	'level1',
+	'level2',
+	'level3'
+}
+
+local current_level = 1
 
 function sweep_rect(r, offset, i, w)
 	local off, d
@@ -56,6 +66,18 @@ function sweep_rect(r, offset, i, w)
 		end
 	end
 
+	-- collide against exits
+	if d > 0 then
+		for _,e in ipairs(exits) do
+			if e.world == w then
+				if rect_rect_collision(r, e.rect) then
+					win_t = time.s()
+					update = false
+				end
+			end
+		end
+	end
+
 	return off
 end
 
@@ -63,15 +85,18 @@ function game.init()
 	game.reset()
 end
 
-function game.reset(level_name)
+function game.reset(level)
 	tmap0 = nil
 	tmap1 = nil
 	objs = nil
 	doors = {}
 
-	if level_name == nil then
-		level_name = 'level1'
+	if level == nil then
+		level = 1
 	end
+
+	current_level = level
+	local level_name = levels[level]
 
 	tmap0 = tilemap.load(pre..level_name..'.0.btm')
 	tmap1 = tilemap.load(pre..level_name..'.1.btm')
@@ -93,6 +118,17 @@ function game.reset(level_name)
 		})
 	end
 
+	local add_exit = function(w, obj)
+		local r = rect(
+			obj.pos.x, obj.pos.y,
+			obj.pos.x + 32, obj.pos.y + 64
+		)
+		table.insert(exits, {
+			rect = r,
+			world = w
+		})
+	end
+
 	-- set up objects
 	for i,obj in ipairs(objs) do
 		if obj.id == obj_type.start0 then
@@ -105,12 +141,18 @@ function game.reset(level_name)
 		if obj.id == obj_type.door0 or obj.id == obj_type.door1 then
 			add_door(0, obj)	
 		end
+		if obj.id == obj_type.finish then
+			add_exit(0, obj)
+		end
 	end
 
 	objs = tilemap.objects(tmap1)
 	for i,obj in ipairs(objs) do
 		if obj.id == obj_type.door0 or obj.id == obj_type.door1 then
 			add_door(1, obj)
+		end
+		if obj.id == obj_type.finish then
+			add_exit(1, obj)
 		end
 	end
 
@@ -152,9 +194,6 @@ function game.switch_hearts()
 	char0.heart = not char0.heart
 	char1.heart = not char1.heart
 
-	char0:switch_heart()
-	char1:switch_heart()
-
 	-- if one of the players is stuck - reset level
 	local col0, col1
 	if char0.heart then
@@ -168,6 +207,21 @@ function game.switch_hearts()
 	if col0 or col1 then
 		game.death()
 	end
+
+	switch_t = time.s()
+	update = false
+
+	if char0.heart then
+		last_tmap = tmap0
+	else
+		last_tmap = tmap1
+	end
+
+	char0.heart_store, char0.heart = char0.heart, false
+	char1.heart_store, char1.heart = char1.heart, false
+
+	char0:switch_heart()
+	char1:switch_heart()
 end
 
 function game.update()
@@ -215,15 +269,21 @@ end
 function game.render(t)
 	sprsheet.draw('empty', 0, scr_rect)
 
-	if char0.heart and tmap0 then
-		tilemap.render(tmap0, scr_rect)
+	if char0.heart then
+		--tilemap.render(tmap1, scr_rect)
+		--sprsheet.draw('empty', 0, scr_rect, rgba(1, 1, 1, 0.2))
 		game.render_doors(tmap0, 0)
+		last_tmap = tmap0
 	end
 	
-	if char1.heart and tmap1 then
-		tilemap.render(tmap1, scr_rect)
+	if char1.heart then
+		--tilemap.render(tmap0, scr_rect)
+		--sprsheet.draw('empty', 0, scr_rect, rgba(1, 1, 1, 0.2))
 		game.render_doors(tmap1, 1)
+		last_tmap = tmap1
 	end
+
+	tilemap.render(last_tmap, scr_rect)
 
 	if char0 then
 		char0:render(tmap0)
@@ -235,9 +295,28 @@ function game.render(t)
 
 	local t, ts = 0, time.s()
 
+	-- win
+	if win_t then
+		t = (ts - win_t) / 2
+		if t < 1 then
+			local alpha = math.sin(t * math.pi)
+			local c = rgba(1, 1, 1, alpha)
+			sprsheet.draw('empty', 15, scr_rect, c)
+			if not game_reset and t > 0.5 then
+				game_reset = true
+				current_level = current_level + 1
+				game.reset(current_level)
+			end
+		else
+			update = true
+			win_t = nil
+			game_reset = false
+		end
+	end
+
 	-- death
 	if death_t then
-		t = (ts - death_t) / 1.0
+		t = (ts - death_t) / 1.5
 		if t < 1 then
 			local alpha = math.sin(t * math.pi)
 			local c = rgba(0, 0, 0, alpha)
@@ -252,7 +331,36 @@ function game.render(t)
 			game_reset = false
 		end
 	end
-	
+
+	-- switch hearts
+	if switch_t then
+		t = (ts - switch_t) / 0.33
+		if t < 1 then
+			local s_pos, e_pos
+			local c = nil
+			if char0.heart_store then
+				s_pos = char1.pos
+				e_pos = char0.pos
+				c = rgba(223/255, 161/255, 169/255)
+			else
+				s_pos = char0.pos
+				e_pos = char1.pos
+				c = rgba(132/255, 150/255, 183/255)
+			end
+
+			local p = lerp(s_pos, e_pos, t)
+
+			p = tilemap.world2screen(tmap0, scr_rect, p)
+			sprsheet.draw_centered('heart', 4, p, t, 3, c)
+		else
+			char0.heart = char0.heart_store
+			char1.heart = char1.heart_store
+			char0:switch_heart()
+			char1:switch_heart()
+			update = true
+			switch_t = nil
+		end
+	end
 
 	return true
 end
