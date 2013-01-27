@@ -256,6 +256,10 @@ function game.update()
 		end
 	end
 
+	if char.down('r') then
+		game.reset(current_level)
+	end
+
 	return not key.down(key.quit)
 end
 
