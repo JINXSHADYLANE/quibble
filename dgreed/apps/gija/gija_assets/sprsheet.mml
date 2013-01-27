@@ -44,4 +44,9 @@
 		(grid 4,4)
 		(frames 16)
 	)
+
+	(img heart
+		(tex atlas.png)
+		(src 0,0,5,5)
+	)
 )

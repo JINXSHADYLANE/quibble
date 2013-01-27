@@ -129,12 +129,11 @@ end
 
 function character:switch_heart()
 	anim.del(self.anim)
+	self.walking = false
 	if self.heart then
 		self.anim = anim.new('character')
-		self.walking = false
 	else
 		self.anim = anim.new('character_heartless')
-		self.walking = true
 	end
 end
 
