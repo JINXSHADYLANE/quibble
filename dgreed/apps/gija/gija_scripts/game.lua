@@ -33,13 +33,16 @@ local obj_type = {
 }
 
 local levels = {
-	'mb',
 	'level1',
 	'level2',
-	'level3'
+	'ma',
+	'level3',
+	'mb'
 }
 
 local current_level = 1
+
+local reached_exit = {}
 
 function sweep_rect(r, offset, i, w)
 	local off, d
@@ -68,13 +71,10 @@ function sweep_rect(r, offset, i, w)
 	end
 
 	-- collide against exits
-	if d > 0 then
-		for _,e in ipairs(exits) do
-			if e.world == w then
-				if rect_rect_collision(r, e.rect) then
-					win_t = time.s()
-					update = false
-				end
+	for _,e in ipairs(exits) do
+		if e.world == w then
+			if rect_rect_collision(r, e.rect) then
+				reached_exit[i] = true
 			end
 		end
 	end
@@ -242,6 +242,13 @@ function game.update()
 	assert(char0 and char1)
 	char0:update(sweep_rect, game.switch_hearts, w)
 	char1:update(sweep_rect, game.switch_hearts, w)
+
+	if reached_exit[1] and reached_exit[2] then
+		win_t = time.s()
+		update = false
+	end
+
+	reached_exit = {}
 
 	if char0.bbox and char1.bbox then
 		if char0.bbox.b >= 575 * 3 or char1.bbox.b >= 575 * 3 then
