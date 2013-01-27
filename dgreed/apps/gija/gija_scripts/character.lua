@@ -47,7 +47,7 @@ local sprites = {'red', 'blue'}
 
 function character:new(obj, i)
 	local o = {
-		width = 32,
+		width = 28,
 		height = 64,
 		move_acc = 0.5,
 		move_damp = 0.8,
