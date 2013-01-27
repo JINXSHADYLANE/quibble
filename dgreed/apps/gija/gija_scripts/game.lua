@@ -4,6 +4,12 @@ gravity = 0.4
 
 local character = require('character')
 
+local update = true
+local game_reset = false
+local death_t = nil
+local win_t = nil
+local switch_t = nil
+
 local tmap0 = nil
 local tmap1 = nil
 local objs = nil
@@ -64,7 +70,7 @@ function game.reset(level_name)
 	doors = {}
 
 	if level_name == nil then
-		level_name = 'level2'
+		level_name = 'level1'
 	end
 
 	tmap0 = tilemap.load(pre..level_name..'.0.btm')
@@ -107,10 +113,15 @@ function game.reset(level_name)
 			add_door(1, obj)
 		end
 	end
+
+	game.update_camera()
+	char0:update(sweep_rect, function() end, 0)
+	char1:update(sweep_rect, function() end, 0)
 end
 
 function game.death()
-	game.reset()
+	death_t = time.s()
+	update = false
 end
 
 function game.close()
@@ -160,9 +171,11 @@ function game.switch_hearts()
 end
 
 function game.update()
-	local ts = time.s()
-
 	sound.update()
+
+	if not update then
+		return true
+	end
 
 	game.update_camera()
 
@@ -200,8 +213,6 @@ function game.render_doors(map, w)
 end
 
 function game.render(t)
-	local ts = time.s()
-
 	sprsheet.draw('empty', 0, scr_rect)
 
 	if char0.heart and tmap0 then
@@ -221,6 +232,27 @@ function game.render(t)
 	if char1 then
 		char1:render(tmap1)
 	end
+
+	local t, ts = 0, time.s()
+
+	-- death
+	if death_t then
+		t = (ts - death_t) / 1.0
+		if t < 1 then
+			local alpha = math.sin(t * math.pi)
+			local c = rgba(0, 0, 0, alpha)
+			sprsheet.draw('empty', 15, scr_rect, c)
+			if not game_reset and t > 0.5 then
+				game_reset = true
+				game.reset(current_level)
+			end
+		else
+			update = true
+			death_t = nil
+			game_reset = false
+		end
+	end
+	
 
 	return true
 end
