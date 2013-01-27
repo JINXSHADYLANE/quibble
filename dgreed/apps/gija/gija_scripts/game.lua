@@ -33,6 +33,7 @@ local obj_type = {
 }
 
 local levels = {
+	'ma',
 	'level1',
 	'level2',
 	'level3'
