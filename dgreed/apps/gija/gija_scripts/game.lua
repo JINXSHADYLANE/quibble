@@ -267,6 +267,21 @@ function game.render_doors(map, w)
 	end
 end
 
+function game.render_exits(map, w)
+	for _,e in pairs(exits) do
+		if e.world == w then
+			local pos = tilemap.world2screen(map, scr_rect, e.rect)
+			local spr = 'exit_blue'
+			if w == 1 then
+				spr = 'exit_red'
+			end
+			if rect_rect_collision(pos, scr_rect) then
+				sprsheet.draw(spr, 3, pos)
+			end
+		end
+	end
+end
+
 function game.render(t)
 	sprsheet.draw('empty', 0, scr_rect)
 
@@ -287,6 +302,7 @@ function game.render(t)
 		i = 1
 	end
 	game.render_doors(last_tmap, i)
+	game.render_exits(last_tmap, i)
 	tilemap.render(last_tmap, scr_rect)
 
 	if char0 then
