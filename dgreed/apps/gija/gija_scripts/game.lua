@@ -33,7 +33,7 @@ local obj_type = {
 }
 
 local levels = {
-	'ma',
+	'mb',
 	'level1',
 	'level2',
 	'level3'
@@ -256,9 +256,9 @@ function game.render_doors(map, w)
 	for _,dr in pairs(doors) do
 		if dr.world == w then
 			local pos = tilemap.world2screen(map, scr_rect, dr.rect)
-			local spr = 'char1'
+			local spr = 'door_red'
 			if dr.color == 2 then
-				spr = 'char2'
+				spr = 'door_blue'
 			end
 			if rect_rect_collision(pos, scr_rect) then
 				sprsheet.draw(spr, 3, pos)
@@ -273,17 +273,20 @@ function game.render(t)
 	if char0.heart then
 		--tilemap.render(tmap1, scr_rect)
 		--sprsheet.draw('empty', 0, scr_rect, rgba(1, 1, 1, 0.2))
-		game.render_doors(tmap0, 0)
 		last_tmap = tmap0
 	end
 	
 	if char1.heart then
 		--tilemap.render(tmap0, scr_rect)
 		--sprsheet.draw('empty', 0, scr_rect, rgba(1, 1, 1, 0.2))
-		game.render_doors(tmap1, 1)
 		last_tmap = tmap1
 	end
 
+	local i = 0
+	if last_tmap == tmap1 then
+		i = 1
+	end
+	game.render_doors(last_tmap, i)
 	tilemap.render(last_tmap, scr_rect)
 
 	if char0 then
