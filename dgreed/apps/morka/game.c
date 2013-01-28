@@ -7,6 +7,7 @@
 
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
+bool draw_ground_debug = false;
 
 // Game state
 
@@ -82,6 +83,8 @@ static bool game_update(void) {
 		draw_gfx_debug = !draw_gfx_debug;
 	if(char_down('p'))
 		draw_physics_debug = !draw_physics_debug;
+	if(char_down('l'))
+		draw_ground_debug = !draw_ground_debug;
 #endif
 
 	if(game_is_paused())
@@ -138,6 +141,8 @@ static bool game_render(float t) {
 
 	hud_render();
 	objects_tick(game_is_paused());
+	
+	if(draw_ground_debug) worldgen_debug_render();
 
 	return true;
 }
