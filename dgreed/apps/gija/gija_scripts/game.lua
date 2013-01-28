@@ -37,10 +37,10 @@ local obj_type = {
 
 local levels = {
 	'level1',
-	--'level2',
-	--'ma',
-	--'level3',
-	--'mb'
+	'level2',
+	'ma',
+	'level3',
+	'mb'
 }
 
 local current_level = 1
