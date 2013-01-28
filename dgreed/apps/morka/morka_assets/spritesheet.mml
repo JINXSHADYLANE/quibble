@@ -7,10 +7,10 @@
 	)
 	(anim rabbit
 		(tex atlas_0.png)
-		(src 0,0,130,130)
-		(offset 130,130)
+		(src 0,0,128,128)
+		(offset 128,128)
 		(frames 15)
-		(grid 5,3)
+		(grid 4,4)
 	)
 	(img blue_shade
 		(tex atlas_2.png)
