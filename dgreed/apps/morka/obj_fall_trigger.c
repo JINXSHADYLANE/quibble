@@ -9,7 +9,7 @@ static void obj_fall_trigger_collide(GameObject* self, GameObject* other) {
 	}
 }
 
-static void obj_fall_trigger_update(GameObject* self){
+static void obj_fall_trigger_update(GameObject* self, float ts, float dt){
 	PhysicsComponent* physics = self->physics;
 	RectF pos = {
 		.right = physics->cd_obj->pos.x + physics->cd_obj->size.size.x
