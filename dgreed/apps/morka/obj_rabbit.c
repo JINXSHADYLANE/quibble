@@ -128,7 +128,6 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	// Collision with ground
 	if(other->type == OBJ_GROUND_TYPE) {
-		//ObjGround* ground = (ObjGround*) other;
 		CDObj* cd_rabbit = self->physics->cd_obj;
 		CDObj* cd_ground = other->physics->cd_obj;
 		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
@@ -170,6 +169,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 					.y = MAX(vel.y*300.0f,-180000.0f)
 				};
 				rabbit->bounce_force = f;
+				combo_counter = 0;
 			}
 
 			// Slow down vertical movevment
