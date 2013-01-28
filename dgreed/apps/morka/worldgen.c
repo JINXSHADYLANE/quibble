@@ -28,7 +28,7 @@ static void _gen_bg_page(void) {
 		mchains_symbol_info(bg_chain, sym, &advance, &spr);
 
 		if(spr) {
-			Vector2 pos = vec2(bg_page_cursor + bg_x + 100.0f, 680.0f);
+			Vector2 pos = vec2(bg_page_cursor + bg_x + 100.0f, 720.0f);
 			objects_create(&obj_deco_desc, pos, (void*)spr);
 		}
 

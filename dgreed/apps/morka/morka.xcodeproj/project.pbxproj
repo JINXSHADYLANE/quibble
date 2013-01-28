@@ -153,6 +153,9 @@
 		21ED799A16A54CBB002CA25B /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 21ED799916A54CBB002CA25B /* sys_gfx_ios.m */; };
 		AA8213B4169DA89200A7EBA8 /* icon~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B3169DA89200A7EBA8 /* icon~ipad.png */; };
 		AA8213B7169DA89500A7EBA8 /* icon@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */; };
+		AAA8AD4B16B28C1700C6D752 /* lua_utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4A16B28C1700C6D752 /* lua_utf8.c */; };
+		AAA8AD4F16B2CBB600C6D752 /* obj_fall_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */; };
+		AAA8AD5016B2CBB600C6D752 /* obj_speed_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -395,6 +398,9 @@
 		21ED799916A54CBB002CA25B /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
 		AA8213B3169DA89200A7EBA8 /* icon~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon~ipad.png"; sourceTree = "<group>"; };
 		AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x~ipad.png"; sourceTree = "<group>"; };
+		AAA8AD4A16B28C1700C6D752 /* lua_utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lua_utf8.c; path = ../../src/malka/lua_utf8.c; sourceTree = "<group>"; };
+		AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_fall_trigger.c; sourceTree = "<group>"; };
+		AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_speed_trigger.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -612,6 +618,9 @@
 		219BE9B5167769D5002B614C /* malka */ = {
 			isa = PBXGroup;
 			children = (
+				AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */,
+				AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */,
+				AAA8AD4A16B28C1700C6D752 /* lua_utf8.c */,
 				219BE9B6167769DA002B614C /* lua */,
 				219BEA3316776A6C002B614C /* malka.c */,
 				219BEA3416776A6C002B614C /* malka.h */,
@@ -940,6 +949,9 @@
 				21D53BA6167A23F0009E6CFC /* vfont.c in Sources */,
 				21DAACE51681CB55002464CD /* obj_pin.c in Sources */,
 				21ED799A16A54CBB002CA25B /* sys_gfx_ios.m in Sources */,
+				AAA8AD4B16B28C1700C6D752 /* lua_utf8.c in Sources */,
+				AAA8AD4F16B2CBB600C6D752 /* obj_fall_trigger.c in Sources */,
+				AAA8AD5016B2CBB600C6D752 /* obj_speed_trigger.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
