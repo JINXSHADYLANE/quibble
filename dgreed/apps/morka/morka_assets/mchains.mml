@@ -72,7 +72,6 @@
 		(learn "cdefgh_abcd")
 		(learn "cdefgh=abcd")
 		(learn "cdefgh-abcd")
-		(learn "cdefgh-=abcd")
 		(learn "cdefijklmnopcd")
 		(learn "cdefijklmnklmnopcd")
 	)
