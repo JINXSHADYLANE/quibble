@@ -16,6 +16,11 @@ static Chain* fg_chain;
 static Chain* bg_chain;
 static Chain* ground_chain;
 
+static Vector2 gaps[4];
+static const int max_gaps = 4;
+static int gaps_i = 0;
+static int previuos_gaps = 0;
+
 static void _gen_bg_page(void) {
 	SprHandle spr;	
 	uint advance;
@@ -39,15 +44,47 @@ static void _gen_bg_page(void) {
 	bg_page_cursor += page_width;
 }
 
+void worldgen_debug_render(){
+	for(int i = 0; i < gaps_i;i++){
+		/*RectF pos = {
+			.left = gaps[i].x, 
+			.top = 580,
+			.right = gaps[i].y,
+			.bottom = 580
+		};
+		RectF result = objects_world2screen(pos,0);
+		
+		Vector2 start = vec2(result.left, result.top);
+		Vector2 end = vec2(result.right, result.bottom);
+		
+		video_draw_line(10,	&start, &end, COLOR_RGBA(255, 0, 0, 255));*/
+		
+		RectF pos = {
+			.left = gaps[i].x, 
+			.top = 580,
+			.right = gaps[i].y,
+			.bottom = 580
+		};
+		RectF result = objects_world2screen(pos,0);
+		
+		Vector2 start = vec2(result.left, 0);
+		Vector2 end = vec2(result.left, 768);
+		
+		video_draw_line(10,	&start, &end, COLOR_RGBA(255, 0, 0, 255));
+		
+		start = vec2(result.right, 0);
+		end = vec2(result.right, 768);
+		
+		video_draw_line(10,	&start, &end, COLOR_RGBA(255, 0, 0, 255));
+		
+		
+	}
+}
+
 static void _gen_fg_page(void) {
 	SprHandle spr;	
 	uint advance = 0;
 	static uint prev_advance = 0;
-	
-	static Vector2 gaps[4];
-	static const int max_gaps = 4;
-	static int gaps_i = 0;
-	static int previuos_gaps = 0;
 	
 	gaps_i = previuos_gaps;
 	
@@ -76,8 +113,8 @@ static void _gen_fg_page(void) {
 				Vector2 pos = vec2(fg_page_cursor + ground_x + 100.0f - prev_advance, 768.0f);
 				
 				// add gap to gap array
-				gaps[gaps_i].x = pos.x;									// start of gap
-				gaps[gaps_i].y = pos.x + advance + 120 + 50;			// end of gap
+				gaps[gaps_i].x = pos.x;
+				gaps[gaps_i].y = pos.x + advance + 120 + 50;
 
 				if(gaps_i > max_gaps){ 
 					gaps_i = 0;
@@ -102,12 +139,17 @@ static void _gen_fg_page(void) {
 		
 		bool place = false;
 		
+		if(fg_x + advance > page_width && prev_advance != 0)
+			pos.x -= (fg_x + advance) - page_width; 
+		
 		if(spr){
 			place = true;
 			for(int i = 0; i < gaps_i;i++){
-				if( (pos.x > gaps[i].x && pos.x < gaps[i].y) || (pos.x+advance > gaps[i].x && pos.x+advance < gaps[i].y) || (pos.x < gaps[i].x && pos.x+advance > gaps[i].y )){
+				if(	(pos.x > gaps[i].x && pos.x < gaps[i].y) ||
+					(pos.x+advance > gaps[i].x && pos.x+advance < gaps[i].y) ||
+					(pos.x < gaps[i].x && pos.x+advance > gaps[i].y )){
 					place = false;
-				}
+				} 
 			}
 		}
 				
