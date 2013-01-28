@@ -87,23 +87,25 @@ static bool game_update(void) {
 	if(game_is_paused())
 		return true;
 
-	if(rabbit_remaining_time <= 0.0f) {
-		rabbit_remaining_time = 0.0f;
+	if(rabbit_current_distance >= 100.0f) {
+		//rabbit_remaining_time = 0.0f;
+		rabbit_current_distance = 100.0f;
 
 		if(!game_over)
 			rabbit_distance = rabbit_current_distance;
 
 		game_over = true;
-
-		// Game over
-		camera_follow_weight *= 0.95f;
+		rabbit_current_distance = 0.0f;
 	}
 
 	if(rabbit && rabbit->header.type) {
-		if(rabbit->is_dead){
+		if(rabbit->is_dead && !game_over){
 			rabbit_distance = rabbit_current_distance;
 			game_over = true;
 		}
+				
+	if(game_over)
+		camera_follow_weight *= 0.95f;
 	
 	
 		// Make camera follow rabbit
