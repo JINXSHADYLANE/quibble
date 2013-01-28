@@ -9,6 +9,7 @@ const float screen_width = (float)EDITOR_WIDTH;
 const float screen_height = (float)EDITOR_HEIGHT;
 
 Color backgrounds[] = {
+	COLOR_RGBA(85, 123, 136, 255),
 	COLOR_RGBA(0, 0, 0, 255),
 	COLOR_RGBA(206, 216, 207, 255),
 	COLOR_RGBA(255, 255, 255, 255)
