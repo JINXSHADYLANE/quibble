@@ -1,5 +1,6 @@
 #include "obj_types.h"
 #include "hud.h"
+#include <mfx.h>
 
 #include <system.h>
 #include <async.h>
@@ -26,6 +27,22 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	// Constantly move right
 	dir.x += 550.0f;
 	
+	// Position for particles
+	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+	RectF rec = {
+		.left = pos.x, 
+		.top = pos.y + rabbit_hitbox_height - 25,
+		.right = 0,
+		.bottom = 0
+	};
+	RectF result = objects_world2screen(rec,0);
+	pos = vec2(result.left,result.top);
+	
+	
+	RenderComponent* r = self->render;
+	r->anim_frame = anim_frame(rabbit->anim);
+	Vector2 off = vec2(70,0);	
+		
 	// Jump
 	if(rabbit->touching_ground && key_down(KEY_A)) {
 		rabbit->touching_ground = false;
@@ -34,6 +51,9 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		objects_apply_force(self, vec2(50000.0f, -160000.0f));
 		anim_play(rabbit->anim, "jump");
 		combo_counter = 0;
+		
+		mfx_trigger_ex("jump",pos,0.0f);
+		
 	}
 	else {
 		if(ts - mushroom_hit_time < 0.1f) {
@@ -41,6 +61,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				rabbit->jump_off_mushroom = true;
 			if(fabsf(mushroom_hit_time - last_keyrelease_t) < 0.1f)
 				rabbit->jump_off_mushroom = true;
+				
+			if(rabbit->jump_off_mushroom) mfx_trigger_ex("jump",pos,0.0f);	
 		}
 		else if(!rabbit->touching_ground) {
 			if(key_pressed(KEY_A) && (ts - jump_time) < 0.2f) {
@@ -83,6 +105,15 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	// Gravity
 	if(!rabbit->touching_ground) {
 		objects_apply_force(self, vec2(0.0f, 5000.0f));
+	} else {
+		if(rabbit->on_water){
+			if(r->anim_frame == 1) mfx_trigger_ex("water",pos,0.0f);
+			if(r->anim_frame == 11) mfx_trigger_ex("water",vec2_add(pos, off),0.0f);
+			rabbit->on_water = false;			
+		} else { 
+			if(r->anim_frame == 1) mfx_trigger_ex("run1",pos,0.0f);
+			if(r->anim_frame == 11) mfx_trigger_ex("run1",vec2_add(pos, off),0.0f);			
+		}
 	}
 }
 

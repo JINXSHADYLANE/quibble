@@ -66,7 +66,6 @@
 		(def _ (.empty 100))
 		(def = (.empty 350))
 		(def - (.empty 200))
-
 		(init "cd")
 
 		(learn "cdefgh_abcd")
@@ -74,6 +73,7 @@
 		(learn "cdefgh-abcd")
 		(learn "cdefijklmnopcd")
 		(learn "cdefijklmnklmnopcd")
+		
 	)
 )
 

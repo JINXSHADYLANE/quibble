@@ -1,6 +1,6 @@
 ( particles _
     ( psystem boost
-        ( texture particle_morka.png )
+        ( texture particles.png )
         ( tex_source 100.0,0.0,115.0,17.0 )
         ( max_particles 16 )
         ( duration 0.1 )
@@ -30,7 +30,7 @@
         ( max_end_color 255,255,255,100 )
     )
     ( psystem run1
-        ( texture particle_morka.png )
+        ( texture particles.png )
         ( tex_source 100.0,0.0,115.0,17.0 )
         ( max_particles 16 )
         ( duration 0.1 )
@@ -60,7 +60,7 @@
         ( max_end_color 168,177,43,100 )
     )
     ( psystem jump
-        ( texture particle_morka.png )
+        ( texture particles.png )
         ( tex_source 100.0,0.0,115.0,17.0 )
         ( max_particles 16 )
         ( duration 0.1 )
@@ -90,7 +90,7 @@
         ( max_end_color 133,167,165,100 )
     )
     ( psystem water
-        ( texture particle_morka.png )
+        ( texture particles.png )
         ( tex_source 100.0,0.0,115.0,17.0 )
         ( max_particles 16 )
         ( duration 0.1 )
@@ -120,7 +120,7 @@
         ( max_end_color 133,167,165,100 )
     )
     ( psystem dusts
-        ( texture particle_morka.png )
+        ( texture particles.png )
         ( tex_source 0.0,0.0,94.0,94.0 )
         ( max_particles 16 )
         ( duration 0.3 )

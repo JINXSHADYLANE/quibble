@@ -5,6 +5,9 @@
 #include "worldgen.h"
 #include "hud.h"
 
+#include <mfx.h>
+#include <particles.h>
+
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
 bool draw_ground_debug = false;
@@ -125,6 +128,9 @@ static bool game_update(void) {
 	}
 
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
+	
+	float t = malka_state_time("game");
+	particles_update(t);
 
 	rabbit_remaining_time -= time_delta() / 1000.0f;
 
@@ -143,7 +149,7 @@ static bool game_render(float t) {
 	objects_tick(game_is_paused());
 	
 	if(draw_ground_debug) worldgen_debug_render();
-
+	
 	return true;
 }
 

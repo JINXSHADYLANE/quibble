@@ -2,6 +2,7 @@
 #include <malka/ml_states.h>
 #include <system.h>
 #include <sprsheet.h>
+#include <particles.h>
 #include <anim.h>
 #include <uidesc.h>
 #include <mfx.h>
@@ -40,7 +41,10 @@ bool dgreed_init(int argc, const char** argv) {
 
 	keyval_init("morka.db");
 
-//	mfx_init(ASSETS_PRE "effects.mml");
+	const char* particles = "particles.mml";
+	particles_init_ex(ASSETS_DIR, particles, 10);
+	mfx_init(ASSETS_DIR "effects.mml");
+	
 	anim_init(ASSETS_DIR "animations.mml");
 
 	malka_init();
@@ -69,7 +73,8 @@ void dgreed_close(void) {
 	malka_close();
 
 	anim_close();
-//	mfx_close();
+	mfx_close();
+	particles_close();
 
 	keyval_close();
 
@@ -81,13 +86,14 @@ bool dgreed_update(void) {
 	if(char_up('q'))
 		malka_states_pop();
 
-//	mfx_update();
+	mfx_update();
 	sound_update();
 
 	return true;
 }
 
 bool dgreed_render(void) {
+	particles_draw();
 	return malka_states_step();
 }
 

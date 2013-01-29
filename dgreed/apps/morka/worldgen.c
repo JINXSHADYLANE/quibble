@@ -1,5 +1,5 @@
 #include "worldgen.h"
-
+#include <mfx.h>
 #include <mempool.h>
 
 #include "mchains.h"
@@ -31,7 +31,6 @@ static void _gen_bg_page(void) {
 	while(bg_x < page_width) {
 		char sym = mchains_next(bg_chain, &rnd);
 		mchains_symbol_info(bg_chain, sym, &advance, &spr);
-		mchains_symbol_info(bg_chain, sym, &advance, &spr);
 
 		if(spr) {
 			Vector2 pos = vec2(bg_page_cursor + bg_x + 100.0f, 720.0f);
@@ -46,19 +45,6 @@ static void _gen_bg_page(void) {
 
 void worldgen_debug_render(){
 	for(int i = 0; i < gaps_i;i++){
-		/*RectF pos = {
-			.left = gaps[i].x, 
-			.top = 580,
-			.right = gaps[i].y,
-			.bottom = 580
-		};
-		RectF result = objects_world2screen(pos,0);
-		
-		Vector2 start = vec2(result.left, result.top);
-		Vector2 end = vec2(result.right, result.bottom);
-		
-		video_draw_line(10,	&start, &end, COLOR_RGBA(255, 0, 0, 255));*/
-		
 		RectF pos = {
 			.left = gaps[i].x, 
 			.top = 580,
@@ -145,7 +131,8 @@ static void _gen_fg_page(void) {
 		if(spr){
 			place = true;
 			for(int i = 0; i < gaps_i;i++){
-				if(	(pos.x > gaps[i].x && pos.x < gaps[i].y) ||
+				if(	(fg_x + advance > page_width && prev_advance != 0) ||
+					(pos.x > gaps[i].x && pos.x < gaps[i].y) ||
 					(pos.x+advance > gaps[i].x && pos.x+advance < gaps[i].y) ||
 					(pos.x < gaps[i].x && pos.x+advance > gaps[i].y )){
 					place = false;

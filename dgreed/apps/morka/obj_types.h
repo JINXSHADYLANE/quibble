@@ -23,6 +23,7 @@ typedef struct {
 	bool jump_off_mushroom;
 	bool is_diving;
 	bool is_dead;
+	bool on_water;
 	Anim* anim;
 	Vector2 bounce_force;
 } ObjRabbit;
