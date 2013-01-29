@@ -55,6 +55,8 @@ typedef struct {
 	Color max_end_color;
 } ParticleSystemDesc;	
 
+typedef void (*ParticleSystemDieCallback)(const void* psystem);
+
 typedef struct {
 	ParticleSystemDesc* desc;
 	Vector2 pos;
@@ -63,6 +65,8 @@ typedef struct {
 	float emission_acc;
 	uint particle_count;
 	Particle* particles;
+	ParticleSystemDieCallback die_cb;
+	void* user_data;
 	bool active;
 } ParticleSystem;	
 
@@ -94,6 +98,10 @@ void particles_save(void);
 void particles_close(void);
 
 ParticleSystem* particles_spawn(const char* name, const Vector2* pos, float dir); 
+ParticleSystem* particles_spawn_ex(
+	const char* name, const Vector2* pos, float dir,
+	ParticleSystemDieCallback die_cb
+);
 void particles_update(float time);
 void particles_draw(void);
 

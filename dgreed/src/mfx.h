@@ -52,6 +52,7 @@ void mfx_update(void);
 
 void mfx_trigger(const char* name);
 void mfx_trigger_ex(const char* name, Vector2 pos, float dir);
+void mfx_trigger_follow(const char* name, const Vector2* pos, const float* dir);
 
 float mfx_snd_volume(void);
 void mfx_snd_set_volume(float volume);

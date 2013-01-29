@@ -26,8 +26,11 @@ typedef size_t SubEffectIdx;
 
 typedef struct {
 	bool remove;
-	Vector2 pos;
 	float dir;
+	Vector2 pos;
+	const float* follow_dir;
+	const Vector2* follow_pos;
+	ParticleSystem* psystem;
 	SubEffectIdx sub;
 } LiveSubEffect;
 
@@ -61,19 +64,20 @@ typedef struct {
 	SndDefIdx def;
 } LiveSnd;
 
-MMLObject mfx_mml;
-float mfx_volume;
-const char* mfx_prefix;
+static MMLObject mfx_mml;
+static float mfx_volume;
+static const char* mfx_prefix;
 
-Dict meta_effect_dict;
-DArray meta_effects;
-DArray sub_effects;
-DArray live_sub_effects;
-Heap live_sub_effects_pq;
+static Dict meta_effect_dict;
+static DArray meta_effects;
+static DArray sub_effects;
+static DArray live_sub_effects;
+static DArray follower_live_sub_effects;
+static Heap live_sub_effects_pq;
 
-Dict snd_dict;
-DArray snd_defs;
-DArray snd_live;
+static Dict snd_dict;
+static DArray snd_defs;
+static DArray snd_live;
 
 static SubEffect* _get_sub_effect(SubEffectIdx idx) {
 	assert(idx < sub_effects.size);
@@ -99,6 +103,19 @@ static MetaEffect* _get_meta_effect(MetaEffectIdx idx) {
 	return &metas[idx];
 }
 
+static void _psystem_die(const void* d) {
+	const ParticleSystem* p = d;
+	LiveSubEffect* sf = darray_get(&follower_live_sub_effects, 0);
+	uint n = follower_live_sub_effects.size;
+	for(uint i = 0; i < n; ++i) {
+		if(sf[i].psystem == p) {
+			sf[i] = sf[n-1];
+			follower_live_sub_effects.size--;
+		}
+	}
+	assert(0 && "Can't find the right live sub effect of psystem");
+}
+
 static void _perform_sub_effect(LiveSubEffect* sf) {
 	assert(sf);
 	assert(!sf->remove);
@@ -113,7 +130,17 @@ static void _perform_sub_effect(LiveSubEffect* sf) {
 	else {
 		Vector2 p = vec2_add(sf->pos, sub->pos_offset);
 		float dir = sf->dir + sub->dir_offset;
-		particles_spawn(sub->name, &p, dir);
+
+		if(sf->follow_dir && sf->follow_pos) {
+			sf->dir = *sf->follow_dir;
+			sf->pos = *sf->follow_pos;
+			sf->psystem = particles_spawn_ex(sub->name, &p, dir, _psystem_die);
+			darray_append(&follower_live_sub_effects, sf);
+		}
+		else {
+			sf->psystem = NULL;
+			particles_spawn(sub->name, &p, dir);
+		}
 	}
 }
 
@@ -310,11 +337,12 @@ void mfx_init(const char* desc) {
 	dict_init(&snd_dict);
 	heap_init(&live_sub_effects_pq);
 
-	meta_effects = darray_create(sizeof(MetaEffect), 0);
+	meta_effects = darray_create(sizeof(MetaEffect), 16);
 	sub_effects = darray_create(sizeof(SubEffect), 0);
-	live_sub_effects = darray_create(sizeof(LiveSubEffect), 0);
+	live_sub_effects = darray_create(sizeof(LiveSubEffect), 8);
+	follower_live_sub_effects = darray_create(sizeof(LiveSubEffect), 8);
 	snd_defs = darray_create(sizeof(SndDef), 0);
-	snd_live = darray_create(sizeof(LiveSnd), 0);
+	snd_live = darray_create(sizeof(LiveSnd), 8);
 
 	mfx_volume = 1.0f;
 
@@ -338,6 +366,7 @@ void mfx_close(void) {
 
 	darray_free(&snd_live);
 	darray_free(&snd_defs);
+	darray_free(&follower_live_sub_effects);
 	darray_free(&live_sub_effects);
 	darray_free(&sub_effects);
 	darray_free(&meta_effects);
@@ -353,6 +382,16 @@ void mfx_update(void) {
 	float t = time_s();
 	uint ms = lrintf(t * 1000.0f);
 
+	// Update follower particle effects
+	LiveSubEffect* sf = follower_live_sub_effects.data;
+	SubEffect* sub = _get_sub_effect(sf->sub);
+	uint n = follower_live_sub_effects.size;
+	for(uint i = 0; i < n; ++i) {
+		ParticleSystem* p = sf->psystem;
+		p->pos = vec2_add(*sf->follow_pos, sub->pos_offset);
+		p->direction = *sf->follow_dir + sub->dir_offset;
+	}
+
 	// Check live sub effects priority queue
 	while(	heap_size(&live_sub_effects_pq) > 0 &&
 			heap_peek(&live_sub_effects_pq, NULL) <= ms) {
@@ -367,15 +406,14 @@ void mfx_update(void) {
 		sub->remove = true;
 	}
 
+
 	// Update ambient sounds
 	_snd_update();
 }
 
-void mfx_trigger(const char* name) {
-	mfx_trigger_ex(name, vec2(0.0f, 0.0f), 0.0f);
-}
-
-void mfx_trigger_ex(const char* name, Vector2 pos, float dir) {
+static void _mfx_trigger(
+		const char* name, Vector2 pos, float dir, 
+		const Vector2* pos_follow, const float* dir_follow) {
 	assert(name);
 
 	MetaEffectIdx idx = (MetaEffectIdx)dict_get(&meta_effect_dict, name);
@@ -387,8 +425,10 @@ void mfx_trigger_ex(const char* name, Vector2 pos, float dir) {
 
 		LiveSubEffect live = {
 			.remove = false,
-			.pos = pos,
 			.dir = dir,
+			.pos = pos,
+			.follow_dir = dir_follow,
+			.follow_pos = pos_follow,
 			.sub = mfx->sub_start + i
 		};
 
@@ -419,6 +459,18 @@ void mfx_trigger_ex(const char* name, Vector2 pos, float dir) {
 			heap_push(&live_sub_effects_pq, t, (void*)dest);
 		}
 	}
+}
+
+void mfx_trigger(const char* name) {
+	_mfx_trigger(name, vec2(0.0f, 0.0f), 0.0f, NULL, NULL);
+}
+
+void mfx_trigger_ex(const char* name, Vector2 pos, float dir) {
+	_mfx_trigger(name, pos, dir, NULL, NULL);
+}
+
+void mfx_trigger_follow(const char* name, const Vector2* pos, const float* dir) {
+	_mfx_trigger(name, vec2(0.0f, 0.0f), 0.0f, pos, dir);
 }
 
 // ---
