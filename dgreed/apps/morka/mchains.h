@@ -7,7 +7,7 @@
 // various procedural generation purposes.
 
 #define ruleset_name_maxlen 10
-#define chain_buffer_size 24
+#define chain_buffer_size 20
 
 typedef struct {
 	char name[ruleset_name_maxlen];
@@ -16,6 +16,9 @@ typedef struct {
 	char* symbols;
 	uint* sym_advance;
 	SprHandle* sym_spr;
+	char** sym_seq;
+
+	char* seq_store;
 
 	char init[2];
 
@@ -26,6 +29,7 @@ typedef struct {
 typedef struct {
 	Ruleset* rules;
 	int cursor;
+	char* seq_cursor;
 	char buffer[chain_buffer_size];
 } Chain;
 

@@ -9,11 +9,14 @@
 static uint n_rulesets = 0;
 static uint n_symbols = 0;
 static uint n_transitions = 0;
+static uint n_seq_chars = 0;
 
 static Ruleset* rulesets;
 static char* symbols;
 static uint* sym_advances;
 static SprHandle* sym_sprs;
+static char** sym_seqs;
+static char* seq_stores;
 static uint16* transitions;
 
 static MemPool chain_pool;
@@ -22,6 +25,7 @@ static void _predict_size(MMLObject* mml, NodeIdx root) {
 	assert(n_rulesets == 0);
 	assert(n_symbols == 0);
 	assert(n_transitions == 0);
+	assert(n_seq_chars == 0);
 
 	// Iterate over rulesets
 	NodeIdx rs_node = mml_get_first_child(mml, root);
@@ -32,11 +36,20 @@ static void _predict_size(MMLObject* mml, NodeIdx root) {
 		uint rs_symbols = 0;
 		NodeIdx child = mml_get_first_child(mml, rs_node);
 		for(; child != 0; child = mml_get_next(mml, child)) {
-			if(strcmp(mml_get_name(mml, child), "def") == 0)
+			const char* name = mml_get_name(mml, child);
+			if(strcmp(name, "def") == 0) {
 				rs_symbols++;
+			}
+			if(strcmp(name, "sdef") == 0) {
+				NodeIdx seq = mml_get_first_child(mml, child);
+				assert(strcmp(mml_get_name(mml, seq), "seq") == 0);
+				uint l = strlen(mml_getval_str(mml, seq));
+				n_seq_chars = l + 1;
+				rs_symbols++;
+			}
 		}
 
-		assert(rs_symbols <= 20);
+		assert(rs_symbols <= 24);
 		n_symbols += rs_symbols;
 		n_transitions += rs_symbols*rs_symbols*rs_symbols;
 	}
@@ -54,13 +67,14 @@ static byte _get_idx(char c, char* chrs, uint n_chrs) {
 	return 0xFF;
 }
 
-static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs) {
+static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs, uint* new_seq_chars) {
 	assert(strcmp(mml_get_name(mml, rs_node), "ruleset") == 0);
 	assert(strlen(mml_getval_str(mml, rs_node)) < ruleset_name_maxlen);
 
 	strcpy(rs->name, mml_getval_str(mml, rs_node));
 
 	uint n = 0; // symbol count
+	uint seq_idx = 0;
 
 	// Iterate first time, over all symbol defs
 	NodeIdx child = mml_get_first_child(mml, rs_node);
@@ -82,6 +96,22 @@ static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs) {
 			rs->symbols[n] = *symbol;
 			rs->sym_advance[n] = advance;
 			rs->sym_spr[n] = spr_handle;
+			rs->sym_seq[n] = NULL;
+			n++;
+		}
+		else if(strcmp(type, "sdef") == 0) {
+			const char* symbol = mml_getval_str(mml, child);
+			assert(strlen(symbol) == 1);
+		
+			NodeIdx seq_node = mml_get_first_child(mml, child);
+			assert(seq_node);
+			const char* seq = mml_getval_str(mml, seq_node);
+
+			rs->symbols[n] = *symbol;
+			rs->sym_seq[n] = &rs->seq_store[seq_idx];
+
+			strcpy(rs->sym_seq[n], seq);
+			seq_idx += strlen(seq) + 1;
 			n++;
 		}
 		else if(strcmp(type, "init") == 0) {
@@ -92,6 +122,7 @@ static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs) {
 		}
 	}
 
+	*new_seq_chars = seq_idx;
 	rs->n_symbols = n;
 	const uint nn = n*n;
 	const uint nnn = n*n*n;
@@ -167,16 +198,20 @@ static void _mchains_load_desc(const char* desc) {
 
 	// Alloc all buffers in a single bite
 	size_t total_size = n_rulesets * sizeof(Ruleset);
-	total_size += n_symbols * (1 + sizeof(uint) + sizeof(SprHandle));
+	total_size += n_symbols * (1 + sizeof(uint) + sizeof(SprHandle) + sizeof(char*));
+	total_size += n_seq_chars;
 	total_size += n_transitions * sizeof(uint16);
 	rulesets = MEM_ALLOC(total_size);
+
 	symbols = (void*)rulesets + n_rulesets * sizeof(Ruleset);
 	sym_advances = (void*)symbols + n_symbols;
 	sym_sprs = (void*)sym_advances + n_symbols * sizeof(uint);
-	transitions = (void*)sym_sprs + n_symbols * sizeof(SprHandle);
+	sym_seqs = (void*)sym_sprs + n_symbols * sizeof(SprHandle);
+	seq_stores = (void*)sym_seqs + n_symbols * sizeof(char*);
+	transitions = (void*)seq_stores + n_seq_chars;
 	
 	// Iterate over rulesets
-	uint symbol_count = 0;	
+	uint symbol_count = 0, seq_char_count = 0;	
 	uint16* transition_dest = transitions;
 	NodeIdx rs_node = mml_get_first_child(&mml, root);
 	for(uint i = 0; rs_node != 0; ++i, rs_node = mml_get_next(&mml, rs_node)) {
@@ -184,9 +219,13 @@ static void _mchains_load_desc(const char* desc) {
 		rs->symbols = &symbols[symbol_count];
 		rs->sym_advance = &sym_advances[symbol_count];
 		rs->sym_spr = &sym_sprs[symbol_count];
+		rs->sym_seq = &sym_seqs[symbol_count];
+		rs->seq_store = &seq_stores[seq_char_count];
 		rs->trans = transition_dest;
 
-		uint new_symbols = _parse_ruleset(&mml, rs_node, rs);
+		uint new_seq_chars;
+		uint new_symbols = _parse_ruleset(&mml, rs_node, rs, &new_seq_chars);
+		seq_char_count += new_seq_chars;
 		symbol_count += new_symbols;
 		transition_dest += new_symbols * new_symbols * new_symbols;
 
@@ -235,6 +274,7 @@ Chain* mchains_new(const char* ruleset) {
 	Chain* new = mempool_alloc(&chain_pool);
 	new->rules = rules;
 	new->cursor = 1;
+	new->seq_cursor = NULL;
 	new->buffer[1] = rules->init[0];
 	new->buffer[0] = rules->init[1];
 
@@ -246,9 +286,22 @@ void mchains_del(Chain* c) {
 }
 
 char mchains_next(Chain* c, RndContext* rnd) {
+	if(c->seq_cursor) {
+		// Output sequence symbols
+		char seq_char = *(c->seq_cursor++);	
+		if(seq_char == '\0') {
+			c->seq_cursor = NULL;
+		}
+		else {
+			return seq_char;
+		}
+	}
+
+	uint n = c->rules->n_symbols;
 	if(c->cursor < 0) {
+		// Pre-gen symbols to buffer
+
 		// Buffer is empty, fill it backwards
-		uint n = c->rules->n_symbols;
 		byte ctx0 = _get_idx(c->buffer[1], c->rules->symbols, n);
 		byte ctx1 = _get_idx(c->buffer[0], c->rules->symbols, n);
 
@@ -281,9 +334,9 @@ char mchains_next(Chain* c, RndContext* rnd) {
 					break;
 				}
 			}
+
 			// If linear search fell through, it means the very first symbol
 			// must be chosen, which is default sym value.
-
 			ctx0 = ctx1;
 			ctx1 = sym;
 			c->buffer[i] = c->rules->symbols[sym];
@@ -292,7 +345,14 @@ char mchains_next(Chain* c, RndContext* rnd) {
 		}
 	}
 	
-	return c->buffer[c->cursor--];
+	// Output pre-gen'ed symbols or switch to seq mode
+	char sym = c->buffer[c->cursor--];
+	byte i = _get_idx(sym, c->rules->symbols, n);
+	c->seq_cursor = c->rules->sym_seq[i];
+	if(c->seq_cursor != NULL) 
+		return mchains_next(c, rnd);
+	else
+		return sym;
 }
 
 void mchains_symbol_info(Chain* c, char symbol, uint* advance, SprHandle* spr) {
