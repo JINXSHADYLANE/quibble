@@ -24,15 +24,16 @@ ParticleStats p_stats;
 #endif
 
 ParticleSystemDesc psystem_descs[MAX_PSYSTEM_DESCS];
-ParticleSystem psystems[MAX_PSYSTEMS];
+static MemPool psystems_pool;
+static ListHead psystems_list;
 uint psystem_descs_count = 0;
-TexHandle particles_texture;
+static TexHandle particles_texture;
 
 static float last_time = 0.0f;
 
-// psystems not larger than this will be allocated from pool
-uint psystem_poolable_size = 512;
-MemPool psystem_pool;
+// particles not larger than this will be allocated from pool
+static uint particles_poolable_size = 512;
+static MemPool particles_pool;
 
 #ifndef NO_DEVMODE
 const ParticleStats* particle_stats(void) {
@@ -49,8 +50,11 @@ void particles_init_ex(const char* assets_prefix, const char* filename, uint lay
 
 	particles_prefix = assets_prefix ? assets_prefix : "";
 
-	// Alloc pool
-	mempool_init_ex(&psystem_pool, psystem_poolable_size, psystem_poolable_size * 64);
+	// Alloc pools
+	mempool_init_ex(&particles_pool, particles_poolable_size, particles_poolable_size * 64);
+	mempool_init_ex(&psystems_pool, sizeof(ParticleSystem), sizeof(ParticleSystem) * 32);
+
+	list_init(&psystems_list);
 
 	// Construct paths
 	char desc_path[256];
@@ -169,10 +173,6 @@ void particles_init_ex(const char* assets_prefix, const char* filename, uint lay
 	psystem_descs_count = i;
 	mml_free(&desc);
 
-	for(i = 0; i < MAX_PSYSTEMS; ++i) {
-		psystems[i].active = false;
-	}	
-
 	#ifndef NO_DEVMODE
 	memset(&p_stats, 0, sizeof(p_stats));
 	p_stats.psystems = psystem_descs_count;
@@ -248,16 +248,15 @@ void particles_save(void) {
 */
 
 void particles_close(void) {
-	for(uint i = 0; i < MAX_PSYSTEMS; ++i) {
-		if(psystems[i].active) {
-			uint s = sizeof(Particle) * psystems[i].desc->max_particles;
-			if(s <= psystem_poolable_size) {
-				// Don't bother to free pooled allocs,
-				// pools will be drained anyway
-			}
-			else {
-				MEM_FREE(psystems[i].particles);
-			}
+	ParticleSystem* pos;
+	list_for_each_entry(pos, &psystems_list, list) {
+		uint s = sizeof(Particle) * pos->desc->max_particles;
+		if(s <= particles_poolable_size) {
+			// Don't bother to free pooled allocs,
+			// pools will be drained anyway
+		}
+		else {
+			MEM_FREE(pos->particles);
 		}
 	}
 
@@ -265,17 +264,18 @@ void particles_close(void) {
 		tex_free(psystem_descs[i].texture);
 	}
 
-	mempool_drain(&psystem_pool);
+	mempool_drain(&particles_pool);
+	mempool_drain(&psystems_pool);
 }	
 
 ParticleSystem* particles_spawn(const char* name, const Vector2* pos,
 	float dir) {
 
-	return particles_spawn_ex(name, pos, dir, NULL);
+	return particles_spawn_ex(name, pos, dir, NULL, false);
 }
 
 ParticleSystem* particles_spawn_ex(const char* name, const Vector2* pos,
-	float dir, ParticleSystemDieCallback die_cb) {
+	float dir, bool worldspace, ParticleSystemDieCallback die_cb) {
 	assert(name);
 	assert(pos);
 
@@ -286,36 +286,27 @@ ParticleSystem* particles_spawn_ex(const char* name, const Vector2* pos,
 		if(desc_idx == psystem_descs_count) 
 			LOG_ERROR("Trying to spawn psystem with non-existing description");
 	}	
-	
 		
-	// Find empty slot in psystems pool
-	uint psystem_idx = 0;
-	while(psystems[psystem_idx].active) {
-		psystem_idx++;
-		if(psystem_idx == MAX_PSYSTEMS) {
-			//LOG_INFO("too many psystems, skipping spawn");
-			return NULL;
-		}
-	}	
-		
-		
+	ParticleSystem* psystem = mempool_alloc(&psystems_pool);
+
 	// Fill struct
-	ParticleSystem* psystem = &(psystems[psystem_idx]);
 	psystem->desc = &(psystem_descs[desc_idx]);
 	psystem->pos = *pos;
 	psystem->direction = dir + psystem->desc->direction;
 	psystem->age = 0.0f;
 	psystem->emission_acc = 0.0f;
 	psystem->particle_count = 0;
+	psystem->worldspace = worldspace;
 
 	uint s = sizeof(Particle) * psystem->desc->max_particles;
-	if(s <= psystem_poolable_size)
-		psystem->particles = mempool_alloc(&psystem_pool);
+	if(s <= particles_poolable_size)
+		psystem->particles = mempool_alloc(&particles_pool);
 	else
 		psystem->particles = (Particle*)MEM_ALLOC(s);
 
-	psystem->active = true;
 	psystem->die_cb = die_cb;
+
+	list_push_back(&psystems_list, &psystem->list);
 
 	return psystem;
 }	
@@ -378,7 +369,10 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 		Particle* particles = psystem->particles;
 
 		particles[i].birth_time = psystem->age;
-		particles[i].pos = psystem->pos;
+		if(psystem->worldspace)
+			particles[i].pos = vec2(0.0f, 0.0f);
+		else
+			particles[i].pos = psystem->pos;
 
 		float lifetime = lerp(psystem->desc->min_lifetime, 
 			psystem->desc->max_lifetime, rand_float()); 
@@ -445,15 +439,18 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 
 	// Self-destruct if age is reached and all particles are dead
 	if(psystem->age > psystem->desc->duration && psystem->particle_count == 0) {
-		uint s = sizeof(Particle) * psystem->desc->max_particles;
-		if(s <= psystem_poolable_size)
-			mempool_free(&psystem_pool, psystem->particles);
-		else
-			MEM_FREE(psystem->particles);
-		psystem->active = false;
 		if(psystem->die_cb) {
 			psystem->die_cb(psystem);
 		}
+
+		uint s = sizeof(Particle) * psystem->desc->max_particles;
+		if(s <= particles_poolable_size)
+			mempool_free(&particles_pool, psystem->particles);
+		else
+			MEM_FREE(psystem->particles);
+
+		list_remove(&psystem->list);
+		mempool_free(&psystems_pool, psystem);
 	}		
 }		
 
@@ -481,16 +478,13 @@ void particles_update(float time) {
 	float dt = time - last_time;
 	last_time = time;
 
-	uint i;
-	for(i = 0; i < MAX_PSYSTEMS; ++i) {
-		if(psystems[i].active) {
-			_psystem_update(&(psystems[i]), dt);
-
-			#ifndef NO_DEVMODE
-			p_stats.active_psystems++;
-			#endif
-		}	
-	}		
+	ParticleSystem* pos;
+	list_for_each_entry(pos, &psystems_list, list) {
+		_psystem_update(pos, dt);
+		#ifndef NO_DEVMODE
+		p_stats.active_psystems++;
+		#endif
+	}
 }	
 
 void _psystem_draw(ParticleSystem* psystem) {
@@ -510,8 +504,14 @@ void _psystem_draw(ParticleSystem* psystem) {
 		RectF source = psystem->desc->tex_source;
 		float width = (source.right - source.left) * size;
 		float height = (source.bottom - source.top) * size;
-		RectF dest = rectf(p->pos.x - width/2.0f, p->pos.y - height/2.0f,
-			p->pos.x + width/2.0f, p->pos.y + height/2.0f);
+
+		Vector2 pos = p->pos;
+		if(psystem->worldspace)
+			pos = vec2_add(psystem->pos, pos);
+		RectF dest = rectf(
+			pos.x - width/2.0f, pos.y - height/2.0f,
+			pos.x + width/2.0f, pos.y + height/2.0f
+		);
 
 		video_draw_rect_rotated(psystem->desc->texture, particles_layer, 
 			&source, &dest, angle, color); 
@@ -519,10 +519,9 @@ void _psystem_draw(ParticleSystem* psystem) {
 }	
 
 void particles_draw(void) {
-	uint i;
-	for(i = 0; i < MAX_PSYSTEMS; ++i) {
-		if(psystems[i].active)
-			_psystem_draw(&(psystems[i]));
-	}		
+	ParticleSystem* pos;
+	list_for_each_entry(pos, &psystems_list, list) {
+		_psystem_draw(pos);
+	}
 }	
 
