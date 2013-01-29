@@ -12,7 +12,9 @@ enum {
 	OBJ_FG_DECO_TYPE,
 	OBJ_MUSHROOM_TYPE,
 	OBJ_PIN,
-	OBJ_TRIGGER_TYPE
+	OBJ_SPEED_TRIGGER_TYPE,
+	OBJ_FALL_TRIGGER_TYPE,
+	OBJ_PARTICLE_ANCHOR_TYPE
 };
 
 // Rabbit
@@ -89,6 +91,16 @@ typedef struct {
 } ObjSpeedTrigger;
 
 extern GameObjectDesc obj_speed_trigger_desc;
+
+// Particle anchor
+
+typedef struct {
+	GameObject header;
+	Vector2 pos;
+	Vector2 screen_pos;
+} ObjParticleAnchor;
+
+extern GameObjectDesc obj_particle_anchor_desc;
 
 #endif
 

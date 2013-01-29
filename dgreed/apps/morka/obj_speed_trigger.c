@@ -48,7 +48,7 @@ static void obj_speed_trigger_construct(GameObject* self, Vector2 pos, void* use
 }
 
 GameObjectDesc obj_speed_trigger_desc = {
-	.type = OBJ_TRIGGER_TYPE,
+	.type = OBJ_SPEED_TRIGGER_TYPE,
 	.size = sizeof(ObjSpeedTrigger),
 	.has_physics = true,
 	.has_render = false,

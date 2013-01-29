@@ -28,17 +28,18 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	dir.x += 550.0f;
 	
 	// Position for particles
-	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);	// for follower particles
+	pos.y += rabbit_hitbox_height - 20;
+	
 	RectF rec = {
 		.left = pos.x, 
-		.top = pos.y + rabbit_hitbox_height - 25,
+		.top = pos.y,
 		.right = 0,
 		.bottom = 0
 	};
 	RectF result = objects_world2screen(rec,0);
-	pos = vec2(result.left,result.top);
-	
-	
+	Vector2 screen_pos = vec2(result.left,result.top);			// for standard particles
+
 	RenderComponent* r = self->render;
 	r->anim_frame = anim_frame(rabbit->anim);
 		
@@ -51,7 +52,9 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		anim_play(rabbit->anim, "jump");
 		combo_counter = 0;
 		
-		mfx_trigger_ex("jump",pos,0.0f);
+		
+		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
+		mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
 		
 	}
 	else {
@@ -61,7 +64,11 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			if(fabsf(mushroom_hit_time - last_keyrelease_t) < 0.1f)
 				rabbit->jump_off_mushroom = true;
 				
-			if(rabbit->jump_off_mushroom) mfx_trigger_ex("jump",pos,0.0f);	
+			if(rabbit->jump_off_mushroom){
+					ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
+					mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+			
+			}
 		}
 		else if(!rabbit->touching_ground) {
 			if(key_pressed(KEY_A) && (ts - jump_time) < 0.2f) {
@@ -107,10 +114,13 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	} else {
 		// Trigger water/land particle effects on ground
 		if(rabbit->on_water){
-			if(r->anim_frame == 1) mfx_trigger_ex("water",pos,0.0f);
+			if(r->anim_frame == 1) mfx_trigger_ex("water",screen_pos,0.0f);
+			if(r->anim_frame == 11) mfx_trigger_ex("water_front",screen_pos,0.0f);
 			rabbit->on_water = false;			
 		} else { 
-			if(r->anim_frame == 1) mfx_trigger_ex("run1",pos,0.0f);
+			if(r->anim_frame == 1)mfx_trigger_ex("run1",screen_pos,0.0f);
+			if(r->anim_frame == 11) mfx_trigger_ex("run1_front",screen_pos,0.0f);
+			
 		}
 	}
 }
