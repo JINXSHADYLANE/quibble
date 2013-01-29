@@ -32,11 +32,11 @@
 	)
 
 	(ruleset bg
-		(def a (element_1 600))
-		(def b (element_2 600))
-		(def c (element_3 600))
-		(def d (element_4 600))
-		(def _ (.empty 10))
+		(def a (element_1 512))
+		(def b (element_2 512))
+		(def c (element_3 512))
+		(def d (element_4 512))
+		(def _ (.empty 0))
 
 		(init "__")
 

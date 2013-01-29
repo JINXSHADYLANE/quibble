@@ -7,10 +7,10 @@
 	)
 	(anim rabbit
 		(tex atlas_0.png)
-		(src 0,0,130,130)
-		(offset 130,130)
+		(src 0,0,128,128)
+		(offset 128,128)
 		(frames 15)
-		(grid 5,3)
+		(grid 4,4)
 	)
 	(img blue_shade
 		(tex atlas_2.png)
@@ -209,20 +209,18 @@
 
 	(img element_1
 		(tex atlas_4.png)
-		(src 2,480,364,902)
+		(src 0,483,512,923)
 	)
 	(img element_2
 		(tex atlas_4.png)
-		(src 524,408,954,786)
+		(src 0,1351,512,1753)
 	)
 	(img element_3
 		(tex atlas_4.png)
-		(src 524,2,974,406)
+		(src 0,926,512,1348)
 	)
 	(img element_4
 		(tex atlas_4.png)
-		(src 2,2,522,478)
+		(src 0,0,512,480)
 	)
-
-
 )
