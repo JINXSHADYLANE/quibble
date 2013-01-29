@@ -270,6 +270,12 @@ void particles_close(void) {
 
 ParticleSystem* particles_spawn(const char* name, const Vector2* pos,
 	float dir) {
+
+	return particles_spawn_ex(name, pos, dir, NULL);
+}
+
+ParticleSystem* particles_spawn_ex(const char* name, const Vector2* pos,
+	float dir, ParticleSystemDieCallback die_cb) {
 	assert(name);
 	assert(pos);
 
@@ -309,6 +315,7 @@ ParticleSystem* particles_spawn(const char* name, const Vector2* pos,
 		psystem->particles = (Particle*)MEM_ALLOC(s);
 
 	psystem->active = true;
+	psystem->die_cb = die_cb;
 
 	return psystem;
 }	
@@ -444,6 +451,9 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 		else
 			MEM_FREE(psystem->particles);
 		psystem->active = false;
+		if(psystem->die_cb) {
+			psystem->die_cb(psystem);
+		}
 	}		
 }		
 
