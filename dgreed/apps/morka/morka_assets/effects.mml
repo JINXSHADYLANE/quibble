@@ -1,0 +1,36 @@
+(mfx _
+	(prefix "morka_assets/")
+	(effects _
+		(e boost
+			(particles boost
+
+			)
+		)
+
+		(e jump
+			(particles jump
+
+			)
+		)
+		(e water
+			(particles water)
+			(particles water
+				(delay 0.33)
+				(pos_offset 70,0)
+			)
+		)
+		(e run1
+			(particles run1)
+			(particles run1
+				(delay 0.33)
+				(pos_offset 70,0)
+			)
+		)
+		(e dusts
+			(particles dusts
+
+			)
+		)
+	)
+)
+
