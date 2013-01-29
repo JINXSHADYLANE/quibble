@@ -1,0 +1,32 @@
+(mfx _
+	(prefix "morka_assets/")
+	(effects _
+		(e boost
+			(particles boost
+
+			)
+		)
+
+		(e run1
+			(particles run1
+
+			)
+		)
+		(e jump
+			(particles jump
+
+			)
+		)
+		(e water
+			(particles water
+
+			)
+		)
+		(e dusts
+			(particles dusts
+
+			)
+		)
+	)
+)
+
