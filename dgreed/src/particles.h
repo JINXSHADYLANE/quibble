@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "darray.h"
 #include "system.h"
+#include "datastruct.h"
 
 typedef struct {
 	float birth_time;
@@ -67,7 +68,8 @@ typedef struct {
 	Particle* particles;
 	ParticleSystemDieCallback die_cb;
 	void* user_data;
-	bool active;
+	bool worldspace;
+	ListHead list;
 } ParticleSystem;	
 
 #ifndef NO_DEVMODE
@@ -88,8 +90,6 @@ const ParticleStats* particle_stats(void);
 #define MAX_PSYSTEMS 48
 
 extern ParticleSystemDesc psystem_descs[MAX_PSYSTEM_DESCS];
-extern ParticleSystem psystems[MAX_PSYSTEMS];
-
 extern uint psystem_descs_count;
 
 void particles_init(const char* assets_prefix, uint layer);
@@ -99,7 +99,7 @@ void particles_close(void);
 
 ParticleSystem* particles_spawn(const char* name, const Vector2* pos, float dir); 
 ParticleSystem* particles_spawn_ex(
-	const char* name, const Vector2* pos, float dir,
+	const char* name, const Vector2* pos, float dir, bool worldspace,
 	ParticleSystemDieCallback die_cb
 );
 void particles_update(float time);

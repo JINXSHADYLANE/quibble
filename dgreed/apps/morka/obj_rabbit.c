@@ -41,7 +41,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	
 	RenderComponent* r = self->render;
 	r->anim_frame = anim_frame(rabbit->anim);
-	Vector2 off = vec2(70,0);	
 		
 	// Jump
 	if(rabbit->touching_ground && key_down(KEY_A)) {
@@ -102,17 +101,16 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	
 	objects_apply_force(self, dir);
 
-	// Gravity
 	if(!rabbit->touching_ground) {
+		// Apply gravity
 		objects_apply_force(self, vec2(0.0f, 5000.0f));
 	} else {
+		// Trigger water/land particle effects on ground
 		if(rabbit->on_water){
 			if(r->anim_frame == 1) mfx_trigger_ex("water",pos,0.0f);
-			if(r->anim_frame == 11) mfx_trigger_ex("water",vec2_add(pos, off),0.0f);
 			rabbit->on_water = false;			
 		} else { 
 			if(r->anim_frame == 1) mfx_trigger_ex("run1",pos,0.0f);
-			if(r->anim_frame == 11) mfx_trigger_ex("run1",vec2_add(pos, off),0.0f);			
 		}
 	}
 }

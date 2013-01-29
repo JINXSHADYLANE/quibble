@@ -111,6 +111,7 @@ static void _psystem_die(const void* d) {
 		if(sf[i].psystem == p) {
 			sf[i] = sf[n-1];
 			follower_live_sub_effects.size--;
+			return;
 		}
 	}
 	assert(0 && "Can't find the right live sub effect of psystem");
@@ -131,10 +132,10 @@ static void _perform_sub_effect(LiveSubEffect* sf) {
 		Vector2 p = vec2_add(sf->pos, sub->pos_offset);
 		float dir = sf->dir + sub->dir_offset;
 
-		if(sf->follow_dir && sf->follow_pos) {
-			sf->dir = *sf->follow_dir;
-			sf->pos = *sf->follow_pos;
-			sf->psystem = particles_spawn_ex(sub->name, &p, dir, _psystem_die);
+		if(sf->follow_dir || sf->follow_pos) {
+			sf->dir = sf->follow_dir ? *sf->follow_dir : 0.0f;
+			sf->pos = sf->follow_pos ? *sf->follow_pos : vec2(0.0f, 0.0f);
+			sf->psystem = particles_spawn_ex(sub->name, &p, dir, true, _psystem_die);
 			darray_append(&follower_live_sub_effects, sf);
 		}
 		else {
@@ -384,12 +385,14 @@ void mfx_update(void) {
 
 	// Update follower particle effects
 	LiveSubEffect* sf = follower_live_sub_effects.data;
-	SubEffect* sub = _get_sub_effect(sf->sub);
 	uint n = follower_live_sub_effects.size;
 	for(uint i = 0; i < n; ++i) {
-		ParticleSystem* p = sf->psystem;
-		p->pos = vec2_add(*sf->follow_pos, sub->pos_offset);
-		p->direction = *sf->follow_dir + sub->dir_offset;
+		SubEffect* sub = _get_sub_effect(sf[i].sub);
+		ParticleSystem* p = sf[i].psystem;
+		if(sf->follow_pos)
+			p->pos = vec2_add(*sf[i].follow_pos, sub->pos_offset);
+		if(sf->follow_dir)
+			p->direction = *sf[i].follow_dir + sub->dir_offset;
 	}
 
 	// Check live sub effects priority queue
