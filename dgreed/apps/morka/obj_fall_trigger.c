@@ -40,7 +40,7 @@ static void obj_fall_trigger_construct(GameObject* self, Vector2 pos, void* user
 }
 
 GameObjectDesc obj_fall_trigger_desc = {
-	.type = OBJ_TRIGGER_TYPE,
+	.type = OBJ_FALL_TRIGGER_TYPE,
 	.size = sizeof(ObjFallTrigger),
 	.has_physics = true,
 	.has_render = false,

@@ -85,7 +85,8 @@ static void _gen_fg_page(void) {
 			advance = (uint) sprsheet_get_size_h(spr).x;
 			if(sym == 'a' || sym == 'h'){	// no collision for grass_start1 and grass_end2
 				objects_create(&obj_fg_deco_desc, pos, (void*)spr);
-				prev_advance = advance;	
+				prev_advance = advance;			
+						
 			} else {
 				objects_create(&obj_ground_desc, pos, (void*)spr);
 				if(sym == 'j' || sym == 'k' || sym == 'l' || sym == 'm' || sym == 'n' || sym == 'o'){
@@ -124,19 +125,22 @@ static void _gen_fg_page(void) {
 		Vector2 pos = vec2(fg_page_cursor + fg_x + 100.0f, 641.0f);
 		
 		bool place = false;
-		
-		if(fg_x + advance > page_width && prev_advance != 0)
-			pos.x -= (fg_x + advance) - page_width; 
-		
+	
+		if(fg_page_cursor != 0){
+			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
+			mfx_trigger_follow("dusts",&anchor->screen_pos,NULL);
+		}
+
+	
 		if(spr){
 			place = true;
 			for(int i = 0; i < gaps_i;i++){
-				if(	(fg_x + advance > page_width && prev_advance != 0) ||
+				if(	(pos.x - fg_page_cursor >= page_width-88 && prev_advance != 0) ||
 					(pos.x > gaps[i].x && pos.x < gaps[i].y) ||
 					(pos.x+advance > gaps[i].x && pos.x+advance < gaps[i].y) ||
 					(pos.x < gaps[i].x && pos.x+advance > gaps[i].y )){
 					place = false;
-				} 
+				}
 			}
 		}
 				
