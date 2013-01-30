@@ -56,7 +56,7 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 			pos.x, pos.y - height,
 			pos.x + width, pos.y
 	);
-	render->layer = 2;
+	render->layer = 3;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
 	render->update_pos = obj_mushroom_update_pos;

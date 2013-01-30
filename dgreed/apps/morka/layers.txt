@@ -1,0 +1,8 @@
+0 - background
+1 - dust particles
+2 - background mushrooms
+3 - foreground mushrooms
+4 - rabbit, pin
+5 - ground
+6 - particles
+7 - hud

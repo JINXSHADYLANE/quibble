@@ -54,6 +54,7 @@ typedef struct {
 	Color max_start_color;
 	Color min_end_color;
 	Color max_end_color;
+	uint particles_layer;
 } ParticleSystemDesc;	
 
 typedef void (*ParticleSystemDieCallback)(const void* psystem);
