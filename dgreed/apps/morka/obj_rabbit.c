@@ -255,7 +255,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		pos.x + half_w, pos.y + half_h 
 	);
 	render->angle = 0.0f;
-	render->layer = 3;
+	render->layer = 4;
 	render->anim_frame = 0;
 	render->spr = sprsheet_get_handle("rabbit");
 	render->update_pos = obj_rabbit_update_pos;

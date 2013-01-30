@@ -25,7 +25,7 @@ static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data)
 	dest.top = pos.y - height;
 
 	render->world_dest = dest;
-	render->layer = 4;
+	render->layer = 5;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
 }

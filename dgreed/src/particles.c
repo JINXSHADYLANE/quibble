@@ -15,7 +15,7 @@ static const char* particles_prefix;
 
 #define GET_NODEVAL(node, name, dest, type) { \
 	prop = mml_get_sibling(&desc, node, name); \
-	if(!prop) LOG_ERROR("Missing prop"); \
+	if(!prop) LOG_ERROR("Missing prop "name); \
 	dest = mml_getval_##type(&desc, node); \
 }	
 
@@ -167,6 +167,11 @@ void particles_init_ex(const char* assets_prefix, const char* filename, uint lay
 		sscanf(color, "%u,%u,%u,%u", &r, &g, &b, &a);
 		psystem_descs[i].max_end_color = COLOR_RGBA(r, g, b, a);
 
+		prop = mml_get_sibling(&desc,prop,"particles_layer"); 
+		if(!prop) psystem_descs[i].particles_layer = particles_layer;
+		else psystem_descs[i].particles_layer = mml_getval_uint(&desc, prop);
+		
+		
 		psystem_desc = mml_get_next(&desc, psystem_desc);
 		i++;
 	}	
@@ -512,8 +517,8 @@ void _psystem_draw(ParticleSystem* psystem) {
 			pos.x - width/2.0f, pos.y - height/2.0f,
 			pos.x + width/2.0f, pos.y + height/2.0f
 		);
-
-		video_draw_rect_rotated(psystem->desc->texture, particles_layer, 
+		
+		video_draw_rect_rotated(psystem->desc->texture, psystem->desc->particles_layer, 
 			&source, &dest, angle, color); 
 	}		
 }	
