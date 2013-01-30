@@ -62,7 +62,7 @@
 		(def n (water4 0))
 		(def o (water_end1 0))
 		(def p (water_end2 0))
-		(sdef z (seq "h_ach_ach_a"))
+		(sdef z (seq "gh_agh_agh_a"))
 		
 		(def _ (.empty 100))
 		(def = (.empty 350))

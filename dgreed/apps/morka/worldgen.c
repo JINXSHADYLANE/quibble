@@ -16,10 +16,9 @@ static Chain* fg_chain;
 static Chain* bg_chain;
 static Chain* ground_chain;
 
-static Vector2 gaps[4];
-static const int max_gaps = 4;
+static Vector2 gaps[5];
+static const int max_gaps = 5;
 static int gaps_i = 0;
-static int previuos_gaps = 0;
 
 static void _gen_bg_page(void) {
 	SprHandle spr;	
@@ -43,8 +42,9 @@ static void _gen_bg_page(void) {
 	bg_page_cursor += page_width;
 }
 
+
 void worldgen_debug_render(){
-	for(int i = 0; i < gaps_i;i++){
+	for(int i = 1; i <= gaps_i;i++){
 		RectF pos = {
 			.left = gaps[i].x, 
 			.top = 580,
@@ -63,31 +63,53 @@ void worldgen_debug_render(){
 		
 		video_draw_line(10,	&start, &end, COLOR_RGBA(255, 0, 0, 255));
 		
+		start = vec2(result.left, 0);
+		end = vec2(result.right, 768);
 		
+		video_draw_line(10,	&start, &end, COLOR_RGBA(255, 0, 0, 255));
+		
+		start = vec2(result.right, 0);
+		end = vec2(result.left, 768);
+		
+		video_draw_line(10,	&start, &end, COLOR_RGBA(255, 0, 0, 255));	
 	}
 }
 
 static void _gen_fg_page(void) {
+	static int prev_advance = 0;
+	static int prev_gaps = 0;
+	bool gap_possible = false;
+	
 	SprHandle spr;	
 	uint advance = 0;
-	static uint prev_advance = 0;
 	
-	gaps_i = previuos_gaps;
+	gaps_i = prev_gaps;
 	
 	// Add ground
 	static float ground_x = page_width;
 	ground_x -= page_width;
 	while(ground_x < page_width) {
+		gap_possible = false;
 		char sym = mchains_next(ground_chain, &rnd);
 		mchains_symbol_info(ground_chain, sym, &advance, &spr);
 		if(spr) {
-			Vector2 pos = vec2(fg_page_cursor + ground_x + 100.0f, 768.0f);
+			Vector2 pos = vec2(fg_page_cursor + ground_x, 768.0f);
 			advance = (uint) sprsheet_get_size_h(spr).x;
 			if(sym == 'a' || sym == 'h'){	// no collision for grass_start1 and grass_end2
 				objects_create(&obj_fg_deco_desc, pos, (void*)spr);
-				prev_advance = advance;			
-						
+				
+				if(prev_advance != 0)
+					gaps[gaps_i].y += advance;
+				else {
+					prev_advance = advance;
+					gaps[++gaps_i].x = pos.x;
+					gaps[gaps_i].y = pos.x + advance;
+				}
+				
 			} else {
+				if(sym == 'g') {
+					gap_possible = true;
+				}
 				objects_create(&obj_ground_desc, pos, (void*)spr);
 				if(sym == 'j' || sym == 'k' || sym == 'l' || sym == 'm' || sym == 'n' || sym == 'o'){
 					ObjSpeedTrigger* t = (ObjSpeedTrigger*)objects_create(&obj_speed_trigger_desc, pos, (void*)spr);
@@ -97,51 +119,49 @@ static void _gen_fg_page(void) {
 			}		
 		} else {
 			if(sym == '_' || sym == '-' || sym == '='){
-				Vector2 pos = vec2(fg_page_cursor + ground_x + 100.0f - prev_advance, 768.0f);
+				Vector2 pos = vec2(fg_page_cursor + ground_x - prev_advance, 768.0f);
+				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
 				
-				// add gap to gap array
-				gaps[gaps_i].x = pos.x;
-				gaps[gaps_i].y = pos.x + advance + 120 + 50;
-
-				if(gaps_i > max_gaps){ 
-					gaps_i = 0;
-					printf("gaps_i > max_gaps !\n");
+				if(prev_advance != 0)
+					gaps[gaps_i].y += advance;
+				else {
+					prev_advance = advance;
+					gaps[++gaps_i].x = pos.x;
+					gaps[gaps_i].y = pos.x + advance;
 				}
 				
-				gaps_i++;
-				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
 			}
 		}
 		ground_x += (float)advance;
 	}
-	previuos_gaps = gaps_i - previuos_gaps;
 	
 	// Add foreground mushrooms
 	static float fg_x = page_width;
 	fg_x -= page_width;
 	while(fg_x < page_width) {
+		
 		char sym = mchains_next(fg_chain, &rnd);
 		mchains_symbol_info(fg_chain, sym, &advance, &spr);
-		Vector2 pos = vec2(fg_page_cursor + fg_x + 100.0f, 641.0f);
-		
+		Vector2 pos = vec2(fg_page_cursor + fg_x, 641.0f);
+		uint shroom_width = (uint) sprsheet_get_size_h(spr).x;
 		bool place = false;
 	
-		if(fg_page_cursor != 0){
+		// temporary dust particle generation
+		if(fg_page_cursor > 0){
 			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 			mfx_trigger_follow("dusts",&anchor->screen_pos,NULL);
 		}
 
-	
 		if(spr){
 			place = true;
-			for(int i = 0; i < gaps_i;i++){
-				if(	(pos.x - fg_page_cursor >= page_width-88 && prev_advance != 0) ||
+			for(int i = 1; i <= gaps_i;i++){
+				if(	(gap_possible && (pos.x+shroom_width > fg_page_cursor + page_width + (page_width-ground_x)) ) ||
 					(pos.x > gaps[i].x && pos.x < gaps[i].y) ||
-					(pos.x+advance > gaps[i].x && pos.x+advance < gaps[i].y) ||
-					(pos.x < gaps[i].x && pos.x+advance > gaps[i].y )){
+					(pos.x+shroom_width > gaps[i].x && pos.x+shroom_width < gaps[i].y) ||
+					(pos.x < gaps[i].x && pos.x+shroom_width > gaps[i].y )){
 					place = false;
 				}
-			}
+			}	
 		}
 				
 		if(place) {
@@ -159,10 +179,14 @@ static void _gen_fg_page(void) {
 
 	fg_page_cursor += page_width;
 	
-	for(int i = 0; i < gaps_i - previuos_gaps; i++){
-		gaps[i].x = gaps[i+1].x;
-		gaps[i].y = gaps[i+1].y; 		
-	}		
+	// save last gap for next page
+	gaps[1].x = gaps[gaps_i].x;
+	gaps[1].y = gaps[gaps_i].y;
+	if(gaps_i > 1){
+		prev_gaps = 1;
+	} else {
+		prev_gaps = 0;
+	}	
 }
 void worldgen_reset(uint seed) {
 	if(!rnd) {
