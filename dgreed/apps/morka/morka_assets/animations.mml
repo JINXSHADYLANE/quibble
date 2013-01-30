@@ -18,11 +18,6 @@
 			(on_finish play.glide)
 		)
 
-		(seq double_jump
-			(frames "0 1 2 3 4")
-			(on_finish play.glide)
-		)
-
 		(seq bounce
 			(frames "8 10 12")
 			(on_finish play.jump)
@@ -33,8 +28,13 @@
 			(on_finish stop)
 		)
 
+		(seq down
+			(frames "8 9 10")
+			(on_finish stop)
+		)
+
 		(seq land
-			(frames "8 9 10 11 12")
+			(frames "11 12")
 			(on_finish play.run)
 		)
 
