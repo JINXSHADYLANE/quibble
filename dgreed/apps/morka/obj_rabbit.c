@@ -145,8 +145,12 @@ static void obj_rabbit_update_pos(GameObject* self) {
 }
 
 static void obj_rabbit_became_invisible(GameObject* self) {
-	ObjRabbit* rabbit = (ObjRabbit*)self;
-	rabbit->is_dead = true;
+	PhysicsComponent* p = self->physics;
+	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+	if(pos.y > 0){
+		ObjRabbit* rabbit = (ObjRabbit*)self;
+		rabbit->is_dead = true;
+	}
 }
 
 static void _rabbit_delayed_bounce(void* r) {
