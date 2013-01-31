@@ -21,8 +21,6 @@ uint last_page = 0;
 
 ObjRabbit* rabbit = NULL;
 float camera_follow_weight;
-float rabbit_remaining_time;
-float rabbit_distance;
 float rabbit_current_distance;
 float bg_scroll = 0.0f;
 
@@ -71,6 +69,7 @@ void game_reset(void) {
 	worldgen_reset(rand_uint(),levels_current_desc());
 
 	camera_follow_weight = 0.2f;
+	rabbit_current_distance = 0.0f;
 	game_over = false;
 }
 
@@ -100,20 +99,12 @@ static bool game_update(void) {
 	if(game_is_paused())
 		return true;
 
-	if(rabbit_current_distance >= 100.0f) {
-		//rabbit_remaining_time = 0.0f;
-		rabbit_current_distance = 100.0f;
-
-		if(!game_over)
-			rabbit_distance = rabbit_current_distance;
-
+	if(rabbit_current_distance >= levels_current_desc()->distance) {
 		game_over = true;
-		rabbit_current_distance = 0.0f;
 	}
 
 	if(rabbit && rabbit->header.type) {
 		if(rabbit->is_dead && !game_over){
-			rabbit_distance = rabbit_current_distance;
 			game_over = true;
 		}
 				
@@ -138,8 +129,6 @@ static bool game_update(void) {
 	
 	float t = malka_state_time("game");
 	particles_update(t);
-
-	rabbit_remaining_time -= time_delta() / 1000.0f;
 
 	return true;
 }

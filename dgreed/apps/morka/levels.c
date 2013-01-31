@@ -5,6 +5,7 @@
 #include <mml.h>
 
 static LevelDesc* current_level = NULL;
+static MMLObject mml;
 
 void levels_init(const char* filename){
 
@@ -12,7 +13,6 @@ void levels_init(const char* filename){
 
 	const char* mml_text = txtfile_read(filename);
 
-	MMLObject mml;
 	if(!mml_deserialize(&mml, mml_text))
 		LOG_ERROR("Unable to parse levels desc %s",filename);
 	MEM_FREE(mml_text);
@@ -51,9 +51,6 @@ void levels_init(const char* filename){
 			else if(strcmp(type, "bg_chain") == 0) {
 				new.bg_chain = mml_getval_str(&mml, child);
 			}
-			else if(strcmp(type, "bg_chain") == 0) {
-				new.bg_chain = mml_getval_str(&mml, child);
-			}
 			else if(strcmp(type, "fg_chain") == 0) {
 				new.fg_chain = mml_getval_str(&mml, child);
 			}
@@ -74,6 +71,7 @@ void levels_init(const char* filename){
 }
 
 void levels_close(void){
+	mml_free(&mml);
 	darray_free(&levels_descs);
 }
 
