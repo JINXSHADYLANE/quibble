@@ -6,7 +6,7 @@
 // Generates 2nd order Markov chains for 
 // various procedural generation purposes.
 
-#define ruleset_name_maxlen 10
+#define ruleset_name_maxlen 15
 #define chain_buffer_size 20
 
 typedef struct {

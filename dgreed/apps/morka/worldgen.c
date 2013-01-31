@@ -201,7 +201,7 @@ static void _gen_fg_page(void) {
 	gaps[1].x = gaps[gaps_i].x;
 	gaps[1].y = gaps[gaps_i].y; 	
 }
-void worldgen_reset(uint seed) {
+void worldgen_reset(uint seed, const LevelDesc* desc) {
 	if(!rnd) {
 		// First time
 		rand_init_ex(&rnd, seed);
@@ -216,9 +216,9 @@ void worldgen_reset(uint seed) {
 		mchains_del(ground_chain);
 	}
 
-	fg_chain = mchains_new("fg");
-	bg_chain = mchains_new("bg");
-	ground_chain = mchains_new("ground");
+	bg_chain = mchains_new(desc->bg_chain);
+	fg_chain = mchains_new(desc->fg_chain);
+	ground_chain = mchains_new(desc->ground_chain);
 
 	_gen_bg_page();
 	_gen_fg_page();
