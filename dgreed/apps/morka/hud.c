@@ -13,9 +13,8 @@
 	#define FONT_NAME "Baskerville-Bold"
 #endif
 
-extern float rabbit_remaining_time;
-extern float rabbit_distance;
 extern float rabbit_current_distance;
+static display_distance;
 
 extern void game_reset(void);
 extern void game_pause(void);
@@ -76,7 +75,7 @@ static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 
 	// Distance text
 	char distance_str[32];
-	sprintf(distance_str, "You ran %d meters", (int)lrintf(rabbit_distance));
+	sprintf(distance_str, "You ran %d meters", (int)lrintf(display_distance));
 	Vector2 half_dist_size = vec2_scale(vfont_size(distance_str), 0.5f);
 	vfont_draw(distance_str, layer, vec2_sub(dist_text->vec2, half_dist_size), col);
 
@@ -178,6 +177,7 @@ void hud_render(void) {
 
 	static bool showed_game_over_last_frame = false;
 	if(game_over_alpha > 0.0f) {
+		if(!showed_game_over_last_frame) display_distance = rabbit_current_distance;
 		showed_game_over_last_frame = true;
 		_hud_render_game_over(uidesc_get("game_over"), hud_layer+1, game_over_alpha);
 	}
