@@ -1,4 +1,4 @@
-﻿#include "worldgen.h"
+#include "worldgen.h"
 #include <mfx.h>
 #include <mempool.h>
 
