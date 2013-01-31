@@ -15,6 +15,7 @@ const static float rabbit_hitbox_width = 70.0f;
 const static float rabbit_hitbox_height = 62.0f;
 
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
+	static bool jump_particles = false;
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	PhysicsComponent* p = self->physics;
 	if(key_down(KEY_A))
@@ -52,7 +53,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		anim_play(rabbit->anim, "jump");
 		combo_counter = 0;
 		
-		
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 		mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
 		
@@ -61,16 +61,19 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		if(ts - mushroom_hit_time < 0.1f) {
 			if(fabsf(mushroom_hit_time - last_keypress_t) < 0.1f)
 				rabbit->jump_off_mushroom = true;
+
 			if(fabsf(mushroom_hit_time - last_keyrelease_t) < 0.1f)
 				rabbit->jump_off_mushroom = true;
 				
-			if(rabbit->jump_off_mushroom){
-					ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
-					mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
-			
+			if(!jump_particles && rabbit->jump_off_mushroom){
+				jump_particles = true;
+				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
+				mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
 			}
+			
 		}
 		else if(!rabbit->touching_ground) {
+			jump_particles = false;
 			if(key_pressed(KEY_A) && (ts - jump_time) < 0.2f) {
 			//	objects_apply_force(self, vec2(0.0f, -8000.0f));
 			}
