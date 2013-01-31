@@ -80,7 +80,7 @@ void worldgen_debug_render(){
 static void _gen_fg_page(void) {
 	static int prev_advance = 0;
 	static int previuos_gaps = 0;
-	int possible_gap = 0;
+	bool gap_possible = false;
 	
 	SprHandle spr;	
 	uint advance = 0;
@@ -94,7 +94,7 @@ static void _gen_fg_page(void) {
 	static float ground_x = page_width;
 	ground_x -= page_width;
 	while(ground_x < page_width) {
-		possible_gap = 0;
+		gap_possible = false;
 		char sym = mchains_next(ground_chain, &rnd);
 		mchains_symbol_info(ground_chain, sym, &advance, &spr);
 		if(spr) {
@@ -117,7 +117,7 @@ static void _gen_fg_page(void) {
 				}			
 			} else {
 				if(sym == 'g') {
-					possible_gap = 1;
+					gap_possible = true;
 				}
 				objects_create(&obj_ground_desc, pos, (void*)spr);
 				if(sym == 'j' || sym == 'k' || sym == 'l' || sym == 'm' || sym == 'n' || sym == 'o'){
@@ -164,15 +164,16 @@ static void _gen_fg_page(void) {
 		bool place = false;
 	
 		// temporary dust particle generation
-		if(fg_page_cursor != 0){
+		if(fg_page_cursor > 0){
 			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 			mfx_trigger_follow("dusts",&anchor->screen_pos,NULL);
 		}
 
 		if(spr){
 			place = true;
+			
 			for(int i = 1; i <= gaps_i;i++){
-				if(	(possible_gap > 0 && (pos.x+shroom_width > fg_page_cursor + page_width + (ground_x-page_width)*2) ) ||
+				if(	(gap_possible && (pos.x+shroom_width > fg_page_cursor + page_width + (ground_x-page_width)) ) ||
 					(pos.x > gaps[i].x && pos.x < gaps[i].y) ||
 					(pos.x+shroom_width > gaps[i].x && pos.x+shroom_width < gaps[i].y) ||
 					(pos.x < gaps[i].x && pos.x+shroom_width > gaps[i].y )){
