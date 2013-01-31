@@ -1,6 +1,7 @@
 #ifndef LEVELS_H
 #define LEVELS_H
 
+#include "utils.h"
 #include <darray.h>
 #include <sprsheet.h>
 

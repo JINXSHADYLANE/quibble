@@ -8,6 +8,8 @@
 #include <mfx.h>
 #include <particles.h>
 
+#include "common.h"
+
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
 bool draw_ground_debug = false;
@@ -27,8 +29,13 @@ float bg_scroll = 0.0f;
 bool game_over;
 bool game_paused = false;
 
+DArray levels_descs;
+
 static void game_init(void) {
+	levels_init(ASSETS_DIR "levels.mml");
+	levels_reset("level2");
 	objects_init();
+
 	hud_init();
 
 	game_reset();
@@ -61,14 +68,14 @@ void game_reset(void) {
 	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_b);
 	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_c);
 
-	worldgen_reset(rand_uint());
+	worldgen_reset(rand_uint(),levels_current_desc());
 
 	camera_follow_weight = 0.2f;
-	rabbit_remaining_time = 45.0f;
 	game_over = false;
 }
 
 static void game_close(void) {
+	levels_close();
 	worldgen_close();
 	hud_close();
 	objects_close();
@@ -141,9 +148,9 @@ static bool game_render(float t) {
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
 	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);
-	spr_draw("background", 0, dest, COLOR_WHITE);
+	spr_draw_h(levels_current_desc()->background, 0, dest, COLOR_WHITE);
 	dest = rectf(1024.0f - off_x, 0.0f, 0.0f, 0.0f);
-	spr_draw("background", 0, dest, COLOR_WHITE);
+	spr_draw_h(levels_current_desc()->background, 0, dest, COLOR_WHITE); 
 
 	hud_render();
 	objects_tick(game_is_paused());

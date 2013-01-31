@@ -1,0 +1,16 @@
+(levels morka
+	(level level1
+		(distance 100)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level1_fg)
+		(ground_chain level1_ground)
+	)
+	(level level2
+		(distance 150)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level2_fg)
+		(ground_chain level2_ground)
+	)
+)
