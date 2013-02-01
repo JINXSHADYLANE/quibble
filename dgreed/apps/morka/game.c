@@ -15,6 +15,7 @@
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
 bool draw_ground_debug = false;
+bool draw_ai_debug = false;
 
 // Game state
 
@@ -66,7 +67,14 @@ void game_reset(void) {
 	levels_reset("level1");
 	minimap_reset(levels_current_desc()->distance);
 
-	// rabbits reset
+	//rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), (void*)false);
+
+	/*int rabbits = 5;
+	for(int i = 0;i < rabbits;i++){
+		objects_create(&obj_rabbit_desc, vec2(502.0f+rand_float_range(-32.0f,32.0f),
+											 284.0f+rand_float_range(-32.0f,32.0f)), (void*)true);
+	}*/
+
 	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), (void*)false);
 	minimap_track(rabbit);
 	rabbit2 = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(502.0f, 284.0f), (void*)true);
@@ -101,6 +109,8 @@ static bool game_update(void) {
 		draw_physics_debug = !draw_physics_debug;
 	if(char_down('l'))
 		draw_ground_debug = !draw_ground_debug;
+	if(char_down('a'))
+		draw_ai_debug = !draw_ai_debug;
 #endif
 
 	if(game_is_paused())
@@ -114,6 +124,7 @@ static bool game_update(void) {
 	if(rabbit && rabbit->header.type) {
 		if(rabbit->data->is_dead && !game_over){
 			game_over = true;
+			game_was_reset = false;
 		}
 				
 	if(game_over)
