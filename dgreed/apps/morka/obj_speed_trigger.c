@@ -8,7 +8,7 @@ static void obj_speed_trigger_collide(GameObject* self, GameObject* other) {
 		PhysicsComponent* p = other->physics;
 		objects_apply_force(other, vec2(-p->vel.x * t->drag_coef, 0.0f));
 		ObjRabbit* rabbit = (ObjRabbit*)other;
-		rabbit->on_water = true;
+		rabbit->data->on_water = true;
 	}
 }
 

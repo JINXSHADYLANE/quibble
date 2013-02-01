@@ -1,30 +1,61 @@
 #include "obj_types.h"
 #include "hud.h"
 #include <mfx.h>
+#include <memory.h>
 
 #include <system.h>
 #include <async.h>
 
-static uint combo_counter = 0;
-static float last_keypress_t = 0.0f;
-static float last_keyrelease_t = 0.0f;
-static float jump_time = 0.0f;
-static float mushroom_hit_time = 0.0f;
-
 const static float rabbit_hitbox_width = 70.0f;
 const static float rabbit_hitbox_height = 62.0f;
+
+
+void obj_rabbit_player_control(GameObject* self){
+	ObjRabbit* rabbit = (ObjRabbit*)self;
+	ObjRabbitData* d = rabbit->data;
+
+	d->virtual_key_up = key_up(KEY_A);
+	d->virtual_key_down = key_down(KEY_A);
+	d->virtual_key_pressed = key_pressed(KEY_A);
+}
+
+void obj_rabbit_ai_control(GameObject* self){
+	ObjRabbit* rabbit = (ObjRabbit*)self;
+	ObjRabbitData* d = rabbit->data;
+
+	if(d->virtual_key_down){
+		d->virtual_key_down = false;
+		d->virtual_key_pressed = true;
+	} else if(d->virtual_key_pressed){
+		d->virtual_key_pressed = false;
+		d->virtual_key_up = true;
+	} else if(d->virtual_key_up){
+		d->virtual_key_up = false;
+	}	 
+
+	if(d->on_water && d->touching_ground){
+		d->virtual_key_down = true;
+		d->virtual_key_pressed = true;
+	}
+
+	//printf("ai control: %d %d %d | on water: %d \n",d->virtual_key_up,d->virtual_key_down,d->virtual_key_pressed,d->on_water);
+
+}
 
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	static bool jump_particles = false;
 	ObjRabbit* rabbit = (ObjRabbit*)self;
+	ObjRabbitData* d = rabbit->data;
 	PhysicsComponent* p = self->physics;
-	if(key_down(KEY_A))
-		last_keypress_t = ts;
-	if(key_up(KEY_A))
-		last_keyrelease_t = ts;
+
+	rabbit->control(self);
+
+	if(d->virtual_key_down)
+		d->last_keypress_t = ts;
+	if(d->virtual_key_up)
+		d->last_keyrelease_t = ts;
 
 	Vector2 dir = {.x = 0.0f, .y = 0.0f};
-
 	// Constantly move right
 	dir.x += 550.0f;
 	
@@ -45,49 +76,49 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	r->anim_frame = anim_frame(rabbit->anim);
 		
 	// Jump
-	if(rabbit->touching_ground && key_down(KEY_A)) {
-		rabbit->touching_ground = false;
-		rabbit->jump_off_mushroom = false;
-		jump_time = ts;
+	if(d->touching_ground && d->virtual_key_down) {
+		d->touching_ground = false;
+		d->jump_off_mushroom = false;
+		d->jump_time = ts;
 		objects_apply_force(self, vec2(50000.0f, -160000.0f));
 		anim_play(rabbit->anim, "jump");
-		combo_counter = 0;
+		d->combo_counter = 0;
 		
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 		mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
 		
 	}
 	else {
-		if(ts - mushroom_hit_time < 0.1f) {
-			if(fabsf(mushroom_hit_time - last_keypress_t) < 0.1f)
-				rabbit->jump_off_mushroom = true;
+		if(ts - d->mushroom_hit_time < 0.1f) {
+			if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.1f)
+				d->jump_off_mushroom = true;
 
-			if(fabsf(mushroom_hit_time - last_keyrelease_t) < 0.1f)
-				rabbit->jump_off_mushroom = true;
+			if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.1f)
+				d->jump_off_mushroom = true;
 				
-			if(!jump_particles && rabbit->jump_off_mushroom){
+			if(!jump_particles && d->jump_off_mushroom){
 				jump_particles = true;
 				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 				mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
 			}
 			
 		}
-		else if(!rabbit->touching_ground) {
+		else if(!d->touching_ground) {
 			jump_particles = false;
-			if(key_pressed(KEY_A) && (ts - jump_time) < 0.2f) {
+			if(key_pressed(KEY_A) && (ts - d->jump_time) < 0.2f) {
 			//	objects_apply_force(self, vec2(0.0f, -8000.0f));
 			}
-			else if(!rabbit->is_diving && key_down(KEY_A)) {
+			else if(!d->is_diving && d->virtual_key_down) {
 				// Dive 	
-				rabbit->is_diving = true;
+				d->is_diving = true;
 				objects_apply_force(self, vec2(0.0f, 20000.0f));
 				anim_play(rabbit->anim, "dive");
 			}
-			else if(rabbit->is_diving && key_pressed(KEY_A)) {
+			else if(d->is_diving && d->virtual_key_pressed) {
 				objects_apply_force(self, vec2(0.0f, 25000.0f));
 			}
-			else if(rabbit->is_diving && !key_pressed(KEY_A)) {
-				rabbit->is_diving = false;
+			else if(d->is_diving && !d->virtual_key_pressed) {
+				d->is_diving = false;
 				anim_play(rabbit->anim, "glide");
 			}
 		}
@@ -111,21 +142,21 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	
 	objects_apply_force(self, dir);
 
-	if(!rabbit->touching_ground) {
+	if(!d->touching_ground) {
 		// Apply gravity
 		objects_apply_force(self, vec2(0.0f, 5000.0f));
 	} else {
 		// Trigger water/land particle effects on ground
-		if(rabbit->on_water){
+		if(d->on_water){
 			if(r->anim_frame == 1) mfx_trigger_ex("water",screen_pos,0.0f);
-			if(r->anim_frame == 11) mfx_trigger_ex("water_front",screen_pos,0.0f);
-			rabbit->on_water = false;			
+			if(r->anim_frame == 11) mfx_trigger_ex("water_front",screen_pos,0.0f);			
 		} else { 
 			if(r->anim_frame == 1)mfx_trigger_ex("run1",screen_pos,0.0f);
 			if(r->anim_frame == 11) mfx_trigger_ex("run1_front",screen_pos,0.0f);
 			
 		}
 	}
+	d->on_water = false;
 }
 
 static void obj_rabbit_update_pos(GameObject* self) {
@@ -149,29 +180,31 @@ static void obj_rabbit_became_invisible(GameObject* self) {
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 	if(pos.y > 0){
 		ObjRabbit* rabbit = (ObjRabbit*)self;
-		rabbit->is_dead = true;
+		ObjRabbitData* d = rabbit->data;
+		d->is_dead = true;
 	}
 }
 
 static void _rabbit_delayed_bounce(void* r) {
 	ObjRabbit* rabbit = r;
-
-	if(rabbit->jump_off_mushroom || rabbit->is_diving) {
-		rabbit->is_diving = false;
+	ObjRabbitData* d = rabbit->data;
+	if(d->jump_off_mushroom || d->is_diving) {
+		d->is_diving = false;
 		GameObject* self = r;
-		objects_apply_force(self, rabbit->bounce_force); 
-		rabbit->jump_off_mushroom = false;
-		if(combo_counter++ > 1)
-			hud_trigger_combo(combo_counter);
+		objects_apply_force(self, d->bounce_force); 
+		d->jump_off_mushroom = false;
+		if(d->combo_counter++ > 1)
+			hud_trigger_combo(d->combo_counter);
 	}
 	else
-		combo_counter = 0;
+		d->combo_counter = 0;
 
-	rabbit->bounce_force = vec2(0.0f, 0.0f);
+	d->bounce_force = vec2(0.0f, 0.0f);
 }
 
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
+	ObjRabbitData* d = rabbit->data;
 	// Collision with ground
 	if(other->type == OBJ_GROUND_TYPE) {
 		CDObj* cd_rabbit = self->physics->cd_obj;
@@ -181,11 +214,11 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
 		if(penetration > 0.0f && cd_rabbit->pos.y < cd_ground->pos.y) {
 			self->physics->vel.y = 0.0f;
-			if(!rabbit->touching_ground) {
+			if(!d->touching_ground) {
 				hud_trigger_combo(0);
 				anim_play(rabbit->anim, "land");
 			}
-			rabbit->touching_ground = true;
+			d->touching_ground = true;
 			cd_rabbit->offset = vec2_add(
 				cd_rabbit->offset, 
 				vec2(0.0f, -penetration)
@@ -195,10 +228,10 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 	// Collision with mushroom
 	Vector2 vel = self->physics->vel;
-	if(other->type == OBJ_MUSHROOM_TYPE && !rabbit->touching_ground && vel.y > 500.0f) {
-		if(rabbit->bounce_force.y == 0.0f) {
+	if(other->type == OBJ_MUSHROOM_TYPE && !d->touching_ground && vel.y > 500.0f) {
+		if(d->bounce_force.y == 0.0f) {
 			ObjMushroom* mushroom = (ObjMushroom*)other;
-			mushroom_hit_time = time_s();
+			d->mushroom_hit_time = time_s();
 			anim_play(rabbit->anim, "bounce");
 			vel.y = -vel.y;
 
@@ -207,15 +240,15 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 					.x = MIN(vel.x*200.0f, 220000.0f),
 					.y = MAX(vel.y*400.0f,-250000.0f)
 				};
-				rabbit->bounce_force = f;
+				d->bounce_force = f;
 			}
 			else {
 				Vector2 f = {
 					.x = MAX(-vel.x*200.0f, -80000.0f),
 					.y = MAX(vel.y*300.0f,-180000.0f)
 				};
-				rabbit->bounce_force = f;
-				combo_counter = 0;
+				d->bounce_force = f;
+				d->combo_counter = 0;
 			}
 
 			// Slow down vertical movevment
@@ -228,13 +261,10 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 }
 
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
+
 	ObjRabbit* rabbit = (ObjRabbit*)self;
-	rabbit->touching_ground = false;
-	rabbit->jump_off_mushroom = false;
-	rabbit->is_diving = false;
-	rabbit->is_dead = false;
 	rabbit->anim = anim_new("rabbit");
-	rabbit->bounce_force = vec2(0.0f, 0.0f);
+
 
 	// Init physics
 	PhysicsComponent* physics = self->physics;
@@ -271,10 +301,40 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	// Init update
 	UpdateComponent* update = self->update;
 	update->update = obj_rabbit_update;
+
+
+	// additional rabbit data
+	rabbit->data = MEM_ALLOC(sizeof(ObjRabbitData));
+	ObjRabbitData*d = rabbit->data;
+
+	d->combo_counter = 0;
+	d->last_keypress_t = 0.0f;
+	d->last_keyrelease_t = 0.0f;
+	d->jump_time = 0.0f;
+	d->mushroom_hit_time = 0.0f;
+
+	d->virtual_key_up = false;
+	d->virtual_key_down = false;
+	d->virtual_key_pressed = false;
+
+	d->touching_ground = false;
+	d->jump_off_mushroom = false;
+	d->is_diving = false;
+	d->is_dead = false;
+	d->on_water = false;
+	d->bounce_force = vec2(0.0f, 0.0f);
+
+	// Init Control
+	bool ai = (bool)user_data;
+	if(ai)
+		rabbit->control = obj_rabbit_ai_control;
+	else
+		rabbit->control = obj_rabbit_player_control;
 }
 
 static void obj_rabbit_destruct(GameObject* self) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
+	MEM_FREE(rabbit->data);
 	anim_del(rabbit->anim);
 }
 
