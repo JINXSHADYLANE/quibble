@@ -9,6 +9,7 @@
 const static float rabbit_hitbox_width = 70.0f;
 const static float rabbit_hitbox_height = 62.0f;
 
+extern bool draw_ai_debug;
 
 void obj_rabbit_player_control(GameObject* self){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
@@ -20,26 +21,94 @@ void obj_rabbit_player_control(GameObject* self){
 }
 
 void obj_rabbit_ai_control(GameObject* self){
+	const uint cdmax = 30; // slows down ai, so it doesn't spam actions 
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
+	PhysicsComponent* p = self->physics;
+	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 
-	if(d->virtual_key_down){
+	if(d->cd > 0) d->cd--;
+
+	// key_down and key_up only last one frame
+	if(d->virtual_key_down) d->virtual_key_down = false;
+	else if(d->virtual_key_up){
+		d->virtual_key_up = false;
 		d->virtual_key_down = false;
-		d->virtual_key_pressed = true;
-	} else if(d->virtual_key_pressed){
+		d->virtual_key_pressed = false;
+	}	 
+	
+	// release button on contact with ground or shroom
+	if( (d->jump_off_mushroom || d->touching_ground) &&
+		d->virtual_key_pressed && !d->virtual_key_down ){
+
 		d->virtual_key_pressed = false;
 		d->virtual_key_up = true;
-	} else if(d->virtual_key_up){
-		d->virtual_key_up = false;
-	}	 
-
-	if(d->on_water && d->touching_ground){
-		d->virtual_key_down = true;
-		d->virtual_key_pressed = true;
 	}
 
-	//printf("ai control: %d %d %d | on water: %d \n",d->virtual_key_up,d->virtual_key_down,d->virtual_key_pressed,d->on_water);
+	if(d->touching_ground){
 
+		// AI avoids walking on water
+		if(d->on_water){
+			d->cd = cdmax;
+			d->virtual_key_down = true;
+			d->virtual_key_pressed = true;
+		}
+
+		// raycast
+		Vector2 start = vec2(pos.x+rabbit_hitbox_width*2,768+100);
+		Vector2 end = vec2(start.x,768-100);
+		GameObject* obj = objects_raycast(start,end);
+
+		// debug render
+		if(draw_ai_debug){
+			RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
+			RectF r = objects_world2screen(rec,0);
+			Vector2 s = vec2(r.left, r.top);
+			Vector2 e = vec2(r.right, r.bottom);
+			video_draw_line(10,	&s, &e, COLOR_RGBA(255, 0, 0, 255));
+		}
+
+		// AI avoids gaps
+		if(obj){
+			if(obj->type == OBJ_FALL_TRIGGER_TYPE){
+					d->virtual_key_down = true;
+					d->virtual_key_pressed = true;
+			}	
+		} 
+
+
+	} else if(!d->touching_ground && !d->is_diving && d->cd == 0){
+
+		// release button when in the air
+		d->virtual_key_pressed = false;
+		d->virtual_key_up = true;
+
+		//raycast
+		Vector2 start = vec2(pos.x+rabbit_hitbox_width,pos.y+rabbit_hitbox_height+40);
+		Vector2 end = vec2(start.x,768);
+		GameObject* obj = objects_raycast(start,end);
+
+		//debug render
+		if(draw_ai_debug){
+			RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
+			RectF r = objects_world2screen(rec,0);
+			Vector2 s = vec2(r.left, r.top);
+			Vector2 e = vec2(r.right, r.bottom);
+			video_draw_line(10,	&s, &e, COLOR_RGBA(255, 0, 0, 255));
+		}
+
+		// dive on shrooms if possible
+		if(obj){
+			if(obj->type == OBJ_MUSHROOM_TYPE){
+				ObjMushroom* mushroom = (ObjMushroom*)obj;
+				if(mushroom->damage == 0.0f){
+					d->virtual_key_down = true;
+					d->virtual_key_pressed = true;
+					d->cd = cdmax;
+				}
+			}	
+		} 
+	}
 }
 
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
@@ -180,8 +249,7 @@ static void obj_rabbit_became_invisible(GameObject* self) {
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 	if(pos.y > 0){
 		ObjRabbit* rabbit = (ObjRabbit*)self;
-		ObjRabbitData* d = rabbit->data;
-		d->is_dead = true;
+		rabbit->data->is_dead = true;
 	}
 }
 
@@ -323,6 +391,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->is_dead = false;
 	d->on_water = false;
 	d->bounce_force = vec2(0.0f, 0.0f);
+	d->cd = 0;
 
 	// Init Control
 	bool ai = (bool)user_data;

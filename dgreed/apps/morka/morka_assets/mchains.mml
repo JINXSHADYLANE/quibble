@@ -74,10 +74,14 @@
 		(learn "_d_a_c_b")
 	)
 	(ruleset level1_ground
+		(def a (grass_start1 0))
+		(def b (grass_start2 0))
 		(def c (grass1 0))
 		(def d (grass2 0))
 		(def e (grass3 0))
 		(def f (grass4 0))
+		(def g (grass_end1 0))
+		(def h (grass_end2 0))
 		(def i (water_start1 0))
 		(def j (water_start2 0))
 		(def k (water1 0))
@@ -87,9 +91,15 @@
 		(def o (water_end1 0))
 		(def p (water_end2 0))
 
+		(def _ (.empty 100))
+		(def = (.empty 350))
+		(def - (.empty 200))
+
 		(init "cd")
 
-		(learn "cdefcd")
+		(learn "cdefgh_abcd")
+		(learn "cdefgh=abcd")
+		(learn "cdefgh-abcd")
 		(learn "cdefijklmnopcd")
 		(learn "cdefijklmnklmnopcd")
 	)	
