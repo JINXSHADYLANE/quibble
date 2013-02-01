@@ -22,6 +22,9 @@ static GameObjectDesc* desc_cache = NULL;
 // Game object pool
 static MemPool objects;
 
+// List of game objects
+static ListHead objects_list;
+
 // Component containers
 
 static DArray physics;
@@ -42,6 +45,7 @@ typedef struct {
 void objects_init(void) {
 	aatree_init(&desc_map);
 	mempool_init(&objects, MAX_GAMEOBJECT_SIZE);
+	list_init(&objects_list);
 
 	physics = darray_create(sizeof(PhysicsComponent), 0);
 	render = darray_create(sizeof(RenderComponent), 0);
@@ -52,7 +56,18 @@ void objects_init(void) {
 	coldet_init(objects_cdworld, 400.0f);
 }
 
+static void objects_destruct_all(void) {
+	// Invoke destructors
+	GameObject* obj;
+	list_for_each_entry(obj, &objects_list, list) {
+		GameObjectDesc* desc = aatree_find(&desc_map, obj->type);
+		if(desc && desc->destruct)
+			(desc->destruct)(obj);
+	}
+}
+
 void objects_close(void) {
+	objects_destruct_all();
 	coldet_close(objects_cdworld);
 
 	darray_free(&to_add);
@@ -74,6 +89,7 @@ GameObject* objects_create(GameObjectDesc* desc, Vector2 pos, void* user_data) {
 	assert(((size_t)obj & 1) == 0);
 
 	obj->type = 0;
+	list_push_back(&objects_list, &obj->list);
 
 	NewObject new = {
 		.pos = pos,
@@ -98,6 +114,9 @@ void objects_destroy(GameObject* obj) {
 }
 
 void objects_destroy_all(void) {
+	objects_destruct_all();
+
+	list_init(&objects_list);
 	mempool_free_all(&objects);
 
 	// Empty coldet world
@@ -294,6 +313,8 @@ static void objects_destroy_internal(GameObject* obj) {
 		*this = *last;
 		update.size--;
 	}
+
+	list_remove(&obj->list);
 
 	mempool_free(&objects, obj);
 }
