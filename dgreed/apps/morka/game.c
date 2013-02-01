@@ -61,9 +61,9 @@ void game_reset(void) {
 		objects_destroy_all();
 	}
 
-	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), false);
+	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), (void*)false);
 
-	rabbit2 = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(502.0f, 284.0f), true);
+	rabbit2 = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(502.0f, 284.0f), (void*)true);
 
 	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_a);
 	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_b);

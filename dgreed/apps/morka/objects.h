@@ -3,6 +3,7 @@
 
 #include <sprsheet.h>
 #include <coldet.h>
+#include <datastruct.h>
 
 #define PHYSICS_DT (1.0 / 60.0)
 
@@ -16,6 +17,7 @@ typedef struct {
 	struct FwdPhysicsComponent* physics;
 	struct FwdRenderComponent* render;
 	struct FwdUpdateComponent* update;
+	ListHead list;
 } GameObject;
 
 // Physics component
