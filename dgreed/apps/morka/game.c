@@ -5,6 +5,8 @@
 #include "worldgen.h"
 #include "hud.h"
 
+#include "minimap.h"
+
 #include <mfx.h>
 #include <particles.h>
 
@@ -26,16 +28,17 @@ float rabbit_current_distance;
 float bg_scroll = 0.0f;
 
 bool game_over;
+bool game_was_reset = false;
 bool game_paused = false;
 
 DArray levels_descs;
 
 static void game_init(void) {
 	levels_init(ASSETS_DIR "levels.mml");
-	levels_reset("level1");
 	objects_init();
 
 	hud_init();
+	minimap_init();
 
 	game_reset();
 }
@@ -60,14 +63,14 @@ void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
 	}
+	levels_reset("level1");
+	minimap_reset(levels_current_desc()->distance);
 
+	// rabbits reset
 	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), (void*)false);
-
+	minimap_track(rabbit);
 	rabbit2 = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(502.0f, 284.0f), (void*)true);
-
-	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_a);
-	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_b);
-	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_c);
+	minimap_track(rabbit2);
 
 	worldgen_reset(rand_uint(),levels_current_desc());
 
@@ -77,10 +80,11 @@ void game_reset(void) {
 }
 
 static void game_close(void) {
-	levels_close();
 	worldgen_close();
+	minimap_close();
 	hud_close();
 	objects_close();
+	levels_close();
 }
 
 static void game_enter(void) {
@@ -104,6 +108,7 @@ static bool game_update(void) {
 
 	if(rabbit_current_distance >= levels_current_desc()->distance) {
 		game_over = true;
+		game_was_reset = false;
 	}
 
 	if(rabbit && rabbit->header.type) {

@@ -22,6 +22,7 @@ extern void game_unpause(void);
 extern bool game_is_paused(void);
 
 extern bool game_over;
+extern bool game_was_reset;
 float game_over_alpha = 0.0f;
 
 static uint last_combo = 0;
@@ -88,10 +89,11 @@ static void _hud_render_game_over(UIElement* element, uint layer, float alpha) {
 	// Button
 	spr_draw_cntr_h(button->spr, layer, button->vec2, 0.0f, 1.0f, col);	
 
-	if(touches_count() > 0) {
+	if(!game_was_reset && touches_count() > 0) {
 		Touch* t = touches_get();
 		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button->vec2)) < 40.0f * 40.0f) {
 			game_reset();
+			game_was_reset = true;
 		}
 	}
 }
