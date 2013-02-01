@@ -17,17 +17,38 @@ enum {
 	OBJ_PARTICLE_ANCHOR_TYPE
 };
 
-// Rabbit
+// Rabbit Data
 
 typedef struct {
-	GameObject header;
+	uint combo_counter;
+	float last_keypress_t;
+	float last_keyrelease_t;
+	float jump_time;
+	float mushroom_hit_time;
+
+	bool virtual_key_up;
+	bool virtual_key_down;
+	bool virtual_key_pressed;
+
 	bool touching_ground;
 	bool jump_off_mushroom;
 	bool is_diving;
 	bool is_dead;
 	bool on_water;
-	Anim* anim;
 	Vector2 bounce_force;
+
+} ObjRabbitData;
+
+typedef void (*ControlCallback)(GameObject* self);
+
+// Rabbit
+
+typedef struct {
+	GameObject header;
+	Anim* anim;
+	ControlCallback control;
+	ObjRabbitData* data;
+
 } ObjRabbit;
 
 extern GameObjectDesc obj_rabbit_desc;

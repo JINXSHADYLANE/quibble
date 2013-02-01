@@ -13,6 +13,8 @@
 		(def i (bg_mushroom_3 400))
 		(def j (bg_mushroom_2 400))
 
+		(def x (spikeshroom_1 150))
+
 		(def _ (.empty 100))
 		(def = (.empty 350))
 		(def - (.empty 200))
@@ -24,6 +26,8 @@
 		(learn "___")
 		(learn "a_c_d_b_db__ca_f_c")
 		(learn "e__d_b_")
+		(learn "_x_x_x_")
+		(learn "_f=-x--g=x=h=x=i=x=j__a")
 	)
 	(ruleset level2_fg
 		(def a (mushroom_1 150))
@@ -74,10 +78,20 @@
 		(def d (grass2 0))
 		(def e (grass3 0))
 		(def f (grass4 0))
+		(def i (water_start1 0))
+		(def j (water_start2 0))
+		(def k (water1 0))
+		(def l (water2 0))
+		(def m (water3 0))
+		(def n (water4 0))
+		(def o (water_end1 0))
+		(def p (water_end2 0))
 
 		(init "cd")
 
 		(learn "cdefcd")
+		(learn "cdefijklmnopcd")
+		(learn "cdefijklmnklmnopcd")
 	)	
 	(ruleset level2_ground
 		(def a (grass_start1 0))

@@ -5,7 +5,7 @@
 static void obj_fall_trigger_collide(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
 		ObjRabbit* rabbit = (ObjRabbit*)other;
-		rabbit->touching_ground = false;
+		rabbit->data->touching_ground = false;
 	}
 }
 

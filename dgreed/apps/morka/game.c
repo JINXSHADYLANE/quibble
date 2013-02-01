@@ -20,6 +20,7 @@ float camera_speed = 100.0f;
 uint last_page = 0;
 
 ObjRabbit* rabbit = NULL;
+ObjRabbit* rabbit2 = NULL;
 float camera_follow_weight;
 float rabbit_current_distance;
 float bg_scroll = 0.0f;
@@ -31,7 +32,7 @@ DArray levels_descs;
 
 static void game_init(void) {
 	levels_init(ASSETS_DIR "levels.mml");
-	levels_reset("level2");
+	levels_reset("level1");
 	objects_init();
 
 	hud_init();
@@ -60,7 +61,9 @@ void game_reset(void) {
 		objects_destroy_all();
 	}
 
-	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), NULL);
+	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), false);
+
+	rabbit2 = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(502.0f, 284.0f), true);
 
 	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_a);
 	objects_create(&obj_pin_desc, vec2(512.0f, 384.0f), &pin_speed_b);
@@ -104,7 +107,7 @@ static bool game_update(void) {
 	}
 
 	if(rabbit && rabbit->header.type) {
-		if(rabbit->is_dead && !game_over){
+		if(rabbit->data->is_dead && !game_over){
 			game_over = true;
 		}
 				
