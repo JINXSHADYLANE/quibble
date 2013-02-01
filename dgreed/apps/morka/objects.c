@@ -440,3 +440,35 @@ RectF objects_world2screen(RectF world, uint camera_id){
 	);
 }
 
+GameObject* objects_raycast(Vector2 start, Vector2 end) {
+	Vector2 hitpoint;
+	CDObj* cdobj = coldet_cast_segment(
+		objects_cdworld, start, end, MAX_UINT32, &hitpoint
+	);
+
+	if(cdobj)
+		return (GameObject*)cdobj->userdata;
+	else
+		return NULL;
+}
+
+static uint aabb_query_result_idx;
+static uint aabb_query_max_objs;
+static GameObject** aabb_query_result_dest;
+
+static void _aabb_query_callback(CDObj* obj) {
+	if(aabb_query_result_idx < aabb_query_max_objs) {
+		aabb_query_result_dest[aabb_query_result_idx++] = obj->userdata;
+	}
+}
+
+int objects_aabb_query(const RectF* aabb, GameObject** dest, uint max_objs) {
+	aabb_query_result_idx = 0;
+	aabb_query_max_objs = max_objs;
+	aabb_query_result_dest = dest;
+
+	coldet_query_aabb(objects_cdworld, aabb, MAX_UINT32, _aabb_query_callback);
+
+	return aabb_query_result_idx;
+}
+

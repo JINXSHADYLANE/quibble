@@ -111,5 +111,14 @@ void objects_apply_force(GameObject* obj, Vector2 f);
 void objects_tick(bool paused);
 RectF objects_world2screen(RectF world, uint camera);
 
+// Returns first GameObject whose physics component intersects the ray segment,
+// or NULL of there is no such object
+GameObject* objects_raycast(Vector2 start, Vector2 end);
+
+// Puts pointers to first max_objs (or less) GameObjects, whose
+// physics components intersects AABB, into dest array.
+// Returns number of pointers written to dest.
+int objects_aabb_query(const RectF* aabb, GameObject** dest, uint max_objs);
+
 #endif
 
