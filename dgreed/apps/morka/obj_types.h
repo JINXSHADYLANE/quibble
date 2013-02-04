@@ -35,7 +35,9 @@ typedef struct {
 	bool is_diving;
 	bool is_dead;
 	bool on_water;
+	bool dive_ground;
 	uint cd;
+	uint cdmax;
 	Vector2 bounce_force;
 
 } ObjRabbitData;

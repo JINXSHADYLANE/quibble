@@ -23,7 +23,7 @@ float camera_speed = 100.0f;
 uint last_page = 0;
 
 ObjRabbit* rabbit = NULL;
-ObjRabbit* rabbit2 = NULL;
+ObjRabbit* ai_rabbit = NULL;
 float camera_follow_weight;
 float rabbit_current_distance;
 float bg_scroll = 0.0f;
@@ -67,18 +67,17 @@ void game_reset(void) {
 	levels_reset("level1");
 	minimap_reset(levels_current_desc()->distance);
 
-	//rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), (void*)false);
-
-	/*int rabbits = 5;
-	for(int i = 0;i < rabbits;i++){
-		objects_create(&obj_rabbit_desc, vec2(502.0f+rand_float_range(-32.0f,32.0f),
-											 284.0f+rand_float_range(-32.0f,32.0f)), (void*)true);
-	}*/
-
+	// Player rabbit
 	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), (void*)false);
 	minimap_track(rabbit);
-	rabbit2 = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(502.0f, 284.0f), (void*)true);
-	minimap_track(rabbit2);
+
+	// AI rabbits
+	int rabbits = 1;
+	for(int i = 0;i < rabbits;i++){
+		ai_rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(502.0f+rand_float_range(-32.0f,32.0f),
+											 284.0f+rand_float_range(-32.0f,32.0f)), (void*)true);
+		minimap_track(ai_rabbit);
+	}	
 
 	worldgen_reset(rand_uint(),levels_current_desc());
 

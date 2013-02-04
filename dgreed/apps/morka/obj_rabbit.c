@@ -1,3 +1,4 @@
+#include "common.h"
 #include "obj_types.h"
 #include "hud.h"
 #include <mfx.h>
@@ -18,10 +19,10 @@ void obj_rabbit_player_control(GameObject* self){
 	d->virtual_key_up = key_up(KEY_A);
 	d->virtual_key_down = key_down(KEY_A);
 	d->virtual_key_pressed = key_pressed(KEY_A);
+
 }
 
 void obj_rabbit_ai_control(GameObject* self){
-	const uint cdmax = 30; // slows down ai, so it doesn't spam actions 
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
 	PhysicsComponent* p = self->physics;
@@ -49,12 +50,12 @@ void obj_rabbit_ai_control(GameObject* self){
 
 		// AI avoids walking on water
 		if(d->on_water){
-			d->cd = cdmax;
+			d->cd = d->cdmax;
 			d->virtual_key_down = true;
 			d->virtual_key_pressed = true;
 		}
 
-		// raycast
+		// raycast for ground
 		Vector2 start = vec2(pos.x+rabbit_hitbox_width*2,768+100);
 		Vector2 end = vec2(start.x,768-100);
 		GameObject* obj = objects_raycast(start,end);
@@ -73,17 +74,19 @@ void obj_rabbit_ai_control(GameObject* self){
 			if(obj->type == OBJ_FALL_TRIGGER_TYPE){
 					d->virtual_key_down = true;
 					d->virtual_key_pressed = true;
+					d->dive_ground = true;
 			}	
 		} 
-
 
 	} else if(!d->touching_ground && !d->is_diving && d->cd == 0){
 
 		// release button when in the air
-		d->virtual_key_pressed = false;
-		d->virtual_key_up = true;
+		if(d->virtual_key_pressed){
+			d->virtual_key_pressed = false;
+			d->virtual_key_up = true;
+		}
 
-		//raycast
+		// raycast below rabbit
 		Vector2 start = vec2(pos.x+rabbit_hitbox_width,pos.y+rabbit_hitbox_height+40);
 		Vector2 end = vec2(start.x,768);
 		GameObject* obj = objects_raycast(start,end);
@@ -104,8 +107,13 @@ void obj_rabbit_ai_control(GameObject* self){
 				if(mushroom->damage == 0.0f){
 					d->virtual_key_down = true;
 					d->virtual_key_pressed = true;
-					d->cd = cdmax;
+					d->cd = d->cdmax;
 				}
+				// diving on ground after jump	
+			} else if(d->dive_ground && d->cd == 0 && obj->type == OBJ_GROUND_TYPE) {
+				d->virtual_key_down = true;
+				d->virtual_key_pressed = true;
+				d->dive_ground = false;
 			}	
 		} 
 	}
@@ -144,18 +152,20 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	RenderComponent* r = self->render;
 	r->anim_frame = anim_frame(rabbit->anim);
 		
-	// Jump
-	if(d->touching_ground && d->virtual_key_down) {
-		d->touching_ground = false;
-		d->jump_off_mushroom = false;
-		d->jump_time = ts;
-		objects_apply_force(self, vec2(50000.0f, -160000.0f));
-		anim_play(rabbit->anim, "jump");
-		d->combo_counter = 0;
-		
-		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
-		mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
-		
+	if(d->touching_ground) {
+		d->is_diving = false;
+		// Jump
+		if(d->virtual_key_down){
+			d->touching_ground = false;
+			d->jump_off_mushroom = false;
+			d->jump_time = ts;
+			objects_apply_force(self, vec2(50000.0f, -160000.0f));
+			anim_play(rabbit->anim, "jump");
+			d->combo_counter = 0;
+			
+			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
+			mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+		}
 	}
 	else {
 		if(ts - d->mushroom_hit_time < 0.1f) {
@@ -222,7 +232,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		} else { 
 			if(r->anim_frame == 1)mfx_trigger_ex("run1",screen_pos,0.0f);
 			if(r->anim_frame == 11) mfx_trigger_ex("run1_front",screen_pos,0.0f);
-			
 		}
 	}
 	d->on_water = false;
@@ -247,7 +256,7 @@ static void obj_rabbit_update_pos(GameObject* self) {
 static void obj_rabbit_became_invisible(GameObject* self) {
 	PhysicsComponent* p = self->physics;
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-	if(pos.y > 0){
+	if(pos.y > HEIGHT){
 		ObjRabbit* rabbit = (ObjRabbit*)self;
 		rabbit->data->is_dead = true;
 	}
@@ -370,7 +379,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	UpdateComponent* update = self->update;
 	update->update = obj_rabbit_update;
 
-
 	// additional rabbit data
 	rabbit->data = MEM_ALLOC(sizeof(ObjRabbitData));
 	ObjRabbitData*d = rabbit->data;
@@ -390,11 +398,16 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->is_diving = false;
 	d->is_dead = false;
 	d->on_water = false;
+	d->dive_ground = false;
 	d->bounce_force = vec2(0.0f, 0.0f);
 	d->cd = 0;
+	d->cdmax = rand_int(0,30);
 
 	// Init Control
 	bool ai = (bool)user_data;
+
+//	if(ai) printf("ai rabbit random value: %d\n",d->cdmax); // temp debug
+
 	if(ai)
 		rabbit->control = obj_rabbit_ai_control;
 	else

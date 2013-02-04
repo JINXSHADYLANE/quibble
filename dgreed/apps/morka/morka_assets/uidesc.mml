@@ -11,6 +11,13 @@
 		)
 	)
 
+	(def position_line
+		(spr position_line)
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 -219,-330)
+		)
+	)
 	(def game_over
 		(def text
 			(add <-
@@ -62,7 +69,7 @@
 	(def combo_text
 		(add <-
 			(middle <- (get_rect screen))
-			(vec2 0,-350)
+			(vec2 0,-360)
 		)
 	)
 )

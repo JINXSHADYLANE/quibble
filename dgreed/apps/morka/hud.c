@@ -125,8 +125,7 @@ static void _hud_render_pause(UIElement* element, uint layer) {
 }
 
 static void _hud_render_combo(UIElement* element, uint layer, uint mult, float t) {
-	vfont_select(FONT_NAME, 48.0f);
-
+	vfont_select(FONT_NAME, 38.0f);
 
 	// Combine two smootherstep functions into a new one,
 	// where x stays constant for a while near t = 0.5
@@ -207,5 +206,9 @@ void hud_render(void) {
 		if(current_combo)
 			_hud_render_combo(combo_text, hud_layer+1, current_combo, 0.5f);
 	}
+
+	// Minimap
+	UIElement* position_line = uidesc_get("position_line");
+	_hud_render_ui(position_line, hud_layer);
 }
 
