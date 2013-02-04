@@ -12,6 +12,8 @@
 
 #include "common.h"
 
+extern int level_id;
+
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
 bool draw_ground_debug = false;
@@ -64,8 +66,26 @@ void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
 	}
-	levels_reset("level1");
+	switch(level_id){
+		// temp level select
+		case 1:
+			levels_reset("level1");
+		break;
+		case 2:
+			levels_reset("level2");
+		break;
+		case 3:
+			levels_reset("level3");
+		break;
+		case 4:
+			levels_reset("level4");
+		break;
+		case 5:
+			levels_reset("level5");
+		break;
+	}
 	minimap_reset(levels_current_desc()->distance);
+
 
 	// Player rabbit
 	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), (void*)false);
