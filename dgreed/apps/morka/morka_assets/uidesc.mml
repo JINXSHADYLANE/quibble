@@ -1,0 +1,75 @@
+(uidesc morka
+	(def screen
+		(rect 0,0,1024,768)
+	)
+
+	(def hud_pause
+		(spr pause)
+		(add <-
+			(tr <- (get_rect screen))
+			(vec2 -50,20)
+		)
+	)
+
+	(def position_line
+		(spr position_line)
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 -219,-330)
+		)
+	)
+	(def game_over
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-200)
+			)
+		)
+
+		(def distance_text
+			(add <-
+				(get_vec2 text)
+				(vec2 0,100)
+			)
+		)
+
+		(def combo_text
+			(add <-
+				(get_vec2 text)
+				(vec2 0,150)
+			)
+		)
+
+		(def button
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,200)
+			)
+		)
+	)
+
+	(def pause
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+
+		(def button
+			(spr play)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,42)
+			)
+		)
+	)
+
+	(def combo_text
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 0,-360)
+		)
+	)
+)
