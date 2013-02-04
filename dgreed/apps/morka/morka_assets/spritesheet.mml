@@ -133,6 +133,10 @@
 		(tex atlas_2.png)
 		(src 568,626,692,750)
 	)
+	(img rocket
+		(tex atlas_2.png)
+		(src 860,918,942,1009)
+	)
 	(img sign
 		(tex atlas_2.png)
 		(src 775,820,856,934)
@@ -181,7 +185,6 @@
 		(tex atlas_2.png)
 		(src 408,626,564,795)
 	)
-
 
 
 	(img bg_mushroom_2
