@@ -20,14 +20,14 @@
 		(grid 4,4)
 	)
 	(anim rabbit_3
-		(tex atlas_01.png)
+		(tex atlas_02.png)
 		(src 0,0,128,128)
 		(offset 128,128)
 		(frames 15)
 		(grid 4,4)
 	)
 	(anim rabbit_4
-		(tex atlas_01.png)
+		(tex atlas_03.png)
 		(src 0,0,128,128)
 		(offset 128,128)
 		(frames 15)
