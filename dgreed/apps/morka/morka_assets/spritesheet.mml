@@ -12,6 +12,13 @@
 		(frames 15)
 		(grid 4,4)
 	)
+	(anim rabbit_2
+		(tex atlas_01.png)
+		(src 0,0,128,128)
+		(offset 128,128)
+		(frames 15)
+		(grid 4,4)
+	)
 	(img blue_shade
 		(tex atlas_2.png)
 		(src 1011,73,1021,83)
