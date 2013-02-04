@@ -20,14 +20,14 @@
 		(grid 4,4)
 	)
 	(anim rabbit_3
-		(tex atlas_01.png)
+		(tex atlas_02.png)
 		(src 0,0,128,128)
 		(offset 128,128)
 		(frames 15)
 		(grid 4,4)
 	)
 	(anim rabbit_4
-		(tex atlas_01.png)
+		(tex atlas_03.png)
 		(src 0,0,128,128)
 		(offset 128,128)
 		(frames 15)
@@ -133,6 +133,10 @@
 		(tex atlas_2.png)
 		(src 568,626,692,750)
 	)
+	(img rocket
+		(tex atlas_2.png)
+		(src 860,918,942,1009)
+	)
 	(img sign
 		(tex atlas_2.png)
 		(src 775,820,856,934)
@@ -181,7 +185,6 @@
 		(tex atlas_2.png)
 		(src 408,626,564,795)
 	)
-
 
 
 	(img bg_mushroom_2
