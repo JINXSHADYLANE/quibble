@@ -144,7 +144,7 @@
 
 	### LEVEL 3 ###
 
-	(ruleset level2_fg
+	(ruleset level3_fg
 		(def a (mushroom_1 150))
 		(def b (mushroom_6 150))
 		(def c (mushroom_3 150))
@@ -175,7 +175,7 @@
 		(learn "_x_x_x_")
 		(learn "_f=-x--g=x=h=x=i=x=j__a")
 	)	
-	(ruleset level2_ground
+	(ruleset level3_ground
 		(def a (grass_start1 0))
 		(def b (grass_start2 0))
 		(def c (grass1 0))
@@ -210,7 +210,7 @@
 
 	### LEVEL 4 ###
 
-	(ruleset level2_fg
+	(ruleset level4_fg
 		(def a (mushroom_1 150))
 		(def b (mushroom_6 150))
 		(def c (mushroom_3 150))
@@ -241,7 +241,7 @@
 		(learn "_x_x_x_")
 		(learn "_f=-x--g=x=h=x=i=x=j__a")
 	)	
-	(ruleset level2_ground
+	(ruleset level4_ground
 		(def a (grass_start1 0))
 		(def b (grass_start2 0))
 		(def c (grass1 0))
@@ -276,7 +276,7 @@
 
 	### LEVEL 5 ###
 
-	(ruleset level2_fg
+	(ruleset level5_fg
 		(def a (mushroom_1 150))
 		(def b (mushroom_6 150))
 		(def c (mushroom_3 150))
@@ -307,7 +307,7 @@
 		(learn "_x_x_x_")
 		(learn "_f=-x--g=x=h=x=i=x=j__a")
 	)	
-	(ruleset level2_ground
+	(ruleset level5_ground
 		(def a (grass_start1 0))
 		(def b (grass_start2 0))
 		(def c (grass1 0))
