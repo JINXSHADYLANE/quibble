@@ -29,7 +29,7 @@ static bool level_select_update(void) {
 
 static bool level_select_render(float t) {
 	// Game scene
-	game_render_empty(t);
+	game_render(t);
 
 	UIElement* element = uidesc_get("level_select");
 	uint layer = hud_layer+1;

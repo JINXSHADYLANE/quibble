@@ -62,24 +62,19 @@ void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
 	}
-	switch(level_id){
-		// temp level select
-		case 1:
-			levels_reset("level1");
-		break;
-		case 2:
-			levels_reset("level2");
-		break;
-		case 3:
-			levels_reset("level3");
-		break;
-		case 4:
-			levels_reset("level4");
-		break;
-		case 5:
-			levels_reset("level5");
-		break;
+
+	if(level_id >= 1 && level_id <= 5) {
+		/*
+		char level_name[] = "levelx";
+		level_name[5] = '0' + level_id ;
+		printf("%s\n", level_name);
+		*/
+
+		char level_name[16];
+		sprintf(level_name, "level%d", level_id);
+		levels_reset(level_name);
 	}
+
 	minimap_reset(levels_current_desc()->distance);
 
 	SprHandle spr = sprsheet_get_handle("rabbit");
@@ -119,6 +114,22 @@ static void game_leave(void) {
 	printf("leaving game\n");	
 }
 
+static float _camera_x(void) {
+	float camera_x = (objects_camera[0].left*8.0f + objects_camera[0].right) / 9.0f;
+	return camera_x;
+}
+
+static void _move_camera(float new_pos_x, float follow_weight) {
+	float camera_x = _camera_x();
+	float new_camera_x = lerp(camera_x, new_pos_x, follow_weight);
+	float camera_offset = new_camera_x - camera_x;
+	objects_camera[0].left += camera_offset;
+	objects_camera[0].right += camera_offset;
+	objects_camera[1].left += camera_offset/2.0f;
+	objects_camera[1].right += camera_offset/2.0f;
+	bg_scroll += camera_offset/8.0f;
+}
+
 bool game_update(void) {
 #ifndef NO_DEVMODE
 	if(char_down('g'))
@@ -150,17 +161,12 @@ bool game_update(void) {
 		if(game_over)
 			camera_follow_weight *= 0.95f;
 	
-			// Make camera follow rabbit
+		// Make camera follow rabbit
 		if(!game_over)
 			rabbit_current_distance = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
-		float camera_x = (objects_camera[0].left*8.0f + objects_camera[0].right) / 9.0f;
-		float new_camera_x = lerp(camera_x, rabbit->header.render->world_dest.left + 45.0f, camera_follow_weight);
-		float camera_offset = new_camera_x - camera_x;
-		objects_camera[0].left += camera_offset;
-		objects_camera[0].right += camera_offset;
-		objects_camera[1].left += camera_offset/2.0f;
-		objects_camera[1].right += camera_offset/2.0f;
-		bg_scroll += camera_offset/8.0f;
+	
+		_move_camera(rabbit->header.render->world_dest.left + 45.0f, camera_follow_weight);
+
 	}
 
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
@@ -170,36 +176,18 @@ bool game_update(void) {
 
 	return true;
 }
+
 bool game_update_empty(void) {
 	float scroll_speed = 3.0;
 
-	float camera_x = (objects_camera[0].left*8.0f + objects_camera[0].right) / 9.0f;
-	float new_camera_x = lerp(camera_x, camera_x + scroll_speed, 0.2f);
-	float camera_offset = new_camera_x - camera_x;
-	objects_camera[0].left += camera_offset;
-	objects_camera[0].right += camera_offset;
-	objects_camera[1].left += camera_offset/2.0f;
-	objects_camera[1].right += camera_offset/2.0f;
-	bg_scroll += camera_offset/8.0f;
+	float camera_x = _camera_x();
+	_move_camera(camera_x + scroll_speed, 0.2f);
 
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
 	
 	float t = malka_state_time("game");
 	particles_update(t);
 
-	return true;
-}
-
-bool game_render_empty(float t) {
-	// Draw scrolling background
-	float off_x = fmodf(bg_scroll, 1024.0f);
-	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);
-	spr_draw_h(levels_current_desc()->background, 0, dest, COLOR_WHITE);
-	dest = rectf(1024.0f - off_x, 0.0f, 0.0f, 0.0f);
-	spr_draw_h(levels_current_desc()->background, 0, dest, COLOR_WHITE); 
-
-	objects_tick(game_is_paused());
-	
 	return true;
 }
 
@@ -211,8 +199,10 @@ bool game_render(float t) {
 	dest = rectf(1024.0f - off_x, 0.0f, 0.0f, 0.0f);
 	spr_draw_h(levels_current_desc()->background, 0, dest, COLOR_WHITE); 
 
-	if(!game_paused && !game_over)hud_render();
 	objects_tick(game_is_paused());
+
+	if(!game_paused && !game_over) 
+		hud_render();
 	
 	if(draw_ground_debug) worldgen_debug_render();
 	
