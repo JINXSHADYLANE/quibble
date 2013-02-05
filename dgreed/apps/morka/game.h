@@ -8,7 +8,7 @@ extern StateDesc game_state;
 bool game_is_paused(void);
 void game_pause(void);
 void game_unpause(void);
-void game_reset(void);
+void game_request_reset(void);
 bool game_update(void);
 bool game_render(float t);
 
