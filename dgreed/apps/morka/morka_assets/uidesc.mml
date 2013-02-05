@@ -1,0 +1,145 @@
+(uidesc morka
+	(def screen
+		(rect 0,0,1024,768)
+	)
+
+	(def hud_pause
+		(spr pause)
+		(add <-
+			(tr <- (get_rect screen))
+			(vec2 -50,20)
+		)
+	)
+
+	(def position_line
+		(spr position_line)
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 -219,-330)
+		)
+	)
+	(def game_over
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-200)
+			)
+		)
+
+		(def distance_text
+			(add <-
+				(get_vec2 text)
+				(vec2 0,100)
+			)
+		)
+
+		(def combo_text
+			(add <-
+				(get_vec2 text)
+				(vec2 0,150)
+			)
+		)
+
+		(def button_restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 100,200)
+			)
+		)
+		(def button_quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -100,200)
+			)
+		)
+	)
+	(def level_select
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-250)
+			)
+		)
+
+		(def level1
+			(spr planet_1)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -410,-30)
+			)
+		)
+		(def level2
+			(spr planet_2)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -200,-10)
+			)
+		)
+		(def level3
+			(spr planet_3)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,0)
+			)
+		)
+		(def level4
+			(spr planet_4)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 200,-18)
+			)
+		)
+		(def level5
+			(spr planet_5)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 410,0)
+			)
+		)					
+		(def button_quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,250)
+			)
+		)
+	)
+	(def pause
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+		(def button_play
+			(spr play)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 195,42)
+			)
+		)
+		(def button_restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,42)
+			)
+		)
+		(def button_quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -195,42)
+			)
+		)
+	)
+
+	(def combo_text
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 0,-360)
+		)
+	)
+)
