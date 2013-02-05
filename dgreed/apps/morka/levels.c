@@ -33,6 +33,7 @@ void levels_init(const char* filename){
 
 		new.name = mml_getval_str(&mml, rs_node);
 		new.background = MAX_UINT32;
+		new.ai_rabbit_num = 0;
 
 		NodeIdx child = mml_get_first_child(&mml, rs_node);
 		for(; child != 0; child = mml_get_next(&mml, child)) {
@@ -42,7 +43,16 @@ void levels_init(const char* filename){
 				new.distance = mml_getval_int(&mml, child);
 			}
 			else if(strcmp(type, "rabbits") == 0) {
-				//new.fg_chain = mml_getval_str(&mml, child);
+
+				NodeIdx r = mml_get_first_child(&mml, child);
+				for(; r != 0; r = mml_get_next(&mml, r)) {
+					const char* spr = mml_get_name(&mml, r);
+					if(strcmp(spr, "spr") == 0) {
+						const char* spr_name = mml_getval_str(&mml, r);
+						new.ai_rabbit_spr[new.ai_rabbit_num++] = sprsheet_get_handle(spr_name);
+					}
+				}
+
 			}
 			else if(strcmp(type, "background") == 0) {
 				const char* spr_name = mml_getval_str(&mml, child);
