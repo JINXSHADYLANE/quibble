@@ -12,7 +12,7 @@
 
 #include "common.h"
 
-extern int level_id;
+int level_id = 1;
 
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
@@ -58,10 +58,6 @@ void game_unpause(void) {
 	game_paused = false;
 }
 
-float pin_speed_a = 16.0f;
-float pin_speed_b = 18.0f;
-float pin_speed_c = 20.0f;
-
 void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
@@ -86,13 +82,12 @@ void game_reset(void) {
 	}
 	minimap_reset(levels_current_desc()->distance);
 
-
 	// Player rabbit
 	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), (void*)false);
 	minimap_track(rabbit);
 
 	// AI rabbits
-	int rabbits = 1;
+	int rabbits = 3;
 	for(int i = 0;i < rabbits;i++){
 		ai_rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(502.0f+rand_float_range(-32.0f,32.0f),
 											 284.0f+rand_float_range(-32.0f,32.0f)), (void*)true);
@@ -115,12 +110,14 @@ static void game_close(void) {
 }
 
 static void game_enter(void) {
+	printf("entering game\n");
 }
 
 static void game_leave(void) {
+	printf("leaving game\n");	
 }
 
-static bool game_update(void) {
+bool game_update(void) {
 #ifndef NO_DEVMODE
 	if(char_down('g'))
 		draw_gfx_debug = !draw_gfx_debug;
@@ -135,22 +132,23 @@ static bool game_update(void) {
 	if(game_is_paused())
 		return true;
 
-	if(rabbit_current_distance >= levels_current_desc()->distance) {
+	if(rabbit_current_distance >= levels_current_desc()->distance && !game_over) {
 		game_over = true;
 		game_was_reset = false;
+		malka_states_push("game_over");
 	}
 
 	if(rabbit && rabbit->header.type) {
 		if(rabbit->data->is_dead && !game_over){
 			game_over = true;
 			game_was_reset = false;
+			malka_states_push("game_over");
 		}
 				
-	if(game_over)
-		camera_follow_weight *= 0.95f;
+		if(game_over)
+			camera_follow_weight *= 0.95f;
 	
-	
-		// Make camera follow rabbit
+			// Make camera follow rabbit
 		if(!game_over)
 			rabbit_current_distance = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
 		float camera_x = (objects_camera[0].left*8.0f + objects_camera[0].right) / 9.0f;
@@ -170,8 +168,27 @@ static bool game_update(void) {
 
 	return true;
 }
+bool game_update_empty(void) {
+	float scroll_speed = 3.0;
 
-static bool game_render(float t) {
+	float camera_x = (objects_camera[0].left*8.0f + objects_camera[0].right) / 9.0f;
+	float new_camera_x = lerp(camera_x, camera_x + scroll_speed, 0.2f);
+	float camera_offset = new_camera_x - camera_x;
+	objects_camera[0].left += camera_offset;
+	objects_camera[0].right += camera_offset;
+	objects_camera[1].left += camera_offset/2.0f;
+	objects_camera[1].right += camera_offset/2.0f;
+	bg_scroll += camera_offset/8.0f;
+
+	worldgen_update(objects_camera[0].right, objects_camera[1].right);
+	
+	float t = malka_state_time("game");
+	particles_update(t);
+
+	return true;
+}
+
+bool game_render_empty(float t) {
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
 	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);
@@ -179,7 +196,20 @@ static bool game_render(float t) {
 	dest = rectf(1024.0f - off_x, 0.0f, 0.0f, 0.0f);
 	spr_draw_h(levels_current_desc()->background, 0, dest, COLOR_WHITE); 
 
-	hud_render();
+	objects_tick(game_is_paused());
+	
+	return true;
+}
+
+bool game_render(float t) {
+	// Draw scrolling background
+	float off_x = fmodf(bg_scroll, 1024.0f);
+	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);
+	spr_draw_h(levels_current_desc()->background, 0, dest, COLOR_WHITE);
+	dest = rectf(1024.0f - off_x, 0.0f, 0.0f, 0.0f);
+	spr_draw_h(levels_current_desc()->background, 0, dest, COLOR_WHITE); 
+
+	if(!game_paused && !game_over)hud_render();
 	objects_tick(game_is_paused());
 	
 	if(draw_ground_debug) worldgen_debug_render();
