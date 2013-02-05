@@ -34,6 +34,8 @@ bool game_need_reset = true;
 static bool game_over = false;
 static bool game_paused = false;
 
+uint longest_combo = 0;
+
 DArray levels_descs;
 
 static void game_reset(void) {
@@ -74,6 +76,7 @@ static void game_reset(void) {
 	camera_follow_weight = 0.2f;
 	rabbit_current_distance = 0.0f;
 	game_over = false;
+	longest_combo = 0;
 }
 
 static void game_init(void) {
@@ -87,7 +90,6 @@ static void game_init(void) {
 }
 
 static void game_enter(void) {
-	printf("entering game\n");
 	if(game_need_reset){
 		game_reset();
 		game_need_reset = false;
@@ -100,7 +102,6 @@ void game_request_reset(void){
 }
 
 static void game_leave(void) {
-	printf("leaving game\n");	
 }
 
 bool game_is_paused(void) {
