@@ -30,35 +30,13 @@ float camera_follow_weight;
 float rabbit_current_distance;
 float bg_scroll = 0.0f;
 
-bool game_over;
-bool game_was_reset = false;
-bool game_paused = false;
+bool game_need_reset = true;
+static bool game_over = false;
+static bool game_paused = false;
 
 DArray levels_descs;
 
-static void game_init(void) {
-	levels_init(ASSETS_DIR "levels.mml");
-	objects_init();
-
-	hud_init();
-	minimap_init();
-
-	game_reset();
-}
-
-bool game_is_paused(void) {
-	return game_paused;
-}
-
-void game_pause(void) {
-	game_paused = true;
-}
-
-void game_unpause(void) {
-	game_paused = false;
-}
-
-void game_reset(void) {
+static void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
 	}
@@ -98,20 +76,51 @@ void game_reset(void) {
 	game_over = false;
 }
 
+static void game_init(void) {
+	levels_init(ASSETS_DIR "levels.mml");
+	objects_init();
+
+	hud_init();
+	minimap_init();
+
+	game_reset();
+}
+
+static void game_enter(void) {
+	printf("entering game\n");
+	if(game_need_reset){
+		game_reset();
+		game_need_reset = false;
+	}
+	game_unpause();
+}
+
+void game_request_reset(void){
+	game_need_reset = true;
+}
+
+static void game_leave(void) {
+	printf("leaving game\n");	
+}
+
+bool game_is_paused(void) {
+	return game_paused;
+}
+
+void game_pause(void) {
+	game_paused = true;
+}
+
+void game_unpause(void) {
+	game_paused = false;
+}
+
 static void game_close(void) {
 	worldgen_close();
 	minimap_close();
 	hud_close();
 	objects_close();
 	levels_close();
-}
-
-static void game_enter(void) {
-	printf("entering game\n");
-}
-
-static void game_leave(void) {
-	printf("leaving game\n");	
 }
 
 static float _camera_x(void) {
@@ -147,14 +156,12 @@ bool game_update(void) {
 
 	if(rabbit_current_distance >= levels_current_desc()->distance && !game_over) {
 		game_over = true;
-		game_was_reset = false;
 		malka_states_push("game_over");
 	}
 
 	if(rabbit && rabbit->header.type) {
 		if(rabbit->data->is_dead && !game_over){
 			game_over = true;
-			game_was_reset = false;
 			malka_states_push("game_over");
 		}
 				

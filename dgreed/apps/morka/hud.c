@@ -4,15 +4,7 @@
 #include <vfont.h>
 #include <malka/ml_states.h>
 
-#define hud_layer 7
-
 #include "common.h"
-
-#ifndef __APPLE__
-	#define FONT_NAME ASSETS_DIR "Chango-Regular.ttf"
-#else
-	#define FONT_NAME "Baskerville-Bold"
-#endif
 
 extern void game_reset(void);
 extern void game_pause(void);
@@ -20,7 +12,6 @@ extern void game_unpause(void);
 extern bool game_is_paused(void);
 
 extern bool game_over;
-extern bool game_was_reset;
 
 static uint last_combo = 0;
 static uint current_combo = 0;
@@ -92,16 +83,14 @@ void hud_trigger_combo(uint multiplier) {
 void hud_render(void) {
 	UIElement* pause = uidesc_get("hud_pause");
 	_hud_render_ui(pause, hud_layer);
-	if(touches_count() > 0) {
+	if(touches_down()) {
 		Touch* t = touches_get();
 		if(vec2_length_sq(vec2_sub(t[0].hit_pos, pause->vec2)) < 40.0f * 40.0f) {
-			time_scale(0.0f);
 			game_pause();
 			malka_states_push("pause");
 		}
 	}
 
-	game_was_reset = false;
 	UIElement* combo_text = uidesc_get("combo_text");
 	float ts = time_s();
 	float t = (ts - combo_flip_t) / 0.4f;
