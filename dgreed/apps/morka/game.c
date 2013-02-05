@@ -82,15 +82,17 @@ void game_reset(void) {
 	}
 	minimap_reset(levels_current_desc()->distance);
 
+	SprHandle spr = sprsheet_get_handle("rabbit");
+
 	// Player rabbit
-	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), (void*)false);
+	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 384.0f), (void*)spr);
 	minimap_track(rabbit);
 
 	// AI rabbits
-	int rabbits = 3;
-	for(int i = 0;i < rabbits;i++){
+	for(int i = 0;i < levels_current_desc()->ai_rabbit_num;i++){
+		spr = levels_current_desc()->ai_rabbit_spr[i];
 		ai_rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(502.0f+rand_float_range(-32.0f,32.0f),
-											 284.0f+rand_float_range(-32.0f,32.0f)), (void*)true);
+											 284.0f+rand_float_range(-32.0f,32.0f)), (void*)spr);
 		minimap_track(ai_rabbit);
 	}	
 
