@@ -337,7 +337,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 }
 
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
-	bool ai = (bool)user_data;
+	SprHandle spr_handle = (SprHandle)user_data;
 
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	rabbit->anim = anim_new("rabbit");
@@ -371,8 +371,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->angle = 0.0f;
 	render->layer = 4;
 	render->anim_frame = 0;
-	if(ai) render->spr = sprsheet_get_handle("rabbit_3");
-	else render->spr = sprsheet_get_handle("rabbit");
+	render->spr = spr_handle;
 	render->update_pos = obj_rabbit_update_pos;
 	render->became_invisible = obj_rabbit_became_invisible;
 	
@@ -404,13 +403,10 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->cd = 0;
 	d->cdmax = rand_int(25,35);
 
-	// Init Control
-	//if(ai) printf("ai rabbit random value: %d\n",d->cdmax); // temp debug
-
-	if(ai)
-		rabbit->control = obj_rabbit_ai_control;
-	else
+	if(spr_handle == sprsheet_get_handle("rabbit"))
 		rabbit->control = obj_rabbit_player_control;
+	else
+		rabbit->control = obj_rabbit_ai_control;
 }
 
 static void obj_rabbit_destruct(GameObject* self) {

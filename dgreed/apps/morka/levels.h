@@ -9,6 +9,9 @@
 (levels morka
 	(level first
 		(distance 100)
+		(rabbits _
+			(spr rabbit_2)
+		)
 		(background background)
 		(bg_chain bg)
 		(fg_chain fg)
@@ -24,6 +27,8 @@ typedef struct {
 	const char* bg_chain;
 	const char* fg_chain;
 	const char* ground_chain;
+	uint ai_rabbit_num;
+	SprHandle ai_rabbit_spr[3];
 } LevelDesc;
 
 extern DArray levels_descs;

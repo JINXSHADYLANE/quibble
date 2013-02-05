@@ -1,6 +1,6 @@
 #include "hud.h"
+#include "minimap.h"
 
-#include <uidesc.h>
 #include <vfont.h>
 
 #define hud_layer 7
@@ -28,7 +28,7 @@ static float combo_flip_t = 0.0f;
 
 uint longest_combo = 0;
 
-static void _hud_render_ui(UIElement* element, uint layer) {
+void _hud_render_ui(UIElement* element, uint layer) {
 	// Render
 	if(element->members & UI_EL_SPR) {
 		RectF dest = rectf_null();
@@ -99,24 +99,7 @@ void hud_render(void) {
 			malka_states_push("pause");
 		}
 	}
-/*
-	game_over_alpha += game_over ? 0.03f : -0.05f;
-	game_over_alpha = clamp(0.0f, 1.0f, game_over_alpha);
 
-	static bool showed_game_over_last_frame = false;
-	if(game_over_alpha > 0.0f) {
-		if(!showed_game_over_last_frame) display_distance = rabbit_current_distance;
-		showed_game_over_last_frame = true;
-		//_hud_render_game_over(uidesc_get("game_over"), hud_layer+1, game_over_alpha);
-		malka_states_push("game_over");
-		printf("game over\n");
-	}
-	else {
-		if(showed_game_over_last_frame) {
-			showed_game_over_last_frame = false;
-			longest_combo = 0;
-		}
-	}*/
 	game_was_reset = false;
 	UIElement* combo_text = uidesc_get("combo_text");
 	float ts = time_s();
@@ -133,7 +116,7 @@ void hud_render(void) {
 	}
 
 	// Minimap
-	UIElement* position_line = uidesc_get("position_line");
-	_hud_render_ui(position_line, hud_layer);
+	minimap_draw();
+
 }
 
