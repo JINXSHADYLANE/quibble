@@ -50,7 +50,6 @@ void obj_rabbit_ai_control(GameObject* self){
 
 		// AI avoids walking on water
 		if(d->on_water){
-			d->cd = d->cdmax;
 			d->virtual_key_down = true;
 			d->virtual_key_pressed = true;
 		}
@@ -372,7 +371,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->angle = 0.0f;
 	render->layer = 4;
 	render->anim_frame = 0;
-	if(ai) render->spr = sprsheet_get_handle("rabbit_2");
+	if(ai) render->spr = sprsheet_get_handle("rabbit_3");
 	else render->spr = sprsheet_get_handle("rabbit");
 	render->update_pos = obj_rabbit_update_pos;
 	render->became_invisible = obj_rabbit_became_invisible;
