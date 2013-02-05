@@ -39,7 +39,7 @@
 	)
 	(img bottle
 		(tex atlas_2.png)
-		(src 768,513,847,608)
+		(src 863,513,942,608)
 	)
 	(img broom
 		(tex atlas_2.png)
@@ -81,9 +81,13 @@
 		(tex atlas_2.png)
 		(src 262,237,434,424)
 	)
+	(img ice
+		(tex atlas_2.png)
+		(src 768,513,859,608)
+	)
 	(img muffin
 		(tex atlas_2.png)
-		(src 952,692,1022,771)
+		(src 946,513,1016,592)
 	)
 	(img pause
 		(tex atlas_2.png)
@@ -115,7 +119,7 @@
 	)
 	(img play
 		(tex atlas_2.png)
-		(src 824,692,948,816)
+		(src 775,791,899,915)
 	)
 	(img position_knob
 		(tex atlas_2.png)
@@ -135,15 +139,15 @@
 	)
 	(img rocket
 		(tex atlas_2.png)
-		(src 860,918,942,1009)
+		(src 885,919,967,1010)
 	)
 	(img sign
 		(tex atlas_2.png)
-		(src 775,820,856,934)
+		(src 903,791,984,905)
 	)
 	(img teapot
 		(tex atlas_2.png)
-		(src 860,820,966,914)
+		(src 775,919,881,1013)
 	)
 	(img token
 		(tex atlas_2.png)
@@ -179,7 +183,7 @@
 	)
 	(img water_start1
 		(tex atlas_2.png)
-		(src 851,513,1016,688)
+		(src 824,612,989,787)
 	)
 	(img water_start2
 		(tex atlas_2.png)
