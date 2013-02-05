@@ -15,9 +15,7 @@ static void level_select_close(void) {
 }
 
 static void level_select_enter(void) {
-	printf("entering level select\n");
 	game_pause();
-	//game_reset_empty();
 }
 
 static void level_select_leave(void) {

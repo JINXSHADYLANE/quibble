@@ -11,14 +11,12 @@ extern void game_pause(void);
 extern void game_unpause(void);
 extern bool game_is_paused(void);
 
-extern bool game_over;
-
 static uint last_combo = 0;
 static uint current_combo = 0;
 
 static float combo_flip_t = 0.0f;
 
-uint longest_combo = 0;
+extern uint longest_combo;
 
 void _hud_render_ui(UIElement* element, uint layer) {
 	// Render

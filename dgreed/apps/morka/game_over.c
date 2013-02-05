@@ -20,8 +20,11 @@ static void game_over_close(void) {
 
 }
 
-static void game_over_enter(void) {
+static void game_over_preenter(void) {
+	display_distance = rabbit_current_distance;
+}
 
+static void game_over_enter(void) {
 }
 
 static void game_over_leave(void) {
@@ -100,6 +103,7 @@ StateDesc game_over_state = {
 	.init = game_over_init,
 	.close = game_over_close,
 	.enter = game_over_enter,
+	.preenter = game_over_preenter,
 	.leave = game_over_leave,
 	.update = game_over_update,
 	.render = game_over_render
