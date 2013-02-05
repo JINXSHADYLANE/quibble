@@ -224,33 +224,23 @@
 	(ruleset level5_fg
 		(def a (mushroom_1 150))
 		(def b (mushroom_6 150))
-		(def c (mushroom_3 150))
+		(def c (mushroom_3 70))
 		(def d (mushroom_4 150))
 		(def e (mushroom_5 150))
-		
 		(def f (mushroom_2 150))
-		
 		(def g (bg_mushroom_6 250))
 		(def h (bg_mushroom_5 400))
 		(def i (bg_mushroom_3 400))
 		(def j (bg_mushroom_2 400))
-
 		(def x (spikeshroom_1 150))
-		
-		(def _ (.empty 100))
-		(def = (.empty 350))
-		(def - (.empty 200))
+
+		(sdef z (seq "xx__b__gchij"))
+
+		(def _ (.empty 250))
 
 		(init "__")
 
-		(learn "=i__a__b__a__b_")
-		(learn "__e_d__b_a__")
-		(learn "___")
-		(learn "a_c_d_b_db__ca_f_c")
-		(learn "e__d_b_")
-		(learn "db_x__")
-		(learn "_x_x_x_")
-		(learn "_f=-x--g=x=h=x=i=x=j__a")
+		(learn "__a_c_e_d_z_f_x__")
 	)	
 	(ruleset level5_ground
 		(def a (grass_start1 0))
@@ -269,14 +259,12 @@
 		(def n (water4 0))
 		(def o (water_end1 0))
 		(def p (water_end2 0))
-		(sdef z (seq "gh_agh_agh_a"))
 		
-		(def _ (.empty 100))
+		(def _ (.empty 150))
 		(def = (.empty 350))
 		(def - (.empty 200))
-		(init "cd")
+		(init "ab")
 
-		(learn "cdzbcd")
 		(learn "cdefgh_abcd")
 		(learn "cdefgh=abcd")
 		(learn "cdefgh-abcd")
