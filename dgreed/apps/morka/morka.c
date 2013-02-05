@@ -12,10 +12,14 @@
 #include <time.h>
 
 #include "game.h"
+#include "level_select.h"
+#include "pause.h"
+#include "game_over.h"
+
 #include "mchains.h"
 #include "common.h"
 
-extern bool draw_gfx_debug;
+bool button_click = false;	// prevents buttons from being clicked multiple times during transition.
 
 void dgreed_preinit(void) {
 }
@@ -49,8 +53,15 @@ bool dgreed_init(int argc, const char** argv) {
 
 	malka_init();
 	malka_params(argc, argv);
+
 	malka_states_register("game", &game_state);
-	malka_states_push("game");
+	malka_states_register("level_select", &level_select_state);
+	malka_states_register("pause", &pause_state);
+	malka_states_register("game_over", &game_over_state);
+
+	malka_states_set_transition_len(0.5f);
+
+	malka_states_push("level_select");
 
 	sprsheet_init(sprsheet);
 	mchains_init(ASSETS_DIR "mchains.mml");

@@ -41,6 +41,9 @@ void levels_init(const char* filename){
  			if(strcmp(type, "distance") == 0) {
 				new.distance = mml_getval_int(&mml, child);
 			}
+			else if(strcmp(type, "rabbits") == 0) {
+				//new.fg_chain = mml_getval_str(&mml, child);
+			}
 			else if(strcmp(type, "background") == 0) {
 				const char* spr_name = mml_getval_str(&mml, child);
 				SprHandle spr_handle = 0;
