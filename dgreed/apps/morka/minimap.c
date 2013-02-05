@@ -16,7 +16,7 @@ void minimap_close(void){
 }
 
 void minimap_track(ObjRabbit* rabbit){
-	darray_append(&minimap_pointers, rabbit);
+	darray_append(&minimap_pointers, &rabbit);
 }
 
 void minimap_draw(){
@@ -26,7 +26,8 @@ void minimap_draw(){
 	Vector2 pos = position_line->vec2;
 
 	for(int i = 0; i < minimap_pointers.size;i++){
-		ObjRabbit* rabbit = darray_get(&minimap_pointers, i);
+		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
+		ObjRabbit* rabbit = *p_rabbit;
 		
 		if(!rabbit->data->is_dead){
 			//float rabbit_pos = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
