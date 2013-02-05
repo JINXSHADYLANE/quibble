@@ -23,11 +23,11 @@ void minimap_draw(){
 	UIElement* position_line = uidesc_get("position_line");
 	_hud_render_ui(position_line, hud_layer);
 
-	Vector2 pos = position_line->vec2;
+	//Vector2 pos = position_line->vec2;
 
 	for(int i = 0; i < minimap_pointers.size;i++){
 		ObjRabbit* rabbit = darray_get(&minimap_pointers, i);
-		printf("rabbit pointer: %d \n",rabbit);
+		printf("rabbit pointer: %p \n", (void*)rabbit);
 		
 		/*if(!rabbit->data->is_dead){
 			printf("placing rabbit pin\n");

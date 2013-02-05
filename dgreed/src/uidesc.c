@@ -245,7 +245,7 @@ static void _rebase_strs(void* min, void* max, ptrdiff_t delta) {
 	}
 }
 
-UIElement* _parse_def(MMLObject* mml, NodeIdx node, UIElement* parent) {
+UIElement* _parse_def(MMLObject* mml, NodeIdx node, int i_parent) {
 	assert(strcmp(mml_get_name(mml, node), "def") == 0);
 
 	// Set the name, keep it in name_strings darray
@@ -277,12 +277,14 @@ UIElement* _parse_def(MMLObject* mml, NodeIdx node, UIElement* parent) {
 
 		if(strcmp(type, "def") == 0) {
 			// Add child
-			UIElement* child = _parse_def(mml, element, new);
+			UIElement* child = _parse_def(mml, element, i);
 			new = darray_get(&ui_elements, i);
 			list_push_back(&new->child_list, &child->list); 
 		}
 		else {
 			// Eval a function
+			UIElement* parent = 
+				i_parent >= 0 ? darray_get(&ui_elements, i_parent) : NULL;
 			if(_is_vec2_fun(mml, element)) {
 				new->vec2 = _vec2_fun(mml, element, new, parent);
 				new->members |= UI_EL_VEC2;
@@ -308,7 +310,7 @@ static void _uidesc_load(MMLObject* mml) {
 
 	NodeIdx child = mml_get_first_child(mml, root);
 	for(; child != 0; child = mml_get_next(mml, child)) {
-		UIElement* el = _parse_def(mml, child, NULL);
+		UIElement* el = _parse_def(mml, child, -1);
 		dict_insert(&ui_dict, el->name, el);
 	}
 }
