@@ -59,7 +59,7 @@
 		(def text
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-200)
+				(vec2 0,-250)
 			)
 		)
 
@@ -102,7 +102,7 @@
 			(spr quit)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,200)
+				(vec2 0,250)
 			)
 		)
 	)

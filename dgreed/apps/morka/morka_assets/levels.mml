@@ -1,6 +1,9 @@
 (levels morka
 	(level level1
 		(distance 100)
+		(rabbits _
+			(spr rabbit_2)
+		)
 		(background background)
 		(bg_chain bg)
 		(fg_chain level1_fg)
@@ -8,6 +11,9 @@
 	)
 	(level level2
 		(distance 125)
+		(rabbits _
+			(spr rabbit_3)
+		)
 		(background background)
 		(bg_chain bg)
 		(fg_chain level2_fg)
@@ -15,6 +21,10 @@
 	)
 	(level level3
 		(distance 150)
+		(rabbits _
+			(spr rabbit_2)
+			(spr rabbit_3)
+		)
 		(background background)
 		(bg_chain bg)
 		(fg_chain level3_fg)
@@ -22,6 +32,10 @@
 	)
 	(level level4
 		(distance 175)
+		(rabbits _
+			(spr rabbit_2)
+			(spr rabbit_3)
+		)
 		(background background)
 		(bg_chain bg)
 		(fg_chain level4_fg)
@@ -29,6 +43,11 @@
 	)
 	(level level5
 		(distance 200)
+		(rabbits _
+			(spr rabbit_2)
+			(spr rabbit_3)
+			(spr rabbit_4)
+		)
 		(background background)
 		(bg_chain bg)
 		(fg_chain level5_fg)
