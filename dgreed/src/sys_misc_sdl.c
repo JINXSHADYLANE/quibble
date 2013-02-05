@@ -141,6 +141,14 @@ uint touches_count(void) {
 	return mouse_pressed(MBTN_PRIMARY) ? 1 : 0;
 }
 
+bool touches_up(void) {
+	return mouse_up(MBTN_PRIMARY);
+}
+
+bool touches_down(void) {
+	return mouse_down(MBTN_PRIMARY);
+}
+
 Touch* touches_get(void) {
 	if(mouse_pressed(MBTN_PRIMARY)) {
 		touch.hit_pos = touch_hitpos;

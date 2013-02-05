@@ -290,8 +290,8 @@ Vector2 mouse_vec(void) {
 }
 
 #define max_touches 11
-uint touch_count = 0;
-Touch touches[max_touches];
+static uint touch_count = 0;
+static Touch touches[max_touches];
 
 void _touch_down(float x, float y) {
 	if(touch_count < max_touches) {
@@ -341,6 +341,14 @@ void _touch_up(float old_x, float old_y) {
 
 uint touches_count(void) {
 	return touch_count;
+}
+
+bool touches_up(void) {
+	return lmouse_up;
+}
+
+bool touches_down(void) {
+	return lmouse_down;
 }
 
 Touch* touches_get(void) {

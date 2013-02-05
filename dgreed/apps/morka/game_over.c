@@ -9,7 +9,6 @@ extern float rabbit_current_distance;
 extern uint longest_combo;
 extern bool game_over;
 
-static float game_over_alpha = 0.0f;
 static float display_distance = 0.0f;
 
 

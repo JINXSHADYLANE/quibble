@@ -112,6 +112,10 @@ typedef struct {
 // Returns number of fingers currently touching the screen
 uint touches_count(void);
 
+// Returns true if there was finger lifted up/down last frame
+bool touches_up(void);
+bool touches_down(void);
+
 // Returns array to all touches, NULL if no touches
 Touch* touches_get(void);
 
