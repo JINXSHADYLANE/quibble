@@ -151,6 +151,9 @@
 		21D53BA6167A23F0009E6CFC /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA4167A23F0009E6CFC /* vfont.c */; };
 		21DAACE51681CB55002464CD /* obj_pin.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DAACE41681CB55002464CD /* obj_pin.c */; };
 		21ED799A16A54CBB002CA25B /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 21ED799916A54CBB002CA25B /* sys_gfx_ios.m */; };
+		AA0E3F0E16BFDF9100A47FFB /* layers.txt in Resources */ = {isa = PBXBuildFile; fileRef = AA0E3F0D16BFDF9100A47FFB /* layers.txt */; };
+		AA0E3F1416BFDFA200A47FFB /* levels.c in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3F1016BFDFA200A47FFB /* levels.c */; };
+		AA0E3F1516BFDFA200A47FFB /* minimap.c in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3F1216BFDFA200A47FFB /* minimap.c */; };
 		AA41F55416B93462000D077C /* obj_particle_anchor.c in Sources */ = {isa = PBXBuildFile; fileRef = AA41F55316B93462000D077C /* obj_particle_anchor.c */; };
 		AA8213B4169DA89200A7EBA8 /* icon~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B3169DA89200A7EBA8 /* icon~ipad.png */; };
 		AA8213B7169DA89500A7EBA8 /* icon@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */; };
@@ -397,6 +400,11 @@
 		21D53BA4167A23F0009E6CFC /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../src/vfont.c; sourceTree = "<group>"; };
 		21DAACE41681CB55002464CD /* obj_pin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_pin.c; sourceTree = SOURCE_ROOT; };
 		21ED799916A54CBB002CA25B /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
+		AA0E3F0D16BFDF9100A47FFB /* layers.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = layers.txt; sourceTree = "<group>"; };
+		AA0E3F1016BFDFA200A47FFB /* levels.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = levels.c; sourceTree = "<group>"; };
+		AA0E3F1116BFDFA200A47FFB /* levels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = levels.h; sourceTree = "<group>"; };
+		AA0E3F1216BFDFA200A47FFB /* minimap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = minimap.c; sourceTree = "<group>"; };
+		AA0E3F1316BFDFA200A47FFB /* minimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = minimap.h; sourceTree = "<group>"; };
 		AA41F55316B93462000D077C /* obj_particle_anchor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_particle_anchor.c; sourceTree = "<group>"; };
 		AA8213B3169DA89200A7EBA8 /* icon~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon~ipad.png"; sourceTree = "<group>"; };
 		AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x~ipad.png"; sourceTree = "<group>"; };
@@ -620,6 +628,11 @@
 		219BE9B5167769D5002B614C /* malka */ = {
 			isa = PBXGroup;
 			children = (
+				AA0E3F1016BFDFA200A47FFB /* levels.c */,
+				AA0E3F1116BFDFA200A47FFB /* levels.h */,
+				AA0E3F1216BFDFA200A47FFB /* minimap.c */,
+				AA0E3F1316BFDFA200A47FFB /* minimap.h */,
+				AA0E3F0D16BFDF9100A47FFB /* layers.txt */,
 				AA41F55316B93462000D077C /* obj_particle_anchor.c */,
 				AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */,
 				AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */,
@@ -825,6 +838,7 @@
 				219BEB0016776B6B002B614C /* morka_scripts in Resources */,
 				AA8213B4169DA89200A7EBA8 /* icon~ipad.png in Resources */,
 				AA8213B7169DA89500A7EBA8 /* icon@2x~ipad.png in Resources */,
+				AA0E3F0E16BFDF9100A47FFB /* layers.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -956,6 +970,8 @@
 				AAA8AD4F16B2CBB600C6D752 /* obj_fall_trigger.c in Sources */,
 				AAA8AD5016B2CBB600C6D752 /* obj_speed_trigger.c in Sources */,
 				AA41F55416B93462000D077C /* obj_particle_anchor.c in Sources */,
+				AA0E3F1416BFDFA200A47FFB /* levels.c in Sources */,
+				AA0E3F1516BFDFA200A47FFB /* minimap.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
