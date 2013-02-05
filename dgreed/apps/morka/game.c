@@ -206,7 +206,7 @@ bool game_render(float t) {
 	dest = rectf(1024.0f - off_x, 0.0f, 0.0f, 0.0f);
 	spr_draw_h(levels_current_desc()->background, 0, dest, COLOR_WHITE); 
 
-	objects_tick(game_is_paused());
+	objects_tick(game_paused);
 
 	if(!game_paused && !game_over) 
 		hud_render();
