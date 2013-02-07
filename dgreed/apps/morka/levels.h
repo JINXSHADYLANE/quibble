@@ -29,6 +29,7 @@ typedef struct {
 	const char* ground_chain;
 	uint ai_rabbit_num;
 	SprHandle ai_rabbit_spr[3];
+	Color ai_rabbit_colors[3];
 } LevelDesc;
 
 extern DArray levels_descs;

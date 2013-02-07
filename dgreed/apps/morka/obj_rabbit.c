@@ -59,7 +59,7 @@ void obj_rabbit_ai_control(GameObject* self){
 		}
 
 		// raycast for shroom in front
-		start = vec2(pos.x+p->vel.x - 100.0f,pos.y - 100.0f);
+		start = vec2(pos.x+p->vel.x * 0.8f,pos.y - 100.0f);
 		end = vec2(start.x,pos.y);
 		obj = objects_raycast(start,end);
 
@@ -77,7 +77,7 @@ void obj_rabbit_ai_control(GameObject* self){
 			if(obj->type == OBJ_MUSHROOM_TYPE){
 				ObjMushroom* mushroom = (ObjMushroom*)obj;
 				if(mushroom->damage == 0.0f){
-					printf("jumping before shroom with vel.x: %f\n", p->vel.x);
+					//printf("jumping before shroom with vel.x: %f\n", p->vel.x);
 					d->virtual_key_down = true;
 					d->virtual_key_pressed = true;
 				}
@@ -162,7 +162,7 @@ void obj_rabbit_ai_control(GameObject* self){
 			if(obj->type == OBJ_FALL_TRIGGER_TYPE && !d->is_diving && (start.x - pos.x) > (579.0f - pos.y)) {
 				d->virtual_key_down = true;
 				d->virtual_key_pressed = true;
-				printf("dive before gap, vel.x: %f \n", p->vel.x);
+				//printf("dive before gap, vel.x: %f \n", p->vel.x);
 			}	
 		}
 
@@ -189,7 +189,7 @@ void obj_rabbit_ai_control(GameObject* self){
 			if(obj->type == OBJ_MUSHROOM_TYPE){
 				ObjMushroom* mushroom = (ObjMushroom*)obj;
 				if(mushroom->damage == 0.0f){
-					printf("diving on shroom with vel.x: %f\n", p->vel.x);
+					//printf("diving on shroom with vel.x: %f\n", p->vel.x);
 					d->virtual_key_down = true;
 					d->virtual_key_pressed = true;
 				}
@@ -199,121 +199,124 @@ void obj_rabbit_ai_control(GameObject* self){
 }
 
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
-	static bool jump_particles = false;
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
-	PhysicsComponent* p = self->physics;
-
-	if(!d->is_dead) rabbit->control(self);
-
-	if(d->virtual_key_down)
-		d->last_keypress_t = ts;
-	if(d->virtual_key_up)
-		d->last_keyrelease_t = ts;
-
-	Vector2 dir = {.x = 0.0f, .y = 0.0f};
-	// Constantly move right
-	dir.x += 550.0f;
+	if(!d->is_dead){
 	
-	// Position for particles
-	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);	// for follower particles
-	pos.y += rabbit_hitbox_height - 20;
+		static bool jump_particles = false;
+		PhysicsComponent* p = self->physics;
 	
-	RectF rec = {
-		.left = pos.x, 
-		.top = pos.y,
-		.right = 0,
-		.bottom = 0
-	};
-	RectF result = objects_world2screen(rec,0);
-	Vector2 screen_pos = vec2(result.left,result.top);			// for standard particles
+		rabbit->control(self);
 
-	RenderComponent* r = self->render;
-	r->anim_frame = anim_frame(rabbit->anim);
+		if(d->virtual_key_down)
+			d->last_keypress_t = ts;
+		if(d->virtual_key_up)
+			d->last_keyrelease_t = ts;
+
+		Vector2 dir = {.x = 0.0f, .y = 0.0f};
+		// Constantly move right
+		dir.x += 550.0f;
+	
+		// Position for particles
+		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);	// for follower particles
+		pos.y += rabbit_hitbox_height - 20;
+	
+		RectF rec = {
+			.left = pos.x, 
+			.top = pos.y,
+			.right = 0,
+			.bottom = 0
+		};
+		RectF result = objects_world2screen(rec,0);
+		Vector2 screen_pos = vec2(result.left,result.top);			// for standard particles
+
+		RenderComponent* r = self->render;
+		r->anim_frame = anim_frame(rabbit->anim);
 		
-	if(d->touching_ground) {
-		d->is_diving = false;
-		// Jump
-		if(d->virtual_key_down){
-			d->touching_ground = false;
-			d->jump_off_mushroom = false;
-			d->jump_time = ts;
-			objects_apply_force(self, vec2(50000.0f, -160000.0f));
-			anim_play(rabbit->anim, "jump");
-			d->combo_counter = 0;
+		if(d->touching_ground) {
+			d->is_diving = false;
+			// Jump
+			if(d->virtual_key_down){
+				d->touching_ground = false;
+				d->jump_off_mushroom = false;
+				d->jump_time = ts;
+				objects_apply_force(self, vec2(50000.0f, -160000.0f));
+				anim_play(rabbit->anim, "jump");
+				d->combo_counter = 0;
 			
-			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
-			mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
-		}
-	}
-	else {
-		if(ts - d->mushroom_hit_time < 0.1f) {
-			if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.1f)
-				d->jump_off_mushroom = true;
-
-			if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.1f)
-				d->jump_off_mushroom = true;
-				
-			if(!jump_particles && d->jump_off_mushroom){
-				jump_particles = true;
 				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 				mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
 			}
-			
 		}
-		else if(!d->touching_ground) {
-			jump_particles = false;
-			if(key_pressed(KEY_A) && (ts - d->jump_time) < 0.2f) {
-			//	objects_apply_force(self, vec2(0.0f, -8000.0f));
-			}
-			else if(!d->is_diving && d->virtual_key_down) {
-				// Dive 	
-				d->is_diving = true;
-				objects_apply_force(self, vec2(0.0f, 20000.0f));
-				anim_play(rabbit->anim, "dive");
-			}
-			else if(d->is_diving && d->virtual_key_pressed) {
-				objects_apply_force(self, vec2(0.0f, 25000.0f));
-			}
-			else if(d->is_diving && !d->virtual_key_pressed) {
-				d->is_diving = false;
-				anim_play(rabbit->anim, "glide");
-			}
-		}
-	}	
-	
-	// Damping
-	if(p->vel.x < 300.0f) {
-	}	
-	else if(p->vel.x < 600.0f)
-		p->vel.x *= 0.995f;
-	else if(p->vel.x < 1000.0f)
-		p->vel.x *= 0.99f;
-	else
-		p->vel.x *= 0.985f;
-//	else if(p->vel.x < 700.0f)
-//		p->vel.x *= 0.96f;
-//	else if(p->vel.x < 1000.0f)
-//		p->vel.x *= 0.95f;
-		
-	p->vel.y *= 0.995f;
-	
-	objects_apply_force(self, dir);
+		else {
+			if(ts - d->mushroom_hit_time < 0.1f) {
+				if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.1f)
+					d->jump_off_mushroom = true;
 
-	if(!d->touching_ground) {
-		// Apply gravity
-		objects_apply_force(self, vec2(0.0f, 5000.0f));
-	} else {
-		// Trigger water/land particle effects on ground
-		if(d->on_water){
-			if(r->anim_frame == 1) mfx_trigger_ex("water",screen_pos,0.0f);
-			if(r->anim_frame == 11) mfx_trigger_ex("water_front",screen_pos,0.0f);			
-		} else { 
-			if(r->anim_frame == 1)mfx_trigger_ex("run1",screen_pos,0.0f);
-			if(r->anim_frame == 11) mfx_trigger_ex("run1_front",screen_pos,0.0f);
+				if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.1f)
+					d->jump_off_mushroom = true;
+				
+				if(!jump_particles && d->jump_off_mushroom){
+					jump_particles = true;
+					ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
+					mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+				}
+			
+			}
+			else if(!d->touching_ground) {
+				jump_particles = false;
+				if(key_pressed(KEY_A) && (ts - d->jump_time) < 0.2f) {
+				//	objects_apply_force(self, vec2(0.0f, -8000.0f));
+				}
+				else if(!d->is_diving && d->virtual_key_down) {
+					// Dive 	
+					d->is_diving = true;
+					objects_apply_force(self, vec2(0.0f, 20000.0f));
+					anim_play(rabbit->anim, "dive");
+				}
+				else if(d->is_diving && d->virtual_key_pressed) {
+					objects_apply_force(self, vec2(0.0f, 25000.0f));
+				}
+				else if(d->is_diving && !d->virtual_key_pressed) {
+					d->is_diving = false;
+					anim_play(rabbit->anim, "glide");
+				}
+			}
+		}	
+	
+		// Damping
+		if(p->vel.x < 300.0f) {
+		}	
+		else if(p->vel.x < 600.0f)
+			p->vel.x *= 0.995f;
+		else if(p->vel.x < 1000.0f)
+			p->vel.x *= 0.99f;
+		else
+			p->vel.x *= 0.985f;
+	//	else if(p->vel.x < 700.0f)
+	//		p->vel.x *= 0.96f;
+	//	else if(p->vel.x < 1000.0f)
+	//		p->vel.x *= 0.95f;
+		
+		p->vel.y *= 0.995f;
+	
+		objects_apply_force(self, dir);
+
+		if(!d->touching_ground) {
+			// Apply gravity
+			objects_apply_force(self, vec2(0.0f, 5000.0f));
+		} else {
+			// Trigger water/land particle effects on ground
+			if(d->on_water){
+				if(r->anim_frame == 1) mfx_trigger_ex("water",screen_pos,0.0f);
+				if(r->anim_frame == 11) mfx_trigger_ex("water_front",screen_pos,0.0f);			
+			} else { 
+				if(r->anim_frame == 1)mfx_trigger_ex("run1",screen_pos,0.0f);
+				if(r->anim_frame == 11) mfx_trigger_ex("run1_front",screen_pos,0.0f);
+			}
 		}
+		d->on_water = false;
 	}
-	d->on_water = false;
 }
 
 static void obj_rabbit_update_pos(GameObject* self) {
@@ -338,7 +341,12 @@ static void obj_rabbit_became_invisible(GameObject* self) {
 	if(pos.y > HEIGHT){
 		ObjRabbit* rabbit = (ObjRabbit*)self;
 		rabbit->data->is_dead = true;
-		printf("rabbit is dead\n");
+		p->vel.x = 0.0f;
+		p->vel.y = 0.0f;
+	}
+	if(pos.y < rabbit_hitbox_height){
+		p->cd_obj->pos.y = rabbit_hitbox_height;
+		p->vel.y = 0.0f;
 	}
 }
 
@@ -422,8 +430,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	rabbit->anim = anim_new("rabbit");
-
-
+	
 	// Init physics
 	PhysicsComponent* physics = self->physics;
 	float hw = rabbit_hitbox_width / 2.0f;
@@ -480,7 +487,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->is_dead = false;
 	d->on_water = false;
 	d->bounce_force = vec2(0.0f, 0.0f);
-
+	
 	if(spr_handle == sprsheet_get_handle("rabbit"))
 		rabbit->control = obj_rabbit_player_control;
 	else
