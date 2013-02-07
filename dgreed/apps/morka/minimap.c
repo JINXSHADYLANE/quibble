@@ -36,20 +36,19 @@ void minimap_draw(){
 		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
 		ObjRabbit* rabbit = *p_rabbit;
 		
-		if(!rabbit->data->is_dead){
-			float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
-			rd = (float)rd*w/level_distance;
-			if(rd > w) rd = w;
-			Color tint = COLOR_RGBA(0, 0, 0, 255);
-			RectF dest = {
-				.left = pos.x + rd + 4.0f, 
-				.top = pos.y+h/2.0f - 4.0f,
-				.right = 0,
-				.bottom = 0
-			};
-			spr_draw_h(handle, hud_layer+1,dest,tint);
-		}
-
+		Color tint;
+		
+		float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
+		rd = (float)rd*w/level_distance;
+		if(rd > w) rd = w;
+		RectF dest = {
+			.left = pos.x + rd + 4.0f, 
+			.top = pos.y+h/2.0f - 4.0f,
+			.right = 0,
+			.bottom = 0
+		};
+		//if(rabbit->data->is_dead)
+		spr_draw_h(handle, hud_layer+1,dest,rabbit->minimap_color);
 	}
 	ready = true;
 }
@@ -57,6 +56,7 @@ void minimap_draw(){
 void minimap_reset(uint distance){
 	minimap_pointers.size = 0;
 	level_distance = distance;
+	ready = false;
 }
 
 float minimap_max_x(){

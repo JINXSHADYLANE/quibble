@@ -49,7 +49,11 @@ void levels_init(const char* filename){
 					const char* spr = mml_get_name(&mml, r);
 					if(strcmp(spr, "spr") == 0) {
 						const char* spr_name = mml_getval_str(&mml, r);
-						new.ai_rabbit_spr[new.ai_rabbit_num++] = sprsheet_get_handle(spr_name);
+						new.ai_rabbit_spr[new.ai_rabbit_num] = sprsheet_get_handle(spr_name);
+						if(strcmp(spr_name, "rabbit_2") == 0) new.ai_rabbit_colors[new.ai_rabbit_num] = COLOR_RGBA(255, 255, 0, 255);
+						else if(strcmp(spr_name, "rabbit_3") == 0) new.ai_rabbit_colors[new.ai_rabbit_num] = COLOR_RGBA(0, 0, 255, 255);
+						else if(strcmp(spr_name, "rabbit_4") == 0) new.ai_rabbit_colors[new.ai_rabbit_num] = COLOR_RGBA(255, 0, 0, 255);	
+						new.ai_rabbit_num++;					
 					}
 				}
 

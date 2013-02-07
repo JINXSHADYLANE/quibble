@@ -31,13 +31,12 @@ static void game_over_leave(void) {
 }
 
 static bool game_over_update(void) {
-	game_update();
 	return true;
 }
 
 static bool game_over_render(float t) {
 	// Game scene
-	if(t != 0.f)game_update();
+	//if(t != 0.f)game_update();
 	game_render(0);
 
 	// Game Over overlay

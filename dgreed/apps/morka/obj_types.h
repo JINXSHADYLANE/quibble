@@ -47,7 +47,7 @@ typedef struct {
 	Anim* anim;
 	ControlCallback control;
 	ObjRabbitData* data;
-
+	Color minimap_color;	
 } ObjRabbit;
 
 extern GameObjectDesc obj_rabbit_desc;
