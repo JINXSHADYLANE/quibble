@@ -36,10 +36,6 @@ typedef struct {
 	bool is_dead;
 	bool on_water;
 	Vector2 bounce_force;
-	// AI variables
-	bool dive_ground;
-	uint cd;
-	uint cdmax;
 } ObjRabbitData;
 
 typedef void (*ControlCallback)(GameObject* self);

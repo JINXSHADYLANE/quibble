@@ -28,7 +28,11 @@ void obj_rabbit_ai_control(GameObject* self){
 	PhysicsComponent* p = self->physics;
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 
-	if(d->cd > 0) d->cd--;
+	Vector2 start;
+	Vector2 end;
+	GameObject* obj;
+
+	//printf("pos.y: %f \n",pos.y);
 
 	// key_down and key_up only last one frame
 	if(d->virtual_key_down) d->virtual_key_down = false;
@@ -54,10 +58,36 @@ void obj_rabbit_ai_control(GameObject* self){
 			d->virtual_key_pressed = true;
 		}
 
+		// raycast for shroom in front
+		start = vec2(pos.x+p->vel.x - 100.0f,pos.y - 100.0f);
+		end = vec2(start.x,pos.y);
+		obj = objects_raycast(start,end);
+
+		// debug render
+		if(draw_ai_debug){
+			RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
+			RectF r = objects_world2screen(rec,0);
+			Vector2 s = vec2(r.left, r.top);
+			Vector2 e = vec2(r.right, r.bottom);
+			video_draw_line(10,	&s, &e, COLOR_RGBA(0, 0, 255, 255));
+		}
+
+		// AI jumps before shrooms to bounce on them
+		if(obj){
+			if(obj->type == OBJ_MUSHROOM_TYPE){
+				ObjMushroom* mushroom = (ObjMushroom*)obj;
+				if(mushroom->damage == 0.0f){
+					printf("jumping before shroom with vel.x: %f\n", p->vel.x);
+					d->virtual_key_down = true;
+					d->virtual_key_pressed = true;
+				}
+			}	
+		} 
+
 		// raycast for ground
-		Vector2 start = vec2(pos.x+rabbit_hitbox_width*2,768+100);
-		Vector2 end = vec2(start.x,768-100);
-		GameObject* obj = objects_raycast(start,end);
+		start = vec2(pos.x+rabbit_hitbox_width*2,768+100);
+		end = vec2(start.x,768-100);
+		obj = objects_raycast(start,end);
 
 		// debug render
 		if(draw_ai_debug){
@@ -73,24 +103,52 @@ void obj_rabbit_ai_control(GameObject* self){
 			if(obj->type == OBJ_FALL_TRIGGER_TYPE){
 					d->virtual_key_down = true;
 					d->virtual_key_pressed = true;
-					d->dive_ground = true;
 			}	
 		} 
 
-	} else if(!d->touching_ground && !d->is_diving && d->cd == 0){
-
+	} else if(!d->touching_ground && !d->is_diving){
 		// release button when in the air
 		if(d->virtual_key_pressed){
 			d->virtual_key_pressed = false;
 			d->virtual_key_up = true;
 		}
 
-		// raycast below rabbit
-		Vector2 start = vec2(pos.x+rabbit_hitbox_width,pos.y+rabbit_hitbox_height+40);
-		Vector2 end = vec2(start.x,768);
-		GameObject* obj = objects_raycast(start,end);
+		// raycast for safe landing
+		start = vec2(pos.x + 80.0f,768.0f - 100.0f);
+		if(p->vel.x < 2800.0f)
+			start.x += (579.0f-pos.y) * p->vel.x / 1500.0f;
+		else 
+			start.x += (579.0f-pos.y) * p->vel.x / 1200.0f;
+		end = vec2(start.x-80.0f,start.y);
+		obj = objects_raycast(start,end);
 
 		//debug render
+		if(draw_ai_debug){
+			RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
+			RectF r = objects_world2screen(rec,0);
+			Vector2 s = vec2(r.left, r.top);
+			Vector2 e = vec2(r.right, r.bottom);
+			video_draw_line(10,	&s, &e, COLOR_RGBA(0, 255, 0, 255));
+		}
+
+		bool safe_to_land = true;
+		if(obj){
+			if(obj->type == OBJ_FALL_TRIGGER_TYPE){
+				safe_to_land = false;
+			}	
+		}
+
+		// raycast for gap while in air
+		start = vec2(pos.x + 80.0f + p->vel.x/2.6f ,768.0f + 100.0f);
+		if(p->vel.x < 2800.0f)
+			start.x += (579.0f-pos.y) * p->vel.x / 1550.0f;
+		else 
+			start.x += (579.0f-pos.y) * p->vel.x / 1200.0f;
+
+		end = vec2(start.x,768-100);
+		obj = objects_raycast(start,end);
+
+		// debug render
 		if(draw_ai_debug){
 			RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
 			RectF r = objects_world2screen(rec,0);
@@ -99,21 +157,43 @@ void obj_rabbit_ai_control(GameObject* self){
 			video_draw_line(10,	&s, &e, COLOR_RGBA(255, 0, 0, 255));
 		}
 
+		// AI dives before gaps, so it can jump over them
+		if(safe_to_land && obj){
+			if(obj->type == OBJ_FALL_TRIGGER_TYPE && !d->is_diving && (start.x - pos.x) > (579.0f - pos.y)) {
+				d->virtual_key_down = true;
+				d->virtual_key_pressed = true;
+				printf("dive before gap, vel.x: %f \n", p->vel.x);
+			}	
+		}
+
+		// raycast below rabbit
+		start = vec2(pos.x + 80.0f,pos.y+rabbit_hitbox_height+40);
+		if(p->vel.x < 2800.0f)
+			start.x += (579.0f-pos.y) * p->vel.x / 1500.0f;
+		else 
+			start.x += (579.0f-pos.y) * p->vel.x / 1200.0f;
+
+		end = vec2(start.x,768);
+
+		if(draw_ai_debug){
+			RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
+			RectF r = objects_world2screen(rec,0);
+			Vector2 s = vec2(r.left, r.top);
+			Vector2 e = vec2(r.right, r.bottom);
+			video_draw_line(10,	&s, &e, COLOR_RGBA(0, 0, 255, 255));
+		}
+
+		obj = objects_raycast(start,end);
 		// dive on shrooms if possible
 		if(obj){
 			if(obj->type == OBJ_MUSHROOM_TYPE){
 				ObjMushroom* mushroom = (ObjMushroom*)obj;
 				if(mushroom->damage == 0.0f){
+					printf("diving on shroom with vel.x: %f\n", p->vel.x);
 					d->virtual_key_down = true;
 					d->virtual_key_pressed = true;
-					d->cd = d->cdmax;
 				}
-				// diving on ground after jump	
-			} else if(d->dive_ground && d->cd == 0 && obj->type == OBJ_GROUND_TYPE) {
-				d->virtual_key_down = true;
-				d->virtual_key_pressed = true;
-				d->dive_ground = false;
-			}	
+			}
 		} 
 	}
 }
@@ -124,7 +204,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbitData* d = rabbit->data;
 	PhysicsComponent* p = self->physics;
 
-	rabbit->control(self);
+	if(!d->is_dead) rabbit->control(self);
 
 	if(d->virtual_key_down)
 		d->last_keypress_t = ts;
@@ -258,6 +338,7 @@ static void obj_rabbit_became_invisible(GameObject* self) {
 	if(pos.y > HEIGHT){
 		ObjRabbit* rabbit = (ObjRabbit*)self;
 		rabbit->data->is_dead = true;
+		printf("rabbit is dead\n");
 	}
 }
 
@@ -398,10 +479,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->is_diving = false;
 	d->is_dead = false;
 	d->on_water = false;
-	d->dive_ground = false;
 	d->bounce_force = vec2(0.0f, 0.0f);
-	d->cd = 0;
-	d->cdmax = rand_int(25,35);
 
 	if(spr_handle == sprsheet_get_handle("rabbit"))
 		rabbit->control = obj_rabbit_player_control;

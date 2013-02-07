@@ -13,4 +13,7 @@ void minimap_draw();
 
 void minimap_reset(uint distance);
 
+float minimap_max_x();
+float minimap_min_x();
+
 #endif
