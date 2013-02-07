@@ -6,6 +6,8 @@ static uint level_distance = 1;
 static SprHandle handle;
 DArray minimap_pointers;
 
+static bool ready = false;
+
 void minimap_init(){
 	minimap_pointers = darray_create(sizeof(ObjRabbit*), 0);
 	handle = sprsheet_get_handle("position_knob");
@@ -49,9 +51,30 @@ void minimap_draw(){
 		}
 
 	}
+	ready = true;
 }
 
 void minimap_reset(uint distance){
 	minimap_pointers.size = 0;
 	level_distance = distance;
+}
+
+float minimap_max_x(){
+	float first = 0;
+	for(int i = 0; i < minimap_pointers.size;i++){
+		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
+		ObjRabbit* rabbit = *p_rabbit;
+		if(ready){
+			PhysicsComponent* p = rabbit->header.physics;
+			Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+			if(pos.x > first) first = pos.x;
+		}
+
+	}
+	return first + 1024.0f;
+}
+
+float minimap_min_x(){
+	// TODO
+	return 0;
 }

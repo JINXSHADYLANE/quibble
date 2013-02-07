@@ -176,8 +176,8 @@ bool game_update(void) {
 		_move_camera(rabbit->header.render->world_dest.left + 45.0f, camera_follow_weight);
 
 	}
-
-	worldgen_update(objects_camera[0].right, objects_camera[1].right);
+	float pos = minimap_max_x();
+	worldgen_update(pos, pos);
 	
 	float t = malka_state_time("game");
 	particles_update(t);
