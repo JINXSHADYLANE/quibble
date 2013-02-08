@@ -28,6 +28,7 @@ static bool level_select_update(void) {
 
 static bool level_select_render(float t) {
 	// Game scene
+	if(t != 0) game_update_empty();
 	if(t == 0) game_render(0);
 
 	UIElement* element = uidesc_get("level_select");

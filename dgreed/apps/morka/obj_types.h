@@ -37,6 +37,7 @@ typedef struct {
 	bool on_water;
 	Vector2 bounce_force;
 	bool show_combo;
+	bool particle_spawn;
 } ObjRabbitData;
 
 typedef void (*ControlCallback)(GameObject* self);

@@ -19,7 +19,6 @@ bool draw_ai_debug = false;
 
 // Game state
 
-float camera_speed = 100.0f;
 uint last_page = 0;
 
 ObjRabbit* rabbit = NULL;
@@ -125,6 +124,7 @@ static void _move_camera(float new_pos_x, float follow_weight) {
 	objects_camera[1].left += camera_offset/2.0f;
 	objects_camera[1].right += camera_offset/2.0f;
 	bg_scroll += camera_offset/8.0f;
+	//printf("camera x: %f \n ",objects_camera[0].left);
 }
 
 bool game_update(void) {
@@ -166,8 +166,10 @@ bool game_update(void) {
 	float pos = minimap_max_x();
 	worldgen_update(pos, pos);
 	
-	float t = malka_state_time("game");
-	particles_update(t);
+	//float t = malka_state_time("game");
+	//particles_update(t);
+
+	particles_update(time_s());
 
 	return true;
 }
@@ -180,8 +182,9 @@ bool game_update_empty(void) {
 
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
 	
-	float t = malka_state_time("game");
-	particles_update(t);
+	if(!game_is_paused()){
+		particles_update(time_s());
+	} 
 
 	return true;
 }
