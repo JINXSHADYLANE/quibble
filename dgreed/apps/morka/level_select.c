@@ -34,7 +34,6 @@ static bool level_select_render(float t) {
 	uint layer = hud_layer+1;
 
 	UIElement* text = uidesc_get_child(element, "text");
-	UIElement* button_quit = uidesc_get_child(element, "button_quit");
 
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
@@ -57,25 +56,20 @@ static bool level_select_render(float t) {
 		sprintf(level_name, "level%d", i);
 		UIElement* level = uidesc_get_child(element, level_name);
 		spr_draw_cntr_h(level->spr, layer, level->vec2, 0.0f, 1.0f, col);
+
+		UIElement* offset = uidesc_get_child(level, "offset");
+
 		if(touches_down() && t == 0.0f) {
 			Touch* t = touches_get();
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, level->vec2)) < 40.0f * 40.0f) {
+			if(vec2_length_sq(vec2_sub(t[0].hit_pos,
+			vec2_add(level->vec2,offset->vec2))) < 70.0f * 70.0f) {
+
 				levels_reset(level_name);
 				game_request_reset();
 				malka_states_push("game");
 			}
 		}	
 	}
-
-	// Quit Button
-	spr_draw_cntr_h(button_quit->spr, layer, button_quit->vec2, 0.0f, 1.0f, col);	
-	if(touches_down() && t == 0.0f) {
-		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < 40.0f * 40.0f) {
-			malka_states_pop();
-		}
-	}
-	
 	return true;
 }
 
