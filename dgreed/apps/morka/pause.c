@@ -24,7 +24,7 @@ static bool pause_update(void) {
 
 static bool pause_render(float t) {
 	// Game scene
-	game_render(t);
+	if(t == 0) game_render(0);
 
 	// Pause overlay
 	UIElement* element = uidesc_get("pause");
@@ -51,7 +51,7 @@ static bool pause_render(float t) {
 
 	// Play (continue) button
 	spr_draw_cntr_h(button_play->spr, layer, button_play->vec2, 0.0f, 1.0f, col);
-	if(touches_down()) {
+	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
 		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_play->vec2)) < 40.0f * 40.0f) {
 			malka_states_pop();
@@ -60,7 +60,7 @@ static bool pause_render(float t) {
 
 	// Restart button
 	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);
-	if(touches_down()) {
+	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
 		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < 40.0f * 40.0f) {
 			game_request_reset();
@@ -70,7 +70,7 @@ static bool pause_render(float t) {
 
 	// Quit button
 	spr_draw_cntr_h(button_quit->spr, layer, button_quit->vec2, 0.0f, 1.0f, col);
-	if(touches_down()) {
+	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
 		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < 40.0f * 40.0f) {
 			malka_states_pop();

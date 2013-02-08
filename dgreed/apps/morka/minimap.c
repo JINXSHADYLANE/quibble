@@ -36,8 +36,6 @@ void minimap_draw(){
 		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
 		ObjRabbit* rabbit = *p_rabbit;
 		
-		Color tint;
-		
 		float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
 		rd = (float)rd*w/level_distance;
 		if(rd > w) rd = w;

@@ -1,10 +1,9 @@
 #include "level_select.h"
 #include "game.h"
+#include "levels.h"
 #include "common.h"
 #include <uidesc.h>
 #include <vfont.h>
-
-extern uint level_id;
 
 static void level_select_init(void) {
 
@@ -19,6 +18,7 @@ static void level_select_enter(void) {
 }
 
 static void level_select_leave(void) {
+
 }
 
 static bool level_select_update(void) {
@@ -28,17 +28,12 @@ static bool level_select_update(void) {
 
 static bool level_select_render(float t) {
 	// Game scene
-	game_render(t);
+	if(t == 0) game_render(0);
 
 	UIElement* element = uidesc_get("level_select");
 	uint layer = hud_layer+1;
 
 	UIElement* text = uidesc_get_child(element, "text");
-	UIElement* level1 = uidesc_get_child(element, "level1");
-	UIElement* level2 = uidesc_get_child(element, "level2");
-	UIElement* level3 = uidesc_get_child(element, "level3");
-	UIElement* level4 = uidesc_get_child(element, "level4");
-	UIElement* level5 = uidesc_get_child(element, "level5");
 	UIElement* button_quit = uidesc_get_child(element, "button_quit");
 
 	float alpha = 1.0f-fabsf(t);
@@ -56,67 +51,28 @@ static bool level_select_render(float t) {
 	}
 	vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
 
-	// Level 1
-	spr_draw_cntr_h(level1->spr, layer, level1->vec2, 0.0f, 1.0f, col);	
-	if(touches_down()) {
-		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, level1->vec2)) < 40.0f * 40.0f) {
-			level_id = 1;
-			game_request_reset();
-			malka_states_push("game");
-		}
-	}
-
-	// Level 2
-	spr_draw_cntr_h(level2->spr, layer, level2->vec2, 0.0f, 1.0f, col);	
-	if(touches_down()) {
-		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, level2->vec2)) < 40.0f * 40.0f) {
-			level_id = 2;	
-			game_request_reset();
-			malka_states_push("game");
-		}
-	}
-
-	// Level 3
-	spr_draw_cntr_h(level3->spr, layer, level3->vec2, 0.0f, 1.0f, col);	
-	if(touches_down()) {
-		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, level3->vec2)) < 40.0f * 40.0f) {
-			level_id = 3;			
-			game_request_reset();
-			malka_states_push("game");
-		}
-	}
-
-	// Level 4
-	spr_draw_cntr_h(level4->spr, layer, level4->vec2, 0.0f, 1.0f, col);	
-	if(touches_down()) {
-		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, level4->vec2)) < 40.0f * 40.0f) {
-			level_id = 4;			
-			game_request_reset();
-			malka_states_push("game");
-		}
-	}
-
-	// Level 5
-	spr_draw_cntr_h(level5->spr, layer, level5->vec2, 0.0f, 1.0f, col);	
-	if(touches_down()) {
-		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, level5->vec2)) < 40.0f * 40.0f) {
-			level_id = 5;
-			game_request_reset();
-			malka_states_push("game");
-		}
+	// Five buttons for levels
+	for(int i = 1; i <= 5; i++){
+		char level_name[16];
+		sprintf(level_name, "level%d", i);
+		UIElement* level = uidesc_get_child(element, level_name);
+		spr_draw_cntr_h(level->spr, layer, level->vec2, 0.0f, 1.0f, col);
+		if(touches_down() && t == 0.0f) {
+			Touch* t = touches_get();
+			if(vec2_length_sq(vec2_sub(t[0].hit_pos, level->vec2)) < 40.0f * 40.0f) {
+				levels_reset(level_name);
+				game_request_reset();
+				malka_states_push("game");
+			}
+		}	
 	}
 
 	// Quit Button
 	spr_draw_cntr_h(button_quit->spr, layer, button_quit->vec2, 0.0f, 1.0f, col);	
-	if(touches_down()) {
+	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
 		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < 40.0f * 40.0f) {
-			// Close program
+			malka_states_pop();
 		}
 	}
 	
