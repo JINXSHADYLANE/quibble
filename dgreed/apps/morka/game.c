@@ -12,8 +12,6 @@
 
 #include "common.h"
 
-int level_id = 1;
-
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
 bool draw_ground_debug = false;
@@ -42,19 +40,6 @@ static void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
 	}
-
-	if(level_id >= 1 && level_id <= 5) {
-		/*
-		char level_name[] = "levelx";
-		level_name[5] = '0' + level_id ;
-		printf("%s\n", level_name);
-		*/
-
-		char level_name[16];
-		sprintf(level_name, "level%d", level_id);
-		levels_reset(level_name);
-	}
-
 	minimap_reset(levels_current_desc()->distance);
 
 	SprHandle spr = sprsheet_get_handle("rabbit");
@@ -87,7 +72,7 @@ static void game_init(void) {
 
 	hud_init();
 	minimap_init();
-
+	levels_reset("level1");
 	game_reset();
 }
 
@@ -212,7 +197,7 @@ bool game_render(float t) {
 	objects_tick(game_paused);
 
 	if(!game_paused && !game_over) 
-		hud_render();
+		hud_render(t);
 	
 	if(draw_ground_debug) worldgen_debug_render();
 	

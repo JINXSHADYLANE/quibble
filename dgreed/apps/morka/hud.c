@@ -78,10 +78,10 @@ void hud_trigger_combo(uint multiplier) {
 	combo_flip_t = time_s();
 }
 
-void hud_render(void) {
+void hud_render(float t) {
 	UIElement* pause = uidesc_get("hud_pause");
 	_hud_render_ui(pause, hud_layer);
-	if(touches_down()) {
+	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
 		if(vec2_length_sq(vec2_sub(t[0].hit_pos, pause->vec2)) < 40.0f * 40.0f) {
 			game_pause();
@@ -91,12 +91,12 @@ void hud_render(void) {
 
 	UIElement* combo_text = uidesc_get("combo_text");
 	float ts = time_s();
-	float t = (ts - combo_flip_t) / 0.4f;
-	if(t < 1.0f) {
+	float ct = (ts - combo_flip_t) / 0.4f;
+	if(ct < 1.0f) {
 		if(current_combo)
-			_hud_render_combo(combo_text, hud_layer+1, current_combo, t * 0.5f);
+			_hud_render_combo(combo_text, hud_layer+1, current_combo, ct * 0.5f);
 		if(last_combo)
-			_hud_render_combo(combo_text, hud_layer+1, last_combo, 0.5f + t * 0.5f);
+			_hud_render_combo(combo_text, hud_layer+1, last_combo, 0.5f + ct * 0.5f);
 	}
 	else {
 		if(current_combo)

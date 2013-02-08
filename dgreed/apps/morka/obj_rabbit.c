@@ -19,7 +19,6 @@ void obj_rabbit_player_control(GameObject* self){
 	d->virtual_key_up = key_up(KEY_A);
 	d->virtual_key_down = key_down(KEY_A);
 	d->virtual_key_pressed = key_pressed(KEY_A);
-
 }
 
 void obj_rabbit_ai_control(GameObject* self){
@@ -31,8 +30,6 @@ void obj_rabbit_ai_control(GameObject* self){
 	Vector2 start;
 	Vector2 end;
 	GameObject* obj;
-
-	//printf("pos.y: %f \n",pos.y);
 
 	// key_down and key_up only last one frame
 	if(d->virtual_key_down) d->virtual_key_down = false;
@@ -358,7 +355,7 @@ static void _rabbit_delayed_bounce(void* r) {
 		GameObject* self = r;
 		objects_apply_force(self, d->bounce_force); 
 		d->jump_off_mushroom = false;
-		if(d->combo_counter++ > 1)
+		if(d->show_combo && d->combo_counter++ > 1)
 			hud_trigger_combo(d->combo_counter);
 	}
 	else
@@ -380,7 +377,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		if(penetration > 0.0f && cd_rabbit->pos.y < cd_ground->pos.y) {
 			self->physics->vel.y = 0.0f;
 			if(!d->touching_ground) {
-				hud_trigger_combo(0);
+				if(d->show_combo) hud_trigger_combo(0);
 				anim_play(rabbit->anim, "land");
 			}
 			d->touching_ground = true;
@@ -487,9 +484,12 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->is_dead = false;
 	d->on_water = false;
 	d->bounce_force = vec2(0.0f, 0.0f);
+	d->show_combo = false;
 	
-	if(spr_handle == sprsheet_get_handle("rabbit"))
+	if(spr_handle == sprsheet_get_handle("rabbit")){
 		rabbit->control = obj_rabbit_player_control;
+		d->show_combo = true;
+	}
 	else
 		rabbit->control = obj_rabbit_ai_control;
 }

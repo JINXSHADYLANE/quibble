@@ -36,8 +36,8 @@ static bool game_over_update(void) {
 
 static bool game_over_render(float t) {
 	// Game scene
-	//if(t != 0.f)game_update();
-	game_render(0);
+	if(t != 0.0f)game_update();
+	if(t == 0) game_render(0);
 
 	// Game Over overlay
 	UIElement* element = uidesc_get("game_over");
@@ -78,7 +78,7 @@ static bool game_over_render(float t) {
 	
 	// Restart Button
 	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
-	if(touches_down()) {
+	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
 		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < 40.0f * 40.0f) {
 			game_request_reset();
@@ -88,7 +88,7 @@ static bool game_over_render(float t) {
 
 	// Quit Button
 	spr_draw_cntr_h(button_quit->spr, layer, button_quit->vec2, 0.0f, 1.0f, col);	
-	if(touches_down()) {
+	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
 		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < 40.0f * 40.0f) {
 			malka_states_pop();
