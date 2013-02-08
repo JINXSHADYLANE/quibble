@@ -10,7 +10,8 @@ static void obj_particle_anchor_update(GameObject* self, float ts, float dt){
 		.left = anchor->pos.x,
 		.top = anchor->pos.y
 	};
-	RectF result = objects_world2screen(pos,0);
+	uint camera = self->type == OBJ_PARTICLE_ANCHOR_TYPE ? 0 : 1;
+	RectF result = objects_world2screen(pos,camera);
 	
 	anchor->screen_pos = vec2(result.left,result.top);
 	
@@ -32,6 +33,16 @@ static void obj_particle_anchor_construct(GameObject* self, Vector2 pos, void* u
 
 GameObjectDesc obj_particle_anchor_desc = {
 	.type = OBJ_PARTICLE_ANCHOR_TYPE,
+	.size = sizeof(ObjParticleAnchor),
+	.has_physics = false,
+	.has_render = false,
+	.has_update = true,
+	.construct = obj_particle_anchor_construct,
+	.destruct = NULL
+};
+
+GameObjectDesc obj_bg_particle_anchor_desc = {
+	.type = OBJ_BG_PARTICLE_ANCHOR_TYPE,
 	.size = sizeof(ObjParticleAnchor),
 	.has_physics = false,
 	.has_render = false,

@@ -165,7 +165,7 @@ static void _gen_fg_page(void) {
 	
 		// temporary dust particle generation
 		if(fg_page_cursor > 0){
-			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
+			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_bg_particle_anchor_desc, pos, NULL);
 			mfx_trigger_follow("dusts",&anchor->screen_pos,NULL);
 		}
 
