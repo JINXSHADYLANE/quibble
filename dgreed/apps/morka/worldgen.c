@@ -122,7 +122,7 @@ static void _gen_fg_page(void) {
 				objects_create(&obj_ground_desc, pos, (void*)spr);
 				if(sym == 'j' || sym == 'k' || sym == 'l' || sym == 'm' || sym == 'n' || sym == 'o'){
 					ObjSpeedTrigger* t = (ObjSpeedTrigger*)objects_create(&obj_speed_trigger_desc, pos, (void*)spr);
-					t->drag_coef = 0.9;
+					t->drag_coef = 1.9;
 				}
 				prev_advance = 0;
 			}		

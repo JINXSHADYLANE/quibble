@@ -31,13 +31,16 @@ static void game_over_leave(void) {
 }
 
 static bool game_over_update(void) {
+	game_update_empty();
 	return true;
 }
 
 static bool game_over_render(float t) {
 	// Game scene
-	if(t != 0.0f)game_update();
-	if(t == 0) game_render(0);
+	if(t != 0) game_update_empty();
+	if(t == 0){
+		game_render(0);
+	} 
 
 	// Game Over overlay
 	UIElement* element = uidesc_get("game_over");

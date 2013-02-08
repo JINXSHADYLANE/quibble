@@ -12,7 +12,6 @@ void game_request_reset(void);
 bool game_update(void);
 bool game_render(float t);
 
-bool game_render_empty(float t);
 bool game_update_empty(void);
 
 #endif

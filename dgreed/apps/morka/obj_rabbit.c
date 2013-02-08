@@ -199,8 +199,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
 	if(!d->is_dead){
-	
-		static bool jump_particles = false;
 		PhysicsComponent* p = self->physics;
 	
 		rabbit->control(self);
@@ -212,7 +210,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		Vector2 dir = {.x = 0.0f, .y = 0.0f};
 		// Constantly move right
-		dir.x += 550.0f;
+		dir.x += 500.0f;
 	
 		// Position for particles
 		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);	// for follower particles
@@ -237,7 +235,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				d->touching_ground = false;
 				d->jump_off_mushroom = false;
 				d->jump_time = ts;
-				objects_apply_force(self, vec2(50000.0f, -160000.0f));
+				objects_apply_force(self, vec2(45000.0f, -160000.0f));
 				anim_play(rabbit->anim, "jump");
 				d->combo_counter = 0;
 			
@@ -253,15 +251,15 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.1f)
 					d->jump_off_mushroom = true;
 				
-				if(!jump_particles && d->jump_off_mushroom){
-					jump_particles = true;
+				if(!d->particle_spawn && d->jump_off_mushroom){
+					d->particle_spawn = true;
 					ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 					mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
 				}
 			
 			}
 			else if(!d->touching_ground) {
-				jump_particles = false;
+				d->particle_spawn = false;
 				if(key_pressed(KEY_A) && (ts - d->jump_time) < 0.2f) {
 				//	objects_apply_force(self, vec2(0.0f, -8000.0f));
 				}
@@ -313,6 +311,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			}
 		}
 		d->on_water = false;
+
 	}
 }
 
@@ -485,6 +484,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->on_water = false;
 	d->bounce_force = vec2(0.0f, 0.0f);
 	d->show_combo = false;
+	d->particle_spawn = false;
 	
 	if(spr_handle == sprsheet_get_handle("rabbit")){
 		rabbit->control = obj_rabbit_player_control;
