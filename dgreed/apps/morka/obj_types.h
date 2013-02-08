@@ -14,7 +14,8 @@ enum {
 	OBJ_PIN,
 	OBJ_SPEED_TRIGGER_TYPE,
 	OBJ_FALL_TRIGGER_TYPE,
-	OBJ_PARTICLE_ANCHOR_TYPE
+	OBJ_PARTICLE_ANCHOR_TYPE,
+	OBJ_BG_PARTICLE_ANCHOR_TYPE
 };
 
 // Rabbit Data
@@ -124,6 +125,16 @@ typedef struct {
 } ObjParticleAnchor;
 
 extern GameObjectDesc obj_particle_anchor_desc;
+
+// Background Particle anchor
+
+typedef struct {
+	GameObject header;
+	Vector2 pos;
+	Vector2 screen_pos;
+} ObjBgParticleAnchor;
+
+extern GameObjectDesc obj_bg_particle_anchor_desc;
 
 #endif
 

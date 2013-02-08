@@ -12,6 +12,8 @@
 
 #include "common.h"
 
+bool camera_follow = false;
+
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
 bool draw_ground_debug = false;
@@ -57,12 +59,22 @@ static void game_reset(void) {
 		minimap_track(ai_rabbit);
 	}	
 
+	float p = 512.0f + 50.0f + levels_current_desc()->ai_rabbit_num * 128.0f;
+
+	objects_camera[0].left = p;
+	objects_camera[0].right = p + 1024.0f;
+	objects_camera[1].left = p;
+	objects_camera[1].right = p + 1024.0f;
+	bg_scroll = p;
+
 	worldgen_reset(rand_uint(),levels_current_desc());
 
 	camera_follow_weight = 0.2f;
 	rabbit_current_distance = 0.0f;
 	game_over = false;
 	longest_combo = 0;
+
+	camera_follow = false;
 }
 
 static void game_init(void) {
@@ -119,12 +131,14 @@ static void _move_camera(float new_pos_x, float follow_weight) {
 	float camera_x = _camera_x();
 	float new_camera_x = lerp(camera_x, new_pos_x, follow_weight);
 	float camera_offset = new_camera_x - camera_x;
-	objects_camera[0].left += camera_offset;
-	objects_camera[0].right += camera_offset;
-	objects_camera[1].left += camera_offset/2.0f;
-	objects_camera[1].right += camera_offset/2.0f;
-	bg_scroll += camera_offset/8.0f;
-	//printf("camera x: %f \n ",objects_camera[0].left);
+	if(camera_offset > 0.0f){
+		camera_follow = true;
+		objects_camera[0].left += camera_offset;
+		objects_camera[0].right += camera_offset;
+		objects_camera[1].left += camera_offset/2.0f;
+		objects_camera[1].right += camera_offset/2.0f;
+		bg_scroll += camera_offset/8.0f;
+	}
 }
 
 bool game_update(void) {
@@ -161,6 +175,7 @@ bool game_update(void) {
 			rabbit_current_distance = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
 	
 		_move_camera(rabbit->header.render->world_dest.left + 45.0f, camera_follow_weight);
+		//if(rabbit->header.render->world_dest.left + 45.0f > objects_camera[0].left) camera_follow = true;
 
 	}
 	float pos = minimap_max_x();

@@ -1,5 +1,6 @@
 #include "common.h"
 #include "obj_types.h"
+#include "game.h"
 #include "hud.h"
 #include <mfx.h>
 #include <memory.h>
@@ -11,6 +12,7 @@ const static float rabbit_hitbox_width = 70.0f;
 const static float rabbit_hitbox_height = 62.0f;
 
 extern bool draw_ai_debug;
+extern bool camera_follow;
 
 void obj_rabbit_player_control(GameObject* self){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
@@ -82,7 +84,7 @@ void obj_rabbit_ai_control(GameObject* self){
 		} 
 
 		// raycast for ground
-		start = vec2(pos.x+rabbit_hitbox_width*2,768+100);
+		start = vec2(pos.x + 80.0f,768+100);
 		end = vec2(start.x,768-100);
 		obj = objects_raycast(start,end);
 
@@ -201,7 +203,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	if(!d->is_dead){
 		PhysicsComponent* p = self->physics;
 	
-		rabbit->control(self);
+		if(camera_follow) rabbit->control(self);
 
 		if(d->virtual_key_down)
 			d->last_keypress_t = ts;
