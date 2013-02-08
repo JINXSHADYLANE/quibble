@@ -38,6 +38,7 @@ typedef struct {
 	Vector2 bounce_force;
 	bool show_combo;
 	bool particle_spawn;
+	bool falling_down;
 } ObjRabbitData;
 
 typedef void (*ControlCallback)(GameObject* self);

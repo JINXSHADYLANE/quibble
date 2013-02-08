@@ -228,7 +228,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		RenderComponent* r = self->render;
 		r->anim_frame = anim_frame(rabbit->anim);
 		
-		if(d->touching_ground) {
+		if(d->touching_ground) {	
 			d->is_diving = false;
 			// Jump
 			if(d->virtual_key_down){
@@ -244,6 +244,15 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			}
 		}
 		else {
+			//if(d->show_combo) printf("p->vel.y: %f \n",p->vel.y);
+			if(p->vel.y > 0.0f && !d->falling_down){
+				anim_play(rabbit->anim, "down");
+				d->falling_down = true;	
+			} else if (p->vel.y <= 0.0f) {
+				d->falling_down = false;		
+			}
+
+
 			if(ts - d->mushroom_hit_time < 0.1f) {
 				if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.1f)
 					d->jump_off_mushroom = true;
@@ -277,6 +286,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					anim_play(rabbit->anim, "glide");
 				}
 			}
+
 		}	
 	
 		// Damping
@@ -485,6 +495,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->bounce_force = vec2(0.0f, 0.0f);
 	d->show_combo = false;
 	d->particle_spawn = false;
+	d->falling_down = false;
 	
 	if(spr_handle == sprsheet_get_handle("rabbit")){
 		rabbit->control = obj_rabbit_player_control;
