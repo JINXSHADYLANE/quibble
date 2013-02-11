@@ -24,17 +24,17 @@
 		)
 
 		(seq glide
-			(frames "5 6 7")
+			(frames "5")
 			(on_finish stop)
 		)
 
 		(seq down
-			(frames "8 9 10")
+			(frames "6 7 8")
 			(on_finish stop)
 		)
 
 		(seq land
-			(frames "11 12")
+			(frames "9 10 11 12")
 			(on_finish play.run)
 		)
 
