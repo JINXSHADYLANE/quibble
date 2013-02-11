@@ -1,5 +1,6 @@
 #include "common.h"
 #include "obj_types.h"
+#include "levels.h"
 #include "minimap.h"
 #include "game.h"
 #include "hud.h"
@@ -213,7 +214,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		Vector2 dir = {.x = 0.0f, .y = 0.0f};
 		// Constantly move right
-		dir.x += 500.0f;
+		dir.x += d->speed;
 
 
 		// Position for particles
@@ -250,7 +251,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				d->touching_ground = false;
 				d->jump_off_mushroom = false;
 				d->jump_time = ts;
-				objects_apply_force(self, vec2(45000.0f, -160000.0f));
+				objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
 				anim_play(rabbit->anim, "jump");
 				d->combo_counter = 0;
 			
@@ -438,15 +439,15 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 			if(mushroom->damage == 0.0f) {
 				Vector2 f = {
-					.x = MIN(vel.x*200.0f, 220000.0f),
-					.y = MAX(vel.y*400.0f,-250000.0f)
+					.x = MIN(vel.x*d->xjump, 220000.0f),
+					.y = MAX(vel.y*d->yjump,-250000.0f)
 				};
 				d->bounce_force = f;
 			}
 			else {
 				Vector2 f = {
-					.x = MAX(-vel.x*200.0f, -80000.0f),
-					.y = MAX(vel.y*300.0f,-180000.0f)
+					.x = MAX(-vel.x*d->xjump, -80000.0f),
+					.y = MAX(vel.y*d->yjump,-180000.0f)
 				};
 				d->bounce_force = f;
 				d->combo_counter = 0;
@@ -462,7 +463,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 }
 
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
-	SprHandle spr_handle = (SprHandle)user_data;
+	int id = (int)user_data;
 
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	rabbit->anim = anim_new("rabbit");
@@ -495,7 +496,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->angle = 0.0f;
 	render->layer = 4;
 	render->anim_frame = 0;
-	render->spr = spr_handle;
 	render->update_pos = obj_rabbit_update_pos;
 	render->became_invisible = obj_rabbit_became_invisible;
 	
@@ -529,14 +529,25 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->rabbit_time = 0.0f;
 	d->game_over = false;
 	d->boost = 0;
+	d->speed = 100.0f;
 
-	if(spr_handle == sprsheet_get_handle("rabbit")){
+	if(id < 0){
+		render->spr = sprsheet_get_handle("rabbit");
 		rabbit->control = obj_rabbit_player_control;
-		d->player_control = true;
+		d->minimap_color = COLOR_RGBA(150, 150, 150, 255);
 		d->rabbit_name = "You";
+		d->player_control = true;
+		d->speed = 500.0f;
+		d->xjump = 200.0f;
+		d->yjump = 400.0f;
 	} else {
+		render->spr = levels_current_desc()->ai_rabbit_spr[id];
+		d->minimap_color = levels_current_desc()->ai_rabbit_colors[id];
 		rabbit->control = obj_rabbit_ai_control;
-		d->rabbit_name = "Name";
+		d->rabbit_name = levels_current_desc()->ai_rabbit_names[id];
+		d->speed = levels_current_desc()->ai_rabbit_speeds[id];
+		d->xjump = levels_current_desc()->ai_rabbit_xjumps[id];
+		d->yjump = levels_current_desc()->ai_rabbit_yjumps[id];
 	}
 }
 

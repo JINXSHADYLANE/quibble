@@ -44,6 +44,10 @@ typedef struct {
 	const char* rabbit_name; 
 	bool game_over;
 	int boost;
+	Color minimap_color;
+	float speed;
+	float xjump;
+	float yjump;
 } ObjRabbitData;
 
 typedef void (*ControlCallback)(GameObject* self);
@@ -55,7 +59,6 @@ typedef struct {
 	Anim* anim;
 	ControlCallback control;
 	ObjRabbitData* data;
-	Color minimap_color;	
 } ObjRabbit;
 
 extern GameObjectDesc obj_rabbit_desc;
