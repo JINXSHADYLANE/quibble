@@ -16,6 +16,8 @@ void minimap_reset(uint distance);
 float minimap_max_x();
 float minimap_min_x();
 
+float minimap_player_x();
+
 void minimap_update_places();
 
 uint minimap_get_count();

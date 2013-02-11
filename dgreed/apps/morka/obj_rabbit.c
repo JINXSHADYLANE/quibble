@@ -1,5 +1,6 @@
 #include "common.h"
 #include "obj_types.h"
+#include "minimap.h"
 #include "game.h"
 #include "hud.h"
 #include <mfx.h>
@@ -213,7 +214,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		Vector2 dir = {.x = 0.0f, .y = 0.0f};
 		// Constantly move right
 		dir.x += 500.0f;
-	
+
+
 		// Position for particles
 		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);	// for follower particles
 		pos.y += rabbit_hitbox_height - 20;
@@ -230,6 +232,17 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		RenderComponent* r = self->render;
 		r->anim_frame = anim_frame(rabbit->anim);
 		
+		// rubber band
+		/*if(!d->player_control){
+			float rx = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
+			//printf("dif: %f \n",minimap_player_x() - rx);
+			if(minimap_player_x() - rx > 0.0f){
+				//float delta = minimap_player_x() - rx;
+				//objects_apply_force(self, vec2(delta*5000.0f, 0.0f));
+			}
+		}*/
+
+
 		if(d->touching_ground) {	
 			d->is_diving = false;
 			// Jump
@@ -308,20 +321,38 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	
 		objects_apply_force(self, dir);
 
+
+		if(d->combo_counter >= 3 && d->boost == 0){
+			mfx_trigger_ex("boost",vec2_add(screen_pos,vec2(20.0f,0.0f)),0.0f);
+			p->vel.x *= 1.025;
+			d->boost = 5;
+		}
+		if(d->boost > 0) d->boost--;
+
+
 		if(!d->touching_ground) {
 			// Apply gravity
 			objects_apply_force(self, vec2(0.0f, 5000.0f));
 		} else {
+			d->combo_counter = 0;
+			d->boost = 0;
 			// Trigger water/land particle effects on ground
 			if(d->on_water){
 				if(r->anim_frame == 1) mfx_trigger_ex("water",screen_pos,0.0f);
 				if(r->anim_frame == 11) mfx_trigger_ex("water_front",screen_pos,0.0f);			
 			} else { 
-				if(r->anim_frame == 1)mfx_trigger_ex("run1",screen_pos,0.0f);
+				if(r->anim_frame == 1) mfx_trigger_ex("run1",screen_pos,0.0f);
 				if(r->anim_frame == 11) mfx_trigger_ex("run1_front",screen_pos,0.0f);
 			}
 		}
 		d->on_water = false;
+
+	if(p->cd_obj->pos.y < rabbit_hitbox_height){
+		p->cd_obj->pos.y = rabbit_hitbox_height;
+		p->vel.y = 0.0f;
+	}
+
+
 
 	if(!d->game_over) d->rabbit_time += time_delta() / 1000.0f;
 	}
@@ -353,11 +384,6 @@ static void obj_rabbit_became_invisible(GameObject* self) {
 		p->vel.y = 0.0f;
 		if(!rabbit->data->game_over) rabbit->data->rabbit_time = -1.0f;
 	}
-	if(pos.y < rabbit_hitbox_height){
-		p->cd_obj->pos.y = rabbit_hitbox_height;
-		p->vel.y = 0.0f;
-		rabbit->data->touching_ground = false;
-	}
 }
 
 static void _rabbit_delayed_bounce(void* r) {
@@ -368,8 +394,8 @@ static void _rabbit_delayed_bounce(void* r) {
 		GameObject* self = r;
 		objects_apply_force(self, d->bounce_force); 
 		d->jump_off_mushroom = false;
-		if(d->player_control && d->combo_counter++ > 1)
-			hud_trigger_combo(d->combo_counter);
+		if(d->combo_counter++ > 1)
+			if(d->player_control) hud_trigger_combo(d->combo_counter);
 	}
 	else
 		d->combo_counter = 0;
@@ -502,6 +528,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->falling_down = false;
 	d->rabbit_time = 0.0f;
 	d->game_over = false;
+	d->boost = 0;
 
 	if(spr_handle == sprsheet_get_handle("rabbit")){
 		rabbit->control = obj_rabbit_player_control;

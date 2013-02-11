@@ -4,10 +4,11 @@
 
 static void obj_mushroom_collide(GameObject* self, GameObject* other) {
 	ObjMushroom* mushroom = (ObjMushroom*)self;
-	if(other->type == OBJ_RABBIT_TYPE && mushroom->damage == 0.0f) {
+	if(other->type == OBJ_RABBIT_TYPE) {
 		PhysicsComponent* rabbit_physics = other->physics;
 		if(rabbit_physics->vel.y > 0.0f) {
-			mushroom->dh -= 10.0f;
+			if(mushroom->damage == 0.0f) mushroom->dh -= 10.0f;
+			else mushroom->dh = 10.0f;
 		}
 	}
 }
