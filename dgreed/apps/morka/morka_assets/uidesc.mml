@@ -22,21 +22,21 @@
 		(def text
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-200)
+				(vec2 0,-250)
 			)
 		)
 
-		(def distance_text
+		(def result_text
 			(add <-
 				(get_vec2 text)
-				(vec2 0,100)
+				(vec2 -200,120)
 			)
 		)
 
-		(def combo_text
+		(def result_time
 			(add <-
 				(get_vec2 text)
-				(vec2 0,150)
+				(vec2 100,120)
 			)
 		)
 

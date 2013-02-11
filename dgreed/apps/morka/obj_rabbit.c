@@ -246,7 +246,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			}
 		}
 		else {
-			//if(d->show_combo) printf("p->vel.y: %f \n",p->vel.y);
 			if(p->vel.y > 0.0f && !d->falling_down){
 				anim_play(rabbit->anim, "down");
 				d->falling_down = true;	
@@ -324,6 +323,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		}
 		d->on_water = false;
 
+	if(!d->game_over) d->rabbit_time += time_delta() / 1000.0f;
 	}
 }
 
@@ -346,15 +346,17 @@ static void obj_rabbit_update_pos(GameObject* self) {
 static void obj_rabbit_became_invisible(GameObject* self) {
 	PhysicsComponent* p = self->physics;
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+	ObjRabbit* rabbit = (ObjRabbit*)self;
 	if(pos.y > HEIGHT){
-		ObjRabbit* rabbit = (ObjRabbit*)self;
 		rabbit->data->is_dead = true;
 		p->vel.x = 0.0f;
 		p->vel.y = 0.0f;
+		if(!rabbit->data->game_over) rabbit->data->rabbit_time = -1.0f;
 	}
 	if(pos.y < rabbit_hitbox_height){
 		p->cd_obj->pos.y = rabbit_hitbox_height;
 		p->vel.y = 0.0f;
+		rabbit->data->touching_ground = false;
 	}
 }
 
@@ -366,7 +368,7 @@ static void _rabbit_delayed_bounce(void* r) {
 		GameObject* self = r;
 		objects_apply_force(self, d->bounce_force); 
 		d->jump_off_mushroom = false;
-		if(d->show_combo && d->combo_counter++ > 1)
+		if(d->player_control && d->combo_counter++ > 1)
 			hud_trigger_combo(d->combo_counter);
 	}
 	else
@@ -388,7 +390,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		if(penetration > 0.0f && cd_rabbit->pos.y < cd_ground->pos.y) {
 			self->physics->vel.y = 0.0f;
 			if(!d->touching_ground) {
-				if(d->show_combo) hud_trigger_combo(0);
+				if(d->player_control) hud_trigger_combo(0);
 				anim_play(rabbit->anim, "land");
 			}
 			d->touching_ground = true;
@@ -495,16 +497,20 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->is_dead = false;
 	d->on_water = false;
 	d->bounce_force = vec2(0.0f, 0.0f);
-	d->show_combo = false;
+	d->player_control = false;
 	d->particle_spawn = false;
 	d->falling_down = false;
-	
+	d->rabbit_time = 0.0f;
+	d->game_over = false;
+
 	if(spr_handle == sprsheet_get_handle("rabbit")){
 		rabbit->control = obj_rabbit_player_control;
-		d->show_combo = true;
-	}
-	else
+		d->player_control = true;
+		d->rabbit_name = "You";
+	} else {
 		rabbit->control = obj_rabbit_ai_control;
+		d->rabbit_name = "Name";
+	}
 }
 
 static void obj_rabbit_destruct(GameObject* self) {

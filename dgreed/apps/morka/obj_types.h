@@ -37,9 +37,12 @@ typedef struct {
 	bool is_dead;
 	bool on_water;
 	Vector2 bounce_force;
-	bool show_combo;
+	bool player_control;
 	bool particle_spawn;
 	bool falling_down;
+	float rabbit_time;
+	const char* rabbit_name; 
+	bool game_over;
 } ObjRabbitData;
 
 typedef void (*ControlCallback)(GameObject* self);

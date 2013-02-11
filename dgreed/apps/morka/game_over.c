@@ -1,5 +1,7 @@
 #include "game_over.h"
 #include "game.h"
+#include "obj_types.h"
+#include "minimap.h"
 #include "hud.h"
 #include "common.h"
 #include <uidesc.h>
@@ -32,6 +34,7 @@ static void game_over_leave(void) {
 
 static bool game_over_update(void) {
 	game_update_empty();
+	minimap_update_places();	
 	return true;
 }
 
@@ -47,8 +50,8 @@ static bool game_over_render(float t) {
 	uint layer = hud_layer+1;
 
 	UIElement* text = uidesc_get_child(element, "text");
-	UIElement* dist_text = uidesc_get_child(element, "distance_text");
-	UIElement* combo_text = uidesc_get_child(element, "combo_text");
+	UIElement* result_text = uidesc_get_child(element, "result_text");
+	UIElement* result_time = uidesc_get_child(element, "result_time");
 	UIElement* button_restart = uidesc_get_child(element, "button_restart");
 	UIElement* button_quit = uidesc_get_child(element, "button_quit");
 
@@ -67,17 +70,28 @@ static bool game_over_render(float t) {
 	}
 	vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
 
-	// Distance text
-	char distance_str[32];
-	sprintf(distance_str, "You ran %d meters", (int)lrintf(display_distance));
-	Vector2 half_dist_size = vec2_scale(vfont_size(distance_str), 0.5f);
-	vfont_draw(distance_str, layer, vec2_sub(dist_text->vec2, half_dist_size), col);
+	for(int i = 0; i < minimap_get_count();i++){
+		char result_str[32];
+		char result_time_str[32];
+		ObjRabbit* rabbit = minimap_get_place(i);
+		Color c = COLOR_RGBA(255, 255, 255, a); 
+		if(rabbit != NULL){
+			if(rabbit->data->rabbit_time > 0.0f){
+				sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
+				sprintf(result_time_str, "%5.1fs",rabbit->data->rabbit_time);
+			}
+			else{
+				sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
+				sprintf(result_time_str, "   X",rabbit->data->rabbit_time);	
+			}
+			if(rabbit->data->player_control) c = COLOR_RGBA(237, 78, 0, a);
 
-	// Combo text
-	char combo_str[32];
-	sprintf(combo_str, "Longest combo - %u", longest_combo);
-	Vector2 half_combo_size = vec2_scale(vfont_size(combo_str), 0.5f);
-	vfont_draw(combo_str, layer, vec2_sub(combo_text->vec2, half_combo_size), col);
+			vfont_draw(result_time_str, layer,vec2_add(result_time->vec2,vec2(0.0f,i*60.0f)), c);
+		} else {
+			sprintf(result_str, "%d. ???",i+1);
+		}
+		vfont_draw(result_str, layer,vec2_add(result_text->vec2,vec2(0.0f,i*60.0f)), c);
+	}
 	
 	// Restart Button
 	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
