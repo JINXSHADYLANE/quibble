@@ -43,19 +43,14 @@ static void game_reset(void) {
 	}
 	minimap_reset(levels_current_desc()->distance);
 
-	SprHandle spr = sprsheet_get_handle("rabbit");
-
 	// Player rabbit
-	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 579.0f), (void*)spr);
-	rabbit->minimap_color = COLOR_RGBA(150, 150, 150, 255);
+	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 579.0f), (void*)-1);
 	minimap_track(rabbit);
 
 	// AI rabbits
 	for(int i = 0;i < levels_current_desc()->ai_rabbit_num;i++){
-		spr = levels_current_desc()->ai_rabbit_spr[i];
 		ai_rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc,
-					 vec2(640.0f+128.0f*i,579.0f),(void*)spr);
-		ai_rabbit->minimap_color = levels_current_desc()->ai_rabbit_colors[i];
+					 vec2(640.0f+128.0f*i,579.0f),(void*)i);
 		minimap_track(ai_rabbit);
 	}	
 
@@ -179,9 +174,6 @@ bool game_update(void) {
 	float pos = minimap_max_x();
 	worldgen_update(pos, pos);
 	
-	//float t = malka_state_time("game");
-	//particles_update(t);
-
 	particles_update(time_s());
 
 	return true;

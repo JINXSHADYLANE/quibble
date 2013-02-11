@@ -54,7 +54,7 @@ void minimap_draw(){
 			.right = 0,
 			.bottom = 0
 		};
-		spr_draw_h(handle, hud_layer+1,dest,rabbit->minimap_color);
+		spr_draw_h(handle, hud_layer+1,dest,rabbit->data->minimap_color);
 	}
 	ready = true;
 	minimap_update_places();

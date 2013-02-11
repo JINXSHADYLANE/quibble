@@ -2,7 +2,12 @@
 	(level level1
 		(distance 100)
 		(rabbits _
-			(spr rabbit_2)
+			(name Tori
+				(spr rabbit_2)
+				(speed 500)
+				(xjump 200)
+				(yjump 400)
+			)
 		)
 		(background background)
 		(bg_chain bg)
@@ -12,7 +17,12 @@
 	(level level2
 		(distance 125)
 		(rabbits _
-			(spr rabbit_3)
+			(name Lili
+				(spr rabbit_3)
+				(speed 500)
+				(xjump 200)
+				(yjump 400)
+			)
 		)
 		(background background)
 		(bg_chain bg)
@@ -22,8 +32,18 @@
 	(level level3
 		(distance 150)
 		(rabbits _
-			(spr rabbit_2)
-			(spr rabbit_3)
+			(name Tori
+				(spr rabbit_2)
+				(speed 500)
+				(xjump 200)
+				(yjump 400)
+			)
+			(name Lili
+				(spr rabbit_3)
+				(speed 500)
+				(xjump 200)
+				(yjump 400)
+			)
 		)
 		(background background)
 		(bg_chain bg)
@@ -33,8 +53,18 @@
 	(level level4
 		(distance 175)
 		(rabbits _
-			(spr rabbit_2)
-			(spr rabbit_3)
+			(name Tori
+				(spr rabbit_2)
+				(speed 500)
+				(xjump 200)
+				(yjump 400)
+			)
+			(name Lili
+				(spr rabbit_3)
+				(speed 500)
+				(xjump 200)
+				(yjump 400)
+			)
 		)
 		(background background)
 		(bg_chain bg)
@@ -44,9 +74,24 @@
 	(level level5
 		(distance 200)
 		(rabbits _
-			(spr rabbit_2)
-			(spr rabbit_3)
-			(spr rabbit_4)
+			(name Tori
+				(spr rabbit_2)
+				(speed 500)
+				(xjump 200)
+				(yjump 400)
+			)
+			(name Lili
+				(spr rabbit_3)
+				(speed 500)
+				(xjump 200)
+				(yjump 400)
+			)
+			(name Kubo
+				(spr rabbit_4)
+				(speed 500)
+				(xjump 200)
+				(yjump 400)
+			)
 		)
 		(background background)
 		(bg_chain bg)
