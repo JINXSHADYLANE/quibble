@@ -175,8 +175,6 @@ bool game_update(void) {
 			rabbit_current_distance = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
 	
 		_move_camera(rabbit->header.render->world_dest.left + 45.0f, camera_follow_weight);
-		//if(rabbit->header.render->world_dest.left + 45.0f > objects_camera[0].left) camera_follow = true;
-
 	}
 	float pos = minimap_max_x();
 	worldgen_update(pos, pos);

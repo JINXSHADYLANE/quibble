@@ -43,6 +43,7 @@ typedef struct {
 	float rabbit_time;
 	const char* rabbit_name; 
 	bool game_over;
+	int boost;
 } ObjRabbitData;
 
 typedef void (*ControlCallback)(GameObject* self);

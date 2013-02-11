@@ -13,6 +13,8 @@ ObjRabbit* results[4];
 static int dead_rabbits = 0;
 static int place = 0;
 
+static float player_x;
+
 void minimap_init(){
 	minimap_pointers = darray_create(sizeof(ObjRabbit*), 0);
 	handle = sprsheet_get_handle("position_knob");
@@ -40,10 +42,9 @@ void minimap_draw(){
 	for(int i = 0; i < minimap_pointers.size;i++){
 		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
 		ObjRabbit* rabbit = *p_rabbit;
-
-		
 		
 		float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
+		if(rabbit->data->player_control) player_x = rd;
 		rd = (float)rd*w/level_distance;
 		if(rd > w)	rd = w;
 
@@ -101,6 +102,10 @@ float minimap_max_x(){
 
 	}
 	return first + 1024.0f;
+}
+
+float minimap_player_x(){
+	return player_x;
 }
 
 float minimap_min_x(){
