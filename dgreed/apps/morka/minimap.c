@@ -67,7 +67,7 @@ void minimap_update_places(){
 		if(!rabbit->data->game_over){
 			if(rabbit->data->is_dead){
 				rabbit->data->game_over = true;
-				results[3-dead_rabbits++] = rabbit;
+				results[minimap_pointers.size-1-dead_rabbits++] = rabbit;
 			} else {
 				float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
 				if(rd > level_distance){
