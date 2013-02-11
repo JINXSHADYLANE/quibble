@@ -1,0 +1,234 @@
+(sprsheet nulis_320p
+	(preload title,bubble_w,background)
+	(prefix "nulis2_assets/")
+	(img empty
+		(tex "background.png")
+		(src 0,350,2,352)
+	)
+	(img title
+		(tex "nulis_title_s.png")
+	)
+	(img background
+		(tex "background.png")
+		(src 2,2,242,162)
+	)
+	(img vignette
+		(tex "background.png")
+		(src 2,164,242,324)
+	)
+	(img bubble_w
+		(tex "bubbles_s.png")
+		(src 0,0,32,32)
+	)
+	(img bubble_b
+		(tex "bubbles_s.png")
+		(src 0,32,32,64)
+	)
+	(img double_bubble_w
+		(tex "bubbles_s.png")
+		(src 64,0,116,32)
+	)
+	(img double_bubble_b
+		(tex "bubbles_s.png")
+		(src 64,32,116,64)
+	)
+	(img triple_bubble_w
+		(tex "bubbles_s.png")
+		(src 0,64,52,116)
+	)
+	(img triple_bubble_b
+		(tex "bubbles_s.png")
+		(src 52,64,104,116)
+	)
+	(img beacon
+		(tex "bubbles_s.png")
+		(src 32,0,64,32)
+	)
+	(img time_w
+		(tex "bubbles_s.png")
+		(src 128,0,192,64)
+	)
+	(img time_b
+		(tex "bubbles_s.png")
+		(src 192,0,256,64)
+	)
+	(img gravity_w
+		(tex "bubbles_s.png")
+		(src 104,64,154,114)
+	)
+	(img gravity_b
+		(tex "bubbles_s.png")
+		(src 154,64,204,114)
+	)
+	(img g_sparkles
+		(tex "bubbles_s.png")
+		(src 204,64,254,114)
+	)
+	(img circle
+		(tex "circle_s.png")
+	)
+	(img tut_one_finger
+		(tex "tut_one_finger_s.png")
+	)
+	(img tut_two_fingers
+		(tex "tut_two_fingers_s.png")
+	)
+	(img tut_menu_fingers
+		(tex "tut_menu_fingers_s.png")
+	)
+	(img clock
+		(tex "clock_s.png")
+	)
+	(img magnet
+		(tex "magnet_s.png")
+	)
+	(img stopwatch
+		(tex "stopwatch_s.png")
+	)
+	(img resume
+		(tex "ui_s.png")
+		(src 0,448,64,512)
+	)
+	(img replay
+		(tex "ui_s.png")
+		(src 64,448,128,512)
+	)
+	(img sound
+		(tex "ui_s.png")
+		(src 128,448,192,512)
+	)
+	(img music
+		(tex "ui_s.png")
+		(src 192,448,256,512)
+	)
+	(img score
+		(tex "ui_s.png")
+		(src 256,448,320,512)
+	)
+	(img sound_mute
+		(tex "ui_s.png")
+		(src 320,448,384,512)
+	)
+	(img music_mute
+		(tex "ui_s.png")
+		(src 384,448,448,512)
+	)
+	(img back
+		(tex "ui_s.png")
+		(src 448,448,512,512)
+	)
+	(img plus
+		(tex "ui_s.png")
+		(src 192,384,256,448)
+	)
+	(img locked
+		(tex "ui_s.png")
+		(src 256,384,320,448)
+	)
+	(img high_score
+		(tex "ui_s.png")
+		(src 320,384,384,448)
+	)
+	(img twitter
+		(tex "ui_s.png")
+		(src 384,384,448,448)
+	)
+	(img achievements
+		(tex "ui_s.png")
+		(src 448,384,512,448)
+	)
+	(anim levels
+		(tex "ui_s.png")
+		(frames 50)
+		(src 0,0,64,64)
+		(offset 64,64)
+		(grid 8,7)
+	)
+	(img hint1
+		(tex "tut_hints_s.png")
+		(src 0,0,130,30)
+	)
+	(img hint2
+		(tex "tut_hints_s.png")
+		(src 0,29,188,56)
+	)
+	(img hint3
+		(tex "tut_hints_s.png")
+		(src 0,56,188,86)
+	)
+	(img hint4
+		(tex "tut_hints_s.png")
+		(src 0,86,234,110)
+	)
+	(img hint5
+		(tex "tut_hints_s.png")
+		(src 234,0,512,30)
+	)
+	(img stripe
+		(tex "background.png")
+		(src 245,164,255,165)
+	)
+	(img cr_palaima
+		(tex "credits_s.png")
+		(src 0,0,120,24)
+	)
+	(img cr_stumbrys
+		(tex "credits_s.png")
+		(src 120,0,256,24)
+	)
+	(img cr_mitkus
+		(tex "credits_s.png")
+		(src 0,24,120,48)
+	)
+	(img cr_justinas
+		(tex "credits_s.png")
+		(src 120,24,256,48)
+	)
+	(img cr_domas
+		(tex "credits_s.png")
+		(src 0,48,144,72)
+	)
+	(img cr_zujus
+		(tex "credits_s.png")
+		(src 144,48,256,72)
+	)
+	(img cr_marius
+		(tex "credits_s.png")
+		(src 0,72,120,96)
+	)
+	(img cr_snioka
+		(tex "credits_s.png")
+		(src 120,72,256,96)
+	)
+	(img cr_auste
+		(tex "credits_s.png")
+		(src 0,96,144,120)
+	)
+	(img cr_jonas
+		(tex "credits_s.png")
+		(src 0,120,144,144)
+	)
+	(img cr_justas
+		(tex "credits_s.png")
+		(src 0,144,144,168)
+	)
+	(img cr_aiste
+		(tex "credits_s.png")
+		(src 0,168,144,192)
+	)
+	(img cr_migle
+		(tex "credits_s.png")
+		(src 0,192,144,216)
+	)
+	(img cr_daka
+		(tex "credits_s.png")
+		(src 0,216,144,240)
+	)
+	(img thanks
+		(tex "credits_s.png")
+		(src 144,96,256,120)
+	)
+	(img qbcode
+		(tex "qbcode_s.png")
+	)
+)
