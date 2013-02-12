@@ -108,6 +108,11 @@ void obj_rabbit_ai_control(GameObject* self){
 		} 
 
 	} else if(!d->touching_ground){
+
+
+		float temp = 0.0f;
+		if(p->vel.y < 0.0f) temp = -p->vel.y;
+
 		// raycast for safe landing
 		start = vec2(pos.x + 100.0f + (p->vel.x * 0.3f) *(579.0f-pos.y)/579.0f,768.0f - 100.0f);
 		end = vec2(start.x-100.0f,start.y);
@@ -129,6 +134,7 @@ void obj_rabbit_ai_control(GameObject* self){
 			video_draw_line(10,	&s, &e, safe_to_land ? COLOR_RGBA(0, 255, 0, 255) : COLOR_RGBA(255, 0, 0, 255));
 		}		
 
+
 		if(!d->is_diving){
 			// release button when in the air
 			if(d->virtual_key_pressed){
@@ -137,7 +143,7 @@ void obj_rabbit_ai_control(GameObject* self){
 			}
 
 			// raycast for gap while in air
-			start = vec2(pos.x + 80.0f + (579.0f-pos.y)*2.0f + (p->vel.x * 0.35f) *(579.0f-pos.y)/579.0f,768.0f + 100.0f);
+			start = vec2(pos.x + 80.0f + temp + (p->vel.x * 0.3f) *(579.0f-pos.y)/579.0f,768.0f + 100.0f);
 			end = vec2(start.x,768-100);
 			obj = objects_raycast(start,end);
 
@@ -149,17 +155,19 @@ void obj_rabbit_ai_control(GameObject* self){
 				Vector2 e = vec2(r.right, r.bottom);
 				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 0, 0, 255));
 			}
+
 			// AI dives before gaps, so it can jump over them
 			if(safe_to_land && obj){
-				if(obj->type == OBJ_FALL_TRIGGER_TYPE && !d->is_diving && (579.0f - pos.y) > 208.0f) {
+				if(obj->type == OBJ_FALL_TRIGGER_TYPE && !d->is_diving && p->vel.x < 1000.0f) {
 					d->virtual_key_down = true;
 					d->virtual_key_pressed = true;
 					//printf("dive before gap, vel.x: %.0f dy %.0f distance: %f \n", p->vel.x,(579.0f - pos.y),obj->physics->cd_obj->pos.x - pos.x);
 				}
 				if(obj->type == OBJ_FALL_TRIGGER_TYPE) safe_to_land = false;	
 			}
+
 			// raycast below rabbit for shrooms
-			start = vec2(pos.x + 40.0f + (p->vel.x * 0.4f) *(579.0f-pos.y)/579.0f,pos.y+rabbit_hitbox_height+40);
+			start = vec2(pos.x + 100.0f +(( p->vel.x) * (p->vel.x/6000.0f)) *(579.0f-pos.y)/579.0f,pos.y+rabbit_hitbox_height+40);
 			end = vec2(start.x,768);
 
 			if(draw_ai_debug){
@@ -181,7 +189,9 @@ void obj_rabbit_ai_control(GameObject* self){
 						d->virtual_key_pressed = true;
 					}
 				}
-			} 
+			}
+
+
 		}
 	}
 }
@@ -338,7 +348,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	}
 
 	if(p->cd_obj->pos.y > HEIGHT){
-		//printf("rabbit dead %f \n",p->vel.x);
+		//printf("rabbit dead %.0f %.0f \n",p->vel.x,p->vel.y);
 		rabbit->data->is_dead = true;
 		p->vel.x = 0.0f;
 		p->vel.y = 0.0f;
