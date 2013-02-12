@@ -1,0 +1,14 @@
+(mfx _
+	(prefix "tiltas_assets/")
+	(sounds _
+		(s noise.wav
+			(volume 0.3)
+		)
+	)
+	(effects _
+		(e noise 
+			(sound noise.wav)
+		)
+	)
+)
+
