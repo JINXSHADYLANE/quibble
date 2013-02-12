@@ -82,13 +82,13 @@ static bool game_over_render(float t) {
 			}
 			else{
 				sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
-				sprintf(result_time_str, "   X",rabbit->data->rabbit_time);	
+				sprintf(result_time_str, " Out",rabbit->data->rabbit_time);	
 			}
 			if(rabbit->data->player_control) c = COLOR_RGBA(237, 78, 0, a);
 
 			vfont_draw(result_time_str, layer,vec2_add(result_time->vec2,vec2(0.0f,i*60.0f)), c);
 		} else {
-			sprintf(result_str, "%d. ???",i+1);
+			sprintf(result_str, "%d. ---",i+1);
 		}
 		vfont_draw(result_str, layer,vec2_add(result_text->vec2,vec2(0.0f,i*60.0f)), c);
 	}
