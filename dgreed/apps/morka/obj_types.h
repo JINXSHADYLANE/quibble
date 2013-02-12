@@ -43,6 +43,7 @@ typedef struct {
 	float rabbit_time;
 	const char* rabbit_name; 
 	bool game_over;
+	bool rubber_band;
 	int boost;
 	Color minimap_color;
 	float speed;

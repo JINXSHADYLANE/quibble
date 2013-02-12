@@ -44,7 +44,7 @@ void minimap_draw(){
 		ObjRabbit* rabbit = *p_rabbit;
 		
 		float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
-		if(rabbit->data->player_control) player_x = rd;
+		if(rabbit->data->player_control) player_x = rabbit->header.physics->cd_obj->pos.x;
 		rd = (float)rd*w/level_distance;
 		if(rd > w)	rd = w;
 
