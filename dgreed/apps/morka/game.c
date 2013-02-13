@@ -60,6 +60,8 @@ static void game_reset(void) {
 	objects_camera[0].right = p + 1024.0f;
 	objects_camera[1].left = p;
 	objects_camera[1].right = p + 1024.0f;
+	objects_camera[2].left = p;
+	objects_camera[2].right = p + 1024.0f;
 	bg_scroll = p;
 
 	worldgen_reset(rand_uint(),levels_current_desc());
@@ -132,6 +134,8 @@ static void _move_camera(float new_pos_x, float follow_weight) {
 		objects_camera[0].right += camera_offset;
 		objects_camera[1].left += camera_offset/2.0f;
 		objects_camera[1].right += camera_offset/2.0f;
+		objects_camera[2].left += camera_offset/8.0f;
+		objects_camera[2].right += camera_offset/8.0f;
 		bg_scroll += camera_offset/8.0f;
 	}
 }
@@ -173,6 +177,17 @@ bool game_update(void) {
 	}
 	float pos = minimap_max_x();
 	worldgen_update(pos, pos);
+
+
+	// spawn background dust particles
+	static int delta = 0;	
+	if(delta == 0){
+		delta = rand_int(40,70); // new particle every 40-70 frames
+		Vector2 particle_pos = vec2(rand_float_range(objects_camera[2].left,objects_camera[2].right), rand_float_range(0.0f,579.0f));
+		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_bg_particle_anchor_desc, particle_pos, NULL);
+		mfx_trigger_follow("dusts",&anchor->screen_pos,NULL);
+	}
+	delta--;
 	
 	particles_update(time_s());
 

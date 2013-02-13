@@ -306,7 +306,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		else if(p->vel.x < 1000.0f)
 			p->vel.x *= 0.99f;
 		else
-			p->vel.x *= 0.985f;
+			p->vel.x *= 0.975f;
 	//	else if(p->vel.x < 700.0f)
 	//		p->vel.x *= 0.96f;
 	//	else if(p->vel.x < 1000.0f)
