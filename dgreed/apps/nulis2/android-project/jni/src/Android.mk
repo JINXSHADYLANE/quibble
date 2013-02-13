@@ -56,6 +56,7 @@ LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.cpp \
 	dgreed/malka/lua/loadlib.c \
 	dgreed/malka/lua/linit.c \
 	dgreed/malka/lua/bit.c \
+	dgreed/malka/lua_utf8.c \
 	dgreed/malka/malka.c \
 	dgreed/malka/profiler.c \
 	dgreed/malka/ml_utils.c \
