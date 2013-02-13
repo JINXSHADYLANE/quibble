@@ -206,9 +206,9 @@
 
 		(sdef z (seq "cdefcdefcdef"))
 		
-		(def _ (.empty 200))
-		(def = (.empty 350))
-		(def - (.empty 300))
+		(def _ (.empty 190))
+		(def = (.empty 290))
+		(def - (.empty 250))
 		
 		(init "ab")
 
@@ -259,11 +259,13 @@
 		(def n (water4 0))
 		(def o (water_end1 0))
 		(def p (water_end2 0))
+
+		#(sdef z (seq "abcd"))
 		
-		(def _ (.empty 150))
-		(def = (.empty 350))
-		(def - (.empty 200))
-		(init "ab")
+		(def _ (.empty 140))
+		(def = (.empty 290))
+		(def - (.empty 190))
+		(init "h_")
 
 		(learn "cdefgh_abcd")
 		(learn "cdefgh=abcd")

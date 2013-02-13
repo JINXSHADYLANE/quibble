@@ -306,7 +306,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		else if(p->vel.x < 1000.0f)
 			p->vel.x *= 0.99f;
 		else
-			p->vel.x *= 0.985f;
+			p->vel.x *= 0.980f;
 	//	else if(p->vel.x < 700.0f)
 	//		p->vel.x *= 0.96f;
 	//	else if(p->vel.x < 1000.0f)
@@ -319,7 +319,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		if(d->combo_counter >= 3 && d->boost == 0){
 			mfx_trigger_ex("boost",vec2_add(screen_pos,vec2(20.0f,0.0f)),0.0f);
-			p->vel.x *= 1.025;
+			p->vel.x *= 1.045;
 			d->boost = 5;
 		}
 		if(d->boost > 0) d->boost--;
@@ -447,7 +447,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 			if(mushroom->damage == 0.0f) {
 				Vector2 f = {
-					.x = MIN(vel.x*d->xjump, 220000.0f),
+					.x = MIN(vel.x*d->xjump, 110000.0f),
 					.y = MAX(vel.y*d->yjump,-250000.0f)
 				};
 				d->bounce_force = f;
@@ -549,7 +549,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		d->rabbit_name = "You";
 		d->player_control = true;
 		d->speed = 500.0f;
-		d->xjump = 200.0f;
+		d->xjump = 100.0f;
 		d->yjump = 400.0f;
 	} else {
 		render->spr = levels_current_desc()->ai_rabbit_spr[id];
