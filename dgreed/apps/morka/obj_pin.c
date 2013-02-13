@@ -1,4 +1,5 @@
 #include "obj_types.h"
+#include "common.h"
 
 static void obj_pin_update_pos(GameObject* self) {
 	ObjPin* pin = (ObjPin*)self;
@@ -31,7 +32,7 @@ static void obj_pin_construct(GameObject* self, Vector2 pos, void* user_data) {
 	// Render
 	RenderComponent* render = self->render;
 	render->world_dest = dest;
-	render->layer = 4;
+	render->layer = rabbit_layer;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
 	render->update_pos = obj_pin_update_pos;

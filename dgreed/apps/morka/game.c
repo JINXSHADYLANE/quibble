@@ -198,9 +198,9 @@ bool game_render(float t) {
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
 	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);
-	spr_draw_h(levels_current_desc()->background, 0, dest, COLOR_WHITE);
+	spr_draw_h(levels_current_desc()->background, background_layer, dest, COLOR_WHITE);
 	dest = rectf(1024.0f - off_x, 0.0f, 0.0f, 0.0f);
-	spr_draw_h(levels_current_desc()->background, 0, dest, COLOR_WHITE); 
+	spr_draw_h(levels_current_desc()->background, background_layer, dest, COLOR_WHITE); 
 
 	objects_tick(game_paused);
 

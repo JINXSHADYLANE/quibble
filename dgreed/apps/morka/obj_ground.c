@@ -1,5 +1,5 @@
 #include "obj_types.h"
-
+#include "common.h"
 #include <system.h>
 
 static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data) {
@@ -25,7 +25,7 @@ static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data)
 	dest.top = pos.y - height;
 
 	render->world_dest = dest;
-	render->layer = 5;
+	render->layer = ground_layer;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
 }

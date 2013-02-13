@@ -46,7 +46,7 @@ bool dgreed_init(int argc, const char** argv) {
 	keyval_init("morka.db");
 
 	const char* particles = "particles.mml";
-	particles_init_ex(ASSETS_DIR, particles, 6);
+	particles_init_ex(ASSETS_DIR, particles, particle_layer);
 	mfx_init(ASSETS_DIR "effects.mml");
 	
 	anim_init(ASSETS_DIR "animations.mml");

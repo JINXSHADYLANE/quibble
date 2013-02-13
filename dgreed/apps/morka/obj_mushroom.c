@@ -1,5 +1,5 @@
 #include "obj_types.h"
-
+#include "common.h"
 #include <system.h>
 
 static void obj_mushroom_collide(GameObject* self, GameObject* other) {
@@ -57,7 +57,7 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 			pos.x, pos.y - height,
 			pos.x + width, pos.y
 	);
-	render->layer = 3;
+	render->layer = foreground_layer;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
 	render->update_pos = obj_mushroom_update_pos;

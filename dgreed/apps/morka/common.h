@@ -11,7 +11,14 @@
 #else
 	#define FONT_NAME "Baskerville-Bold"
 #endif
-
-#define hud_layer 7
+#define background_layer 0
+#define dust_layer 1 // needs to be changed in particles.mml
+#define bg_mushrooms_layer 2
+#define finish_line_layer 3
+#define foreground_layer 4
+#define rabbit_layer 5
+#define ground_layer 6
+#define particle_layer 7 // needs to be changed in particles.mml
+#define hud_layer 8
 
 #endif

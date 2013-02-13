@@ -502,7 +502,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		pos.x + half_w, pos.y + half_h 
 	);
 	render->angle = 0.0f;
-	render->layer = 4;
+	render->layer = rabbit_layer;
 	render->anim_frame = 0;
 	render->update_pos = obj_rabbit_update_pos;
 	render->became_visible = obj_rabbit_became_visible;
