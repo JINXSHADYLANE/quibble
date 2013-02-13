@@ -82,7 +82,7 @@ static bool game_over_render(float t) {
 			}
 			else{
 				sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
-				sprintf(result_time_str, " Out",rabbit->data->rabbit_time);	
+				sprintf(result_time_str, " Out");	
 			}
 			if(rabbit->data->player_control) c = COLOR_RGBA(237, 78, 0, a);
 
