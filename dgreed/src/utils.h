@@ -491,6 +491,14 @@ void sort_heapsort_int(int* data, size_t num);
 void sort_heapsort(void* data, size_t num, size_t size,
 		int (*compar) (const void*, const void*));
 
+// Mergesort - worst case O(N log N) non-recursive stable sort,
+// uses up to O(N) scratch memory, usually does less moves and comparisons
+// than other sorts
+
+// General case of mergesort
+void sort_mergesort(void* data, size_t num, size_t size,
+		int (*compar) (const void*, const void*));
+
 /*
 -------------------
 --- Compression ---
