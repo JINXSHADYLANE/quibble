@@ -1587,9 +1587,9 @@ static void _push_color(lua_State* l, Color c) {
 	byte r, g, b, a;
 	COLOR_DECONSTRUCT(c, r, g, b, a);
 	double dr = (double)r / 255.0;
-	double dg = (double)r / 255.0;
-	double db = (double)r / 255.0;
-	double da = (double)r / 255.0;
+	double dg = (double)g / 255.0;
+	double db = (double)b / 255.0;
+	double da = (double)a / 255.0;
 	_new_rgba(l, dr, dg, db, da);
 }
 
