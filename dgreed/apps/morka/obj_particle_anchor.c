@@ -10,7 +10,7 @@ static void obj_particle_anchor_update(GameObject* self, float ts, float dt){
 		.left = anchor->pos.x,
 		.top = anchor->pos.y
 	};
-	uint camera = self->type == OBJ_PARTICLE_ANCHOR_TYPE ? 0 : 1;
+	uint camera = self->type == OBJ_PARTICLE_ANCHOR_TYPE ? 0 : 2;
 	RectF result = objects_world2screen(pos,camera);
 	
 	anchor->screen_pos = vec2(result.left,result.top);
