@@ -1884,6 +1884,80 @@ void sort_heapsort(void* data, size_t num, size_t size,
 	}
 }
 
+static void _merge(void* scratch, void* p, size_t s, size_t an, size_t bn,
+		int (*compar) (const void*, const void*)) {
+	size_t i = 0, j = 0;
+
+	while(i < an && j < bn) {
+		int res = compar(p + i * s, p + (an + j) * s);
+		if(res <= 0) {
+			memcpy(scratch + (i+j) * s, p + i * s, s);
+			i++;
+			if(i == an) {
+				memcpy(scratch + (i+j) * s, p + (an + j) * s, (bn - j) * s);
+				break;
+			}
+		}
+		else {
+			memcpy(scratch + (i+j) * s, p + (an + j) * s, s);
+			j++;
+			if(j == bn) {
+				memcpy(scratch + (i+j) * s, p + i * s, (an - i) * s);
+				break;
+			}
+		}
+	}
+
+	// Copy results back
+	memcpy(p, scratch, (an + bn) * s);
+}
+
+void sort_mergesort(void* data, size_t num, size_t s,
+		int (*compar) (const void*, const void*)) {
+
+	static size_t scratch_size = 0;
+	static void* scratch = NULL;
+
+	// Yes, this is on purpose made leak
+	if(!scratch) {
+		scratch_size = num * s;
+		scratch = malloc(scratch_size);
+	}
+	if(scratch_size < num * s) {
+		scratch_size = num * s;
+		scratch = realloc(scratch, scratch_size);
+	}
+
+	// First pass - sort every four elements with optimal sorting network
+	for(size_t i = 0; i < num; i += 4) {
+		void* a = data + (i+0) * s;
+		void* b = i+1 < num ? data + (i+1) * s : NULL;
+		void* c = i+2 < num ? data + (i+2) * s : NULL;
+		void* d = i+3 < num ? data + (i+3) * s : NULL;
+
+		if(c && compar(a, c) > 0)
+			_mem_swap(a, c, s);
+		if(b && d && compar(b, d) > 0)
+			_mem_swap(b, d, s);
+		if(b && compar(a, b) > 0)
+			_mem_swap(a, b, s);
+		if(c && d && compar(c, d) > 0)
+			_mem_swap(c, d, s);
+		if(b && c && compar(b, c) > 0)
+			_mem_swap(b, c, s);
+	}
+
+	// Do mergesort passes now
+	for(size_t w = 4; w < num; w *= 2) {
+		for(size_t i = 0; i < num; i += w * 2) {
+			int an = MIN(w, num - i);
+			int bn = MIN(w, num - (i + w));
+			if(an && bn)
+				_merge(scratch, data + i * s, s, an, bn, compar);
+		}
+	}
+}
+
 /*
 -------------------
 --- Compression ---

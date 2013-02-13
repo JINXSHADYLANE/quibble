@@ -431,3 +431,35 @@ TEST_(sort_heapsort_int) {
 	ASSERT_(memcmp(c, c_sorted, sizeof(c)) == 0);
 }
 
+static int int_compar(const void* a, const void* b) {
+	int ia = *(const int*)a;
+	int ib = *(const int*)b;
+	return ia - ib;
+}
+
+TEST_(sort_mergesort) {
+	int a[] = {6, 5, 3, 1, 7, 2, 4};
+	int a_sorted[] = {1, 2, 3, 4, 5, 6, 7};
+	sort_mergesort(a, ARRAY_SIZE(a), sizeof(int), int_compar);
+	ASSERT_(memcmp(a, a_sorted, sizeof(a)) == 0);
+
+	int b[] = {1, 1};
+	sort_mergesort(b, ARRAY_SIZE(b), sizeof(int), int_compar);
+	ASSERT_(b[0] == 1 && b[1] == 1);
+
+	int c[] = {
+		46, 47, 44, 63, 12, 19, 47, 61,
+		44, 58, 67, -9, 87, 13, 42, 49,
+		43, 62, 55, 100, 46, -12, 61, 12
+	};
+	int c_sorted[] = {
+		-12, -9, 12, 12, 13, 19, 42, 43, 
+		44, 44, 46, 46, 47, 47, 49, 55, 
+		58, 61, 61, 62, 63, 67, 87, 100
+	};
+	sort_mergesort(c, ARRAY_SIZE(c), sizeof(int), int_compar);
+	
+	ASSERT_(memcmp(c, c_sorted, sizeof(c)) == 0);
+
+}
+
