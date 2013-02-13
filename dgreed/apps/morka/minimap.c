@@ -46,7 +46,6 @@ void minimap_draw(){
 		ObjRabbit* rabbit = *p_rabbit;
 		
 		float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
-		//if(rabbit->data->player_control) printf("rd: %f \n", rd * 1024.0f);
 		if(rabbit->data->player_control) player_x = rabbit->header.physics->cd_obj->pos.x;
 		rd = (float)rd*w/level_distance;
 		if(rd > w)	rd = w;
@@ -57,7 +56,7 @@ void minimap_draw(){
 			.right = 0,
 			.bottom = 0
 		};
-		spr_draw_h(handle, hud_layer+1,dest,rabbit->data->minimap_color);
+		spr_draw_h(handle, hud_layer,dest,rabbit->data->minimap_color);
 
 
 	}
