@@ -86,7 +86,7 @@ void obj_rabbit_ai_control(GameObject* self){
 		} 
 
 		// raycast for gap ahead
-		start = vec2(pos.x + 80.0f + p->vel.x * 0.2f,768+100);
+		start = vec2(pos.x + 80.0f,768+100);
 		end = vec2(start.x,768-100);
 		obj = objects_raycast(start,end);
 
@@ -327,7 +327,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		if(!d->touching_ground) {
 			// Apply gravity
-			objects_apply_force(self, vec2(0.0f, 5000.0f));
+			objects_apply_force(self, vec2(0.0f, 6000.0f));
 		} else {
 			d->combo_counter = 0;
 			d->boost = 0;

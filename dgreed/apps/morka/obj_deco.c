@@ -18,7 +18,7 @@ static void obj_deco_construct(GameObject* self, Vector2 pos, void* user_data) {
 	// Render
 	RenderComponent* render = self->render;
 	render->world_dest = dest;
-	render->layer = self->type == OBJ_DECO_TYPE ? bg_mushrooms_layer : foreground_layer;
+	render->layer = self->type == OBJ_DECO_TYPE ? bg_mushrooms_layer : ground_layer;
 	render->color = COLOR_RGBA(255, 255, 255, 255);
 	render->camera = self->type == OBJ_DECO_TYPE ? 1 : 0;
 	render->anim_frame = MAX_UINT16;
