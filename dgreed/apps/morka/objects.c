@@ -7,7 +7,8 @@
 
 #define MAX_GAMEOBJECT_SIZE (sizeof(GameObject) * 3)
 
-RectF objects_camera[2] = {
+RectF objects_camera[3] = {
+	{0.0f, 0.0f, 1024.0f, 768.0f},
 	{0.0f, 0.0f, 1024.0f, 768.0f},
 	{0.0f, 0.0f, 1024.0f, 768.0f}
 };

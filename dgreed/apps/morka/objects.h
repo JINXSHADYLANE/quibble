@@ -97,7 +97,7 @@ typedef struct {
 // Public api:
 
 extern CDWorld* objects_cdworld;
-extern RectF objects_camera[2];
+extern RectF objects_camera[3];
 
 void objects_init(void);
 void objects_close(void);
