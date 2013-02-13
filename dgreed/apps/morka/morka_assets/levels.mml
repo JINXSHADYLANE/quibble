@@ -1,0 +1,101 @@
+(levels morka
+	(level level1
+		(distance 75)
+		(rabbits _
+			(name Tori
+				(spr rabbit_2)
+				(speed 510)
+				(xjump 100)
+				(yjump 400)
+			)
+		)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level1_fg)
+		(ground_chain level1_ground)
+	)
+	(level level2
+		(distance 85)
+		(rabbits _
+			(name Lili
+				(spr rabbit_3)
+				(speed 495)
+				(xjump 105)
+				(yjump 400)
+			)
+		)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level2_fg)
+		(ground_chain level2_ground)
+	)
+	(level level3
+		(distance 100)
+		(rabbits _
+			(name Tori
+				(spr rabbit_2)
+				(speed 505)
+				(xjump 102)
+				(yjump 410)
+			)
+			(name Lili
+				(spr rabbit_3)
+				(speed 502)
+				(xjump 100)
+				(yjump 400)
+			)
+		)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level3_fg)
+		(ground_chain level3_ground)
+	)
+	(level level4
+		(distance 125)
+		(rabbits _
+			(name Tori
+				(spr rabbit_2)
+				(speed 495)
+				(xjump 105)
+				(yjump 410)
+			)
+			(name Lili
+				(spr rabbit_3)
+				(speed 507)
+				(xjump 101)
+				(yjump 404)
+			)
+		)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level4_fg)
+		(ground_chain level4_ground)
+	)
+	(level level5
+		(distance 150)
+		(rabbits _
+			(name Tori
+				(spr rabbit_2)
+				(speed 459)
+				(xjump 100)
+				(yjump 400)
+			)
+			(name Lili
+				(spr rabbit_3)
+				(speed 432)
+				(xjump 100)
+				(yjump 410)
+			)
+			(name Kubo
+				(spr rabbit_4)
+				(speed 550)
+				(xjump 100)
+				(yjump 400)
+			)
+		)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level5_fg)
+		(ground_chain level5_ground)
+	)
+)
