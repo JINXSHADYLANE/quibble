@@ -207,7 +207,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			float delta = minimap_player_x() - p->cd_obj->pos.x;
 			p->cd_obj->pos.y = 370.0f;
 			d->touching_ground = true;
-			objects_apply_force(self, vec2(3*delta+rand_float_range(-100.0f,100.0f), 0.0f));
+			objects_apply_force(self, vec2(d->speed + d->xjump + d->yjump + delta + rand_float_range(-100.0f,100.0f), 0.0f));
 		}
 
 		if(camera_follow && !d->rubber_band) rabbit->control(self);
