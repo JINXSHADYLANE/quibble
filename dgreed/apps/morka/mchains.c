@@ -49,7 +49,7 @@ static void _predict_size(MMLObject* mml, NodeIdx root) {
 			}
 		}
 
-		assert(rs_symbols <= 24);
+		assert(rs_symbols <= 32);
 		n_symbols += rs_symbols;
 		n_transitions += rs_symbols*rs_symbols*rs_symbols;
 	}

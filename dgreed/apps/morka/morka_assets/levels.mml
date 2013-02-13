@@ -34,15 +34,15 @@
 		(rabbits _
 			(name Tori
 				(spr rabbit_2)
-				(speed 505)
-				(xjump 102)
-				(yjump 410)
+				(speed 405)
+				(xjump 122)
+				(yjump 415)
 			)
 			(name Lili
 				(spr rabbit_3)
-				(speed 502)
+				(speed 482)
 				(xjump 100)
-				(yjump 400)
+				(yjump 380)
 			)
 		)
 		(background background)
