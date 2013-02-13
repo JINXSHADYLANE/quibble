@@ -207,9 +207,9 @@
 		(tex atlas_3.png)
 		(src 5,739,176,1014)
 	)
-	(img grass1_sign
+	(img grass3_sign
 		(tex atlas_3.png)
-		(src 179,739,433,978)
+		(src 179,739,433,976)
 	)
 	(img mushroom_1
 		(tex atlas_3.png)
@@ -239,6 +239,7 @@
 		(tex atlas_3.png)
 		(src 347,142,526,265)
 	)
+
 
 
 	(img element_1
