@@ -163,12 +163,6 @@ static void _gen_fg_page(void) {
 		uint shroom_width = (uint) sprsheet_get_size_h(spr).x;
 		bool place = false;
 	
-		// temporary dust particle generation
-		if(fg_page_cursor > 0){
-			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_bg_particle_anchor_desc, pos, NULL);
-			mfx_trigger_follow("dusts",&anchor->screen_pos,NULL);
-		}
-
 		if(spr){
 			place = true;
 			
