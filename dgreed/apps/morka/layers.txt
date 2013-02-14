@@ -1,0 +1,12 @@
+0 - background
+1 - dust particles
+2 - background mushrooms
+3 - finish line
+4 - foreground mushrooms
+5 - rabbit, pin
+6 - ground
+7 - particles
+8 - hud
+
+layer numbers are now defined in common.h
+particle layers are defined in particles.mml

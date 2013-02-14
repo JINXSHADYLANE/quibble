@@ -1,0 +1,90 @@
+(object_defs _
+	(obj eye1
+		(tex greed_assets/objects.png)
+		(frames _
+			(f 0,0,32,32)
+			(f 32,0,64,32)
+			(f 64,0,96,32)
+			(f 96,0,128,32)
+		)
+		(anim loop)
+		(fps 3)
+	)
+	(obj eye2
+		(tex greed_assets/objects.png)
+		(frames _
+			(f 0,32,32,64)
+			(f 32,32,64,64)
+			(f 64,32,96,64)
+			(f 96,32,128,64)		
+		)
+		(anim loop)
+		(fps 3)
+	)
+	(obj eye3
+		(tex greed_assets/objects.png)
+		(frames _
+			(f 0,64,32,96)
+			(f 32,64,64,96)
+			(f 64,64,96,96)
+			(f 96,64,128,96)		
+		)
+		(anim loop)
+		(fps 3)
+	)
+	(obj eye4
+		(tex greed_assets/objects.png)
+		(frames _
+			(f 0,96,32,128)
+			(f 32,96,64,128)
+			(f 64,96,96,128)
+			(f 96,96,128,128)		
+		)
+		(anim loop)
+		(fps 3)
+	)
+	(obj star1
+		(tex greed_assets/objects.png)
+		(frames _
+			(f 0,128,32,160)
+			(f 32,128,64,160)
+			(f 64,128,96,160)
+			(f 96,128,128,160)
+		)
+		(anim loop)
+		(fps 3)
+	)
+	(obj star2
+		(tex greed_assets/objects.png)
+		(frames _
+			(f 0,160,32,192)
+			(f 32,160,64,192)
+			(f 64,160,96,192)
+			(f 96,160,128,192)		
+		)
+		(anim loop)
+		(fps 3)
+	)
+	(obj star3
+		(tex greed_assets/objects.png)
+		(frames _
+			(f 0,192,32,224)
+			(f 32,192,64,224)
+			(f 64,192,96,224)
+			(f 96,192,128,224)		
+		)
+		(anim loop)
+		(fps 3)
+	)
+	(obj star4
+		(tex greed_assets/objects.png)
+		(frames _
+			(f 0,224,32,256)
+			(f 32,224,64,256)
+			(f 64,224,96,256)
+			(f 96,224,128,256)		
+		)
+		(anim loop)
+		(fps 3)
+	)
+)
