@@ -4,7 +4,7 @@
 		(rabbits _
 			(name Tori
 				(spr rabbit_2)
-				(speed 510)
+				(speed 410)
 				(xjump 100)
 				(yjump 400)
 			)
@@ -19,7 +19,7 @@
 		(rabbits _
 			(name Lili
 				(spr rabbit_3)
-				(speed 495)
+				(speed 435)
 				(xjump 105)
 				(yjump 400)
 			)
@@ -42,7 +42,13 @@
 				(spr rabbit_3)
 				(speed 482)
 				(xjump 100)
-				(yjump 380)
+				(yjump 400)
+			)
+			(name Kubo
+				(spr rabbit_4)
+				(speed 490)
+				(xjump 100)
+				(yjump 410)
 			)
 		)
 		(background background)
@@ -55,7 +61,7 @@
 		(rabbits _
 			(name Tori
 				(spr rabbit_2)
-				(speed 495)
+				(speed 450)
 				(xjump 105)
 				(yjump 410)
 			)
