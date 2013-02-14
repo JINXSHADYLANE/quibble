@@ -499,6 +499,10 @@ void sort_heapsort(void* data, size_t num, size_t size,
 void sort_mergesort(void* data, size_t num, size_t size,
 		int (*compar) (const void*, const void*));
 
+// You can provide scratch buffer to this one
+void sort_mergesort_ex(void* data, void* scratch, size_t num, size_t size,
+		int (*compar) (const void*, const void*));
+
 /*
 -------------------
 --- Compression ---
