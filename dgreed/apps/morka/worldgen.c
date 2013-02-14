@@ -114,7 +114,13 @@ static void _gen_fg_page(void) {
 						gaps_i = 0;
 						printf("gaps_i > max_gaps !\n");
 					}
-				}			
+				}
+				// Token over gap start/end
+				Vector2 size = sprsheet_get_size_h(spr);
+				float width = size.x;
+				float height = size.y;
+				objects_create(&obj_token_desc, vec2(pos.x + width/2.0f,479.0f), (void*)sprsheet_get_handle("token"));
+
 			} else {
 				if(sym == 'g') {
 					gap_possible = true;
@@ -143,7 +149,11 @@ static void _gen_fg_page(void) {
 						printf("gaps_i > max_gaps !\n");
 					}
 				}
-
+				// Tokens over gap
+				objects_create(&obj_token_desc, vec2(pos.x + prev_advance + advance/2.0f,400.0f), (void*)sprsheet_get_handle("token"));
+				objects_create(&obj_token_desc, vec2(pos.x - advance/2.5f + prev_advance + advance/2.0f,425.0f), (void*)sprsheet_get_handle("token"));
+				objects_create(&obj_token_desc, vec2(pos.x + advance/2.5f + prev_advance + advance/2.0f,425.0f), (void*)sprsheet_get_handle("token"));
+				// Fall trigger
 				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
 			}
 		}
@@ -154,6 +164,7 @@ static void _gen_fg_page(void) {
 
 	// Add foreground mushrooms
 	static float fg_x = page_width;
+	static int place_coins = 3;
 	fg_x -= page_width;
 	while(fg_x < page_width) {
 		
@@ -179,29 +190,44 @@ static void _gen_fg_page(void) {
 					if(	(pos.x > gaps[i].x - dist				&& pos.x < gaps[i].y + dist) ||
 						(pos.x+shroom_width > gaps[i].x - dist && pos.x+shroom_width < gaps[i].y + dist) ||
 						(pos.x < gaps[i].x - dist 				&& pos.x+shroom_width > gaps[i].y + dist )
-					){ place = false; printf("spike removed\n");}				
+					)place = false;				
 				}
 
+			}
+		} else {
+			if(place_coins <= 0){
+				bool c = true;
+				for(int i = 1; i <= gaps_i;i++){
+					if(	(pos.x > gaps[i].x && pos.x < gaps[i].y) ||
+						(pos.x+250.0f > gaps[i].x && pos.x+250.0f < gaps[i].y) ||
+						(pos.x < gaps[i].x && pos.x+250.0f > gaps[i].y )){
+						c = false;
+					}
+				}
+				if(c){
+					place_coins = 3;
+					objects_create(&obj_token_desc, vec2(pos.x + 50.0f,	579.0f), (void*)sprsheet_get_handle("token"));
+					objects_create(&obj_token_desc, vec2(pos.x + 150.0f,579.0f), (void*)sprsheet_get_handle("token"));
+					objects_create(&obj_token_desc, vec2(pos.x + 250.0f,579.0f), (void*)sprsheet_get_handle("token"));					
+				}
 			}
 		}
 				
 		if(place) {
-
-			// Placing tokens above mushrooms
-			Vector2 size = sprsheet_get_size_h(spr);
-			float width = size.x;
-			float height = size.y;
-			objects_create(&obj_token_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f) ), (void*)sprsheet_get_handle("token"));
-			//for(int i = 0; i < 5;i++){
-			//	objects_create(&obj_token_desc, vec2_add( pos, vec2(-i * 40.0f + width/2.0f,-height - 50.0f + (i*i) * 10.0f) ), (void*)sprsheet_get_handle("token"));
-			//}
-
 			GameObject* g = objects_create(&obj_mushroom_desc, pos, (void*)spr);
 			ObjMushroom* shroom = (ObjMushroom*)g;
 			if(sym == 'x')
 				shroom->damage = 1.0f;
-			else
-				shroom->damage = 0.0f;
+			else{
+				shroom->damage = 0.0f;	
+
+				// Placing tokens on big shrooms
+				Vector2 size = sprsheet_get_size_h(spr);
+				float width = size.x;
+				float height = size.y;
+				if(height > 270.0f)
+					objects_create(&obj_token_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f) ), (void*)sprsheet_get_handle("token"));
+			}	
 
 		}
 	
@@ -209,7 +235,7 @@ static void _gen_fg_page(void) {
 	}
 
 	fg_page_cursor += page_width;
-	
+	place_coins--;
 	// save last gap for next page
 	gaps[1].x = gaps[gaps_i].x;
 	gaps[1].y = gaps[gaps_i].y; 	
