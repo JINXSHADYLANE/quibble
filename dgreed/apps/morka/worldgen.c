@@ -176,13 +176,26 @@ static void _gen_fg_page(void) {
 
 				if(sym == 'x'){
 					const float dist = 256.0f;
-					if( (pos.x + shroom_width + dist  > gaps[i].x && pos.x < gaps[i].y) ) place = false;				
+					if(	(pos.x > gaps[i].x - dist				&& pos.x < gaps[i].y + dist) ||
+						(pos.x+shroom_width > gaps[i].x - dist && pos.x+shroom_width < gaps[i].y + dist) ||
+						(pos.x < gaps[i].x - dist 				&& pos.x+shroom_width > gaps[i].y + dist )
+					){ place = false; printf("spike removed\n");}				
 				}
 
 			}
 		}
 				
 		if(place) {
+
+			// Placing tokens above mushrooms
+			Vector2 size = sprsheet_get_size_h(spr);
+			float width = size.x;
+			float height = size.y;
+			objects_create(&obj_token_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f) ), (void*)sprsheet_get_handle("token"));
+			//for(int i = 0; i < 5;i++){
+			//	objects_create(&obj_token_desc, vec2_add( pos, vec2(-i * 40.0f + width/2.0f,-height - 50.0f + (i*i) * 10.0f) ), (void*)sprsheet_get_handle("token"));
+			//}
+
 			GameObject* g = objects_create(&obj_mushroom_desc, pos, (void*)spr);
 			ObjMushroom* shroom = (ObjMushroom*)g;
 			if(sym == 'x')

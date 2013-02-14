@@ -18,6 +18,8 @@ static float combo_flip_t = 0.0f;
 
 extern uint longest_combo;
 
+extern ObjRabbit* rabbit;
+
 void _hud_render_ui(UIElement* element, uint layer) {
 	// Render
 	if(element->members & UI_EL_SPR) {
@@ -79,6 +81,19 @@ void hud_trigger_combo(uint multiplier) {
 }
 
 void hud_render(float t) {
+	UIElement* token_icon = uidesc_get("token_icon");
+	spr_draw_cntr_h(token_icon->spr, hud_layer,token_icon->vec2, 0.0f, 1.0f, COLOR_WHITE);
+
+	UIElement* token_text = uidesc_get("token_text");
+	vfont_select(FONT_NAME, 38.0f);
+	char str[32];
+	sprintf(str, "%d",rabbit->data->tokens);
+	static Vector2 half_size = {0.0f, 0.0f};
+	if(half_size.x == 0.0f) {
+		half_size = vec2_scale(vfont_size(str), 0.5f);
+	}
+	vfont_draw(str, hud_layer, token_text->vec2, COLOR_WHITE);
+
 	UIElement* pause = uidesc_get("hud_pause");
 	_hud_render_ui(pause, hud_layer);
 	if(touches_down() && t == 0.0f) {

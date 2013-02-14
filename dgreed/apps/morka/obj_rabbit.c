@@ -555,6 +555,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->boost = 0;
 	d->speed = 100.0f;
 	d->rubber_band = false;
+	d->tokens = 0;
 
 	if(id < 0){
 		render->spr = sprsheet_get_handle("rabbit");

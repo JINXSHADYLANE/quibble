@@ -15,7 +15,8 @@ enum {
 	OBJ_SPEED_TRIGGER_TYPE,
 	OBJ_FALL_TRIGGER_TYPE,
 	OBJ_PARTICLE_ANCHOR_TYPE,
-	OBJ_BG_PARTICLE_ANCHOR_TYPE
+	OBJ_BG_PARTICLE_ANCHOR_TYPE,
+	OBJ_TOKEN_TYPE
 };
 
 // Rabbit Data
@@ -50,6 +51,7 @@ typedef struct {
 	float speed;
 	float xjump;
 	float yjump;
+	int tokens;
 } ObjRabbitData;
 
 typedef void (*ControlCallback)(GameObject* self);
@@ -144,6 +146,15 @@ typedef struct {
 } ObjBgParticleAnchor;
 
 extern GameObjectDesc obj_bg_particle_anchor_desc;
+
+// Token (coin)
+
+typedef struct {
+	GameObject header;
+	int value;
+} ObjToken;
+
+extern GameObjectDesc obj_token_desc;
 
 #endif
 

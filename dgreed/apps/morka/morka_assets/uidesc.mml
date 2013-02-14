@@ -11,6 +11,21 @@
 		)
 	)
 
+	(def token_icon
+		(spr token_tag)
+		(add <-
+			(tl <- (get_rect screen))
+			(vec2 50,50)
+		)
+	)
+
+	(def token_text
+		(add <-
+			(tl <- (get_rect screen))
+			(vec2 100,35)
+		)
+	)
+
 	(def position_line
 		(spr position_line)
 		(add <-
