@@ -35,7 +35,7 @@
 	)
 	(img blue_shade
 		(tex atlas_2.png)
-		(src 1011,73,1021,83)
+		(src 1006,131,1016,141)
 	)
 	(img bottle
 		(tex atlas_2.png)
@@ -47,7 +47,7 @@
 	)
 	(img finish_tile
 		(tex atlas_2.png)
-		(src 964,2,1007,68)
+		(src 964,60,1007,126)
 	)
 	(img grass1
 		(tex atlas_2.png)
@@ -91,11 +91,11 @@
 	)
 	(img pause
 		(tex atlas_2.png)
-		(src 993,117,1015,140)
+		(src 993,168,1015,191)
 	)
 	(img pin
 		(tex atlas_2.png)
-		(src 964,117,989,155)
+		(src 964,168,989,206)
 	)
 	(img planet_1
 		(tex atlas_2.png)
@@ -123,7 +123,7 @@
 	)
 	(img position_knob
 		(tex atlas_2.png)
-		(src 1011,2,1019,10)
+		(src 1011,60,1019,68)
 	)
 	(img position_line
 		(tex atlas_2.png)
@@ -132,6 +132,10 @@
 	(img quit
 		(tex atlas_2.png)
 		(src 696,617,820,741)
+	)
+	(img resque_tag
+		(tex atlas_2.png)
+		(src 964,2,1019,56)
 	)
 	(img restart
 		(tex atlas_2.png)
@@ -151,11 +155,11 @@
 	)
 	(img token
 		(tex atlas_2.png)
-		(src 964,72,1006,113)
+		(src 964,130,1001,164)
 	)
 	(img token_tag
 		(tex atlas_2.png)
-		(src 683,945,752,1009)
+		(src 683,945,755,1013)
 	)
 	(img water1
 		(tex atlas_2.png)
@@ -189,6 +193,7 @@
 		(tex atlas_2.png)
 		(src 408,626,564,795)
 	)
+
 
 
 	(img bg_mushroom_2
