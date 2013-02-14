@@ -1915,18 +1915,23 @@ static void _merge(void* scratch, void* p, size_t s, size_t an, size_t bn,
 void sort_mergesort(void* data, size_t num, size_t s,
 		int (*compar) (const void*, const void*)) {
 
-	static size_t scratch_size = 0;
-	static void* scratch = NULL;
+	void* scratch = NULL;
+	size_t scratch_size = num * s;
 
-	// Yes, this is on purpose made leak
-	if(!scratch) {
-		scratch_size = num * s;
-		scratch = malloc(scratch_size);
-	}
-	if(scratch_size < num * s) {
-		scratch_size = num * s;
-		scratch = realloc(scratch, scratch_size);
-	}
+	// Alloc small amounts on the stack
+	if(scratch_size < 1024)
+		scratch = alloca(scratch_size);
+	else
+		scratch = MEM_ALLOC(scratch_size);
+
+	sort_mergesort_ex(data, scratch, num, s, compar);
+
+	if(scratch_size >= 1024)
+		MEM_FREE(scratch);
+}
+
+void sort_mergesort_ex(void* data, void* scratch, size_t num, size_t s,
+		int (*compar) (const void*, const void*)) {
 
 	// First pass - sort every four elements with optimal sorting network
 	for(size_t i = 0; i < num; i += 4) {
