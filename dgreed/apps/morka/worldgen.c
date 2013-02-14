@@ -165,14 +165,20 @@ static void _gen_fg_page(void) {
 	
 		if(spr){
 			place = true;
-			
+			if((gap_possible && (pos.x+shroom_width > fg_page_cursor + page_width + (ground_x-page_width)) )) place = false;
+
 			for(int i = 1; i <= gaps_i;i++){
-				if(	(gap_possible && (pos.x+shroom_width > fg_page_cursor + page_width + (ground_x-page_width)) ) ||
-					(pos.x > gaps[i].x && pos.x < gaps[i].y) ||
+				if(	(pos.x > gaps[i].x && pos.x < gaps[i].y) ||
 					(pos.x+shroom_width > gaps[i].x && pos.x+shroom_width < gaps[i].y) ||
 					(pos.x < gaps[i].x && pos.x+shroom_width > gaps[i].y )){
 					place = false;
 				}
+
+				if(sym == 'x'){
+					const float dist = 256.0f;
+					if( (pos.x + shroom_width + dist  > gaps[i].x && pos.x < gaps[i].y) ) place = false;				
+				}
+
 			}
 		}
 				

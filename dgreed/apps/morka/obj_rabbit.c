@@ -165,7 +165,7 @@ void obj_rabbit_ai_control(GameObject* self){
 				if(obj->type == OBJ_FALL_TRIGGER_TYPE && !d->is_diving && p->vel.y > 0.0f) {
 					d->virtual_key_down = true;
 					d->virtual_key_pressed = true;
-					//printf("dive before gap, vel.x: %.0f dy %.0f distance: %f \n", p->vel.x,(579.0f - pos.y),obj->physics->cd_obj->pos.x - pos.x);
+					//printf("%d dive before gap, vel.x: %.0f dy %.0f distance: %f \n",self, p->vel.x,(579.0f - pos.y),obj->physics->cd_obj->pos.x - pos.x);
 				}
 				if(obj->type == OBJ_FALL_TRIGGER_TYPE) safe_to_land = false;	
 			}
@@ -189,7 +189,7 @@ void obj_rabbit_ai_control(GameObject* self){
 				if(obj->type == OBJ_MUSHROOM_TYPE){
 					ObjMushroom* mushroom = (ObjMushroom*)obj;
 					if(mushroom->damage == 0.0f){
-						//printf("diving on shroom with vel.x: %.0f dy %.0f distance: %f \n", p->vel.x,(579.0f - pos.y),obj->physics->cd_obj->pos.x - pos.x);
+						//printf("%d diving on shroom with vel.x: %.0f dy %.0f distance: %f \n",self, p->vel.x,(579.0f - pos.y),obj->physics->cd_obj->pos.x - pos.x);
 						d->virtual_key_down = true;
 						d->virtual_key_pressed = true;
 					}
@@ -257,6 +257,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			
 				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 				mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+
+				//printf("%d mushroom hit\n",self);
 			}
 		}
 		else {
@@ -348,7 +350,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		p->vel.y = 0.0f;
 	}
 	if(p->cd_obj->pos.y > HEIGHT){
-		//printf("rabbit dead %.0f %.0f \n",p->vel.x,p->vel.y);
+		//printf("rabbit %d dead %.0f %.0f \n",self,p->vel.x,p->vel.y);
 		rabbit->data->is_dead = true;
 		p->vel.x = 0.0f;
 		p->vel.y = 0.0f;
