@@ -1,0 +1,37 @@
+(mfx _
+	(prefix "bailys_assets/")
+	(sounds _
+		(s egg_explode.wav)
+		(s walk.wav)
+		(s lvlend_good.wav)
+		(s lvlend_bad.wav)
+		(s egg_take.wav)
+		(s laser.wav)
+	)
+	(effects _
+		(e egg_explode
+			(sound egg_explode.wav)
+		)
+
+		(e egg_take
+			(sound egg_take.wav)
+		)
+
+		(e walk
+			(sound walk.wav)
+		)
+
+		(e lvlend_good
+			(sound lvlend_good.wav)
+		)
+
+		(e lvlend_bad
+			(sound lvlend_bad.wav)
+		)
+
+		(e laser
+			(sound laser.wav)
+		)
+	)
+)
+
