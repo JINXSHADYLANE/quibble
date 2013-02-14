@@ -221,24 +221,29 @@
 	)
 	(img mushroom_3
 		(tex atlas_3.png)
-		(src 466,388,541,497)
+		(src 466,5,541,114)
 	)
 	(img mushroom_4
 		(tex atlas_3.png)
-		(src 499,5,621,128)
+		(src 347,241,469,364)
 	)
 	(img mushroom_5
 		(tex atlas_3.png)
-		(src 347,5,497,140)
+		(src 861,5,1011,140)
 	)
 	(img mushroom_6
 		(tex atlas_3.png)
-		(src 347,267,482,386)
+		(src 347,116,482,235)
 	)
 	(img spikeshroom_1
 		(tex atlas_3.png)
-		(src 347,142,526,265)
+		(src 565,116,744,239)
 	)
+	(img trampoline
+		(tex atlas_3.png)
+		(src 565,5,859,114)
+	)
+
 
 
 
