@@ -319,7 +319,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	
 		objects_apply_force(self, dir);
 
-
 		if(d->combo_counter >= 3 && d->boost == 0){
 			mfx_trigger_ex("boost",vec2_add(screen_pos,vec2(20.0f,0.0f)),0.0f);
 			p->vel.x *= 1.045;
@@ -348,6 +347,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	if(p->cd_obj->pos.y < rabbit_hitbox_height){
 		p->cd_obj->pos.y = rabbit_hitbox_height;
 		p->vel.y = 0.0f;
+		d->touching_ground = false;
 	}
 	if(p->cd_obj->pos.y > HEIGHT){
 		//printf("rabbit %d dead %.0f %.0f \n",self,p->vel.x,p->vel.y);
@@ -409,6 +409,9 @@ static void _rabbit_delayed_bounce(void* r) {
 
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, p->cd_obj->pos, NULL);
 		mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+
+		if(d->combo_counter+1 == 3) mfx_trigger_follow("boost_explosion",&anchor->screen_pos,NULL);
+
 		//printf("pos.x: %f v: %f %f \n",p->cd_obj->pos.y,p->vel.x,p->vel.y);
 		d->land = p->cd_obj->pos.x + (405.0f-p->vel.y) + p->vel.x + (p->vel.x) / (2.0f + p->vel.x/1000.0f);
 
