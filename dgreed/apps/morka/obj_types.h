@@ -40,6 +40,7 @@ typedef struct {
 	bool player_control;
 	bool particle_spawn;
 	bool falling_down;
+	float land;
 	float rabbit_time;
 	const char* rabbit_name; 
 	bool game_over;

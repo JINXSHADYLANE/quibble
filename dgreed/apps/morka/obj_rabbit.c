@@ -86,7 +86,7 @@ void obj_rabbit_ai_control(GameObject* self){
 		} 
 
 		// raycast for gap ahead
-		start = vec2(pos.x + 80.0f,768+100);
+		start = vec2(pos.x + 80.0f + (p->vel.x * 0.1f),768+100);
 		end = vec2(start.x,768-100);
 		obj = objects_raycast(start,end);
 
@@ -102,8 +102,9 @@ void obj_rabbit_ai_control(GameObject* self){
 		// AI avoids gaps
 		if(obj){
 			if(obj->type == OBJ_FALL_TRIGGER_TYPE){
-					d->virtual_key_down = true;
-					d->virtual_key_pressed = true;
+				//printf("jump before gap \n");
+				d->virtual_key_down = true;
+				d->virtual_key_pressed = true;
 			}	
 		} 
 
@@ -114,7 +115,7 @@ void obj_rabbit_ai_control(GameObject* self){
 		if(p->vel.y < 0.0f) temp = -p->vel.y;
 
 		// raycast for safe landing
-		start = vec2(pos.x + 100.0f + (p->vel.x * 0.3f) *(579.0f-pos.y)/579.0f,768.0f - 100.0f);
+		start = vec2(pos.x + 100.0f + (p->vel.x * 0.4f) *(579.0f-pos.y)/579.0f,768.0f - 100.0f);
 		end = vec2(start.x-100.0f,start.y);
 		obj = objects_raycast(start,end);
 
@@ -142,8 +143,11 @@ void obj_rabbit_ai_control(GameObject* self){
 				d->virtual_key_up = true;
 			}
 
-			// raycast for gap while in air
-			start = vec2(pos.x + 80.0f + temp + (p->vel.x * 0.3f) *(579.0f-pos.y)/579.0f,768.0f + 100.0f);
+			// raycast landing zone for gap while in air
+			// + (579.0f-pos.y) * p->vel.x * 0.0025f
+			//d->xjump * d->xjump *(time_s() - prev_time)
+			//printf("pos: %f vel: %f\n",pos.y,p->vel.y);
+			start = vec2(d->land,768.0f + 100.0f);
 			end = vec2(start.x,768-100);
 			obj = objects_raycast(start,end);
 
@@ -158,7 +162,7 @@ void obj_rabbit_ai_control(GameObject* self){
 
 			// AI dives before gaps, so it can jump over them
 			if(safe_to_land && obj){
-				if(obj->type == OBJ_FALL_TRIGGER_TYPE && !d->is_diving && p->vel.x < 1000.0f) {
+				if(obj->type == OBJ_FALL_TRIGGER_TYPE && !d->is_diving && p->vel.y > 0.0f) {
 					d->virtual_key_down = true;
 					d->virtual_key_pressed = true;
 					//printf("dive before gap, vel.x: %.0f dy %.0f distance: %f \n", p->vel.x,(579.0f - pos.y),obj->physics->cd_obj->pos.x - pos.x);
@@ -167,7 +171,8 @@ void obj_rabbit_ai_control(GameObject* self){
 			}
 
 			// raycast below rabbit for shrooms
-			start = vec2(pos.x + 100.0f +(( p->vel.x) * (p->vel.x/6000.0f)) *(579.0f-pos.y)/579.0f,pos.y+rabbit_hitbox_height+40);
+			start = vec2(pos.x + 100.0f + (p->vel.x * 0.3f) *(579.0f-pos.y)/579.0f,pos.y+rabbit_hitbox_height+30);
+			//start = vec2(pos.x + 100.0f +(( p->vel.x) * (p->vel.x/6000.0f)) *(579.0f-pos.y)/579.0f,pos.y+rabbit_hitbox_height+20);
 			end = vec2(start.x,768);
 
 			if(draw_ai_debug){
@@ -247,6 +252,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				d->jump_time = ts;
 				objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
 				anim_play(rabbit->anim, "jump");
+				d->land = pos.x + p->vel.x - rabbit_hitbox_width / 2.0f;
 				d->combo_counter = 0;
 			
 				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
@@ -263,18 +269,13 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 
 			if(ts - d->mushroom_hit_time < 0.1f) {
+
 				if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.1f)
 					d->jump_off_mushroom = true;
 
 				if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.1f)
 					d->jump_off_mushroom = true;
-				
-				if(!d->particle_spawn && d->jump_off_mushroom){
-					d->particle_spawn = true;
-					ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
-					mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
-				}
-			
+					
 			}
 			else if(!d->touching_ground) {
 				d->particle_spawn = false;
@@ -346,7 +347,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		p->cd_obj->pos.y = rabbit_hitbox_height;
 		p->vel.y = 0.0f;
 	}
-
 	if(p->cd_obj->pos.y > HEIGHT){
 		//printf("rabbit dead %.0f %.0f \n",p->vel.x,p->vel.y);
 		rabbit->data->is_dead = true;
@@ -398,11 +398,18 @@ static void obj_rabbit_became_invisible(GameObject* self) {
 static void _rabbit_delayed_bounce(void* r) {
 	ObjRabbit* rabbit = r;
 	ObjRabbitData* d = rabbit->data;
+	PhysicsComponent* p = rabbit->header.physics;
 	if(d->jump_off_mushroom || d->is_diving) {
 		d->is_diving = false;
 		GameObject* self = r;
 		objects_apply_force(self, d->bounce_force); 
 		d->jump_off_mushroom = false;
+
+		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, p->cd_obj->pos, NULL);
+		mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+		//printf("pos.x: %f v: %f %f \n",p->cd_obj->pos.y,p->vel.x,p->vel.y);
+		d->land = p->cd_obj->pos.x + (405.0f-p->vel.y) + p->vel.x + (p->vel.x) / (2.0f + p->vel.x/1000.0f);
+
 		if(d->combo_counter++ > 1)
 			if(d->player_control) hud_trigger_combo(d->combo_counter);
 	}
@@ -427,6 +434,10 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			if(!d->touching_ground) {
 				if(d->player_control) hud_trigger_combo(0);
 				anim_play(rabbit->anim, "land");
+				/*printf("p: %f actual: %f  d: %f (%f %)\n",d->jump+self->physics->vel.x,
+														 self->physics->cd_obj->pos.x,
+														 d->jump + self->physics->vel.x - self->physics->cd_obj->pos.x,
+														 self->physics->cd_obj->pos.x/(d->jump+self->physics->vel.x));*/
 			}
 			d->touching_ground = true;
 			cd_rabbit->offset = vec2_add(
@@ -490,6 +501,8 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	physics->vel = vec2(0.0f, 0.0f);
 	physics->hit_callback = obj_rabbit_collide;
 
+	physics->cd_obj->pos.y = 579.0f;
+
 	// Init render
 	TexHandle h;
 	RectF src;
@@ -526,7 +539,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->virtual_key_down = false;
 	d->virtual_key_pressed = false;
 
-	d->touching_ground = false;
+	d->touching_ground = true;
 	d->jump_off_mushroom = false;
 	d->is_diving = false;
 	d->is_dead = false;
