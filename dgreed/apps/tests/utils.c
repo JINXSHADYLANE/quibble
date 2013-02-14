@@ -503,3 +503,28 @@ TEST_(sort_mergesort_stableness) {
 	ASSERT_(memcmp(a, a_sorted, sizeof(a)) == 0);
 }
 
+static int stress_compar(const void* a, const void* b) {
+	byte ba = *(const byte*)a;
+	byte bb = *(const byte*)b;
+
+	return (int)ba - (int)bb;
+}
+
+TEST_(sort_mergesort_stress) {
+	byte a[36 * 1024];
+	byte a_sorted[36 * 1024];
+
+	size_t s = 36 * 1024 / 32;
+
+	for(uint i = 0; i < s; ++i) {
+		for(uint j = 0; j < 32; ++j) {
+			a[i * 32 + j] = MIN(s - i, 255);
+			a_sorted[i * 32 + j] = MIN(i + 1, 255);
+		}
+	}
+
+	sort_mergesort(a, s, 32, stress_compar);
+	ASSERT_(memcmp(a, a_sorted, sizeof(a)) == 0);
+}
+
+

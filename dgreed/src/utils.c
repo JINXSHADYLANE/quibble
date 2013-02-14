@@ -1837,7 +1837,7 @@ static void _mem_swap(void* a, void* b, size_t size) {
 		bi[i] = temp;
 	}
 
-	if(size % 4 != 0) {
+	if(unlikely(size % 4 != 0)) {
 		byte* ab = a;
 		byte* bb = b;
 		for(i = i * 4; i < size; ++i) {
@@ -1888,7 +1888,7 @@ static void _merge(void* scratch, void* p, size_t s, size_t an, size_t bn,
 		int (*compar) (const void*, const void*)) {
 	size_t i = 0, j = 0;
 
-	while(i < an && j < bn) {
+	while(true) {
 		int res = compar(p + i * s, p + (an + j) * s);
 		if(res <= 0) {
 			memcpy(scratch + (i+j) * s, p + i * s, s);
@@ -1955,9 +1955,9 @@ void sort_mergesort_ex(void* data, void* scratch, size_t num, size_t s,
 	// Do mergesort passes now
 	for(size_t w = 4; w < num; w *= 2) {
 		for(size_t i = 0; i < num; i += w * 2) {
-			int an = MIN(w, num - i);
-			int bn = MIN(w, num - (i + w));
-			if(an && bn)
+			int an = MIN((int)w, (int)num - (int)i);
+			int bn = MIN((int)w, (int)num - (int)(i + w));
+			if(likely(an > 0 && bn > 0))
 				_merge(scratch, data + i * s, s, an, bn, compar);
 		}
 	}

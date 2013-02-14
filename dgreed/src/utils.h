@@ -58,6 +58,15 @@ typedef unsigned char byte;
 #endif
 
 /*
+--------------------
+--- Branch hints ---
+--------------------
+*/
+
+#define likely(x) __builtin_expect((x),1)
+#define unlikely(x) __builtin_expect((x),0)
+
+/*
 -------------------
 --- Vector math ---
 -------------------
