@@ -39,13 +39,13 @@ typedef struct {
 	bool on_water;
 	Vector2 bounce_force;
 	bool player_control;
-	bool particle_spawn;
 	bool falling_down;
 	float land;
 	float rabbit_time;
 	const char* rabbit_name; 
 	bool game_over;
 	bool rubber_band;
+	int ai_max_combo;
 	int boost;
 	Color minimap_color;
 	float speed;

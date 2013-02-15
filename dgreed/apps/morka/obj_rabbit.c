@@ -185,7 +185,7 @@ void obj_rabbit_ai_control(GameObject* self){
 
 			obj = objects_raycast(start,end);
 			// dive on shrooms if possible
-			if(obj && safe_to_land){
+			if(obj && safe_to_land && d->combo_counter < d->ai_max_combo){
 				if(obj->type == OBJ_MUSHROOM_TYPE){
 					ObjMushroom* mushroom = (ObjMushroom*)obj;
 					if(mushroom->damage == 0.0f){
@@ -209,10 +209,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	
 		// rubber band
 		if(d->rubber_band){
-			float delta = minimap_player_x() - p->cd_obj->pos.x;
+			float delta = minimap_player_x() - p->cd_obj->pos.x + d->xjump + d->yjump + d->speed;
 			p->cd_obj->pos.y = 370.0f;
 			d->touching_ground = true;
-			objects_apply_force(self, vec2(d->speed + d->xjump + d->yjump + delta + rand_float_range(-100.0f,100.0f), 0.0f));
+			objects_apply_force(self, vec2(delta, 0.0f));
 		}
 
 		if(camera_follow && !d->rubber_band) rabbit->control(self);
@@ -280,7 +280,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					
 			}
 			else if(!d->touching_ground) {
-				d->particle_spawn = false;
 				if(key_pressed(KEY_A) && (ts - d->jump_time) < 0.2f) {
 				//	objects_apply_force(self, vec2(0.0f, -8000.0f));
 				}
@@ -343,7 +342,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			}
 		}
 		d->on_water = false;
-
 	if(p->cd_obj->pos.y < rabbit_hitbox_height){
 		p->cd_obj->pos.y = rabbit_hitbox_height;
 		p->vel.y = 0.0f;
@@ -382,7 +380,7 @@ static void obj_rabbit_became_visible(GameObject* self) {
 	PhysicsComponent* p = self->physics;
 	if(!d->player_control && d->rubber_band){
 		d->rubber_band = false;
-		p->cd_obj->pos.y = rand_float_range(370.0f,579.0f);
+		p->cd_obj->pos.y = rand_float_range(400.0f,579.0f);
 		objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
 		d->touching_ground = false;
 	} 
@@ -410,7 +408,22 @@ static void _rabbit_delayed_bounce(void* r) {
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, p->cd_obj->pos, NULL);
 		mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
 
-		if(d->combo_counter+1 == 3) mfx_trigger_follow("boost_explosion",&anchor->screen_pos,NULL);
+		if(d->combo_counter+1 == 3){
+			// Position for particles
+			Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);	// for follower particles
+			pos.y += rabbit_hitbox_height - 20;
+		
+			RectF rec = {
+				.left = pos.x, 
+				.top = pos.y,
+				.right = 0,
+				.bottom = 0
+			};
+			RectF result = objects_world2screen(rec,0);
+			Vector2 screen_pos = vec2(result.left,result.top);			// for standard particles
+
+			mfx_trigger_ex("boost_explosion",screen_pos,0.0f);
+		} 
 
 		//printf("pos.x: %f v: %f %f \n",p->cd_obj->pos.y,p->vel.x,p->vel.y);
 		d->land = p->cd_obj->pos.x + (405.0f-p->vel.y) + p->vel.x + (p->vel.x) / (2.0f + p->vel.x/1000.0f);
@@ -551,7 +564,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->on_water = false;
 	d->bounce_force = vec2(0.0f, 0.0f);
 	d->player_control = false;
-	d->particle_spawn = false;
 	d->falling_down = false;
 	d->rabbit_time = 0.0f;
 	d->game_over = false;
@@ -570,6 +582,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		d->speed = 500.0f;
 		d->xjump = 100.0f;
 		d->yjump = 400.0f;
+		d->ai_max_combo = 0;
 	} else {
 		render->spr = levels_current_desc()->ai_rabbit_spr[id];
 		d->minimap_color = levels_current_desc()->ai_rabbit_colors[id];
@@ -578,6 +591,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		d->speed = levels_current_desc()->ai_rabbit_speeds[id];
 		d->xjump = levels_current_desc()->ai_rabbit_xjumps[id];
 		d->yjump = levels_current_desc()->ai_rabbit_yjumps[id];
+		d->ai_max_combo = levels_current_desc()->ai_max_combo[id];
 	}
 }
 
