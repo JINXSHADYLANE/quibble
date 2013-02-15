@@ -35,6 +35,7 @@ typedef struct {
 	float ai_rabbit_speeds[3];
 	float ai_rabbit_xjumps[3];
 	float ai_rabbit_yjumps[3];
+	int ai_max_combo[3];
 
 } LevelDesc;
 

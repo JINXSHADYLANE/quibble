@@ -67,6 +67,8 @@ void levels_init(const char* filename){
 							new.ai_rabbit_xjumps[new.ai_rabbit_num] = mml_getval_float(&mml, r);
 						} else if(strcmp(txt, "yjump") == 0){
 							new.ai_rabbit_yjumps[new.ai_rabbit_num] = mml_getval_float(&mml, r);
+						} else if(strcmp(txt, "max_combo") == 0){
+							new.ai_max_combo[new.ai_rabbit_num] = mml_getval_int(&mml, r);
 						}
 
 					}
