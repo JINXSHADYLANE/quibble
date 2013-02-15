@@ -1,20 +1,33 @@
 #include "obj_types.h"
 #include "common.h"
 #include <system.h>
+#include <math.h>
 
 static void obj_cactus_collide(GameObject* self, GameObject* other) {
 	ObjCactus* cactus = (ObjCactus*)self;
 	if(other->type == OBJ_RABBIT_TYPE) {
 		if(cactus->damage == 1.0f){
 
+			const float animation_length = 1.0f; // seconds
+
+			cactus->t0 = time_s();
+			cactus->t1 = cactus->t0 + animation_length;
+
+			// knockback
 			PhysicsComponent* p = other->physics;
-			cactus->m = 20.0f;
-			cactus->d = 1.0f;
 
 			p->vel.x = 0.0f;
-			if(p->vel.y > 0.0f) p->vel.y = -p->vel.y;
 
-			cactus->damage = 0.5f;
+			Vector2 f = {
+				.x = -30000.0f,
+				.y =  0.0f
+
+			};
+			if(p->vel.y > 0.0f) f.y = -180000.0f;
+			objects_apply_force(other, f); 
+			
+			// disable cactus
+			cactus->damage = 0.0f;
 		}
 	}
 }
@@ -23,15 +36,21 @@ static void obj_cactus_update_pos(GameObject* self) {
 	ObjCactus* cactus = (ObjCactus*)self;
 	RenderComponent* r = self->render;
 
-	if(cactus->d < cactus->m && cactus->damage > 0.1f) cactus->d *= 1.7f;
-	if(cactus->d > cactus->m){
-		if(cactus->damage > 0.1f){
-			cactus->m = -20.0f;
-			cactus->damage = 0.0f;
-		} else {
-			cactus->d -= 200.0f * (time_delta()/1000.0f);
-		}
-	} 
+	float ct = time_s();
+
+	float t = 0.0f;
+
+	if(ct > cactus->t0 && ct < cactus->t1){
+
+		t = (ct - cactus->t0) / (cactus->t1 - cactus->t0);
+
+		cactus->d = sinf(sqrtf(t) * 2.0f * PI) * (1.0f - t) - t/2.0f;
+
+		cactus->d *= 50.0f;	// offset
+
+		//printf("time_s: %f t0: %f t1: %f t: %f d: %f\n",ct,cactus->t0,cactus->t1,t,cactus->d);
+
+	}
 
 	r->world_dest.top = cactus->original.top - cactus->d;
 	r->world_dest.left = cactus->original.left - cactus->d;
@@ -47,10 +66,10 @@ static void obj_cactus_construct(GameObject* self, Vector2 pos, void* user_data)
 	float width = size.x;
 	float height = size.y;
 
-	cactus->d = 0.0f;
-	cactus->m = 0.0f;
-
 	cactus->damage = 1.0f;
+	cactus->t0 = 0.0f;
+	cactus->t1 = 1.0f;
+	cactus->d = 0.0f;
 
 	RectF collider = {
 		pos.x  + 30.0f, 		pos.y - height + 20.0f,
