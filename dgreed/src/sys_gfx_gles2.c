@@ -15,11 +15,11 @@
 
 // Types
 
-// 56 bytes
+// 52 bytes
 typedef struct {
 	char* file;
 	char file_storage[16];
-	uint retain_count, width, height, hlog2, wlog2;
+	uint retain_count, width, height, wscale, hscale;
 	uint gl_id;
 	uint scale;
 	ListHead list;
@@ -95,7 +95,24 @@ static int glsl_texture;
 
 // Shaders
 
-const char* vert_shader = 
+const char* vert_shader_portrait = 
+"uniform vec2 screen_size;\n"
+"\n"
+"attribute vec2 pos;\n"
+"attribute vec4 color;\n"
+"attribute vec2 uv;\n"
+"\n"
+"varying vec2 v_uv;\n"
+"varying vec4 v_tint;\n"
+"\n"
+"void main() {\n"
+"	v_uv = uv / 32768.0;\n"
+"	v_tint = color;\n"
+"	vec2 p = (pos / (8.0 * screen_size)) - 1.0;\n"
+"	gl_Position = vec4(p.x, -p.y, 0.0, 1.0);\n"
+"}";
+
+const char* vert_shader_landscape = 
 "uniform vec2 screen_size;\n"
 "\n"
 "attribute vec2 pos;\n"
@@ -110,8 +127,8 @@ const char* vert_shader =
 "	v_tint = color;\n"
 "	vec2 p = (pos / (8.0 * screen_size)) - 1.0;\n"
 "	gl_Position = vec4(-p.y, -p.x, 0.0, 1.0);\n"
-//"gl_Position = vec4(pos, 0.0, 1.0);\n"
 "}";
+
 
 const char* frag_shader = 
 "precision mediump float;\n"
@@ -122,7 +139,6 @@ const char* frag_shader =
 "\n"
 "void main() {\n"
 "	gl_FragColor = v_tint * texture2D(texture, v_uv);\n"
-//"	gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
 "}";
 
 static bool _check_extension(const char* name) {
@@ -209,13 +225,13 @@ static void _set_blend_mode(BlendMode mode) {
 
 	switch(mode) {
 		case BM_NORMAL:
-			glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			break;
 		case BM_ADD:
-			glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
+			glBlendFunc(GL_ONE, GL_ONE);
 			break;
 		case BM_MULTIPLY:
-			glBlendFuncSeparate(GL_DST_COLOR, GL_ZERO, GL_ONE, GL_ZERO);
+			glBlendFunc(GL_DST_COLOR, GL_ZERO);
 			break;
 	}
 
@@ -285,6 +301,12 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 
 	filter_textures = _filter_textures;
 
+	const char* vert_shader = NULL;
+	if(width > height)
+		vert_shader = vert_shader_landscape;
+	else
+		vert_shader = vert_shader_portrait;
+
 	vert_shader_id = _compile_shader(vert_shader, GL_VERTEX_SHADER);
 	frag_shader_id = _compile_shader(frag_shader, GL_FRAGMENT_SHADER);
 	program_id = _link_program(vert_shader_id, frag_shader_id);
@@ -338,11 +360,12 @@ void video_clear_color(Color c) {
     clear_color = c;
 	byte r, g, b, a;
 	COLOR_DECONSTRUCT(c, r, g, b, a);
+	const float normalizer = 1.0f / 255.0f;
 	glClearColor(
-		(float)r / 255.0f, 
-		(float)g / 255.0f,
-		(float)b / 255.0f,
-		(float)a / 255.0f	
+		(float)r * normalizer, 
+		(float)g * normalizer,
+		(float)b * normalizer,
+		(float)a * normalizer	
 	);
 }
 
@@ -353,22 +376,14 @@ static int _rect_compar(const void* a, const void* b) {
 	if(rect_a->layer != rect_b->layer);
 		return rect_a->layer - rect_b->layer;
 
-	if(rect_a->tex != rect_b->tex)
-		return (int)(size_t)(rect_a->tex - rect_b->tex);
-
-	// This makes sort stable
-	return (int)(size_t)(rect_a - rect_b);
+	return ((int)(size_t)rect_a->tex - (int)(size_t)rect_b->tex);
 }
 
 static int _line_compar(const void* a, const void* b) {
 	const Line* line_a = a;
 	const Line* line_b = b;
 
-	if(line_a->layer != line_b->layer)
-		return line_a->layer - line_b->layer;
-
-	// This makes sort stable
-	return (int)(size_t)(line_a - line_b);
+	return line_a->layer - line_b->layer;
 }
 
 static void _draw_rects(uint* count) {
@@ -386,15 +401,27 @@ static void _draw_rects(uint* count) {
 	assert(sizeof(Vertex) == 12);
 	Vertex* vb = vertices.data;
 	if(old_vb != vb) {
-		glVertexAttribPointer(GLSL_ATTRIB_POS, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), &vb->x); 
-		glVertexAttribPointer(GLSL_ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), &vb->color);
-		glVertexAttribPointer(GLSL_ATTRIB_UV, 2, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(Vertex), &vb->u);
+		glVertexAttribPointer(
+			GLSL_ATTRIB_POS, 2, GL_SHORT, 
+			GL_FALSE, sizeof(Vertex), &vb->x
+		); 
+		glVertexAttribPointer(
+			GLSL_ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, 
+			GL_TRUE, sizeof(Vertex), &vb->color
+		);
+		glVertexAttribPointer(
+			GLSL_ATTRIB_UV, 2, GL_UNSIGNED_SHORT, 
+			GL_FALSE, sizeof(Vertex), &vb->u
+		);
 		old_vb = vb;
 	}
 
 	assert(vertices.size % 4 == 0);
 
-	glDrawElements(GL_TRIANGLES, vertices.size / 2 * 3, GL_UNSIGNED_SHORT, indices.data);
+	glDrawElements(
+		GL_TRIANGLES, vertices.size / 2 * 3, 
+		GL_UNSIGNED_SHORT, indices.data
+	);
 
 	_check_error();
 
@@ -456,19 +483,22 @@ fix16_t fix16_cos(fix16_t inAngle)
 }
 
 void video_present(void) {
+
 	// Sort rects by layer and then by texture
 	if(rects.size > 4) {
-		sort_heapsort(
-			rects.data, rects.size, 
-			sizeof(TexturedRect), _rect_compar
+		darray_reserve(&rects, rects.size * 2);
+		sort_mergesort_ex(
+			rects.data, rects.data + rects.size * rects.item_size,
+			rects.size, sizeof(TexturedRect), _rect_compar
 		);
 	}
-	
+
 	// Sort lines by layer
 	if(lines.size > 4) {
-		sort_heapsort(
-			lines.data, lines.size,
-			sizeof(Line), _line_compar
+		darray_reserve(&lines, lines.size * 2);
+		sort_mergesort_ex(
+			lines.data, lines.data + lines.size * lines.item_size,
+			lines.size, sizeof(Line), _line_compar
 		);
 	}
 
@@ -694,7 +724,9 @@ static void _pf_to_gles(PixelFormat format, GLenum* fmt, GLenum* type) {
 	}
 }
 
-static uint _make_gl_texture(void* data, uint width, uint height, PixelFormat format) {
+static uint _make_gl_texture(
+	void* data, uint width, uint height, PixelFormat format) {
+
 	assert(data);
 
 	uint gl_id;
@@ -741,17 +773,6 @@ static uint _make_gl_texture(void* data, uint width, uint height, PixelFormat fo
 	return gl_id;
 }
 
-// Fast integer log2 when n is a power of two
-static uint _ilog2(uint v) {
-	const uint b[] = {0xAAAAAAAA, 0xCCCCCCCC, 0xF0F0F0F0, 0xFF00FF00, 0xFFFF0000}; 
-	uint r = (v & b[0]) != 0;
-	for (uint i = 4; i > 0; i--) 
-	{
-		r |= ((v & b[i]) != 0) << i;
-	}
-	return r;
-}
-
 static Texture* _new_texture( 
 		const char* filename, uint width, uint height, 
 		uint gl_id, uint scale) {
@@ -776,8 +797,8 @@ static Texture* _new_texture(
 	new->retain_count = 1;
 	new->width = width;
 	new->height = height;
-    new->wlog2 = _ilog2((width * scale) >> 15);
-	new->hlog2 = _ilog2((height * scale) >> 15);
+	new->wscale = (width * scale) >> 15;
+	new->hscale = (height * scale) >> 15;
 	new->gl_id = gl_id;
 	new->scale = scale;
 
@@ -903,17 +924,15 @@ void tex_free(TexHandle tex) {
 
 void tex_scale(TexHandle tex, float s) {
 	Texture* t = (Texture*)tex;
-	t->scale = (uint)(s * (tex_mul+1.0f));
-    t->wlog2 = _ilog2((t->width * t->scale) >> 15);
-	t->hlog2 = _ilog2((t->height * t->scale) >> 15);
+	t->scale = (uint)(s * (tex_mul));
+    t->wscale = (t->width * t->scale) >> 15;
+    t->hscale = (t->height * t->scale) >> 15;
 }
 
 void video_draw_rect(TexHandle tex, uint layer,
 	const RectF* source, const RectF* dest, Color tint) {
 	video_draw_rect_rotated(tex, layer, source, dest, 0.0f, tint);
 }
-
-
 
 void video_draw_rect_rotated(TexHandle tex, uint layer, const RectF* source, 
 		const RectF* dest, float rotation, Color tint) {
@@ -946,17 +965,14 @@ void video_draw_rect_rotated(TexHandle tex, uint layer, const RectF* source,
 	rect.dest_b = (int16)(dest->bottom * pos_mul);
 
 	if((rect.dest_r | rect.dest_b) == 0) {
-		rect.dest_r = rect.dest_l + (rect.src_r - rect.src_l);
-		rect.dest_b = rect.dest_t + (rect.src_b - rect.src_t);
+		rect.dest_r = rect.dest_l + (rect.src_r - rect.src_l) * pos_mul;
+		rect.dest_b = rect.dest_t + (rect.src_b - rect.src_t) * pos_mul;
 	}
 
-	assert(is_pow2((texture->width * texture->scale) >> 15));
-	assert(is_pow2((texture->height * texture->scale) >> 15));
-
-	rect.src_l = ((rect.src_l << 15)) >> texture->wlog2;
-	rect.src_t = ((rect.src_t << 15)) >> texture->hlog2;
-	rect.src_r = ((rect.src_r << 15)) >> texture->wlog2;
-	rect.src_b = ((rect.src_b << 15)) >> texture->hlog2;
+	rect.src_l = ((rect.src_l << 15)) / texture->wscale;
+	rect.src_t = ((rect.src_t << 15)) / texture->hscale;
+	rect.src_r = ((rect.src_r << 15)) / texture->wscale;
+	rect.src_b = ((rect.src_b << 15)) / texture->hscale;
 
 	darray_append(&rects, &rect);
 }
