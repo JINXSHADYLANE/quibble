@@ -22,7 +22,7 @@
 	(def token_text
 		(add <-
 			(tl <- (get_rect screen))
-			(vec2 100,35)
+			(vec2 100,18)
 		)
 	)
 
@@ -30,7 +30,7 @@
 		(spr position_line)
 		(add <-
 			(middle <- (get_rect screen))
-			(vec2 -219,-330)
+			(vec2 -219,-364)
 		)
 	)
 	(def game_over
@@ -163,7 +163,7 @@
 	(def combo_text
 		(add <-
 			(middle <- (get_rect screen))
-			(vec2 0,-360)
+			(vec2 0,-330)
 		)
 	)
 )
