@@ -32,6 +32,11 @@
 
 			)
 		)
+		(e boost_explosion
+			(particles boost_explosion
+
+			)
+		)
 	)
 )
 
