@@ -813,7 +813,7 @@ float malka_state_time(const char* name) {
 	if(name) {
 		uint idx = _names_find(name);
 		float t = 0.0f;
-		if(idx == top)
+		if(idx == top && !_in_transition())
 			t = time_s() - states_enter_t[idx];
 		return t + states_acc_t[idx];
 	}
