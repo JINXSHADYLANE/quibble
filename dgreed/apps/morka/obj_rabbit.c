@@ -104,6 +104,28 @@ void obj_rabbit_ai_control(GameObject* self){
 			}	
 		} 
 
+		//raycast for cactus ahead
+		start = vec2(pos.x + 80.0f + (p->vel.x * 0.3f),pos.y - 100.0f);
+		end = vec2(start.x,pos.y);
+		obj = objects_raycast(start,end);
+
+		// debug render
+		if(draw_ai_debug){
+			RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
+			RectF r = objects_world2screen(rec,0);
+			Vector2 s = vec2(r.left, r.top);
+			Vector2 e = vec2(r.right, r.bottom);
+			video_draw_line(10,	&s, &e, COLOR_RGBA(255, 0, 0, 255));
+		}
+
+		// AI avoids gaps
+		if(obj){
+			if(obj->type == OBJ_CACTUS_TYPE){
+				d->virtual_key_down = true;
+				d->virtual_key_pressed = true;
+			}	
+		} 
+
 	} else if(!d->touching_ground){
 
 
@@ -203,7 +225,9 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		// rubber band
 		if(d->rubber_band){
 			float delta = (minimap_player_x() - p->cd_obj->pos.x) + d->speed + d->xjump + d->yjump + rand_float_range(d->xjump,d->speed);
+			if(delta > 1000.0f) delta = 1500.0f;
 			delta *= (d->speed / 200.0f) - 1.0f;
+
 
 			p->cd_obj->pos.y = 370.0f;
 			d->touching_ground = true;
