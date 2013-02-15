@@ -10,6 +10,8 @@
 #include <system.h>
 #include <async.h>
 
+#define TIME_S malka_state_time("game")
+
 const static float rabbit_hitbox_width = 70.0f;
 const static float rabbit_hitbox_height = 62.0f;
 
@@ -188,8 +190,6 @@ void obj_rabbit_ai_control(GameObject* self){
 					d->virtual_key_pressed = true;
 				}
 			}
-
-
 		}
 	}
 }
@@ -238,7 +238,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		Vector2 screen_pos = vec2(result.left,result.top);			// for standard particles
 
 		RenderComponent* r = self->render;
-		r->anim_frame = anim_frame(rabbit->anim);
+		r->anim_frame = anim_frame_ex(rabbit->anim, TIME_S);
 		
 		if(d->touching_ground) {	
 			d->is_diving = false;
@@ -248,7 +248,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				d->jump_off_mushroom = false;
 				d->jump_time = ts;
 				objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
-				anim_play(rabbit->anim, "jump");
+				anim_play_ex(rabbit->anim, "jump", TIME_S);
 				d->land = pos.x + p->vel.x - rabbit_hitbox_width / 2.0f;
 				d->combo_counter = 0;
 			
@@ -260,7 +260,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		}
 		else {
 			if(p->vel.y > 0.0f && !d->falling_down){
-				anim_play(rabbit->anim, "down");
+				anim_play_ex(rabbit->anim, "down", TIME_S);
 				d->falling_down = true;	
 			} else if (p->vel.y <= 0.0f) {
 				d->falling_down = false;		
@@ -284,14 +284,14 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					// Dive 	
 					d->is_diving = true;
 					objects_apply_force(self, vec2(0.0f, 20000.0f));
-					anim_play(rabbit->anim, "dive");
+					anim_play_ex(rabbit->anim, "dive", TIME_S);
 				}
 				else if(d->is_diving && d->virtual_key_pressed) {
 					objects_apply_force(self, vec2(0.0f, 25000.0f));
 				}
 				else if(d->is_diving && !d->virtual_key_pressed) {
 					d->is_diving = false;
-					anim_play(rabbit->anim, "glide");
+					anim_play_ex(rabbit->anim, "glide", TIME_S);
 				}
 			}
 
@@ -369,7 +369,7 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	);
 
 	ObjRabbit* rabbit = (ObjRabbit*)self;
-	r->anim_frame = anim_frame(rabbit->anim);
+	r->anim_frame = anim_frame_ex(rabbit->anim, TIME_S);
 }
 static void obj_rabbit_became_visible(GameObject* self) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
@@ -449,7 +449,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			self->physics->vel.y = 0.0f;
 			if(!d->touching_ground) {
 				if(d->player_control) hud_trigger_combo(0);
-				anim_play(rabbit->anim, "land");
+				anim_play_ex(rabbit->anim, "land", TIME_S);
 				/*printf("p: %f actual: %f  d: %f (%f %)\n",d->jump+self->physics->vel.x,
 														 self->physics->cd_obj->pos.x,
 														 d->jump + self->physics->vel.x - self->physics->cd_obj->pos.x,
@@ -469,7 +469,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		if(d->bounce_force.y == 0.0f) {
 			ObjMushroom* mushroom = (ObjMushroom*)other;
 			d->mushroom_hit_time = time_s();
-			anim_play(rabbit->anim, "bounce");
+			anim_play_ex(rabbit->anim, "bounce", TIME_S);
 			vel.y = -vel.y;
 
 			Vector2 f = {
@@ -492,7 +492,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	int id = (int)user_data;
 
 	ObjRabbit* rabbit = (ObjRabbit*)self;
-	rabbit->anim = anim_new("rabbit");
+	rabbit->anim = anim_new_ex("rabbit", TIME_S);
 	
 	// Init physics
 	PhysicsComponent* physics = self->physics;

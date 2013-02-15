@@ -13,6 +13,9 @@
 // and a number of frames to show per second. It is not associated
 // with sprite in any way! You can use same animations on different
 // sprites.
+//
+// Functions with _ex postfix allows to explicitly provide time to them,
+// otherwise real system time is used.
 
 /*
 
@@ -69,14 +72,17 @@ void anim_close(void);
 
 // Create instance of named animation
 Anim* anim_new(const char* name);
+Anim* anim_new_ex(const char* name, float current_time);
 // Free animation
 void anim_del(Anim* anim);
 
 // Play named sequence
 void anim_play(Anim* anim, const char* seq);
+void anim_play_ex(Anim* anim, const char* seq, float current_time);
 
 // Get current animation frame
 uint anim_frame(Anim* anim);
+uint anim_frame_ex(Anim* anim, float current_time);
 
 // Animated sprite draw helpers
 
@@ -85,6 +91,13 @@ void anim_draw(Anim* anim, const char* spr, uint layer, Vector2 dest,
 
 void anim_draw_h(Anim* anim, SprHandle spr, uint layer, Vector2 dest, 
 		float rot, float scale, Color tint);
+
+void anim_draw_ex(Anim* anim, float current_time, const char* spr,
+		uint layer, Vector2 dest, float rot, float scale, Color tint);
+
+void anim_draw_h_ex(Anim* anim, float current_time, SprHandle spr,
+		uint layer, Vector2 dest, float rot, float scale, Color tint);
+
 
 #endif
 
