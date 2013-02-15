@@ -105,7 +105,7 @@ extern GameObjectDesc obj_mushroom_desc;
 
 typedef struct {
 	GameObject header;
-	float d,m;
+	float t0,t1,d;
 	RectF original;
 	float damage;
 } ObjCactus;
