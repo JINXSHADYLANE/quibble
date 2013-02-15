@@ -241,7 +241,7 @@
 		(def j (bg_mushroom_2 400))
 		(def x (spikeshroom_1 150))
 
-		(sdef z (seq "xx__b__gchij"))
+		(sdef z (seq "xd__b__gchij"))
 
 		(def _ (.empty 250))
 
