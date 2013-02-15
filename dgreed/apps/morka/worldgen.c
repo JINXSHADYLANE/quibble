@@ -217,7 +217,7 @@ static void _gen_fg_page(void) {
 				objects_create(&obj_cactus_desc, pos, (void*)spr);
 				//ObjMushroom* shroom = (ObjMushroom*)g;
 			else {
-				GameObject* g = objects_create(&obj_mushroom_desc, pos, (void*)spr);
+				objects_create(&obj_mushroom_desc, pos, (void*)spr);
 				// Placing tokens on big shrooms
 				Vector2 size = sprsheet_get_size_h(spr);
 				float width = size.x;
