@@ -117,9 +117,7 @@ static void _gen_fg_page(void) {
 				}
 				// Token over gap start/end
 				Vector2 size = sprsheet_get_size_h(spr);
-				float width = size.x;
-				float height = size.y;
-				objects_create(&obj_token_desc, vec2(pos.x + width/2.0f,479.0f), (void*)sprsheet_get_handle("token"));
+				objects_create(&obj_token_desc, vec2(pos.x + size.x/2.0f,479.0f), (void*)sprsheet_get_handle("token"));
 
 			} else {
 				if(sym == 'g') {
@@ -187,7 +185,8 @@ static void _gen_fg_page(void) {
 
 				if(sym == 'x'){
 					const float dist = 256.0f;
-					if(	(pos.x > gaps[i].x - dist				&& pos.x < gaps[i].y + dist) ||
+					if(	(gap_possible && (pos.x+shroom_width+dist > fg_page_cursor + page_width + (ground_x-page_width)) ) ||
+						(pos.x > gaps[i].x - dist				&& pos.x < gaps[i].y + dist) ||
 						(pos.x+shroom_width > gaps[i].x - dist && pos.x+shroom_width < gaps[i].y + dist) ||
 						(pos.x < gaps[i].x - dist 				&& pos.x+shroom_width > gaps[i].y + dist )
 					)place = false;				
@@ -214,13 +213,11 @@ static void _gen_fg_page(void) {
 		}
 				
 		if(place) {
-			GameObject* g = objects_create(&obj_mushroom_desc, pos, (void*)spr);
-			ObjMushroom* shroom = (ObjMushroom*)g;
 			if(sym == 'x')
-				shroom->damage = 1.0f;
-			else{
-				shroom->damage = 0.0f;	
-
+				objects_create(&obj_cactus_desc, pos, (void*)spr);
+				//ObjMushroom* shroom = (ObjMushroom*)g;
+			else {
+				GameObject* g = objects_create(&obj_mushroom_desc, pos, (void*)spr);
 				// Placing tokens on big shrooms
 				Vector2 size = sprsheet_get_size_h(spr);
 				float width = size.x;

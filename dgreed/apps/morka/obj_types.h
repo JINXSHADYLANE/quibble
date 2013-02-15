@@ -11,6 +11,7 @@ enum {
 	OBJ_DECO_TYPE,
 	OBJ_FG_DECO_TYPE,
 	OBJ_MUSHROOM_TYPE,
+	OBJ_CACTUS_TYPE,
 	OBJ_PIN,
 	OBJ_SPEED_TRIGGER_TYPE,
 	OBJ_FALL_TRIGGER_TYPE,
@@ -96,10 +97,20 @@ extern GameObjectDesc obj_fg_deco_desc;
 typedef struct {
 	GameObject header;
 	float oh, h, dh;
-	float damage;
 } ObjMushroom;
 
 extern GameObjectDesc obj_mushroom_desc;
+
+// Cactus (Spikeshroom)
+
+typedef struct {
+	GameObject header;
+	float d,m;
+	RectF original;
+	float damage;
+} ObjCactus;
+
+extern GameObjectDesc obj_cactus_desc;
 
 // Race marker pin
 

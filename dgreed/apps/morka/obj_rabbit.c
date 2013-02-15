@@ -76,12 +76,8 @@ void obj_rabbit_ai_control(GameObject* self){
 		// AI jumps before shrooms to bounce on them
 		if(obj){
 			if(obj->type == OBJ_MUSHROOM_TYPE){
-				ObjMushroom* mushroom = (ObjMushroom*)obj;
-				if(mushroom->damage == 0.0f){
-					//printf("jumping before shroom with vel.x: %f\n", p->vel.x);
-					d->virtual_key_down = true;
-					d->virtual_key_pressed = true;
-				}
+				d->virtual_key_down = true;
+				d->virtual_key_pressed = true;
 			}	
 		} 
 
@@ -187,12 +183,9 @@ void obj_rabbit_ai_control(GameObject* self){
 			// dive on shrooms if possible
 			if(obj && safe_to_land && d->combo_counter < d->ai_max_combo){
 				if(obj->type == OBJ_MUSHROOM_TYPE){
-					ObjMushroom* mushroom = (ObjMushroom*)obj;
-					if(mushroom->damage == 0.0f){
-						//printf("%d diving on shroom with vel.x: %.0f dy %.0f distance: %f \n",self, p->vel.x,(579.0f - pos.y),obj->physics->cd_obj->pos.x - pos.x);
-						d->virtual_key_down = true;
-						d->virtual_key_pressed = true;
-					}
+					//printf("%d diving on shroom with vel.x: %.0f dy %.0f distance: %f \n",self, p->vel.x,(579.0f - pos.y),obj->physics->cd_obj->pos.x - pos.x);
+					d->virtual_key_down = true;
+					d->virtual_key_pressed = true;
 				}
 			}
 
@@ -209,10 +202,14 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	
 		// rubber band
 		if(d->rubber_band){
-			float delta = minimap_player_x() - p->cd_obj->pos.x + d->xjump + d->yjump + d->speed;
+			float delta = (minimap_player_x() - p->cd_obj->pos.x) + d->speed + d->xjump + d->yjump + rand_float_range(d->xjump,d->speed);
+			delta *= (d->speed / 200.0f) - 1.0f;
+
 			p->cd_obj->pos.y = 370.0f;
 			d->touching_ground = true;
+
 			objects_apply_force(self, vec2(delta, 0.0f));
+			if(minimap_player_x() - p->cd_obj->pos.x < 0.0) d->rubber_band = false;
 		}
 
 		if(camera_follow && !d->rubber_band) rabbit->control(self);
@@ -381,6 +378,7 @@ static void obj_rabbit_became_visible(GameObject* self) {
 	if(!d->player_control && d->rubber_band){
 		d->rubber_band = false;
 		p->cd_obj->pos.y = rand_float_range(400.0f,579.0f);
+		p->vel.y = 0.0f;
 		objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
 		d->touching_ground = false;
 	} 
@@ -474,21 +472,12 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			anim_play(rabbit->anim, "bounce");
 			vel.y = -vel.y;
 
-			if(mushroom->damage == 0.0f) {
-				Vector2 f = {
-					.x = MIN(vel.x*d->xjump, 110000.0f),
-					.y = MAX(vel.y*d->yjump,-250000.0f)
-				};
-				d->bounce_force = f;
-			}
-			else {
-				Vector2 f = {
-					.x = MAX(-vel.x*d->xjump, -80000.0f),
-					.y = MAX(vel.y*d->yjump,-180000.0f)
-				};
-				d->bounce_force = f;
-				d->combo_counter = 0;
-			}
+			Vector2 f = {
+				.x = MIN(vel.x*d->xjump, 110000.0f),
+				.y = MAX(vel.y*d->yjump,-250000.0f)
+			};
+			d->bounce_force = f;
+
 
 			// Slow down vertical movevment
 			self->physics->vel.y *= 0.2f;
