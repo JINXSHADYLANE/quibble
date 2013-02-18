@@ -43,19 +43,22 @@ RectF _vfont_bbox(const char* string) {
 	int i = 0;
     int n = strlen(string);
 	uint codepoint = 0;
+	int glyph;
 	while(i < n) {
-		int advance, lsb;
+		int advance, lsb, next_glyph;
 		uint next_codepoint;
 		i += chartorune(&next_codepoint, string + i);
+		next_glyph = stbtt_FindGlyphIndex(&font->font, next_codepoint);
 
 		if(codepoint && next_codepoint)
-			xpos += font->scale * stbtt_GetCodepointKernAdvance(
-				&font->font, codepoint, next_codepoint
+			xpos += font->scale * stbtt_GetGlyphKernAdvance(
+				&font->font, glyph, next_glyph
 			);
 
 		codepoint = next_codepoint;
+		glyph = next_glyph;
 
-		stbtt_GetCodepointHMetrics(&font->font, codepoint, &advance, &lsb);
+		stbtt_GetGlyphHMetrics(&font->font, glyph, &advance, &lsb);
 		xpos += (advance * font->scale);
 	}
 
@@ -67,10 +70,10 @@ RectF _vfont_bbox(const char* string) {
 void _vfont_render_text(const char* string, CachePage* page, RectF* dest) {
     Font* font = darray_get(&fonts, vfont_selected_font);
 
-    uint x = (uint)ceilf(dest->left);
-    uint y = (uint)ceilf(dest->top);
-    uint w = (uint)ceilf(rectf_width(dest));
-    uint h = (uint)ceilf(rectf_height(dest));
+    uint x = (uint)dest->left;
+    uint y = (uint)dest->top;
+    uint w = (uint)rectf_width(dest);
+    uint h = (uint)rectf_height(dest);
 
  	float xpos = 0.0f;
 
@@ -86,33 +89,36 @@ void _vfont_render_text(const char* string, CachePage* page, RectF* dest) {
 	int i = 0;
     int n = strlen(string);
 	uint codepoint = 0;
+	int glyph;
 	while(i < n) {
 		uint next_codepoint;
-		int advance, lsb, x0, y0, x1, y1;
+		int advance, lsb, x0, y0, x1, y1, next_glyph;
 		float kerning = 0.0f;
 		i += chartorune(&next_codepoint, string + i);
+		next_glyph = stbtt_FindGlyphIndex(&font->font, next_codepoint);
 
 		if(codepoint && next_codepoint)
-			kerning = stbtt_GetCodepointKernAdvance(
-				&font->font, codepoint, next_codepoint
+			kerning = stbtt_GetGlyphKernAdvance(
+				&font->font, glyph, next_glyph
 			);
 
 		codepoint = next_codepoint;
+		glyph = next_glyph;
 
 		float x_shift = xpos - floorf(xpos);
 
-		stbtt_GetCodepointHMetrics(&font->font, codepoint, &advance, &lsb);
+		stbtt_GetGlyphHMetrics(&font->font, glyph, &advance, &lsb);
 
-		stbtt_GetCodepointBitmapBoxSubpixel(
-			&font->font, codepoint, font->scale, font->scale, x_shift, 0, 
+		stbtt_GetGlyphBitmapBoxSubpixel(
+			&font->font, glyph, font->scale, font->scale, x_shift, 0, 
 			&x0, &y0, &x1, &y1
 		);
 
 		assert((x1 - x0) <= h * 2);
 
-		stbtt_MakeCodepointBitmapSubpixel(
+		stbtt_MakeGlyphBitmapSubpixel(
 			&font->font, temp, x1-x0, y1-y0, x1-x0, font->scale, font->scale,
-			x_shift, 0.0f, codepoint
+			x_shift, 0.0f, glyph
 		);
 
 		// Blend glyph into pix buffer
@@ -120,9 +126,15 @@ void _vfont_render_text(const char* string, CachePage* page, RectF* dest) {
 		int sy = baseline + y0;
 		for(int y = 0; y < (y1-y0); ++y) {
 			for(int x = 0; x < (x1-x0); ++x) {
-				pix[(sy + y) * w + (sx + x)] |= COLOR_RGBA(255, 255, 255,
-					temp[y * (x1-x0) + x]
-				);
+				byte c = temp[y * (x1-x0) + x];
+
+			#if defined(TARGET_IOS) || defined(ANDROID)
+				// Premultiply alpha
+				pix[(sy + y) * w + (sx + x)] |= COLOR_RGBA(c, c, c, c);
+			#else
+				// Don't premultiply alpha
+				pix[(sy + y) * w + (sx + x)] |= COLOR_RGBA(255, 255, 255, c);
+			#endif
 			}
 		}
 
