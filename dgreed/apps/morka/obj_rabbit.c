@@ -594,7 +594,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		d->player_control = true;
 		d->speed = 500.0f;
 		d->xjump = 100.0f;
-		d->yjump = 400.0f;
+		d->yjump = 420.0f;
 		d->ai_max_combo = 0;
 	} else {
 		render->spr = levels_current_desc()->ai_rabbit_spr[id];
