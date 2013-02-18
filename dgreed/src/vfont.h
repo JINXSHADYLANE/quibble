@@ -5,11 +5,13 @@
 #include "system.h"
 
 // Slow and beautiful text renderer
-// Uses CoreText on iOS/OS X and Freetype 2 everywhere else
+// Uses CoreText on iOS/OS X and stb_truetype with subpixel
+// glyph positioning everywhere else. Freetype2 implementation
+// is also available, but it looks shit.
 //
 // Can be quite fast if you're drawing static strings!
 
-#ifdef __APPLE__
+#if __APPLE__ 
 
 typedef struct {
     const char* name;
@@ -17,7 +19,7 @@ typedef struct {
 	void* uifont;
 } Font;
 
-#else
+#elif defined(VFONT_FREETYPE2)
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -27,6 +29,17 @@ typedef struct {
     const char* name;
     float size;
     FT_Face face;
+} Font;
+
+#else
+
+#include "stb_truetype.h"
+
+typedef struct {
+	const char* name;
+	float size;
+	float scale;
+	stbtt_fontinfo font;
 } Font;
 
 #endif
