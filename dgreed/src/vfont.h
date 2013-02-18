@@ -11,7 +11,7 @@
 //
 // Can be quite fast if you're drawing static strings!
 
-#if __APPLE__ 
+#if defined(__APPLE__)
 
 typedef struct {
     const char* name;
