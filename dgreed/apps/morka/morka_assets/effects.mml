@@ -37,6 +37,16 @@
 
 			)
 		)
+		(e cactus_reaction
+			(particles cactus
+
+			)
+		)
+		(e coin_pick
+			(particles coin
+
+			)
+		)
 	)
 )
 
