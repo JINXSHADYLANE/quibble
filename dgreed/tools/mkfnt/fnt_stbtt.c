@@ -3,9 +3,11 @@
 #include <utils.h>
 
 // Include stbtt
-#define STB_TRUETYPE_IMPLEMENTATION
+#ifdef __APPLE__
 #define STBTT_malloc(x,u) MEM_ALLOC(x)
 #define STBTT_free(x,u) MEM_FREE(x)
+#define STB_TRUETYPE_IMPLEMENTATION
+#endif
 #include "stb_truetype.h"
 
 typedef struct {
