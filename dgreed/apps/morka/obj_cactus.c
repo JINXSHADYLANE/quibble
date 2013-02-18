@@ -16,10 +16,10 @@ static void obj_cactus_collide(GameObject* self, GameObject* other) {
 			// knockback
 			PhysicsComponent* p = other->physics;
 
-			p->vel.x = 0.0f;
+			//p->vel.x = 0.0f;
 
 			Vector2 f = {
-				.x = -30000.0f,
+				.x = -100000.0f,
 				.y =  0.0f
 
 			};
@@ -72,8 +72,8 @@ static void obj_cactus_construct(GameObject* self, Vector2 pos, void* user_data)
 	cactus->d = 0.0f;
 
 	RectF collider = {
-		pos.x  + 30.0f, 		pos.y - height + 20.0f,
-		pos.x  + width - 30.0f, pos.y
+		pos.x  + 40.0f, 		pos.y - height + 30.0f,
+		pos.x  + width - 40.0f, pos.y
 	};
 
 	// Physics

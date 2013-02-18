@@ -264,7 +264,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		RenderComponent* r = self->render;
 		r->anim_frame = anim_frame_ex(rabbit->anim, TIME_S);
 		
-		if(d->touching_ground) {	
+		if(d->touching_ground) {
+			if(d->has_trampoline) d->has_trampoline = false;	
 			d->is_diving = false;
 			// Jump
 			if(d->virtual_key_down){
@@ -285,11 +286,60 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		else {
 			if(p->vel.y > 0.0f && !d->falling_down){
 				anim_play_ex(rabbit->anim, "down", TIME_S);
-				d->falling_down = true;	
+				d->falling_down = true;
+
 			} else if (p->vel.y <= 0.0f) {
 				d->falling_down = false;		
 			}
+			// Trampoline
+			if(p->cd_obj->pos.y > 579.0f && p->vel.y > 0.0f && d->tokens >=10 && !d->has_trampoline && !rabbit->data->game_over){
+				d->has_trampoline = true;
+				d->tokens -= 10;
 
+				// Trampoline sprite
+				SprHandle sprt = sprsheet_get_handle("trampoline");
+				Vector2 size = sprsheet_get_size_h(sprt);
+				float width = size.x;
+
+				// find the gap to draw trampoline in
+				Vector2 start = vec2(p->cd_obj->pos.x + rabbit_hitbox_width,HEIGHT + 100.0f);
+				Vector2 end = vec2(start.x,HEIGHT - 100.0f);
+				GameObject* obj = objects_raycast(start,end);
+				Vector2 gap_pos = vec2(0.0f,0.0f);
+				bool found = false;
+				if(obj){
+					if(obj->type == OBJ_FALL_TRIGGER_TYPE) {
+						PhysicsComponent* p = obj->physics;
+						gap_pos = vec2(p->cd_obj->pos.x + (p->cd_obj->size.size.x - width) / 2.0f,HEIGHT + 15.0f);
+						found = true;
+					} else if(obj->type == OBJ_TRAMPOLINE_TYPE) {
+						RenderComponent* render = obj->render;
+						gap_pos = vec2(render->world_dest.left,HEIGHT + 15.0f);
+						found = true;						
+					}
+				}
+
+				if(!found){
+					start = vec2(p->cd_obj->pos.x - 50.0f,HEIGHT + 100.0f);
+					end = vec2(start.x,HEIGHT - 100.0f);
+					obj = objects_raycast(start,end);
+					if(obj){
+						if(obj->type == OBJ_FALL_TRIGGER_TYPE) {
+							PhysicsComponent* p = obj->physics;
+							gap_pos = vec2(p->cd_obj->pos.x + (p->cd_obj->size.size.x - width) / 2.0f,HEIGHT + 15.0f);
+							found = true;
+						} else if(obj->type == OBJ_TRAMPOLINE_TYPE) {
+							RenderComponent* render = obj->render;
+							gap_pos = vec2(render->world_dest.left,HEIGHT + 15.0f);
+							found = true;						
+						}
+					}
+				}
+
+				// Create Trampoline
+				ObjTrampoline* trampoline = (ObjTrampoline*) objects_create(&obj_trampoline_desc, gap_pos, (void*)sprt);
+				trampoline->owner = self;
+			}
 
 			if(ts - d->mushroom_hit_time < 0.1f) {
 
@@ -491,7 +541,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	Vector2 vel = self->physics->vel;
 	if(other->type == OBJ_MUSHROOM_TYPE && !d->touching_ground && vel.y > 500.0f) {
 		if(d->bounce_force.y == 0.0f) {
-			ObjMushroom* mushroom = (ObjMushroom*)other;
+			//ObjMushroom* mushroom = (ObjMushroom*)other;
 			d->mushroom_hit_time = time_s();
 			anim_play_ex(rabbit->anim, "bounce", TIME_S);
 			vel.y = -vel.y;
@@ -510,6 +560,15 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			async_schedule(_rabbit_delayed_bounce, 100, self);
 		}
 	}
+
+	// Collision with trampoline
+	if(other->type == OBJ_TRAMPOLINE_TYPE) {
+		ObjTrampoline* trampoline = (ObjTrampoline*)other;
+		if(trampoline->owner == self) {
+			self->physics->vel.y = 0.0f;
+			objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
+		}
+	}	
 }
 
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
@@ -584,6 +643,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->speed = 100.0f;
 	d->rubber_band = false;
 	d->tokens = 0;
+	d->has_trampoline = false;
 
 	if(id < 0){
 		render->spr = sprsheet_get_handle("rabbit");

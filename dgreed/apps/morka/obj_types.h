@@ -11,6 +11,7 @@ enum {
 	OBJ_DECO_TYPE,
 	OBJ_FG_DECO_TYPE,
 	OBJ_MUSHROOM_TYPE,
+	OBJ_TRAMPOLINE_TYPE,
 	OBJ_CACTUS_TYPE,
 	OBJ_PIN,
 	OBJ_SPEED_TRIGGER_TYPE,
@@ -53,6 +54,7 @@ typedef struct {
 	float xjump;
 	float yjump;
 	int tokens;
+	bool has_trampoline;
 } ObjRabbitData;
 
 typedef void (*ControlCallback)(GameObject* self);
@@ -111,6 +113,16 @@ typedef struct {
 } ObjCactus;
 
 extern GameObjectDesc obj_cactus_desc;
+
+// Trampoline
+
+typedef struct {
+	GameObject header;
+	float oh, h, dh, db;
+	GameObject * owner;
+} ObjTrampoline;
+
+extern GameObjectDesc obj_trampoline_desc;
 
 // Race marker pin
 
