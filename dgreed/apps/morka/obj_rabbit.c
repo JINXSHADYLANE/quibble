@@ -10,7 +10,7 @@
 #include <system.h>
 #include <async.h>
 
-#define TIME_S malka_state_time("game")
+#define TIME_S (malka_state_time("game") + malka_state_time("game_over"))
 
 const static float rabbit_hitbox_width = 70.0f;
 const static float rabbit_hitbox_height = 62.0f;
