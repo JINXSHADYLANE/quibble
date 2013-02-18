@@ -99,7 +99,7 @@ void obj_rabbit_ai_control(GameObject* self){
 
 		// AI avoids gaps
 		if(obj){
-			if(obj->type == OBJ_FALL_TRIGGER_TYPE){
+			if(obj->type == OBJ_FALL_TRIGGER_TYPE || obj->type == OBJ_TRAMPOLINE_TYPE){
 				//printf("jump before gap \n");
 				d->virtual_key_down = true;
 				d->virtual_key_pressed = true;
@@ -141,7 +141,7 @@ void obj_rabbit_ai_control(GameObject* self){
 
 		bool safe_to_land = true;
 		if(obj){
-			if(obj->type == OBJ_FALL_TRIGGER_TYPE){
+			if(obj->type == OBJ_FALL_TRIGGER_TYPE || obj->type == OBJ_TRAMPOLINE_TYPE){
 				safe_to_land = false;
 			}	
 		}
@@ -182,12 +182,12 @@ void obj_rabbit_ai_control(GameObject* self){
 
 			// AI dives before gaps, so it can jump over them
 			if(safe_to_land && obj){
-				if(obj->type == OBJ_FALL_TRIGGER_TYPE && !d->is_diving && p->vel.y > 0.0f) {
+				if((obj->type == OBJ_FALL_TRIGGER_TYPE || obj->type == OBJ_TRAMPOLINE_TYPE) && !d->is_diving && p->vel.y > 0.0f) {
 					d->virtual_key_down = true;
 					d->virtual_key_pressed = true;
 					//printf("%d dive before gap, vel.x: %.0f dy %.0f distance: %f \n",self, p->vel.x,(579.0f - pos.y),obj->physics->cd_obj->pos.x - pos.x);
 				}
-				if(obj->type == OBJ_FALL_TRIGGER_TYPE) safe_to_land = false;	
+				if(obj->type == OBJ_FALL_TRIGGER_TYPE || obj->type == OBJ_TRAMPOLINE_TYPE) safe_to_land = false;	
 			}
 
 			// raycast below rabbit for shrooms

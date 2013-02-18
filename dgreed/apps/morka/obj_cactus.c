@@ -2,6 +2,7 @@
 #include "common.h"
 #include <system.h>
 #include <math.h>
+#include <mfx.h>
 
 static void obj_cactus_collide(GameObject* self, GameObject* other) {
 	ObjCactus* cactus = (ObjCactus*)self;
@@ -28,6 +29,10 @@ static void obj_cactus_collide(GameObject* self, GameObject* other) {
 			
 			// disable cactus
 			cactus->damage = 0.0f;
+
+			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
+			mfx_trigger_follow("cactus_reaction",&anchor->screen_pos,NULL);
+
 		}
 	}
 }
@@ -55,6 +60,12 @@ static void obj_cactus_update_pos(GameObject* self) {
 	r->world_dest.top = cactus->original.top - cactus->d;
 	r->world_dest.left = cactus->original.left - cactus->d;
 	r->world_dest.right= cactus->original.right + cactus->d;
+
+	if(cactus->damage == 0.0f){
+		cactus->original.top += 1.0f;
+		r->world_dest.bottom += 1.0f;
+
+	} 
 }
 
 static void obj_cactus_construct(GameObject* self, Vector2 pos, void* user_data) {
