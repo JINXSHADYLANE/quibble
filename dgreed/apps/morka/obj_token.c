@@ -1,6 +1,7 @@
 #include "obj_types.h"
 #include "common.h"
 #include <system.h>
+#include <mfx.h>
 
 static void obj_token_collide(GameObject* self, GameObject* other) {
 	ObjToken* token = (ObjToken*)self;
@@ -9,6 +10,9 @@ static void obj_token_collide(GameObject* self, GameObject* other) {
 		ObjRabbitData* d = rabbit->data;
 		d->tokens += token->value;
 		token->value = 0;
+
+		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
+		mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
 
 		objects_destroy(self);
 
