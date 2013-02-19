@@ -35,136 +35,145 @@
 	)
 	(img blue_shade
 		(tex atlas_2.png)
-		(src 1006,131,1016,141)
+		(src 684,3,694,13)
 	)
 	(img finish_tile
 		(tex atlas_2.png)
-		(src 964,60,1007,126)
+		(src 78,943,121,1009)
 	)
 	(img grass1
 		(tex atlas_2.png)
-		(src 2,19,258,206)
+		(src 761,2,1017,189)
 	)
 	(img grass2
 		(tex atlas_2.png)
-		(src 704,2,960,189)
+		(src 501,19,757,206)
 	)
 	(img grass3
 		(tex atlas_2.png)
-		(src 2,210,258,391)
+		(src 241,210,497,391)
 	)
 	(img grass4
 		(tex atlas_2.png)
-		(src 444,2,700,189)
+		(src 241,19,497,206)
 	)
 	(img grass_end1
 		(tex atlas_2.png)
-		(src 2,556,213,737)
+		(src 207,715,418,896)
 	)
 	(img grass_end2
 		(tex atlas_2.png)
-		(src 422,626,496,813)
+		(src 635,564,709,751)
 	)
 	(img grass_start1
 		(tex atlas_2.png)
-		(src 500,626,595,807)
+		(src 591,782,686,963)
 	)
 	(img grass_start2
 		(tex atlas_2.png)
-		(src 203,817,400,1004)
+		(src 501,373,698,560)
 	)
 	(img pause
 		(tex atlas_2.png)
-		(src 993,168,1015,191)
+		(src 635,755,657,778)
 	)
 	(img pin
 		(tex atlas_2.png)
-		(src 964,168,989,206)
+		(src 203,272,228,310)
 	)
 	(img planet_1
 		(tex atlas_2.png)
-		(src 723,754,916,975)
+		(src 2,508,195,729)
 	)
 	(img planet_2
 		(tex atlas_2.png)
-		(src 431,356,666,622)
+		(src 2,2,237,268)
 	)
 	(img planet_3
 		(tex atlas_2.png)
-		(src 2,741,199,973)
+		(src 2,272,199,504)
 	)
 	(img planet_4
 		(tex atlas_2.png)
-		(src 217,607,418,813)
+		(src 2,733,203,939)
 	)
 	(img planet_5
 		(tex atlas_2.png)
-		(src 262,19,434,233)
+		(src 459,564,631,778)
 	)
 	(img play
 		(tex atlas_2.png)
-		(src 855,513,979,637)
+		(src 850,755,974,879)
 	)
 	(img position_knob
 		(tex atlas_2.png)
-		(src 1011,60,1019,68)
+		(src 463,395,471,403)
 	)
 	(img position_line
 		(tex atlas_2.png)
-		(src 2,2,440,15)
+		(src 241,2,679,15)
 	)
 	(img quit
 		(tex atlas_2.png)
-		(src 727,585,851,709)
+		(src 872,627,996,751)
 	)
 	(img resque_tag
 		(tex atlas_2.png)
-		(src 964,2,1019,56)
+		(src 125,943,180,997)
 	)
 	(img restart
 		(tex atlas_2.png)
-		(src 599,626,723,750)
+		(src 872,499,996,623)
 	)
 	(img token
 		(tex atlas_2.png)
-		(src 964,130,1001,164)
+		(src 207,900,244,934)
 	)
 	(img token_tag
 		(tex atlas_2.png)
-		(src 670,513,742,581)
+		(src 2,943,74,1011)
+	)
+	(img tut_finger
+		(tex atlas_2.png)
+		(src 871,354,1008,495)
+	)
+	(img tut_star
+		(tex atlas_2.png)
+		(src 850,883,971,1007)
 	)
 	(img water1
 		(tex atlas_2.png)
-		(src 2,395,258,552)
+		(src 203,395,459,552)
 	)
 	(img water2
 		(tex atlas_2.png)
-		(src 438,193,694,352)
+		(src 501,210,757,369)
 	)
 	(img water3
 		(tex atlas_2.png)
-		(src 698,193,954,350)
+		(src 761,193,1017,350)
 	)
 	(img water4
 		(tex atlas_2.png)
-		(src 698,354,954,509)
+		(src 199,556,455,711)
 	)
 	(img water_end1
 		(tex atlas_2.png)
-		(src 262,237,427,424)
+		(src 702,373,867,560)
 	)
 	(img water_end2
 		(tex atlas_2.png)
-		(src 404,817,559,1004)
+		(src 713,564,868,751)
 	)
 	(img water_start1
 		(tex atlas_2.png)
-		(src 262,428,427,603)
+		(src 422,782,587,957)
 	)
 	(img water_start2
 		(tex atlas_2.png)
-		(src 563,811,719,980)
+		(src 690,755,846,924)
 	)
+
 
 
 
