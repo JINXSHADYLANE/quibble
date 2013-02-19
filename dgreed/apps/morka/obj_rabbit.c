@@ -17,6 +17,7 @@ const static float rabbit_hitbox_height = 62.0f;
 
 extern bool draw_ai_debug;
 extern bool camera_follow;
+extern ObjRabbit* rabbit;
 
 void obj_rabbit_player_control(GameObject* self){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
@@ -221,18 +222,33 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbitData* d = rabbit->data;
 	if(!d->is_dead){
 		PhysicsComponent* p = self->physics;
-	
+		//if(d->player_control) printf("%f \n",p->vel.x);
 		// rubber band
 		if(d->rubber_band){
-			float delta = (minimap_player_x() - p->cd_obj->pos.x) + d->speed + d->xjump + d->yjump + rand_float_range(d->xjump,d->speed);
-			if(delta > 1000.0f) delta = 1500.0f;
-			delta *= (d->speed / 200.0f) - 1.0f;
 
+			for(int i = 0; i < minimap_get_count();i++){
+
+				ObjRabbit* other = minimap_get_rabbit(i);
+				float delta = other->header.physics->cd_obj->pos.x - p->cd_obj->pos.x;
+
+				if(other != rabbit && !other->data->player_control && !other->data->is_dead){
+
+					float min_dist = 800.0f;
+					float force = other->data->speed*other->data->speed;
+					force *= 10.0f;
+
+					if(delta > 0.0f && delta < min_dist) objects_apply_force(self, vec2(-force/delta, 0.0f));
+				} else {
+					delta = delta*2.0f + d->speed;
+					objects_apply_force(self, vec2(delta, 0.0f));
+				}
+			}
+
+			if(p->vel.x < 0.0f) p->vel.x = d->speed;
 
 			p->cd_obj->pos.y = 370.0f;
 			d->touching_ground = true;
 
-			objects_apply_force(self, vec2(delta, 0.0f));
 			if(minimap_player_x() - p->cd_obj->pos.x < 0.0) d->rubber_band = false;
 		}
 
@@ -451,13 +467,11 @@ static void obj_rabbit_became_visible(GameObject* self) {
 	PhysicsComponent* p = self->physics;
 	if(!d->player_control && d->rubber_band){
 		d->rubber_band = false;
-		p->cd_obj->pos.y = rand_float_range(400.0f,579.0f);
+		p->cd_obj->pos.y = rand_float_range(550.0f,579.0f);
 		p->vel.y = 0.0f;
 		objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
 		d->touching_ground = false;
 	} 
-	
-
 }
 static void obj_rabbit_became_invisible(GameObject* self) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
