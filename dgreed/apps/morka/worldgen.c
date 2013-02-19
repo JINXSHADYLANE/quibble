@@ -90,6 +90,10 @@ static void _gen_fg_page(void) {
 	else 
 		gaps_i = 0;
 
+
+	float water_start = 0.0f;
+	float water_end = 0.0f;
+
 	// Add ground
 	static float ground_x = page_width;
 	ground_x -= page_width;
@@ -110,10 +114,7 @@ static void _gen_fg_page(void) {
 					gaps[++gaps_i].x = pos.x;
 					gaps[gaps_i].y = pos.x + advance;
 
-					if(gaps_i > max_gaps){ 
-						gaps_i = 0;
-						printf("gaps_i > max_gaps !\n");
-					}
+					assert(gaps_i < max_gaps);
 				}
 				// Token over gap start/end
 				Vector2 size = sprsheet_get_size_h(spr);
@@ -125,9 +126,16 @@ static void _gen_fg_page(void) {
 				}
 				objects_create(&obj_ground_desc, pos, (void*)spr);
 				if(sym == 'j' || sym == 'k' || sym == 'l' || sym == 'm' || sym == 'n' || sym == 'o'){
+					if(water_start == 0) water_start = pos.x;
+					water_end = pos.x + advance;
 					ObjSpeedTrigger* t = (ObjSpeedTrigger*)objects_create(&obj_speed_trigger_desc, pos, (void*)spr);
 					t->drag_coef = 1.9;
 				}
+				if(sym == 'i'){
+					water_start = pos.x;
+					water_end = pos.x + advance;
+				}
+				if(sym == 'p') water_end = pos.x + advance;
 				prev_advance = 0;
 			}		
 		} else {
@@ -187,14 +195,27 @@ static void _gen_fg_page(void) {
 
 				if(sym == 'x'){
 					const float dist = 500.0f;
+					// no cactus within 500 pixels of a gap
 					if(	(gap_possible && (pos.x + shroom_width + dist > fg_page_cursor + page_width + (ground_x - page_width)) ) ||
 						(pos.x > gaps[i].x - dist && pos.x < gaps[i].y + dist) ||
 						(pos.x + shroom_width > gaps[i].x - dist && pos.x + shroom_width < gaps[i].y + dist) ||
-						(pos.x < gaps[i].x - dist && pos.x + shroom_width > gaps[i].y + dist )
-					)place = false;				
+						(pos.x > gaps[i].x - dist && pos.x + shroom_width < gaps[i].y + dist )
+					)place = false;		
 				}
 
 			}
+
+			// no cactus on water tiles
+			if(sym == 'x'){					
+				if(	water_end > water_start && 
+					(
+						(pos.x > water_start && pos.x < water_end) ||
+						(pos.x + shroom_width > water_start && pos.x + shroom_width < water_end) ||
+						(pos.x < water_start && pos.x + shroom_width > water_end ) 
+					)
+				)place = false;
+			}	
+
 		} else {
 			if(coins > 0){
 				coins_cd = 2;
@@ -214,11 +235,10 @@ static void _gen_fg_page(void) {
 		}
 				
 		if(place) {
-			if(sym == 'x')
-				objects_create(&obj_cactus_desc, pos, (void*)spr);
-				//ObjMushroom* shroom = (ObjMushroom*)g;
+			if(sym == 'x') objects_create(&obj_cactus_desc, pos, (void*)spr);
 			else {
 				objects_create(&obj_mushroom_desc, pos, (void*)spr);
+				
 				// Placing tokens on big shrooms
 				Vector2 size = sprsheet_get_size_h(spr);
 				float width = size.x;

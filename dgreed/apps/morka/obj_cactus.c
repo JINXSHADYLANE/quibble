@@ -7,31 +7,17 @@
 static void obj_cactus_collide(GameObject* self, GameObject* other) {
 	ObjCactus* cactus = (ObjCactus*)self;
 	if(other->type == OBJ_RABBIT_TYPE) {
-		if(cactus->damage == 1.0f){
+		if(cactus->damage == 0.5f){
 
 			const float animation_length = 1.0f; // seconds
 
 			cactus->t0 = time_s();
 			cactus->t1 = cactus->t0 + animation_length;
 
-			// knockback
-			PhysicsComponent* p = other->physics;
-			Vector2 f = {
-				.x = -100000.0f,
-				.y =  0.0f
-			};
-			if(p->vel.y > 0.0f){	
-				f.y = -100000.0f;
-				p->vel.y = 0.0f;
-			}
-
-			objects_apply_force(other, f); 
-			
-			// disable cactus
-			cactus->damage = 0.0f;
-
 			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
 			mfx_trigger_follow("cactus_reaction",&anchor->screen_pos,NULL);
+
+			cactus->damage = 0.0f;
 
 		}
 	}
