@@ -193,7 +193,7 @@ static const CachedText* _precache(const char* string, const char* key, bool inp
 	hnew->src = bbox;
 	hnew->page = page; 
 
-	assert(strlen(key) < 64);
+	assert(strlen(key) < 128);
 	char* pkey = mempool_alloc(&key_str_pool);
 	strcpy(pkey, key);
 	dict_set(&cache, pkey, hnew); 
@@ -227,7 +227,7 @@ void vfont_init_ex(uint cache_w, uint cache_h) {
 	free_rects = darray_create(sizeof(FreeRect), 0);
 
 	mempool_init_ex(&cached_text_pool, sizeof(CachedText), 8*1024);
-	mempool_init_ex(&key_str_pool, 64, 2*1024);
+	mempool_init_ex(&key_str_pool, 128, 4*1024);
 
 	_vfont_init();
 }
