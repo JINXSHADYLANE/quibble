@@ -16,15 +16,15 @@ static void obj_cactus_collide(GameObject* self, GameObject* other) {
 
 			// knockback
 			PhysicsComponent* p = other->physics;
-
-			//p->vel.x = 0.0f;
-
 			Vector2 f = {
 				.x = -100000.0f,
 				.y =  0.0f
-
 			};
-			if(p->vel.y > 0.0f) f.y = -180000.0f;
+			if(p->vel.y > 0.0f){	
+				f.y = -100000.0f;
+				p->vel.y = 0.0f;
+			}
+
 			objects_apply_force(other, f); 
 			
 			// disable cactus
@@ -64,7 +64,6 @@ static void obj_cactus_update_pos(GameObject* self) {
 	if(cactus->damage == 0.0f){
 		cactus->original.top += 1.0f;
 		r->world_dest.bottom += 1.0f;
-
 	} 
 }
 
@@ -117,4 +116,3 @@ GameObjectDesc obj_cactus_desc = {
 	.construct = obj_cactus_construct,
 	.destruct = NULL
 };
-
