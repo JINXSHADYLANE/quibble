@@ -160,9 +160,11 @@ static void _gen_fg_page(void) {
 	if(previuos_gaps > 1) previuos_gaps = 1;
 	previuos_gaps = gaps_i - previuos_gaps;
 
+	static int coins = 3;
+	static int coins_cd = 2;
+
 	// Add foreground mushrooms
 	static float fg_x = page_width;
-	static int place_coins = 3;
 	fg_x -= page_width;
 	while(fg_x < page_width) {
 		
@@ -184,30 +186,29 @@ static void _gen_fg_page(void) {
 				}
 
 				if(sym == 'x'){
-					const float dist = 256.0f;
-					if(	(gap_possible && (pos.x+shroom_width+dist > fg_page_cursor + page_width + (ground_x-page_width)) ) ||
-						(pos.x > gaps[i].x - dist				&& pos.x < gaps[i].y + dist) ||
-						(pos.x+shroom_width > gaps[i].x - dist && pos.x+shroom_width < gaps[i].y + dist) ||
-						(pos.x < gaps[i].x - dist 				&& pos.x+shroom_width > gaps[i].y + dist )
+					const float dist = 500.0f;
+					if(	(gap_possible && (pos.x + shroom_width + dist > fg_page_cursor + page_width + (ground_x - page_width)) ) ||
+						(pos.x > gaps[i].x - dist && pos.x < gaps[i].y + dist) ||
+						(pos.x + shroom_width > gaps[i].x - dist && pos.x + shroom_width < gaps[i].y + dist) ||
+						(pos.x < gaps[i].x - dist && pos.x + shroom_width > gaps[i].y + dist )
 					)place = false;				
 				}
 
 			}
 		} else {
-			if(place_coins <= 0){
+			if(coins > 0){
+				coins_cd = 2;
 				bool c = true;
 				for(int i = 1; i <= gaps_i;i++){
 					if(	(pos.x > gaps[i].x && pos.x < gaps[i].y) ||
-						(pos.x+250.0f > gaps[i].x && pos.x+250.0f < gaps[i].y) ||
-						(pos.x < gaps[i].x && pos.x+250.0f > gaps[i].y )){
+						(pos.x + 250.0f > gaps[i].x && pos.x + 250.0f < gaps[i].y) ||
+						(pos.x < gaps[i].x && pos.x + 250.0f > gaps[i].y )){
 						c = false;
 					}
 				}
 				if(c){
-					place_coins = 3;
-					objects_create(&obj_token_desc, vec2(pos.x + 50.0f,	579.0f), (void*)sprsheet_get_handle("token"));
-					objects_create(&obj_token_desc, vec2(pos.x + 150.0f,579.0f), (void*)sprsheet_get_handle("token"));
-					objects_create(&obj_token_desc, vec2(pos.x + 250.0f,579.0f), (void*)sprsheet_get_handle("token"));					
+					objects_create(&obj_token_desc, vec2(pos.x + advance / 2.0f, 579.0f), (void*)sprsheet_get_handle("token"));
+					coins--;				
 				}
 			}
 		}
@@ -229,10 +230,13 @@ static void _gen_fg_page(void) {
 		}
 	
 		fg_x += (float)advance;
+
 	}
+	
+	if(coins_cd > 0) coins_cd--;
+	if(coins_cd == 0) coins = 3;
 
 	fg_page_cursor += page_width;
-	place_coins--;
 	// save last gap for next page
 	gaps[1].x = gaps[gaps_i].x;
 	gaps[1].y = gaps[gaps_i].y; 	

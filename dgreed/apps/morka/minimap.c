@@ -128,11 +128,6 @@ float minimap_player_x(){
 	return player_x;
 }
 
-float minimap_min_x(){
-	// TODO
-	return 0;
-}
-
 uint minimap_get_count(){
 	return minimap_pointers.size;
 }
@@ -140,3 +135,8 @@ ObjRabbit* minimap_get_place(uint i){
 	return results[i];
 }
 
+ObjRabbit* minimap_get_rabbit(uint i){
+	ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
+	ObjRabbit* rabbit = *p_rabbit;
+	return rabbit;
+}

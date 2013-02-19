@@ -72,6 +72,8 @@ static void game_reset(void) {
 	longest_combo = 0;
 
 	camera_follow = false;
+
+	hud_trigger_combo(0);
 }
 
 static void game_init(void) {

@@ -14,13 +14,13 @@ void minimap_draw();
 void minimap_reset(uint distance);
 
 float minimap_max_x();
-float minimap_min_x();
 
 float minimap_player_x();
 
 void minimap_update_places();
 
 uint minimap_get_count();
+ObjRabbit* minimap_get_rabbit(uint i);
 ObjRabbit* minimap_get_place(uint i);
 
 #endif
