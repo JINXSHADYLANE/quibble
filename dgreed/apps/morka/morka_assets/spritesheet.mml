@@ -37,14 +37,6 @@
 		(tex atlas_2.png)
 		(src 1006,131,1016,141)
 	)
-	(img bottle
-		(tex atlas_2.png)
-		(src 863,513,942,608)
-	)
-	(img broom
-		(tex atlas_2.png)
-		(src 677,513,764,613)
-	)
 	(img finish_tile
 		(tex atlas_2.png)
 		(src 964,60,1007,126)
@@ -67,27 +59,19 @@
 	)
 	(img grass_end1
 		(tex atlas_2.png)
-		(src 207,619,404,800)
+		(src 2,556,213,737)
 	)
 	(img grass_end2
 		(tex atlas_2.png)
-		(src 683,754,771,941)
+		(src 422,626,496,813)
 	)
 	(img grass_start1
 		(tex atlas_2.png)
-		(src 362,804,482,991)
+		(src 500,626,595,807)
 	)
 	(img grass_start2
 		(tex atlas_2.png)
-		(src 262,237,434,424)
-	)
-	(img ice
-		(tex atlas_2.png)
-		(src 768,513,859,608)
-	)
-	(img muffin
-		(tex atlas_2.png)
-		(src 946,513,1016,592)
+		(src 203,817,400,1004)
 	)
 	(img pause
 		(tex atlas_2.png)
@@ -99,19 +83,19 @@
 	)
 	(img planet_1
 		(tex atlas_2.png)
-		(src 486,799,679,1020)
+		(src 723,754,916,975)
 	)
 	(img planet_2
 		(tex atlas_2.png)
-		(src 438,356,673,622)
+		(src 431,356,666,622)
 	)
 	(img planet_3
 		(tex atlas_2.png)
-		(src 2,766,199,998)
+		(src 2,741,199,973)
 	)
 	(img planet_4
 		(tex atlas_2.png)
-		(src 2,556,203,762)
+		(src 217,607,418,813)
 	)
 	(img planet_5
 		(tex atlas_2.png)
@@ -119,7 +103,7 @@
 	)
 	(img play
 		(tex atlas_2.png)
-		(src 775,791,899,915)
+		(src 855,513,979,637)
 	)
 	(img position_knob
 		(tex atlas_2.png)
@@ -131,7 +115,7 @@
 	)
 	(img quit
 		(tex atlas_2.png)
-		(src 696,617,820,741)
+		(src 727,585,851,709)
 	)
 	(img resque_tag
 		(tex atlas_2.png)
@@ -139,19 +123,7 @@
 	)
 	(img restart
 		(tex atlas_2.png)
-		(src 568,626,692,750)
-	)
-	(img rocket
-		(tex atlas_2.png)
-		(src 885,919,967,1010)
-	)
-	(img sign
-		(tex atlas_2.png)
-		(src 903,791,984,905)
-	)
-	(img teapot
-		(tex atlas_2.png)
-		(src 775,919,881,1013)
+		(src 599,626,723,750)
 	)
 	(img token
 		(tex atlas_2.png)
@@ -159,11 +131,11 @@
 	)
 	(img token_tag
 		(tex atlas_2.png)
-		(src 683,945,755,1013)
+		(src 670,513,742,581)
 	)
 	(img water1
 		(tex atlas_2.png)
-		(src 698,193,954,350)
+		(src 2,395,258,552)
 	)
 	(img water2
 		(tex atlas_2.png)
@@ -171,7 +143,7 @@
 	)
 	(img water3
 		(tex atlas_2.png)
-		(src 2,395,258,552)
+		(src 698,193,954,350)
 	)
 	(img water4
 		(tex atlas_2.png)
@@ -179,20 +151,21 @@
 	)
 	(img water_end1
 		(tex atlas_2.png)
-		(src 262,428,427,615)
+		(src 262,237,427,424)
 	)
 	(img water_end2
 		(tex atlas_2.png)
-		(src 203,804,358,991)
+		(src 404,817,559,1004)
 	)
 	(img water_start1
 		(tex atlas_2.png)
-		(src 824,612,989,787)
+		(src 262,428,427,603)
 	)
 	(img water_start2
 		(tex atlas_2.png)
-		(src 408,626,564,795)
+		(src 563,811,719,980)
 	)
+
 
 
 
