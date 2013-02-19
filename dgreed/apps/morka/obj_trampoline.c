@@ -6,7 +6,7 @@ static void obj_trampoline_collide(GameObject* self, GameObject* other) {
 	ObjTrampoline* trampoline = (ObjTrampoline*)self;
 	if(other->type == OBJ_RABBIT_TYPE && other == trampoline->owner) {
 			trampoline->dh -= 50.0f;
-			trampoline->db = 5.0f;
+			//trampoline->db = 5.0f;
 	}
 }
 
@@ -23,7 +23,6 @@ static void obj_trampoline_update_pos(GameObject* self) {
 	r->world_dest.bottom += trampoline->db;
 
 	PhysicsComponent* p = self->physics;
-	//printf("d %f \n",trampoline->dh);
 
 	if(p->cd_obj->pos.y > 783.0f && trampoline->db == 0.0f){
 	 	p->cd_obj->pos.y -= 10.0f;
@@ -31,7 +30,6 @@ static void obj_trampoline_update_pos(GameObject* self) {
 	}
 
 	if(trampoline->owner->physics->cd_obj->pos.x > r->world_dest.right) trampoline->db = 5.0f;
-
 }
 
 static void obj_trampoline_construct(GameObject* self, Vector2 pos, void* user_data) {
@@ -58,8 +56,6 @@ static void obj_trampoline_construct(GameObject* self, Vector2 pos, void* user_d
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, 1, NULL);
 	physics->inv_mass = 0.0f;
 	physics->hit_callback = obj_trampoline_collide;
-
-	
 
 	// Render
 	RenderComponent* render = self->render;

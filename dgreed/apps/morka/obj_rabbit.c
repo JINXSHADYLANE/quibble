@@ -231,14 +231,16 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				ObjRabbit* other = minimap_get_rabbit(i);
 				float delta = other->header.physics->cd_obj->pos.x - p->cd_obj->pos.x;
 
-				if(other != rabbit && !other->data->player_control && !other->data->is_dead){
+				if(other != rabbit && !other->data->player_control && !other->data->is_dead
+				// && other->header.physics->cd_obj->pos.x < minimap_player_x()
+					){
 
 					float min_dist = 800.0f;
 					float force = other->data->speed*other->data->speed;
 					force *= 10.0f;
 
 					if(delta > 0.0f && delta < min_dist) objects_apply_force(self, vec2(-force/delta, 0.0f));
-				} else {
+				} else if(other->data->player_control) {
 					delta = delta*2.0f + d->speed;
 					objects_apply_force(self, vec2(delta, 0.0f));
 				}
