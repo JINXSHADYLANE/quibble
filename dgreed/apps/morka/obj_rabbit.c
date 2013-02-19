@@ -131,10 +131,6 @@ void obj_rabbit_ai_control(GameObject* self){
 
 	} else if(!d->touching_ground){
 
-
-		float temp = 0.0f;
-		if(p->vel.y < 0.0f) temp = -p->vel.y;
-
 		// raycast for safe landing
 		start = vec2(pos.x + 100.0f + (p->vel.x * 0.4f) *(579.0f-pos.y)/579.0f,768.0f - 100.0f);
 		end = vec2(start.x-100.0f,start.y);
@@ -222,7 +218,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbitData* d = rabbit->data;
 	if(!d->is_dead){
 		PhysicsComponent* p = self->physics;
-		//if(d->player_control) printf("%f \n",p->vel.x);
 		// rubber band
 		if(d->rubber_band){
 
@@ -576,6 +571,27 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			async_schedule(_rabbit_delayed_bounce, 100, self);
 		}
 	}
+
+
+	// collision with cactus
+	if(other->type == OBJ_CACTUS_TYPE) {
+		ObjCactus* cactus = (ObjCactus*)other;
+		if(cactus->damage == 1.0f){
+			// knockback
+			Vector2 f = {
+				.x = -100000.0f,
+				.y =  0.0f
+			};
+			if(self->physics->vel.y > 0.0f){	
+				f.y = -100000.0f;
+				self->physics->vel.y = 0.0f;
+			}
+
+			objects_apply_force(self, f);
+			cactus->damage = 0.5f; 
+		}	
+	}
+
 
 	// Collision with trampoline
 	if(other->type == OBJ_TRAMPOLINE_TYPE) {
