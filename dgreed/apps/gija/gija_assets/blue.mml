@@ -1,0 +1,80 @@
+(img 000
+	(tex atlas.png)
+	(src 0,0,64,128)
+)
+(img 001
+	(tex atlas.png)
+	(src 64,0,128,128)
+)
+(img 002
+	(tex atlas.png)
+	(src 128,0,192,128)
+)
+(img 003
+	(tex atlas.png)
+	(src 192,0,256,128)
+)
+(img 004
+	(tex atlas.png)
+	(src 256,0,320,128)
+)
+(img 005
+	(tex atlas.png)
+	(src 320,0,384,128)
+)
+(img 006
+	(tex atlas.png)
+	(src 384,0,448,128)
+)
+(img 007
+	(tex atlas.png)
+	(src 448,0,512,128)
+)
+(img 008
+	(tex atlas.png)
+	(src 0,128,64,256)
+)
+(img 009
+	(tex atlas.png)
+	(src 64,128,128,256)
+)
+(img 010
+	(tex atlas.png)
+	(src 128,128,192,256)
+)
+(img 011
+	(tex atlas.png)
+	(src 192,128,256,256)
+)
+(img 012
+	(tex atlas.png)
+	(src 256,128,320,256)
+)
+(img 013
+	(tex atlas.png)
+	(src 320,128,384,256)
+)
+(img 014
+	(tex atlas.png)
+	(src 384,128,448,256)
+)
+(img 015
+	(tex atlas.png)
+	(src 448,128,512,256)
+)
+(img 016
+	(tex atlas.png)
+	(src 0,256,64,384)
+)
+(img 017
+	(tex atlas.png)
+	(src 64,256,128,384)
+)
+(img 018
+	(tex atlas.png)
+	(src 128,256,192,384)
+)
+(img 019
+	(tex atlas.png)
+	(src 192,256,256,384)
+)
