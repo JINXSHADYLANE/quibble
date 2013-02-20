@@ -18,27 +18,27 @@ TutorialStep level1_steps[] = {
 	},
 	*/
 
-	{"Jump before a mushroom",
+	{"Touch to jump",
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f, 200.0f},
+	 {WIDTH/2.0f-69.0f, 250.0f},
 	 true,
 	 true,
 	 MUSHROOM_IN_FRONT,
 	 NONE
 	},
 
-	{"Dive on mushroom",
+	{"Touch and hold to plunge down",
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f, 200.0f},
+	 {WIDTH/2.0f-69.0f, 250.0f},
 	 true,
 	 true,
 	 MUSHROOM_BELOW,
 	 NONE
 	},
 
-	{"Bounce on 3 mushrooms",
+	{"Now do a triple bounce",
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
