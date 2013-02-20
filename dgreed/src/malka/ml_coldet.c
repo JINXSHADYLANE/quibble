@@ -486,12 +486,12 @@ static const luaL_Reg cdobj_fun[] = {
 
 int malka_open_coldet(lua_State* l) {
 	luaL_newmetatable(l, "_CDWorld.mt");
-	luaL_register(l, "coldet", coldet_fun);
+	malka_register(l, "coldet", coldet_fun);
 
 	luaL_newmetatable(l, "_CDObj.mt");
-	luaL_register(l, "cdobj", cdobj_fun);
+	malka_register(l, "cdobj", cdobj_fun);
 
-	lua_pop(l, 4);
+	lua_pop(l, 2);
 
 	return 1;
 }

@@ -91,8 +91,7 @@ static const luaL_Reg anim_fun[] = {
 };
 
 int malka_open_anim(lua_State* l) {
-	luaL_register(l, "anim", anim_fun);
-	lua_pop(l, 1);
+	malka_register(l, "anim", anim_fun);
 	return 1;
 }
 
