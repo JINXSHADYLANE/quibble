@@ -136,7 +136,6 @@ static const luaL_Reg mml_fun[] = {
 };
 
 int malka_open_mml(lua_State* l) {
-	luaL_register(l, "mml", mml_fun);
-
+	malka_register(l, "mml", mml_fun);
 	return 1;
 }

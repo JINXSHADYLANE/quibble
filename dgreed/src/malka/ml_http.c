@@ -109,9 +109,7 @@ static const luaL_Reg http_fun[] = {
 };
 
 int malka_open_http(lua_State* l) {
-	luaL_register(l, "http", http_fun);
-	lua_pop(l, 1);
-
+	malka_register(l, "http", http_fun);
 	return 1;
 }
 

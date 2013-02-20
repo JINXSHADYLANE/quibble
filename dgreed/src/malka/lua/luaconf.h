@@ -18,6 +18,12 @@
 ** ===================================================================
 */
 
+#ifdef _DEBUG
+#define LUA_USE_APICHECK
+#include <assert.h>
+#define lua_assert(x) assert((x))
+#endif
+
 
 /*
 @@ LUA_ANSI controls the use of non-ansi features.
@@ -333,14 +339,14 @@
 ** CHANGE it to undefined as soon as your programs use only '...' to
 ** access vararg parameters (instead of the old 'arg' table).
 */
-#define LUA_COMPAT_VARARG
+#undef LUA_COMPAT_VARARG
 
 /*
 @@ LUA_COMPAT_MOD controls compatibility with old math.mod function.
 ** CHANGE it to undefined as soon as your programs use 'math.fmod' or
 ** the new '%' operator instead of 'math.mod'.
 */
-#define LUA_COMPAT_MOD
+#undef LUA_COMPAT_MOD
 
 /*
 @@ LUA_COMPAT_LSTR controls compatibility with old long string nesting
