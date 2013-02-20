@@ -55,6 +55,13 @@
 			)
 		)
 
+		(def complete
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-130)
+			)
+		)
+
 		(def button_restart
 			(spr restart)
 			(add <-

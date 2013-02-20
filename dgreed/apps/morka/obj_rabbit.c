@@ -4,6 +4,7 @@
 #include "minimap.h"
 #include "game.h"
 #include "hud.h"
+#include "tutorials.h"
 #include <mfx.h>
 #include <memory.h>
 
@@ -26,6 +27,67 @@ void obj_rabbit_player_control(GameObject* self){
 	d->virtual_key_up = key_up(KEY_A);
 	d->virtual_key_down = key_down(KEY_A);
 	d->virtual_key_pressed = key_pressed(KEY_A);
+
+	if(tutorials_are_enabled()){
+
+		ObjRabbit* rabbit = (ObjRabbit*)self;
+		ObjRabbitData* d = rabbit->data;
+		PhysicsComponent* p = self->physics;
+		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+
+		Vector2 start;
+		Vector2 end;
+		GameObject* obj;
+
+		if(d->touching_ground){
+			// raycast for shroom in front
+			start = vec2(pos.x+p->vel.x * 0.6f,pos.y - 100.0f);
+			end = vec2(start.x,pos.y);
+			obj = objects_raycast(start,end);
+
+			// debug render
+			if(draw_ai_debug){
+				RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
+				RectF r = objects_world2screen(rec,0);
+				Vector2 s = vec2(r.left, r.top);
+				Vector2 e = vec2(r.right, r.bottom);
+				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
+			}
+
+			// tutorial event on mushroom in front
+			if(obj){
+				if(obj->type == OBJ_MUSHROOM_TYPE){
+					tutorial_event(MUSHROOM_IN_FRONT);
+				}	
+			}
+
+		} else {
+
+			// raycast below rabbit for shrooms
+			start = vec2(pos.x + (p->vel.x * 0.23f) *(579.0f-pos.y)/579.0f,pos.y+rabbit_hitbox_height+30);
+			//start = vec2(pos.x + 100.0f +(( p->vel.x) * (p->vel.x/6000.0f)) *(579.0f-pos.y)/579.0f,pos.y+rabbit_hitbox_height+20);
+			end = vec2(start.x,768);
+
+			if(draw_ai_debug){
+				RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
+				RectF r = objects_world2screen(rec,0);
+				Vector2 s = vec2(r.left, r.top);
+				Vector2 e = vec2(r.right, r.bottom);
+				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
+			}
+
+			obj = objects_raycast(start,end);
+
+			// tutorial event when mushroom below rabbit
+			if(obj){
+				if(obj->type == OBJ_MUSHROOM_TYPE){
+					tutorial_event(MUSHROOM_BELOW);
+				}
+			}
+
+		} 
+
+	}
 }
 
 void obj_rabbit_ai_control(GameObject* self){
@@ -278,10 +340,12 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		r->anim_frame = anim_frame_ex(rabbit->anim, TIME_S);
 		
 		if(d->touching_ground) {
+			d->force_dive = false;
 			if(d->has_trampoline) d->has_trampoline = false;	
 			d->is_diving = false;
 			// Jump
-			if(d->virtual_key_down){
+			if(d->virtual_key_down || d->force_jump){
+				d->force_jump = false;
 				d->touching_ground = false;
 				d->jump_off_mushroom = false;
 				d->jump_time = ts;
@@ -367,8 +431,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				if(key_pressed(KEY_A) && (ts - d->jump_time) < 0.2f) {
 				//	objects_apply_force(self, vec2(0.0f, -8000.0f));
 				}
-				else if(!d->is_diving && d->virtual_key_down) {
-					// Dive 	
+				else if( (!d->is_diving && d->virtual_key_down) || d->force_dive ) {
+					// Dive	
 					d->is_diving = true;
 					objects_apply_force(self, vec2(0.0f, 20000.0f));
 					anim_play_ex(rabbit->anim, "dive", TIME_S);
@@ -483,6 +547,8 @@ static void _rabbit_delayed_bounce(void* r) {
 	ObjRabbitData* d = rabbit->data;
 	PhysicsComponent* p = rabbit->header.physics;
 	if(d->jump_off_mushroom || d->is_diving) {
+		if(d->player_control) tutorial_event(BOUNCE_PERFORMED);
+		d->force_dive = false;
 		d->is_diving = false;
 		GameObject* self = r;
 		objects_apply_force(self, d->bounce_force); 
@@ -492,6 +558,8 @@ static void _rabbit_delayed_bounce(void* r) {
 		mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
 
 		if(d->combo_counter+1 == 3){
+			if(d->player_control) tutorial_event(COMBO_X3);	
+
 			// Position for particles
 			Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);	// for follower particles
 			pos.y += rabbit_hitbox_height - 20;
@@ -676,6 +744,8 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->rubber_band = false;
 	d->tokens = 0;
 	d->has_trampoline = false;
+	d->force_jump = false;
+	d->force_dive = false;
 
 	if(id < 0){
 		render->spr = sprsheet_get_handle("rabbit");

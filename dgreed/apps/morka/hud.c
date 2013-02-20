@@ -119,7 +119,6 @@ void hud_render(float t) {
 	}
 
 	// Minimap
-	minimap_draw();
-
+	if(minimap_get_count() > 1) minimap_draw();
 }
 

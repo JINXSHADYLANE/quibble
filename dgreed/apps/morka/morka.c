@@ -15,6 +15,7 @@
 #include "level_select.h"
 #include "pause.h"
 #include "game_over.h"
+#include "tutorial_pause.h"
 
 #include "mchains.h"
 #include "common.h"
@@ -58,6 +59,7 @@ bool dgreed_init(int argc, const char** argv) {
 	malka_states_register("level_select", &level_select_state);
 	malka_states_register("pause", &pause_state);
 	malka_states_register("game_over", &game_over_state);
+	malka_states_register("tutorial_pause", &tutorial_pause_state);
 
 	malka_states_set_transition_len(0.5f);
 

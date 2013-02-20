@@ -11,6 +11,7 @@
 #include <particles.h>
 
 #include "common.h"
+#include "tutorials.h"
 
 bool camera_follow = false;
 
@@ -46,6 +47,7 @@ static void game_reset(void) {
 	// Player rabbit
 	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 579.0f), (void*)-1);
 	minimap_track(rabbit);
+	tutorials_reset(rabbit);
 
 	// AI rabbits
 	for(int i = 0;i < levels_current_desc()->ai_rabbit_num;i++){
@@ -82,6 +84,7 @@ static void game_init(void) {
 
 	hud_init();
 	minimap_init();
+	tutorials_init();
 	levels_reset("level1");
 	game_reset();
 }
@@ -92,6 +95,10 @@ static void game_enter(void) {
 		game_need_reset = false;
 	}
 	game_unpause();
+}
+
+void game_end(void){
+	game_over = true;
 }
 
 void game_request_reset(void){
@@ -115,6 +122,7 @@ void game_unpause(void) {
 
 static void game_close(void) {
 	worldgen_close();
+	tutorials_close();
 	minimap_close();
 	hud_close();
 	objects_close();
@@ -177,7 +185,13 @@ bool game_update(void) {
 	
 		_move_camera(rabbit->header.render->world_dest.left + 45.0f, camera_follow_weight);
 	}
-	float pos = minimap_max_x();
+
+	float pos = 0.0f;
+	if(minimap_get_count() > 1)
+		pos = minimap_max_x();
+	else
+		pos = rabbit->header.physics->cd_obj->pos.x + 1024.0f;
+
 	worldgen_update(pos, pos);
 
 
@@ -225,6 +239,8 @@ bool game_render(float t) {
 		hud_render(t);
 	
 	if(draw_ground_debug) worldgen_debug_render();
+
+	if(tutorials_are_enabled() && tutorials_show_unpaused()) tutorials_render(0);
 	
 	return true;
 }
