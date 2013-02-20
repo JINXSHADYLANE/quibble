@@ -52,9 +52,6 @@ static bool game_over_render(float t) {
 	UIElement* element = uidesc_get("game_over");
 	uint layer = hud_layer+1;
 
-	UIElement* text = uidesc_get_child(element, "text");
-	UIElement* result_text = uidesc_get_child(element, "result_text");
-	UIElement* result_time = uidesc_get_child(element, "result_time");
 	UIElement* button_restart = uidesc_get_child(element, "button_restart");
 	UIElement* button_quit = uidesc_get_child(element, "button_quit");
 
@@ -64,38 +61,57 @@ static bool game_over_render(float t) {
 
 	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
 
-	// Text
-	vfont_select(FONT_NAME, 48.0f); 
-	const char* str = "The race is over.";
-	static Vector2 half_size = {0.0f, 0.0f};
-	if(half_size.x == 0.0f) {
-		half_size = vec2_scale(vfont_size(str), 0.5f);
-	}
-	vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
 
-	for(int i = 0; i < minimap_get_count();i++){
-		char result_str[32];
-		char result_time_str[32];
-		ObjRabbit* rabbit = minimap_get_place(i);
-		Color c = COLOR_RGBA(255, 255, 255, a); 
-		if(rabbit != NULL){
-			if(rabbit->data->rabbit_time > 0.0f){
-				sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
-				sprintf(result_time_str, "%5.1fs",rabbit->data->rabbit_time);
-			}
-			else{
-				sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
-				sprintf(result_time_str, " Out");	
-			}
-			if(rabbit->data->player_control) c = COLOR_RGBA(237, 78, 0, a);
+	if(minimap_get_count() > 1){
 
-			vfont_draw(result_time_str, layer,vec2_add(result_time->vec2,vec2(0.0f,i*60.0f)), c);
-		} else {
-			sprintf(result_str, "%d. ---",i+1);
+		UIElement* text = uidesc_get_child(element, "text");
+		UIElement* result_text = uidesc_get_child(element, "result_text");
+		UIElement* result_time = uidesc_get_child(element, "result_time");
+
+		// Text
+		vfont_select(FONT_NAME, 48.0f); 
+		const char* str = "The race is over.";
+		static Vector2 half_size = {0.0f, 0.0f};
+		if(half_size.x == 0.0f) {
+			half_size = vec2_scale(vfont_size(str), 0.5f);
 		}
-		vfont_draw(result_str, layer,vec2_add(result_text->vec2,vec2(0.0f,i*60.0f)), c);
+		vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
+
+		for(int i = 0; i < minimap_get_count();i++){
+			char result_str[32];
+			char result_time_str[32];
+			ObjRabbit* rabbit = minimap_get_place(i);
+			Color c = COLOR_RGBA(255, 255, 255, a); 
+			if(rabbit != NULL){
+				if(rabbit->data->rabbit_time > 0.0f){
+					sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
+					sprintf(result_time_str, "%5.1fs",rabbit->data->rabbit_time);
+				}
+				else{
+					sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
+					sprintf(result_time_str, " Out");	
+				}
+				if(rabbit->data->player_control) c = COLOR_RGBA(237, 78, 0, a);
+
+				vfont_draw(result_time_str, layer,vec2_add(result_time->vec2,vec2(0.0f,i*60.0f)), c);
+			} else {
+				sprintf(result_str, "%d. ---",i+1);
+			}
+			vfont_draw(result_str, layer,vec2_add(result_text->vec2,vec2(0.0f,i*60.0f)), c);
+		}		
+	} else {
+		UIElement* complete = uidesc_get_child(element, "complete");
+
+		// Text
+		vfont_select(FONT_NAME, 48.0f); 
+		const char* str = "Tutorial complete.";
+		static Vector2 half_size = {0.0f, 0.0f};
+		if(half_size.x == 0.0f) {
+			half_size = vec2_scale(vfont_size(str), 0.5f);
+		}
+		vfont_draw(str, layer, vec2_sub(complete->vec2, half_size), col);
 	}
-	
+
 	// Restart Button
 	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
 	if(touches_down() && t == 0.0f) {
@@ -114,7 +130,8 @@ static bool game_over_render(float t) {
 			malka_states_pop();
 			malka_states_pop();
 		}
-	}	
+	}		
+
 	return true;
 }
 

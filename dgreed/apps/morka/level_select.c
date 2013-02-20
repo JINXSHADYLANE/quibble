@@ -1,6 +1,7 @@
 #include "level_select.h"
 #include "game.h"
 #include "levels.h"
+#include "tutorials.h"
 #include "common.h"
 #include <uidesc.h>
 #include <vfont.h>
@@ -66,6 +67,7 @@ static bool level_select_render(float t) {
 			vec2_add(level->vec2,offset->vec2))) < 70.0f * 70.0f) {
 
 				levels_reset(level_name);
+				tutorials_set_level(level_name);
 				game_request_reset();
 				malka_states_push("game");
 			}

@@ -55,6 +55,8 @@ typedef struct {
 	float yjump;
 	int tokens;
 	bool has_trampoline;
+	bool force_jump;
+	bool force_dive;
 } ObjRabbitData;
 
 typedef void (*ControlCallback)(GameObject* self);
