@@ -21,7 +21,7 @@ TutorialStep level1_steps[] = {
 	{"Touch to jump",
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f-69.0f, 250.0f},
+	 {WIDTH/2.0f, 600.0f},
 	 true,
 	 true,
 	 MUSHROOM_IN_FRONT,
@@ -31,7 +31,7 @@ TutorialStep level1_steps[] = {
 	{"Touch and hold to plunge down",
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f-69.0f, 250.0f},
+	 {WIDTH/2.0f, 600.0f},
 	 true,
 	 true,
 	 MUSHROOM_BELOW,
@@ -168,7 +168,8 @@ bool tutorials_render(float t){
 
 		// Text
 		if(current_step->text != NULL){
-			Vector2 text_pos = vec2(WIDTH/2.0f,150.0f);
+
+			Vector2 text_pos = vec2(WIDTH/2.0f,700.0f);
 
 			static TutorialStep* step = NULL;
 
@@ -181,12 +182,14 @@ bool tutorials_render(float t){
 			if(half_size.x == 0.0f || step != current_step) {
 				half_size = vec2_scale(vfont_size(str), 0.5f);
 			}
-			vfont_draw(str, hud_layer, vec2_sub(text_pos, half_size), col);
+			vfont_draw(str, hud_layer, vec2_sub(text_pos, half_size), COLOR_RGBA(70, 49, 27, a));
 			step = current_step;
 		}
 
 		// Finger animation
-		Vector2 finger_pos = current_step->finger_pos;
+		Vector2 size = sprsheet_get_size_h(finger);
+
+		Vector2 finger_pos = vec2_sub(current_step->finger_pos,vec2_scale(size,0.5f));
 
 		if(finger_pos.x >= 0.0f && finger_pos.y >= 0.0f){
 

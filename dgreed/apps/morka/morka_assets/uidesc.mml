@@ -55,13 +55,6 @@
 			)
 		)
 
-		(def complete
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,-130)
-			)
-		)
-
 		(def button_restart
 			(spr restart)
 			(add <-
@@ -76,6 +69,29 @@
 				(vec2 -100,200)
 			)
 		)
+
+		(def tut_text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-130)
+			)
+		)
+
+		(def tut_restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 100,200)
+			)
+		)
+		(def tut_quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -100,200)
+			)
+		)
+
 	)
 	(def level_select
 		(def text
