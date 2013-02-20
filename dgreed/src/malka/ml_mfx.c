@@ -106,9 +106,6 @@ static const luaL_Reg mfx_fun[] = {
 };
 
 int malka_open_mfx(lua_State* l) {
-	luaL_register(l, "mfx", mfx_fun);
-
-	lua_pop(l, 1);
-
+	malka_register(l, "mfx", mfx_fun);
 	return 1;
 }

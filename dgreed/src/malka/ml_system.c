@@ -2036,33 +2036,29 @@ static const luaL_Reg tilemap_fun[] = {
 };	
 
 int malka_open_system(lua_State* l) {
-	int popcnt = 14;
-	luaL_register(l, "time", time_fun);
+	malka_register(l, "time", time_fun);
 
 	luaL_newmetatable(l, "_TexHandle.mt");
-	luaL_register(l, "tex", tex_fun);
+	malka_register(l, "tex", tex_fun);
 
 	luaL_newmetatable(l, "_FontHandle.mt");
-	luaL_register(l, "font", font_fun);
+	malka_register(l, "font", font_fun);
 
 #ifdef __APPLE__
-	luaL_register(l, "vfont", vfont_fun);
-	popcnt++;
+	malka_register(l, "vfont", vfont_fun);
 #endif
 
-	luaL_register(l, "video", video_fun);
+	malka_register(l, "video", video_fun);
 
 	luaL_newmetatable(l, "_SoundHandle.mt");
 	luaL_newmetatable(l, "_SourceHandle.mt"); 
-	luaL_register(l, "sound", sound_fun);
+	malka_register(l, "sound", sound_fun);
 
-	luaL_register(l, "key", key_fun);
-	luaL_register(l, "char", char_fun);
-	luaL_register(l, "mouse", mouse_fun);
-	luaL_register(l, "touch", touch_fun);
-	luaL_register(l, "txtinput", txtinput_fun);
-
-	lua_pop(l, popcnt);
+	malka_register(l, "key", key_fun);
+	malka_register(l, "char", char_fun);
+	malka_register(l, "mouse", mouse_fun);
+	malka_register(l, "touch", touch_fun);
+	malka_register(l, "txtinput", txtinput_fun);
 
 	lua_getglobal(l, "key");
 	int tbl = lua_gettop(l);
@@ -2079,9 +2075,8 @@ int malka_open_system(lua_State* l) {
 	}
 
 	lua_pop(l, 2);
-
 	
-	luaL_register(l, "orientation", orientation_fun);
+	malka_register(l, "orientation", orientation_fun);
 		
 	lua_getglobal(l, "orientation");
 	tbl = lua_gettop(l);
@@ -2094,18 +2089,15 @@ int malka_open_system(lua_State* l) {
 	lua_pushinteger(l, ORIENT_PORTRAIT_UPSIDE_DOWN);
 	lua_setfield(l, tbl, "portrait_upside_down");
 
-	luaL_register(l, "acceleration", acceleration_fun);
-
-	luaL_register(l, "runstate", runstate_fun);
-
-	luaL_register(l, "gui", gui_fun);
-
-	luaL_register(l, "particles", particles_fun);
+	malka_register(l, "acceleration", acceleration_fun);
+	malka_register(l, "runstate", runstate_fun);
+	malka_register(l, "gui", gui_fun);
+	malka_register(l, "particles", particles_fun);
 
 	luaL_newmetatable(l, "_TilemapHandle.mt");
-	luaL_register(l, "tilemap", tilemap_fun);
+	malka_register(l, "tilemap", tilemap_fun);
 
-	lua_pop(l, 7);
+	lua_pop(l, 1);
 
 	return 1;
 }
