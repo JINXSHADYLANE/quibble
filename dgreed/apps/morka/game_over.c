@@ -52,8 +52,8 @@ static bool game_over_render(float t) {
 	UIElement* element = uidesc_get("game_over");
 	uint layer = hud_layer+1;
 
-	UIElement* button_restart = uidesc_get_child(element, "button_restart");
-	UIElement* button_quit = uidesc_get_child(element, "button_quit");
+	UIElement* button_restart = NULL;
+	UIElement* button_quit = NULL;
 
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
@@ -67,6 +67,10 @@ static bool game_over_render(float t) {
 		UIElement* text = uidesc_get_child(element, "text");
 		UIElement* result_text = uidesc_get_child(element, "result_text");
 		UIElement* result_time = uidesc_get_child(element, "result_time");
+
+		button_restart = uidesc_get_child(element, "button_restart");
+		button_quit = uidesc_get_child(element, "button_quit");
+
 
 		// Text
 		vfont_select(FONT_NAME, 48.0f); 
@@ -100,7 +104,11 @@ static bool game_over_render(float t) {
 			vfont_draw(result_str, layer,vec2_add(result_text->vec2,vec2(0.0f,i*60.0f)), c);
 		}		
 	} else {
-		UIElement* complete = uidesc_get_child(element, "complete");
+		UIElement* complete = uidesc_get_child(element, "tut_text");
+		
+		button_restart = uidesc_get_child(element, "tut_restart");
+		button_quit = uidesc_get_child(element, "tut_quit");
+
 
 		// Text
 		vfont_select(FONT_NAME, 48.0f); 
