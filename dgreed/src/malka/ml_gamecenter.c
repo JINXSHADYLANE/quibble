@@ -269,10 +269,7 @@ static const luaL_Reg gamecenter_fun[] = {
 };
 
 int malka_open_gamecenter(lua_State* l) {
-	luaL_register(l, "gamecenter", gamecenter_fun);
-
-	lua_pop(l, 1);
-
+	malka_register(l, "gamecenter", gamecenter_fun);
 	return 1;
 }
 

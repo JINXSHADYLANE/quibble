@@ -53,10 +53,7 @@ static luaL_Reg loc_fun[] = {
 };
 
 int malka_open_localization(lua_State* l) {
-	luaL_register(l, "loc", loc_fun);
-
-	lua_pop(l, 1);
-
+	malka_register(l, "loc", loc_fun);
 	return 1;
 }
 

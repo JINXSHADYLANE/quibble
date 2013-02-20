@@ -201,10 +201,7 @@ static luaL_Reg os_fun[] = {
 };
 
 int malka_open_os(lua_State* l) {
-	luaL_register(l, "os", os_fun);
-
-	lua_pop(l, 1);
-
+	malka_register(l, "os", os_fun);
 	return 1;
 }
 
