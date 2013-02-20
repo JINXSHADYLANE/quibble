@@ -1533,8 +1533,7 @@ static const luaL_Reg rand_fun[] = {
 
 int malka_open_rand(lua_State* l) {
 	rand_init(time(NULL));
-	luaL_register(l, "rand", rand_fun);
-	lua_pop(l, 1);
+	malka_register(l, "rand", rand_fun);
 	return 1;
 }
 
@@ -1573,8 +1572,7 @@ static const luaL_Reg log_fun[] = {
 };	
 
 int malka_open_log(lua_State* l) {
-	luaL_register(l, "log", log_fun);
-	lua_pop(l, 1);
+	malka_register(l, "log", log_fun);
 	return 1;
 }
 
@@ -1622,8 +1620,7 @@ static const luaL_Reg file_fun[] = {
 };	
 
 int malka_open_file(lua_State* l) {
-	luaL_register(l, "file", file_fun);
-	lua_pop(l, 1);
+	malka_register(l, "file", file_fun);
 	return 1;
 }
 
