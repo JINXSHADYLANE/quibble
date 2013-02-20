@@ -240,9 +240,10 @@
 		(def j (bg_mushroom_2 400))
 		(def x (spikeshroom_1 150))
 
-		(sdef z (seq "xd__b__gchij__x"))
+		(sdef z (seq "x=d__b__gchij__x"))
 
 		(def _ (.empty 250))
+		(def = (.empty 50))
 
 		(init "__")
 
