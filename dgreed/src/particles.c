@@ -32,7 +32,7 @@ static TexHandle particles_texture;
 static float last_time = 0.0f;
 
 // particles not larger than this will be allocated from pool
-static uint particles_poolable_size = 512;
+static uint particles_poolable_size = 1024;
 static MemPool particles_pool;
 
 #ifndef NO_DEVMODE
@@ -51,7 +51,7 @@ void particles_init_ex(const char* assets_prefix, const char* filename, uint lay
 	particles_prefix = assets_prefix ? assets_prefix : "";
 
 	// Alloc pools
-	mempool_init_ex(&particles_pool, particles_poolable_size, particles_poolable_size * 64);
+	mempool_init_ex(&particles_pool, particles_poolable_size, particles_poolable_size * 16);
 	mempool_init_ex(&psystems_pool, sizeof(ParticleSystem), sizeof(ParticleSystem) * 32);
 
 	list_init(&psystems_list);
@@ -304,10 +304,12 @@ ParticleSystem* particles_spawn_ex(const char* name, const Vector2* pos,
 	psystem->worldspace = worldspace;
 
 	uint s = sizeof(Particle) * psystem->desc->max_particles;
-	if(s <= particles_poolable_size)
+	if(s <= particles_poolable_size) {
 		psystem->particles = mempool_alloc(&particles_pool);
-	else
+	}
+	else {
 		psystem->particles = (Particle*)MEM_ALLOC(s);
+	}
 
 	psystem->die_cb = die_cb;
 

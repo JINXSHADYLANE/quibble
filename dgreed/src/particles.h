@@ -6,6 +6,7 @@
 #include "system.h"
 #include "datastruct.h"
 
+// 
 typedef struct {
 	float birth_time;
 	float death_time;
