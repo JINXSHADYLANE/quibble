@@ -81,6 +81,7 @@ static void _gen_fg_page(void) {
 	static int prev_advance = 0;
 	static int previuos_gaps = 0;
 	bool gap_possible = false;
+	bool gap_warning = false;
 	
 	SprHandle spr;	
 	uint advance = 0;
@@ -97,6 +98,7 @@ static void _gen_fg_page(void) {
 	// Add ground
 	static float ground_x = page_width;
 	ground_x -= page_width;
+
 	while(ground_x < page_width) {
 		gap_possible = false;
 		char sym = mchains_next(ground_chain, &rnd);
@@ -123,6 +125,9 @@ static void _gen_fg_page(void) {
 			} else {
 				if(sym == 'g') {
 					gap_possible = true;
+				}
+				if(sym == 'q') {
+					gap_warning = true;
 				}
 				objects_create(&obj_ground_desc, pos, (void*)spr);
 				if(sym == 'j' || sym == 'k' || sym == 'l' || sym == 'm' || sym == 'n' || sym == 'o'){
@@ -183,8 +188,10 @@ static void _gen_fg_page(void) {
 		bool place = false;
 	
 		if(spr){
+			const float dist = 500.0f;
 			place = true;
-			if((gap_possible && (pos.x+shroom_width > fg_page_cursor + page_width + (ground_x-page_width)) )) place = false;
+
+			if( gap_possible && (pos.x+shroom_width > fg_page_cursor + ground_x ) ) place = false;
 
 			for(int i = 1; i <= gaps_i;i++){
 				if(	(pos.x > gaps[i].x && pos.x < gaps[i].y) ||
@@ -194,10 +201,9 @@ static void _gen_fg_page(void) {
 				}
 
 				if(sym == 'x'){
-					const float dist = 500.0f;
+
 					// no cactus within 500 pixels of a gap
-					if(	(gap_possible && (pos.x + shroom_width + dist > fg_page_cursor + page_width + (ground_x - page_width)) ) ||
-						(pos.x > gaps[i].x - dist && pos.x < gaps[i].y + dist) ||
+					if(	(pos.x > gaps[i].x - dist && pos.x < gaps[i].y + dist) ||
 						(pos.x + shroom_width > gaps[i].x - dist && pos.x + shroom_width < gaps[i].y + dist) ||
 						(pos.x > gaps[i].x - dist && pos.x + shroom_width < gaps[i].y + dist )
 					)place = false;		
@@ -205,8 +211,10 @@ static void _gen_fg_page(void) {
 
 			}
 
+			if(place && sym == 'x' && ( gap_warning && (pos.x + shroom_width + dist > fg_page_cursor + ground_x) )) place = false;
+
 			// no cactus on water tiles
-			if(sym == 'x'){					
+			if(place && sym == 'x'){					
 				if(	water_end > water_start && 
 					(
 						(pos.x > water_start && pos.x < water_end) ||
