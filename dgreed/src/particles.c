@@ -1,6 +1,7 @@
 #include "particles.h"
 #include "mml.h"
 #include "memory.h"
+#include "memlin.h"
 #include "mempool.h"
 
 static uint particles_layer;
@@ -31,9 +32,7 @@ static TexHandle particles_texture;
 
 static float last_time = 0.0f;
 
-// particles not larger than this will be allocated from pool
-static uint particles_poolable_size = 1024;
-static MemPool particles_pool;
+static MemLin particles_allocator;
 
 #ifndef NO_DEVMODE
 const ParticleStats* particle_stats(void) {
@@ -50,9 +49,9 @@ void particles_init_ex(const char* assets_prefix, const char* filename, uint lay
 
 	particles_prefix = assets_prefix ? assets_prefix : "";
 
-	// Alloc pools
-	mempool_init_ex(&particles_pool, particles_poolable_size, particles_poolable_size * 16);
-	mempool_init_ex(&psystems_pool, sizeof(ParticleSystem), sizeof(ParticleSystem) * 32);
+	// Alloc allocators
+	mempool_init_ex(&psystems_pool, sizeof(ParticleSystem), sizeof(ParticleSystem) * 64);
+	memlin_init(&particles_allocator, 1024*32);
 
 	list_init(&psystems_list);
 
@@ -253,23 +252,11 @@ void particles_save(void) {
 */
 
 void particles_close(void) {
-	ParticleSystem* pos;
-	list_for_each_entry(pos, &psystems_list, list) {
-		uint s = sizeof(Particle) * pos->desc->max_particles;
-		if(s <= particles_poolable_size) {
-			// Don't bother to free pooled allocs,
-			// pools will be drained anyway
-		}
-		else {
-			MEM_FREE(pos->particles);
-		}
-	}
-
 	for(uint i = 0; i < psystem_descs_count; ++i) {
 		tex_free(psystem_descs[i].texture);
 	}
 
-	mempool_drain(&particles_pool);
+	memlin_drain(&particles_allocator);
 	mempool_drain(&psystems_pool);
 }	
 
@@ -304,12 +291,7 @@ ParticleSystem* particles_spawn_ex(const char* name, const Vector2* pos,
 	psystem->worldspace = worldspace;
 
 	uint s = sizeof(Particle) * psystem->desc->max_particles;
-	if(s <= particles_poolable_size) {
-		psystem->particles = mempool_alloc(&particles_pool);
-	}
-	else {
-		psystem->particles = (Particle*)MEM_ALLOC(s);
-	}
+	psystem->particles = memlin_alloc(&particles_allocator, s);
 
 	psystem->die_cb = die_cb;
 
@@ -451,10 +433,7 @@ void _psystem_update(ParticleSystem* psystem, float dt) {
 		}
 
 		uint s = sizeof(Particle) * psystem->desc->max_particles;
-		if(s <= particles_poolable_size)
-			mempool_free(&particles_pool, psystem->particles);
-		else
-			MEM_FREE(psystem->particles);
+		memlin_free(&particles_allocator, psystem->particles, s);
 
 		list_remove(&psystem->list);
 		mempool_free(&psystems_pool, psystem);

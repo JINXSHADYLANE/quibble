@@ -355,7 +355,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				d->combo_counter = 0;
 			
 				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
-				mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+				if(r->was_visible)
+					mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
 
 				//printf("%d mushroom hit\n",self);
 			}
@@ -467,7 +468,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		objects_apply_force(self, dir);
 
 		if(d->combo_counter >= 3 && d->boost == 0){
-			mfx_trigger_ex("boost",vec2_add(screen_pos,vec2(20.0f,0.0f)),0.0f);
+			if(r->was_visible)
+				mfx_trigger_ex("boost",vec2_add(screen_pos,vec2(20.0f,0.0f)),0.0f);
 			p->vel.x *= 1.045;
 			d->boost = 5;
 		}
@@ -481,13 +483,25 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			d->combo_counter = 0;
 			d->boost = 0;
 			// Trigger water/land particle effects on ground
-			if(d->on_water){
-				if(r->anim_frame == 1) mfx_trigger_ex("water",screen_pos,0.0f);
-				if(r->anim_frame == 11) mfx_trigger_ex("water_front",screen_pos,0.0f);			
-			} else { 
-				if(r->anim_frame == 1) mfx_trigger_ex("run1",screen_pos,0.0f);
-				if(r->anim_frame == 11) mfx_trigger_ex("run1_front",screen_pos,0.0f);
+			if(d->last_frame != r->anim_frame && r->was_visible) {
+				const char* effect = NULL;
+				if(d->on_water){
+					if(r->anim_frame == 1)
+						effect = "water";
+					if(r->anim_frame == 11)
+						effect = "water_front";
+				}
+				else { 
+					if(r->anim_frame == 1)
+						effect = "run1";
+					if(r->anim_frame == 11)
+						effect = "run1_front";
+				}
+
+				if(effect)
+					mfx_trigger_ex(effect, screen_pos, 0.0f);
 			}
+			d->last_frame = r->anim_frame;
 		}
 		d->on_water = false;
 	if(p->cd_obj->pos.y < rabbit_hitbox_height){
@@ -591,7 +605,9 @@ static void _rabbit_delayed_bounce(void* r) {
 			RectF result = objects_world2screen(rec,0);
 			Vector2 screen_pos = vec2(result.left,result.top);			// for standard particles
 
-			mfx_trigger_ex("boost_explosion",screen_pos,0.0f);
+			RenderComponent* render = rabbit->header.render;
+			if(render->was_visible)
+				mfx_trigger_ex("boost_explosion",screen_pos,0.0f);
 		} 
 
 		//printf("pos.x: %f v: %f %f \n",p->cd_obj->pos.y,p->vel.x,p->vel.y);
@@ -743,6 +759,8 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->has_trampoline = false;
 	d->force_jump = false;
 	d->force_dive = false;
+
+	d->last_frame = 0;
 
 	if(id < 0){
 		render->spr = sprsheet_get_handle("rabbit");

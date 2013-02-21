@@ -157,7 +157,7 @@
     ( psystem run1
         ( texture particles.png )
         ( tex_source 100.0,0.0,115.0,17.0 )
-        ( max_particles 16 )
+        ( max_particles 8 )
         ( duration 0.1 )
         ( direction 0.0 )
         ( emission_rate 50.0 )
@@ -219,7 +219,7 @@
     ( psystem water
         ( texture particles.png )
         ( tex_source 100.0,0.0,115.0,17.0 )
-        ( max_particles 16 )
+        ( max_particles 8 )
         ( duration 0.1 )
         ( direction 0.0 )
         ( emission_rate 50.0 )
