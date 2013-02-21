@@ -6,6 +6,33 @@
 #include <pthread.h>
 #include <errno.h>
 
+#ifdef __WIN32__
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#elif defined(__MACOSX__) || defined(TARGET_IOS)
+#include <sys/sysctl.h>
+#else
+#include <unistd.h>
+#endif
+
+int async_cpu_count(void) {
+	static int cpu_count = 0;
+	if (!cpu_count) {
+#ifdef __WIN32__
+		SYSTEM_INFO info;
+		GetSystemInfo(&info);
+		cpu_count = info.dwNumberOfProcessors;
+#elif defined(__MACOSX__) || defined(TARGET_IOS)
+		sysctlbyname("hw.ncpu", &cpu_count, &size, NULL, 0);
+#else 
+		cpu_count = (uint)sysconf(_SC_NPROCESSORS_ONLN);
+#endif
+		if (cpu_count <= 0 || cpu_count > 256) 
+			cpu_count = 1;
+	}
+	return cpu_count;
+}
+
 static bool async_initialized = false;
 
 #define MAX_CRITICAL_SECTIONS 16
@@ -18,8 +45,7 @@ static uint n_critical_sections = 4; // Critical sections 0..3 are used for asyn
 #define ASYNC_THREAD_CS 3
 
 #define THREAD_NAME_LEN 8
-#define MAX_THREADS 4
-#define ASYNC_THREADS 1
+#define MAX_THREADS 16 
 #define IO_THREAD 0
 
 typedef struct {
@@ -48,6 +74,7 @@ static bool io_thread_created;
 
 static WorkerThread threads[MAX_THREADS];
 static uint n_threads;
+static uint async_threads = 1;
 
 static void _async_init_task_state(void);
 static void _async_close_task_state(void);
@@ -81,6 +108,8 @@ void _async_init(void) {
 	n_threads = 0;
 	async_threads_created = false;
 	io_thread_created = false;
+
+	async_threads = MAX(1, async_cpu_count() - 1);
 
 	_async_init_task_state();
 	_async_init_queues();
@@ -536,8 +565,6 @@ void async_process_schedule(void) {
 
 static void* _worker(void* userdata) {
 	WorkerThread* self = (WorkerThread*)userdata;
-
-	LOG_INFO("Thread %s starting work\n", self->name);
 	self->alive = true;
 	while(true) {
 		TaskDef task;
@@ -606,7 +633,7 @@ static void _check_async_threads(void) {
 	async_enter_cs(ASYNC_THREAD_CS);
 	if(!async_threads_created) {
 		char name[8];
-		for(uint i = 0; i < ASYNC_THREADS; ++i) {
+		for(uint i = 0; i < async_threads; ++i) {
 			sprintf(name, "async %d", i);
 			_create_thread(name, &tq_async);
 		}
