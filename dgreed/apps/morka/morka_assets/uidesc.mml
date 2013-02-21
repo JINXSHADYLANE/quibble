@@ -73,7 +73,7 @@
 		(def tut_text
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-130)
+				(vec2 0,-100)
 			)
 		)
 
@@ -81,14 +81,14 @@
 			(spr restart)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 100,200)
+				(vec2 100,42)
 			)
 		)
 		(def tut_quit
 			(spr quit)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 -100,200)
+				(vec2 -100,42)
 			)
 		)
 
