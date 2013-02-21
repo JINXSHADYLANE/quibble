@@ -528,10 +528,28 @@ static void obj_rabbit_became_visible(GameObject* self) {
 	PhysicsComponent* p = self->physics;
 	if(!d->player_control && d->rubber_band){
 		d->rubber_band = false;
-		p->cd_obj->pos.y = rand_float_range(550.0f,579.0f);
+		Vector2 pos = p->cd_obj->pos;
+
+		// is it safe to appear on screen?
+		Vector2 start = vec2(pos.x + 100.0f + (p->vel.x * 0.4f) *(579.0f-pos.y)/579.0f,768.0f - 100.0f);
+		Vector2 end = vec2(start.x-100.0f,start.y);
+		GameObject* obj = objects_raycast(start,end);
+
+		bool safe_to_land = true;
+		if(obj){
+			if(obj->type == OBJ_FALL_TRIGGER_TYPE || obj->type == OBJ_TRAMPOLINE_TYPE){
+				safe_to_land = false;
+			}	
+		}
 		p->vel.y = 0.0f;
-		objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
 		d->touching_ground = false;
+		if(safe_to_land){
+			p->vel.x = rabbit->header.physics->vel.x;
+			p->cd_obj->pos.y = 579.0f;
+		} else {
+			p->cd_obj->pos.y = rand_float_range(550.0f,579.0f);
+			objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
+		}
 	} 
 }
 static void obj_rabbit_became_invisible(GameObject* self) {
