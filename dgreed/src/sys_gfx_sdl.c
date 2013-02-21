@@ -569,7 +569,7 @@ static uint _make_gl_texture(void* data, uint width, uint height) {
 	glGenTextures(1, &gl_id);
 	glBindTexture(GL_TEXTURE_2D, gl_id);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA,
-		GL_UNSIGNED_BYTE, data);
+			GL_UNSIGNED_BYTE, data);
 	GLuint tfilter = retro ? GL_NEAREST : GL_LINEAR;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, tfilter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, tfilter);
@@ -627,10 +627,7 @@ TexHandle tex_create(uint width, uint height) {
 		LOG_ERROR("Texture dimensions must be power of 2");
 
 	// Prep pixel data, make gl texture
-	void* data = MEM_ALLOC(4 * width * height);
-	memset(data, 0, 4 * width * height);
-	uint gl_id = _make_gl_texture(data, width, height);
-	MEM_FREE(data);
+	uint gl_id = _make_gl_texture(NULL, width, height);
 
 	// Fill texture struct
 	new->width = width;
