@@ -1,0 +1,32 @@
+Import('env')
+
+malka = SConscript('malka/SConscript', exports='env')
+
+sources = Glob('*.c', strings=True)
+sources += Glob('lib9-utf/*.c', strings=True)
+
+sources.remove('sys_gfx_gles2.c')
+sources.remove('sys_snd_android.c')
+sources.remove('sys_misc_android.c')
+sources.remove('http.c')
+sources.remove('ldrb.c')
+
+if str(Platform()) == 'darwin':
+	sources.remove('vfont_stbtt.c')
+	sources += ['NSFileManager+DirectoryLocations.m', 'SDLMain.m', 'vfont_apple.m']
+	env.Append(LINKFLAGS=' -all_load')
+
+sources.remove('vfont_ft2.c')
+
+dgreed = env.Library('dgreed' + env['DGREED_POSTFIX'], sources)
+env.Install('#'+env['DGREED_BIN_DIR'], dgreed)
+
+sources_http = Split("""
+	http.c
+	ldrb.c
+	malka/ml_http.c
+""")
+
+dgreed_http = env.Library('dgreed_http' + env['DGREED_POSTFIX'], sources_http)
+env.Install('#'+env['DGREED_BIN_DIR'], dgreed_http)
+
