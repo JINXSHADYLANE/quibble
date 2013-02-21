@@ -20,7 +20,6 @@ sources = Split("""
 	ml_gamecenter.c
 	ml_os.c
 	ml_iap.c
-	ml_http.c
 	ml_localization.c
 	ml_anim.c
 """)

@@ -73,7 +73,6 @@ const VideoStats* video_stats(void) {
 
 extern void _async_init(void);
 extern void _async_close(void);
-extern void _http_check_close(void);
 extern int dgreed_main(int, char**);
 #ifdef __APPLE__
 int SDL_main(int argc, char** argv) {
@@ -105,7 +104,6 @@ int main(int argc, char** argv) {
 	int res = dgreed_main(argc, argv);
 
 	log_close();
-	_http_check_close();
 	_async_close();
 
 #ifdef TRACK_MEMORY
