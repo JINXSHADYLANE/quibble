@@ -175,12 +175,10 @@
 	)
 
 
-
-
-
+	
 	(img bg_mushroom_2
 		(tex atlas_3.png)
-		(src 224,407,464,700)
+		(src 210,407,450,700)
 	)
 	(img bg_mushroom_3
 		(tex atlas_3.png)
@@ -188,48 +186,53 @@
 	)
 	(img bg_mushroom_5
 		(tex atlas_3.png)
-		(src 5,407,222,737)
+		(src 5,407,208,731)
 	)
 	(img bg_mushroom_6
 		(tex atlas_3.png)
-		(src 5,739,176,1014)
+		(src 5,733,160,1000)
 	)
 	(img grass3_sign
 		(tex atlas_3.png)
-		(src 179,739,433,976)
+		(src 162,733,418,971)
 	)
 	(img mushroom_1
 		(tex atlas_3.png)
-		(src 436,853,563,1001)
+		(src 420,853,547,1001)
 	)
 	(img mushroom_2
 		(tex atlas_3.png)
-		(src 436,702,537,851)
+		(src 420,702,521,851)
 	)
 	(img mushroom_3
 		(tex atlas_3.png)
-		(src 466,5,541,114)
+		(src 452,5,527,114)
 	)
 	(img mushroom_4
 		(tex atlas_3.png)
-		(src 347,241,469,364)
+		(src 347,116,469,239)
 	)
 	(img mushroom_5
 		(tex atlas_3.png)
-		(src 861,5,1011,140)
+		(src 845,5,995,140)
 	)
 	(img mushroom_6
 		(tex atlas_3.png)
-		(src 347,116,482,235)
+		(src 730,142,865,261)
+	)
+	(img next
+		(tex atlas_3.png)
+		(src 347,241,471,365)
 	)
 	(img spikeshroom_1
 		(tex atlas_3.png)
-		(src 565,116,744,239)
+		(src 549,116,728,239)
 	)
 	(img trampoline
 		(tex atlas_3.png)
-		(src 565,5,859,114)
+		(src 549,5,843,114)
 	)
+
 
 
 
