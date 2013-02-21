@@ -94,7 +94,7 @@ void levels_init(const char* filename){
 				new.ground_chain = mml_getval_str(&mml, child);
 			}
 		}
-		assert(new.distance);
+		//assert(new.distance);
 		assert(new.background != MAX_UINT32);
 		assert(new.bg_chain);
 		assert(new.fg_chain);

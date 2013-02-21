@@ -165,7 +165,7 @@ bool game_update(void) {
 	if(game_is_paused())
 		return true;
 
-	if(rabbit_current_distance >= levels_current_desc()->distance && !game_over) {
+	if(levels_current_desc()->distance > 0 && rabbit_current_distance >= levels_current_desc()->distance && !game_over) {
 		game_over = true;
 		malka_states_push("game_over");
 	}
@@ -185,14 +185,8 @@ bool game_update(void) {
 	
 		_move_camera(rabbit->header.render->world_dest.left + 45.0f, camera_follow_weight);
 	}
-
-	float pos = 0.0f;
-	if(minimap_get_count() > 1)
-		pos = minimap_max_x();
-	else
-		pos = rabbit->header.physics->cd_obj->pos.x + 1024.0f;
-
-	worldgen_update(pos, pos);
+	float pos = minimap_max_x();
+	worldgen_update( pos, pos );
 
 
 	// spawn background dust particles

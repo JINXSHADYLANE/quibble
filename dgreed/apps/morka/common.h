@@ -16,9 +16,10 @@
 #define bg_mushrooms_layer 2
 #define finish_line_layer 3
 #define foreground_layer 4
-#define rabbit_layer 5
-#define ground_layer 6
-#define particle_layer 7 // needs to be changed in particles.mml
-#define hud_layer 8
+#define ai_rabbit_layer 5
+#define rabbit_layer 6
+#define ground_layer 7
+#define particle_layer 8 // needs to be changed in particles.mml
+#define hud_layer 9
 
 #endif

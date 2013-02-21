@@ -767,6 +767,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		d->xjump = levels_current_desc()->ai_rabbit_xjumps[id];
 		d->yjump = levels_current_desc()->ai_rabbit_yjumps[id];
 		d->ai_max_combo = levels_current_desc()->ai_max_combo[id];
+		render->layer = ai_rabbit_layer;
 	}
 }
 

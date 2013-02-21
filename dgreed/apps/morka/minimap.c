@@ -31,72 +31,77 @@ void minimap_track(ObjRabbit* rabbit){
 }
 
 void minimap_draw(){
-	UIElement* position_line = uidesc_get("position_line");
-	_hud_render_ui(position_line, hud_layer);
+	if(level_distance > 0){
+		UIElement* position_line = uidesc_get("position_line");
+		_hud_render_ui(position_line, hud_layer);
 
-	Vector2 pos = position_line->vec2;
+		Vector2 pos = position_line->vec2;
 
-	Vector2 size = sprsheet_get_size_h(position_line->spr);
-	
-	float w = size.x - 14.0f;
-	float h = size.y;
-
-	for(int i = 0; i < minimap_pointers.size;i++){
-		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
-		ObjRabbit* rabbit = *p_rabbit;
+		Vector2 size = sprsheet_get_size_h(position_line->spr);
 		
-		float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
-		if(rabbit->data->player_control) player_x = rabbit->header.physics->cd_obj->pos.x;
-		rd = (float)rd*w/level_distance;
-		if(rd > w)	rd = w;
+		float w = size.x - 14.0f;
+		float h = size.y;
 
-		RectF dest = {
-			.left = pos.x + rd + 4.0f, 
-			.top = pos.y+h/2.0f - 4.0f,
-			.right = 0,
-			.bottom = 0
-		};
-		spr_draw_h(handle, hud_layer,dest,rabbit->data->minimap_color);
+		for(int i = 0; i < minimap_pointers.size;i++){
+			ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
+			ObjRabbit* rabbit = *p_rabbit;
+			
+			float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
+			if(rabbit->data->player_control) player_x = rabbit->header.physics->cd_obj->pos.x;
+			rd = (float)rd*w/level_distance;
+			if(rd > w)	rd = w;
+
+			RectF dest = {
+				.left = pos.x + rd + 4.0f, 
+				.top = pos.y+h/2.0f - 4.0f,
+				.right = 0,
+				.bottom = 0
+			};
+			spr_draw_h(handle, hud_layer,dest,rabbit->data->minimap_color);
 
 
+		}
+		minimap_update_places();
 	}
-	ready = true;
-	minimap_update_places();
 }
 
 void minimap_update_places(){
-	// draws finish line when its visible to player rabbit
-	float d = (float)(level_distance + 2.0f) * (1024.0f/3.0f);
-	if(d - player_x < 1024.0f){
-		for(int i = 0; i < 768;i+=66){
-			RectF dest = {
-				.left = d, 
-			};
-			RectF result = objects_world2screen(dest,0);
-			result.top = (float) i;
-			result.right = 0.0f;
-			result.bottom = 0.0f;
-			spr_draw_h(finish, finish_line_layer,result,COLOR_WHITE);
-		}
-	} 
-
-
-	for(int i = 0; i < minimap_pointers.size;i++){
-		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
-		ObjRabbit* rabbit = *p_rabbit;
-		if(!rabbit->data->game_over){
-			if(rabbit->data->is_dead){
-				rabbit->data->game_over = true;
-				results[minimap_pointers.size-1-dead_rabbits++] = rabbit;
-			} else {
-				float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
-				if(rd > level_distance){
-					rabbit->data->game_over = true;
-					results[place++] = rabbit;
-				}
+	ready = true;
+	if(level_distance > 0){
+		// draws finish line when its visible to player rabbit
+		float d = (float)(level_distance + 2.0f) * (1024.0f/3.0f);
+		if(d - player_x < 1024.0f){
+			for(int i = 0; i < 768;i+=66){
+				RectF dest = {
+					.left = d, 
+				};
+				RectF result = objects_world2screen(dest,0);
+				result.top = (float) i;
+				result.right = 0.0f;
+				result.bottom = 0.0f;
+				spr_draw_h(finish, finish_line_layer,result,COLOR_WHITE);
 			}
 		} 
+
+
+		for(int i = 0; i < minimap_pointers.size;i++){
+			ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
+			ObjRabbit* rabbit = *p_rabbit;
+			if(!rabbit->data->game_over){
+				if(rabbit->data->is_dead){
+					rabbit->data->game_over = true;
+					results[minimap_pointers.size-1-dead_rabbits++] = rabbit;
+				} else {
+					float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
+					if(rd > level_distance){
+						rabbit->data->game_over = true;
+						results[place++] = rabbit;
+					}
+				}
+			} 
+		}
 	}
+
 }
 
 void minimap_reset(uint distance){

@@ -2,6 +2,7 @@
 #include "game.h"
 #include "common.h"
 #include "tutorials.h"
+#include "minimap.h"
 #include <uidesc.h>
 #include <vfont.h>
 
