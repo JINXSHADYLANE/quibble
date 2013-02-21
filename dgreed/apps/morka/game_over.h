@@ -5,4 +5,12 @@
 
 extern StateDesc game_over_state;
 
+typedef enum{
+	TUTORIAL_SCREEN = 0,
+	OUT_SCREEN,
+	SCORES_SCREEN,
+} ScreenType;
+
+void game_over_set_screen(ScreenType s);
+
 #endif
