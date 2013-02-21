@@ -2,6 +2,7 @@
 #include "hud.h"
 #include "common.h"
 #include "game.h"
+#include "game_over.h"
 #include <vfont.h>
 
 TutorialStep level1_steps[] = {
@@ -238,6 +239,7 @@ bool tutorials_render(float t){
 
 		if(current_step->state != NULL){
 			game_end();
+			game_over_set_screen(TUTORIAL_SCREEN);
 			malka_states_push(current_step->state);
 			tutorial_active = false;
 			tutorial_unpaused = false;

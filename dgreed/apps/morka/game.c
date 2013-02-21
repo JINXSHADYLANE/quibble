@@ -1,17 +1,15 @@
 #include "game.h"
+#include "common.h"
 #include "objects.h"
 #include "obj_types.h"
-
 #include "worldgen.h"
 #include "hud.h"
-
 #include "minimap.h"
+#include "tutorials.h"
+#include "game_over.h"
 
 #include <mfx.h>
 #include <particles.h>
-
-#include "common.h"
-#include "tutorials.h"
 
 bool camera_follow = false;
 
@@ -21,20 +19,17 @@ bool draw_ground_debug = false;
 bool draw_ai_debug = false;
 
 // Game state
-
-uint last_page = 0;
-
 ObjRabbit* rabbit = NULL;
 ObjRabbit* ai_rabbit = NULL;
 float camera_follow_weight;
 float rabbit_current_distance;
 float bg_scroll = 0.0f;
 
-bool game_need_reset = true;
+static bool game_need_reset = true;
 static bool game_over = false;
 static bool game_paused = false;
 
-uint longest_combo = 0;
+uint longest_combo;
 
 DArray levels_descs;
 
@@ -71,7 +66,6 @@ static void game_reset(void) {
 	camera_follow_weight = 0.2f;
 	rabbit_current_distance = 0.0f;
 	game_over = false;
-	longest_combo = 0;
 
 	camera_follow = false;
 
@@ -167,12 +161,14 @@ bool game_update(void) {
 
 	if(levels_current_desc()->distance > 0 && rabbit_current_distance >= levels_current_desc()->distance && !game_over) {
 		game_over = true;
+		game_over_set_screen(SCORES_SCREEN);
 		malka_states_push("game_over");
 	}
 
 	if(rabbit && rabbit->header.type) {
 		if(rabbit->data->is_dead && !game_over){
 			game_over = true;
+			game_over_set_screen(OUT_SCREEN);
 			malka_states_push("game_over");
 		}
 				
