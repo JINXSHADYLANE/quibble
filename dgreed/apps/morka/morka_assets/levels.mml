@@ -11,14 +11,14 @@
 		(rabbits _
 			(name Lili
 				(spr rabbit_3)
-				(speed 400)
-				(xjump 100)
-				(yjump 400)
+				(speed 350)
+				(xjump 90)
+				(yjump 390)
 				(max_combo 2)
 			)
 			(name Tori
 				(spr rabbit_2)
-				(speed 400)
+				(speed 390)
 				(xjump 100)
 				(yjump 390)
 				(max_combo 1)
@@ -34,24 +34,24 @@
 		(rabbits _
 			(name Tori
 				(spr rabbit_2)
-				(speed 405)
+				(speed 355)
 				(xjump 122)
-				(yjump 415)
+				(yjump 405)
 				(max_combo 2)
 			)
 			(name Lili
 				(spr rabbit_3)
 				(speed 482)
 				(xjump 100)
-				(yjump 370)
+				(yjump 390)
 				(max_combo 3)
 			)
 			(name Kubo
 				(spr rabbit_4)
 				(speed 490)
 				(xjump 100)
-				(yjump 410)
-				(max_combo 30)
+				(yjump 400)
+				(max_combo 5)
 			)
 		)
 		(background background)
@@ -67,7 +67,7 @@
 				(speed 450)
 				(xjump 105)
 				(yjump 450)
-				(max_combo 30)
+				(max_combo 3)
 			)
 			(name Lili
 				(spr rabbit_3)
@@ -90,7 +90,7 @@
 				(speed 459)
 				(xjump 100)
 				(yjump 450)
-				(max_combo 3)
+				(max_combo 2)
 			)
 			(name Lili
 				(spr rabbit_3)
