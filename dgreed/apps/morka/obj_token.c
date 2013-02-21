@@ -50,7 +50,6 @@ static void obj_token_construct(GameObject* self, Vector2 pos, void* user_data) 
 	render->layer = foreground_layer;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
-	//render->update_pos = obj_token_update_pos;
 }
 
 GameObjectDesc obj_token_desc = {

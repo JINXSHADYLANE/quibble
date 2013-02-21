@@ -31,8 +31,6 @@ static bool game_paused = false;
 
 uint longest_combo;
 
-DArray levels_descs;
-
 static void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();

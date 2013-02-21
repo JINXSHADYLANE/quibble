@@ -39,12 +39,13 @@ typedef struct {
 
 } LevelDesc;
 
-extern DArray levels_descs;
-
 void levels_init(const char* filename);
 void levels_close(void);
 
 void levels_reset(const char* level_name);
 LevelDesc* levels_current_desc(void);
+
+void levels_set_next(void);
+bool levels_is_final(void);
 
 #endif
