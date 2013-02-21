@@ -640,27 +640,6 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		}
 	}
 
-
-	// collision with cactus
-	if(other->type == OBJ_CACTUS_TYPE) {
-		ObjCactus* cactus = (ObjCactus*)other;
-		if(cactus->damage == 1.0f){
-			// knockback
-			Vector2 f = {
-				.x = -100000.0f,
-				.y =  0.0f
-			};
-			if(self->physics->vel.y > 0.0f){	
-				f.y = -100000.0f;
-				self->physics->vel.y = 0.0f;
-			}
-
-			objects_apply_force(self, f);
-			cactus->damage = 0.5f; 
-		}	
-	}
-
-
 	// Collision with trampoline
 	if(other->type == OBJ_TRAMPOLINE_TYPE) {
 		ObjTrampoline* trampoline = (ObjTrampoline*)other;
