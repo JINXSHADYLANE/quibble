@@ -21,7 +21,7 @@ static void tutorial_pause_leave(void) {
 }
 
 static bool tutorial_pause_update(void) {
-
+	minimap_update_places();
 	return true;
 }
 

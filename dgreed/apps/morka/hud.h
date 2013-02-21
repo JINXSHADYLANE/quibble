@@ -12,4 +12,8 @@ void _hud_render_ui(UIElement* element, uint layer);
 
 void hud_render(float t);
 
+void hud_render_game_over_tut(float t);
+void hud_render_game_over_out(float t);
+void hud_render_game_over_scores(float t);
+
 #endif
