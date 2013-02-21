@@ -121,6 +121,7 @@ void hud_render(float t) {
 
 	// Minimap
 	if(minimap_get_count() > 1) minimap_draw();
+	minimap_update_places();
 }
 
 void hud_render_game_over_out(float t) {	

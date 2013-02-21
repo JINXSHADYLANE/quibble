@@ -61,7 +61,6 @@ void minimap_draw(){
 
 
 		}
-		minimap_update_places();
 	}
 }
 
