@@ -40,19 +40,25 @@
 				(vec2 0,-100)
 			)
 		)
-
+		(def next
+			(spr next)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 195,42)
+			)
+		)
 		(def restart
 			(spr restart)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 100,42)
+				(vec2 0,42)
 			)
 		)
 		(def quit
 			(spr quit)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 -100,42)
+				(vec2 -195,42)
 			)
 		)
 	)	
@@ -101,18 +107,25 @@
 			)
 		)
 
-		(def button_restart
+		(def next
+			(spr next)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 195,200)
+			)
+		)
+		(def restart
 			(spr restart)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 100,200)
+				(vec2 0,200)
 			)
 		)
-		(def button_quit
+		(def quit
 			(spr quit)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 -100,200)
+				(vec2 -195,200)
 			)
 		)
 	)

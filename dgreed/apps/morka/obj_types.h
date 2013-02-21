@@ -18,7 +18,8 @@ enum {
 	OBJ_FALL_TRIGGER_TYPE,
 	OBJ_PARTICLE_ANCHOR_TYPE,
 	OBJ_BG_PARTICLE_ANCHOR_TYPE,
-	OBJ_TOKEN_TYPE
+	OBJ_TOKEN_TYPE,
+	OBJ_FLOATER_TYPE
 };
 
 // Rabbit Data
@@ -180,6 +181,14 @@ typedef struct {
 } ObjToken;
 
 extern GameObjectDesc obj_token_desc;
+
+// Floating text/img object
+
+typedef struct {
+	GameObject header;
+} ObjFloater;
+
+extern GameObjectDesc obj_floater_desc;
 
 #endif
 

@@ -1,11 +1,11 @@
 #include "hud.h"
+#include "common.h"
+#include "game.h"
 #include "minimap.h"
+#include "levels.h"
 
 #include <vfont.h>
 #include <malka/ml_states.h>
-
-#include "common.h"
-#include "game.h"
 
 extern void game_reset(void);
 extern void game_pause(void);
@@ -174,6 +174,7 @@ void hud_render_game_over_tut(float t) {
 	uint layer = hud_layer+1;	
 
 	UIElement* complete = uidesc_get_child(element, "text");
+	UIElement* button_next = uidesc_get_child(element, "next");
 	UIElement* button_restart = uidesc_get_child(element, "restart");
 	UIElement* button_quit = uidesc_get_child(element, "quit");
 
@@ -191,6 +192,22 @@ void hud_render_game_over_tut(float t) {
 		half_size = vec2_scale(vfont_size(str), 0.5f);
 	}
 	vfont_draw(str, layer, vec2_sub(complete->vec2, half_size), col);
+
+	if(!levels_is_final()){
+		// Next Button
+		spr_draw_cntr_h(button_next->spr, layer, button_next->vec2, 0.0f, 1.0f, col);	
+		if(touches_down() && t == 0.0f) {
+			Touch* t = touches_get();
+			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_next->vec2)) < 40.0f * 40.0f) {
+				levels_set_next();
+				game_request_reset();
+				malka_states_pop();
+			}
+		}
+	} else {
+		button_restart->vec2.x = WIDTH/2.0f + 100.0f;
+		button_quit->vec2.x = WIDTH/2.0f - 100.0f;
+	}
 
 	// Restart Button
 	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
@@ -223,8 +240,9 @@ void hud_render_game_over_scores(float t) {
 	UIElement* result_text = uidesc_get_child(element, "result_text");
 	UIElement* result_time = uidesc_get_child(element, "result_time");
 
-	UIElement* button_restart = uidesc_get_child(element, "button_restart");
-	UIElement* button_quit = uidesc_get_child(element, "button_quit");
+	UIElement* button_next = uidesc_get_child(element, "next");
+	UIElement* button_restart = uidesc_get_child(element, "restart");
+	UIElement* button_quit = uidesc_get_child(element, "quit");
 
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
@@ -264,6 +282,22 @@ void hud_render_game_over_scores(float t) {
 		}
 		vfont_draw(result_str, layer,vec2_add(result_text->vec2,vec2(0.0f,i*60.0f)), c);
 	}	
+
+	if(!levels_is_final()){
+		// Next Button
+		spr_draw_cntr_h(button_next->spr, layer, button_next->vec2, 0.0f, 1.0f, col);	
+		if(touches_down() && t == 0.0f) {
+			Touch* t = touches_get();
+			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_next->vec2)) < 40.0f * 40.0f) {
+				levels_set_next();
+				game_request_reset();
+				malka_states_pop();
+			}
+		}
+	} else {
+		button_restart->vec2.x = WIDTH/2.0f + 100.0f;
+		button_quit->vec2.x = WIDTH/2.0f - 100.0f;
+	}
 
 	// Restart Button
 	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	

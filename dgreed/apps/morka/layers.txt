@@ -3,10 +3,11 @@
 2 - background mushrooms
 3 - finish line
 4 - foreground mushrooms
-5 - rabbit, pin
-6 - ground
-7 - particles
-8 - hud
+5 - ai rabbits
+6 - rabbit, pin
+7 - ground
+8 - particles
+9 - hud
 
 layer numbers are now defined in common.h
 particle layers are defined in particles.mml

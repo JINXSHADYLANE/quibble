@@ -1,8 +1,12 @@
 #include "levels.h"
 #include "mchains.h"
+#include "tutorials.h"
 #include <mempool.h>
 #include <memory.h>
 #include <mml.h>
+
+DArray levels_descs;
+static int level_num = 0;
 
 static LevelDesc* current_level = NULL;
 static MMLObject mml;
@@ -115,10 +119,23 @@ void levels_reset(const char* level_name){
 	current_level = NULL;
 	for(int i = 0; i < levels_descs.size;i++){
 		LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,i);
-		if(strcmp(desc->name, level_name) == 0)
+		if(strcmp(desc->name, level_name) == 0){
 			current_level = desc;
+			level_num = i;
+		}	
 	}
 	assert(current_level);
+	tutorials_set_level(level_name);
+}
+
+void levels_set_next(void){
+	assert(level_num+1 <= levels_descs.size);
+	current_level = (LevelDesc*) darray_get(&levels_descs,level_num+1);
+	tutorials_set_level(current_level->name);
+}
+
+bool levels_is_final(void){
+	return level_num == levels_descs.size-1;
 }
 
 LevelDesc* levels_current_desc(void){
