@@ -34,9 +34,8 @@
 		(init "__")
 
 		(learn "__a__b__a__b_")
-		(learn "__e_d__b_a__")
-		(learn "___")
-		(learn "a_c_d_b_db__ca_f_c")
+		(learn "_f_e_d__b_a__")
+		(learn "a_d_b_db__a_f")
 		(learn "e__d_b_")
 	)
 	(ruleset level1_ground
