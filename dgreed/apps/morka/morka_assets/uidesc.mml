@@ -1,0 +1,228 @@
+(uidesc morka
+	(def screen
+		(rect 0,0,1024,768)
+	)
+
+	(def hud_pause
+		(spr pause)
+		(add <-
+			(tr <- (get_rect screen))
+			(vec2 -50,20)
+		)
+	)
+
+	(def token_icon
+		(spr token_tag)
+		(add <-
+			(tl <- (get_rect screen))
+			(vec2 50,50)
+		)
+	)
+
+	(def token_text
+		(add <-
+			(tl <- (get_rect screen))
+			(vec2 100,18)
+		)
+	)
+
+	(def position_line
+		(spr position_line)
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 -219,-364)
+		)
+	)
+	(def game_over_tut
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+		(def next
+			(spr next)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 195,42)
+			)
+		)
+		(def restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,42)
+			)
+		)
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -195,42)
+			)
+		)
+	)	
+	(def game_over_out
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+
+		(def restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 100,42)
+			)
+		)
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -100,42)
+			)
+		)
+	)
+	(def game_over_scores
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-250)
+			)
+		)
+
+		(def result_text
+			(add <-
+				(get_vec2 text)
+				(vec2 -200,120)
+			)
+		)
+
+		(def result_time
+			(add <-
+				(get_vec2 text)
+				(vec2 100,120)
+			)
+		)
+
+		(def next
+			(spr next)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 195,200)
+			)
+		)
+		(def restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,200)
+			)
+		)
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -195,200)
+			)
+		)
+	)
+	(def level_select
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-250)
+			)
+		)
+
+		(def level1
+			(spr planet_1)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -410,-30)
+			)
+			(def offset
+				(vec2 16,31)
+			)
+
+		)
+		(def level2
+			(spr planet_2)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -200,-10)
+			)
+			(def offset
+				(vec2 1,11)
+			)
+		)
+		(def level3
+			(spr planet_3)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,0)
+			)
+			(def offset
+				(vec2 -14,1)
+			)
+		)
+		(def level4
+			(spr planet_4)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 200,-18)
+			)
+			(def offset
+				(vec2 -15,19)
+			)
+		)
+		(def level5
+			(spr planet_5)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 410,0)
+			)
+			(def offset
+				(vec2 -9,1)
+			)
+		)					
+	)
+	(def pause
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+		(def button_play
+			(spr play)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 195,42)
+			)
+		)
+		(def button_restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,42)
+			)
+		)
+		(def button_quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -195,42)
+			)
+		)
+	)
+
+	(def combo_text
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 0,-330)
+		)
+	)
+)
