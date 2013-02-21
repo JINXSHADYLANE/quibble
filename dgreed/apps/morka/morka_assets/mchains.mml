@@ -1,0 +1,296 @@
+(mchains morka
+	(ruleset bg
+		(def a (element_1 512))
+		(def b (element_2 512))
+		(def c (element_3 512))
+		(def d (element_4 512))
+		(def _ (.empty 0))
+
+		(init "__")
+
+		(learn "__a_b_c_d")
+		(learn "_c_b_a_d")
+		(learn "_d_a_c_b")
+	)
+
+	### LEVEL 1 ###
+
+	(ruleset level1_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 150))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		
+		(def f (mushroom_2 150))
+		
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+
+		(def _ (.empty 250))
+
+		(init "__")
+
+		(learn "__a__b__a__b_")
+		(learn "_f_e_d__b_a__")
+		(learn "a_d_b_db__a_f")
+		(learn "e__d_b_")
+	)
+	(ruleset level1_ground
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+
+		(def _ (.empty 100))
+		(def = (.empty 350))
+		(def - (.empty 200))
+
+		(init "cd")
+
+		(learn "cdef")
+		(learn "efcd")
+	)
+
+	### LEVEL 2 ###
+
+	(ruleset level2_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		
+		(sdef z (seq "_f=g=h=i=j"))
+
+		(def _ (.empty 250))
+		(def = (.empty 400))
+
+		(init "__")
+
+		(learn "__a__b__a__b__z")
+		(learn "__e_d__b_a__")
+		(learn "___")
+		(learn "a_c_d_b_dc__ca_f_c")
+		(learn "e__d_b_")
+		(learn "_z_dc__")
+	)	
+	(ruleset level2_ground
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+		(def i (water_start1 0))
+		(def j (water_start2 0))
+		(def k (water1 0))
+		(def l (water2 0))
+		(def m (water3 0))
+		(def n (water4 0))
+		(def o (water_end1 0))
+		(def p (water_end2 0))
+
+		(def _ (.empty 100))
+		(def = (.empty 350))
+		(def - (.empty 200))
+
+		(init "cd")
+
+		(learn "cdefijklmnopcd")
+		(learn "cdefijklmnklmnopcd")
+		(learn "efcd")
+	)
+
+	### LEVEL 3 ###
+
+	(ruleset level3_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		
+		(def g (bg_mushroom_6 150))
+		(def h (bg_mushroom_5 150))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 200))
+		(def x (spikeshroom_1 150))
+
+		(sdef z (seq "_f_x_e_x_cg_x_ch_x_i_x_jac"))
+
+		(def _ (.empty 200))
+		
+		(init "__")
+
+		(learn "__a_b_a_b_z")
+		(learn "_e_d_b_a_")
+		(learn "__e")
+		(learn "a_d_b_dc_ca_f_c")
+		(learn "e_d_b_")
+		(learn "_z_dc_")
+	)	
+	(ruleset level3_ground
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+		(def i (water_start1 0))
+		(def j (water_start2 0))
+		(def k (water1 0))
+		(def l (water2 0))
+		(def m (water3 0))
+		(def n (water4 0))
+		(def o (water_end1 0))
+		(def p (water_end2 0))
+
+		(def _ (.empty 100))
+		(def = (.empty 350))
+		(def - (.empty 200))
+		(init "cd")
+
+		(learn "cdef")
+		(learn "efcd")
+		(learn "cdefijklmnopcd")
+		(learn "cdefijklmnklmnopcd")
+		
+	)
+
+	### LEVEL 4 ###
+
+	(ruleset level4_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		(def x (spikeshroom_1 150))
+
+		(sdef z (seq "a__b__c__f_x"))
+		
+		(def _ (.empty 200))
+
+		(init "__")
+
+		(learn "__z__b__a__b_")
+		(learn "__e_d__b_a__")
+		(learn "a_c_d_b_db__ca_f_c")
+		(learn "e__d_b_")
+		(learn "db_z_a_")
+	)	
+	(ruleset level4_ground
+		(def a (grass_start1 0))
+		(def b (grass_start2 0))
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+		(def g (grass_end1 0))
+		(def h (grass_end2 0))
+		(def q (grass3_sign 0))
+
+		(sdef z (seq "abcdef"))
+		(sdef y (seq "cdef"))
+		(sdef x (seq "cdqfgh"))
+		(sdef w (seq "abcdqfgh"))
+		
+		(def _ (.empty 190))
+		(def = (.empty 240))
+		(def - (.empty 200))
+
+		(init "ab")
+
+		(learn "abyyx")
+		(learn "yx=zyx")
+		(learn "yx-w_zyy")
+		(learn "yyx-abyy")
+
+		#(learn "cdef")
+		#(learn "efcd")
+		#(learn "cdefgh_abcd")
+		#(learn "cdefgh=abcd")
+		#(learn "cdefgh-abcd")
+	)
+
+	### LEVEL 5 ###
+
+	(ruleset level5_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		(def x (spikeshroom_1 150))
+
+		(sdef z (seq "x=d__b__gchij__x"))
+
+		(def _ (.empty 250))
+		(def = (.empty 50))
+
+		(init "__")
+
+		(learn "__a_c_e_d_z_f__")
+	)	
+	(ruleset level5_ground
+		(def a (grass_start1 0))
+		(def b (grass_start2 0))
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+		(def g (grass_end1 0))
+		(def h (grass_end2 0))
+		(def i (water_start1 0))
+		(def j (water_start2 0))
+		(def k (water1 0))
+		(def l (water2 0))
+		(def m (water3 0))
+		(def n (water4 0))
+		(def o (water_end1 0))
+		(def p (water_end2 0))
+		(def q (grass3_sign 0))
+
+		(sdef z (seq "abcdef"))
+		(sdef y (seq "cdef"))
+		(sdef x (seq "cdqfgh"))
+		(sdef w (seq "abcdqfgh"))
+
+		(sdef u (seq "ijklmnop"))
+		#(sdef v (seq "abcdqfgh"))
+
+		(def _ (.empty 140))
+		(def = (.empty 240))
+		(def - (.empty 190))
+		(init "ab")
+
+		(learn "abyyuyx")
+		(learn "yx=zyx")
+		(learn "yx-w_zyy")
+		(learn "yyx-abyy")
+
+		#(learn "cdefgh_abcd")
+		#(learn "cdefgh=abcd")
+		#(learn "cdefgh-abcd")
+		#(learn "cdefijklmnopcd")
+		#(learn "cdefijklmnklmnopcd")
+		
+	)
+)
+
