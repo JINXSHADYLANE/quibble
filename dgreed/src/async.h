@@ -12,6 +12,9 @@ CriticalSection async_make_cs(void);
 void async_enter_cs(CriticalSection cs);
 void async_leave_cs(CriticalSection cs);
 
+// Retuns number of logical cpus
+int async_cpu_count(void);
+
 // Run task asynchronously (might run on a different thread)
 TaskId async_run(Task task, void* userdata);
 
