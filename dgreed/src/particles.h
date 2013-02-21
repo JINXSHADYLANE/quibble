@@ -6,7 +6,7 @@
 #include "system.h"
 #include "datastruct.h"
 
-// 
+// 56 bytes
 typedef struct {
 	float birth_time;
 	float death_time;

@@ -24,6 +24,7 @@ tests = Split("""
 	datastruct.c
 	keyval.c
 	memory.c
+	memlin.c
 	mempool.c
 	mml.c
 	utils.c
