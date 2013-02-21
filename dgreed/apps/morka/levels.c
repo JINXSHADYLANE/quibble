@@ -132,6 +132,7 @@ void levels_set_next(void){
 	assert(level_num+1 <= levels_descs.size);
 	current_level = (LevelDesc*) darray_get(&levels_descs,level_num+1);
 	tutorials_set_level(current_level->name);
+	level_num++;
 }
 
 bool levels_is_final(void){
