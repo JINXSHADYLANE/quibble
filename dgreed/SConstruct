@@ -43,7 +43,7 @@ else:
 
 if str(Platform()) == 'win32':
 	Tool('mingw')(env)
-	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32', 'curl', 'pthread', 'wsock32'],
+	env.Append(DGREED_LIBS=['SDL', 'opengl32', 'glu32', 'OpenAL32', 'pthread', 'wsock32'],
 		DGREED_FONT_TOOL=default_font_tool.replace('/', '\\'),
 		DGREED_TEST_TOOL=default_test_tool.replace('/', '\\'),
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool.replace('/', '\\'),
@@ -51,7 +51,7 @@ if str(Platform()) == 'win32':
 		DGREED_LUA=luac,
 		DGREED_DIR_SEPARATOR='\\')
 elif str(Platform()) == 'darwin':
-	env.Append(DGREED_LIBS=['curl'], 
+	env.Append(DGREED_LIBS=[], 
 		DGREED_FONT_TOOL=default_font_tool,
 		DGREED_TEST_TOOL=default_test_tool,
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool,
@@ -74,7 +74,6 @@ elif str(Platform()) == 'darwin':
 
 	conf = Configure(env)
 	checks = [
-		('curl', 'curl/curl.h'),
 		('pthread', 'pthread.h')
 	]
 	for lib, header in checks:
@@ -83,7 +82,7 @@ elif str(Platform()) == 'darwin':
 			Exit(1)
 	conf.Finish()
 else:
-	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal', 'curl', 'pthread', 'm', 'dl'],
+	env.Append(DGREED_LIBS=['SDL', 'GL', 'GLU', 'openal', 'pthread', 'm', 'dl'],
 		DGREED_FONT_TOOL=default_font_tool, 
 		DGREED_TEST_TOOL=default_test_tool,
 		DGREED_ARENACOMPR_TOOL=default_arenacompr_tool,
@@ -95,7 +94,6 @@ else:
 	checks = [
 		('SDL', 'SDL/SDL.h'),
 		('openal', 'AL/al.h'),
-		('curl', 'curl/curl.h'),
 		('pthread', 'pthread.h')
 	]
 	for lib, header in checks:
@@ -110,11 +108,13 @@ rel_flags = '-DNDEBUG -O2 '
 
 env_dbg = env.Clone()
 env_dbg.Prepend(CCFLAGS=dbg_flags, CXXFLAGS=dbg_flags, DGREED_POSTFIX='d',
-	DGREED_LIBS=['dgreedd'], DGREED_EGO_LIB=['egod'], 
+	DGREED_LIBS=['dgreedd'], DGREED_EGO_LIB=['egod'],
+	DGREED_HTTP_LIBS=['dgreed_http', 'curl'],
 	MALKA_LIBS=['malkad', 'luad'])
 env_rel = env.Clone()
 env_rel.Prepend(CCFLAGS=rel_flags, CXXFLAGS=rel_flags, DGREED_POSTFIX='',
 	DGREED_LIBS=['dgreed'], DGREED_EGO_LIB=['ego'],
+	DGREED_HTTP_LIBS=['dgreed_httpd', 'curl'],
 	MALKA_LIBS=['malka', 'lua'])
 
 if str(Platform()) == 'win32':

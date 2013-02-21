@@ -23,6 +23,8 @@ bool dgreed_init(int argc, const char** argv) {
 	return true;
 }
 
+extern void _http_check_close(void);
+
 void dgreed_close(void) {
 	malka_states_end();
 	malka_states_close();
@@ -30,6 +32,8 @@ void dgreed_close(void) {
 	malka_close();
 
 	sound_close();
+
+	_http_check_close();
 }
 
 bool dgreed_update(void) {
