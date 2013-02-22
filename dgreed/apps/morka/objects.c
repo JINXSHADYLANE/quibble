@@ -13,6 +13,8 @@ RectF objects_camera[3] = {
 	{0.0f, 0.0f, 1024.0f, 768.0f}
 };
 
+SprHandle empty_spr = (SprHandle)MAX_UINT32;
+
 static CDWorld cdworld;
 CDWorld* objects_cdworld = &cdworld;
 
@@ -245,26 +247,28 @@ static void objects_render_tick(uint n_components) {
 			if(r->pre_render)
 				(r->pre_render)(r->owner);
 
-			Vector2 camera_topleft = {
-				.x = camera->left,
-				.y = camera->top
-			};
+			if(likely(r->spr != empty_spr)) {
+				Vector2 camera_topleft = {
+					.x = camera->left,
+					.y = camera->top
+				};
 
-			RectF screen_dest = rectf(
-				r->world_dest.left - camera_topleft.x, 
-				r->world_dest.top - camera_topleft.y,
-				r->world_dest.right - camera_topleft.x,
-				r->world_dest.bottom - camera_topleft.y
-			);
+				RectF screen_dest = rectf(
+					r->world_dest.left - camera_topleft.x, 
+					r->world_dest.top - camera_topleft.y,
+					r->world_dest.right - camera_topleft.x,
+					r->world_dest.bottom - camera_topleft.y
+				);
 
-			// Render
-			if(r->anim_frame != MAX_UINT16) {
-				// Animation sprite
-				spr_draw_anim_h(r->spr, r->anim_frame, r->layer, screen_dest, r->color);
-			}
-			else {
-				// Static sprite
-				spr_draw_h(r->spr, r->layer, screen_dest, r->color);
+				// Render
+				if(r->anim_frame != MAX_UINT16) {
+					// Animation sprite
+					spr_draw_anim_h(r->spr, r->anim_frame, r->layer, screen_dest, r->color);
+				}
+				else {
+					// Static sprite
+					spr_draw_h(r->spr, r->layer, screen_dest, r->color);
+				}
 			}
 
 			if(r->post_render)

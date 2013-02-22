@@ -40,6 +40,8 @@ typedef struct FwdPhysicsComponent {
 
 typedef void (*RenderCallback)(GameObject* self);
 
+extern SprHandle empty_spr;
+
 // 60-64 bytes
 typedef struct FwdRenderComponent {
 	// Data
