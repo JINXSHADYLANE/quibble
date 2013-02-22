@@ -430,6 +430,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				// Create floating text
 				ObjFloater* floater = (ObjFloater*) objects_create(&obj_floater_desc, txt_pos, (void*)sprt);
 				sprintf(floater->text,"-10");
+				floater->a = 0.5f;
 			}
 
 			if(ts - d->mushroom_hit_time < 0.1f) {
