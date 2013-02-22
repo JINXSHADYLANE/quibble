@@ -257,7 +257,7 @@ void vfont_draw(const char* string, uint layer, Vector2 topleft, Color tint) {
         return;
     
     const CachedText* text = _get_text(string, false);
-    RectF dest = rectf(topleft.x, topleft.y, 0.0f, 0.0f);
+    RectF dest = rectf(floorf(topleft.x), floorf(topleft.y), 0.0f, 0.0f);
     if(vfont_retina) {
         dest.right = dest.left + rectf_width(&text->src) / 2.0f;
         dest.bottom = dest.top + rectf_height(&text->src) / 2.0f;

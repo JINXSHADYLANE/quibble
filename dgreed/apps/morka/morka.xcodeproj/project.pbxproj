@@ -147,7 +147,7 @@
 		219BEB2816776F94002B614C /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BEB2716776F94002B614C /* CoreData.framework */; };
 		219BEB2A16776FB4002B614C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BEB2916776FB4002B614C /* SystemConfiguration.framework */; };
 		21A6F7EC16D764C7004A22D9 /* memlin.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7EA16D764C7004A22D9 /* memlin.c */; };
-		21D53BA5167A23F0009E6CFC /* vfont_apple.m in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA3167A23F0009E6CFC /* vfont_apple.m */; };
+		21A6F7EE16D76B03004A22D9 /* vfont_stbtt.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7ED16D76B03004A22D9 /* vfont_stbtt.c */; };
 		21D53BA6167A23F0009E6CFC /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA4167A23F0009E6CFC /* vfont.c */; };
 		21DAACE51681CB55002464CD /* obj_pin.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DAACE41681CB55002464CD /* obj_pin.c */; };
 		21ED799A16A54CBB002CA25B /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 21ED799916A54CBB002CA25B /* sys_gfx_ios.m */; };
@@ -405,7 +405,7 @@
 		219BEB2916776FB4002B614C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		21A6F7EA16D764C7004A22D9 /* memlin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = memlin.c; path = ../../src/memlin.c; sourceTree = "<group>"; };
 		21A6F7EB16D764C7004A22D9 /* memlin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memlin.h; path = ../../src/memlin.h; sourceTree = "<group>"; };
-		21D53BA3167A23F0009E6CFC /* vfont_apple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = vfont_apple.m; path = ../../src/vfont_apple.m; sourceTree = "<group>"; };
+		21A6F7ED16D76B03004A22D9 /* vfont_stbtt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont_stbtt.c; path = ../../src/vfont_stbtt.c; sourceTree = "<group>"; };
 		21D53BA4167A23F0009E6CFC /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../src/vfont.c; sourceTree = "<group>"; };
 		21DAACE41681CB55002464CD /* obj_pin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_pin.c; sourceTree = SOURCE_ROOT; };
 		21ED799916A54CBB002CA25B /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
@@ -659,11 +659,11 @@
 				219BEA0216776A3E002B614C /* UIImage+Resize.m */,
 				219BEA0316776A3E002B614C /* utils.c */,
 				219BEA0416776A3E002B614C /* utils.h */,
-				219BEA0616776A3E002B614C /* vfont.h */,
 				219BEA0816776A3E002B614C /* wav.c */,
 				219BEA0916776A3E002B614C /* wav.h */,
-				21D53BA3167A23F0009E6CFC /* vfont_apple.m */,
+				219BEA0616776A3E002B614C /* vfont.h */,
 				21D53BA4167A23F0009E6CFC /* vfont.c */,
+				21A6F7ED16D76B03004A22D9 /* vfont_stbtt.c */,
 			);
 			name = dgreed;
 			sourceTree = "<group>";
@@ -995,7 +995,6 @@
 				219BEAFA16776B3A002B614C /* objects.c in Sources */,
 				219BEAFB16776B3A002B614C /* worldgen.c in Sources */,
 				219BEB1C16776EC5002B614C /* miniz.c in Sources */,
-				21D53BA5167A23F0009E6CFC /* vfont_apple.m in Sources */,
 				21D53BA6167A23F0009E6CFC /* vfont.c in Sources */,
 				21DAACE51681CB55002464CD /* obj_pin.c in Sources */,
 				21ED799A16A54CBB002CA25B /* sys_gfx_ios.m in Sources */,
@@ -1014,6 +1013,7 @@
 				AAD9323316D51CD200F076B9 /* tutorial_pause.c in Sources */,
 				AAD9323416D51CD200F076B9 /* tutorials.c in Sources */,
 				21A6F7EC16D764C7004A22D9 /* memlin.c in Sources */,
+				21A6F7EE16D76B03004A22D9 /* vfont_stbtt.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1051,6 +1051,7 @@
 					TARGET_IOS,
 					TRACK_MEMORY,
 					"DEBUG=1",
+					VFONT_STBTT,
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -1082,6 +1083,7 @@
 					NDEBUG,
 					MACOSX_BUNDLE,
 					TARGET_IOS,
+					VFONT_STBTT,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
@@ -1101,6 +1103,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -1112,6 +1115,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
