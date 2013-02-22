@@ -58,6 +58,7 @@ typedef struct {
 	bool has_trampoline;
 	bool force_jump;
 	bool force_dive;
+	bool input_disabled;
 
 	uint last_frame;
 } ObjRabbitData;
