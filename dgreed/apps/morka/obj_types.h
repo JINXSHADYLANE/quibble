@@ -188,6 +188,9 @@ extern GameObjectDesc obj_token_desc;
 
 typedef struct {
 	GameObject header;
+	char text[16];
+	Vector2 txt_pos;
+	float t,t0,t1;
 } ObjFloater;
 
 extern GameObjectDesc obj_floater_desc;
