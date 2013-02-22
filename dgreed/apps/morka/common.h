@@ -6,11 +6,12 @@
 #define WIDTH 1024
 #define HEIGHT 768
 
-#ifndef __APPLE__
+//#ifndef __APPLE__
 	#define FONT_NAME ASSETS_DIR "Chango-Regular.ttf"
-#else
-	#define FONT_NAME "Baskerville-Bold"
-#endif
+//#else
+//	#define FONT_NAME "Baskerville-Bold"
+//#endif
+
 #define background_layer 0
 #define dust_layer 1 // needs to be changed in particles.mml
 #define bg_mushrooms_layer 2

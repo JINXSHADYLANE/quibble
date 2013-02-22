@@ -12,8 +12,8 @@ sources.remove('http.c')
 sources.remove('ldrb.c')
 
 if str(Platform()) == 'darwin':
-	sources.remove('vfont_stbtt.c')
-	sources += ['NSFileManager+DirectoryLocations.m', 'SDLMain.m', 'vfont_apple.m']
+	#sources.remove('vfont_stbtt.c')
+	sources += ['NSFileManager+DirectoryLocations.m', 'SDLMain.m']
 	env.Append(LINKFLAGS=' -all_load')
 
 sources.remove('vfont_ft2.c')
