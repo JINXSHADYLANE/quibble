@@ -18,7 +18,13 @@
 			(vec2 50,50)
 		)
 	)
-
+	(def resque_icon
+		(spr resque_tag)
+		(add <-
+			(tl <- (get_rect screen))
+			(vec2 50,51)
+		)
+	)
 	(def token_text
 		(add <-
 			(tl <- (get_rect screen))
