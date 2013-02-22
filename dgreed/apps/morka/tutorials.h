@@ -5,7 +5,8 @@
 #include "obj_types.h"
 
 typedef enum{
-	NONE = 0,				// NULL Event (never triggered)
+	//NONE = 0,				// NULL event (never triggered)
+	AUTO,					// Happens automatically (always triggered)
 	MUSHROOM_IN_FRONT,		// Mushroom available in front of rabbit
 	MUSHROOM_BELOW,			// Mushroom below rabbit, possible to dive
 	BOUNCE_PERFORMED,		// Succesfull dive+bounce on a mushroom performed.
@@ -22,6 +23,7 @@ typedef struct {
 	Vector2 finger_pos;
 	bool pause_game;
 	bool force_input;
+	bool disable_input;
 
 	EventType show_on;
 	EventType dismiss_on;
