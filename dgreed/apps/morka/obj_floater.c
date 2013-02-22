@@ -27,9 +27,9 @@ void obj_floater_pre_render(GameObject* self){
 
 		render->world_dest = rectf(
 				pos.x + half.x,
-				pos.y - (half.y+img_size.y) / 2.0f,
+				pos.y - half.y,
 				pos.x + half.x - img_size.x,
-				pos.y
+				pos.y - half.y + img_size.y
 		);
 
 		floater->txt_pos = vec2(pos.x - half.x, pos.y - half.y);
@@ -51,6 +51,7 @@ void obj_floater_pre_render(GameObject* self){
 			floater->txt_pos.y += delta;
 			render->world_dest.top += delta;
 			render->world_dest.bottom += delta;
+
 		}
 
 		float alpha = 1.0f-fabsf(floater->t);
