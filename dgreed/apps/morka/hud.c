@@ -12,14 +12,14 @@ extern void game_pause(void);
 extern void game_unpause(void);
 extern bool game_is_paused(void);
 
+extern uint longest_combo;
+extern ObjRabbit* rabbit;
+
 static uint last_combo = 0;
 static uint current_combo = 0;
-
 static float combo_flip_t = 0.0f;
 
-extern uint longest_combo;
-
-extern ObjRabbit* rabbit;
+static SprHandle resque_handle;
 
 void _hud_render_ui(UIElement* element, uint layer) {
 	// Render
@@ -68,6 +68,7 @@ static void _hud_render_combo(UIElement* element, uint layer, uint mult, float t
 
 void hud_init(void) {
 	vfont_init_ex(1024, 1024);
+	resque_handle = sprsheet_get_handle("resque_tag");
 }
 
 void hud_close(void) {
@@ -82,8 +83,35 @@ void hud_trigger_combo(uint multiplier) {
 }
 
 void hud_render(float t) {
+	static bool animation_reset = false;
+
 	UIElement* token_icon = uidesc_get("token_icon");
 	spr_draw_cntr_h(token_icon->spr, hud_layer,token_icon->vec2, 0.0f, 1.0f, COLOR_WHITE);
+
+	static float t0 = 0.0f;
+	static float t1 = 0.0f;
+
+	// Resque icon appearance animation
+	if(rabbit->data->tokens >= 10){
+		if(!animation_reset){
+			const float animation_length = 0.4f; // 1.0 - 1s
+			t0 = time_s();
+			t1 = t0 + animation_length;
+			animation_reset = true;
+		}
+
+		float ct = time_s();
+		float t = 0.0f;
+		float s = 1.0f;
+
+		if(ct > t0 && ct < t1){
+			t = (ct - t0) / (t1 - t0);
+			s = sin(t*3.0f)+1.0f;
+		}
+		spr_draw_cntr_h(resque_handle, hud_layer,token_icon->vec2, ct, s, COLOR_WHITE);
+	} else {
+		animation_reset = false;
+	}
 
 	UIElement* token_text = uidesc_get("token_text");
 	vfont_select(FONT_NAME, 38.0f);

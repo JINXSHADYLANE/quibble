@@ -4,11 +4,9 @@
 		(def b (element_2 512))
 		(def c (element_3 512))
 		(def d (element_4 512))
-		(def _ (.empty 10))
 
-		(init "__")
+		(init "cd")
 
-		(learn "__abcdab")
 		(learn "cdabdcab")
 			
 	)
