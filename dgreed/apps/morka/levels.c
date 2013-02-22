@@ -130,7 +130,7 @@ void levels_reset(const char* level_name){
 
 void levels_set_next(void){
 	//assert(level_num+1 <= levels_descs.size);
-	if(level_num+1 <= levels_descs.size) level_num = -1;
+	if(level_num+1 >= levels_descs.size) level_num = -1;
 	current_level = (LevelDesc*) darray_get(&levels_descs,level_num+1);
 	tutorials_set_level(current_level->name);
 	level_num++;
