@@ -4,13 +4,13 @@
 		(def b (element_2 512))
 		(def c (element_3 512))
 		(def d (element_4 512))
-		(def _ (.empty 0))
+		(def _ (.empty 10))
 
 		(init "__")
 
-		(learn "__a_b_c_d")
-		(learn "_c_b_a_d")
-		(learn "_d_a_c_b")
+		(learn "__abcdab")
+		(learn "cdabdcab")
+			
 	)
 
 	### LEVEL 1 ###
