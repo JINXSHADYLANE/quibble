@@ -119,7 +119,8 @@
 	)
 	(img resque_tag
 		(tex atlas_2.png)
-		(src 125,943,180,997)
+		(src 124,944,181,1000)
+		#(cntr 153,972)
 	)
 	(img restart
 		(tex atlas_2.png)
