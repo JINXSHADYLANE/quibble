@@ -8,7 +8,8 @@
 TutorialStep level1_steps[] = {
 
 	/*
-	{"Example step",		// text
+	{0.0f,					// delay before step is activated
+	"Example step",			// text
 	 "spikeshroom_1",		// image
 	 "level_select",		// state to push on event
 	 {50.0f, 50.0f},		// finger touch animation (negative values to hide)
@@ -20,7 +21,8 @@ TutorialStep level1_steps[] = {
 	},
 	*/
 
-	{NULL,
+	{0.0f,
+	 NULL,
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -31,7 +33,8 @@ TutorialStep level1_steps[] = {
 	 AUTO
 	},
 
-	{"Touch to jump",
+	{0.0f,
+	 "Touch to jump",
 	 NULL,
 	 NULL,
 	 {WIDTH/2.0f, 600.0f},
@@ -42,7 +45,8 @@ TutorialStep level1_steps[] = {
 	 AUTO
 	},
 
-	{"Touch and hold to plunge down",
+	{0.0f,
+	 "Touch and hold to plunge down",
 	 NULL,
 	 NULL,
 	 {WIDTH/2.0f, 600.0f},
@@ -53,7 +57,8 @@ TutorialStep level1_steps[] = {
 	 AUTO
 	},
 
-	{"Now do a triple bounce",
+	{0.0f,
+	 "Now do a triple bounce",
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -64,7 +69,8 @@ TutorialStep level1_steps[] = {
 	 COMBO_X3
 	},
 
-	{NULL,
+	{2.0f,
+	 NULL,
 	 NULL,
 	 "game_over",
 	 {-1.0f, -1.0f},
@@ -134,15 +140,13 @@ void tutorial_event(EventType e){
 	if(current_step != NULL){
 		if(e == current_step->show_on && !tutorial_active){
 			rabbit->data->input_disabled = current_step->disable_input;
-
+			wait_t = time_s() + 1.0f;
 			if(current_step->pause_game){
 				tutorial_unpaused = false;
 				game_pause();
 				malka_states_push("tutorial_pause");
-				wait_t = time_s() + 1.0f;
 			} else {
 				tutorial_unpaused = true;
-				wait_t = 0.0f;
 			}	
 
 			tutorial_active = true;
@@ -166,110 +170,121 @@ void tutorials_close(void){
 }
 
 bool tutorials_render(float t){
+	// TODO: cleanup this code
+
 	if(tutorial_active){
 
-		float alpha = 1.0f-fabsf(t);
-		byte a = lrintf(255.0f * alpha);
-		Color col = COLOR_RGBA(255, 255, 255, a);
+		float ts = time_s();
+		if(ts > wait_t || !tutorial_unpaused){
 
-		// Img
-		if(current_step->img != NULL){
-			
-			Vector2 pos = vec2(WIDTH/2.0f,HEIGHT/2.0f);
-			SprHandle handle = sprsheet_get_handle(current_step->img);
+			float alpha = 1.0f-fabsf(t);
+			byte a = lrintf(255.0f * alpha);
+			Color col = COLOR_RGBA(255, 255, 255, a);
 
-			Vector2 size = sprsheet_get_size_h(handle);
+			// Img
+			if(current_step->img != NULL){
+				
+				Vector2 pos = vec2(WIDTH/2.0f,HEIGHT/2.0f);
+				SprHandle handle = sprsheet_get_handle(current_step->img);
 
-			RectF rec = {
-				.left = pos.x - size.x / 2.0f, 
-				.top = pos.y - size.y / 2.0f,
-				.right = 0,
-				.bottom = 0
-			};
+				Vector2 size = sprsheet_get_size_h(handle);
 
-			spr_draw_h(handle, hud_layer,rec,col);
-		}
-
-		// Text
-		if(current_step->text != NULL){
-
-			Vector2 text_pos = vec2(WIDTH/2.0f,700.0f);
-
-			static TutorialStep* step = NULL;
-
-			// (bug)
-			char str[32];
-			sprintf(str, "%s",current_step->text);
-
-			vfont_select(FONT_NAME, 40.0f); 
-			static Vector2 half_size = {0.0f, 0.0f};
-			if(half_size.x == 0.0f || step != current_step) {
-				half_size = vec2_scale(vfont_size(str), 0.5f);
-			}
-			vfont_draw(str, hud_layer, vec2_sub(text_pos, half_size), COLOR_RGBA(70, 49, 27, a));
-			step = current_step;
-		}
-
-		// Finger animation
-		Vector2 size = sprsheet_get_size_h(finger);
-
-		Vector2 finger_pos = vec2_sub(current_step->finger_pos,vec2_scale(size,0.5f));
-
-		if(finger_pos.x >= 0.0f && finger_pos.y >= 0.0f){
-
-			float td = time_s();
-
-			float d = sinf(td*6);
-
-			if(d > 0.0f){
-				RectF rec_star = {
-					.left = finger_pos.x - 25.0f, 
-					.top = finger_pos.y - d*3.0f - 35.0f,
+				RectF rec = {
+					.left = pos.x - size.x / 2.0f, 
+					.top = pos.y - size.y / 2.0f,
 					.right = 0,
 					.bottom = 0
 				};
-				spr_draw_h(star, hud_layer,rec_star,col);
+
+				spr_draw_h(handle, hud_layer,rec,col);
 			}
 
-			RectF rec_finger = {
-				.left = finger_pos.x, 
-				.top = finger_pos.y - d*5.0f,
-				.right = 0,
-				.bottom = 0
-			};
-			spr_draw_h(finger, hud_layer,rec_finger,col);
-		}
+			// Text
+			if(current_step->text != NULL){
 
-		// Unpause game and hide tutorial text on input
-		if(wait_t > 0.0f){
-			float ts = time_s();
-			if(ts > wait_t && key_pressed(KEY_A)){
+				Vector2 text_pos = vec2(WIDTH/2.0f,700.0f);
 
-				if(current_step->force_input){
-					if(rabbit->data->touching_ground)
-						rabbit->data->force_jump = true;
-					else
-						rabbit->data->force_dive = true;
+				static TutorialStep* step = NULL;
+
+				// (bug)
+				char str[32];
+				sprintf(str, "%s",current_step->text);
+
+				vfont_select(FONT_NAME, 40.0f); 
+				static Vector2 half_size = {0.0f, 0.0f};
+				if(half_size.x == 0.0f || step != current_step) {
+					half_size = vec2_scale(vfont_size(str), 0.5f);
+				}
+				vfont_draw(str, hud_layer, vec2_sub(text_pos, half_size), COLOR_RGBA(70, 49, 27, a));
+				step = current_step;
+			}
+
+			// Finger animation
+			Vector2 size = sprsheet_get_size_h(finger);
+
+			Vector2 finger_pos = vec2_sub(current_step->finger_pos,vec2_scale(size,0.5f));
+
+			if(finger_pos.x >= 0.0f && finger_pos.y >= 0.0f){
+
+				float td = time_s();
+
+				float d = sinf(td*6);
+
+				if(d > 0.0f){
+					RectF rec_star = {
+						.left = finger_pos.x - 25.0f, 
+						.top = finger_pos.y - d*3.0f - 35.0f,
+						.right = 0,
+						.bottom = 0
+					};
+					spr_draw_h(star, hud_layer,rec_star,col);
 				}
 
-				game_unpause();
-				malka_states_pop();
-				step_done = false;
-				if(current_step->dismiss_on != FINAL_STEP)
-					current_step = &current_scenario->steps[++step_i];
+				RectF rec_finger = {
+					.left = finger_pos.x, 
+					.top = finger_pos.y - d*5.0f,
+					.right = 0,
+					.bottom = 0
+				};
+				spr_draw_h(finger, hud_layer,rec_finger,col);
+			}
+
+			// Unpause game and hide tutorial text on input
+			if(!tutorial_unpaused){
+				float ts = time_s();
+				if(ts > wait_t && key_pressed(KEY_A)){
+
+					if(current_step->force_input){
+						if(rabbit->data->touching_ground)
+							rabbit->data->force_jump = true;
+						else
+							rabbit->data->force_dive = true;
+					}
+
+					game_unpause();
+					malka_states_pop();
+					step_done = false;
+					if(current_step->dismiss_on != FINAL_STEP)
+						current_step = &current_scenario->steps[++step_i];
+					tutorial_active = false;
+				}	
+			}
+
+			if(tutorial_unpaused) step_done = true;
+
+			if(current_step->state != NULL){
+				game_end();
+				game_over_set_screen(TUTORIAL_SCREEN);
+				malka_states_push(current_step->state);
 				tutorial_active = false;
-			}	
-		}
+				tutorial_unpaused = false;
+			} 
 
-		if(tutorial_unpaused) step_done = true;
 
-		if(current_step->state != NULL){
-			game_end();
-			game_over_set_screen(TUTORIAL_SCREEN);
-			malka_states_push(current_step->state);
-			tutorial_active = false;
-			tutorial_unpaused = false;
-		} 
+
+		}	
+
+
 	}
 	return true;
 }

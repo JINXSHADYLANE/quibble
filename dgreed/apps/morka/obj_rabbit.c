@@ -628,9 +628,9 @@ static void _rabbit_delayed_bounce(void* r) {
 
 		//printf("pos.x: %f v: %f %f \n",p->cd_obj->pos.y,p->vel.x,p->vel.y);
 		d->land = p->cd_obj->pos.x + (405.0f-p->vel.y) + p->vel.x + (p->vel.x) / (2.0f + p->vel.x/1000.0f);
-
-		if(d->combo_counter++ > 1)
-			if(d->player_control) hud_trigger_combo(d->combo_counter);
+		d->combo_counter++;
+		 
+		if(d->player_control) hud_trigger_combo(d->combo_counter);
 	}
 	else
 		d->combo_counter = 0;
