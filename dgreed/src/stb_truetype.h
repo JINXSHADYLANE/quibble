@@ -747,6 +747,92 @@ enum { // languageID for STBTT_PLATFORM_ID_MAC
 
 #ifdef STB_TRUETYPE_IMPLEMENTATION
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// mempool allocator
+//
+
+typedef struct stbtt__mempool_chunk {
+	stbtt_int32 freelist;
+	struct stbtt__mempool_chunk* next;
+} stbtt__mempool_chunk;
+
+typedef struct {
+	stbtt_int32 item_size;
+	stbtt_int32 chunk_size;
+	stbtt__mempool_chunk* chunks;
+} stbtt__mempool;
+
+#define stbtt__mempool_chunk_data(chunk_ptr) ((void*)chunk_ptr + sizeof(stbtt__mempool_chunk))
+
+static void* stbtt__pool_alloc(stbtt__mempool *pool, void *userdata)
+{
+	stbtt_int32 i, s = pool->item_size, c = pool->chunk_size;
+	stbtt_int32 *n;
+	void *data;
+
+	// find chunk with free cells
+	stbtt__mempool_chunk *pos = pool->chunks, *chunk = NULL;
+	while (pos) {
+		if (pos->freelist != -1) {
+			chunk = pos;
+			data = stbtt__mempool_chunk_data(chunk);
+			break;
+		} else {
+			pos = pos->next;
+		}
+	}
+
+	// alloc new chunk if needed
+	if (!chunk) {
+		stbtt_uint32 size = sizeof(stbtt__mempool_chunk) + c;
+		chunk = STBTT_malloc(size, userdata);
+		chunk->freelist = 0;
+		data = stbtt__mempool_chunk_data(chunk);
+		for (i = 0; i < c; i += s)
+			*(int*)(data + i) = (i == s - c) ? -1 : i + s;
+		chunk->next = pool->chunks;
+		pool->chunks = chunk;
+	}
+
+	// pop freelist front
+	i = chunk->freelist;
+	n = (int*)(data + i);
+	chunk->freelist = *n;
+
+	return (void*)n;
+}
+
+static void stbtt__pool_free(stbtt__mempool* pool, void *ptr)
+{
+	stbtt_int32 c = pool->chunk_size;
+	stbtt_int32 *freelist;
+	void *data;
+
+	// find chunk
+	stbtt__mempool_chunk *chunk = pool->chunks;
+	while(chunk) {
+		data = stbtt__mempool_chunk_data(chunk);
+		if(data <= ptr && ptr < data + c)
+			break;
+	}
+	STBTT_assert(chunk);
+	
+	// insert it into freelist front
+	freelist = ptr;
+	*freelist = chunk->freelist;
+	chunk->freelist = (ptr - data);
+}
+
+static void stbtt__pool_drain(stbtt__mempool* pool, void *userdata) {
+	stbtt__mempool_chunk *next, *chunk = pool->chunks;
+	while(chunk) {
+		next = chunk->next;
+		STBTT_free(chunk, userdata);
+		chunk = next;
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 //
 // accessors to parse data from file
@@ -1402,9 +1488,9 @@ typedef struct stbtt__active_edge
 #define FIX        (1 << FIXSHIFT)
 #define FIXMASK    (FIX-1)
 
-static stbtt__active_edge *new_active(stbtt__edge *e, int off_x, float start_point, void *userdata)
+static stbtt__active_edge *new_active(stbtt__edge *e, int off_x, float start_point, stbtt__mempool* pool, void *userdata)
 {
-   stbtt__active_edge *z = (stbtt__active_edge *) STBTT_malloc(sizeof(*z), userdata); // @TODO: make a pool of these!!!
+   stbtt__active_edge *z = (stbtt__active_edge *) stbtt__pool_alloc(pool, userdata);
    float dxdy = (e->x1 - e->x0) / (e->y1 - e->y0);
    STBTT_assert(e->y0 <= start_point);
    if (!z) return z;
@@ -1469,6 +1555,7 @@ static void stbtt__fill_active_edges(unsigned char *scanline, int len, stbtt__ac
 static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e, int n, int vsubsample, int off_x, int off_y, void *userdata)
 {
    stbtt__active_edge *active = NULL;
+   stbtt__mempool edge_pool = {sizeof(stbtt__active_edge), sizeof(stbtt__active_edge)*512, NULL}; // mempool will allocate 16k chunks;
    int y,j=0;
    int max_weight = (255 / vsubsample);  // weight per vertical scanline
    int s; // vertical subsample index
@@ -1497,7 +1584,7 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e,
                *step = z->next; // delete from list
                STBTT_assert(z->valid);
                z->valid = 0;
-               STBTT_free(z, userdata);
+               stbtt__pool_free(&edge_pool, z);
             } else {
                z->x += z->dx; // advance to position for current scanline
                step = &((*step)->next); // advance through list
@@ -1526,7 +1613,7 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e,
          // insert all edges that start before the center of this scanline -- omit ones that also end on this scanline
          while (e->y0 <= scan_y) {
             if (e->y1 > scan_y) {
-               stbtt__active_edge *z = new_active(e, off_x, scan_y, userdata);
+               stbtt__active_edge *z = new_active(e, off_x, scan_y, &edge_pool, userdata);
                // find insertion point
                if (active == NULL)
                   active = z;
@@ -1557,11 +1644,7 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e,
       ++j;
    }
 
-   while (active) {
-      stbtt__active_edge *z = active;
-      active = active->next;
-      STBTT_free(z, userdata);
-   }
+   stbtt__pool_drain(&edge_pool, userdata);
 
    if (scanline != scanline_data)
       STBTT_free(scanline, userdata);
@@ -1677,7 +1760,8 @@ stbtt__point *stbtt_FlattenCurves(stbtt_vertex *vertices, int num_verts, float o
    *num_contours = n;
    if (n == 0) return 0;
 
-   *contour_lengths = (int *) STBTT_malloc(sizeof(**contour_lengths) * n, userdata);
+   if(n > 8)
+      *contour_lengths = (int *) STBTT_malloc(sizeof(**contour_lengths) * n, userdata);
 
    if (*contour_lengths == 0) {
       *num_contours = 0;
@@ -1733,11 +1817,13 @@ error:
 void stbtt_Rasterize(stbtt__bitmap *result, float flatness_in_pixels, stbtt_vertex *vertices, int num_verts, float scale_x, float scale_y, float shift_x, float shift_y, int x_off, int y_off, int invert, void *userdata)
 {
    float scale = scale_x > scale_y ? scale_y : scale_x;
-   int winding_count, *winding_lengths;
+   int winding_lengths_data[8];
+   int winding_count, *winding_lengths = winding_lengths_data;
    stbtt__point *windings = stbtt_FlattenCurves(vertices, num_verts, flatness_in_pixels / scale, &winding_lengths, &winding_count, userdata);
    if (windings) {
       stbtt__rasterize(result, windings, winding_lengths, winding_count, scale_x, scale_y, shift_x, shift_y, x_off, y_off, invert, userdata);
-      STBTT_free(winding_lengths, userdata);
+	  if(winding_lengths != winding_lengths_data)
+      	STBTT_free(winding_lengths, userdata);
       STBTT_free(windings, userdata);
    }
 }
