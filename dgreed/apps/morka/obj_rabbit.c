@@ -378,21 +378,25 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				SprHandle sprt = sprsheet_get_handle("trampoline");
 				Vector2 size = sprsheet_get_size_h(sprt);
 				float width = size.x;
+				float height = size.y;
 
 				// find the gap to draw trampoline in
 				Vector2 start = vec2(p->cd_obj->pos.x + rabbit_hitbox_width,HEIGHT + 100.0f);
 				Vector2 end = vec2(start.x,HEIGHT - 100.0f);
 				GameObject* obj = objects_raycast(start,end);
 				Vector2 gap_pos = vec2(0.0f,0.0f);
+				Vector2 txt_pos = vec2(0.0f,0.0f);
 				bool found = false;
 				if(obj){
 					if(obj->type == OBJ_FALL_TRIGGER_TYPE) {
 						PhysicsComponent* p = obj->physics;
 						gap_pos = vec2(p->cd_obj->pos.x + (p->cd_obj->size.size.x - width) / 2.0f,HEIGHT + 15.0f);
+						txt_pos = vec2(p->cd_obj->pos.x + (p->cd_obj->size.size.x) / 2.0f,HEIGHT + 15.0f - height);
 						found = true;
 					} else if(obj->type == OBJ_TRAMPOLINE_TYPE) {
 						RenderComponent* render = obj->render;
 						gap_pos = vec2(render->world_dest.left,HEIGHT + 15.0f);
+						txt_pos = vec2(render->world_dest.left + width / 2.0f,HEIGHT + 15.0f - height);
 						found = true;						
 					}
 				}
@@ -405,10 +409,12 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 						if(obj->type == OBJ_FALL_TRIGGER_TYPE) {
 							PhysicsComponent* p = obj->physics;
 							gap_pos = vec2(p->cd_obj->pos.x + (p->cd_obj->size.size.x - width) / 2.0f,HEIGHT + 15.0f);
+							txt_pos = vec2(p->cd_obj->pos.x + (p->cd_obj->size.size.x) / 2.0f,HEIGHT + 15.0f - height);
 							found = true;
 						} else if(obj->type == OBJ_TRAMPOLINE_TYPE) {
 							RenderComponent* render = obj->render;
 							gap_pos = vec2(render->world_dest.left,HEIGHT + 15.0f);
+							txt_pos = vec2(render->world_dest.left + width / 2.0f,HEIGHT + 15.0f - height);
 							found = true;						
 						}
 					}
@@ -417,6 +423,13 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				// Create Trampoline
 				ObjTrampoline* trampoline = (ObjTrampoline*) objects_create(&obj_trampoline_desc, gap_pos, (void*)sprt);
 				trampoline->owner = self;
+
+
+				sprt = sprsheet_get_handle("token_tag");
+
+				// Create floating text
+				ObjFloater* floater = (ObjFloater*) objects_create(&obj_floater_desc, txt_pos, (void*)sprt);
+				sprintf(floater->text,"-10");
 			}
 
 			if(ts - d->mushroom_hit_time < 0.1f) {
