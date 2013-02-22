@@ -21,6 +21,7 @@ static void obj_token_collide(GameObject* self, GameObject* other) {
 		ObjFloater* floater = (ObjFloater*) objects_create(&obj_floater_desc, vec2_add(self->physics->cd_obj->pos,vec2(size.x / 2.0f,size.y)), (void*)spr);
 		sprintf(floater->text,"");
 		objects_destroy(self);
+		floater->a = 0.15f;
 
 	}
 }

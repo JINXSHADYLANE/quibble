@@ -19,8 +19,6 @@ static uint last_combo = 0;
 static uint current_combo = 0;
 static float combo_flip_t = 0.0f;
 
-static SprHandle resque_handle;
-
 void _hud_render_ui(UIElement* element, uint layer) {
 	// Render
 	if(element->members & UI_EL_SPR) {
@@ -68,7 +66,6 @@ static void _hud_render_combo(UIElement* element, uint layer, uint mult, float t
 
 void hud_init(void) {
 	vfont_init_ex(1024, 1024);
-	resque_handle = sprsheet_get_handle("resque_tag");
 }
 
 void hud_close(void) {
@@ -108,7 +105,8 @@ void hud_render(float t) {
 			t = (ct - t0) / (t1 - t0);
 			s = sin(t*3.0f)+1.0f;
 		}
-		spr_draw_cntr_h(resque_handle, hud_layer,token_icon->vec2, ct, s, COLOR_WHITE);
+		UIElement* resque_icon = uidesc_get("resque_icon");
+		spr_draw_cntr_h(resque_icon->spr, hud_layer,resque_icon->vec2, ct, s, COLOR_WHITE);
 	} else {
 		animation_reset = false;
 	}

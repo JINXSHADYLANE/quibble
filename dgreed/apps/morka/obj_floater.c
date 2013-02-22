@@ -13,9 +13,8 @@ void obj_floater_pre_render(GameObject* self){
 
 	if(render->world_dest.bottom == 0.0f) {
 		// animation init
-		const float animation_length = 0.4f; // 1.0 - 1s
 		floater->t0 = time_s();
-		floater->t1 = floater->t0 + animation_length;
+		floater->t1 = floater->t0 + floater->a;
 
 		// Centering text and image on pos
 		Vector2 pos = vec2(render->world_dest.left,render->world_dest.top);
@@ -46,7 +45,7 @@ void obj_floater_pre_render(GameObject* self){
 
 		if(ct > floater->t0 && ct < floater->t1){
 			floater->t = (ct - floater->t0) / (floater->t1 - floater->t0);
-			delta = (1 + (floater->t*floater->t)) * -2;
+			delta = (1.0f + (floater->t*floater->t)) * -3.0f;
 
 			floater->txt_pos.y += delta;
 			render->world_dest.top += delta;
