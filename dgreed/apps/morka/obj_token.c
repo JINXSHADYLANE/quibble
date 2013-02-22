@@ -14,6 +14,12 @@ static void obj_token_collide(GameObject* self, GameObject* other) {
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
 		mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
 
+		SprHandle spr = sprsheet_get_handle("token");
+
+		Vector2 size = sprsheet_get_size_h(spr);
+
+		ObjFloater* floater = (ObjFloater*) objects_create(&obj_floater_desc, vec2_add(self->physics->cd_obj->pos,vec2(size.x / 2.0f,size.y)), (void*)spr);
+		sprintf(floater->text,"");
 		objects_destroy(self);
 
 	}

@@ -28,7 +28,7 @@ static void obj_fall_trigger_construct(GameObject* self, Vector2 pos, void* user
 	PhysicsComponent* physics = self->physics;
 	RectF collider = {
 		pos.x + 70, pos.y - 127 - 62,
-		pos.x + width + 120, pos.y
+		pos.x + width + 90, pos.y
 	};	
 		
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, 1, NULL);
