@@ -29,8 +29,6 @@ static bool game_need_reset = true;
 static bool game_over = false;
 static bool game_paused = false;
 
-uint longest_combo;
-
 static void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
