@@ -155,6 +155,7 @@
 		AA0E3F1516BFDFA200A47FFB /* minimap.c in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3F1216BFDFA200A47FFB /* minimap.c */; };
 		AA25266916D25F1B003BD743 /* obj_trampoline.c in Sources */ = {isa = PBXBuildFile; fileRef = AA25266816D25F1B003BD743 /* obj_trampoline.c */; };
 		AA41F55416B93462000D077C /* obj_particle_anchor.c in Sources */ = {isa = PBXBuildFile; fileRef = AA41F55316B93462000D077C /* obj_particle_anchor.c */; };
+		AA64162016D7B7E70066AEA8 /* obj_floater.c in Sources */ = {isa = PBXBuildFile; fileRef = AA64161F16D7B7E70066AEA8 /* obj_floater.c */; };
 		AA8213B4169DA89200A7EBA8 /* icon~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B3169DA89200A7EBA8 /* icon~ipad.png */; };
 		AA8213B7169DA89500A7EBA8 /* icon@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */; };
 		AA92471716CD30D1002A5247 /* obj_token.c in Sources */ = {isa = PBXBuildFile; fileRef = AA92471616CD30D1002A5247 /* obj_token.c */; };
@@ -415,6 +416,7 @@
 		AA0E3F1316BFDFA200A47FFB /* minimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minimap.h; path = ../minimap.h; sourceTree = "<group>"; };
 		AA25266816D25F1B003BD743 /* obj_trampoline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_trampoline.c; path = ../obj_trampoline.c; sourceTree = "<group>"; };
 		AA41F55316B93462000D077C /* obj_particle_anchor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_particle_anchor.c; path = ../obj_particle_anchor.c; sourceTree = "<group>"; };
+		AA64161F16D7B7E70066AEA8 /* obj_floater.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_floater.c; sourceTree = SOURCE_ROOT; };
 		AA8213B3169DA89200A7EBA8 /* icon~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon~ipad.png"; sourceTree = "<group>"; };
 		AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x~ipad.png"; sourceTree = "<group>"; };
 		AA92471616CD30D1002A5247 /* obj_token.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_token.c; path = ../obj_token.c; sourceTree = "<group>"; };
@@ -539,6 +541,7 @@
 				AA0E3F1316BFDFA200A47FFB /* minimap.h */,
 				219BEAED16776B3A002B614C /* objects.c */,
 				219BEAEE16776B3A002B614C /* objects.h */,
+				AA64161F16D7B7E70066AEA8 /* obj_floater.c */,
 				219BEAEC16776B3A002B614C /* obj_types.h */,
 				21DAACE41681CB55002464CD /* obj_pin.c */,
 				219BEAE816776B3A002B614C /* obj_deco.c */,
@@ -1014,6 +1017,7 @@
 				AAD9323416D51CD200F076B9 /* tutorials.c in Sources */,
 				21A6F7EC16D764C7004A22D9 /* memlin.c in Sources */,
 				21A6F7EE16D76B03004A22D9 /* vfont_stbtt.c in Sources */,
+				AA64162016D7B7E70066AEA8 /* obj_floater.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
