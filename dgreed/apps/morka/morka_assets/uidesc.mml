@@ -22,7 +22,7 @@
 		(spr resque_tag)
 		(add <-
 			(tl <- (get_rect screen))
-			(vec2 50,51)
+			(vec2 52,51)
 		)
 	)
 	(def token_text
