@@ -253,7 +253,7 @@ static void _load_effects(NodeIdx node) {
 		for(; sub_node != 0; sub_node = mml_get_next(&mfx_mml, sub_node)) {
 
 			const char* name = mml_get_name(&mfx_mml, sub_node);
-			SubEffectType type;
+			SubEffectType type = 0;
 
 			if(strcmp("sound", name) == 0)
 				type = SUB_SOUND;
