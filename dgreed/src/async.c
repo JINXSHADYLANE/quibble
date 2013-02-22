@@ -23,7 +23,8 @@ int async_cpu_count(void) {
 		GetSystemInfo(&info);
 		cpu_count = info.dwNumberOfProcessors;
 #elif defined(__MACOSX__) || defined(TARGET_IOS)
-		sysctlbyname("hw.ncpu", &cpu_count, &size, NULL, 0);
+        size_t s;
+		sysctlbyname("hw.ncpu", &cpu_count, &s, NULL, 0);
 #else 
 		cpu_count = (uint)sysconf(_SC_NPROCESSORS_ONLN);
 #endif
