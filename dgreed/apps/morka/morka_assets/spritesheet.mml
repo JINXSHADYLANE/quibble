@@ -1,0 +1,257 @@
+(sprsheet morka
+	(prefix "morka_assets/")
+
+	(img background
+		(tex atlas_1.png)
+		(src 0,256,1024,1024)
+	)
+	(anim rabbit
+		(tex atlas_0.png)
+		(src 0,0,128,128)
+		(offset 128,128)
+		(frames 15)
+		(grid 4,4)
+	)
+	(anim rabbit_2
+		(tex atlas_01.png)
+		(src 0,0,128,128)
+		(offset 128,128)
+		(frames 15)
+		(grid 4,4)
+	)
+	(anim rabbit_3
+		(tex atlas_02.png)
+		(src 0,0,128,128)
+		(offset 128,128)
+		(frames 15)
+		(grid 4,4)
+	)
+	(anim rabbit_4
+		(tex atlas_03.png)
+		(src 0,0,128,128)
+		(offset 128,128)
+		(frames 15)
+		(grid 4,4)
+	)
+	(img blue_shade
+		(tex atlas_2.png)
+		(src 684,3,694,13)
+	)
+	(img finish_tile
+		(tex atlas_2.png)
+		(src 78,943,121,1009)
+	)
+	(img grass1
+		(tex atlas_2.png)
+		(src 761,2,1017,189)
+	)
+	(img grass2
+		(tex atlas_2.png)
+		(src 501,19,757,206)
+	)
+	(img grass3
+		(tex atlas_2.png)
+		(src 241,210,497,391)
+	)
+	(img grass4
+		(tex atlas_2.png)
+		(src 241,19,497,206)
+	)
+	(img grass_end1
+		(tex atlas_2.png)
+		(src 207,715,418,896)
+	)
+	(img grass_end2
+		(tex atlas_2.png)
+		(src 635,564,709,751)
+	)
+	(img grass_start1
+		(tex atlas_2.png)
+		(src 591,782,686,963)
+	)
+	(img grass_start2
+		(tex atlas_2.png)
+		(src 501,373,698,560)
+	)
+	(img pause
+		(tex atlas_2.png)
+		(src 635,755,657,778)
+	)
+	(img pin
+		(tex atlas_2.png)
+		(src 203,272,228,310)
+	)
+	(img planet_1
+		(tex atlas_2.png)
+		(src 2,508,195,729)
+	)
+	(img planet_2
+		(tex atlas_2.png)
+		(src 2,2,237,268)
+	)
+	(img planet_3
+		(tex atlas_2.png)
+		(src 2,272,199,504)
+	)
+	(img planet_4
+		(tex atlas_2.png)
+		(src 2,733,203,939)
+	)
+	(img planet_5
+		(tex atlas_2.png)
+		(src 459,564,631,778)
+	)
+	(img play
+		(tex atlas_2.png)
+		(src 850,755,974,879)
+	)
+	(img position_knob
+		(tex atlas_2.png)
+		(src 463,395,471,403)
+	)
+	(img position_line
+		(tex atlas_2.png)
+		(src 241,2,679,15)
+	)
+	(img quit
+		(tex atlas_2.png)
+		(src 872,627,996,751)
+	)
+	(img resque_tag
+		(tex atlas_2.png)
+		(src 125,943,180,997)
+	)
+	(img restart
+		(tex atlas_2.png)
+		(src 872,499,996,623)
+	)
+	(img token
+		(tex atlas_2.png)
+		(src 207,900,244,934)
+	)
+	(img token_tag
+		(tex atlas_2.png)
+		(src 2,943,74,1011)
+	)
+	(img tut_finger
+		(tex atlas_2.png)
+		(src 871,354,1008,495)
+	)
+	(img tut_star
+		(tex atlas_2.png)
+		(src 850,883,971,1007)
+	)
+	(img water1
+		(tex atlas_2.png)
+		(src 203,395,459,552)
+	)
+	(img water2
+		(tex atlas_2.png)
+		(src 501,210,757,369)
+	)
+	(img water3
+		(tex atlas_2.png)
+		(src 761,193,1017,350)
+	)
+	(img water4
+		(tex atlas_2.png)
+		(src 199,556,455,711)
+	)
+	(img water_end1
+		(tex atlas_2.png)
+		(src 702,373,867,560)
+	)
+	(img water_end2
+		(tex atlas_2.png)
+		(src 713,564,868,751)
+	)
+	(img water_start1
+		(tex atlas_2.png)
+		(src 422,782,587,957)
+	)
+	(img water_start2
+		(tex atlas_2.png)
+		(src 690,755,846,924)
+	)
+
+
+	
+	(img bg_mushroom_2
+		(tex atlas_3.png)
+		(src 210,407,450,700)
+	)
+	(img bg_mushroom_3
+		(tex atlas_3.png)
+		(src 5,5,345,405)
+	)
+	(img bg_mushroom_5
+		(tex atlas_3.png)
+		(src 5,407,208,731)
+	)
+	(img bg_mushroom_6
+		(tex atlas_3.png)
+		(src 5,733,160,1000)
+	)
+	(img grass3_sign
+		(tex atlas_3.png)
+		(src 163,733,417,970)
+	)
+	(img mushroom_1
+		(tex atlas_3.png)
+		(src 420,853,547,1001)
+	)
+	(img mushroom_2
+		(tex atlas_3.png)
+		(src 420,702,521,851)
+	)
+	(img mushroom_3
+		(tex atlas_3.png)
+		(src 452,5,527,114)
+	)
+	(img mushroom_4
+		(tex atlas_3.png)
+		(src 347,116,469,239)
+	)
+	(img mushroom_5
+		(tex atlas_3.png)
+		(src 845,5,995,140)
+	)
+	(img mushroom_6
+		(tex atlas_3.png)
+		(src 730,142,865,261)
+	)
+	(img next
+		(tex atlas_3.png)
+		(src 347,241,471,365)
+	)
+	(img spikeshroom_1
+		(tex atlas_3.png)
+		(src 549,116,728,239)
+	)
+	(img trampoline
+		(tex atlas_3.png)
+		(src 549,5,843,114)
+	)
+
+
+
+
+
+	(img element_1
+		(tex atlas_4.png)
+		(src 0,483,512,923)
+	)
+	(img element_2
+		(tex atlas_4.png)
+		(src 0,1351,512,1753)
+	)
+	(img element_3
+		(tex atlas_4.png)
+		(src 0,926,512,1348)
+	)
+	(img element_4
+		(tex atlas_4.png)
+		(src 0,0,512,480)
+	)
+
+)
