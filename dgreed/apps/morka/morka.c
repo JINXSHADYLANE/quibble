@@ -18,6 +18,7 @@
 #include "tutorial_pause.h"
 
 #include "mchains.h"
+#include "devmode.h"
 #include "common.h"
 
 bool button_click = false;	// prevents buttons from being clicked multiple times during transition.
@@ -52,6 +53,8 @@ bool dgreed_init(int argc, const char** argv) {
 	
 	anim_init(ASSETS_DIR "animations.mml");
 
+	devmode_init();
+
 	malka_init();
 	malka_params(argc, argv);
 
@@ -85,6 +88,8 @@ void dgreed_close(void) {
 
 	malka_close();
 
+	devmode_close();
+
 	anim_close();
 	mfx_close();
 	particles_close();
@@ -106,6 +111,7 @@ bool dgreed_update(void) {
 }
 
 bool dgreed_render(void) {
+	devmode_render();
 	particles_draw();
 	return malka_states_step();
 }

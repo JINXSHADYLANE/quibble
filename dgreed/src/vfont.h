@@ -66,7 +66,7 @@ typedef struct {
 } FreeRect;
 
 #define _key(str) \
-    Font* font = darray_get(&fonts, vfont_selected_font); \
+    Font* font = darray_get(&vfont_fonts, vfont_selected_font); \
     size_t text_len = strlen(str); \
     size_t font_len = strlen(font->name); \
     char* key = alloca(text_len + font_len + 16); \

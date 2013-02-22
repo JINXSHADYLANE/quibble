@@ -176,7 +176,7 @@ FontHandle font_load_exp(const char* filename, float scale, const char* prefix) 
 	}
 
 	if(needs_sort)
-		qsort(chr, n, sizeof(Char), _cmp_char);
+		sort_heapsort(chr, n, sizeof(Char), _cmp_char);
 
 	// If space glyph has 0 x_advance, use 'a' glyph x_advance
 	Char* space = _get_char(&fonts[result], ' ');

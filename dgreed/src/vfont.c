@@ -22,7 +22,7 @@ extern void _vfont_close(void);
 extern RectF _vfont_bbox(const char* string);
 extern void _vfont_render_text(const char* string, CachePage* page, RectF* dest);
 
-extern DArray fonts;
+extern DArray vfont_fonts;
 
 static CachePage* _alloc_page(RectF* r) {
     assert(r->left == 0.0f && r->top == 0.0f);
@@ -183,7 +183,7 @@ static const CachedText* _precache(const char* string, const char* key, bool inp
     _vfont_render_text(string, page, &bbox);
     
     // Fill text cache entry
-    Font* font = darray_get(&fonts, vfont_selected_font);
+    Font* font = darray_get(&vfont_fonts, vfont_selected_font);
 
 	CachedText* hnew = mempool_alloc(&cached_text_pool);
 	strcpy(hnew->text, string);

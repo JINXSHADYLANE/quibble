@@ -14,26 +14,26 @@
 #define STBTT_free(x,u) MEM_FREE(x)
 #include "stb_truetype.h"
 
-DArray fonts;
+DArray vfont_fonts;
 bool vfont_retina = false;
 uint vfont_selected_font;
 
 void _vfont_init(void) {
-	fonts = darray_create(sizeof(Font), 0);
+	vfont_fonts = darray_create(sizeof(Font), 0);
 }
 
 void _vfont_close(void) {
-	// Free fonts
-	for(uint i = 0; i < fonts.size; ++i) {
-		Font* font = darray_get(&fonts, i);
+	// Free vfont_fonts
+	for(uint i = 0; i < vfont_fonts.size; ++i) {
+		Font* font = darray_get(&vfont_fonts, i);
 		MEM_FREE(font->font.data);
 		MEM_FREE(font->name);
 	}
-	darray_free(&fonts);
+	darray_free(&vfont_fonts);
 }
 
 RectF _vfont_bbox(const char* string) {
-    Font* font = darray_get(&fonts, vfont_selected_font);
+    Font* font = darray_get(&vfont_fonts, vfont_selected_font);
 
 	float xpos = 0.0f;
 
@@ -68,7 +68,7 @@ RectF _vfont_bbox(const char* string) {
 }
 
 void _vfont_render_text(const char* string, CachePage* page, RectF* dest) {
-    Font* font = darray_get(&fonts, vfont_selected_font);
+    Font* font = darray_get(&vfont_fonts, vfont_selected_font);
 
     uint x = (uint)dest->left;
     uint y = (uint)dest->top;
@@ -150,8 +150,8 @@ void vfont_select(const char* font_name, float size) {
     assert(font_name && size);
 
     // Look for existing font
-    Font* f = DARRAY_DATA_PTR(fonts, Font);
-    for(uint i = 0; i < fonts.size; ++i) {
+    Font* f = DARRAY_DATA_PTR(vfont_fonts, Font);
+    for(uint i = 0; i < vfont_fonts.size; ++i) {
         if(size == f[i].size && strcmp(font_name, f[i].name) == 0) {
             vfont_selected_font = i;
             return;
@@ -175,7 +175,7 @@ void vfont_select(const char* font_name, float size) {
 
 	new.scale = stbtt_ScaleForPixelHeight(&new.font, STBTT_iceil(size * 1.1f));
 
-    darray_append(&fonts, &new);
-    vfont_selected_font = fonts.size - 1;
+    darray_append(&vfont_fonts, &new);
+    vfont_selected_font = vfont_fonts.size - 1;
 }
 
