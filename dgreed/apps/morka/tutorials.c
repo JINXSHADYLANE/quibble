@@ -14,10 +14,22 @@ TutorialStep level1_steps[] = {
 	 {50.0f, 50.0f},		// finger touch animation (negative values to hide)
 	 true,					// pause game on event
 	 true,					// force jump/dive after event
+	 false,					// disable input from player
 	 MUSHROOM_IN_FRONT,		// event show trigger
 	 COMBO_X3				// event dismiss trigger or (NONE, FINAL_STEP)
 	},
 	*/
+
+	{NULL,
+	 NULL,
+	 NULL,
+	 {-1.0f, -1.0f},
+	 false,
+	 false,
+	 true,
+	 AUTO,
+	 AUTO
+	},
 
 	{"Touch to jump",
 	 NULL,
@@ -25,8 +37,9 @@ TutorialStep level1_steps[] = {
 	 {WIDTH/2.0f, 600.0f},
 	 true,
 	 true,
+	 true,
 	 MUSHROOM_IN_FRONT,
-	 NONE
+	 AUTO
 	},
 
 	{"Touch and hold to plunge down",
@@ -35,14 +48,16 @@ TutorialStep level1_steps[] = {
 	 {WIDTH/2.0f, 600.0f},
 	 true,
 	 true,
+	 false,
 	 MUSHROOM_BELOW,
-	 NONE
+	 AUTO
 	},
 
 	{"Now do a triple bounce",
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
+	 false,
 	 false,
 	 false,
 	 BOUNCE_PERFORMED,
@@ -53,6 +68,7 @@ TutorialStep level1_steps[] = {
 	 NULL,
 	 "game_over",
 	 {-1.0f, -1.0f},
+	 false,
 	 false,
 	 false,
 	 COMBO_X3,
@@ -78,6 +94,9 @@ static bool tutorial_active = false;	// is a tutorial step active and being disp
 static bool tutorial_unpaused = false;	// should the current step be displayed when game is unpaused
 
 static ObjRabbit* rabbit = NULL;
+
+static bool step_active = true;
+static bool step_done = false;
 
 void tutorials_reset(ObjRabbit* r){
 	rabbit = r;
@@ -113,8 +132,8 @@ void tutorials_set_level(const char* level){
 
 void tutorial_event(EventType e){
 	if(current_step != NULL){
-
-		if(e == current_step->show_on){
+		if(e == current_step->show_on && !tutorial_active){
+			rabbit->data->input_disabled = current_step->disable_input;
 
 			if(current_step->pause_game){
 				tutorial_unpaused = false;
@@ -128,9 +147,13 @@ void tutorial_event(EventType e){
 
 			tutorial_active = true;
 
-		} else if(e == current_step->dismiss_on){
+		}
+		if(e == current_step->dismiss_on && step_done){
+			step_done = false;
+
 			current_step = &current_scenario->steps[++step_i];
 			tutorial_active = false;
+
 			// if the event dismissed this step, it might start the next one too
 			tutorial_event(e);
 		}
@@ -231,11 +254,14 @@ bool tutorials_render(float t){
 
 				game_unpause();
 				malka_states_pop();
+				step_done = false;
 				if(current_step->dismiss_on != FINAL_STEP)
 					current_step = &current_scenario->steps[++step_i];
 				tutorial_active = false;
 			}	
 		}
+
+		if(tutorial_unpaused) step_done = true;
 
 		if(current_step->state != NULL){
 			game_end();
@@ -244,9 +270,7 @@ bool tutorials_render(float t){
 			tutorial_active = false;
 			tutorial_unpaused = false;
 		} 
-
 	}
-
 	return true;
 }
 

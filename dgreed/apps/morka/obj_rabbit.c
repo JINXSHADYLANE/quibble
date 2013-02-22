@@ -24,9 +24,11 @@ void obj_rabbit_player_control(GameObject* self){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
 
-	d->virtual_key_up = key_up(KEY_A);
-	d->virtual_key_down = key_down(KEY_A);
-	d->virtual_key_pressed = key_pressed(KEY_A);
+	if(!d->input_disabled){
+		d->virtual_key_up = key_up(KEY_A);
+		d->virtual_key_down = key_down(KEY_A);
+		d->virtual_key_pressed = key_pressed(KEY_A);
+	}
 
 	if(tutorials_are_enabled()){
 
@@ -773,6 +775,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->has_trampoline = false;
 	d->force_jump = false;
 	d->force_dive = false;
+	d->input_disabled = false;
 
 	d->last_frame = 0;
 
