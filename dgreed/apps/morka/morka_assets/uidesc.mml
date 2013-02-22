@@ -22,7 +22,7 @@
 	(def token_text
 		(add <-
 			(tl <- (get_rect screen))
-			(vec2 100,18)
+			(vec2 100,30)
 		)
 	)
 
@@ -96,14 +96,14 @@
 		(def result_text
 			(add <-
 				(get_vec2 text)
-				(vec2 -200,120)
+				(vec2 -225,120)
 			)
 		)
 
 		(def result_time
 			(add <-
 				(get_vec2 text)
-				(vec2 100,120)
+				(vec2 70,120)
 			)
 		)
 
