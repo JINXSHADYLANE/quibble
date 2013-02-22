@@ -194,7 +194,7 @@ void hud_render_game_over_tut(float t) {
 	}
 	vfont_draw(str, layer, vec2_sub(complete->vec2, half_size), col);
 
-	if(!levels_is_final()){
+//	if(!levels_is_final()){
 		// Next Button
 		spr_draw_cntr_h(button_next->spr, layer, button_next->vec2, 0.0f, 1.0f, col);	
 		if(touches_down() && t == 0.0f) {
@@ -205,10 +205,7 @@ void hud_render_game_over_tut(float t) {
 				malka_states_pop();
 			}
 		}
-	} else {
-		button_restart->vec2.x = WIDTH/2.0f + 100.0f;
-		button_quit->vec2.x = WIDTH/2.0f - 100.0f;
-	}
+//	}
 
 	// Restart Button
 	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
@@ -284,7 +281,7 @@ void hud_render_game_over_scores(float t) {
 		vfont_draw(result_str, layer,vec2_add(result_text->vec2,vec2(0.0f,i*60.0f)), c);
 	}	
 
-	if(!levels_is_final()){
+	//if(!levels_is_final()){
 		// Next Button
 		spr_draw_cntr_h(button_next->spr, layer, button_next->vec2, 0.0f, 1.0f, col);	
 		if(touches_down() && t == 0.0f) {
@@ -295,10 +292,7 @@ void hud_render_game_over_scores(float t) {
 				malka_states_pop();
 			}
 		}
-	} else {
-		button_restart->vec2.x = WIDTH/2.0f + 100.0f;
-		button_quit->vec2.x = WIDTH/2.0f - 100.0f;
-	}
+	//}
 
 	// Restart Button
 	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
