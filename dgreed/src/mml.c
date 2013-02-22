@@ -629,14 +629,17 @@ bool mml_tokenize(MMLObject* mml, const char* string, DArray* tokens) {
 
 	if(in_literal) {
 		sprintf(mml->last_error, "TOKENIZER: Unexpected literal in the end");
+		LOG_WARNING(mml->last_error);
 		return false;
 	}
 	if(in_qliteral) {
 		sprintf(mml->last_error, "TOKENIZER: Open qouted literal in the end");
+		LOG_WARNING(mml->last_error);
 		return false;
 	}	
 	if(in_comment) {
 		sprintf(mml->last_error, "TOKENIZER: No newline after last comment");
+		LOG_WARNING(mml->last_error);
 		return false;
 	}	
 
@@ -650,18 +653,21 @@ bool _parse(MMLObject* mml, MMLToken* tokens, uint start, uint end,
 
 	if(size < 4) {
 		sprintf(mml->last_error, "PARSER: Node must contain at least 4 tokens");
+		LOG_WARNING(mml->last_error);
 		return false;
 	}	
 	if(tokens[start].type != TOK_BRACE_OPEN || 
 		tokens[end-1].type != TOK_BRACE_CLOSE) {
 		sprintf(mml->last_error, 
 			"PARSER: Node must begin and end with proper braces");
+		LOG_WARNING(mml->last_error);
 		return false;
 	}	
 	if(tokens[start+1].type != TOK_LITERAL || 
 		tokens[start+2].type != TOK_LITERAL) {
 		sprintf(mml->last_error,
 			"PARSER: Node must have name and value");
+		LOG_WARNING(mml->last_error);
 		return false;
 	}	
 
@@ -694,10 +700,12 @@ bool _parse(MMLObject* mml, MMLToken* tokens, uint start, uint end,
 	for(i = start+3; i < end-1; ++i) {
 		if(tokens[i].type == TOK_LITERAL) {
 			sprintf(mml->last_error, "PARSER: Unexpected literal");
+			LOG_WARNING(mml->last_error);
 			return false;
 		}
 		if(tokens[i].type == TOK_BRACE_CLOSE) {
 			sprintf(mml->last_error, "PARSER: Unexpected closing brace");
+			LOG_WARNING(mml->last_error);
 			return false;
 		}	
 
@@ -711,6 +719,7 @@ bool _parse(MMLObject* mml, MMLToken* tokens, uint start, uint end,
 				depth--;
 			if(j >= end-1) {
 				sprintf(mml->last_error, "PARSER: Misplaced brace");
+				LOG_WARNING(mml->last_error);
 				return false;
 			}	
 		}	

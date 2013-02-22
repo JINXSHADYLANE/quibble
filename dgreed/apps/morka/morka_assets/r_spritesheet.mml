@@ -1,5 +1,6 @@
 (sprsheet morka
 	(prefix "morka_assets/")
+	(scale 0.5)
 
 	(img background
 		(tex r_atlas_1.png)
@@ -176,59 +177,59 @@
 	)
 
 
-	(img bg bg_mushroom_2
+	(img bg_mushroom_2
 		(tex r_atlas_3.png)
 		(src 2,1450,485,2035)
 	)
-	(img bg bg_mushroom_3
+	(img bg_mushroom_3
 		(tex r_atlas_3.png)
 		(src 2,2,680,800)
 	)
-	(img bg bg_mushroom_5
+	(img bg_mushroom_5
 		(tex r_atlas_3.png)
 		(src 2,802,407,1448)
 	)
-	(img bg bg_mushroom_6
+	(img bg_mushroom_6
 		(tex r_atlas_3.png)
 		(src 409,802,717,1334)
 	)
-	(img bg grass3_sign
+	(img grass3_sign
 		(tex r_atlas_3.png)
 		(src 488,1336,998,1811)
 	)
-	(img bg next
+	(img next
 		(tex r_atlas_3.png)
 		(src 719,598,969,850)
 	)
-	(img bg trampoline
+	(img trampoline
 		(tex r_atlas_3.png)
 		(src 487,1814,1075,2032)
 	)
-	(img fg mushroom_1
+	(img mushroom_1
 		(tex r_atlas_3.png)
 		(src 682,301,938,596)
 	)
-	(img fg mushroom_2
+	(img mushroom_2
 		(tex r_atlas_3.png)
 		(src 682,2,883,299)
 	)
-	(img fg mushroom_3
+	(img mushroom_3
 		(tex r_atlas_3.png)
 		(src 719,1098,867,1315)
 	)
-	(img fg mushroom_4
+	(img mushroom_4
 		(tex r_atlas_3.png)
 		(src 940,273,1181,519)
 	)
-	(img fg mushroom_5
+	(img mushroom_5
 		(tex r_atlas_3.png)
 		(src 885,2,1182,271)
 	)
-	(img fg mushroom_6
+	(img mushroom_6
 		(tex r_atlas_3.png)
 		(src 971,521,1241,758)
 	)
-	(img fg spikeshroom_1
+	(img spikeshroom_1
 		(tex r_atlas_3.png)
 		(src 719,852,1077,1096)
 	)
@@ -250,6 +251,5 @@
 		(tex r_atlas_4.png)
 		(src 0,0,1024,958)
 	)
-
-		
 )
+

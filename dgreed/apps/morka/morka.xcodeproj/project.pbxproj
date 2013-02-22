@@ -148,6 +148,7 @@
 		219BEB2A16776FB4002B614C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BEB2916776FB4002B614C /* SystemConfiguration.framework */; };
 		21A6F7EC16D764C7004A22D9 /* memlin.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7EA16D764C7004A22D9 /* memlin.c */; };
 		21A6F7EE16D76B03004A22D9 /* vfont_stbtt.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7ED16D76B03004A22D9 /* vfont_stbtt.c */; };
+		21A6F7F216D7D860004A22D9 /* devmode.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7F016D7D860004A22D9 /* devmode.c */; };
 		21D53BA6167A23F0009E6CFC /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA4167A23F0009E6CFC /* vfont.c */; };
 		21DAACE51681CB55002464CD /* obj_pin.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DAACE41681CB55002464CD /* obj_pin.c */; };
 		21ED799A16A54CBB002CA25B /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 21ED799916A54CBB002CA25B /* sys_gfx_ios.m */; };
@@ -407,6 +408,9 @@
 		21A6F7EA16D764C7004A22D9 /* memlin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = memlin.c; path = ../../src/memlin.c; sourceTree = "<group>"; };
 		21A6F7EB16D764C7004A22D9 /* memlin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memlin.h; path = ../../src/memlin.h; sourceTree = "<group>"; };
 		21A6F7ED16D76B03004A22D9 /* vfont_stbtt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont_stbtt.c; path = ../../src/vfont_stbtt.c; sourceTree = "<group>"; };
+		21A6F7EF16D7D860004A22D9 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = SOURCE_ROOT; };
+		21A6F7F016D7D860004A22D9 /* devmode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = devmode.c; sourceTree = SOURCE_ROOT; };
+		21A6F7F116D7D860004A22D9 /* devmode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devmode.h; sourceTree = SOURCE_ROOT; };
 		21D53BA4167A23F0009E6CFC /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../src/vfont.c; sourceTree = "<group>"; };
 		21DAACE41681CB55002464CD /* obj_pin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_pin.c; sourceTree = SOURCE_ROOT; };
 		21ED799916A54CBB002CA25B /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
@@ -520,7 +524,10 @@
 		219BE99D16776981002B614C /* morka */ = {
 			isa = PBXGroup;
 			children = (
+				21A6F7EF16D7D860004A22D9 /* common.h */,
 				219BEAE616776B3A002B614C /* morka.c */,
+				21A6F7F016D7D860004A22D9 /* devmode.c */,
+				21A6F7F116D7D860004A22D9 /* devmode.h */,
 				219BEAE016776B3A002B614C /* game.c */,
 				219BEAE116776B3A002B614C /* game.h */,
 				AA0E3F1016BFDFA200A47FFB /* levels.c */,
@@ -1018,6 +1025,7 @@
 				21A6F7EC16D764C7004A22D9 /* memlin.c in Sources */,
 				21A6F7EE16D76B03004A22D9 /* vfont_stbtt.c in Sources */,
 				AA64162016D7B7E70066AEA8 /* obj_floater.c in Sources */,
+				21A6F7F216D7D860004A22D9 /* devmode.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

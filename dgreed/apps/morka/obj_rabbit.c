@@ -723,12 +723,10 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	physics->cd_obj->pos.y = 579.0f;
 
 	// Init render
-	TexHandle h;
-	RectF src;
-	sprsheet_get_anim("rabbit", 0, &h, &src);
+	Vector2 size = sprsheet_get_size("rabbit");
 	RenderComponent* render = self->render;
-	float half_w = rectf_width(&src) / 2.0f;
-	float half_h = rectf_height(&src) / 2.0f;
+	float half_w = size.x / 2.0f;
+	float half_h = size.y / 2.0f;
 	render->world_dest = rectf(
 		pos.x - half_w, pos.y - half_h,
 		pos.x + half_w, pos.y + half_h 

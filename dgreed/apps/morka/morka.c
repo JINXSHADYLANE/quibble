@@ -42,7 +42,22 @@ bool dgreed_init(int argc, const char** argv) {
     uint n_width, n_height;
     video_get_native_resolution(&n_width, &n_height);
 
-	video_init_ex(WIDTH, HEIGHT, v_width, v_height, "morka", false);
+	if(params_find("-retina") != ~0 || (n_width == 2048 && n_height == 1536)) {
+		sprsheet = ASSETS_DIR "r_spritesheet.mml";
+		n_width = 2048;
+		n_height = 1536;
+	}
+	else {
+		n_width = 1024;
+		n_height = 768;
+	}
+
+	if(params_find("-s") != ~0) {
+		n_width /= 2;
+		n_height /= 2;
+	}
+
+	video_init_ex(n_width, n_height, v_width, v_height, "morka", false);
 	sound_init();
 
 	keyval_init("morka.db");

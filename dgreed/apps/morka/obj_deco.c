@@ -4,15 +4,11 @@
 static void obj_deco_construct(GameObject* self, Vector2 pos, void* user_data) {
 	SprHandle spr_handle = (SprHandle)user_data;
 
-	TexHandle tex;
-	RectF src;
-	sprsheet_get_h(spr_handle, &tex, &src);
-	float width = rectf_width(&src);
-	float height = rectf_height(&src);
+	Vector2 size = sprsheet_get_size_h(spr_handle);
 
 	RectF dest = {
-		pos.x, pos.y - height,
-		pos.x + width, pos.y
+		pos.x, pos.y - size.y,
+		pos.x + size.x, pos.y
 	};
 
 	// Render
