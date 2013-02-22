@@ -32,6 +32,10 @@ static DArray physics;
 static DArray render;
 static DArray update;
 
+DArray* physics_components = &physics;
+DArray* render_components = &render;
+DArray* update_components = &update;
+
 // Ptrs to objects to remove and to add
 static DArray to_remove;
 static DArray to_add;

@@ -143,17 +143,6 @@ static void _move_camera(float new_pos_x, float follow_weight) {
 }
 
 bool game_update(void) {
-#ifndef NO_DEVMODE
-	if(char_down('g'))
-		draw_gfx_debug = !draw_gfx_debug;
-	if(char_down('p'))
-		draw_physics_debug = !draw_physics_debug;
-	if(char_down('l'))
-		draw_ground_debug = !draw_ground_debug;
-	if(char_down('a'))
-		draw_ai_debug = !draw_ai_debug;
-#endif
-
 	if(game_is_paused())
 		return true;
 
