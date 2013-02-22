@@ -17,6 +17,7 @@ typedef enum{
 } EventType;
 
 typedef struct {
+	float delay;
 	const char* text;
 	const char* img;
 	const char* state;

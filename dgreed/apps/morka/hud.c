@@ -12,7 +12,7 @@ extern void game_pause(void);
 extern void game_unpause(void);
 extern bool game_is_paused(void);
 
-extern uint longest_combo;
+//extern uint longest_combo;
 extern ObjRabbit* rabbit;
 
 static uint last_combo = 0;
@@ -56,7 +56,30 @@ static void _hud_render_combo(UIElement* element, uint layer, uint mult, float t
 	float a = MAX(0.0f, sinf((t*1.4f - 0.2f) * PI));
 
 	char text[64];
-	sprintf(text, "Combo x%u", mult);
+	sprintf(text, "%ux Combo", mult);
+	Vector2 half_size = vec2_scale(vfont_size(text), 0.5f);
+
+	Vector2 pos = vec2_sub(element->vec2, half_size);
+	pos.x -= x * 200.0f;
+	vfont_draw(text, layer, pos, COLOR_FTRANSP(a));
+}
+
+static void _hud_render_combo_big(UIElement* element, uint layer, uint mult, float t) {
+	vfont_select(FONT_NAME, 120.0f);
+
+	// Combine two smootherstep functions into a new one,
+	// where x stays constant for a while near t = 0.5
+	float x;
+	if(t < 0.5f)
+		x = smootherstep(-1.0f, 0.0f, t * 2.0f);
+	else
+		x = smootherstep(0.0f, 1.0f, (t - 0.5f) * 2.0f);
+
+	// Classic sine there-and-back-again for alpha
+	float a = MAX(0.0f, sinf((t*1.4f - 0.2f) * PI));
+
+	char text[64];
+	sprintf(text, "%ux", mult);
 	Vector2 half_size = vec2_scale(vfont_size(text), 0.5f);
 
 	Vector2 pos = vec2_sub(element->vec2, half_size);
@@ -75,7 +98,7 @@ void hud_close(void) {
 void hud_trigger_combo(uint multiplier) {
 	last_combo = current_combo;
 	current_combo = multiplier;
-	longest_combo = MAX(longest_combo, current_combo);
+	//longest_combo = MAX(longest_combo, current_combo);
 	combo_flip_t = time_s();
 }
 
@@ -131,19 +154,41 @@ void hud_render(float t) {
 		}
 	}
 
-	UIElement* combo_text = uidesc_get("combo_text");
-	float ts = time_s();
-	float ct = (ts - combo_flip_t) / 0.4f;
-	if(ct < 1.0f) {
-		if(current_combo)
-			_hud_render_combo(combo_text, hud_layer+1, current_combo, ct * 0.5f);
-		if(last_combo)
-			_hud_render_combo(combo_text, hud_layer+1, last_combo, 0.5f + ct * 0.5f);
+	// TODO: cleanup code
+	if(strcmp(levels_current_desc()->name, "level1") == 0){
+		// Big text tutorial version of combo rendering
+		UIElement* combo_text = uidesc_get("combo_text");
+		float ts = time_s();
+		float ct = (ts - combo_flip_t) / 0.4f;
+		if(ct < 1.0f) {
+			if(current_combo)
+				_hud_render_combo_big(combo_text, hud_layer+1, current_combo, ct * 0.5f);
+			if(last_combo)
+				_hud_render_combo_big(combo_text, hud_layer+1, last_combo, 0.5f + ct * 0.5f);
+		}
+		else {
+			if(current_combo)
+				_hud_render_combo_big(combo_text, hud_layer+1, current_combo, 0.5f);
+		}		
+	} else {
+		// Regular combo rendering
+		UIElement* combo_text = uidesc_get("combo_text");
+		float ts = time_s();
+		float ct = (ts - combo_flip_t) / 0.4f;
+		if(ct < 1.0f) {
+			if(current_combo >=3)
+				_hud_render_combo(combo_text, hud_layer+1, current_combo, ct * 0.5f);
+			if(last_combo >= 3)
+				_hud_render_combo(combo_text, hud_layer+1, last_combo, 0.5f + ct * 0.5f);
+		}
+		else {
+			if(current_combo >=3)
+				_hud_render_combo(combo_text, hud_layer+1, current_combo, 0.5f);
+		}			
 	}
-	else {
-		if(current_combo)
-			_hud_render_combo(combo_text, hud_layer+1, current_combo, 0.5f);
-	}
+
+
+
 
 	// Minimap
 	if(minimap_get_count() > 1) minimap_draw();
