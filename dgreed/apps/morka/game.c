@@ -216,7 +216,7 @@ bool game_render(float t) {
 	if(draw_ground_debug) worldgen_debug_render();
 
 	if(tutorials_are_enabled() && !game_paused) tutorial_event(AUTO);
-	if(tutorials_are_enabled() && tutorials_show_unpaused()) tutorials_render(0);
+	if(tutorials_are_enabled() && !tutorials_show_paused()) tutorials_render(0);
 	
 	return true;
 }
