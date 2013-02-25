@@ -41,6 +41,8 @@ void obj_rabbit_player_control(GameObject* self){
 		Vector2 end;
 		GameObject* obj;
 
+		tutorials_hint_press(false);
+
 		if(d->touching_ground){
 			// raycast for shroom in front
 			start = vec2(pos.x+p->vel.x * 0.6f,pos.y - 100.0f);
@@ -84,6 +86,7 @@ void obj_rabbit_player_control(GameObject* self){
 			if(obj){
 				if(obj->type == OBJ_MUSHROOM_TYPE){
 					tutorial_event(MUSHROOM_BELOW);
+					tutorials_hint_press(true);
 				}
 			}
 

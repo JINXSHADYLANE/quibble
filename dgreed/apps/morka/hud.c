@@ -148,9 +148,12 @@ void hud_render(float t) {
 	_hud_render_ui(pause, hud_layer);
 	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, pause->vec2)) < 40.0f * 40.0f) {
-			game_pause();
-			malka_states_push("pause");
+		if(t){
+			float r_sqr = 40.0f * 40.0f;
+			if(vec2_length_sq(vec2_sub(t[0].hit_pos, pause->vec2)) < r_sqr) {
+				game_pause();
+				malka_states_push("pause");
+			}
 		}
 	}
 
@@ -222,9 +225,12 @@ void hud_render_game_over_out(float t) {
 	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
 	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < 40.0f * 40.0f) {
-			game_request_reset();
-			malka_states_pop();
+		if(t){
+			float r_sqr = 40.0f * 40.0f;		
+			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < r_sqr) {
+				game_request_reset();
+				malka_states_pop();
+			}
 		}
 	}
 
@@ -232,9 +238,12 @@ void hud_render_game_over_out(float t) {
 	spr_draw_cntr_h(button_quit->spr, layer, button_quit->vec2, 0.0f, 1.0f, col);	
 	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < 40.0f * 40.0f) {
-			malka_states_pop();
-			malka_states_pop();
+		if(t){
+			float r_sqr = 40.0f * 40.0f;
+			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < r_sqr) {
+				malka_states_pop();
+				malka_states_pop();
+			}
 		}
 	}	
 
@@ -270,10 +279,13 @@ void hud_render_game_over_tut(float t) {
 		spr_draw_cntr_h(button_next->spr, layer, button_next->vec2, 0.0f, 1.0f, col);	
 		if(touches_down() && t == 0.0f) {
 			Touch* t = touches_get();
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_next->vec2)) < 40.0f * 40.0f) {
-				levels_set_next();
-				game_request_reset();
-				malka_states_pop();
+			if(t){
+				float r_sqr = 40.0f * 40.0f;
+				if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_next->vec2)) < r_sqr) {
+					levels_set_next();
+					game_request_reset();
+					malka_states_pop();
+				}
 			}
 		}
 //	}
@@ -282,9 +294,12 @@ void hud_render_game_over_tut(float t) {
 	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
 	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < 40.0f * 40.0f) {
-			game_request_reset();
-			malka_states_pop();
+		if(t){
+			float r_sqr = 40.0f * 40.0f;		
+			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < r_sqr) {
+				game_request_reset();
+				malka_states_pop();
+			}
 		}
 	}
 
@@ -292,9 +307,12 @@ void hud_render_game_over_tut(float t) {
 	spr_draw_cntr_h(button_quit->spr, layer, button_quit->vec2, 0.0f, 1.0f, col);	
 	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < 40.0f * 40.0f) {
-			malka_states_pop();
-			malka_states_pop();
+		if(t){
+			float r_sqr = 40.0f * 40.0f;
+			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < r_sqr) {
+				malka_states_pop();
+				malka_states_pop();
+			}
 		}
 	}
 
@@ -357,11 +375,14 @@ void hud_render_game_over_scores(float t) {
 		spr_draw_cntr_h(button_next->spr, layer, button_next->vec2, 0.0f, 1.0f, col);	
 		if(touches_down() && t == 0.0f) {
 			Touch* t = touches_get();
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_next->vec2)) < 40.0f * 40.0f) {
-				levels_set_next();
-				game_request_reset();
-				malka_states_pop();
-			}
+			if(t){
+				float r_sqr = 40.0f * 40.0f;
+				if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_next->vec2)) < r_sqr) {
+					levels_set_next();
+					game_request_reset();
+					malka_states_pop();
+				}
+			}	
 		}
 	//}
 
@@ -369,9 +390,12 @@ void hud_render_game_over_scores(float t) {
 	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
 	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < 40.0f * 40.0f) {
-			game_request_reset();
-			malka_states_pop();
+		if(t){
+			float r_sqr = 40.0f * 40.0f;
+			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < r_sqr) {
+				game_request_reset();
+				malka_states_pop();
+			}
 		}
 	}
 
@@ -379,9 +403,12 @@ void hud_render_game_over_scores(float t) {
 	spr_draw_cntr_h(button_quit->spr, layer, button_quit->vec2, 0.0f, 1.0f, col);	
 	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < 40.0f * 40.0f) {
-			malka_states_pop();
-			malka_states_pop();
+		if(t){
+			float r_sqr = 40.0f * 40.0f;
+			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < r_sqr) {
+				malka_states_pop();
+				malka_states_pop();
+			}
 		}
 	}	
 

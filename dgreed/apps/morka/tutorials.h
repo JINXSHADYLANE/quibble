@@ -25,6 +25,7 @@ typedef struct {
 	bool pause_game;
 	bool force_input;
 	bool disable_input;
+	bool show_hint_press;
 
 	EventType show_on;
 	EventType dismiss_on;
@@ -45,7 +46,9 @@ bool tutorials_render(float t);
 void tutorials_enable(void);
 void tutorials_disable(void);
 bool tutorials_are_enabled(void);
-bool tutorials_show_unpaused(void);
+bool tutorials_show_paused(void);
+
+void tutorials_hint_press(bool p);
 
 
 #endif
