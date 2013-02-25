@@ -62,9 +62,14 @@ static bool level_select_render(float t) {
 
 		if(touches_down() && t == 0.0f) {
 			Touch* t = touches_get();
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos,
-			vec2_add(level->vec2,offset->vec2))) < 70.0f * 70.0f) {
 
+			if(!t)
+				continue;
+
+			Vector2 hit_pos = t[0].hit_pos;
+			Vector2 button_pos = vec2_add(level->vec2, offset->vec2);
+			float r_sqr = 70.0f * 70.0f;
+			if(vec2_length_sq(vec2_sub(hit_pos, button_pos)) < r_sqr) {
 				levels_reset(level_name);
 				game_request_reset();
 				malka_states_push("game");
