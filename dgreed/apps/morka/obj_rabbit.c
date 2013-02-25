@@ -38,15 +38,15 @@ void obj_rabbit_player_control(GameObject* self){
 		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 
 		Vector2 start;
-		Vector2 end;
-		GameObject* obj;
-
-		tutorials_hint_press(false);
+		//Vector2 end;
+		//GameObject* obj;
 
 		if(d->touching_ground){
-			// raycast for shroom in front
-			start = vec2(pos.x+p->vel.x * 0.6f,pos.y - 100.0f);
-			end = vec2(start.x,pos.y);
+			tutorials_hint_press(false);
+			// coldet for shroom in front
+			start = vec2(pos.x + 50.0f + p->vel.x * 0.6f,pos.y - 90.0f);
+			
+			/*end = vec2(start.x,pos.y - 50.0f);
 			obj = objects_raycast(start,end);
 
 			// debug render
@@ -56,22 +56,53 @@ void obj_rabbit_player_control(GameObject* self){
 				Vector2 s = vec2(r.left, r.top);
 				Vector2 e = vec2(r.right, r.bottom);
 				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
+			}*/
+
+			RectF rec = {
+				.left = start.x - 100.0f,
+				.top = 500.0f,
+				.right = start.x + rabbit_hitbox_width,
+				.bottom = 500.0f + rabbit_hitbox_height
+			};				
+
+			if(draw_ai_debug){
+				RectF r = objects_world2screen(rec,0);
+
+				Vector2 s = vec2(r.left, r.top);
+				Vector2 e = vec2(r.left, r.bottom);
+				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
+
+				s = vec2(r.right, r.top);
+				e = vec2(r.right, r.bottom);
+				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));		
+
+				s = vec2(r.left, r.top);
+				e = vec2(r.right, r.top);
+				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
+
+				s = vec2(r.left, r.bottom);
+				e = vec2(r.right, r.bottom);
+				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));															
 			}
+
+			GameObject* obj = NULL;
+			objects_aabb_query(&rec,&obj,1);
 
 			// tutorial event on mushroom in front
 			if(obj){
 				if(obj->type == OBJ_MUSHROOM_TYPE){
 					tutorial_event(MUSHROOM_IN_FRONT);
+					tutorials_hint_press(true);
 				}	
 			}
 
 		} else {
 
-			// raycast below rabbit for shrooms
-			start = vec2(pos.x + (p->vel.x * 0.23f) *(579.0f-pos.y)/579.0f,pos.y+rabbit_hitbox_height+30);
-			//start = vec2(pos.x + 100.0f +(( p->vel.x) * (p->vel.x/6000.0f)) *(579.0f-pos.y)/579.0f,pos.y+rabbit_hitbox_height+20);
-			end = vec2(start.x,768);
+			// coldet below rabbit for shrooms
+			start = vec2(pos.x + (p->vel.x * 0.3f) *(579.0f-pos.y)/579.0f,pos.y+rabbit_hitbox_height+30);
 
+			/*
+			end = vec2(start.x,768.0f);
 			if(draw_ai_debug){
 				RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
 				RectF r = objects_world2screen(rec,0);
@@ -79,14 +110,46 @@ void obj_rabbit_player_control(GameObject* self){
 				Vector2 e = vec2(r.right, r.bottom);
 				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
 			}
-
 			obj = objects_raycast(start,end);
+			*/
+
+			RectF rec = {
+				.left = start.x - 20.0f,
+				.top = 500.0f,
+				.right = start.x + rabbit_hitbox_width,
+				.bottom = 500.0f + rabbit_hitbox_height
+			};
+
+			if(draw_ai_debug){
+				RectF r = objects_world2screen(rec,0);
+
+				Vector2 s = vec2(r.left, r.top);
+				Vector2 e = vec2(r.left, r.bottom);
+				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
+
+				s = vec2(r.right, r.top);
+				e = vec2(r.right, r.bottom);
+				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));		
+
+				s = vec2(r.left, r.top);
+				e = vec2(r.right, r.top);
+				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
+
+				s = vec2(r.left, r.bottom);
+				e = vec2(r.right, r.bottom);
+				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));															
+			}
+
+			GameObject* obj = NULL;
+			objects_aabb_query(&rec,&obj,1);
 
 			// tutorial event when mushroom below rabbit
 			if(obj){
 				if(obj->type == OBJ_MUSHROOM_TYPE){
 					tutorial_event(MUSHROOM_BELOW);
 					tutorials_hint_press(true);
+				} else {
+					tutorials_hint_press(false);
 				}
 			}
 

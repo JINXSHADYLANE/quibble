@@ -242,8 +242,7 @@ bool tutorials_render(float t){
 				} else {
 					// finger animation loop
 					float td = time_s();
-					d = sinf(td*6);
-
+					d = sinf(td*6.0f);
 				}	
 			}
 
