@@ -59,7 +59,7 @@ void obj_rabbit_player_control(GameObject* self){
 			}*/
 
 			RectF rec = {
-				.left = start.x - 100.0f,
+				.left = start.x - 35.0f,
 				.top = 500.0f,
 				.right = start.x + rabbit_hitbox_width,
 				.bottom = 500.0f + rabbit_hitbox_height
