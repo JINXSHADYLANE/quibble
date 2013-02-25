@@ -492,13 +492,14 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				ObjTrampoline* trampoline = (ObjTrampoline*) objects_create(&obj_trampoline_desc, gap_pos, (void*)sprt);
 				trampoline->owner = self;
 
+				if(d->player_control){
+					sprt = sprsheet_get_handle("token_tag");
 
-				sprt = sprsheet_get_handle("token_tag");
-
-				// Create floating text
-				ObjFloater* floater = (ObjFloater*) objects_create(&obj_floater_desc, txt_pos, (void*)sprt);
-				sprintf(floater->text,"-10");
-				floater->a = 0.5f;
+					// Create floating text
+					ObjFloater* floater = (ObjFloater*) objects_create(&obj_floater_desc, txt_pos, (void*)sprt);
+					sprintf(floater->text,"-10");
+					floater->a = 0.5f;
+				}
 			}
 
 			if(ts - d->mushroom_hit_time < 0.1f) {
