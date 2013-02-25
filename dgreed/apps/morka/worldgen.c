@@ -21,6 +21,9 @@ static Vector2 gaps[5];
 static const int max_gaps = 5;
 static int gaps_i = 0;
 
+static int coins = 3;
+static int coins_cd = 2;
+
 static void _gen_bg_page(void) {
 	SprHandle spr;	
 	uint advance;
@@ -162,13 +165,14 @@ static void _gen_fg_page(void) {
 						printf("gaps_i > max_gaps !\n");
 					}
 				}
+				// Fall trigger
+				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
+
 				if(!tutorial_level){
 					// Tokens over gap
 					objects_create(&obj_token_desc, vec2(pos.x + prev_advance + advance/2.0f,400.0f), (void*)sprsheet_get_handle("token"));
 					objects_create(&obj_token_desc, vec2(pos.x - advance/2.5f + prev_advance + advance/2.0f,425.0f), (void*)sprsheet_get_handle("token"));
 					objects_create(&obj_token_desc, vec2(pos.x + advance/2.5f + prev_advance + advance/2.0f,425.0f), (void*)sprsheet_get_handle("token"));
-					// Fall trigger
-					objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
 				}
 			}
 		}
@@ -176,9 +180,6 @@ static void _gen_fg_page(void) {
 	}
 	if(previuos_gaps > 1) previuos_gaps = 1;
 	previuos_gaps = gaps_i - previuos_gaps;
-
-	static int coins = 3;
-	static int coins_cd = 2;
 
 	// Add foreground mushrooms
 	static float fg_x = page_width;
@@ -294,6 +295,8 @@ void worldgen_reset(uint seed, const LevelDesc* desc) {
 
 	_gen_bg_page();
 	_gen_fg_page();
+	coins = 3;
+	coins_cd = 2;	
 }
 
 void worldgen_close(void) {
