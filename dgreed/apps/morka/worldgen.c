@@ -6,6 +6,7 @@
 #include "obj_types.h"
 
 extern ObjRabbit* rabbit;
+extern bool tutorial_level;
 
 #define page_width 1024.0f
 static float fg_page_cursor = 0.0f;
@@ -119,9 +120,10 @@ static void _gen_fg_page(void) {
 					assert(gaps_i < max_gaps);
 				}
 				// Token over gap start/end
-				Vector2 size = sprsheet_get_size_h(spr);
-				objects_create(&obj_token_desc, vec2(pos.x + size.x/2.0f,479.0f), (void*)sprsheet_get_handle("token"));
-
+				if(!tutorial_level){
+					Vector2 size = sprsheet_get_size_h(spr);
+					objects_create(&obj_token_desc, vec2(pos.x + size.x/2.0f,479.0f), (void*)sprsheet_get_handle("token"));
+				}
 			} else {
 				if(sym == 'g') {
 					gap_possible = true;
@@ -160,12 +162,14 @@ static void _gen_fg_page(void) {
 						printf("gaps_i > max_gaps !\n");
 					}
 				}
-				// Tokens over gap
-				objects_create(&obj_token_desc, vec2(pos.x + prev_advance + advance/2.0f,400.0f), (void*)sprsheet_get_handle("token"));
-				objects_create(&obj_token_desc, vec2(pos.x - advance/2.5f + prev_advance + advance/2.0f,425.0f), (void*)sprsheet_get_handle("token"));
-				objects_create(&obj_token_desc, vec2(pos.x + advance/2.5f + prev_advance + advance/2.0f,425.0f), (void*)sprsheet_get_handle("token"));
-				// Fall trigger
-				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
+				if(!tutorial_level){
+					// Tokens over gap
+					objects_create(&obj_token_desc, vec2(pos.x + prev_advance + advance/2.0f,400.0f), (void*)sprsheet_get_handle("token"));
+					objects_create(&obj_token_desc, vec2(pos.x - advance/2.5f + prev_advance + advance/2.0f,425.0f), (void*)sprsheet_get_handle("token"));
+					objects_create(&obj_token_desc, vec2(pos.x + advance/2.5f + prev_advance + advance/2.0f,425.0f), (void*)sprsheet_get_handle("token"));
+					// Fall trigger
+					objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
+				}
 			}
 		}
 		ground_x += (float)advance;
@@ -224,8 +228,7 @@ static void _gen_fg_page(void) {
 				)place = false;
 			}	
 
-		} else {
-			if(coins > 0){
+		} else if (!tutorial_level && coins > 0){
 				coins_cd = 2;
 				bool c = true;
 				for(int i = 1; i <= gaps_i;i++){
@@ -239,7 +242,6 @@ static void _gen_fg_page(void) {
 					objects_create(&obj_token_desc, vec2(pos.x + advance / 2.0f, 579.0f), (void*)sprsheet_get_handle("token"));
 					coins--;				
 				}
-			}
 		}
 				
 		if(place) {
@@ -247,12 +249,14 @@ static void _gen_fg_page(void) {
 			else {
 				objects_create(&obj_mushroom_desc, pos, (void*)spr);
 				
-				// Placing tokens on big shrooms
-				Vector2 size = sprsheet_get_size_h(spr);
-				float width = size.x;
-				float height = size.y;
-				if(height > 270.0f)
-					objects_create(&obj_token_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f) ), (void*)sprsheet_get_handle("token"));
+				if(!tutorial_level){
+					// Placing tokens on big shrooms
+					Vector2 size = sprsheet_get_size_h(spr);
+					float width = size.x;
+					float height = size.y;
+					if(height > 270.0f)
+						objects_create(&obj_token_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f) ), (void*)sprsheet_get_handle("token"));
+				}
 			}	
 
 		}
