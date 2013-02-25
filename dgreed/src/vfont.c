@@ -104,6 +104,7 @@ static CachePage* _alloc_cache(RectF* r) {
             };
             darray_append(&free_rects, &new);
             page->occupied.bottom += h;
+			page->occupied.right = MAX(page->occupied.right, r->right);
             return page;
         }
     }

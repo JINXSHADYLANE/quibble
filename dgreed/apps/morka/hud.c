@@ -88,7 +88,7 @@ static void _hud_render_combo_big(UIElement* element, uint layer, uint mult, flo
 }
 
 void hud_init(void) {
-	vfont_init_ex(1024, 1024);
+	vfont_init_ex(1024, 512);
 }
 
 void hud_close(void) {
