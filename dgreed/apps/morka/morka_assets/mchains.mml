@@ -19,22 +19,13 @@
 		(def c (mushroom_3 150))
 		(def d (mushroom_4 150))
 		(def e (mushroom_5 150))
-		
 		(def f (mushroom_2 150))
 		
-		(def g (bg_mushroom_6 250))
-		(def h (bg_mushroom_5 400))
-		(def i (bg_mushroom_3 400))
-		(def j (bg_mushroom_2 400))
-
-		(def _ (.empty 250))
+		(def _ (.empty 500))
 
 		(init "__")
 
-		(learn "__a__b__a__b_")
-		(learn "_f_e_d__b_a__")
-		(learn "a_d_b_db__a_f")
-		(learn "e__d_b_")
+		(learn "__e_a_b_d_e_")
 	)
 	(ruleset level1_ground
 		(def c (grass1 0))
