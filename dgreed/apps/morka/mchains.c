@@ -44,7 +44,7 @@ static void _predict_size(MMLObject* mml, NodeIdx root) {
 				NodeIdx seq = mml_get_first_child(mml, child);
 				assert(strcmp(mml_get_name(mml, seq), "seq") == 0);
 				uint l = strlen(mml_getval_str(mml, seq));
-				n_seq_chars = l + 1;
+				n_seq_chars += l + 1;
 				rs_symbols++;
 			}
 		}
