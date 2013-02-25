@@ -12,8 +12,8 @@ extern void game_pause(void);
 extern void game_unpause(void);
 extern bool game_is_paused(void);
 
-//extern uint longest_combo;
 extern ObjRabbit* rabbit;
+extern bool tutorial_level;
 
 static uint last_combo = 0;
 static uint current_combo = 0;
@@ -98,51 +98,53 @@ void hud_close(void) {
 void hud_trigger_combo(uint multiplier) {
 	last_combo = current_combo;
 	current_combo = multiplier;
-	//longest_combo = MAX(longest_combo, current_combo);
 	combo_flip_t = time_s();
 }
 
 void hud_render(float t) {
-	static bool animation_reset = false;
+	if(!tutorial_level){
+		static bool animation_reset = false;
 
-	UIElement* token_icon = uidesc_get("token_icon");
-	spr_draw_cntr_h(token_icon->spr, hud_layer,token_icon->vec2, 0.0f, 1.0f, COLOR_WHITE);
+		UIElement* token_icon = uidesc_get("token_icon");
+		spr_draw_cntr_h(token_icon->spr, hud_layer,token_icon->vec2, 0.0f, 1.0f, COLOR_WHITE);
 
-	static float t0 = 0.0f;
-	static float t1 = 0.0f;
+		static float t0 = 0.0f;
+		static float t1 = 0.0f;
 
-	// Resque icon appearance animation
-	if(rabbit->data->tokens >= 10){
-		if(!animation_reset){
-			const float animation_length = 0.4f; // 1.0 - 1s
-			t0 = time_s();
-			t1 = t0 + animation_length;
-			animation_reset = true;
+		// Resque icon appearance animation
+		if(rabbit->data->tokens >= 10){
+			if(!animation_reset){
+				const float animation_length = 0.4f; // 1.0 - 1s
+				t0 = time_s();
+				t1 = t0 + animation_length;
+				animation_reset = true;
+			}
+
+			float ct = time_s();
+			float t = 0.0f;
+			float s = 1.0f;
+
+			if(ct > t0 && ct < t1){
+				t = (ct - t0) / (t1 - t0);
+				s = sin(t*3.0f)+1.0f;
+			}
+			UIElement* resque_icon = uidesc_get("resque_icon");
+			spr_draw_cntr_h(resque_icon->spr, hud_layer,resque_icon->vec2, ct, s, COLOR_WHITE);
+		} else {
+			animation_reset = false;
 		}
 
-		float ct = time_s();
-		float t = 0.0f;
-		float s = 1.0f;
-
-		if(ct > t0 && ct < t1){
-			t = (ct - t0) / (t1 - t0);
-			s = sin(t*3.0f)+1.0f;
+		UIElement* token_text = uidesc_get("token_text");
+		vfont_select(FONT_NAME, 38.0f);
+		char str[32];
+		sprintf(str, "%d",rabbit->data->tokens);
+		static Vector2 half_size = {0.0f, 0.0f};
+		if(half_size.x == 0.0f) {
+			half_size = vec2_scale(vfont_size(str), 0.5f);
 		}
-		UIElement* resque_icon = uidesc_get("resque_icon");
-		spr_draw_cntr_h(resque_icon->spr, hud_layer,resque_icon->vec2, ct, s, COLOR_WHITE);
-	} else {
-		animation_reset = false;
-	}
+		vfont_draw(str, hud_layer, token_text->vec2, COLOR_WHITE);
 
-	UIElement* token_text = uidesc_get("token_text");
-	vfont_select(FONT_NAME, 38.0f);
-	char str[32];
-	sprintf(str, "%d",rabbit->data->tokens);
-	static Vector2 half_size = {0.0f, 0.0f};
-	if(half_size.x == 0.0f) {
-		half_size = vec2_scale(vfont_size(str), 0.5f);
 	}
-	vfont_draw(str, hud_layer, token_text->vec2, COLOR_WHITE);
 
 	UIElement* pause = uidesc_get("hud_pause");
 	_hud_render_ui(pause, hud_layer);
@@ -158,7 +160,7 @@ void hud_render(float t) {
 	}
 
 	// TODO: cleanup code
-	if(strcmp(levels_current_desc()->name, "level1") == 0){
+	if(tutorial_level){
 		// Big text tutorial version of combo rendering
 		UIElement* combo_text = uidesc_get("combo_text");
 		float ts = time_s();

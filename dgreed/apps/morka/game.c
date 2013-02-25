@@ -29,6 +29,8 @@ static bool game_need_reset = true;
 static bool game_over = false;
 static bool game_paused = false;
 
+bool tutorial_level = true;
+
 static void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
@@ -66,6 +68,8 @@ static void game_reset(void) {
 	camera_follow = false;
 
 	hud_trigger_combo(0);
+
+	tutorial_level = !strcmp(levels_current_desc()->name, "level1");
 }
 
 static void game_init(void) {
