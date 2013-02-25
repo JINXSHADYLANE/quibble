@@ -5,10 +5,9 @@
 		(def c (element_3 512))
 		(def d (element_4 512))
 
-		(init "cd")
+		(init "ab")
 
-		(learn "cdabdcab")
-			
+		(learn "abcdab")
 	)
 
 	### LEVEL 1 ###
@@ -84,16 +83,12 @@
 		(def n (water4 0))
 		(def o (water_end1 0))
 		(def p (water_end2 0))
+		(sdef w (seq "cdefcdef"))
 
-		(def _ (.empty 100))
-		(def = (.empty 350))
-		(def - (.empty 200))
+		(init "ce")
 
-		(init "cd")
-
-		(learn "cdefijklmnopcd")
+		(learn "cewcdefijklmnopcd")
 		(learn "cdefijklmnklmnopcd")
-		(learn "efcd")
 	)
 
 	### LEVEL 3 ###
@@ -138,13 +133,11 @@
 		(def n (water4 0))
 		(def o (water_end1 0))
 		(def p (water_end2 0))
+		(sdef w (seq "cdefcdefcdef"))
 
-		(def _ (.empty 100))
-		(def = (.empty 350))
-		(def - (.empty 200))
-		(init "cd")
+		(init "ce")
 
-		(learn "cdef")
+		(learn "cewcdef")
 		(learn "efcd")
 		(learn "cdefijklmnopcd")
 		(learn "cdefijklmnklmnopcd")
