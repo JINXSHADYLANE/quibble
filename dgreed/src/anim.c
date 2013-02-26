@@ -142,6 +142,9 @@ static void _anim_load_desc(const char* desc) {
 		LOG_ERROR("Invalid anim desc %s", desc);
 
 	_predict_sizes(&mml, root);
+    
+    // Round str_blob_size so that we don't get unaligned memory accesses
+    str_blob_size = str_blob_size + (4 - str_blob_size % 4);
 
 	// Alloc all three buffers as a single piece of memory
 	size_t total_size = str_blob_size;
