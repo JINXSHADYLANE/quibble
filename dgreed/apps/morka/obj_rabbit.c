@@ -416,11 +416,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 	if(p->cd_obj->pos.y < 579.0f) d->touching_ground = false;
 
-	if(p->vel.y < -1700.0f){
-		game_pause();
-		malka_states_push("pause");
-	}
-
 	if(!d->game_over) d->rabbit_time += time_delta() / 1000.0f;
 	}
 }

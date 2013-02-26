@@ -180,7 +180,6 @@ extern GameObjectDesc obj_bg_particle_anchor_desc;
 
 typedef struct {
 	GameObject header;
-	int value;
 } ObjToken;
 
 extern GameObjectDesc obj_token_desc;
