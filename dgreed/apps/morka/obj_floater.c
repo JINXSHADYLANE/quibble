@@ -25,13 +25,13 @@ void obj_floater_pre_render(GameObject* self){
 		Vector2 half = vec2_scale(vec2_add(txt_size,img_size), 0.5f);
 
 		render->world_dest = rectf(
-				pos.x + half.x,
-				pos.y - half.y,
 				pos.x + half.x - img_size.x,
-				pos.y - half.y + img_size.y
+				pos.y - half.y - img_size.y / 2.0f,
+				pos.x + half.x,
+				pos.y - half.y + img_size.y / 2.0f
 		);
 
-		floater->txt_pos = vec2(pos.x - half.x, pos.y - half.y);
+		floater->txt_pos = vec2(pos.x - half.x, pos.y - half.y - txt_size.y / 2.0f);
 	}
 
 	// animation

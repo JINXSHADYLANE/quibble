@@ -14,7 +14,7 @@ static void obj_token_collide(GameObject* self, GameObject* other) {
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
 		mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
 
-		SprHandle spr = sprsheet_get_handle("token");
+		SprHandle spr = self->render->spr;
 
 		Vector2 size = sprsheet_get_size_h(spr);
 
