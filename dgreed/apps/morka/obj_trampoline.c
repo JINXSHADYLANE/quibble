@@ -29,7 +29,7 @@ static void obj_trampoline_update_pos(GameObject* self) {
 	 	r->world_dest.bottom -= 10.0f;
 	}
 
-	if(trampoline->owner->physics->cd_obj->pos.x > r->world_dest.right) trampoline->db = 5.0f;
+	if(trampoline->owner->physics->cd_obj->pos.x > r->world_dest.right +50.0f) trampoline->db = 5.0f;
 }
 
 static void obj_trampoline_construct(GameObject* self, Vector2 pos, void* user_data) {
