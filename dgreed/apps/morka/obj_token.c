@@ -5,11 +5,10 @@
 
 static void obj_token_collide(GameObject* self, GameObject* other) {
 	ObjToken* token = (ObjToken*)self;
-	if(other->type == OBJ_RABBIT_TYPE && token->value != 0) {
+	if(other->type == OBJ_RABBIT_TYPE) {
 		ObjRabbit* rabbit = (ObjRabbit*)other;
 		ObjRabbitData* d = rabbit->data;
-		d->tokens += token->value;
-		token->value = 0;
+		d->tokens += 1;
 
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
 		mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
@@ -29,14 +28,12 @@ static void obj_token_collide(GameObject* self, GameObject* other) {
 static void obj_token_construct(GameObject* self, Vector2 pos, void* user_data) {
 	SprHandle spr_handle = (SprHandle)user_data;
 
-	ObjToken* token = (ObjToken*)self;
+	//ObjToken* token = (ObjToken*)self;
 
 	Vector2 size = sprsheet_get_size_h(spr_handle);
 	float width = size.x;
 	float height = size.y;
 
-	token->value = 1;
-	
 	RectF collider = {
 		pos.x - width/2.0f, pos.y - height/2.0f,
 		pos.x + width/2.0f, pos.y + height/2.0f
