@@ -196,6 +196,12 @@ static void _mchains_load_desc(const char* desc) {
 
 	_predict_size(&mml, root);
 
+	// Pad n_symbols, n_seq_chars and n_transitions to ensure that all memory
+	// accesses are aligned to 4 bytes
+	n_symbols += (4 - n_symbols % 4);
+	n_seq_chars += (4 - n_seq_chars % 4);
+	n_transitions += (4 - n_transitions % 4);
+
 	// Alloc all buffers in a single bite
 	size_t total_size = n_rulesets * sizeof(Ruleset);
 	total_size += n_symbols * (1 + sizeof(uint) + sizeof(SprHandle) + sizeof(char*));
