@@ -1,14 +1,6 @@
 #include "obj_types.h"
 
 #include <system.h>
-
-static void obj_fall_trigger_collide(GameObject* self, GameObject* other) {
-	if(other->type == OBJ_RABBIT_TYPE) {
-		ObjRabbit* rabbit = (ObjRabbit*)other;
-		rabbit->data->touching_ground = false;
-	}
-}
-
 static void obj_fall_trigger_update(GameObject* self, float ts, float dt){
 	PhysicsComponent* physics = self->physics;
 	RectF pos = {
@@ -32,7 +24,6 @@ static void obj_fall_trigger_construct(GameObject* self, Vector2 pos, void* user
 	};	
 		
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, 1, NULL);
-	physics->hit_callback = obj_fall_trigger_collide;
 
 	// Init update
 	UpdateComponent* update = self->update;
