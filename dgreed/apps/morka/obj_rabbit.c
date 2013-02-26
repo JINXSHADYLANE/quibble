@@ -615,9 +615,6 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	r->world_dest = rectf(
 			pos.x - half_w, pos.y - half_h, pos.x + half_w, pos.y + half_h
 	);
-
-	ObjRabbit* rabbit = (ObjRabbit*)self;
-	r->anim_frame = anim_frame_ex(rabbit->anim, TIME_S);
 }
 static void obj_rabbit_became_visible(GameObject* self) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
