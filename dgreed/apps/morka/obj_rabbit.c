@@ -346,9 +346,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		}	
 
-		float t = clamp(0.0f, 1.0f, (p->vel.x - 300.0f) / 1200.0f);
-		float damp = smoothstep(1.0f, 0.98f, t);
+		float t = clamp(0.0f, 1.0f, (p->vel.x - 220.0f) / 1000.0f);
+		float damp = smoothstep(1.0f, 0.97976f, t);
 		p->vel.x *= damp;
+
 		p->vel.y *= 0.995f;
 	
 		objects_apply_force(self, dir);
