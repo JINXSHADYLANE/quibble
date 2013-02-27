@@ -345,21 +345,9 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			}
 
 		}	
-	
-		// Damping
-		if(p->vel.x < 300.0f) {
-		}	
-		else if(p->vel.x < 600.0f)
-			p->vel.x *= 0.995f;
-		else if(p->vel.x < 1000.0f)
-			p->vel.x *= 0.99f;
-		else
-			p->vel.x *= 0.980f;
-	//	else if(p->vel.x < 700.0f)
-	//		p->vel.x *= 0.96f;
-	//	else if(p->vel.x < 1000.0f)
-	//		p->vel.x *= 0.95f;
-		
+
+		float damp = smoothstep(1.0f, 0.98f, (p->vel.x - 300.0f) / 1200.0f);
+		p->vel.x *= damp;
 		p->vel.y *= 0.995f;
 	
 		objects_apply_force(self, dir);
