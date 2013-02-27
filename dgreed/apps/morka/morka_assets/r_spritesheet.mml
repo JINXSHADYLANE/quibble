@@ -1,0 +1,255 @@
+(sprsheet morka
+	(prefix "morka_assets/")
+	(scale 0.5)
+
+	(img background
+		(tex r_atlas_1.png)
+		(src 0,512,2048,2048)
+	)
+	(anim rabbit
+		(tex r_atlas_0.png)
+		(src 0,0,256,256)
+		(offset 256,256)
+		(frames 15)
+		(grid 4,4)
+	)
+	(anim rabbit_2
+		(tex r_atlas_01.png)
+		(src 0,0,256,256)
+		(offset 256,256)
+		(frames 15)
+		(grid 4,4)
+	)
+	(anim rabbit_3
+		(tex r_atlas_02.png)
+		(src 0,0,256,256)
+		(offset 256,256)
+		(frames 15)
+		(grid 4,4)
+	)
+	(anim rabbit_4
+		(tex r_atlas_03.png)
+		(src 0,0,256,256)
+		(offset 256,256)
+		(frames 15)
+		(grid 4,4)
+	)
+
+	(img blue_shade
+		(tex r_atlas_2.png)
+		(src 2005,115,2027,137)
+	)
+	(img finish_tile
+		(tex r_atlas_2.png)
+		(src 1914,114,2000,246)
+	)
+	(img grass1
+		(tex r_atlas_2.png)
+		(src 2,32,514,406)
+	)
+	(img grass2
+		(tex r_atlas_2.png)
+		(src 1398,2,1910,376)
+	)
+	(img grass3
+		(tex r_atlas_2.png)
+		(src 2,410,514,772)
+	)
+	(img grass4
+		(tex r_atlas_2.png)
+		(src 882,2,1394,376)
+	)
+	(img grass_end1
+		(tex r_atlas_2.png)
+		(src 2,1096,424,1470)
+	)
+	(img grass_end2
+		(tex r_atlas_2.png)
+		(src 1354,1156,1501,1530)
+	)
+	(img grass_start1
+		(tex r_atlas_2.png)
+		(src 842,1236,1035,1600)
+	)
+	(img grass_start2
+		(tex r_atlas_2.png)
+		(src 407,1613,801,1987)
+	)
+	(img pause
+		(tex r_atlas_2.png)
+		(src 1914,322,1958,367)
+	)
+	(img pin
+		(tex r_atlas_2.png)
+		(src 1989,250,2039,326)
+	)
+	(img planet_1
+		(tex r_atlas_2.png)
+		(src 1119,1580,1505,2025)
+	)
+	(img planet_2
+		(tex r_atlas_2.png)
+		(src 852,700,1321,1232)
+	)
+	(img planet_3
+		(tex r_atlas_2.png)
+		(src 2,1474,403,1938)
+	)
+	(img planet_4
+		(tex r_atlas_2.png)
+		(src 428,1194,838,1609)
+	)
+	(img planet_5
+		(tex r_atlas_2.png)
+		(src 518,32,874,460)
+	)
+	(img play
+		(tex r_atlas_2.png)
+		(src 1505,1303,1755,1555)
+	)
+	(img position_knob
+		(tex r_atlas_2.png)
+		(src 2027,2,2043,18)
+	)
+	(img position_line
+		(tex r_atlas_2.png)
+		(src 2,2,878,28)
+	)
+	(img quit
+		(tex r_atlas_2.png)
+		(src 1787,1270,2037,1522)
+	)
+	(img resque_tag
+		(tex r_atlas_2.png)
+		(src 1914,2,2023,110)
+	)
+	(img restart
+		(tex r_atlas_2.png)
+		(src 1787,1014,2037,1266)
+	)
+	(img token
+		(tex r_atlas_2.png)
+		(src 1914,250,1985,318)
+	)
+	(img token_tag
+		(tex r_atlas_2.png)
+		(src 1325,1014,1472,1152)
+	)
+	(img tut_finger
+		(tex r_atlas_2.png)
+		(src 1509,1014,1783,1299)
+	)
+	(img tut_star
+		(tex r_atlas_2.png)
+		(src 1759,1526,2004,1776)
+	)
+	(img water1
+		(tex r_atlas_2.png)
+		(src 2,776,514,1092)
+	)
+	(img water2
+		(tex r_atlas_2.png)
+		(src 878,380,1390,696)
+	)
+	(img water3
+		(tex r_atlas_2.png)
+		(src 1394,380,1906,694)
+	)
+	(img water4
+		(tex r_atlas_2.png)
+		(src 1394,698,1906,1010)
+	)
+	(img water_end1
+		(tex r_atlas_2.png)
+		(src 518,464,848,838)
+	)
+	(img water_end2
+		(tex r_atlas_2.png)
+		(src 805,1613,1115,1987)
+	)
+	(img water_start1
+		(tex r_atlas_2.png)
+		(src 518,842,847,1190)
+	)
+	(img water_start2
+		(tex r_atlas_2.png)
+		(src 1039,1236,1350,1576)
+	)
+
+
+	(img bg_mushroom_2
+		(tex r_atlas_3.png)
+		(src 2,1450,485,2035)
+	)
+	(img bg_mushroom_3
+		(tex r_atlas_3.png)
+		(src 2,2,680,800)
+	)
+	(img bg_mushroom_5
+		(tex r_atlas_3.png)
+		(src 2,802,407,1448)
+	)
+	(img bg_mushroom_6
+		(tex r_atlas_3.png)
+		(src 409,802,717,1334)
+	)
+	(img grass3_sign
+		(tex r_atlas_3.png)
+		(src 488,1336,998,1811)
+	)
+	(img next
+		(tex r_atlas_3.png)
+		(src 719,598,969,850)
+	)
+	(img trampoline
+		(tex r_atlas_3.png)
+		(src 487,1814,1075,2032)
+	)
+	(img mushroom_1
+		(tex r_atlas_3.png)
+		(src 682,301,938,596)
+	)
+	(img mushroom_2
+		(tex r_atlas_3.png)
+		(src 682,2,883,299)
+	)
+	(img mushroom_3
+		(tex r_atlas_3.png)
+		(src 719,1098,867,1315)
+	)
+	(img mushroom_4
+		(tex r_atlas_3.png)
+		(src 940,273,1181,519)
+	)
+	(img mushroom_5
+		(tex r_atlas_3.png)
+		(src 885,2,1182,271)
+	)
+	(img mushroom_6
+		(tex r_atlas_3.png)
+		(src 971,521,1241,758)
+	)
+	(img spikeshroom_1
+		(tex r_atlas_3.png)
+		(src 719,852,1077,1096)
+	)
+
+
+	(img element_1
+		(tex r_atlas_4.png)
+		(src 1024,0,2048,880)
+	)
+	(img element_2
+		(tex r_atlas_4.png)
+		(src 0,958,1024,1764)
+	)
+	(img element_3
+		(tex r_atlas_4.png)
+		(src 1024,880,2048,1722)
+	)
+	(img element_4
+		(tex r_atlas_4.png)
+		(src 0,0,1024,958)
+	)
+)
+
