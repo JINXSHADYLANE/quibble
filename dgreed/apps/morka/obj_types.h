@@ -13,12 +13,11 @@ enum {
 	OBJ_MUSHROOM_TYPE,
 	OBJ_TRAMPOLINE_TYPE,
 	OBJ_CACTUS_TYPE,
-	OBJ_PIN,
 	OBJ_SPEED_TRIGGER_TYPE,
 	OBJ_FALL_TRIGGER_TYPE,
 	OBJ_PARTICLE_ANCHOR_TYPE,
 	OBJ_BG_PARTICLE_ANCHOR_TYPE,
-	OBJ_TOKEN_TYPE,
+	OBJ_POWERUP_TYPE,
 	OBJ_FLOATER_TYPE
 };
 
@@ -130,15 +129,6 @@ typedef struct {
 
 extern GameObjectDesc obj_trampoline_desc;
 
-// Race marker pin
-
-typedef struct {
-	GameObject header;
-	float speed;
-} ObjPin;
-
-extern GameObjectDesc obj_pin_desc;
-
 // Fall trigger
 
 typedef struct {
@@ -176,13 +166,22 @@ typedef struct {
 
 extern GameObjectDesc obj_bg_particle_anchor_desc;
 
-// Token (coin)
+// Powerup (coin, etc)
 
 typedef struct {
 	GameObject header;
-} ObjToken;
+} ObjPowerup;
 
-extern GameObjectDesc obj_token_desc;
+extern GameObjectDesc obj_powerup_desc;
+
+// Powerup type
+typedef struct {
+	const char* spr;
+	PhysicsHitCallback hit_callback;
+} PowerupType;
+
+extern PowerupType coin_powerup;
+extern PowerupType rocket_powerup;
 
 // Floating text/img object
 
@@ -190,7 +189,7 @@ typedef struct {
 	GameObject header;
 	char text[16];
 	Vector2 txt_pos;
-	float a,t,t0,t1;
+	float duration,t,t0,t1;
 } ObjFloater;
 
 extern GameObjectDesc obj_floater_desc;

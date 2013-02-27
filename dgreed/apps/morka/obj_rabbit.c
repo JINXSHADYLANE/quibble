@@ -312,7 +312,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					// Create floating text
 					ObjFloater* floater = (ObjFloater*) objects_create(&obj_floater_desc, txt_pos, (void*)sprt);
 					sprintf(floater->text,"-10");
-					floater->a = 0.5f;
+					floater->duration = 0.5f;
 				}
 			}
 
@@ -406,7 +406,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		p->vel.y = 0.0f;
 		d->touching_ground = false;
 	}
-	if(p->cd_obj->pos.y > HEIGHT + rabbit_hitbox_height){
+	if(p->cd_obj->pos.y > HEIGHT){
 		rabbit->data->is_dead = true;
 		if(d->rubber_band) printf("rabbit died while rubber_band was active!\n");
 		p->vel.x = 0.0f;

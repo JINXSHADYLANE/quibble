@@ -122,10 +122,10 @@ static void _gen_fg_page(void) {
 
 					assert(gaps_i < max_gaps);
 				}
-				// Token over gap start/end
+				// Coin over gap start/end
 				if(!tutorial_level){
 					Vector2 size = sprsheet_get_size_h(spr);
-					objects_create(&obj_token_desc, vec2(pos.x + size.x/2.0f,479.0f), (void*)sprsheet_get_handle("token"));
+					objects_create(&obj_powerup_desc, vec2(pos.x + size.x/2.0f,479.0f), (void*)&coin_powerup);
 				}
 			} else {
 				if(sym == 'g') {
@@ -169,10 +169,10 @@ static void _gen_fg_page(void) {
 				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
 
 				if(!tutorial_level){
-					// Tokens over gap
-					objects_create(&obj_token_desc, vec2(pos.x + prev_advance + advance/2.0f,400.0f), (void*)sprsheet_get_handle("token"));
-					objects_create(&obj_token_desc, vec2(pos.x - advance/2.5f + prev_advance + advance/2.0f,425.0f), (void*)sprsheet_get_handle("token"));
-					objects_create(&obj_token_desc, vec2(pos.x + advance/2.5f + prev_advance + advance/2.0f,425.0f), (void*)sprsheet_get_handle("token"));
+					// Coins over gap
+					objects_create(&obj_powerup_desc, vec2(pos.x + prev_advance + advance/2.0f,400.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x - advance/2.5f + prev_advance + advance/2.0f,425.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance/2.5f + prev_advance + advance/2.0f,425.0f),(void*)&coin_powerup);
 				}
 			}
 		}
@@ -240,7 +240,7 @@ static void _gen_fg_page(void) {
 					}
 				}
 				if(c){
-					objects_create(&obj_token_desc, vec2(pos.x + advance / 2.0f, 579.0f), (void*)sprsheet_get_handle("token"));
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance / 2.0f, 579.0f), (void*)&coin_powerup);
 					coins--;				
 				}
 		}
@@ -251,12 +251,12 @@ static void _gen_fg_page(void) {
 				objects_create(&obj_mushroom_desc, pos, (void*)spr);
 				
 				if(!tutorial_level){
-					// Placing tokens on big shrooms
+					// Placing coins on big shrooms
 					Vector2 size = sprsheet_get_size_h(spr);
 					float width = size.x;
 					float height = size.y;
 					if(height > 270.0f)
-						objects_create(&obj_token_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f) ), (void*)sprsheet_get_handle("token"));
+						objects_create(&obj_powerup_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f) ), (void*)&coin_powerup);
 				}
 			}	
 

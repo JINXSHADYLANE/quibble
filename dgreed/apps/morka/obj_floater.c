@@ -14,7 +14,7 @@ void obj_floater_pre_render(GameObject* self){
 	if(render->world_dest.bottom == 0.0f) {
 		// animation init
 		floater->t0 = time_s();
-		floater->t1 = floater->t0 + floater->a;
+		floater->t1 = floater->t0 + floater->duration;
 
 		// Centering text and image on pos
 		Vector2 pos = vec2(render->world_dest.left,render->world_dest.top);
