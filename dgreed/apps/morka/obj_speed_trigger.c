@@ -2,16 +2,6 @@
 
 #include <system.h>
 
-static void obj_speed_trigger_collide(GameObject* self, GameObject* other) {
-	ObjSpeedTrigger* t = (ObjSpeedTrigger*)self;
-	if(other->type == OBJ_RABBIT_TYPE) {
-		PhysicsComponent* p = other->physics;
-		objects_apply_force(other, vec2(-p->vel.x * t->drag_coef, 0.0f));
-		ObjRabbit* rabbit = (ObjRabbit*)other;
-		rabbit->data->on_water = true;
-	}
-}
-
 static void obj_speed_trigger_update(GameObject* self, float ts, float dt){
 	PhysicsComponent* physics = self->physics;
 	RectF pos = {
@@ -40,7 +30,6 @@ static void obj_speed_trigger_construct(GameObject* self, Vector2 pos, void* use
 	};	
 		
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, 1, NULL);
-	physics->hit_callback = obj_speed_trigger_collide;
 	
 	// Init update
 	UpdateComponent* update = self->update;
