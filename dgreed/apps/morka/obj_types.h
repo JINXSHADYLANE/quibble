@@ -169,27 +169,32 @@ extern GameObjectDesc obj_bg_particle_anchor_desc;
 // Powerup (coin, etc)
 
 typedef struct {
+	const char* spr;
+	PhysicsHitCallback hit_callback;
+} PowerupParams;
+
+extern PowerupParams coin_powerup;
+extern PowerupParams rocket_powerup;
+
+typedef struct {
 	GameObject header;
 } ObjPowerup;
 
 extern GameObjectDesc obj_powerup_desc;
 
-// Powerup type
-typedef struct {
-	const char* spr;
-	PhysicsHitCallback hit_callback;
-} PowerupType;
-
-extern PowerupType coin_powerup;
-extern PowerupType rocket_powerup;
-
 // Floating text/img object
 
 typedef struct {
+	const char* spr;
+	const char* text;
+	float duration;
+} ObjFloaterParams;
+
+typedef struct {
 	GameObject header;
-	char text[16];
 	Vector2 txt_pos;
-	float duration,t,t0,t1;
+	float duration, t0;
+	char text[16];
 } ObjFloater;
 
 extern GameObjectDesc obj_floater_desc;

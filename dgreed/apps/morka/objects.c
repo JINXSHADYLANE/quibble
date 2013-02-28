@@ -1,11 +1,18 @@
 #include "objects.h"
 
+#include <sophist.h>
 #include <datastruct.h>
 #include <darray.h>
 #include <mempool.h>
 #include <gfx_utils.h>
 
-#define MAX_GAMEOBJECT_SIZE (sizeof(GameObject) * 3)
+#if (SOPHIST_pointer64 == 1)
+// Give more space on x64 for huge 8-byte pointers
+#define MAX_GAMEOBJECT_SIZE 128
+#else
+// Leaves 40 (64 - 24) bytes on our target platforms
+#define MAX_GAMEOBJECT_SIZE 64
+#endif
 
 RectF objects_camera[3] = {
 	{0.0f, 0.0f, 1024.0f, 768.0f},
@@ -436,6 +443,7 @@ void objects_tick(bool paused) {
 }
 
 RectF objects_world2screen(RectF world, uint camera_id){
+	assert(camera_id < ARRAY_SIZE(objects_camera));
 	RectF* camera = &objects_camera[camera_id];
 	Vector2 camera_topleft = {
 		.x = camera->left,
@@ -446,6 +454,15 @@ RectF objects_world2screen(RectF world, uint camera_id){
 		world.top - camera_topleft.y,
 		world.right - camera_topleft.x,
 		world.bottom - camera_topleft.y
+	);
+}
+
+Vector2 objects_world2screen_vec2(Vector2 world, uint camera_id) {
+	assert(camera_id < ARRAY_SIZE(objects_camera));
+	RectF* camera = &objects_camera[camera_id];
+	return vec2(
+		world.x - camera->left,
+		world.y - camera->top
 	);
 }
 
