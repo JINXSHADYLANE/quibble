@@ -181,6 +181,12 @@ void obj_rabbit_player_control(GameObject* self){
 	}
 }
 
+static ObjFloaterParams trampoline_floater_params = {
+	.spr = "token",
+	.text = "-10",
+	.duration = 0.5f
+};
+
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
@@ -333,9 +339,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					sprt = sprsheet_get_handle("token_tag");
 
 					// Create floating text
-					ObjFloater* floater = (ObjFloater*) objects_create(&obj_floater_desc, txt_pos, (void*)sprt);
-					sprintf(floater->text,"-10");
-					floater->duration = 0.5f;
+					objects_create(&obj_floater_desc, txt_pos, (void*)&trampoline_floater_params);
 				}
 			}
 
@@ -624,12 +628,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	
 	// Init physics
 	PhysicsComponent* physics = self->physics;
-	float hw = rabbit_hitbox_width / 2.0f;
-	float hh = rabbit_hitbox_height / 2.0f;
-	RectF rect = {
-		pos.x - hw, pos.y - hh,
-		pos.x + hw, pos.y + hh 
-	};
+	RectF rect = rectf_centered(pos, rabbit_hitbox_width, rabbit_hitbox_height);
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &rect, 1, NULL);
 	float mass = 3.0f;
 	physics->inv_mass = 1.0f / mass;
@@ -641,12 +640,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	// Init render
 	Vector2 size = sprsheet_get_size("rabbit");
 	RenderComponent* render = self->render;
-	float half_w = size.x / 2.0f;
-	float half_h = size.y / 2.0f;
-	render->world_dest = rectf(
-		pos.x - half_w, pos.y - half_h,
-		pos.x + half_w, pos.y + half_h 
-	);
+	render->world_dest = rectf_centered(pos, size.x, size.y);
 	render->angle = 0.0f;
 	render->layer = rabbit_layer;
 	render->anim_frame = 0;

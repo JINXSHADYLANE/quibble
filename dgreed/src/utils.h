@@ -146,9 +146,30 @@ typedef struct {
 } RectF;	
 
 // Returns {0, 0, 0, 0} rect
-RectF rectf_null(void);
+static inline RectF rectf_null(void) {
+	RectF result = {0.0f, 0.0f, 0.0f, 0.0f};
+	return result;
+}
 // RectF constructor
-RectF rectf(float left, float top, float right, float bottom);
+static inline RectF rectf(float left, float top, float right, float bottom) {
+	RectF result = {
+		.left = left,
+		.top = top,
+		.right = right,
+		.bottom = bottom
+	};
+	return result;
+};
+// RectF, centered around point
+static inline RectF rectf_centered(Vector2 center, float width, float height) {
+	RectF result = {
+		.left = center.x - width * 0.5f,
+		.top = center.y - height * 0.5f,
+		.right = center.x + width * 0.5f,
+		.bottom = center.y + height * 0.5f
+	};
+	return result;
+}
 // Returns true if point is in rectangle
 bool rectf_contains_point(const RectF* r, const Vector2* p);
 // Returns true if point is in rotated & scaled rectangle

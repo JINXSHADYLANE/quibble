@@ -112,16 +112,6 @@ char* path_to_resource(const char* _file) {
 -----------------
 */
 
-RectF rectf_null(void) {
-	RectF result = {0.0f, 0.0f, 0.0f, 0.0f};
-	return result;
-}	
-
-RectF rectf(float left, float top, float right, float bottom) {
-	RectF result = {left, top, right, bottom};
-	return result;
-}	
-
 bool rectf_contains_point(const RectF* r, const Vector2* p) {
 	assert(r);
 	assert(p);

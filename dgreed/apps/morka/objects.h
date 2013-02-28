@@ -12,6 +12,7 @@
 #define TYPE_MASK 0xffff
 #define DESTROY_BIT 0x10000
 
+// 24 bytes
 typedef struct {
 	uint32 type;	// This holds type id and if destroyed - DESTROY_BIT is set
 	struct FwdPhysicsComponent* physics;
@@ -111,7 +112,8 @@ void objects_destroy_all(void);
 void objects_apply_force(GameObject* obj, Vector2 f);
 
 void objects_tick(bool paused);
-RectF objects_world2screen(RectF world, uint camera);
+RectF objects_world2screen(RectF world, uint camera_id);
+Vector2 objects_world2screen_vec2(Vector2 world, uint camera_id);
 
 // Returns first GameObject whose physics component intersects the ray segment,
 // or NULL of there is no such object
