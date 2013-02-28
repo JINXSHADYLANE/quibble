@@ -10,6 +10,7 @@
 #include <mfx.h>
 #include <memory.h>
 #include <system.h>
+#include <gfx_utils.h>
 #include <async.h>
 
 #define TIME_S (malka_state_time("game") + malka_state_time("game_over"))
@@ -90,22 +91,7 @@ void obj_rabbit_player_control(GameObject* self){
 
 			if(draw_ai_debug){
 				RectF r = objects_world2screen(rec,0);
-
-				Vector2 s = vec2(r.left, r.top);
-				Vector2 e = vec2(r.left, r.bottom);
-				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
-
-				s = vec2(r.right, r.top);
-				e = vec2(r.right, r.bottom);
-				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));		
-
-				s = vec2(r.left, r.top);
-				e = vec2(r.right, r.top);
-				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
-
-				s = vec2(r.left, r.bottom);
-				e = vec2(r.right, r.bottom);
-				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));															
+				gfx_draw_rect(10, &r, COLOR_WHITE);
 			}
 
 			GameObject* obj = NULL;
@@ -145,22 +131,7 @@ void obj_rabbit_player_control(GameObject* self){
 
 			if(draw_ai_debug){
 				RectF r = objects_world2screen(rec,0);
-
-				Vector2 s = vec2(r.left, r.top);
-				Vector2 e = vec2(r.left, r.bottom);
-				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
-
-				s = vec2(r.right, r.top);
-				e = vec2(r.right, r.bottom);
-				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));		
-
-				s = vec2(r.left, r.top);
-				e = vec2(r.right, r.top);
-				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
-
-				s = vec2(r.left, r.bottom);
-				e = vec2(r.right, r.bottom);
-				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));															
+				gfx_draw_rect(10, &r, COLOR_WHITE);
 			}
 
 			GameObject* obj = NULL;
@@ -193,30 +164,31 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	if(!d->is_dead){
 
 		// Reset forces
-		Vector2 forces[FORCE_COUNT];
-		for(int i = 0; i < FORCE_COUNT; i++) forces[i] = vec2(0.0f,0.0f);
+		Vector2 forces[FORCE_COUNT] = {{0.0f, 0.0f}};
 
 		PhysicsComponent* p = self->physics;
 		// rubber band
 		if(d->rubber_band){
 
 			for(int i = 0; i < minimap_get_count();i++){
-
 				ObjRabbit* other = minimap_get_rabbit(i);
+				ObjRabbitData* d = other->data;
+				if(other == rabbit)
+					continue;
+
 				float delta = other->header.physics->cd_obj->pos.x - p->cd_obj->pos.x;
 
-				if(other != rabbit && !other->data->player_control && !other->data->is_dead
-				// && other->header.physics->cd_obj->pos.x < minimap_player_x()
-					){
-
-					float min_dist = 800.0f;
-					float force = other->data->speed*other->data->speed;
-					force *= 10.0f;
-
-					if(delta > 0.0f && delta < min_dist) forces[RUBBER_BAND_FORCE] = vec2(-force/delta, 0.0f);
-				} else if(other->data->player_control) {
+				if(other->data->player_control) {
 					delta = delta*2.0f + d->speed;
 					forces[RUBBER_BAND_FORCE] = vec2(delta, 0.0f);
+				}
+				else if(!d->is_dead) {
+					float min_dist = 800.0f;
+					float force = d->speed*d->speed;
+					force *= 10.0f;
+
+					if(delta > 0.0f && delta < min_dist)
+						forces[RUBBER_BAND_FORCE].x = -force/delta;
 				}
 			}
 			p->cd_obj->pos.y = 579.0f;
@@ -298,6 +270,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				Vector2 gap_pos = vec2(0.0f,0.0f);
 				Vector2 txt_pos = vec2(0.0f,0.0f);
 				bool found = false;
+			calc_trampoline_pos:
 				if(obj){
 					if(obj->type == OBJ_FALL_TRIGGER_TYPE) {
 						PhysicsComponent* p = obj->physics;
@@ -316,20 +289,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					start = vec2(p->cd_obj->pos.x - 50.0f,HEIGHT + 100.0f);
 					end = vec2(start.x,HEIGHT - 100.0f);
 					obj = objects_raycast(start,end);
-					if(obj){
-						if(obj->type == OBJ_FALL_TRIGGER_TYPE) {
-							PhysicsComponent* p = obj->physics;
-							gap_pos = vec2(p->cd_obj->pos.x + (p->cd_obj->size.size.x - width) / 2.0f,HEIGHT + 15.0f);
-							txt_pos = vec2(p->cd_obj->pos.x + (p->cd_obj->size.size.x) / 2.0f,HEIGHT + 15.0f - height);
-							found = true;
-						} else if(obj->type == OBJ_TRAMPOLINE_TYPE) {
-							RenderComponent* render = obj->render;
-							gap_pos = vec2(render->world_dest.left,HEIGHT + 15.0f);
-							txt_pos = vec2(render->world_dest.left + width / 2.0f,HEIGHT + 15.0f - height);
-							found = true;						
-						}
-					}
+					goto calc_trampoline_pos;
 				}
+
+				assert(found);
 
 				// Create Trampoline
 				ObjTrampoline* trampoline = (ObjTrampoline*) objects_create(&obj_trampoline_desc, gap_pos, (void*)sprt);
