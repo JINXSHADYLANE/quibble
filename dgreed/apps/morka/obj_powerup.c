@@ -3,10 +3,53 @@
 #include <system.h>
 #include <mfx.h>
 
+// Bomb powerup
+
+static ObjFloaterParams bomb_floater_params = {
+	.spr = "bomb",
+	.text = NULL,
+	.duration = 0.15f
+};
+
+static void obj_powerup_bomb_collide(GameObject* self, GameObject* other) {
+	if(other->type == OBJ_RABBIT_TYPE) {
+		ObjRabbit* rabbit = (ObjRabbit*)other;
+		ObjRabbitData* d = rabbit->data;		
+		
+		// Powerup effect
+		//objects_apply_force(other, vec2(d->xjump*d->xjump*30.0f, -d->yjump)); // PLACEHOLDER
+
+		// Particles
+		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
+			&obj_particle_anchor_desc, 
+			rectf_center(&other->render->world_dest), 
+			NULL
+		);
+		mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
+
+		// Dissapearing animation
+		Vector2 pos = rectf_center(&self->render->world_dest);
+		objects_create(
+			&obj_floater_desc, pos, 
+			(void*)&bomb_floater_params
+		);
+
+		// Destroy powerup
+		objects_destroy(self);
+	}
+}
+
+PowerupParams bomb_powerup = {
+	.spr = "bomb",
+	.btn = "btn_bomb",
+	.count = 0,
+	.hit_callback = obj_powerup_bomb_collide
+};
+
 // Rocket powerup
 
 static ObjFloaterParams rocket_floater_params = {
-	.spr = "resque_tag",
+	.spr = "rocket",
 	.text = NULL,
 	.duration = 0.15f
 };
@@ -17,7 +60,7 @@ static void obj_powerup_rocket_collide(GameObject* self, GameObject* other) {
 		ObjRabbitData* d = rabbit->data;		
 		
 		// Powerup effect
-		objects_apply_force(other, vec2(d->xjump*d->xjump*30.0f, -d->yjump)); // PLACEHOLDER
+		//objects_apply_force(other, vec2(d->xjump*d->xjump*30.0f, -d->yjump)); // PLACEHOLDER
 
 		// Particles
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
@@ -40,8 +83,53 @@ static void obj_powerup_rocket_collide(GameObject* self, GameObject* other) {
 }
 
 PowerupParams rocket_powerup = {
-	.spr = "resque_tag", // PLACEHOLDER
+	.spr = "rocket",
+	.btn = "btn_rocket",
+	.count = 0,
 	.hit_callback = obj_powerup_rocket_collide
+};
+
+// Shield powerup
+
+static ObjFloaterParams shield_floater_params = {
+	.spr = "shield",
+	.text = NULL,
+	.duration = 0.15f
+};
+
+static void obj_powerup_shield_collide(GameObject* self, GameObject* other) {
+	if(other->type == OBJ_RABBIT_TYPE) {
+		ObjRabbit* rabbit = (ObjRabbit*)other;
+		ObjRabbitData* d = rabbit->data;		
+		
+		// Powerup effect
+		//objects_apply_force(other, vec2(d->xjump*d->xjump*30.0f, -d->yjump)); // PLACEHOLDER
+
+		// Particles
+		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
+			&obj_particle_anchor_desc, 
+			rectf_center(&other->render->world_dest), 
+			NULL
+		);
+		mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
+
+		// Dissapearing animation
+		Vector2 pos = rectf_center(&self->render->world_dest);
+		objects_create(
+			&obj_floater_desc, pos, 
+			(void*)&shield_floater_params
+		);
+
+		// Destroy powerup
+		objects_destroy(self);
+	}
+}
+
+PowerupParams shield_powerup = {
+	.spr = "shield",
+	.btn = "btn_shield",
+	.count = 0,
+	.hit_callback = obj_powerup_shield_collide
 };
 
 // Coin powerup
@@ -78,6 +166,8 @@ static void obj_powerup_coin_collide(GameObject* self, GameObject* other) {
 
 PowerupParams coin_powerup = {
 	.spr = "token",
+	.btn = NULL,
+	.count = 0,
 	.hit_callback = obj_powerup_coin_collide
 };
 

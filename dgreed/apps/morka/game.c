@@ -70,6 +70,10 @@ static void game_reset(void) {
 	hud_trigger_combo(0);
 
 	tutorial_level = !strcmp(levels_current_desc()->name, "level1");
+
+	bomb_powerup.count = levels_current_desc()->powerup_num[BOMB];
+	rocket_powerup.count = levels_current_desc()->powerup_num[ROCKET];
+	shield_powerup.count = levels_current_desc()->powerup_num[SHIELD];
 }
 
 static void game_init(void) {

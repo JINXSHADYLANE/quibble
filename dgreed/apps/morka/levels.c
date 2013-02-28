@@ -39,6 +39,9 @@ void levels_init(const char* filename){
 		new.background = MAX_UINT32;
 		new.ai_rabbit_num = 0;
 
+		for(int i = 0; i < POWERUP_COUNT;i++ )
+			new.powerup_num[i] = 0;
+
 		NodeIdx child = mml_get_first_child(&mml, rs_node);
 		for(; child != 0; child = mml_get_next(&mml, child)) {
 			const char* type = mml_get_name(&mml, child);
@@ -81,6 +84,41 @@ void levels_init(const char* filename){
 				}
 
 			}
+			else if(strcmp(type, "powerups") == 0) {
+
+				NodeIdx r1 = mml_get_first_child(&mml, child);
+				for(; r1 != 0; r1 = mml_get_next(&mml, r1)) {
+					const char* txt = mml_get_name(&mml, r1);
+
+					PowerupType p = POWERUP_COUNT; 
+
+					if(strcmp(txt, "rocket") == 0) {
+						p = ROCKET;
+					} else if(strcmp(txt, "bomb") == 0) {
+						p = BOMB;
+					} else if(strcmp(txt, "shield") == 0) {
+						p = SHIELD;
+					}
+					assert(p < POWERUP_COUNT);
+
+					NodeIdx r = mml_get_first_child(&mml, r1);
+					for(; r != 0; r = mml_get_next(&mml, r)) {
+
+						const char* txt = mml_get_name(&mml, r);
+						if(strcmp(txt, "num") == 0) {
+							new.powerup_num[p] = mml_getval_int(&mml, r);
+						} else if(strcmp(txt, "xmin") == 0){
+							// converting percentage of level distance to actual world distance in pixels
+							new.powerup_pos[p].x = mml_getval_float(&mml, r);
+						} else if(strcmp(txt, "xmax") == 0){
+							new.powerup_pos[p].y = mml_getval_float(&mml, r);
+						}
+
+					}
+
+				}
+
+			}			
 			else if(strcmp(type, "background") == 0) {
 				const char* spr_name = mml_getval_str(&mml, child);
 				SprHandle spr_handle = 0;
