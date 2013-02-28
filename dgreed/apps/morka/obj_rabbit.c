@@ -21,6 +21,28 @@ extern bool draw_ai_debug;
 extern bool camera_follow;
 extern ObjRabbit* rabbit;
 
+typedef enum{
+	RUBBER_BAND_FORCE = 0,
+	JUMP_FORCE,
+	DIVING_FORCE,
+	RUNNING_FORCE,
+	GRAVITY_FORCE,
+
+	FORCE_COUNT 
+} ForceType;
+
+static Vector2 _rabbit_calculate_forces(Vector2 *forces){
+	Vector2 result = {0.0f,0.0f};
+
+	result = vec2_add(result,forces[RUBBER_BAND_FORCE]);
+	result = vec2_add(result,forces[JUMP_FORCE]);
+	result = vec2_add(result,forces[DIVING_FORCE]);
+	result = vec2_add(result,forces[RUNNING_FORCE]);
+	result = vec2_add(result,forces[GRAVITY_FORCE]);		
+
+	return result;
+}
+
 void obj_rabbit_player_control(GameObject* self){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
@@ -163,6 +185,11 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
 	if(!d->is_dead){
+
+		// Reset forces
+		Vector2 forces[FORCE_COUNT];
+		for(int i = 0; i < FORCE_COUNT; i++) forces[i] = vec2(0.0f,0.0f);
+
 		PhysicsComponent* p = self->physics;
 		// rubber band
 		if(d->rubber_band){
@@ -180,15 +207,13 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					float force = other->data->speed*other->data->speed;
 					force *= 10.0f;
 
-					if(delta > 0.0f && delta < min_dist) objects_apply_force(self, vec2(-force/delta, 0.0f));
+					if(delta > 0.0f && delta < min_dist) forces[RUBBER_BAND_FORCE] = vec2(-force/delta, 0.0f);
 				} else if(other->data->player_control) {
 					delta = delta*2.0f + d->speed;
-					objects_apply_force(self, vec2(delta, 0.0f));
+					forces[RUBBER_BAND_FORCE] = vec2(delta, 0.0f);
 				}
 			}
-
 			p->cd_obj->pos.y = 579.0f;
-			//p->acc.y = 0.0f;
 			//d->touching_ground = true;
 			p->vel.y = 0.0f;
 			if(p->vel.x < 0.0f) p->vel.x = d->speed;
@@ -202,10 +227,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		if(d->virtual_key_up)
 			d->last_keyrelease_t = ts;
 
-		Vector2 dir = {.x = 0.0f, .y = 0.0f};
 		// Constantly move right
-		dir.x += d->speed;
-
+		forces[RUNNING_FORCE] = vec2(d->speed,0.0f);
 
 		// Position for particles
 		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);	// for follower particles
@@ -233,7 +256,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				d->touching_ground = false;
 				d->jump_off_mushroom = false;
 				d->jump_time = ts;
-				objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
+				forces[JUMP_FORCE] = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
 				anim_play_ex(rabbit->anim, "jump", TIME_S);
 				d->land = pos.x + p->vel.x - rabbit_hitbox_width / 2.0f;
 				d->combo_counter = 0;
@@ -332,11 +355,11 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				else if( (!d->is_diving && d->virtual_key_down) || d->force_dive ) {
 					// Dive	
 					d->is_diving = true;
-					objects_apply_force(self, vec2(0.0f, 20000.0f));
+					forces[DIVING_FORCE] = vec2(0.0f, 20000.0f);
 					anim_play_ex(rabbit->anim, "dive", TIME_S);
 				}
 				else if(d->is_diving && d->virtual_key_pressed) {
-					objects_apply_force(self, vec2(0.0f, 25000.0f));
+					forces[DIVING_FORCE] = vec2(0.0f, 25000.0f);
 				}
 				else if(d->is_diving && !d->virtual_key_pressed) {
 					d->is_diving = false;
@@ -352,7 +375,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		p->vel.y *= 0.995f;
 	
-		objects_apply_force(self, dir);
+
 
 		if(d->combo_counter >= 3 && d->boost == 0){
 			if(r->was_visible)
@@ -365,7 +388,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		if(!d->touching_ground) {
 			// Apply gravity
-			objects_apply_force(self, vec2(0.0f, 6000.0f));
+			forces[GRAVITY_FORCE] = vec2(0.0f, 6000.0f);
 		} else {
 			d->combo_counter = 0;
 			d->boost = 0;
@@ -390,24 +413,30 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			}
 			d->last_frame = r->anim_frame;
 		}
+
 		d->on_water = false;
-	if(p->cd_obj->pos.y < rabbit_hitbox_height){
-		p->cd_obj->pos.y = rabbit_hitbox_height;
-		p->vel.y = 0.0f;
-		d->touching_ground = false;
-	}
-	if(p->cd_obj->pos.y > HEIGHT){
-		rabbit->data->is_dead = true;
-		if(d->rubber_band) printf("rabbit died while rubber_band was active!\n");
-		p->vel.x = 0.0f;
-		p->vel.y = 0.0f;
-		if(!rabbit->data->game_over) rabbit->data->rabbit_time = -1.0f;
+
+		if(p->cd_obj->pos.y < rabbit_hitbox_height){
+			p->cd_obj->pos.y = rabbit_hitbox_height;
+			p->vel.y = 0.0f;
+			d->touching_ground = false;
+		}
+		if(p->cd_obj->pos.y > HEIGHT){
+			rabbit->data->is_dead = true;
+			if(d->rubber_band) printf("rabbit died while rubber_band was active!\n");
+			p->vel.x = 0.0f;
+			p->vel.y = 0.0f;
+			if(!rabbit->data->game_over) rabbit->data->rabbit_time = -1.0f;
+		}
+
+		if(p->cd_obj->pos.y < 579.0f) d->touching_ground = false;
+
+		if(!d->game_over) d->rabbit_time += time_delta() / 1000.0f;
+
+		objects_apply_force(self,_rabbit_calculate_forces(forces));
+
 	}
 
-	if(p->cd_obj->pos.y < 579.0f) d->touching_ground = false;
-
-	if(!d->game_over) d->rabbit_time += time_delta() / 1000.0f;
-	}
 }
 
 static void obj_rabbit_update_pos(GameObject* self) {
@@ -544,6 +573,13 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	// Collision with fall trigger
 	if(other->type == OBJ_FALL_TRIGGER_TYPE) {
 		if(!d->rubber_band) d->touching_ground = false;
+	}
+
+	// Collision with speed trigger
+	if(other->type == OBJ_SPEED_TRIGGER_TYPE) {
+		ObjSpeedTrigger* t = (ObjSpeedTrigger*)other;
+		objects_apply_force(self, vec2(-self->physics->vel.x * t->drag_coef, 0.0f));
+		d->on_water = true;
 	}
 
 	// Collision with mushroom
