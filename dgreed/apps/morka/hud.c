@@ -41,8 +41,11 @@ void _hud_render_ui(UIElement* element, uint layer) {
 	}
 }
 
-static void _hud_render_combo(UIElement* element, uint layer, uint mult, float t) {
-	vfont_select(FONT_NAME, 38.0f);
+static void _hud_render_combo_internal(
+	UIElement* element, uint layer, uint mult, 
+	float t, float text_size, const char* text) {
+
+	vfont_select(FONT_NAME, text_size);
 
 	// Combine two smootherstep functions into a new one,
 	// where x stays constant for a while near t = 0.5
@@ -55,36 +58,13 @@ static void _hud_render_combo(UIElement* element, uint layer, uint mult, float t
 	// Classic sine there-and-back-again for alpha
 	float a = MAX(0.0f, sinf((t*1.4f - 0.2f) * PI));
 
-	char text[64];
-	sprintf(text, "%ux Combo", mult);
-	Vector2 half_size = vec2_scale(vfont_size(text), 0.5f);
+	char final_text[64];
+	sprintf(final_text, text, mult);
+	Vector2 half_size = vec2_scale(vfont_size(final_text), 0.5f);
 
 	Vector2 pos = vec2_sub(element->vec2, half_size);
 	pos.x -= x * 200.0f;
-	vfont_draw(text, layer, pos, COLOR_FTRANSP(a));
-}
-
-static void _hud_render_combo_big(UIElement* element, uint layer, uint mult, float t) {
-	vfont_select(FONT_NAME, 120.0f);
-
-	// Combine two smootherstep functions into a new one,
-	// where x stays constant for a while near t = 0.5
-	float x;
-	if(t < 0.5f)
-		x = smootherstep(-1.0f, 0.0f, t * 2.0f);
-	else
-		x = smootherstep(0.0f, 1.0f, (t - 0.5f) * 2.0f);
-
-	// Classic sine there-and-back-again for alpha
-	float a = MAX(0.0f, sinf((t*1.4f - 0.2f) * PI));
-
-	char text[64];
-	sprintf(text, "%ux", mult);
-	Vector2 half_size = vec2_scale(vfont_size(text), 0.5f);
-
-	Vector2 pos = vec2_sub(element->vec2, half_size);
-	pos.x -= x * 200.0f;
-	vfont_draw(text, layer, pos, COLOR_FTRANSP(a));
+	vfont_draw(final_text, layer, pos, COLOR_FTRANSP(a));
 }
 
 void hud_init(void) {
@@ -159,45 +139,52 @@ void hud_render(float t) {
 		}
 	}
 
-	// TODO: cleanup code
+	const char* combo_text;
+	float combo_text_size;
+	uint min_combo;
+
 	if(tutorial_level){
-		// Big text tutorial version of combo rendering
-		UIElement* combo_text = uidesc_get("combo_text");
-		float ts = time_s();
-		float ct = (ts - combo_flip_t) / 0.4f;
-		if(ct < 1.0f) {
-			if(current_combo)
-				_hud_render_combo_big(combo_text, hud_layer+1, current_combo, ct * 0.5f);
-			if(last_combo)
-				_hud_render_combo_big(combo_text, hud_layer+1, last_combo, 0.5f + ct * 0.5f);
-		}
-		else {
-			if(current_combo)
-				_hud_render_combo_big(combo_text, hud_layer+1, current_combo, 0.5f);
-		}		
+		combo_text = "%ux";
+		combo_text_size = 120.0f;
+		min_combo = 1;
 	} else {
-		// Regular combo rendering
-		UIElement* combo_text = uidesc_get("combo_text");
-		float ts = time_s();
-		float ct = (ts - combo_flip_t) / 0.4f;
-		if(ct < 1.0f) {
-			if(current_combo >=3)
-				_hud_render_combo(combo_text, hud_layer+1, current_combo, ct * 0.5f);
-			if(last_combo >= 3)
-				_hud_render_combo(combo_text, hud_layer+1, last_combo, 0.5f + ct * 0.5f);
-		}
-		else {
-			if(current_combo >=3)
-				_hud_render_combo(combo_text, hud_layer+1, current_combo, 0.5f);
-		}			
+		combo_text = "%ux Combo";
+		combo_text_size = 38.0f;
+		min_combo = 3;
 	}
 
+#define _render_combo(x, t) \
+	_hud_render_combo_internal(combo_el, hud_layer+1, x, t, combo_text_size, combo_text)
 
-
+	// Combo rendering
+	UIElement* combo_el = uidesc_get("combo_text");
+	float ts = time_s();
+	float ct = (ts - combo_flip_t) / 0.4f;
+	if(ct < 1.0f) {
+		if(current_combo >= min_combo)
+			_render_combo(current_combo, ct * 0.5f);
+		if(last_combo >= min_combo)
+			_render_combo(last_combo, 0.5f + ct * 0.5f);
+	}
+	else {
+		if(current_combo >= min_combo)
+			_render_combo(current_combo, 0.5f);
+	}	
 
 	// Minimap
 	if(minimap_get_count() > 1) minimap_draw();
 	minimap_update_places();
+}
+
+static bool _hud_button(UIElement* element, Color col, float ts) {
+	spr_draw_cntr_h(element->spr, hud_layer+1, element->vec2, 0.0f, 1.0f, col);	
+	Touch* t = touches_get();
+	if(touches_down() && t && ts == 0.0f) {
+		float r_sqr = 40.0f * 40.0f;		
+		if(vec2_length_sq(vec2_sub(t[0].hit_pos, element->vec2)) < r_sqr)
+			return true;
+	}
+	return false;
 }
 
 void hud_render_game_over_out(float t) {	
@@ -223,33 +210,17 @@ void hud_render_game_over_out(float t) {
 	}
 	vfont_draw(str, layer, vec2_sub(complete->vec2, half_size), col);
 
-	// Restart Button
-	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
-	if(touches_down() && t == 0.0f) {
-		Touch* t = touches_get();
-		if(t){
-			float r_sqr = 40.0f * 40.0f;		
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < r_sqr) {
-				game_request_reset();
-				malka_states_pop();
-			}
-		}
+	// Restart button
+	if(_hud_button(button_restart, col, t)) {
+		game_request_reset();
+		malka_states_pop();
 	}
 
-	// Quit Button
-	spr_draw_cntr_h(button_quit->spr, layer, button_quit->vec2, 0.0f, 1.0f, col);	
-	if(touches_down() && t == 0.0f) {
-		Touch* t = touches_get();
-		if(t){
-			float r_sqr = 40.0f * 40.0f;
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < r_sqr) {
-				malka_states_pop();
-				malka_states_pop();
-			}
-		}
-	}	
-
-
+	// Quit button
+	if(_hud_button(button_quit, col, t)) {
+		malka_states_pop();
+		malka_states_pop();
+	}
 }
 
 void hud_render_game_over_tut(float t) {
@@ -276,49 +247,24 @@ void hud_render_game_over_tut(float t) {
 	}
 	vfont_draw(str, layer, vec2_sub(complete->vec2, half_size), col);
 
-//	if(!levels_is_final()){
-		// Next Button
-		spr_draw_cntr_h(button_next->spr, layer, button_next->vec2, 0.0f, 1.0f, col);	
-		if(touches_down() && t == 0.0f) {
-			Touch* t = touches_get();
-			if(t){
-				float r_sqr = 40.0f * 40.0f;
-				if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_next->vec2)) < r_sqr) {
-					levels_set_next();
-					game_request_reset();
-					malka_states_pop();
-				}
-			}
-		}
-//	}
-
-	// Restart Button
-	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
-	if(touches_down() && t == 0.0f) {
-		Touch* t = touches_get();
-		if(t){
-			float r_sqr = 40.0f * 40.0f;		
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < r_sqr) {
-				game_request_reset();
-				malka_states_pop();
-			}
-		}
+	// Next button
+	if(_hud_button(button_next, col, t)) {
+		levels_set_next();
+		game_request_reset();
+		malka_states_pop();
 	}
 
-	// Quit Button
-	spr_draw_cntr_h(button_quit->spr, layer, button_quit->vec2, 0.0f, 1.0f, col);	
-	if(touches_down() && t == 0.0f) {
-		Touch* t = touches_get();
-		if(t){
-			float r_sqr = 40.0f * 40.0f;
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < r_sqr) {
-				malka_states_pop();
-				malka_states_pop();
-			}
-		}
+	// Restart button
+	if(_hud_button(button_restart, col, t)) {
+		game_request_reset();
+		malka_states_pop();
 	}
 
-
+	// Quit button
+	if(_hud_button(button_quit, col, t)) {
+		malka_states_pop();
+		malka_states_pop();
+	}
 }
 
 void hud_render_game_over_scores(float t) {
@@ -372,47 +318,23 @@ void hud_render_game_over_scores(float t) {
 		vfont_draw(result_str, layer,vec2_add(result_text->vec2,vec2(0.0f,i*60.0f)), c);
 	}	
 
-	//if(!levels_is_final()){
-		// Next Button
-		spr_draw_cntr_h(button_next->spr, layer, button_next->vec2, 0.0f, 1.0f, col);	
-		if(touches_down() && t == 0.0f) {
-			Touch* t = touches_get();
-			if(t){
-				float r_sqr = 40.0f * 40.0f;
-				if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_next->vec2)) < r_sqr) {
-					levels_set_next();
-					game_request_reset();
-					malka_states_pop();
-				}
-			}	
-		}
-	//}
-
-	// Restart Button
-	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);	
-	if(touches_down() && t == 0.0f) {
-		Touch* t = touches_get();
-		if(t){
-			float r_sqr = 40.0f * 40.0f;
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < r_sqr) {
-				game_request_reset();
-				malka_states_pop();
-			}
-		}
+	// Next button
+	if(_hud_button(button_next, col, t)) {
+		levels_set_next();
+		game_request_reset();
+		malka_states_pop();
 	}
 
-	// Quit Button
-	spr_draw_cntr_h(button_quit->spr, layer, button_quit->vec2, 0.0f, 1.0f, col);	
-	if(touches_down() && t == 0.0f) {
-		Touch* t = touches_get();
-		if(t){
-			float r_sqr = 40.0f * 40.0f;
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < r_sqr) {
-				malka_states_pop();
-				malka_states_pop();
-			}
-		}
-	}	
+	// Restart Button
+	if(_hud_button(button_restart, col, t)) {
+		game_request_reset();
+		malka_states_pop();
+	}
 
-
+	// Quit button
+	if(_hud_button(button_quit, col, t)) {
+		malka_states_pop();
+		malka_states_pop();
+	}
 }
+
