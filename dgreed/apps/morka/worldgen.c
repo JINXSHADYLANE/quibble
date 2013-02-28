@@ -79,7 +79,22 @@ void worldgen_debug_render(){
 	}
 }
 
+static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupParams *params,PowerupType type){
+	uint num = params->count;
+	if(num){
+		float min = (float)(levels_current_desc()->distance + 2.0f) * (1024.0f/3.0f) * levels_current_desc()->powerup_pos[type].x;
+		float max = (float)(levels_current_desc()->distance + 2.0f) * (1024.0f/3.0f) * levels_current_desc()->powerup_pos[type].y;
+		float d = (float)num / levels_current_desc()->powerup_num[type];
+		float place = max - ((max-min) * d);
 
+		if(pos.x > place && pos.x < max){
+			objects_create(desc, pos,(void*)params);
+			params->count--;
+			return true;
+		}
+	}
+	return false;
+}
 
 static void _gen_fg_page(void) {
 	static int prev_advance = 0;
@@ -246,7 +261,13 @@ static void _gen_fg_page(void) {
 		}
 				
 		if(place) {
-			if(sym == 'x') objects_create(&obj_cactus_desc, pos, (void*)spr);
+			if(sym == 'x'){
+				objects_create(&obj_cactus_desc, pos, (void*)spr);
+
+				// placing bomb powerup after cactuses
+				place_powerup(&obj_powerup_desc, vec2(pos.x + advance / 2.0f + 100.0f, 579.0f), &bomb_powerup, BOMB);
+				
+			}
 			else {
 				objects_create(&obj_mushroom_desc, pos, (void*)spr);
 				
@@ -255,7 +276,20 @@ static void _gen_fg_page(void) {
 					Vector2 size = sprsheet_get_size_h(spr);
 					float width = size.x;
 					float height = size.y;
-					if(height > 270.0f)
+
+					if(sym == 'j'){
+
+						// Place rocket or a coin on top of mushroom
+						if(!place_powerup(&obj_powerup_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f)), &rocket_powerup, ROCKET))
+							objects_create(&obj_powerup_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f) ), (void*)&coin_powerup);
+
+					} else if(sym == 'h'){
+
+						// Place shield or a coin on top of mushroom
+						if(!place_powerup(&obj_powerup_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f)), &shield_powerup, SHIELD))
+							objects_create(&obj_powerup_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f) ), (void*)&coin_powerup);
+
+					} else if(height > 270.0f)
 						objects_create(&obj_powerup_desc, vec2_add( pos, vec2(width/2.0f,-height - 50.0f) ), (void*)&coin_powerup);
 				}
 			}	

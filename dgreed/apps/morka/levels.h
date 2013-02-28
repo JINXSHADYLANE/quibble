@@ -10,8 +10,21 @@
 	(level first
 		(distance 100)
 		(rabbits _
-			(spr rabbit_2)
+			(name Tori
+				(spr rabbit_2)
+				(speed 459)
+				(xjump 100)
+				(yjump 450)
+				(max_combo 2)
+			)
 		)
+		(powerups _
+			(rocket _
+				(num 3)
+				(xmin 30)
+				(xmax 60)
+			)
+		)		
 		(background background)
 		(bg_chain bg)
 		(fg_chain fg)
@@ -19,6 +32,14 @@
 	)
 )
 */
+
+typedef enum{
+	BOMB = 0,
+	ROCKET,
+	SHIELD,
+
+	POWERUP_COUNT 
+} PowerupType;
 
 typedef struct {
 	const char* name;
@@ -36,6 +57,9 @@ typedef struct {
 	float ai_rabbit_xjumps[3];
 	float ai_rabbit_yjumps[3];
 	int ai_max_combo[3];
+	// powerup data
+	uint powerup_num[POWERUP_COUNT];
+	Vector2 powerup_pos[POWERUP_COUNT];
 
 } LevelDesc;
 
