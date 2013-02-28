@@ -150,16 +150,16 @@
 		21A6F7EE16D76B03004A22D9 /* vfont_stbtt.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7ED16D76B03004A22D9 /* vfont_stbtt.c */; };
 		21A6F7F216D7D860004A22D9 /* devmode.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7F016D7D860004A22D9 /* devmode.c */; };
 		21D53BA6167A23F0009E6CFC /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA4167A23F0009E6CFC /* vfont.c */; };
-		21DAACE51681CB55002464CD /* obj_pin.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DAACE41681CB55002464CD /* obj_pin.c */; };
 		21ED799A16A54CBB002CA25B /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 21ED799916A54CBB002CA25B /* sys_gfx_ios.m */; };
 		AA0E3F1416BFDFA200A47FFB /* levels.c in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3F1016BFDFA200A47FFB /* levels.c */; };
 		AA0E3F1516BFDFA200A47FFB /* minimap.c in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3F1216BFDFA200A47FFB /* minimap.c */; };
 		AA25266916D25F1B003BD743 /* obj_trampoline.c in Sources */ = {isa = PBXBuildFile; fileRef = AA25266816D25F1B003BD743 /* obj_trampoline.c */; };
 		AA41F55416B93462000D077C /* obj_particle_anchor.c in Sources */ = {isa = PBXBuildFile; fileRef = AA41F55316B93462000D077C /* obj_particle_anchor.c */; };
 		AA64162016D7B7E70066AEA8 /* obj_floater.c in Sources */ = {isa = PBXBuildFile; fileRef = AA64161F16D7B7E70066AEA8 /* obj_floater.c */; };
+		AA7B4FF716DF511C003CCF1E /* ai.c in Sources */ = {isa = PBXBuildFile; fileRef = AA7B4FF516DF511C003CCF1E /* ai.c */; };
+		AA7B4FF916DF5153003CCF1E /* obj_powerup.c in Sources */ = {isa = PBXBuildFile; fileRef = AA7B4FF816DF5153003CCF1E /* obj_powerup.c */; };
 		AA8213B4169DA89200A7EBA8 /* icon~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B3169DA89200A7EBA8 /* icon~ipad.png */; };
 		AA8213B7169DA89500A7EBA8 /* icon@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */; };
-		AA92471716CD30D1002A5247 /* obj_token.c in Sources */ = {isa = PBXBuildFile; fileRef = AA92471616CD30D1002A5247 /* obj_token.c */; };
 		AAA8AD4B16B28C1700C6D752 /* lua_utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4A16B28C1700C6D752 /* lua_utf8.c */; };
 		AAA8AD4F16B2CBB600C6D752 /* obj_fall_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */; };
 		AAA8AD5016B2CBB600C6D752 /* obj_speed_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */; };
@@ -412,7 +412,6 @@
 		21A6F7F016D7D860004A22D9 /* devmode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = devmode.c; sourceTree = SOURCE_ROOT; };
 		21A6F7F116D7D860004A22D9 /* devmode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devmode.h; sourceTree = SOURCE_ROOT; };
 		21D53BA4167A23F0009E6CFC /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../src/vfont.c; sourceTree = "<group>"; };
-		21DAACE41681CB55002464CD /* obj_pin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_pin.c; sourceTree = SOURCE_ROOT; };
 		21ED799916A54CBB002CA25B /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
 		AA0E3F1016BFDFA200A47FFB /* levels.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = levels.c; path = ../levels.c; sourceTree = "<group>"; };
 		AA0E3F1116BFDFA200A47FFB /* levels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = levels.h; path = ../levels.h; sourceTree = "<group>"; };
@@ -421,9 +420,11 @@
 		AA25266816D25F1B003BD743 /* obj_trampoline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_trampoline.c; path = ../obj_trampoline.c; sourceTree = "<group>"; };
 		AA41F55316B93462000D077C /* obj_particle_anchor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_particle_anchor.c; path = ../obj_particle_anchor.c; sourceTree = "<group>"; };
 		AA64161F16D7B7E70066AEA8 /* obj_floater.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_floater.c; sourceTree = SOURCE_ROOT; };
+		AA7B4FF516DF511C003CCF1E /* ai.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ai.c; sourceTree = SOURCE_ROOT; };
+		AA7B4FF616DF511C003CCF1E /* ai.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ai.h; sourceTree = SOURCE_ROOT; };
+		AA7B4FF816DF5153003CCF1E /* obj_powerup.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_powerup.c; sourceTree = SOURCE_ROOT; };
 		AA8213B3169DA89200A7EBA8 /* icon~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon~ipad.png"; sourceTree = "<group>"; };
 		AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x~ipad.png"; sourceTree = "<group>"; };
-		AA92471616CD30D1002A5247 /* obj_token.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_token.c; path = ../obj_token.c; sourceTree = "<group>"; };
 		AAA8AD4A16B28C1700C6D752 /* lua_utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lua_utf8.c; path = ../../src/malka/lua_utf8.c; sourceTree = "<group>"; };
 		AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_fall_trigger.c; path = ../obj_fall_trigger.c; sourceTree = "<group>"; };
 		AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_speed_trigger.c; path = ../obj_speed_trigger.c; sourceTree = "<group>"; };
@@ -524,6 +525,8 @@
 		219BE99D16776981002B614C /* morka */ = {
 			isa = PBXGroup;
 			children = (
+				AA7B4FF516DF511C003CCF1E /* ai.c */,
+				AA7B4FF616DF511C003CCF1E /* ai.h */,
 				21A6F7EF16D7D860004A22D9 /* common.h */,
 				219BEAE616776B3A002B614C /* morka.c */,
 				21A6F7F016D7D860004A22D9 /* devmode.c */,
@@ -548,16 +551,15 @@
 				AA0E3F1316BFDFA200A47FFB /* minimap.h */,
 				219BEAED16776B3A002B614C /* objects.c */,
 				219BEAEE16776B3A002B614C /* objects.h */,
+				AA7B4FF816DF5153003CCF1E /* obj_powerup.c */,
 				AA64161F16D7B7E70066AEA8 /* obj_floater.c */,
 				219BEAEC16776B3A002B614C /* obj_types.h */,
-				21DAACE41681CB55002464CD /* obj_pin.c */,
 				219BEAE816776B3A002B614C /* obj_deco.c */,
 				219BEAE916776B3A002B614C /* obj_ground.c */,
 				219BEAEA16776B3A002B614C /* obj_mushroom.c */,
 				219BEAEB16776B3A002B614C /* obj_rabbit.c */,
 				AA25266816D25F1B003BD743 /* obj_trampoline.c */,
 				AAC85EF616CE916500721CE8 /* obj_cactus.c */,
-				AA92471616CD30D1002A5247 /* obj_token.c */,
 				AA41F55316B93462000D077C /* obj_particle_anchor.c */,
 				AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */,
 				AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */,
@@ -1006,7 +1008,6 @@
 				219BEAFB16776B3A002B614C /* worldgen.c in Sources */,
 				219BEB1C16776EC5002B614C /* miniz.c in Sources */,
 				21D53BA6167A23F0009E6CFC /* vfont.c in Sources */,
-				21DAACE51681CB55002464CD /* obj_pin.c in Sources */,
 				21ED799A16A54CBB002CA25B /* sys_gfx_ios.m in Sources */,
 				AAA8AD4B16B28C1700C6D752 /* lua_utf8.c in Sources */,
 				AAA8AD4F16B2CBB600C6D752 /* obj_fall_trigger.c in Sources */,
@@ -1017,7 +1018,6 @@
 				AAF6778A16C550F400FDF975 /* level_select.c in Sources */,
 				AAF677AB16C550F400FDF975 /* pause.c in Sources */,
 				AAF677AE16C5511500FDF975 /* game_over.c in Sources */,
-				AA92471716CD30D1002A5247 /* obj_token.c in Sources */,
 				AAC85EF716CE916500721CE8 /* obj_cactus.c in Sources */,
 				AA25266916D25F1B003BD743 /* obj_trampoline.c in Sources */,
 				AAD9323316D51CD200F076B9 /* tutorial_pause.c in Sources */,
@@ -1026,6 +1026,8 @@
 				21A6F7EE16D76B03004A22D9 /* vfont_stbtt.c in Sources */,
 				AA64162016D7B7E70066AEA8 /* obj_floater.c in Sources */,
 				21A6F7F216D7D860004A22D9 /* devmode.c in Sources */,
+				AA7B4FF716DF511C003CCF1E /* ai.c in Sources */,
+				AA7B4FF916DF5153003CCF1E /* obj_powerup.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1113,13 +1115,13 @@
 		219BE9B216776981002B614C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (W986WX32QQ)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "899EE11F-002B-4A54-B42E-D8E948784336";
+				PROVISIONING_PROFILE = "26347D49-4968-4CC8-A334-D8C5A7BFC832";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1127,13 +1129,13 @@
 		219BE9B316776981002B614C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (W986WX32QQ)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "899EE11F-002B-4A54-B42E-D8E948784336";
+				PROVISIONING_PROFILE = "26347D49-4968-4CC8-A334-D8C5A7BFC832";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
