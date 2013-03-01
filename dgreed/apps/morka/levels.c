@@ -108,7 +108,6 @@ void levels_init(const char* filename){
 						if(strcmp(txt, "num") == 0) {
 							new.powerup_num[p] = mml_getval_int(&mml, r);
 						} else if(strcmp(txt, "xmin") == 0){
-							// converting percentage of level distance to actual world distance in pixels
 							new.powerup_pos[p].x = mml_getval_float(&mml, r);
 						} else if(strcmp(txt, "xmax") == 0){
 							new.powerup_pos[p].y = mml_getval_float(&mml, r);
@@ -136,7 +135,6 @@ void levels_init(const char* filename){
 				new.ground_chain = mml_getval_str(&mml, child);
 			}
 		}
-		//assert(new.distance);
 		assert(new.background != MAX_UINT32);
 		assert(new.bg_chain);
 		assert(new.fg_chain);

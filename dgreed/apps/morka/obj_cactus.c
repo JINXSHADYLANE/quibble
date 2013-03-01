@@ -39,7 +39,6 @@ static void obj_cactus_update_pos(GameObject* self) {
 	RenderComponent* r = self->render;
 
 	float ct = time_s();
-
 	float t = 0.0f;
 
 	if(ct > cactus->t0 && ct < cactus->t1){
@@ -49,9 +48,6 @@ static void obj_cactus_update_pos(GameObject* self) {
 		cactus->d = sinf(sqrtf(t) * 2.0f * PI) * (1.0f - t) - t/2.0f;
 
 		cactus->d *= 50.0f;	// offset
-
-		//printf("time_s: %f t0: %f t1: %f t: %f d: %f\n",ct,cactus->t0,cactus->t1,t,cactus->d);
-
 	}
 
 	r->world_dest.top = cactus->original.top - cactus->d;
@@ -62,6 +58,10 @@ static void obj_cactus_update_pos(GameObject* self) {
 		cactus->original.top += 1.0f;
 		r->world_dest.bottom += 1.0f;
 	} 
+
+	if(r->world_dest.top > 641.0f)
+		objects_destroy(self);
+
 }
 
 static void obj_cactus_construct(GameObject* self, Vector2 pos, void* user_data) {

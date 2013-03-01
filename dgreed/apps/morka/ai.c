@@ -1,5 +1,6 @@
 #include "ai.h"
 #include "common.h"
+#include <gfx_utils.h>
 
 extern bool draw_ai_debug;
 
@@ -89,25 +90,10 @@ static bool there_is(int obj_type, RectF rec){
 	} else {
 		objects_aabb_query(&rec,&result,1);
 	}
-
+			
 	if(draw_ai_debug){
 		RectF r = objects_world2screen(rec,0);
-
-		Vector2 s = vec2(r.left, r.top);
-		Vector2 e = vec2(r.left, r.bottom);
-		video_draw_line(10,	&s, &e, COLOR_RGBA(0, 0, 255, 255));
-
-		s = vec2(r.right, r.top);
-		e = vec2(r.right, r.bottom);
-		video_draw_line(10,	&s, &e, COLOR_RGBA(0, 0, 255, 255));		
-
-		s = vec2(r.left, r.top);
-		e = vec2(r.right, r.top);
-		video_draw_line(10,	&s, &e, COLOR_RGBA(0, 0, 255, 255));
-
-		s = vec2(r.left, r.bottom);
-		e = vec2(r.right, r.bottom);
-		video_draw_line(10,	&s, &e, COLOR_RGBA(0, 0, 255, 255));															
+		gfx_draw_rect(10, &r, COLOR_RGBA(0, 0, 255, 255));
 	}
 
 	if(result && result->type == obj_type) return true;
