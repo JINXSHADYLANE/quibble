@@ -63,26 +63,12 @@ void obj_rabbit_player_control(GameObject* self){
 		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 
 		Vector2 start;
-		//Vector2 end;
-		//GameObject* obj;
 
 		if(d->touching_ground){
 			tutorials_hint_press(false);
 			// coldet for shroom in front
 			start = vec2(pos.x + 50.0f + p->vel.x * 0.6f,pos.y - 90.0f);
 			
-			/*end = vec2(start.x,pos.y - 50.0f);
-			obj = objects_raycast(start,end);
-
-			// debug render
-			if(draw_ai_debug){
-				RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
-				RectF r = objects_world2screen(rec,0);
-				Vector2 s = vec2(r.left, r.top);
-				Vector2 e = vec2(r.right, r.bottom);
-				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
-			}*/
-
 			RectF rec = {
 				.left = start.x - 35.0f,
 				.top = 500.0f,
@@ -109,19 +95,9 @@ void obj_rabbit_player_control(GameObject* self){
 		} else {
 
 			// coldet below rabbit for shrooms
-			start = vec2(pos.x + (p->vel.x * 0.3f) *(ground_y-pos.y)/ground_y,pos.y+rabbit_hitbox_height+30);
-
-			/*
-			end = vec2(start.x,768.0f);
-			if(draw_ai_debug){
-				RectF rec = {.left = start.x,.top = start.y,.right = end.x,.bottom = end.y};
-				RectF r = objects_world2screen(rec,0);
-				Vector2 s = vec2(r.left, r.top);
-				Vector2 e = vec2(r.right, r.bottom);
-				video_draw_line(10,	&s, &e, COLOR_RGBA(255, 255, 255, 255));
-			}
-			obj = objects_raycast(start,end);
-			*/
+			float x = pos.x + (p->vel.x * 0.3f) *(ground_y-pos.y)/ground_y;
+			float y = pos.y+rabbit_hitbox_height + 30.0f;
+			start = vec2(x,y);
 
 			RectF rec = {
 				.left = start.x - 20.0f,
@@ -193,10 +169,11 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				}
 			}
 			p->cd_obj->pos.y = ground_y;
-			//d->touching_ground = true;
 			p->vel.y = 0.0f;
-			if(p->vel.x < 0.0f) p->vel.x = d->speed;
-			if(minimap_player_x() - p->cd_obj->pos.x < 0.0) d->rubber_band = false;
+			if(p->vel.x < 0.0f) 
+				p->vel.x = d->speed;
+			if(minimap_player_x() - p->cd_obj->pos.x < 0.0) 
+				d->rubber_band = false;
 		}
 
 		if(camera_follow && !d->rubber_band) rabbit->control(self);
@@ -209,8 +186,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		// Constantly move right
 		forces[RUNNING_FORCE] = vec2(d->speed,0.0f);
 
-		// Position for particles
-		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);	// for follower particles
+		// Position for follower particles
+		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 		pos.y += rabbit_hitbox_height - 20;
 	
 		RectF rec = {
@@ -220,7 +197,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			.bottom = 0
 		};
 		RectF result = objects_world2screen(rec,0);
-		Vector2 screen_pos = vec2(result.left,result.top);			// for standard particles
+		// Position for standard particles
+		Vector2 screen_pos = vec2(result.left,result.top);
 
 		RenderComponent* r = self->render;
 		r->anim_frame = anim_frame_ex(rabbit->anim, TIME_S);
@@ -391,7 +369,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		}
 		if(p->cd_obj->pos.y > HEIGHT){
 			rabbit->data->is_dead = true;
-			if(d->rubber_band) printf("rabbit died while rubber_band was active!\n");
 			p->vel.x = 0.0f;
 			p->vel.y = 0.0f;
 			if(!rabbit->data->game_over) rabbit->data->rabbit_time = -1.0f;
@@ -429,7 +406,9 @@ static void obj_rabbit_became_visible(GameObject* self) {
 		Vector2 pos = p->cd_obj->pos;
 
 		// is it safe to appear on screen?
-		Vector2 start = vec2(pos.x + 100.0f + (p->vel.x * 0.4f) *(ground_y-pos.y)/ground_y,768.0f - 100.0f);
+		float x = pos.x + 100.0f + (p->vel.x * 0.4f) *(ground_y-pos.y)/ground_y;
+		float y = HEIGHT - 100.0f;
+		Vector2 start = vec2(x,y);
 		Vector2 end = vec2(start.x-100.0f,start.y);
 		GameObject* obj = objects_raycast(start,end);
 
@@ -446,7 +425,8 @@ static void obj_rabbit_became_visible(GameObject* self) {
 			p->cd_obj->pos.y = ground_y;
 		} else {
 			p->cd_obj->pos.y = rand_float_range(550.0f,ground_y);
-			objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
+			Vector2 force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
+			objects_apply_force(self, force);
 		}
 	} 
 }
@@ -482,9 +462,7 @@ static void _rabbit_delayed_bounce(void* r) {
 		if(d->combo_counter+1 == 3){
 			if(d->player_control) tutorial_event(COMBO_X3);	
 
-			// Position for particles
-			Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);	// for follower particles
-			pos.y += rabbit_hitbox_height - 20;
+			Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 		
 			RectF rec = {
 				.left = pos.x, 
@@ -493,13 +471,14 @@ static void _rabbit_delayed_bounce(void* r) {
 				.bottom = 0
 			};
 			RectF result = objects_world2screen(rec,0);
-			Vector2 screen_pos = vec2(result.left,result.top);			// for standard particles
+			Vector2 screen_pos = vec2(result.left,result.top);
 
 			RenderComponent* render = rabbit->header.render;
 			if(render->was_visible)
 				mfx_trigger_ex("boost_explosion",screen_pos,0.0f);
 		} 
 
+		// Rabbit landing position approximation
 		d->land = p->cd_obj->pos.x + (405.0f-p->vel.y) + p->vel.x + (p->vel.x) / (2.0f + p->vel.x/1000.0f);
 		d->combo_counter++;
 		 
@@ -527,10 +506,6 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			if(!d->touching_ground) {
 				if(d->player_control) hud_trigger_combo(0);
 				anim_play_ex(rabbit->anim, "land", TIME_S);
-				/*printf("p: %f actual: %f  d: %f (%f %)\n",d->jump+self->physics->vel.x,
-														 self->physics->cd_obj->pos.x,
-														 d->jump + self->physics->vel.x - self->physics->cd_obj->pos.x,
-														 self->physics->cd_obj->pos.x/(d->jump+self->physics->vel.x));*/
 			}
 			d->touching_ground = true;
 			cd_rabbit->offset = vec2_add(
@@ -632,8 +607,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	memset(d, 0, sizeof(ObjRabbitData));
 	
 	// Everything is initialized to zero, except these:
-	d->speed = 100.0f;
-
 	if(id < 0){
 		// Player rabbit
 		render->spr = sprsheet_get_handle("rabbit");
