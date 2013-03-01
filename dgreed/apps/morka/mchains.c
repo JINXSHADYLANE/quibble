@@ -322,9 +322,9 @@ char mchains_next(Chain* c, RndContext* rnd) {
 #ifdef _DEBUG
 			if(max_r <= 0) {
 				printf("Unable to follow context %c%c in chain %s\n", 
-						c->rules->symbols[ctx0],
-						c->rules->symbols[ctx1],
-						c->rules->name
+					c->rules->symbols[ctx0],
+					c->rules->symbols[ctx1],
+					c->rules->name
 				);
 				LOG_ERROR("mchains error");
 			}
