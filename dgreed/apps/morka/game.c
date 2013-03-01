@@ -45,7 +45,7 @@ static void game_reset(void) {
 	// AI rabbits
 	for(int i = 0;i < levels_current_desc()->ai_rabbit_num;i++){
 		ai_rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc,
-					 vec2(640.0f+128.0f*i,579.0f),(void*)i);
+					 vec2(640.0f+128.0f*i,579.0f),(void*)(size_t)i);
 		minimap_track(ai_rabbit);
 	}	
 

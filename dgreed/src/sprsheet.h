@@ -40,7 +40,7 @@ Example description:
 
 */
 
-typedef uint SprHandle;
+typedef size_t SprHandle;
 
 void sprsheet_init(const char* desc);
 void sprsheet_close(void);
