@@ -15,8 +15,9 @@
 
 #define TIME_S (malka_state_time("game") + malka_state_time("game_over"))
 
-const static float rabbit_hitbox_width = 70.0f;
-const static float rabbit_hitbox_height = 62.0f;
+static const float rabbit_hitbox_width = 70.0f;
+static const float rabbit_hitbox_height = 62.0f;
+static const float ground_y = 579.0f;
 
 extern bool draw_ai_debug;
 extern bool camera_follow;
@@ -108,7 +109,7 @@ void obj_rabbit_player_control(GameObject* self){
 		} else {
 
 			// coldet below rabbit for shrooms
-			start = vec2(pos.x + (p->vel.x * 0.3f) *(579.0f-pos.y)/579.0f,pos.y+rabbit_hitbox_height+30);
+			start = vec2(pos.x + (p->vel.x * 0.3f) *(ground_y-pos.y)/ground_y,pos.y+rabbit_hitbox_height+30);
 
 			/*
 			end = vec2(start.x,768.0f);
@@ -191,7 +192,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 						forces[RUBBER_BAND_FORCE].x = -force/delta;
 				}
 			}
-			p->cd_obj->pos.y = 579.0f;
+			p->cd_obj->pos.y = ground_y;
 			//d->touching_ground = true;
 			p->vel.y = 0.0f;
 			if(p->vel.x < 0.0f) p->vel.x = d->speed;
@@ -253,7 +254,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				d->falling_down = false;		
 			}
 			// Trampoline
-			if(p->cd_obj->pos.y > 579.0f && p->vel.y > 0.0f && d->tokens >=10 && !d->has_trampoline && !rabbit->data->game_over){
+			if(p->cd_obj->pos.y > ground_y && p->vel.y > 0.0f && d->tokens >=10 && !d->has_trampoline && !rabbit->data->game_over){
 				d->has_trampoline = true;
 				d->tokens -= 10;
 
@@ -396,7 +397,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			if(!rabbit->data->game_over) rabbit->data->rabbit_time = -1.0f;
 		}
 
-		if(p->cd_obj->pos.y < 579.0f) d->touching_ground = false;
+		if(p->cd_obj->pos.y < ground_y) d->touching_ground = false;
 
 		if(!d->game_over) d->rabbit_time += time_delta() / 1000.0f;
 
@@ -418,6 +419,7 @@ static void obj_rabbit_update_pos(GameObject* self) {
 			pos.x - half_w, pos.y - half_h, pos.x + half_w, pos.y + half_h
 	);
 }
+
 static void obj_rabbit_became_visible(GameObject* self) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
@@ -427,7 +429,7 @@ static void obj_rabbit_became_visible(GameObject* self) {
 		Vector2 pos = p->cd_obj->pos;
 
 		// is it safe to appear on screen?
-		Vector2 start = vec2(pos.x + 100.0f + (p->vel.x * 0.4f) *(579.0f-pos.y)/579.0f,768.0f - 100.0f);
+		Vector2 start = vec2(pos.x + 100.0f + (p->vel.x * 0.4f) *(ground_y-pos.y)/ground_y,768.0f - 100.0f);
 		Vector2 end = vec2(start.x-100.0f,start.y);
 		GameObject* obj = objects_raycast(start,end);
 
@@ -441,9 +443,9 @@ static void obj_rabbit_became_visible(GameObject* self) {
 		d->touching_ground = false;
 		if(safe_to_land){
 			p->vel.x = rabbit->header.physics->vel.x;
-			p->cd_obj->pos.y = 579.0f;
+			p->cd_obj->pos.y = ground_y;
 		} else {
-			p->cd_obj->pos.y = rand_float_range(550.0f,579.0f);
+			p->cd_obj->pos.y = rand_float_range(550.0f,ground_y);
 			objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
 		}
 	} 
@@ -454,7 +456,7 @@ static void obj_rabbit_became_invisible(GameObject* self) {
 	PhysicsComponent* p = self->physics;
 	float delta = minimap_player_x() - p->cd_obj->pos.x;
 	if(!d->is_dead && !d->player_control && delta > 0.0f){
-		p->cd_obj->pos.y = 579.0f;
+		p->cd_obj->pos.y = ground_y;
 		p->vel.y = 0.0f;
 		p->acc.y = 0.0f;
 		d->touching_ground = true;
@@ -512,6 +514,7 @@ static void _rabbit_delayed_bounce(void* r) {
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
+
 	// Collision with ground
 	if(other->type == OBJ_GROUND_TYPE) {
 		CDObj* cd_rabbit = self->physics->cd_obj;
@@ -545,40 +548,48 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	// Collision with speed trigger
 	if(other->type == OBJ_SPEED_TRIGGER_TYPE) {
 		ObjSpeedTrigger* t = (ObjSpeedTrigger*)other;
-		objects_apply_force(self, vec2(-self->physics->vel.x * t->drag_coef, 0.0f));
+		objects_apply_force(self, 
+			vec2(-self->physics->vel.x * t->drag_coef, 0.0f)
+		);
 		d->on_water = true;
 	}
 
 	// Collision with mushroom
 	Vector2 vel = self->physics->vel;
-	if(other->type == OBJ_MUSHROOM_TYPE && !d->touching_ground && vel.y > 500.0f) {
-		if(d->bounce_force.y == 0.0f) {
-			d->mushroom_hit_time = time_s();
-			anim_play_ex(rabbit->anim, "bounce", TIME_S);
-			vel.y = -vel.y;
+	if(other->type == OBJ_MUSHROOM_TYPE && !d->touching_ground &&
+		vel.y > 500.0f && d->bounce_force.y == 0.0f) {
 
-			Vector2 f = {
-				.x = MIN(vel.x*d->xjump, 110000.0f),
-				.y = MAX(vel.y*d->yjump,-250000.0f)
-			};
+		d->mushroom_hit_time = time_s();
+		anim_play_ex(rabbit->anim, "bounce", TIME_S);
+		vel.y = -vel.y;
 
-			d->bounce_force = f;
+		Vector2 f = {
+			.x = MIN(vel.x*d->xjump, 110000.0f),
+			.y = MAX(vel.y*d->yjump,-250000.0f)
+		};
 
-			// Slow down vertical movevment
-			self->physics->vel.y *= 0.2f;
+		d->bounce_force = f;
 
-			// Delay actual bouncing 0.1s
-			async_schedule(_rabbit_delayed_bounce, 100, self);
-		}
+		// Slow down vertical movevment
+		self->physics->vel.y *= 0.2f;
+
+		// Delay actual bouncing 0.1s
+		async_schedule(_rabbit_delayed_bounce, 100, self);
 	}
 
 	// Collision with trampoline
 	if(other->type == OBJ_TRAMPOLINE_TYPE) {
 		ObjTrampoline* trampoline = (ObjTrampoline*)other;
-		if(trampoline->owner == self && !d->touching_ground && self->physics->acc.y >= 0.0f) {
+
+		if(trampoline->owner == self && 
+			!d->touching_ground && 
+			self->physics->acc.y >= 0.0f) {
+
 			anim_play_ex(rabbit->anim, "bounce", TIME_S);
 			self->physics->vel.y = 0.0f;
-			objects_apply_force(self, vec2(d->xjump*d->xjump, -d->yjump*d->yjump));
+			objects_apply_force(self, 
+				vec2(d->xjump*d->xjump, -d->yjump*d->yjump)
+			);
 		}
 	}	
 }
@@ -598,7 +609,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	physics->vel = vec2(0.0f, 0.0f);
 	physics->hit_callback = obj_rabbit_collide;
 
-	physics->cd_obj->pos.y = 579.0f;
+	physics->cd_obj->pos.y = ground_y;
 
 	// Init render
 	Vector2 size = sprsheet_get_size("rabbit");
@@ -617,40 +628,14 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 
 	// additional rabbit data
 	rabbit->data = MEM_ALLOC(sizeof(ObjRabbitData));
-	ObjRabbitData*d = rabbit->data;
-
-	d->combo_counter = 0;
-	d->last_keypress_t = 0.0f;
-	d->last_keyrelease_t = 0.0f;
-	d->jump_time = 0.0f;
-	d->mushroom_hit_time = 0.0f;
-
-	d->virtual_key_up = false;
-	d->virtual_key_down = false;
-	d->virtual_key_pressed = false;
-
-	d->touching_ground = true;
-	d->jump_off_mushroom = false;
-	d->is_diving = false;
-	d->is_dead = false;
-	d->on_water = false;
-	d->bounce_force = vec2(0.0f, 0.0f);
-	d->player_control = false;
-	d->falling_down = false;
-	d->rabbit_time = 0.0f;
-	d->game_over = false;
-	d->boost = 0;
+	ObjRabbitData* d = rabbit->data;
+	memset(d, 0, sizeof(ObjRabbitData));
+	
+	// Everything is initialized to zero, except these:
 	d->speed = 100.0f;
-	d->rubber_band = false;
-	d->tokens = 0;
-	d->has_trampoline = false;
-	d->force_jump = false;
-	d->force_dive = false;
-	d->input_disabled = false;
-
-	d->last_frame = 0;
 
 	if(id < 0){
+		// Player rabbit
 		render->spr = sprsheet_get_handle("rabbit");
 		rabbit->control = obj_rabbit_player_control;
 		//rabbit->control = ai_control;
@@ -662,14 +647,17 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		d->yjump = 400.0f;
 		d->ai_max_combo = 0;
 	} else {
-		render->spr = levels_current_desc()->ai_rabbit_spr[id];
-		d->minimap_color = levels_current_desc()->ai_rabbit_colors[id];
+		// AI rabbit
+		LevelDesc* lvl_desc = levels_current_desc();
+
+		render->spr = lvl_desc->ai_rabbit_spr[id];
+		d->minimap_color = lvl_desc->ai_rabbit_colors[id];
 		rabbit->control = ai_control;
-		d->rabbit_name = levels_current_desc()->ai_rabbit_names[id];
-		d->speed = levels_current_desc()->ai_rabbit_speeds[id];
-		d->xjump = levels_current_desc()->ai_rabbit_xjumps[id];
-		d->yjump = levels_current_desc()->ai_rabbit_yjumps[id];
-		d->ai_max_combo = levels_current_desc()->ai_max_combo[id];
+		d->rabbit_name = lvl_desc->ai_rabbit_names[id];
+		d->speed = lvl_desc->ai_rabbit_speeds[id];
+		d->xjump = lvl_desc->ai_rabbit_xjumps[id];
+		d->yjump = lvl_desc->ai_rabbit_yjumps[id];
+		d->ai_max_combo = lvl_desc->ai_max_combo[id];
 		render->layer = ai_rabbit_layer;
 	}
 }
