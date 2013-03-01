@@ -13,8 +13,8 @@ static ObjFloaterParams bomb_floater_params = {
 
 static void obj_powerup_bomb_collide(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
-		ObjRabbit* rabbit = (ObjRabbit*)other;
-		ObjRabbitData* d = rabbit->data;		
+		//ObjRabbit* rabbit = (ObjRabbit*)other;
+		//ObjRabbitData* d = rabbit->data;		
 		
 		// Powerup effect
 		//objects_apply_force(other, vec2(d->xjump*d->xjump*30.0f, -d->yjump)); // PLACEHOLDER
@@ -56,8 +56,8 @@ static ObjFloaterParams rocket_floater_params = {
 
 static void obj_powerup_rocket_collide(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
-		ObjRabbit* rabbit = (ObjRabbit*)other;
-		ObjRabbitData* d = rabbit->data;		
+		//ObjRabbit* rabbit = (ObjRabbit*)other;
+		//ObjRabbitData* d = rabbit->data;		
 		
 		// Powerup effect
 		//objects_apply_force(other, vec2(d->xjump*d->xjump*30.0f, -d->yjump)); // PLACEHOLDER
@@ -99,8 +99,8 @@ static ObjFloaterParams shield_floater_params = {
 
 static void obj_powerup_shield_collide(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
-		ObjRabbit* rabbit = (ObjRabbit*)other;
-		ObjRabbitData* d = rabbit->data;		
+		//ObjRabbit* rabbit = (ObjRabbit*)other;
+		//ObjRabbitData* d = rabbit->data;		
 		
 		// Powerup effect
 		//objects_apply_force(other, vec2(d->xjump*d->xjump*30.0f, -d->yjump)); // PLACEHOLDER
