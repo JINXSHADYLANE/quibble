@@ -472,6 +472,13 @@ float segment_point_dist(Segment s, Vector2 p) {
 	return -d / sqrt(dx*dx + dy*dy);	
 }
 
+static bool _point_in_interval(float s, float e, float x) {
+	if(s <= e)
+		return x >= s && x <= e;
+	else
+		return x <= s && x >= e;
+}
+
 bool segment_intersect(Segment s1, Segment s2, Vector2* p) {
 	const float epsilon = 0.001f;
 
@@ -488,19 +495,16 @@ bool segment_intersect(Segment s1, Segment s2, Vector2* p) {
 
 	float x = (b2*c1 - b1*c2) / det;
 	float y = (a1*c2 - a2*c1) / det;
-	if(MIN(s1.p1.x, s1.p2.x) <= (x+epsilon) &&
-		MAX(s1.p1.x, s1.p2.x) >= (x-epsilon) &&
-		MIN(s2.p1.x, s2.p2.x) <= (x+epsilon) &&
-		MAX(s2.p1.x, s2.p2.x) >= (x-epsilon)) {
-			if(MIN(s1.p1.y, s1.p2.y) <= (y+epsilon) &&
-				MAX(s1.p1.y, s1.p2.y) >= (y-epsilon) &&
-				MIN(s2.p1.y, s2.p2.y) <= (y+epsilon) &&
-				MAX(s2.p1.y, s2.p2.y) >= (y-epsilon)) {
-					if(p)
-						*p = vec2(x, y);
-					return true;		
-			}	
-	}	
+	
+	if( _point_in_interval(s1.p1.x, s1.p2.x, x) &&
+		_point_in_interval(s2.p1.x, s2.p2.x, x) &&
+		_point_in_interval(s1.p1.y, s1.p2.y, y) &&
+		_point_in_interval(s2.p1.y, s2.p2.y, y) ) {
+
+		if(p) *p = vec2(x, y);
+		return true;
+	}
+
 	return false;
 }
 
@@ -668,19 +672,14 @@ Color color_lerp(Color c1, Color c2, float t) {
 	byte r, g, b, a;
 	uint bt = (uint)(t * 255.0f);
 
-	r1 = c1 & 0xFF; c1 >>= 8;
-	g1 = c1 & 0xFF; c1 >>= 8;
-	b1 = c1 & 0xFF; c1 >>= 8;
-	a1 = c1 & 0xFF;
-	r2 = c2 & 0xFF; c2 >>= 8;
-	g2 = c2 & 0xFF; c2 >>= 8;
-	b2 = c2 & 0xFF; c2 >>= 8;
-	a2 = c2 & 0xFF;
+	COLOR_DECONSTRUCT(c1, r1, g1, b1, a1);
+	COLOR_DECONSTRUCT(c2, r2, g2, b2, a2);
 
 	r = r1 + (((r2 - r1) * bt) >> 8);
 	g = g1 + (((g2 - g1) * bt) >> 8);
 	b = b1 + (((b2 - b1) * bt) >> 8);
 	a = a1 + (((a2 - a1) * bt) >> 8);
+
 	return COLOR_RGBA(r, g, b, a);
 }	
 
@@ -909,7 +908,12 @@ void log_send(uint level, const char* format, va_list args) {
 #ifndef ANDROID
 	fprintf(log_file, "%s: %s\n", log_level_to_cstr(log_level), msg_buffer);
 #else
-	__android_log_print(ANDROID_LOG_INFO, "dgreed", "%s: %s\n", log_level_to_cstr(log_level), msg_buffer);
+	__android_log_print(
+		ANDROID_LOG_INFO, 
+		"dgreed", "%s: %s\n", 
+		log_level_to_cstr(log_level), 
+		msg_buffer
+	);
 #endif
 	async_leave_cs(log_cs);
 }
@@ -954,7 +958,8 @@ uint params_find(const char* param) {
 ---------------
 */
 
-bool fs_devmode = false; // If this is true, also look for files in 'prefix + filename'
+// If fs_devmode is true, also look for files in 'prefix + filename'
+bool fs_devmode = false;
 const char* fs_devmode_prefix = "../../bin/";
 
 #ifdef MACOSX_BUNDLE
@@ -1980,14 +1985,12 @@ void* lz_compress(void* input, uint input_size, uint* output_size)
 	assert(output_size);
 	assert(WINDOW_BITS + LENGTH_BITS == 16);
 
-	/* Worst case - 1 additional bit per byte + 4 bytes for original size */
+	// Worst case - 1 additional bit per byte + 4 bytes for original size
 	compressed = MEM_ALLOC(input_size * 9 / 8 + 4);
 
-	/* Write original size */
-	compressed[0] = input_size & 0x000000FF;
-	compressed[1] = (input_size & 0x0000FF00) >> 8;
-	compressed[2] = (input_size & 0x00FF0000) >> 16;
-	compressed[3] = (input_size & 0xFF000000) >> 24;
+	// Write original size
+	for(i = 0; i < 4; ++i)
+		compressed[i] = (input_size >> (8 * i)) & 0xFF;
 
 	read_ptr = 0; write_ptr = 4;
 
@@ -2020,7 +2023,8 @@ void* lz_compress(void* input, uint input_size, uint* output_size)
 
 			if(best_match >= MIN_MATCH) {
 				flag |= 1 << bit;
-				pair = best_match_ptr | ((best_match-MIN_MATCH) << (16 - LENGTH_BITS));
+				pair = best_match_ptr;
+				pair |= ((best_match-MIN_MATCH) << (16 - LENGTH_BITS));
 				compressed[write_ptr++] = pair & 0xFF;
 				compressed[write_ptr++] = pair >> 8;
 				read_ptr += best_match;
@@ -2086,7 +2090,9 @@ void* lz_decompress(void* input, uint input_size, uint* output_size) {
 --------------
 */
 
-static const char* base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char* base64_chars = 
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
 static byte base64_inv[256] = {0};
 static bool base64_initialized = false;
 
