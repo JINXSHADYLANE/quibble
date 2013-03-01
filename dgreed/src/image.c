@@ -369,18 +369,15 @@ void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format) {
 			LOG_WARNING("Unable to load image %s", filename);
 		if(stbi_failure_reason())
 			LOG_WARNING("Fail %s", stbi_failure_reason());
-		file_close(f);
-		*w = x;
-		*h = y;
-		*format = PF_RGBA8888;
 #else
 		int x, y, comp;
 		data = stbi_load_from_file((FILE*)f, &x, &y, &comp, 4);
+#endif
 		file_close(f);
 		*w = x;
 		*h = y;
 		*format = PF_RGBA8888;
-#endif
+
 	}
 
 	return data;

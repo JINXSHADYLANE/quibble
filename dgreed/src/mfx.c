@@ -135,7 +135,10 @@ static void _perform_sub_effect(LiveSubEffect* sf) {
 		if(sf->follow_dir || sf->follow_pos) {
 			sf->dir = sf->follow_dir ? *sf->follow_dir : 0.0f;
 			sf->pos = sf->follow_pos ? *sf->follow_pos : vec2(0.0f, 0.0f);
-			sf->psystem = particles_spawn_ex(sub->name, &p, dir, true, _psystem_die);
+			sf->psystem = particles_spawn_ex(
+				sub->name, &p, dir, 
+				true, _psystem_die
+			);
 			darray_append(&follower_live_sub_effects, sf);
 		}
 		else {
@@ -281,7 +284,8 @@ static void _load_effects(NodeIdx node) {
 				}
 
 				if(strcmp("dir_offset", param_name) == 0) {
-					sub.dir_offset = mml_getval_float(&mfx_mml, param) * DEG_TO_RAD;
+					sub.dir_offset = mml_getval_float(&mfx_mml, param);
+					sub.dir_offset *= DEG_TO_RAD;
 				}
 
 				if(strcmp("pos_offset", param_name) == 0) {
@@ -441,9 +445,9 @@ static void _mfx_trigger(
 		else {
 			// Find a removed live effect, or add new one
 			LiveSubEffectIdx dest = ~0;
-			LiveSubEffect* lives = DARRAY_DATA_PTR(live_sub_effects, LiveSubEffect);
+			LiveSubEffect* lives = darray_get(&live_sub_effects, 0);
 			for(uint j = 0; j < live_sub_effects.size; ++j) {
-                LiveSubEffect* l = (LiveSubEffect*)darray_get(&live_sub_effects, j);
+                LiveSubEffect* l = &lives[j];
 				if(l->remove) {
 					dest = j;
 					break;
