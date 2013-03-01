@@ -5,52 +5,44 @@
 #include "darray.h"
 #include "memory.h"
 
-#ifdef TARGET_IOS
-	// Try not to allocate less than 1/4 k
-	#define MINIMAL_CHUNK 256 
-	// Do not double array size when expanding if it's bigger than 1/2 meg
-	#define DOUBLING_BOUND 1024 * 512
-	// Instead, expand by this amount every time we run out of space
-	#define EXPAND_AMOUNT 1024 * 256
-#else
-	// Try not to allocate less than 1k
-	#define MINIMAL_CHUNK 1024 
-	// Do not double array size when expanding if it's bigger than 1 meg
-	#define DOUBLING_BOUND 1024 * 1024
-	// Instead, expand by this amount every time we run out of space
-	#define EXPAND_AMOUNT 1024 * 512
-#endif
-
-// TODO: remove this
+#define MINIMAL_CHUNK 256 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 #ifdef TRACK_MEMORY
-DArray darray_create_tracked(size_t item_size, unsigned int reserve,
-		const char* file, int line) {
-	unsigned int initial_reserve = MINIMAL_CHUNK / item_size;
-	if(initial_reserve == 0)
-		initial_reserve = 1;
-
-	reserve = MAX(reserve, initial_reserve);	
-	DArray result = {NULL, item_size, 0, reserve};
+DArray darray_create_tracked(
+		size_t item_size, unsigned int reserve,
+		const char* file, int line
+	) {
 	
-	result.data = mem_alloc(item_size * reserve, file, line);
+	if(!reserve) 
+		reserve = MAX(1, MINIMAL_CHUNK / item_size);
+	
+	DArray darr = {
+		.data = mem_alloc(item_size * reserve, file, line),
+		.item_size = item_size,
+		.size = 0,
+		.reserved = reserve
+	};
 
-	return result;
+	return darr;
 }
 #else
-DArray darray_create_untracked(size_t item_size, unsigned int reserve) {
-	unsigned int initial_reserve = MINIMAL_CHUNK / item_size;
-	if(initial_reserve == 0)
-		initial_reserve = 1;
-
-	reserve = MAX(reserve, initial_reserve);	
-	DArray result = {NULL, item_size, 0, reserve};
+DArray darray_create_untracked(
+		size_t item_size, unsigned int reserve
+	) {
 	
-	result.data = MEM_ALLOC(item_size * reserve);
+	if(!reserve) 
+		reserve = MAX(1, MINIMAL_CHUNK / item_size);
+	
+	DArray darr = {
+		.data = MEM_ALLOC(item_size * reserve),
+		.item_size = item_size,
+		.size = 0,
+		.reserved = reserve
+	};
 
-	return result;
-}	
+	return darr;
+}
 #endif
 
 void darray_free(DArray* array) {
@@ -65,34 +57,24 @@ void darray_free(DArray* array) {
 	assert(array->data == NULL);
 }		
 
-static void _expand_by_count(DArray* array, unsigned int count) {
-	unsigned int expand_amount = EXPAND_AMOUNT / (array->item_size);
-	if(expand_amount == 0)
-		expand_amount = 1;
-
-	unsigned int new_reservation = array->reserved * array->item_size > DOUBLING_BOUND ?	
-		array->reserved + expand_amount : array->reserved * 2;
-
-	if(new_reservation <= array->size + count)
-		new_reservation = array->size + count;
-
-	darray_reserve(array, new_reservation);	
-}
-
 void darray_append(DArray* array, const void* item_ptr) {
 	assert(array);
 	assert(array->data);
 	assert(item_ptr);
-
 	assert(array->size <= array->reserved);
 
-	if(array->size == array->reserved) 
-		_expand_by_count(array, 1);
+	size_t s = array->size;
 
-	assert(array->size < array->reserved);
+	if(s == array->reserved) 
+		darray_reserve(array, s * 2);
+	assert(s < array->reserved);
 
-	memcpy(array->data + array->item_size * array->size, 
-		item_ptr, array->item_size);
+	memcpy(
+		array->data + array->item_size * s, 
+		item_ptr, 
+		array->item_size
+	);
+
 	array->size++;	
 }
 
@@ -103,20 +85,19 @@ void darray_insert(DArray* array, unsigned int index, const void* item_ptr) {
 	assert(item_ptr);
 	assert(array->size <= array->reserved);
 
-	if(index == array->size) {
-		darray_append(array, item_ptr);
-		return;
-	}	
-
+	size_t s = array->size;
+	
 	if(array->size == array->reserved)
-		_expand_by_count(array, 1);
-
-	assert(array->size < array->reserved);	
+		darray_reserve(array, s * 2);
+	assert(s < array->reserved);	
 
 	// Move all items starting from index forward
 	void* addr = array->data + index * array->item_size;
-	memmove(addr + array->item_size, addr, 
-		array->item_size * (array->size - index));
+	memmove(
+		addr + array->item_size, 
+		addr, 
+		array->item_size * (array->size - index)
+	);
 
 	// Copy new item
 	memcpy(addr, item_ptr, array->item_size);
@@ -129,17 +110,22 @@ void darray_append_multi(DArray* array, const void* item_ptr, unsigned int count
 	assert(array->data);
 	assert(item_ptr);
 	assert(count);
-
 	assert(array->size <= array->reserved);
 
-	if(array->size + count > array->reserved) {
-		// Not enough space, allocate more
-		_expand_by_count(array, count);
-	}	
-	assert(array->size + count <= array->reserved);
+	size_t s = array->size;
+	size_t r = array->reserved;
 
-	memcpy(array->data + array->item_size * array->size,
-		item_ptr, array->item_size * count);
+	while(s + count > r)
+		r *= 2;
+	if(r > array->reserved)
+		darray_reserve(array, r);
+	assert(s + count <= array->reserved);
+
+	memcpy(
+		array->data + array->item_size * s,
+		item_ptr,
+		array->item_size * count
+	);
 	array->size += count;	
 }		
 
@@ -149,14 +135,19 @@ void darray_append_nulls(DArray* array, unsigned int count) {
 	assert(count);
 	assert(array->size <= array->reserved);
 
-	if(array->size + count > array->reserved) {
-		// Alloc space
-		_expand_by_count(array, count);
-	}
-	assert(array->size + count <= array->reserved);
+	size_t s = array->size;
+	size_t r = array->reserved;
 
-	memset(array->data + array->item_size * array->size, 0,
-			array->item_size * count);
+	while(s + count > r)
+		r *= 2;
+	if(r > array->reserved)
+		darray_reserve(array, r);
+	assert(s + count <= array->reserved);
+
+	memset(
+		array->data + array->item_size * s,
+		0, array->item_size * count
+	);
 	array->size += count;
 }
 
@@ -188,7 +179,6 @@ void darray_remove_fast(DArray* array, unsigned int index) {
 
 void darray_reserve(DArray* array, unsigned int count) {
 	assert(array);
-	//assert(array->data);
 	assert(array->size <= array->reserved);
 
 	if(count <= array->reserved)
