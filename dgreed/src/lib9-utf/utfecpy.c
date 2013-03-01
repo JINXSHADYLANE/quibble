@@ -18,7 +18,7 @@
 #include "utfdef.h"
 
 // protype
-//void *memccpy(void *s1, const void *s2, int c, size_t n);
+void *memccpy(void *s1, const void *s2, int c, size_t n);
 
 char* utfecpy(char *to, char *e, const char *from)
 {

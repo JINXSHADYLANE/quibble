@@ -644,7 +644,7 @@ static void _coldet_cell_cast(CDWorld* cd, int cell_x, int cell_y,
 	CDObj* pos;
 	list_for_each_entry(pos, &cell->objs, list) {
 		if(pos->mask & mask) {
-			Vector2 hitp;
+			Vector2 hitp = {0.0f,0.0f};
 			bool hittest = false;
 
 			// AABB
