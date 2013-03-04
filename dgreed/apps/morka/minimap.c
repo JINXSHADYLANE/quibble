@@ -77,6 +77,8 @@ void minimap_draw(void){
 		};
 		spr_draw_h(handle, hud_layer,dest,rabbit->data->minimap_color);
 	}
+
+	minimap_update_places();
 }
 
 void minimap_update_places(void){
