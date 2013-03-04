@@ -39,7 +39,6 @@ static void obj_powerup_bomb_collide(GameObject* self, GameObject* other) {
 PowerupParams bomb_powerup = {
 	.spr = "bomb",
 	.btn = "btn_bomb",
-	.count = 0,
 	.hit_callback = obj_powerup_bomb_collide
 };
 
@@ -79,7 +78,6 @@ static void obj_powerup_rocket_collide(GameObject* self, GameObject* other) {
 PowerupParams rocket_powerup = {
 	.spr = "rocket",
 	.btn = "btn_rocket",
-	.count = 0,
 	.hit_callback = obj_powerup_rocket_collide
 };
 
@@ -119,7 +117,6 @@ static void obj_powerup_shield_collide(GameObject* self, GameObject* other) {
 PowerupParams shield_powerup = {
 	.spr = "shield",
 	.btn = "btn_shield",
-	.count = 0,
 	.hit_callback = obj_powerup_shield_collide
 };
 
@@ -158,7 +155,6 @@ static void obj_powerup_coin_collide(GameObject* self, GameObject* other) {
 PowerupParams coin_powerup = {
 	.spr = "token",
 	.btn = NULL,
-	.count = 0,
 	.hit_callback = obj_powerup_coin_collide
 };
 
@@ -193,4 +189,3 @@ GameObjectDesc obj_powerup_desc = {
 	.construct = obj_powerup_construct,
 	.destruct = NULL
 };
-

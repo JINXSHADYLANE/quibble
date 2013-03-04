@@ -171,7 +171,6 @@ extern GameObjectDesc obj_bg_particle_anchor_desc;
 typedef struct {
 	const char* spr;
 	const char* btn;
-	uint count;
 	PhysicsHitCallback hit_callback;
 } PowerupParams;
 
