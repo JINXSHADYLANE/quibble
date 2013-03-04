@@ -231,59 +231,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			} else if (p->vel.y <= 0.0f) {
 				d->falling_down = false;		
 			}
-			// Trampoline
-			if(p->cd_obj->pos.y > ground_y && p->vel.y > 0.0f && d->tokens >=10 && !d->has_trampoline && !rabbit->data->game_over){
-				d->has_trampoline = true;
-				d->tokens -= 10;
-
-				// Trampoline sprite
-				SprHandle sprt = sprsheet_get_handle("trampoline");
-				Vector2 size = sprsheet_get_size_h(sprt);
-				float width = size.x;
-				float height = size.y;
-
-				// find the gap to draw trampoline in
-				Vector2 start = vec2(p->cd_obj->pos.x + rabbit_hitbox_width,HEIGHT + 100.0f);
-				Vector2 end = vec2(start.x,HEIGHT - 100.0f);
-				GameObject* obj = objects_raycast(start,end);
-				Vector2 gap_pos = vec2(0.0f,0.0f);
-				Vector2 txt_pos = vec2(0.0f,0.0f);
-				bool found = false;
-			calc_trampoline_pos:
-				if(obj){
-					if(obj->type == OBJ_FALL_TRIGGER_TYPE) {
-						PhysicsComponent* p = obj->physics;
-						gap_pos = vec2(p->cd_obj->pos.x + (p->cd_obj->size.size.x - width) / 2.0f,HEIGHT + 15.0f);
-						txt_pos = vec2(p->cd_obj->pos.x + (p->cd_obj->size.size.x) / 2.0f,HEIGHT + 15.0f - height);
-						found = true;
-					} else if(obj->type == OBJ_TRAMPOLINE_TYPE) {
-						RenderComponent* render = obj->render;
-						gap_pos = vec2(render->world_dest.left,HEIGHT + 15.0f);
-						txt_pos = vec2(render->world_dest.left + width / 2.0f,HEIGHT + 15.0f - height);
-						found = true;						
-					}
-				}
-
-				if(!found){
-					start = vec2(p->cd_obj->pos.x - 50.0f,HEIGHT + 100.0f);
-					end = vec2(start.x,HEIGHT - 100.0f);
-					obj = objects_raycast(start,end);
-					goto calc_trampoline_pos;
-				}
-
-				assert(found);
-
-				// Create Trampoline
-				ObjTrampoline* trampoline = (ObjTrampoline*) objects_create(&obj_trampoline_desc, gap_pos, (void*)sprt);
-				trampoline->owner = self;
-
-				if(d->player_control){
-					sprt = sprsheet_get_handle("token_tag");
-
-					// Create floating text
-					objects_create(&obj_floater_desc, txt_pos, (void*)&trampoline_floater_params);
-				}
-			}
 
 			if(ts - d->mushroom_hit_time < 0.1f) {
 
@@ -518,6 +465,34 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	// Collision with fall trigger
 	if(other->type == OBJ_FALL_TRIGGER_TYPE) {
 		if(!d->rubber_band) d->touching_ground = false;
+		PhysicsComponent* p = self->physics;	
+
+		// Trampoline
+		if(p->cd_obj->pos.y > ground_y && d->tokens >=10 && !d->has_trampoline && !rabbit->data->game_over){
+			d->has_trampoline = true;
+			d->tokens -= 10;
+
+			// Trampoline sprite
+			SprHandle sprt = sprsheet_get_handle("trampoline");
+			Vector2 size = sprsheet_get_size_h(sprt);
+			float width = size.x;
+			float height = size.y;
+
+			PhysicsComponent* gap = other->physics;
+			Vector2 gap_pos = vec2(gap->cd_obj->pos.x + (gap->cd_obj->size.size.x - width) / 2.0f,HEIGHT + 15.0f);
+			Vector2 txt_pos = vec2(gap->cd_obj->pos.x + (gap->cd_obj->size.size.x) / 2.0f,HEIGHT + 15.0f - height);
+
+			// Create Trampoline
+			ObjTrampoline* trampoline = (ObjTrampoline*) objects_create(&obj_trampoline_desc, gap_pos, (void*)sprt);
+			trampoline->owner = self;
+
+			if(d->player_control){
+				sprt = sprsheet_get_handle("token_tag");
+
+				// Create floating text
+				objects_create(&obj_floater_desc, txt_pos, (void*)&trampoline_floater_params);
+			}
+		}
 	}
 
 	// Collision with speed trigger
@@ -605,7 +580,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	rabbit->data = MEM_ALLOC(sizeof(ObjRabbitData));
 	ObjRabbitData* d = rabbit->data;
 	memset(d, 0, sizeof(ObjRabbitData));
-	
 	// Everything is initialized to zero, except these:
 	if(id < 0){
 		// Player rabbit
@@ -618,7 +592,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		d->speed = 500.0f;
 		d->xjump = 100.0f;
 		d->yjump = 400.0f;
-		d->ai_max_combo = 0;
 	} else {
 		// AI rabbit
 		LevelDesc* lvl_desc = levels_current_desc();
