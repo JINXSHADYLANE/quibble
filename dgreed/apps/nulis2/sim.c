@@ -606,7 +606,7 @@ Ball _balls_merge(Ball* a, Ball* b) {
 	Vector2 pb = vec2_scale(vec2_sub(b->pos, b->old_pos), 1.0f / a->inv_mass);
 	Vector2 pn = vec2_add(pa, pb);
 
-	Ball new;
+	Ball new = {{0.0f}};
 
 	Vector2 path;
 	_distance(a->pos, b->pos, &path);

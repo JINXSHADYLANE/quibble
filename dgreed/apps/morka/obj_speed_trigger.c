@@ -19,10 +19,8 @@ static void obj_speed_trigger_construct(GameObject* self, Vector2 pos, void* use
 
 	Vector2 size = sprsheet_get_size_h(spr_handle);
 	float width = size.x;
-	//float height = size.y;
 
 	// Physics
-
 	PhysicsComponent* physics = self->physics;
 	RectF collider = {
 		pos.x, pos.y - 127 - 10,

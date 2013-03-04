@@ -1,5 +1,6 @@
 #include "pause.h"
 #include "game.h"
+#include "hud.h"
 #include "common.h"
 #include <uidesc.h>
 #include <vfont.h>
@@ -50,41 +51,20 @@ static bool pause_render(float t) {
 	vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
 
 	// Play (continue) button
-	spr_draw_cntr_h(button_play->spr, layer, button_play->vec2, 0.0f, 1.0f, col);
-	if(touches_down() && t == 0.0f) {
-		Touch* t = touches_get();
-		if(t){
-			float r_sqr = 40.0f * 40.0f;
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_play->vec2)) < r_sqr) {
-				malka_states_pop();
-			}
-		}
+	if(hud_button(button_play, col, t)) {
+		malka_states_pop();
 	}
 
 	// Restart button
-	spr_draw_cntr_h(button_restart->spr, layer, button_restart->vec2, 0.0f, 1.0f, col);
-	if(touches_down() && t == 0.0f) {
-		Touch* t = touches_get();
-		if(t){
-			float r_sqr = 40.0f * 40.0f;
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_restart->vec2)) < r_sqr) {
-				game_request_reset();
-				malka_states_pop();
-			}
-		}
+	if(hud_button(button_restart, col, t)) {
+		game_request_reset();
+		malka_states_pop();
 	}
 
 	// Quit button
-	spr_draw_cntr_h(button_quit->spr, layer, button_quit->vec2, 0.0f, 1.0f, col);
-	if(touches_down() && t == 0.0f) {
-		Touch* t = touches_get();
-		if(t){
-			float r_sqr = 40.0f * 40.0f;
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, button_quit->vec2)) < r_sqr) {
-				malka_states_pop();
-				malka_states_pop();
-			}
-		}
+	if(hud_button(button_quit, col, t)) {
+		malka_states_pop();
+		malka_states_pop();
 	}
 
 	return true;

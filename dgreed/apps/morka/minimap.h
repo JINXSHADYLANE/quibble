@@ -4,22 +4,19 @@
 #include "obj_types.h"
 #include <darray.h>
 
-void minimap_init();
+void minimap_init(void);
 void minimap_close(void);
-
-void minimap_track(ObjRabbit* rabbit);
-
-void minimap_draw();
-
 void minimap_reset(uint distance);
+void minimap_track(ObjRabbit* rabbit);
+void minimap_draw(void);
+void minimap_draw_finish_line(void);
+void minimap_update_places(void);
 
-float minimap_max_x();
+float minimap_max_x(void);
+float minimap_player_x(void);
 
-float minimap_player_x();
+uint minimap_get_count(void);
 
-void minimap_update_places();
-
-uint minimap_get_count();
 ObjRabbit* minimap_get_rabbit(uint i);
 ObjRabbit* minimap_get_place(uint i);
 

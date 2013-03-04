@@ -16,4 +16,6 @@ void hud_render_game_over_tut(float t);
 void hud_render_game_over_out(float t);
 void hud_render_game_over_scores(float t);
 
+bool hud_button(UIElement* element, Color col, float ts);
+
 #endif
