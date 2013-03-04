@@ -7,10 +7,7 @@
 #include <vfont.h>
 #include <malka/ml_states.h>
 
-extern void game_reset(void);
 extern void game_pause(void);
-extern void game_unpause(void);
-extern bool game_is_paused(void);
 
 extern ObjRabbit* rabbit;
 extern bool tutorial_level;
@@ -172,11 +169,10 @@ void hud_render(float t) {
 	}	
 
 	// Minimap
-	if(minimap_get_count() > 1) minimap_draw();
-	minimap_update_places();
+	if(levels_current_desc()->distance > 0) minimap_draw();	
 }
 
-static bool _hud_button(UIElement* element, Color col, float ts) {
+bool hud_button(UIElement* element, Color col, float ts) {
 	spr_draw_cntr_h(element->spr, hud_layer+1, element->vec2, 0.0f, 1.0f, col);	
 	Touch* t = touches_get();
 	if(touches_down() && t && ts == 0.0f) {
@@ -211,13 +207,13 @@ void hud_render_game_over_out(float t) {
 	vfont_draw(str, layer, vec2_sub(complete->vec2, half_size), col);
 
 	// Restart button
-	if(_hud_button(button_restart, col, t)) {
+	if(hud_button(button_restart, col, t)) {
 		game_request_reset();
 		malka_states_pop();
 	}
 
 	// Quit button
-	if(_hud_button(button_quit, col, t)) {
+	if(hud_button(button_quit, col, t)) {
 		malka_states_pop();
 		malka_states_pop();
 	}
@@ -248,20 +244,20 @@ void hud_render_game_over_tut(float t) {
 	vfont_draw(str, layer, vec2_sub(complete->vec2, half_size), col);
 
 	// Next button
-	if(_hud_button(button_next, col, t)) {
+	if(hud_button(button_next, col, t)) {
 		levels_set_next();
 		game_request_reset();
 		malka_states_pop();
 	}
 
 	// Restart button
-	if(_hud_button(button_restart, col, t)) {
+	if(hud_button(button_restart, col, t)) {
 		game_request_reset();
 		malka_states_pop();
 	}
 
 	// Quit button
-	if(_hud_button(button_quit, col, t)) {
+	if(hud_button(button_quit, col, t)) {
 		malka_states_pop();
 		malka_states_pop();
 	}
@@ -319,20 +315,20 @@ void hud_render_game_over_scores(float t) {
 	}	
 
 	// Next button
-	if(_hud_button(button_next, col, t)) {
+	if(hud_button(button_next, col, t)) {
 		levels_set_next();
 		game_request_reset();
 		malka_states_pop();
 	}
 
 	// Restart Button
-	if(_hud_button(button_restart, col, t)) {
+	if(hud_button(button_restart, col, t)) {
 		game_request_reset();
 		malka_states_pop();
 	}
 
 	// Quit button
-	if(_hud_button(button_quit, col, t)) {
+	if(hud_button(button_quit, col, t)) {
 		malka_states_pop();
 		malka_states_pop();
 	}

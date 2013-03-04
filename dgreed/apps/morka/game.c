@@ -20,9 +20,7 @@ bool draw_ai_debug = false;
 
 // Game state
 ObjRabbit* rabbit = NULL;
-ObjRabbit* ai_rabbit = NULL;
 float camera_follow_weight;
-float rabbit_current_distance;
 float bg_scroll = 0.0f;
 
 static bool game_need_reset = true;
@@ -38,14 +36,17 @@ static void game_reset(void) {
 	minimap_reset(levels_current_desc()->distance);
 
 	// Player rabbit
-	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc, vec2(512.0f, 579.0f), (void*)-1);
+	Vector2 pos = vec2(512.0f, 579.0f);
+	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc,pos,(void*)-1);
 	minimap_track(rabbit);
 	tutorials_reset(rabbit);
 
 	// AI rabbits
 	for(int i = 0;i < levels_current_desc()->ai_rabbit_num;i++){
-		ai_rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc,
-					 vec2(640.0f+128.0f*i,579.0f),(void*)(size_t)i);
+		Vector2 pos = vec2(640.0f+128.0f*i,579.0f);
+		ObjRabbit* ai_rabbit = (ObjRabbit*)objects_create(
+			&obj_rabbit_desc, pos, (void*)(size_t)i
+		);
 		minimap_track(ai_rabbit);
 	}	
 
@@ -62,15 +63,16 @@ static void game_reset(void) {
 	worldgen_reset(rand_uint(),levels_current_desc());
 
 	camera_follow_weight = 0.2f;
-	rabbit_current_distance = 0.0f;
 	game_over = false;
 
 	camera_follow = false;
 
 	hud_trigger_combo(0);
 
+	// Check if this level is a tutorial
 	tutorial_level = !strcmp(levels_current_desc()->name, "level1");
 
+	// Reset powerup counters
 	bomb_powerup.count = levels_current_desc()->powerup_num[BOMB];
 	rocket_powerup.count = levels_current_desc()->powerup_num[ROCKET];
 	shield_powerup.count = levels_current_desc()->powerup_num[SHIELD];
@@ -79,7 +81,6 @@ static void game_reset(void) {
 static void game_init(void) {
 	levels_init(ASSETS_DIR "levels.mml");
 	objects_init();
-
 	hud_init();
 	minimap_init();
 	tutorials_init();
@@ -95,19 +96,15 @@ static void game_enter(void) {
 	game_unpause();
 }
 
+static void game_leave(void) {
+}
+
 void game_end(void){
 	game_over = true;
 }
 
 void game_request_reset(void){
 	game_need_reset = true;
-}
-
-static void game_leave(void) {
-}
-
-bool game_is_paused(void) {
-	return game_paused;
 }
 
 void game_pause(void) {
@@ -149,41 +146,48 @@ static void _move_camera(float new_pos_x, float follow_weight) {
 }
 
 bool game_update(void) {
-	if(game_is_paused())
+	if(game_paused)
 		return true;
 
-	if(levels_current_desc()->distance > 0 && rabbit_current_distance >= levels_current_desc()->distance && !game_over) {
-		game_over = true;
-		game_over_set_screen(SCORES_SCREEN);
-		malka_states_push("game_over");
-	}
-
 	if(rabbit && rabbit->header.type) {
-		if(rabbit->data->is_dead && !game_over){
-			game_over = true;
-			game_over_set_screen(OUT_SCREEN);
-			malka_states_push("game_over");
-		}
-				
+
+		float rabbit_pos = rabbit->header.render->world_dest.left;
+
 		if(game_over)
 			camera_follow_weight *= 0.95f;
-	
-		// Make camera follow rabbit
-		if(!game_over)
-			rabbit_current_distance = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
-	
-		_move_camera(rabbit->header.render->world_dest.left + 45.0f, camera_follow_weight);
+		else {
+
+			float rabbit_distance = rabbit_pos / (1024.0f / 3.0f) - 2.0f;
+			float level_distance = levels_current_desc()->distance;
+
+			if(level_distance > 0 && rabbit_distance >= level_distance) {
+				game_over = true;
+				game_over_set_screen(SCORES_SCREEN);
+				malka_states_push("game_over");
+			}
+
+			if(rabbit->data->is_dead){
+				game_over = true;
+				game_over_set_screen(OUT_SCREEN);
+				malka_states_push("game_over");
+			}
+
+		}
+
+		_move_camera(rabbit_pos + 45.0f, camera_follow_weight);
 	}
+
 	float pos = minimap_max_x();
 	worldgen_update( pos, pos );
-
 
 	// spawn background dust particles
 	static int delta = 0;	
 	if(delta == 0){
 		delta = rand_int(40,70); // new particle every 40-70 frames
-		Vector2 particle_pos = vec2(rand_float_range(objects_camera[2].left,objects_camera[2].right), rand_float_range(0.0f,579.0f));
-		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_bg_particle_anchor_desc, particle_pos, NULL);
+		float x = rand_float_range(objects_camera[2].left,objects_camera[2].right);
+		float y = rand_float_range(0.0f,579.0f);
+		Vector2 pos = vec2(x,y);
+		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_bg_particle_anchor_desc, pos, NULL);
 		mfx_trigger_follow("dusts",&anchor->screen_pos,NULL);
 	}
 	delta--;
@@ -201,7 +205,7 @@ bool game_update_empty(void) {
 
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
 	
-	if(!game_is_paused()){
+	if(!game_paused){
 		particles_update(time_s());
 	} 
 
@@ -212,9 +216,10 @@ bool game_render(float t) {
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
 	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);
-	spr_draw_h(levels_current_desc()->background, background_layer, dest, COLOR_WHITE);
+	Color col = COLOR_WHITE;
+	spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
 	dest = rectf(1024.0f - off_x, 0.0f, 0.0f, 0.0f);
-	spr_draw_h(levels_current_desc()->background, background_layer, dest, COLOR_WHITE); 
+	spr_draw_h(levels_current_desc()->background, background_layer, dest, col); 
 
 	objects_tick(game_paused);
 
@@ -223,9 +228,13 @@ bool game_render(float t) {
 	
 	if(draw_ground_debug) worldgen_debug_render();
 
-	if(tutorials_are_enabled() && !game_paused) tutorial_event(AUTO);
-	if(tutorials_are_enabled() && !tutorials_show_paused()) tutorials_render(0);
-	
+	if(tutorials_are_enabled()){ 
+		if(!game_paused) tutorial_event(AUTO);
+		if(tutorials_during_gameplay()) tutorials_render(0);
+	}
+
+	minimap_draw_finish_line();
+
 	return true;
 }
 
