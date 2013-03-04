@@ -24,6 +24,8 @@ static int gaps_i = 0;
 static int coins = 3;
 static int coins_cd = 2;
 
+static uint powerups[POWERUP_COUNT];
+
 static void _gen_bg_page(void) {
 	SprHandle spr;	
 	uint advance;
@@ -80,7 +82,7 @@ void worldgen_debug_render(){
 }
 
 static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupParams *params,PowerupType type){
-	uint num = params->count;
+	uint num = powerups[type];
 	if(num){
 		float min = (float)(levels_current_desc()->distance + 2.0f) * (1024.0f/3.0f) * levels_current_desc()->powerup_pos[type].x;
 		float max = (float)(levels_current_desc()->distance + 2.0f) * (1024.0f/3.0f) * levels_current_desc()->powerup_pos[type].y;
@@ -89,7 +91,7 @@ static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupParams *param
 
 		if(pos.x > place && pos.x < max){
 			objects_create(desc, pos,(void*)params);
-			params->count--;
+			powerups[type]--;
 			return true;
 		}
 	}
@@ -329,8 +331,15 @@ void worldgen_reset(uint seed, const LevelDesc* desc) {
 
 	_gen_bg_page();
 	_gen_fg_page();
+
+	// reset coin counters (3 coins every 2nd page)
 	coins = 3;
-	coins_cd = 2;	
+	coins_cd = 2;
+
+	// reset powerup counters
+	powerups[BOMB] = levels_current_desc()->powerup_num[BOMB];
+	powerups[ROCKET] = levels_current_desc()->powerup_num[ROCKET];
+	powerups[SHIELD] = levels_current_desc()->powerup_num[SHIELD];
 }
 
 void worldgen_close(void) {
