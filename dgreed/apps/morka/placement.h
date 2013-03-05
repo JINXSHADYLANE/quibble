@@ -5,21 +5,18 @@
 #include <darray.h>
 
 typedef struct{
-	float before;
-	float after;
 	const char* tiles;	
 	const char* unwanted;
 } PlacementRuleReadable;
 
 typedef struct{
-	Vector2 range;
-	DArray tiles;	
-	DArray unwanted;
+	uint start_tile, n_tiles;
+	uint start_unwanted, n_unwanted;
 } PlacementRule;
 
 typedef struct{
 	Vector2 range;
-	DArray* unwanted;
+	uint start_unwanted, n_unwanted;
 } PlacementInterval;
 
 void placement_init(void);

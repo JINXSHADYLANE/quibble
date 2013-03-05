@@ -99,19 +99,19 @@ static void _gen_ground(void){
 		} else {
 			if(sym == '_' || sym == '-' || sym == '='){
 				Vector2 pos = vec2(fg_page_cursor + ground_x - prev_advance, 768.0f);
-				prev_advance = advance;
 
 				placement_interval(vec2(pos.x,pos.x + advance),empty_spr);
 
 				// Fall trigger
 				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
 
-				if(!tutorial_level){
+				if(!tutorial_level){				
 					// Coins over gap
-					objects_create(&obj_powerup_desc, vec2(pos.x + prev_advance + advance/2.0f,400.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x - advance/2.5f + prev_advance + advance/2.0f,425.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance/2.5f + prev_advance + advance/2.0f,425.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + prev_advance + advance /2.0f - advance/2.5f,425.0f),(void*)&coin_powerup);		
+					objects_create(&obj_powerup_desc, vec2(pos.x + prev_advance + advance /2.0f,400.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + prev_advance + advance /2.0f+ advance/2.5f,425.0f),(void*)&coin_powerup);
 				}
+				prev_advance = advance;
 			}
 		}
 		ground_x += (float)advance;
@@ -131,11 +131,19 @@ static void _gen_mushrooms(void){
 		Vector2 pos = vec2(fg_page_cursor + fg_x, 641.0f);
 		if(spr) advance = (uint) sprsheet_get_size_h(spr).x;
 
-		if (!spr && coins > 0){
+		if (!spr && !tutorial_level && coins > 0){
 			coins_cd = 2;
 			Vector2 p = vec2(pos.x + advance / 2.0f, 579.0f);
-			objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
-			coins--;				
+			SprHandle spr = sprsheet_get_handle(coin_powerup.spr);
+			float width = sprsheet_get_size_h(spr).x;
+
+			// checks if a token can be placed on the ground
+			// (does not apply for air tokens elsewhere)
+			if(placement_allowed(vec2(p.x,p.x+width),spr)){
+				objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
+				coins--;					
+			}
+			
 		}
 				
 		if(spr && placement_allowed(vec2(pos.x,pos.x + advance), spr)) {
@@ -212,12 +220,8 @@ void worldgen_reset(uint seed, const LevelDesc* desc) {
 	_gen_fg_page();
 
 	// reset coin counters (3 coins every 2nd page)
-	if(!tutorial_level){
-		coins = 3;
-		coins_cd = 2;
-	} else {
-		coins = 0;
-	}
+	coins = 3;
+	coins_cd = 2;
 
 	// reset powerup counters
 	powerups[BOMB] = levels_current_desc()->powerup_num[BOMB];
