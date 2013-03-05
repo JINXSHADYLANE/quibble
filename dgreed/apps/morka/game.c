@@ -7,6 +7,7 @@
 #include "minimap.h"
 #include "tutorials.h"
 #include "game_over.h"
+#include "placement.h"
 
 #include <mfx.h>
 #include <particles.h>
@@ -15,7 +16,6 @@ bool camera_follow = false;
 
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
-bool draw_ground_debug = false;
 bool draw_ai_debug = false;
 
 // Game state
@@ -80,6 +80,7 @@ static void game_init(void) {
 	minimap_init();
 	tutorials_init();
 	levels_reset("level1");
+	placement_init();
 	game_reset();
 }
 
@@ -112,6 +113,7 @@ void game_unpause(void) {
 
 static void game_close(void) {
 	worldgen_close();
+	placement_close();
 	tutorials_close();
 	minimap_close();
 	hud_close();
@@ -221,8 +223,6 @@ bool game_render(float t) {
 	if(!game_paused && !game_over) 
 		hud_render(t);
 	
-	if(draw_ground_debug) worldgen_debug_render();
-
 	if(tutorials_are_enabled()){ 
 		if(!game_paused) tutorial_event(AUTO);
 		if(tutorials_during_gameplay()) tutorials_render(0);

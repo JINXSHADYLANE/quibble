@@ -11,7 +11,6 @@ static FontHandle dev_font;
 
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
-extern bool draw_ground_debug;
 extern bool draw_ai_debug;
 bool draw_stats = false;
 
@@ -85,8 +84,6 @@ void devmode_render(void) {
 		draw_gfx_debug = !draw_gfx_debug;
 	if(char_down('p'))
 		draw_physics_debug = !draw_physics_debug;
-	if(char_down('l'))
-		draw_ground_debug = !draw_ground_debug;
 	if(char_down('a'))
 		draw_ai_debug = !draw_ai_debug;
 	if(char_down('s'))
