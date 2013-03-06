@@ -498,6 +498,7 @@ TEST_(sort_mergesort_stableness) {
 		{45.0f, 10}, {45.0f, 14}, {100.0f, 9}, {100.0f, 13}
 	};
 
+	sortable_comparisons = 0;
 	sort_mergesort(a, ARRAY_SIZE(a), sizeof(Sortable), sortable_compar);
 	ASSERT_(sortable_comparisons <= 46);	
 	ASSERT_(memcmp(a, a_sorted, sizeof(a)) == 0);
@@ -527,4 +528,56 @@ TEST_(sort_mergesort_stress) {
 	ASSERT_(memcmp(a, a_sorted, sizeof(a)) == 0);
 }
 
+TEST_(sort_insertion) {
+	int a[] = {6, 5, 3, 1, 7, 2, 4};
+	int a_sorted[] = {1, 2, 3, 4, 5, 6, 7};
+	sort_insertion(a, ARRAY_SIZE(a), sizeof(int), int_compar);
+	ASSERT_(memcmp(a, a_sorted, sizeof(a)) == 0);
+
+	int b[] = {1, 1};
+	sort_insertion(b, ARRAY_SIZE(b), sizeof(int), int_compar);
+	ASSERT_(b[0] == 1 && b[1] == 1);
+
+	int c[] = {
+		46, 47, 44, 63, 12, 19, 47, 61,
+		44, 58, 67, -9, 87, 13, 42, 49,
+		43, 62, 55, 100, 46, -12, 61, 12
+	};
+	int c_sorted[] = {
+		-12, -9, 12, 12, 13, 19, 42, 43, 
+		44, 44, 46, 46, 47, 47, 49, 55, 
+		58, 61, 61, 62, 63, 67, 87, 100
+	};
+	sort_insertion(c, ARRAY_SIZE(c), sizeof(int), int_compar);
+	
+	ASSERT_(memcmp(c, c_sorted, sizeof(c)) == 0);
+}
+
+TEST_(sort_insertion_stableness) {
+	Sortable a[] = {
+		{3.0f, 1}, {2.0f, 2}, {-1.0f, 3}, {2.0f, 4},
+		{-3.0f, 5}, {2.1f, 6}, {4.0f, 7}, {18.4f, 8},
+		{100.0f, 9}, {45.0f, 10}, {20.0f, 11}, {0.4f, 12},
+		{100.0f, 13}, {45.0f, 14}, {20.0f, 15}, {0.4f, 16},
+		{-100.0f, 17}
+	};
+
+	Sortable a_sorted[] = {
+		{-100.0f, 17},
+		{-3.0f, 5}, {-1.0f, 3}, {0.4f, 12}, {0.4f, 16},
+		{2.0f, 2}, {2.0f, 4}, {2.1f, 6}, {3.0f, 1},
+		{4.0f, 7}, {18.4f, 8}, {20.0f, 11}, {20.0f, 15},
+		{45.0f, 10}, {45.0f, 14}, {100.0f, 9}, {100.0f, 13}
+	};
+
+	sortable_comparisons = 0;
+	sort_insertion(a, ARRAY_SIZE(a), sizeof(Sortable), sortable_compar);
+	ASSERT_(sortable_comparisons <= 67);	
+	ASSERT_(memcmp(a, a_sorted, sizeof(a)) == 0);
+
+	sortable_comparisons = 0;
+	sort_insertion(a, ARRAY_SIZE(a), sizeof(Sortable), sortable_compar);
+	ASSERT_(sortable_comparisons <= ARRAY_SIZE(a));
+	ASSERT_(memcmp(a, a_sorted, sizeof(a)) == 0);
+}
 

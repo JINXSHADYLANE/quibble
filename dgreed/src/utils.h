@@ -533,6 +533,12 @@ void sort_mergesort(void* data, size_t num, size_t size,
 void sort_mergesort_ex(void* data, void* scratch, size_t num, size_t size,
 		int (*compar) (const void*, const void*));
 
+// Insertion sort - worst case O(N*N) non-recursive, in-place, stable sort,
+// very efficient for small and almost sorted data.
+
+void sort_insertion(void* data, size_t num, size_t size,
+		int (*compar) (const void*, const void*));
+
 /*
 -------------------
 --- Compression ---
