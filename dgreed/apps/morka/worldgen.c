@@ -65,23 +65,21 @@ static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupParams *param
 static void _gen_ground(void){
 	SprHandle spr;	
 	uint advance = 0;
-	static int prev_advance = 0;
 	static float ground_x = page_width;
 
 	ground_x -= page_width;
 	while(ground_x < page_width) {
 		char sym = mchains_next(ground_chain, &rnd);
 		mchains_symbol_info(ground_chain, sym, &advance, &spr);
+		Vector2 pos = vec2(fg_page_cursor + ground_x, 768.0f);		
 		if(spr) {
-			Vector2 pos = vec2(fg_page_cursor + ground_x, 768.0f);
-			advance = (uint) sprsheet_get_size_h(spr).x;
 
+			advance = (uint) sprsheet_get_size_h(spr).x;
 			placement_interval(vec2(pos.x,pos.x + advance),spr);
 
 			// no collision for grass_start1 and grass_end2
 			if(sym == 'a' || sym == 'h'){	
 				objects_create(&obj_fg_deco_desc, pos, (void*)spr);
-				prev_advance = advance;
 				// Coin over gap start/end
 				if(!tutorial_level){
 					Vector2 size = sprsheet_get_size_h(spr);
@@ -94,24 +92,21 @@ static void _gen_ground(void){
 					ObjSpeedTrigger* t = (ObjSpeedTrigger*)objects_create(&obj_speed_trigger_desc, pos, (void*)spr);
 					t->drag_coef = 1.9;
 				}
-				prev_advance = 0;
 			}		
 		} else {
 			if(sym == '_' || sym == '-' || sym == '='){
-				Vector2 pos = vec2(fg_page_cursor + ground_x - prev_advance, 768.0f);
-
-				placement_interval(vec2(pos.x,pos.x + advance),empty_spr);
+				Vector2 interval = vec2(pos.x,pos.x + advance);
+				placement_interval(interval,empty_spr);
 
 				// Fall trigger
 				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
 
 				if(!tutorial_level){				
 					// Coins over gap
-					objects_create(&obj_powerup_desc, vec2(pos.x + prev_advance + advance /2.0f - advance/2.5f,425.0f),(void*)&coin_powerup);		
-					objects_create(&obj_powerup_desc, vec2(pos.x + prev_advance + advance /2.0f,400.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + prev_advance + advance /2.0f+ advance/2.5f,425.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance /2.0f - advance/2.5f,425.0f),(void*)&coin_powerup);		
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance /2.0f,400.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance /2.0f+ advance/2.5f,425.0f),(void*)&coin_powerup);
 				}
-				prev_advance = advance;
 			}
 		}
 		ground_x += (float)advance;
@@ -139,7 +134,8 @@ static void _gen_mushrooms(void){
 
 			// checks if a token can be placed on the ground
 			// (does not apply for air tokens elsewhere)
-			if(placement_allowed(vec2(p.x,p.x+width),spr)){
+			if(placement_allowed(vec2(p.x,p.x+width),spr) &&
+				fg_x + advance / 2.0f < page_width){
 				objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
 				coins--;					
 			}
