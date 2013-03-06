@@ -31,7 +31,7 @@ PlacementRuleReadable ruleset[] = {
 
 static uint _tokens_to_handles(const char* tokens, SprHandle* handles, uint counter){
 	uint size = strlen(tokens) + 1;
-	char s[size];
+	char* s = alloca(size);
 	strcpy(s, tokens);
 
 	char* token = strtok(s, "\t, ");
@@ -44,6 +44,16 @@ static uint _tokens_to_handles(const char* tokens, SprHandle* handles, uint coun
 	return counter;	
 }
 
+static uint _count_chars(const char* where, char what) {
+	uint count = 0;
+	while(*where) {
+		if(*where == what)
+			count++;
+		where++;
+	}
+	return count;
+}
+
 void placement_init(void){
 	intervals = darray_create(sizeof(PlacementInterval), 0);
 	intervals.size = 0;
@@ -53,26 +63,10 @@ void placement_init(void){
 	// Count the size of SprHandle array
 	for(uint i = 0; i < n_rules;i++){
 		// count tile array
-		uint size = strlen(ruleset[i].tiles) + 1;
-		char s[size];
-		strcpy(s, ruleset[i].tiles);
-
-		char* token = strtok(s, "\t, ");
-		while (token) {
-			array_size++;
-	    	token = strtok(NULL, "\t, ");
-		}
-			
+		array_size += _count_chars(ruleset[i].tiles, ',') + 1;
+		
 		// count unwanted array
-		size = strlen(ruleset[i].unwanted) + 1;
-		char s2[size];
-		strcpy(s2, ruleset[i].unwanted);
-
-		token = strtok(s2, "\t, ");
-		while (token) {
-			array_size++;
-	    	token = strtok(NULL, "\t, ");
-		}
+		array_size += _count_chars(ruleset[i].unwanted, ',') + 1;
 	}
 	handles = MEM_ALLOC(sizeof(SprHandle) * array_size);
 
@@ -138,7 +132,6 @@ void placement_interval(Vector2 pos, SprHandle spr){
 			}
 
 		}
-
 
 	}
 
