@@ -29,6 +29,21 @@ PlacementRuleReadable ruleset[] = {
 
 };
 
+static uint _tokens_to_handles(const char* tokens, SprHandle* handles, uint counter){
+	uint size = strlen(tokens) + 1;
+	char s[size];
+	strcpy(s, tokens);
+
+	char* token = strtok(s, "\t, ");
+	while (token) {
+    	SprHandle h = sprsheet_get_handle(token);
+    	if(h == 0) h = empty_spr;
+    	handles[counter++] = h; 		
+    	token = strtok(NULL, "\t, ");
+	}
+	return counter;	
+}
+
 void placement_init(void){
 	intervals = darray_create(sizeof(PlacementInterval), 0);
 	intervals.size = 0;
@@ -67,39 +82,14 @@ void placement_init(void){
 	for(uint i = 0; i < n_rules;i++){
 		PlacementRule rule;
 
-		// TODO fix repeating code by moving tokens to seperate function
-
 		// fill tile array
-		uint size = strlen(ruleset[i].tiles) + 1;
-		char s[size];
-		strcpy(s, ruleset[i].tiles);
-
 		rule.start_tile = counter;
-
-		char* token = strtok(s, "\t, ");
-		while (token) {
-    		SprHandle h = sprsheet_get_handle(token);
-    		if(h == 0) h = empty_spr;
-    		handles[counter++] = h; 		
-    		token = strtok(NULL, "\t, ");
-		}
-
+		counter = _tokens_to_handles(ruleset[i].tiles, handles,counter);
 		rule.n_tiles = counter - rule.start_tile;
 		
 		// fill unwanted array
-		size = strlen(ruleset[i].unwanted) + 1;
-		char s2[size];
-		strcpy(s2, ruleset[i].unwanted);
-
 		rule.start_unwanted = counter;
-
-		token = strtok(s2, "\t, ");
-		while (token) {
-    		SprHandle h = sprsheet_get_handle(token);
-    		handles[counter++] = h;
-    		token = strtok(NULL, "\t, ");
-		}
-
+		counter = _tokens_to_handles(ruleset[i].unwanted, handles,counter);
 		rule.n_unwanted = counter - rule.start_unwanted;
 
 		rules[i] = rule;
