@@ -48,8 +48,14 @@ static void _gen_bg_page(void) {
 static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupParams *params,PowerupType type){
 	uint num = powerups[type];
 	if(num){
-		float min = (float)(levels_current_desc()->distance + 2.0f) * (1024.0f/3.0f) * levels_current_desc()->powerup_pos[type].x;
-		float max = (float)(levels_current_desc()->distance + 2.0f) * (1024.0f/3.0f) * levels_current_desc()->powerup_pos[type].y;
+		float min = (float) (levels_current_desc()->distance + 2.0f) *
+							(1024.0f/3.0f) *
+							levels_current_desc()->powerup_pos[type].x;
+
+		float max = (float) (levels_current_desc()->distance + 2.0f) *
+							(1024.0f/3.0f) *
+							levels_current_desc()->powerup_pos[type].y;
+
 		float d = (float)num / levels_current_desc()->powerup_num[type];
 		float place = max - ((max-min) * d);
 
@@ -73,42 +79,39 @@ static void _gen_ground(void){
 		mchains_symbol_info(ground_chain, sym, &advance, &spr);
 		Vector2 pos = vec2(fg_page_cursor + ground_x, 768.0f);		
 		if(spr) {
-
 			advance = (uint) sprsheet_get_size_h(spr).x;
-			placement_interval(vec2(pos.x,pos.x + advance),spr);
 
 			// no collision for grass_start1 and grass_end2
 			if(sym == 'a' || sym == 'h'){	
 				objects_create(&obj_fg_deco_desc, pos, (void*)spr);
-				// Coin over gap start/end
-				if(!tutorial_level){
-					Vector2 size = sprsheet_get_size_h(spr);
-					Vector2 c = vec2(pos.x + size.x/2.0f,479.0f);
-					objects_create(&obj_powerup_desc, c , (void*)&coin_powerup);
-				}
 			} else {
 				objects_create(&obj_ground_desc, pos, (void*)spr);
-				if(sym == 'j' || sym == 'k' || sym == 'l' || sym == 'm' || sym == 'n' || sym == 'o'){
+
+				//water speed trigger
+				if( sym == 'j' || sym == 'k' || sym == 'l' ||
+					sym == 'm' || sym == 'n' || sym == 'o'){
 					ObjSpeedTrigger* t = (ObjSpeedTrigger*)objects_create(&obj_speed_trigger_desc, pos, (void*)spr);
-					t->drag_coef = 1.9;
+					t->drag_coef = 1.9f;
 				}
 			}		
 		} else {
+			spr = empty_spr;
 			if(sym == '_' || sym == '-' || sym == '='){
-				Vector2 interval = vec2(pos.x,pos.x + advance);
-				placement_interval(interval,empty_spr);
-
 				// Fall trigger
 				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
 
-				if(!tutorial_level){				
-					// Coins over gap
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance /2.0f - advance/2.5f,425.0f),(void*)&coin_powerup);		
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance /2.0f,400.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance /2.0f+ advance/2.5f,425.0f),(void*)&coin_powerup);
+				// Coin arc over gap
+				if(!tutorial_level){
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * -0.3f,475.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.1f,425.0f),(void*)&coin_powerup);		
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.5f,400.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.9f,425.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 1.3f,475.0f),(void*)&coin_powerup);
 				}
 			}
 		}
+		placement_interval(vec2(pos.x,pos.x + advance),spr);
+
 		ground_x += (float)advance;
 	}
 }
@@ -125,8 +128,7 @@ static void _gen_mushrooms(void){
 		mchains_symbol_info(fg_chain, sym, &advance, &spr);
 		Vector2 pos = vec2(fg_page_cursor + fg_x, 641.0f);
 		if(spr) advance = (uint) sprsheet_get_size_h(spr).x;
-
-		if (!spr && !tutorial_level && coins > 0){
+		else if (!spr && !tutorial_level && coins > 0){
 			coins_cd = 2;
 			Vector2 p = vec2(pos.x + advance / 2.0f, 579.0f);
 			SprHandle spr = sprsheet_get_handle(coin_powerup.spr);
@@ -147,13 +149,14 @@ static void _gen_mushrooms(void){
 				objects_create(&obj_cactus_desc, pos, (void*)spr);
 
 				// placing bomb powerup after cactuses
-				place_powerup(&obj_powerup_desc, vec2(pos.x + advance / 2.0f + 100.0f, 579.0f), &bomb_powerup, BOMB);
+				Vector2 p = vec2(pos.x + advance / 2.0f + 100.0f, 579.0f);
+				place_powerup(&obj_powerup_desc, p, &bomb_powerup, BOMB);
 				
 			} else {
 				objects_create(&obj_mushroom_desc, pos, (void*)spr);
 				
+				// Placing coins/powerups on big shrooms
 				if(!tutorial_level){
-					// Placing coins on big shrooms
 					Vector2 size = sprsheet_get_size_h(spr);
 					float width = size.x;
 					float height = size.y;
@@ -168,7 +171,7 @@ static void _gen_mushrooms(void){
 						if(!place_powerup(&obj_powerup_desc, p, &shield_powerup, SHIELD))
 							objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
 
-					} else if(height > 270.0f)
+					} else if(height >= 265.0f)
 						objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
 				}
 			}	
