@@ -127,14 +127,23 @@ void placement_interval(Vector2 pos, SprHandle spr){
 
 			// if there is a rule for current tile, add interval
 			if(spr == s){
-
-				PlacementInterval t;
-				t.range = vec2(pos.x, pos.y);
-
-				t.start_unwanted = rule.start_unwanted;
-				t.n_unwanted = rule.n_unwanted;
-
-				darray_append(&intervals, &t);
+				bool merge = false;
+				
+				if(intervals.size >= 1){
+					PlacementInterval *p = darray_get(&intervals, intervals.size-1);
+					if(p->range.y == pos.x && p->start_unwanted == rule.start_unwanted){
+						p->range.y = pos.y;	
+						merge = true;
+					} 
+				}
+				if(!merge){
+					// Add new interval
+					PlacementInterval t;
+					t.range = vec2(pos.x, pos.y);
+					t.start_unwanted = rule.start_unwanted;
+					t.n_unwanted = rule.n_unwanted;
+					darray_append(&intervals, &t);
+				}
 
 			}
 
@@ -146,7 +155,6 @@ void placement_interval(Vector2 pos, SprHandle spr){
 }
 
 bool placement_allowed(Vector2 pos, SprHandle spr){
-	
  	// iterate over intervals
 	for(uint i = 0; i < intervals.size;i++){
 		PlacementInterval *p = darray_get(&intervals, i);
@@ -157,6 +165,7 @@ bool placement_allowed(Vector2 pos, SprHandle spr){
 
 			// check if rule applies to current sprite
 			if(spr == s){
+
 				// check if sprite falls into interval range
 				if( (pos.x > p->range.x && pos.x < p->range.y) ||
 					(pos.y > p->range.x && pos.y < p->range.y) ||
