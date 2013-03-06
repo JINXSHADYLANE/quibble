@@ -1958,6 +1958,36 @@ void sort_mergesort_ex(void* data, void* scratch, size_t num, size_t s,
 	}
 }
 
+void sort_insertion(void* data, size_t num, size_t size,
+		int (*compar) (const void*, const void*)) {
+
+	void* store = alloca(size);
+
+	for(int i = 1; i < num; ++i) {
+		void* c = data + i * size;
+		void* p = c - size;
+
+		// Calculate how much back to move the current element
+		int n = 0;
+		while(p >= data && compar(c, p) < 0) {
+			n++;
+			p -= size;
+		}
+		
+		if(n) {
+			// Remember current element, it will be overwritten
+			memcpy(store, c, size);
+
+			// Move block of larger elements forward by one
+			assert(p + size*(n+2) <= data + size*num);
+			memmove(p + size*2, p + size, n * size);
+
+			// Put current element in the right place
+			memcpy(p + size, store, size);
+		}
+	}
+}
+
 /*
 -------------------
 --- Compression ---
