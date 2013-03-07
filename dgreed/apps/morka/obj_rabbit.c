@@ -322,7 +322,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					forces[DIVING_FORCE] = vec2(0.0f, 20000.0f);
 					anim_play_ex(rabbit->anim, "dive", TIME_S);
 				}
-				else if(d->is_diving && d->virtual_key_pressed) {
+				else if( (d->is_diving && d->virtual_key_pressed) || d->force_dive ) {
 					forces[DIVING_FORCE] = vec2(0.0f, 25000.0f);
 				}
 				else if(d->is_diving && !d->virtual_key_pressed) {

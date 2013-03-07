@@ -20,11 +20,12 @@
 		(def e (mushroom_5 150))
 		(def f (mushroom_2 150))
 		
-		(def _ (.empty 500))
+		(def _ (.empty 400))
+		(def = (.empty 500))
 
 		(init "__")
 
-		(learn "__e_a_b_d_e_")
+		(learn "__=e_a_b_d_e_")
 	)
 	(ruleset level1_ground
 		(def c (grass1 0))

@@ -23,7 +23,7 @@ TutorialStep level1_steps[] = {
 	*/
 
 	{0.0f,
-	 NULL,
+	 "Welcome to the training",
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -32,7 +32,7 @@ TutorialStep level1_steps[] = {
 	 true,
 	 false,
 	 AUTO,
-	 AUTO
+	 MUSHROOM_IN_FRONT
 	},
 
 	{1.0f,
@@ -60,9 +60,56 @@ TutorialStep level1_steps[] = {
 	 MUSHROOM_BELOW,
 	 AUTO
 	},
-
+	{0.5f,
+	 "",
+	 NULL,
+	 NULL,
+	 {-1.0f, -1.0f},
+	 false,
+	 false,
+	 true,
+	 false,
+	 AUTO,
+	 MUSHROOM_BELOW
+	},	
+	{1.0f,
+	 "You're doing good",
+	 NULL,
+	 NULL,
+	 {WIDTH/2.0f, 600.0f},
+	 true,
+	 true,
+	 false,
+	 false,
+	 MUSHROOM_BELOW,
+	 AUTO
+	},
+	{0.5f,
+	 "",
+	 NULL,
+	 NULL,
+	 {-1.0f, -1.0f},
+	 false,
+	 false,
+	 true,
+	 false,
+	 AUTO,
+	 MUSHROOM_BELOW
+	},			
+	{1.0f,
+	 "One more time",
+	 NULL,
+	 NULL,
+	 {WIDTH/2.0f, 600.0f},
+	 true,
+	 true,
+	 false,
+	 false,
+	 MUSHROOM_BELOW,
+	 AUTO
+	},	
 	{0.0f,
-	 "Now do a triple bounce",
+	 "Now try it all by yourself",
 	 NULL,
 	 NULL,
 	 {WIDTH/2.0f, 600.0f},
@@ -179,9 +226,10 @@ void tutorial_event(EventType e){
 				malka_states_push("tutorial_pause");
 			}
 			tutorial_active = true;
+			step_done = false;
 
 		}
-		if(e == current_step->dismiss_on && step_done){
+		if(e == current_step->dismiss_on && step_done && tutorial_active){
 			current_step = &current_scenario->steps[++step_i];
 			tutorial_active = false;
 			step_done = false;	
