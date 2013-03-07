@@ -29,6 +29,7 @@ typedef enum{
 	DIVING_FORCE,
 	RUNNING_FORCE,
 	GRAVITY_FORCE,
+	BOOST_FORCE,
 
 	FORCE_COUNT 
 } ForceType;
@@ -40,7 +41,8 @@ static Vector2 _rabbit_calculate_forces(Vector2 *forces){
 	result = vec2_add(result,forces[JUMP_FORCE]);
 	result = vec2_add(result,forces[DIVING_FORCE]);
 	result = vec2_add(result,forces[RUNNING_FORCE]);
-	result = vec2_add(result,forces[GRAVITY_FORCE]);		
+	result = vec2_add(result,forces[GRAVITY_FORCE]);
+	result = vec2_add(result,forces[BOOST_FORCE]);		
 
 	return result;
 }
@@ -135,15 +137,49 @@ static ObjFloaterParams trampoline_floater_params = {
 	.duration = 0.5f
 };
 
+static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
+	PhysicsComponent* p = rabbit->header.physics;	
+	ObjRabbitData* d = rabbit->data;
+
+	bool jumped = false;
+	Vector2 acc = p->acc;
+	Vector2 vel = p->vel;
+	Vector2 landing = p->cd_obj->pos;	
+	acc = vec2_add(acc,force);
+
+	// predict landing
+	while(landing.y <= 579.0f || !jumped){
+		if(landing.y < 579.0f) jumped = true;
+			acc = vec2_add(acc,vec2(d->speed,0.0f));	// running force
+			acc = vec2_add(acc,vec2(0.0f, 6000.0f));	// gravity force
+			if(d->combo_counter >= 3)
+				acc = vec2_add(acc,vec2(200.0f*d->combo_counter,0.0f));	// boost force
+
+			// physics tick
+			Vector2 a = vec2_scale(acc, p->inv_mass * PHYSICS_DT);
+			vel = vec2_add(vel, a);
+			acc = vec2(0.0f, 0.0f);
+			landing = vec2_add(landing, vec2_scale(vel, PHYSICS_DT));
+
+			// damping
+			float t = clamp(0.0f, 1.0f, (vel.x - 220.0f) / 1000.0f);
+			float damp = smoothstep(1.0f, 0.98f, t);
+			vel.x *= damp;
+			vel.y *= 0.995f;
+	}
+	return landing;
+}
+
 static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
-	if(!d->is_dead){
 
+	if(!d->is_dead){
 		// Reset forces
 		Vector2 forces[FORCE_COUNT] = {{0.0f, 0.0f}};
 
 		PhysicsComponent* p = self->physics;
+
 		// rubber band
 		if(d->rubber_band){
 
@@ -158,8 +194,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				if(other->data->player_control) {
 					delta = delta*2.0f + d->speed;
 					forces[RUBBER_BAND_FORCE] = vec2(delta, 0.0f);
-				}
-				else if(!d->is_dead) {
+				} else {
 					float min_dist = 800.0f;
 					float force = d->speed*d->speed;
 					force *= 10.0f;
@@ -174,9 +209,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				p->vel.x = d->speed;
 			if(minimap_player_x() - p->cd_obj->pos.x < 0.0) 
 				d->rubber_band = false;
-		}
-
-		if(camera_follow && !d->rubber_band) rabbit->control(self);
+		} else if(camera_follow) rabbit->control(self);
 
 		if(d->virtual_key_down)
 			d->last_keypress_t = ts;
@@ -203,10 +236,13 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		RenderComponent* r = self->render;
 		r->anim_frame = anim_frame_ex(rabbit->anim, TIME_S);
 		
-		if(d->touching_ground) {
-			d->force_dive = false;
-			if(d->has_trampoline) d->has_trampoline = false;	
+		if(d->touching_ground) {	
+			d->force_dive = false;	
 			d->is_diving = false;
+			d->has_trampoline = false;			
+			d->combo_counter = 0;
+			d->boost = 0;
+
 			// Jump
 			if(d->virtual_key_down || d->force_jump){
 				d->force_jump = false;
@@ -215,76 +251,16 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				d->jump_time = ts;
 				forces[JUMP_FORCE] = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
 				anim_play_ex(rabbit->anim, "jump", TIME_S);
-				d->land = pos.x + p->vel.x - rabbit_hitbox_width / 2.0f;
+				
+				d->land = _predict_landing(rabbit,forces[JUMP_FORCE]).x;
+
 				d->combo_counter = 0;
 			
 				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 				if(r->was_visible)
 					mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
 			}
-		}
-		else {
-			if(p->vel.y > 0.0f && !d->falling_down){
-				anim_play_ex(rabbit->anim, "down", TIME_S);
-				d->falling_down = true;
 
-			} else if (p->vel.y <= 0.0f) {
-				d->falling_down = false;		
-			}
-
-			if(ts - d->mushroom_hit_time < 0.1f) {
-
-				if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.1f)
-					d->jump_off_mushroom = true;
-
-				if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.1f)
-					d->jump_off_mushroom = true;
-					
-			}
-			else if(!d->touching_ground) {
-				if(key_pressed(KEY_A) && (ts - d->jump_time) < 0.2f) {
-				//	objects_apply_force(self, vec2(0.0f, -8000.0f));
-				}
-				else if( (!d->is_diving && d->virtual_key_down) || d->force_dive ) {
-					// Dive	
-					d->is_diving = true;
-					forces[DIVING_FORCE] = vec2(0.0f, 20000.0f);
-					anim_play_ex(rabbit->anim, "dive", TIME_S);
-				}
-				else if(d->is_diving && d->virtual_key_pressed) {
-					forces[DIVING_FORCE] = vec2(0.0f, 25000.0f);
-				}
-				else if(d->is_diving && !d->virtual_key_pressed) {
-					d->is_diving = false;
-					anim_play_ex(rabbit->anim, "glide", TIME_S);
-				}
-			}
-
-		}	
-
-		float t = clamp(0.0f, 1.0f, (p->vel.x - 220.0f) / 1000.0f);
-		float damp = smoothstep(1.0f, 0.98f, t);
-		p->vel.x *= damp;
-
-		p->vel.y *= 0.995f;
-	
-
-
-		if(d->combo_counter >= 3 && d->boost == 0){
-			if(r->was_visible)
-				mfx_trigger_ex("boost",vec2_add(screen_pos,vec2(20.0f,0.0f)),0.0f);
-			p->vel.x *= 1.045;
-			d->boost = 5;
-		}
-		if(d->boost > 0) d->boost--;
-
-
-		if(!d->touching_ground) {
-			// Apply gravity
-			forces[GRAVITY_FORCE] = vec2(0.0f, 6000.0f);
-		} else {
-			d->combo_counter = 0;
-			d->boost = 0;
 			// Trigger water/land particle effects on ground
 			if(d->last_frame != r->anim_frame && r->was_visible) {
 				const char* effect = NULL;
@@ -305,15 +281,71 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					mfx_trigger_ex(effect, screen_pos, 0.0f);
 			}
 			d->last_frame = r->anim_frame;
-		}
 
+		}
+		else {
+			forces[GRAVITY_FORCE] = vec2(0.0f, 6000.0f);
+
+			if(d->combo_counter >= 3){
+				if(d->boost == 0){
+					if(r->was_visible)
+						mfx_trigger_ex("boost",vec2_add(screen_pos,vec2(20.0f,0.0f)),0.0f);
+					d->boost = 5;
+				} else d->boost--;
+				Vector2 force = vec2(200.0f * d->combo_counter, 0.0f);
+				forces[BOOST_FORCE] = force;
+			}			
+	
+			if(p->vel.y > 0.0f && !d->falling_down){
+				anim_play_ex(rabbit->anim, "down", TIME_S);
+				d->falling_down = true;
+			} else if (p->vel.y <= 0.0f) {
+				d->falling_down = false;		
+			}
+
+			if(ts - d->mushroom_hit_time < 0.1f) {
+
+				if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.1f)
+					d->jump_off_mushroom = true;
+
+				if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.1f)
+					d->jump_off_mushroom = true;
+					
+			}
+			else {
+				if(key_pressed(KEY_A) && (ts - d->jump_time) < 0.2f) {
+				//	objects_apply_force(self, vec2(0.0f, -8000.0f));
+				}
+				else if( (!d->is_diving && d->virtual_key_down) || d->force_dive ) {
+					// Dive	
+					d->is_diving = true;
+					forces[DIVING_FORCE] = vec2(0.0f, 20000.0f);
+					anim_play_ex(rabbit->anim, "dive", TIME_S);
+				}
+				else if(d->is_diving && d->virtual_key_pressed) {
+					forces[DIVING_FORCE] = vec2(0.0f, 25000.0f);
+				}
+				else if(d->is_diving && !d->virtual_key_pressed) {
+					d->is_diving = false;
+					anim_play_ex(rabbit->anim, "glide", TIME_S);
+				}
+			}
+		}	
+
+		float t = clamp(0.0f, 1.0f, (p->vel.x - 220.0f) / 1000.0f);
+		float damp = smoothstep(1.0f, 0.98f, t);
+		p->vel.x *= damp;
+		p->vel.y *= 0.995f;
+	
 		d->on_water = false;
 
+		// Above screen
 		if(p->cd_obj->pos.y < rabbit_hitbox_height){
 			p->cd_obj->pos.y = rabbit_hitbox_height;
 			p->vel.y = 0.0f;
 			d->touching_ground = false;
 		}
+		// Below screen
 		if(p->cd_obj->pos.y > HEIGHT){
 			rabbit->data->is_dead = true;
 			p->vel.x = 0.0f;
@@ -325,7 +357,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		if(!d->game_over) d->rabbit_time += time_delta() / 1000.0f;
 
-		objects_apply_force(self,_rabbit_calculate_forces(forces));
+		objects_apply_force(self,_rabbit_calculate_forces(forces));	
 
 	}
 
@@ -349,33 +381,62 @@ static void obj_rabbit_became_visible(GameObject* self) {
 	ObjRabbitData* d = rabbit->data;
 	PhysicsComponent* p = self->physics;
 	if(!d->player_control && d->rubber_band){
-		d->rubber_band = false;
 		Vector2 pos = p->cd_obj->pos;
 
-		// is it safe to appear on screen?
-		float x = pos.x + 100.0f + (p->vel.x * 0.4f) *(ground_y-pos.y)/ground_y;
-		float y = HEIGHT - 100.0f;
-		Vector2 start = vec2(x,y);
-		Vector2 end = vec2(start.x-100.0f,start.y);
-		GameObject* obj = objects_raycast(start,end);
-
-		bool safe_to_land = true;
-		if(obj){
-			if(obj->type == OBJ_FALL_TRIGGER_TYPE || obj->type == OBJ_TRAMPOLINE_TYPE){
-				safe_to_land = false;
-			}	
-		}
 		p->vel.y = 0.0f;
 		d->touching_ground = false;
-		if(safe_to_land){
+
+		// is it safe to appear on screen?
+		bool safe_to_appear = false;
+
+		RectF rec = {
+			.left = pos.x + rabbit_hitbox_width + 70.0f,
+			.top = HEIGHT - rabbit_hitbox_height,
+			.right = pos.x + rabbit_hitbox_width + 70.0f,
+			.bottom = HEIGHT
+		};
+
+		GameObject* obj = objects_raycast(vec2(rec.left,rec.top),vec2(rec.right,rec.bottom));
+
+		if(obj && obj->type == OBJ_GROUND_TYPE) {
+			safe_to_appear = true;
+		}	
+
+		if(safe_to_appear){
 			p->vel.x = rabbit->header.physics->vel.x;
 			p->cd_obj->pos.y = ground_y;
+			d->rubber_band = false;			
 		} else {
-			p->cd_obj->pos.y = rand_float_range(550.0f,ground_y);
-			Vector2 force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
-			objects_apply_force(self, force);
+			bool safe_to_jump = true;
+
+			float landing = _predict_landing(rabbit,vec2(d->xjump*d->xjump, -d->yjump*d->yjump)).x;
+
+			RectF rec = {
+				.left = landing,
+				.top = HEIGHT - 50.0f,
+				.right = landing + rabbit_hitbox_width,
+				.bottom = HEIGHT-10.0f
+			};
+
+			GameObject* obj = NULL;
+			objects_aabb_query(&rec,&obj,1);
+
+			if(obj && (obj->type == OBJ_FALL_TRIGGER_TYPE || obj->type == OBJ_TRAMPOLINE_TYPE )) {
+					safe_to_jump = false;
+			}	
+
+			if(safe_to_jump){
+				p->cd_obj->pos.y = rand_float_range(550.0f,ground_y);
+				Vector2 force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
+				objects_apply_force(self, force);
+				d->touching_ground = false;
+				d->jump_off_mushroom = false;
+				d->rubber_band = false;
+			} else {
+				// if it is unsafe to appear and jump, keep rubber band active
+			}			
 		}
-	} 
+	}
 }
 static void obj_rabbit_became_invisible(GameObject* self) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
@@ -395,7 +456,9 @@ static void _rabbit_delayed_bounce(void* r) {
 	ObjRabbit* rabbit = r;
 	ObjRabbitData* d = rabbit->data;
 	PhysicsComponent* p = rabbit->header.physics;
-	if(p->acc.y >= 0.0f && (d->jump_off_mushroom || d->is_diving)) {
+	if(p->acc.y >= 0.0f && p->vel.y > 0.0f && !d->touching_ground && (d->jump_off_mushroom || d->is_diving)) {
+		d->land = _predict_landing(rabbit,d->bounce_force).x;
+
 		if(d->player_control) tutorial_event(BOUNCE_PERFORMED);
 		d->force_dive = false;
 		d->is_diving = false;
@@ -425,8 +488,6 @@ static void _rabbit_delayed_bounce(void* r) {
 				mfx_trigger_ex("boost_explosion",screen_pos,0.0f);
 		} 
 
-		// Rabbit landing position approximation
-		d->land = p->cd_obj->pos.x + (405.0f-p->vel.y) + p->vel.x + (p->vel.x) / (2.0f + p->vel.x/1000.0f);
 		d->combo_counter++;
 		 
 		if(d->player_control) hud_trigger_combo(d->combo_counter);

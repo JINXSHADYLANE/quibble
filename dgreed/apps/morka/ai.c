@@ -72,9 +72,9 @@ static RectF in_landing_location(GameObject* obj){
 	ObjRabbitData* d = rabbit->data;
 
 	RectF rec = {
-		.left = d->land-50.0f,
+		.left = d->land,
 		.top = HEIGHT - 50.0f,
-		.right = d->land+50.0f,
+		.right = d->land+70.0f,
 		.bottom = HEIGHT-10.0f
 	};
 

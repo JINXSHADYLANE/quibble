@@ -97,7 +97,11 @@ void placement_close(void){
 }
 
 void placement_reset(void){
-	intervals.size = 0;
+	// save last item for next page
+	if(intervals.size >= 1){ 
+		darray_remove_fast(&intervals,0);
+		intervals.size = 1;
+	}
 }
 
 void placement_interval(Vector2 pos, SprHandle spr){
