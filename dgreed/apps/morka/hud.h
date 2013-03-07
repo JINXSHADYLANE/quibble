@@ -8,13 +8,16 @@ void hud_init(void);
 void hud_close(void);
 
 void hud_trigger_combo(uint multiplier);
-void _hud_render_ui(UIElement* element, uint layer);
+void _hud_render_ui(UIElement* element, uint layer,Color col);
 
 void hud_render(float t);
 
 void hud_render_game_over_tut(float t);
 void hud_render_game_over_out(float t);
 void hud_render_game_over_scores(float t);
+
+void hud_render_tutorial_pause(float t);
+void hud_render_regular_pause(float t);
 
 bool hud_button(UIElement* element, Color col, float ts);
 

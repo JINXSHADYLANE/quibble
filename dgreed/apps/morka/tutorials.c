@@ -39,7 +39,7 @@ TutorialStep level1_steps[] = {
 	 "Touch to jump",
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f, 600.0f},
+	 {WIDTH/2.0f, 300.0f},
 	 true,
 	 true,
 	 true,
@@ -52,7 +52,7 @@ TutorialStep level1_steps[] = {
 	 "Touch and hold to plunge down",
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f, 600.0f},
+	 {WIDTH/2.0f, 300.0f},
 	 true,
 	 true,
 	 false,
@@ -76,7 +76,7 @@ TutorialStep level1_steps[] = {
 	 "You're doing good",
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f, 600.0f},
+	 {WIDTH/2.0f, 300.0f},
 	 true,
 	 true,
 	 false,
@@ -100,7 +100,7 @@ TutorialStep level1_steps[] = {
 	 "One more time",
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f, 600.0f},
+	 {WIDTH/2.0f, 300.0f},
 	 true,
 	 true,
 	 false,
@@ -112,11 +112,11 @@ TutorialStep level1_steps[] = {
 	 "Now try it all by yourself",
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f, 600.0f},
+	 {-1.0f, -1.0f},
 	 false,
 	 false,
 	 false,
-	 true,
+	 false,
 	 BOUNCE_PERFORMED,
 	 COMBO_X3
 	},
@@ -257,7 +257,8 @@ static void _tutorial_image(byte a){
 }
 
 static void _tutorial_text(byte a){
-	Vector2 text_pos = vec2(WIDTH/2.0f,700.0f);
+	//Vector2 text_pos = vec2(WIDTH/2.0f,700.0f);	// old pos
+	Vector2 text_pos = vec2(WIDTH/2.0f,150.0f);
 	static TutorialStep* step = NULL;
 
 	char str[32];
@@ -268,7 +269,8 @@ static void _tutorial_text(byte a){
 	if(half_size.x == 0.0f || step != current_step) {
 		half_size = vec2_scale(vfont_size(str), 0.5f);
 	}
-	Color col = COLOR_RGBA(70, 49, 27, a);
+	//Color col = COLOR_RGBA(70, 49, 27, a);	// old color
+	Color col = COLOR_RGBA(255, 255, 255, a);
 	vfont_draw(str, hud_layer, vec2_sub(text_pos, half_size),col);
 	step = current_step;
 }

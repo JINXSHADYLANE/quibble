@@ -29,6 +29,8 @@ static bool game_paused = false;
 
 bool tutorial_level = true;
 
+static bool state_active = false;
+
 static void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
@@ -90,9 +92,16 @@ static void game_enter(void) {
 		game_need_reset = false;
 	}
 	game_unpause();
+	state_active = true;
 }
-
+static void game_preenter(void) {
+	state_active = true;
+}
+static void game_postleave(void) {
+	state_active = false;
+}
 static void game_leave(void) {
+
 }
 
 void game_end(void){
@@ -220,13 +229,15 @@ bool game_render(float t) {
 
 	objects_tick(game_paused);
 
-	if(!game_paused && !game_over) 
-		hud_render(t);
-	
-	if(tutorials_are_enabled()){ 
-		if(!game_paused) tutorial_event(AUTO);
-		if(tutorials_during_gameplay()) tutorials_render(0);
+	if(state_active){
+		if(!game_over) hud_render(t);
+		
+		if(tutorials_are_enabled()){ 
+			if(!game_paused) tutorial_event(AUTO);
+			if(tutorials_during_gameplay()) tutorials_render(t);
+		}		
 	}
+
 
 	minimap_draw_finish_line();
 
@@ -237,7 +248,9 @@ StateDesc game_state = {
 	.init = game_init,
 	.close = game_close,
 	.enter = game_enter,
+	.preenter = game_preenter,	
 	.leave = game_leave,
+	.postleave = game_postleave,
 	.update = game_update,
 	.render = game_render
 };
