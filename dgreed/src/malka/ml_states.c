@@ -501,6 +501,16 @@ static int ml_states_at(lua_State* l) {
 	return 1;
 }
 
+uint malka_states_count(void) {
+	return _stack_size();
+}
+
+const char* malka_states_at(uint i) {
+	assert(i < _stack_size());
+	uint s = _stack_get(_stack_size()-1 - i);
+	return _names_get(s);
+}
+
 static int ml_states_save(lua_State* l) {
 	checkargs(1, "states.save");
 

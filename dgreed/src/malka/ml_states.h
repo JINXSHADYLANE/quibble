@@ -3,6 +3,7 @@
 
 #include "lua/lua.h"
 #include <stdbool.h>
+#include "utils.h"
 
 // General/lua interface
 void ml_states_init(lua_State* l);
@@ -32,6 +33,11 @@ void malka_states_replace(const char* name);
 void malka_states_pop(void);
 void malka_states_set_transition_len(float len);
 float malka_states_transition_len(void);
+
+// Height of current stack
+uint malka_states_count(void);
+// i-th state name counting from the top of the stack (0 is top)
+const char* malka_states_at(uint i);
 
 void malka_states_save(const char* filename);
 bool malka_states_load(const char* filename);
