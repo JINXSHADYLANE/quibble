@@ -8,7 +8,7 @@ void minimap_init(void);
 void minimap_close(void);
 void minimap_reset(uint distance);
 void minimap_track(ObjRabbit* rabbit);
-void minimap_draw(void);
+void minimap_draw(float t);
 void minimap_draw_finish_line(void);
 void minimap_update_places(void);
 

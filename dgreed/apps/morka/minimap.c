@@ -47,9 +47,13 @@ void minimap_draw_finish_line(void){
 	} 	
 }
 
-void minimap_draw(void){
+void minimap_draw(float t){
+	float alpha = 1.0f-fabsf(t);
+	byte a = lrintf(255.0f * alpha);
+	Color col = COLOR_RGBA(255, 255, 255, a);	
+
 	UIElement* position_line = uidesc_get("position_line");
-	_hud_render_ui(position_line, hud_layer);
+	_hud_render_ui(position_line, hud_layer,col);
 
 	Vector2 pos = position_line->vec2;
 
@@ -75,7 +79,11 @@ void minimap_draw(void){
 			.right = 0,
 			.bottom = 0
 		};
-		spr_draw_h(handle, hud_layer,dest,rabbit->data->minimap_color);
+		byte r,g,b,a2;
+		COLOR_DECONSTRUCT(rabbit->data->minimap_color,r,g,b,a2);
+		Color c = COLOR_RGBA(r,g,b,a);
+
+		spr_draw_h(handle, hud_layer,dest,c);
 	}
 
 	minimap_update_places();

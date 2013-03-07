@@ -16,7 +16,7 @@ static uint last_combo = 0;
 static uint current_combo = 0;
 static float combo_flip_t = 0.0f;
 
-void _hud_render_ui(UIElement* element, uint layer) {
+void _hud_render_ui(UIElement* element, uint layer, Color col) {
 	// Render
 	if(element->members & UI_EL_SPR) {
 		RectF dest = rectf_null();
@@ -28,13 +28,13 @@ void _hud_render_ui(UIElement* element, uint layer) {
 			dest.top = element->vec2.y;
 		}
 
-		spr_draw_h(element->spr, layer, dest, COLOR_WHITE);
+		spr_draw_h(element->spr, layer, dest, col);
 	}
 
 	// Iterate over children
 	UIElement* child;
 	list_for_each_entry(child, &element->child_list, list) {
-		_hud_render_ui(child, layer-1);
+		_hud_render_ui(child, layer-1,col);
 	}
 }
 
@@ -79,11 +79,16 @@ void hud_trigger_combo(uint multiplier) {
 }
 
 void hud_render(float t) {
+	float alpha = 1.0f-fabsf(t);
+	byte a = lrintf(255.0f * alpha);
+	Color col = COLOR_RGBA(255, 255, 255, a);	
+
 	if(!tutorial_level){
+
 		static bool animation_reset = false;
 
 		UIElement* token_icon = uidesc_get("token_icon");
-		spr_draw_cntr_h(token_icon->spr, hud_layer,token_icon->vec2, 0.0f, 1.0f, COLOR_WHITE);
+		spr_draw_cntr_h(token_icon->spr, hud_layer,token_icon->vec2, 0.0f, 1.0f, col);
 
 		static float t0 = 0.0f;
 		static float t1 = 0.0f;
@@ -98,15 +103,15 @@ void hud_render(float t) {
 			}
 
 			float ct = time_s();
-			float t = 0.0f;
+			float tt = 0.0f;
 			float s = 1.0f;
 
 			if(ct > t0 && ct < t1){
-				t = (ct - t0) / (t1 - t0);
-				s = sin(t*3.0f)+1.0f;
+				tt = (ct - t0) / (t1 - t0);
+				s = sin(tt*3.0f)+1.0f;
 			}
 			UIElement* resque_icon = uidesc_get("resque_icon");
-			spr_draw_cntr_h(resque_icon->spr, hud_layer,resque_icon->vec2, ct, s, COLOR_WHITE);
+			spr_draw_cntr_h(resque_icon->spr, hud_layer,resque_icon->vec2, ct, s, col);
 		} else {
 			animation_reset = false;
 		}
@@ -119,12 +124,12 @@ void hud_render(float t) {
 		if(half_size.x == 0.0f) {
 			half_size = vec2_scale(vfont_size(str), 0.5f);
 		}
-		vfont_draw(str, hud_layer, token_text->vec2, COLOR_WHITE);
+		vfont_draw(str, hud_layer, token_text->vec2, col);
 
 	}
 
 	UIElement* pause = uidesc_get("hud_pause");
-	_hud_render_ui(pause, hud_layer);
+	_hud_render_ui(pause, hud_layer,col);
 	if(touches_down() && t == 0.0f) {
 		Touch* t = touches_get();
 		if(t){
@@ -169,7 +174,7 @@ void hud_render(float t) {
 	}	
 
 	// Minimap
-	if(levels_current_desc()->distance > 0) minimap_draw();	
+	if(levels_current_desc()->distance > 0) minimap_draw(t);	
 }
 
 bool hud_button(UIElement* element, Color col, float ts) {
@@ -334,3 +339,96 @@ void hud_render_game_over_scores(float t) {
 	}
 }
 
+// TODO: cleanup repeating code
+
+void hud_render_tutorial_pause(float t){
+		// Game scene
+		game_render(0);
+
+		// Pause overlay
+		UIElement* element = uidesc_get("pause");
+		uint layer = hud_layer+1;
+
+		UIElement* text = uidesc_get_child(element, "text");
+		UIElement* button_play = uidesc_get_child(element, "button_play");
+		UIElement* button_restart = uidesc_get_child(element, "button_restart");
+		UIElement* button_quit = uidesc_get_child(element, "button_quit");
+
+		float alpha = 1.0f-fabsf(t);
+		byte a = lrintf(255.0f * alpha);
+		Color col = COLOR_RGBA(255, 255, 255, a);
+
+		spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+		// Text
+		vfont_select(FONT_NAME, 48.0f); 
+		const char* str = "Paused";
+		static Vector2 half_size = {0.0f, 0.0f};
+		if(half_size.x == 0.0f) {
+			half_size = vec2_scale(vfont_size(str), 0.5f);
+		}
+		vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
+
+		// Play (continue) button
+		if(hud_button(button_play, col, t)) {
+			malka_states_pop();
+		}
+
+		// Restart button
+		if(hud_button(button_restart, col, t)) {
+			game_request_reset();
+			malka_states_pop();
+			malka_states_pop();
+		}
+
+		// Quit button
+		if(hud_button(button_quit, col, t)) {
+			malka_states_pop();
+			malka_states_pop();
+			malka_states_pop();	
+		}
+}
+
+void hud_render_regular_pause(float t){
+		// Game scene
+		if(t == 0) game_render(0);
+
+		// Pause overlay
+		UIElement* element = uidesc_get("pause");
+		uint layer = hud_layer+1;
+
+		UIElement* text = uidesc_get_child(element, "text");
+		UIElement* button_play = uidesc_get_child(element, "button_play");
+		UIElement* button_restart = uidesc_get_child(element, "button_restart");
+		UIElement* button_quit = uidesc_get_child(element, "button_quit");
+
+		float alpha = 1.0f-fabsf(t);
+		byte a = lrintf(255.0f * alpha);
+		Color col = COLOR_RGBA(255, 255, 255, a);
+
+		spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+		// Text
+		vfont_select(FONT_NAME, 48.0f); 
+		const char* str = "Paused";
+		static Vector2 half_size = {0.0f, 0.0f};
+		if(half_size.x == 0.0f) {
+			half_size = vec2_scale(vfont_size(str), 0.5f);
+		}
+		vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
+
+		// Play (continue) button
+		if(hud_button(button_play, col, t)) {
+			malka_states_pop();
+		}
+
+		// Restart button
+		if(hud_button(button_restart, col, t)) {
+			game_request_reset();
+			malka_states_pop();
+		}
+
+		// Quit button
+		if(hud_button(button_quit, col, t)) {
+			malka_states_pop();
+			malka_states_pop();	
+		}		
+}
