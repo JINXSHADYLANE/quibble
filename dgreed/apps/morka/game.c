@@ -213,6 +213,7 @@ bool game_update_empty(void) {
 }
 
 void game_render_level(void){
+
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
 	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);
@@ -227,6 +228,13 @@ void game_render_level(void){
 }
 
 static bool game_render(float t) {
+	// Keep updating camera during transitions
+	if(t != 0){
+		if(!game_over) 
+			game_update();
+		else 
+			game_update_empty();
+	}	
 	hud_render(t);
 
 	if(tutorials_are_enabled()){ 
