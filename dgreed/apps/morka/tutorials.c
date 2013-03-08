@@ -73,7 +73,7 @@ TutorialStep level1_steps[] = {
 	 MUSHROOM_BELOW
 	},	
 	{1.0f,
-	 "You're doing good",
+	 "You're doing great!",
 	 NULL,
 	 NULL,
 	 {WIDTH/2.0f, 300.0f},
