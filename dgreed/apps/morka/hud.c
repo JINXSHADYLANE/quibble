@@ -16,10 +16,69 @@ static uint last_combo = 0;
 static uint current_combo = 0;
 static float combo_flip_t = 0.0f;
 
+static bool countdown_shown = false;
+static float countdown_time = 0.0f;
+
+static void hud_fading_text(UIElement* elem,const char* str,float t){
+	static uint old = 0;
+	uint new = hash_murmur(str,strlen(str),0);
+
+	static Vector2 half_size = {0.0f, 0.0f};
+	if(old != new) {
+		old = new;
+		half_size = vec2_scale(vfont_size(str), 0.5f);
+	}
+	float alpha = sin(PI*t);
+	byte a = lrintf(255.0f * alpha);
+	Color col = COLOR_RGBA(255, 255, 255, a);
+	vfont_draw(str, hud_layer, vec2_sub(elem->vec2, half_size), col);		
+}
+
+static void hud_render_countdown(float t){
+	UIElement* countdown = uidesc_get("countdown_text");
+	vfont_select(FONT_NAME, 150.0f);
+
+	const float duration = 2.5f;
+	float ts = time_s();
+
+	if(countdown_time == 0.0f){
+		countdown_time = ts + 0.5f;
+	}
+
+	float tt = normalize(ts,countdown_time,countdown_time + duration);
+
+	if(tt > 1.0f) countdown_shown = true;
+	else if(tt > 0.75f){
+
+		float td = normalize(tt,0.75f,1.0f);
+		hud_fading_text(countdown,"Go!",td);
+
+	} else if(tt > 0.5f){
+
+		float td = normalize(tt,0.5f,0.75f);
+		hud_fading_text(countdown,"1",td);
+
+	} else if(tt > 0.25f){
+
+		float td = normalize(tt,0.25f,0.5f);
+		hud_fading_text(countdown,"2",td);
+	
+	} else if(tt > 0.0f){
+
+		float td = normalize(tt,0.0f,0.25f);
+		hud_fading_text(countdown,"3",td);
+
+	}
+	
+}
+
 void hud_reset(void){
 	last_combo = 0;
 	current_combo = 0;
 	combo_flip_t = 0.0f;	
+
+	countdown_shown = false;
+	countdown_time = 0.0f;
 }
 
 void _hud_render_ui(UIElement* element, uint layer, Color col) {
@@ -61,10 +120,18 @@ static void _hud_render_combo_internal(
 
 	// Classic sine there-and-back-again for alpha
 	float a = MAX(0.0f, sinf((t*1.4f - 0.2f) * PI));
-	//printf("t: %f\n",t);
 	char final_text[64];
 	sprintf(final_text, text, mult);
-	Vector2 half_size = vec2_scale(vfont_size(final_text), 0.5f);
+
+	static uint old = 0;
+	uint new = hash_murmur(&mult,sizeof(mult),0);
+
+	static Vector2 half_size = {0.0f, 0.0f};
+
+	if(old != new) {
+		old = new;
+		half_size = vec2_scale(vfont_size(final_text), 0.5f);
+	}
 
 	Vector2 pos = vec2_sub(element->vec2, half_size);
 	pos.x -= x * 200.0f;
@@ -132,6 +199,8 @@ void hud_render(float t) {
 			half_size = vec2_scale(vfont_size(str), 0.5f);
 		}
 		vfont_draw(str, hud_layer, token_text->vec2, col);
+
+		if(!countdown_shown) hud_render_countdown(t);
 
 	}
 
