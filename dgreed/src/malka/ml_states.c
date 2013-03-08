@@ -371,7 +371,7 @@ static int ml_states_push_multi(lua_State* l) {
 	return 0;
 }
 
-static void _state_pop(lua_State* l) {
+static void _state_pop(lua_State* l, uint n) {
     assert(_stack_size());
 
 	// Leave old state
@@ -379,7 +379,8 @@ static void _state_pop(lua_State* l) {
 	_call_state_func(l, _names_get(top), "leave", NULL, NULL, NULL);
 	states_acc_t[top] += time_s() - states_enter_t[top];
 
-	_stack_pop();
+	while(n--)
+		_stack_pop();
 
 	// Set up transition
 	if(_stack_size()) {
@@ -400,7 +401,20 @@ static int ml_states_pop(lua_State* l) {
 	if(state_stack_size == 0)
 		return luaL_error(l, "States stack is already empty!");
 
-	_state_pop(l);
+	_state_pop(l, 1);
+
+	return 0;
+}
+
+static int ml_states_pop_multi(lua_State* l) {
+	checkargs(1, "states.pop_multi");
+
+	int i = luaL_checkinteger(l, 1);
+
+	if(state_stack_size < i)
+		return luaL_error(l, "Can't pop that much!");
+
+	_state_pop(l, i);
 
 	return 0;
 }
@@ -567,6 +581,7 @@ static const luaL_Reg states_fun[] = {
 	{"push", ml_states_push},
 	{"push_multi", ml_states_push_multi},
 	{"pop", ml_states_pop},
+	{"pop_multi", ml_states_pop_multi},
 	{"replace", ml_states_replace},
 	{"prerender_callback", ml_states_prerender_callback},
 	{"size", ml_states_size},
@@ -600,8 +615,8 @@ void malka_states_push(const char* name) {
 	_states_push(malka_lua_state(), idx);
 }
 
-void malka_states_push_multi(const char** names, int n_names) {
-	_states_push_multi(malka_lua_state(), names, (uint)n_names);
+void malka_states_push_multi(const char** names, uint n_names) {
+	_states_push_multi(malka_lua_state(), names, n_names);
 }
 
 void malka_states_replace(const char* name) {
@@ -613,7 +628,13 @@ void malka_states_replace(const char* name) {
 
 void malka_states_pop(void) {
 	assert(state_stack_size > 0);
-	_state_pop(malka_lua_state());
+	_state_pop(malka_lua_state(), 1);
+}
+
+void malka_states_pop_multi(uint n) {
+	assert(n > 0);
+	assert(state_stack_size > n-1);
+	_state_pop(malka_lua_state(), n);
 }
 
 void malka_states_set_transition_len(float len) {
