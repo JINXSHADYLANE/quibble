@@ -231,4 +231,10 @@
 			(vec2 0,-330)
 		)
 	)
+	(def countdown_text
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 0,0)
+		)
+	)	
 )
