@@ -65,25 +65,27 @@ void minimap_draw(float t){
 	for(int i = 0; i < minimap_pointers.size;i++){
 		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
 		ObjRabbit* rabbit = *p_rabbit;
-			
-		float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
-		if(rabbit->data->player_control) 
-			player_x = rabbit->header.physics->cd_obj->pos.x;
+		if(rabbit && rabbit->header.type){
+				
+			float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
+			if(rabbit->data->player_control) 
+				player_x = rabbit->header.physics->cd_obj->pos.x;
 
-		rd = (float)rd*w/level_distance;
-		if(rd > w)	rd = w;
+			rd = (float)rd*w/level_distance;
+			if(rd > w)	rd = w;
 
-		RectF dest = {
-			.left = pos.x + rd + 4.0f, 
-			.top = pos.y+h/2.0f - 4.0f,
-			.right = 0,
-			.bottom = 0
-		};
-		byte r,g,b,a2;
-		COLOR_DECONSTRUCT(rabbit->data->minimap_color,r,g,b,a2);
-		Color c = COLOR_RGBA(r,g,b,a);
+			RectF dest = {
+				.left = pos.x + rd + 4.0f, 
+				.top = pos.y+h/2.0f - 4.0f,
+				.right = 0,
+				.bottom = 0
+			};
+			byte r,g,b,a2;
+			COLOR_DECONSTRUCT(rabbit->data->minimap_color,r,g,b,a2);
+			Color c = COLOR_RGBA(r,g,b,a);
 
-		spr_draw_h(handle, hud_layer,dest,c);
+			spr_draw_h(handle, hud_layer,dest,c);
+		}
 	}
 
 	minimap_update_places();
@@ -94,7 +96,7 @@ void minimap_update_places(void){
 		for(int i = 0; i < minimap_pointers.size;i++){
 			ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
 			ObjRabbit* rabbit = *p_rabbit;
-			if(!rabbit->data->game_over){
+			if(rabbit && rabbit->header.type && !rabbit->data->game_over){
 				if(rabbit->data->is_dead){
 					rabbit->data->game_over = true;
 					results[minimap_pointers.size-1-dead_rabbits++] = rabbit;

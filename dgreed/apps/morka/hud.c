@@ -16,6 +16,12 @@ static uint last_combo = 0;
 static uint current_combo = 0;
 static float combo_flip_t = 0.0f;
 
+void hud_reset(void){
+	last_combo = 0;
+	current_combo = 0;
+	combo_flip_t = 0.0f;	
+}
+
 void _hud_render_ui(UIElement* element, uint layer, Color col) {
 	// Render
 	if(element->members & UI_EL_SPR) {
@@ -47,6 +53,7 @@ static void _hud_render_combo_internal(
 	// Combine two smootherstep functions into a new one,
 	// where x stays constant for a while near t = 0.5
 	float x;
+	
 	if(t < 0.5f)
 		x = smootherstep(-1.0f, 0.0f, t * 2.0f);
 	else
@@ -54,7 +61,7 @@ static void _hud_render_combo_internal(
 
 	// Classic sine there-and-back-again for alpha
 	float a = MAX(0.0f, sinf((t*1.4f - 0.2f) * PI));
-
+	//printf("t: %f\n",t);
 	char final_text[64];
 	sprintf(final_text, text, mult);
 	Vector2 half_size = vec2_scale(vfont_size(final_text), 0.5f);
@@ -156,13 +163,14 @@ void hud_render(float t) {
 	}
 
 #define _render_combo(x, t) \
-	_hud_render_combo_internal(combo_el, hud_layer+1, x, t, combo_text_size, combo_text)
+	_hud_render_combo_internal(combo_el, hud_layer, x, t, combo_text_size, combo_text)
 
 	// Combo rendering
 	UIElement* combo_el = uidesc_get("combo_text");
 	float ts = time_s();
 	float ct = (ts - combo_flip_t) / 0.4f;
 	if(ct < 1.0f) {
+
 		if(current_combo >= min_combo)
 			_render_combo(current_combo, ct * 0.5f);
 		if(last_combo >= min_combo)
@@ -172,7 +180,6 @@ void hud_render(float t) {
 		if(current_combo >= min_combo)
 			_render_combo(current_combo, 0.5f);
 	}	
-
 	// Minimap
 	if(levels_current_desc()->distance > 0) minimap_draw(t);	
 }
@@ -219,8 +226,8 @@ void hud_render_game_over_out(float t) {
 
 	// Quit button
 	if(hud_button(button_quit, col, t)) {
-		malka_states_pop();
-		malka_states_pop();
+		hud_reset();	
+		malka_states_replace("level_select");
 	}
 }
 
@@ -263,8 +270,8 @@ void hud_render_game_over_tut(float t) {
 
 	// Quit button
 	if(hud_button(button_quit, col, t)) {
-		malka_states_pop();
-		malka_states_pop();
+		hud_reset();	
+		malka_states_replace("level_select");
 	}
 }
 
@@ -334,64 +341,12 @@ void hud_render_game_over_scores(float t) {
 
 	// Quit button
 	if(hud_button(button_quit, col, t)) {
-		malka_states_pop();
-		malka_states_pop();
+		hud_reset();		
+		malka_states_replace("level_select");
 	}
 }
 
-// TODO: cleanup repeating code
-
-void hud_render_tutorial_pause(float t){
-		// Game scene
-		game_render(0);
-
-		// Pause overlay
-		UIElement* element = uidesc_get("pause");
-		uint layer = hud_layer+1;
-
-		UIElement* text = uidesc_get_child(element, "text");
-		UIElement* button_play = uidesc_get_child(element, "button_play");
-		UIElement* button_restart = uidesc_get_child(element, "button_restart");
-		UIElement* button_quit = uidesc_get_child(element, "button_quit");
-
-		float alpha = 1.0f-fabsf(t);
-		byte a = lrintf(255.0f * alpha);
-		Color col = COLOR_RGBA(255, 255, 255, a);
-
-		spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
-		// Text
-		vfont_select(FONT_NAME, 48.0f); 
-		const char* str = "Paused";
-		static Vector2 half_size = {0.0f, 0.0f};
-		if(half_size.x == 0.0f) {
-			half_size = vec2_scale(vfont_size(str), 0.5f);
-		}
-		vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
-
-		// Play (continue) button
-		if(hud_button(button_play, col, t)) {
-			malka_states_pop();
-		}
-
-		// Restart button
-		if(hud_button(button_restart, col, t)) {
-			game_request_reset();
-			malka_states_pop();
-			malka_states_pop();
-		}
-
-		// Quit button
-		if(hud_button(button_quit, col, t)) {
-			malka_states_pop();
-			malka_states_pop();
-			malka_states_pop();	
-		}
-}
-
 void hud_render_regular_pause(float t){
-		// Game scene
-		if(t == 0) game_render(0);
-
 		// Pause overlay
 		UIElement* element = uidesc_get("pause");
 		uint layer = hud_layer+1;
@@ -417,18 +372,18 @@ void hud_render_regular_pause(float t){
 
 		// Play (continue) button
 		if(hud_button(button_play, col, t)) {
-			malka_states_pop();
+			malka_states_pop();		
 		}
 
 		// Restart button
 		if(hud_button(button_restart, col, t)) {
 			game_request_reset();
-			malka_states_pop();
+			malka_states_pop();	
 		}
 
 		// Quit button
 		if(hud_button(button_quit, col, t)) {
-			malka_states_pop();
-			malka_states_pop();	
+			hud_reset();
+			malka_states_replace("level_select");
 		}		
 }

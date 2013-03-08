@@ -55,7 +55,7 @@ TutorialStep level1_steps[] = {
 	 {WIDTH/2.0f, 300.0f},
 	 true,
 	 true,
-	 false,
+	 true,
 	 false,
 	 MUSHROOM_BELOW,
 	 AUTO
@@ -79,7 +79,7 @@ TutorialStep level1_steps[] = {
 	 {WIDTH/2.0f, 300.0f},
 	 true,
 	 true,
-	 false,
+	 true,
 	 false,
 	 MUSHROOM_BELOW,
 	 AUTO
@@ -103,7 +103,7 @@ TutorialStep level1_steps[] = {
 	 {WIDTH/2.0f, 300.0f},
 	 true,
 	 true,
-	 false,
+	 true,
 	 false,
 	 MUSHROOM_BELOW,
 	 AUTO
@@ -198,8 +198,8 @@ void tutorials_hint_press(bool p){
 	hint_press = p;
 }
 
-bool tutorials_during_gameplay(void){
-	if(current_step) return !current_step->pause_game;
+bool tutorials_paused(void){
+	if(current_step) return current_step->pause_game;
 	return false;
 }
 
@@ -223,7 +223,6 @@ void tutorial_event(EventType e){
 			delay = time_s() + current_step->delay;
 			if(current_step->pause_game){
 				game_pause();
-				malka_states_push("tutorial_pause");
 			}
 			tutorial_active = true;
 			step_done = false;
@@ -306,7 +305,6 @@ static void _tutorial_finger_animation(Vector2 finger_pos,byte a){
 }
 
 bool tutorials_render(float t){
-
 	if(tutorial_active){
 
 		float alpha = 1.0f-fabsf(t);
@@ -328,7 +326,7 @@ bool tutorials_render(float t){
 
 		// If tutorial has paused gameplay, unpause on touch
 		if(current_step->pause_game){
-			if(ts > delay && key_pressed(KEY_A)){
+			if(ts > delay && key_down(KEY_A)){
 
 				// Force input on unpause
 				if(current_step->force_input){
@@ -338,13 +336,11 @@ bool tutorials_render(float t){
 						rabbit->data->force_dive = true;
 				}
 
-				game_unpause();
-				malka_states_pop();
-				
 				if(current_step->dismiss_on != FINAL_STEP)
 					current_step = &current_scenario->steps[++step_i];
 				tutorial_active = false;
 				step_done = false;
+				game_unpause();
 			}	
 		}
 			

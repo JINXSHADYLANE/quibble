@@ -22,6 +22,7 @@ static void game_over_preenter(void) {
 }
 
 static void game_over_enter(void) {
+
 }
 
 static void game_over_leave(void) {
@@ -39,13 +40,6 @@ void game_over_set_screen(ScreenType s){
 
 static bool game_over_render(float t) {
 	// Game scene
-	if(t != 0) {
-		game_update_empty();
-		minimap_update_places();	
-	}
-	if(t == 0){
-		game_render(0);
-	}
 	switch(screen){
 		case TUTORIAL_SCREEN:
 			hud_render_game_over_tut(t);

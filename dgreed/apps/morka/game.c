@@ -29,8 +29,6 @@ static bool game_paused = false;
 
 bool tutorial_level = true;
 
-static bool state_active = false;
-
 static void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
@@ -69,10 +67,13 @@ static void game_reset(void) {
 
 	camera_follow = false;
 
-	hud_trigger_combo(0);
+	hud_reset();
+
+	worldgen_update(objects_camera[0].right, objects_camera[1].right);
 
 	// Check if this level is a tutorial
 	tutorial_level = !strcmp(levels_current_desc()->name, "level1");
+	game_need_reset = false;
 }
 
 static void game_init(void) {
@@ -87,21 +88,16 @@ static void game_init(void) {
 }
 
 static void game_enter(void) {
-	if(game_need_reset){
-		game_reset();
-		game_need_reset = false;
-	}
-	game_unpause();
-	state_active = true;
+
 }
+
 static void game_preenter(void) {
-	state_active = true;
+	if(game_need_reset) game_reset();	
+	game_paused = tutorials_paused();	
 }
 static void game_postleave(void) {
-	state_active = false;
 }
 static void game_leave(void) {
-
 }
 
 void game_end(void){
@@ -211,35 +207,32 @@ bool game_update_empty(void) {
 
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
 	
-	if(!game_paused){
-		particles_update(time_s());
-	} 
+	particles_update(time_s());
 
 	return true;
 }
 
-bool game_render(float t) {
+void game_render_level(void){
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
 	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);
 	Color col = COLOR_WHITE;
 	spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
 	dest = rectf(1024.0f - off_x, 0.0f, 0.0f, 0.0f);
-	spr_draw_h(levels_current_desc()->background, background_layer, dest, col); 
-
+	spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
+	
 	objects_tick(game_paused);
 
-	if(state_active){
-		if(!game_over) hud_render(t);
-		
-		if(tutorials_are_enabled()){ 
-			if(!game_paused) tutorial_event(AUTO);
-			if(tutorials_during_gameplay()) tutorials_render(t);
-		}		
-	}
-
-
 	minimap_draw_finish_line();
+}
+
+static bool game_render(float t) {
+	hud_render(t);
+
+	if(tutorials_are_enabled()){ 
+		if(rabbit && rabbit->header.type && !game_paused) tutorial_event(AUTO);
+		tutorials_render(t);
+	}
 
 	return true;
 }

@@ -46,7 +46,7 @@ bool tutorials_render(float t);
 void tutorials_enable(void);
 void tutorials_disable(void);
 bool tutorials_are_enabled(void);
-bool tutorials_during_gameplay(void);
+bool tutorials_paused(void);
 
 void tutorials_hint_press(bool p);
 
