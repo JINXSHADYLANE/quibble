@@ -838,6 +838,10 @@ registers a state
 - states.push(name), states.pop(), states.replace(name)
 state stack handling
 
+- states.push_multi(names), states.pop_multi(n)
+atomically pushes a list states or pops n states, properly handling
+transitions
+
 - states.prerender_callback(cb)
 set a callback to be inovoked once every frame, before video present
 
