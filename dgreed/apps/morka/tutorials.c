@@ -10,6 +10,8 @@ TutorialStep level1_steps[] = {
 	/*
 	{0.0f,					// delay before finishing a step
 	"Example step",			// text
+	 40.0f,					// text font size
+	 {WIDTH/2.0f,150.0f},	// text position
 	 "spikeshroom_1",		// image
 	 "level_select",		// state to push on event
 	 {50.0f, 50.0f},		// finger touch animation (negative values to hide)
@@ -24,6 +26,8 @@ TutorialStep level1_steps[] = {
 
 	{0.0f,
 	 "Welcome to the training",
+	 40.0f,
+	 {WIDTH/2.0f,150.0f},
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -37,6 +41,8 @@ TutorialStep level1_steps[] = {
 
 	{1.0f,
 	 "Touch to jump",
+	 40.0f,
+	 {WIDTH/2.0f,150.0f},
 	 NULL,
 	 NULL,
 	 {WIDTH/2.0f, 300.0f},
@@ -50,6 +56,8 @@ TutorialStep level1_steps[] = {
 
 	{1.0f,
 	 "Touch and hold to plunge down",
+	 40.0f,
+	 {WIDTH/2.0f,150.0f}, 
 	 NULL,
 	 NULL,
 	 {WIDTH/2.0f, 300.0f},
@@ -61,7 +69,9 @@ TutorialStep level1_steps[] = {
 	 AUTO
 	},
 	{0.5f,
-	 "",
+	 NULL,
+	 0.0f,
+	 {0.0f,0.0f},
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -74,6 +84,8 @@ TutorialStep level1_steps[] = {
 	},	
 	{1.0f,
 	 "You're doing great!",
+	 40.0f,
+	 {WIDTH/2.0f,150.0f},
 	 NULL,
 	 NULL,
 	 {WIDTH/2.0f, 300.0f},
@@ -85,7 +97,9 @@ TutorialStep level1_steps[] = {
 	 AUTO
 	},
 	{0.5f,
-	 "",
+	 NULL,
+	 0.0f,
+	 {0.0f,0.0f},
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -98,6 +112,8 @@ TutorialStep level1_steps[] = {
 	},			
 	{1.0f,
 	 "One more time",
+	 40.0f,
+	 {WIDTH/2.0f,150.0f},	 
 	 NULL,
 	 NULL,
 	 {WIDTH/2.0f, 300.0f},
@@ -110,6 +126,8 @@ TutorialStep level1_steps[] = {
 	},	
 	{0.0f,
 	 "Now try it all by yourself",
+	 40.0f,
+	 {WIDTH/2.0f,150.0f},	 
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -123,6 +141,8 @@ TutorialStep level1_steps[] = {
 
 	{2.5f,
 	 "You are ready for the race!",
+	 40.0f,
+	 {WIDTH/2.0f,150.0f},	 
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -136,6 +156,8 @@ TutorialStep level1_steps[] = {
 
 	{1.0f,
 	 NULL,
+	 0.0f,
+	 {0.0f,0.0f},
 	 NULL,
 	 "game_over",
 	 {-1.0f, -1.0f},
@@ -149,13 +171,112 @@ TutorialStep level1_steps[] = {
 
 };
 
+TutorialStep default_steps[] = {
+	{0.5f,
+	 NULL,
+	 0.0f,
+	 {0.0f,0.0f},	 
+	 NULL,
+	 NULL,
+	 {-1.0f, -1.0f},
+	 false,
+	 false,
+	 false,
+	 false,
+	 AUTO,
+	 AUTO
+	},
+
+	{0.625f,
+	 "3",
+	 150.0f,
+	 {WIDTH/2.0f,HEIGHT/2.0f},	 
+	 NULL,
+	 NULL,
+	 {-1.0f, -1.0f},
+	 false,
+	 false,
+	 false,
+	 false,
+	 AUTO,
+	 AUTO
+	},
+
+	{0.625f,
+	 "2",
+	 150.0f,
+	 {WIDTH/2.0f,HEIGHT/2.0f},	 	 
+	 NULL,
+	 NULL,
+	 {-1.0f, -1.0f},
+	 false,
+	 false,
+	 false,
+	 false,
+	 AUTO,
+	 AUTO
+	},
+
+	{0.625f,
+	 "1",
+	 150.0f,
+	 {WIDTH/2.0f,HEIGHT/2.0f},	 	 
+	 NULL,
+	 NULL,
+	 {-1.0f, -1.0f},
+	 false,
+	 false,
+	 false,
+	 false,
+	 AUTO,
+	 AUTO
+	},
+
+	{0.625f,
+	 "Go!",
+	 150.0f,
+	 {WIDTH/2.0f,HEIGHT/2.0f},	 	 
+	 NULL,
+	 NULL,
+	 {-1.0f, -1.0f},
+	 false,
+	 false,
+	 false,
+	 false,
+	 AUTO,
+	 AUTO
+	},
+
+	{0.0f,
+	 NULL,
+	 0.0f,
+	 {0.0f,0.0f},
+	 NULL,
+	 NULL,
+	 {-1.0f, -1.0f},
+	 false,
+	 false,
+	 false,
+	 false,
+	 AUTO,
+	 FINAL_STEP
+	}
+
+};
+
 TutorialScenario scenarios[] = {
 	{"level1", level1_steps},
+	{"default", default_steps},
 	{NULL, NULL}
 };
 
+const static float transition = 1.0f;
+static float start_time = 0.0f;
+static float end_time = 0.0f;
+
 static TutorialScenario* current_scenario = NULL;
 static TutorialStep* current_step = NULL;
+static TutorialStep* prev_step = NULL;	// for text fadeout
 static uint step_i = 0;
 static SprHandle finger;
 static SprHandle star;
@@ -169,6 +290,8 @@ static bool hint_press = false;
 static bool state_changed = false;
 
 static ObjRabbit* rabbit = NULL;
+
+
 
 void tutorials_init(void){
 	finger = sprsheet_get_handle("tut_finger");
@@ -214,6 +337,7 @@ void tutorials_set_level(const char* level){
 			current_scenario = &scenarios[i];
 		i++;
 	}
+	if(!current_scenario) tutorials_set_level("default");
 }
 
 void tutorial_event(EventType e){
@@ -226,12 +350,14 @@ void tutorial_event(EventType e){
 			}
 			tutorial_active = true;
 			step_done = false;
-
+			start_time = time_s();
 		}
 		if(e == current_step->dismiss_on && step_done && tutorial_active){
+			prev_step = current_step;
 			current_step = &current_scenario->steps[++step_i];
 			tutorial_active = false;
-			step_done = false;	
+			step_done = false;
+			end_time = time_s();
 
 			// if the event dismissed this step, it might start the next one too
 			tutorial_event(e);
@@ -255,23 +381,20 @@ static void _tutorial_image(byte a){
 	spr_draw_h(handle, hud_layer,rec,COLOR_RGBA(255, 255, 255, a));
 }
 
-static void _tutorial_text(byte a){
-	//Vector2 text_pos = vec2(WIDTH/2.0f,700.0f);	// old pos
-	Vector2 text_pos = vec2(WIDTH/2.0f,150.0f);
-	static TutorialStep* step = NULL;
+static void _tutorial_text(TutorialStep* step,byte a){
+	static TutorialStep* old = NULL;
 
 	char str[32];
-	sprintf(str, "%s",current_step->text);
+	sprintf(str, "%s",step->text);
 
-	vfont_select(FONT_NAME, 40.0f); 
+	vfont_select(FONT_NAME, step->font_size); 
 	static Vector2 half_size = {0.0f, 0.0f};
-	if(half_size.x == 0.0f || step != current_step) {
+	if(half_size.x == 0.0f || old != step) {
 		half_size = vec2_scale(vfont_size(str), 0.5f);
 	}
-	//Color col = COLOR_RGBA(70, 49, 27, a);	// old color
 	Color col = COLOR_RGBA(255, 255, 255, a);
-	vfont_draw(str, hud_layer, vec2_sub(text_pos, half_size),col);
-	step = current_step;
+	vfont_draw(str, hud_layer, vec2_sub(step->text_pos, half_size),col);
+	old = step;
 }
 
 static void _tutorial_finger_animation(Vector2 finger_pos,byte a){
@@ -307,14 +430,27 @@ static void _tutorial_finger_animation(Vector2 finger_pos,byte a){
 bool tutorials_render(float t){
 	if(tutorial_active){
 
-		float alpha = 1.0f-fabsf(t);
-		byte a = lrintf(255.0f * alpha);
+		float transition_alpha = 1.0f-fabsf(t);
+		float ts = time_s();
+		float td = 0.0f;
+
+		if(current_step->dismiss_on == AUTO && !current_step->pause_game){
+			td = normalize(ts,start_time,start_time + current_step->delay);
+			td = clamp(0.0f,1.0f,td);
+		} else {
+			td = normalize(ts,start_time,start_time + transition);
+			td = clamp(0.0f,0.5f,td);
+		}
+
+		float alpha = sin(PI*td);
+		alpha *= transition_alpha;
+		byte a = lrintf(255.0f * alpha);		
 
 		// Draw tutorial image
 		if(current_step->img) _tutorial_image(a);
 
 		// Draw tutorial text
-		if(current_step->text) _tutorial_text(a);
+		if(current_step->text) _tutorial_text(current_step,a);
 
 		// Finger animation
 		Vector2 half_size = vec2_scale(sprsheet_get_size_h(finger),0.5f);
@@ -322,8 +458,6 @@ bool tutorials_render(float t){
 		if(finger_pos.x >= 0.0f && finger_pos.y >= 0.0f)
 			_tutorial_finger_animation(finger_pos, a);
 		
-		float ts = time_s();
-
 		// If tutorial has paused gameplay, unpause on touch
 		if(current_step->pause_game){
 			if(ts > delay && key_down(KEY_A)){
@@ -335,11 +469,15 @@ bool tutorials_render(float t){
 					else
 						rabbit->data->force_dive = true;
 				}
-
-				if(current_step->dismiss_on != FINAL_STEP)
+				prev_step = current_step;
+				if(current_step->dismiss_on != FINAL_STEP){
 					current_step = &current_scenario->steps[++step_i];
+				}
+
 				tutorial_active = false;
 				step_done = false;
+				end_time = time_s();
+
 				game_unpause();
 			}	
 		}
@@ -357,5 +495,24 @@ bool tutorials_render(float t){
 		// If tutorial delay time has ran out, this step is done
 		if(!current_step->pause_game && ts > delay) step_done = true;
 	}
+
+	// fade out previous text if necessary
+	if(prev_step != NULL && prev_step->text != NULL &&
+		(prev_step->dismiss_on != AUTO || prev_step->pause_game) ){
+
+		float transition_alpha = 1.0f-fabsf(t);
+		float ts = time_s();
+
+		float tt = normalize(ts + transition/2.0f,end_time,end_time + transition);
+		tt = clamp(0.5f,1.0f,tt);
+		float alpha2 = sin(PI * tt);
+
+		alpha2 *= transition_alpha;
+		byte a2 = lrintf(255.0f * alpha2);
+
+		_tutorial_text(prev_step,a2);
+	}
+
+
 	return true;
 }

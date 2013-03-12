@@ -33,6 +33,10 @@ static void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
 	}
+
+	// Check if this level is a tutorial
+	tutorial_level = !strcmp(levels_current_desc()->name, "level1");
+
 	minimap_reset(levels_current_desc()->distance);
 
 	// Player rabbit
@@ -71,8 +75,6 @@ static void game_reset(void) {
 
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
 
-	// Check if this level is a tutorial
-	tutorial_level = !strcmp(levels_current_desc()->name, "level1");
 	game_need_reset = false;
 }
 

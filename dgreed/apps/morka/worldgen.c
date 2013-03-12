@@ -128,7 +128,7 @@ static void _gen_mushrooms(void){
 		mchains_symbol_info(fg_chain, sym, &advance, &spr);
 		Vector2 pos = vec2(fg_page_cursor + fg_x, 641.0f);
 		if(spr) advance = (uint) sprsheet_get_size_h(spr).x;
-		else if (!spr && !tutorial_level && coins > 0){
+		else if (!tutorial_level && coins > 0){
 			coins_cd = 2;
 			Vector2 p = vec2(pos.x + advance / 2.0f, 579.0f);
 			SprHandle spr = sprsheet_get_handle(coin_powerup.spr);

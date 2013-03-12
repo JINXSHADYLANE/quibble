@@ -19,6 +19,8 @@ typedef enum{
 typedef struct {
 	float delay;
 	const char* text;
+	float font_size;
+	Vector2 text_pos;		
 	const char* img;
 	const char* state;
 	Vector2 finger_pos;
