@@ -175,7 +175,7 @@ bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r) {
 	return sq_dist <= r*r;
 }
 
-bool _interval_collision(float s1, float e1, float s2, float e2) {
+bool interval_collision(float s1, float e1, float s2, float e2) {
 	float t;
 	// Assure order
 	if(s1 > e1) {
@@ -199,9 +199,9 @@ bool rectf_rectf_collision(const RectF* r1, const RectF* r2) {
 	assert(r2);
 
 	// X axis
-	if(_interval_collision(r1->left, r1->right, r2->left, r2->right))
+	if(interval_collision(r1->left, r1->right, r2->left, r2->right))
 		// Y axis
-		if(_interval_collision(r1->top, r1->bottom, r2->top, r2->bottom))
+		if(interval_collision(r1->top, r1->bottom, r2->top, r2->bottom))
 			return true;
 
 	return false;

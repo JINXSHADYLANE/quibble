@@ -242,6 +242,8 @@ bool segment_intersect(Segment s1, Segment s2, Vector2* p);
 ----------------------
 */
 
+bool interval_collision(float start_a, float end_a, float start_b, float end_b);
+
 // Returns first intersection point or end
 Vector2 circle_raycast(const Vector2* center, float r,
 		const Vector2* start, const Vector2* end);

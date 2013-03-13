@@ -154,10 +154,12 @@ bool placement_allowed(Vector2 pos, SprHandle spr){
 			if(spr == s){
 
 				// check if sprite falls into interval range
-				if( (pos.x > p->range.x && pos.x < p->range.y) ||
-					(pos.y > p->range.x && pos.y < p->range.y) ||
-					(pos.x < p->range.x && pos.y > p->range.y)
-					) return false;
+				bool collision = interval_collision(
+					pos.x, pos.y,
+					p->range.x, p->range.y
+				);
+				if(collision)
+					return false;
 			} 
 
 		}
