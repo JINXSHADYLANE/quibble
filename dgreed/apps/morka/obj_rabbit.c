@@ -92,6 +92,12 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 	return result;
 }
 
+static Vector2 _rabbit_damping(Vector2 vel) {
+	float t = clamp(0.0f, 1.0f, (vel.x - 220.0f) / 1000.0f);
+	float damp = smoothstep(1.0f, 0.98f, t);
+	return vec2(vel.x * damp, vel.y * 0.995f);
+}
+
 void obj_rabbit_player_control(GameObject* self){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
@@ -205,10 +211,7 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 			landing = vec2_add(landing, vec2_scale(vel, PHYSICS_DT));
 
 			// damping
-			float t = clamp(0.0f, 1.0f, (vel.x - 220.0f) / 1000.0f);
-			float damp = smoothstep(1.0f, 0.98f, t);
-			vel.x *= damp;
-			vel.y *= 0.995f;
+			vel = _rabbit_damping(vel);
 	}
 	return landing;
 }
@@ -353,10 +356,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			}
 		}	
 
-		float t = clamp(0.0f, 1.0f, (p->vel.x - 220.0f) / 1000.0f);
-		float damp = smoothstep(1.0f, 0.98f, t);
-		p->vel.x *= damp;
-		p->vel.y *= 0.995f;
+		p->vel = _rabbit_damping(p->vel);
 	
 		d->on_water = false;
 
