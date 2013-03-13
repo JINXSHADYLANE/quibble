@@ -59,6 +59,9 @@ typedef struct {
 	bool force_dive;
 	bool input_disabled;
 
+	bool jumped;
+	bool dived;
+
 	uint last_frame;
 } ObjRabbitData;
 
