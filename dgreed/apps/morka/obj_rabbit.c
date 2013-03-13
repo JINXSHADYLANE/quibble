@@ -483,6 +483,7 @@ static void _rabbit_delayed_bounce(void* r) {
 		if(d->player_control) tutorial_event(BOUNCE_PERFORMED);
 		d->force_dive = false;
 		d->is_diving = false;
+		d->has_trampoline = false;
 		GameObject* self = r;
 		objects_apply_force(self, d->bounce_force); 
 		d->jump_off_mushroom = false;
