@@ -55,7 +55,6 @@ static void game_reset(void) {
 	}	
 
 	float p = 512.0f + 50.0f + levels_current_desc()->ai_rabbit_num * 128.0f;
-
 	objects_camera[0].left = p;
 	objects_camera[0].right = p + 1024.0f;
 	objects_camera[1].left = p;
@@ -64,16 +63,14 @@ static void game_reset(void) {
 	objects_camera[2].right = p + 1024.0f;
 	bg_scroll = p;
 
-	worldgen_reset(rand_uint(),levels_current_desc());
-
 	camera_follow_weight = 0.2f;
 	game_over = false;
-
 	camera_follow = false;
 
-	hud_reset();
-
+	worldgen_reset(rand_uint(),levels_current_desc());
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
+
+	hud_reset();
 
 	game_need_reset = false;
 }
@@ -90,12 +87,12 @@ static void game_init(void) {
 }
 
 static void game_enter(void) {
-
+	if(game_need_reset) game_reset();	
+	game_paused = tutorials_paused();	
 }
 
 static void game_preenter(void) {
-	if(game_need_reset) game_reset();	
-	game_paused = tutorials_paused();	
+
 }
 static void game_postleave(void) {
 }
