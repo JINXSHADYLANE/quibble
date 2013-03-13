@@ -82,21 +82,27 @@ static RectF in_landing_location(GameObject* obj){
 }
 
 static bool there_is(int obj_type, RectF rec){
-	//GameObject* result[2] = {0};
-	GameObject* result = NULL;
 
-	if(rec.left == rec.right){
-		result = objects_raycast(vec2(rec.left,rec.top),vec2(rec.right,rec.bottom));
-	} else {
-		objects_aabb_query(&rec,&result,1);
-	}
-			
+	// Debug rendering
 	if(draw_ai_debug){
 		RectF r = objects_world2screen(rec,0);
 		gfx_draw_rect(10, &r, COLOR_RGBA(0, 0, 255, 255));
 	}
 
-	if(result && result->type == obj_type) return true;
+	if(rec.left == rec.right){
+		GameObject* result = NULL;
+		result = objects_raycast(vec2(rec.left,rec.top),vec2(rec.right,rec.bottom));
+
+		if(result && result->type == obj_type) return true;
+
+	} else {
+
+		GameObject* result[2] = {0};
+		objects_aabb_query(&rec,&result[0],2);
+		for(uint i = 0; i < 2; i++)	{
+			if(result[i] && result[i]->type == obj_type) return true;
+		}
+	}
 
 	return false;
 }
@@ -155,7 +161,7 @@ void ai_control(GameObject* obj){
 
 	} else {
 
-		if( ! there_is( OBJ_GROUND_TYPE, in_landing_location(obj) ) ) 
+		if( there_is( OBJ_FALL_TRIGGER_TYPE, in_landing_location(obj) ) ) 
 			input = true;
 
 		if( there_is( OBJ_MUSHROOM_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ) 
