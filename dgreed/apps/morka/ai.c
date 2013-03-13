@@ -172,9 +172,9 @@ void ai_control(GameObject* obj){
 	}
 
 	// if ai decided to take action, press virtual keys
-	if(input){
-		d->virtual_key_pressed = true;	
-		if(!d->virtual_key_down) d->virtual_key_down = true;
+	if(input){	
+		if(!d->virtual_key_down && !d->virtual_key_pressed) d->virtual_key_down = true;
+		d->virtual_key_pressed = true;
 	}
 
 }
