@@ -47,5 +47,9 @@
 			(frames "10 11 12 14")
 			(on_finish stop)
 		)
+		(seq rocket_ride
+			(frames "15")
+			(on_finish stop)
+		)
 	)
 )

@@ -47,6 +47,26 @@
 
 			)
 		)
+		(e powerup_pick
+			(particles powerup_pick
+
+			)
+		)
+		(e bubble_explode
+			(particles bubble_explode
+
+			)
+		)
+		(e bomb_explode
+			(particles bomb_explode
+
+			)
+		)
+		(e rocket_ride
+			(particles rocket
+
+			)
+		)
 	)
 )
 
