@@ -18,8 +18,38 @@ enum {
 	OBJ_PARTICLE_ANCHOR_TYPE,
 	OBJ_BG_PARTICLE_ANCHOR_TYPE,
 	OBJ_POWERUP_TYPE,
-	OBJ_FLOATER_TYPE
+	OBJ_FLOATER_TYPE,
+	OBJ_BOMB_TYPE
 };
+
+// Powerup
+
+typedef enum{
+	BOMB = 0,
+	ROCKET,
+	SHIELD,
+
+	POWERUP_COUNT 
+} PowerupType;
+
+typedef void (*PowerupCallback)(GameObject* other);
+
+typedef struct {
+	const char* spr;
+	const char* btn;
+	PhysicsHitCallback hit_callback;
+	PowerupCallback powerup_callback;
+} PowerupParams;
+
+extern PowerupParams powerup_params[];
+
+extern PowerupParams coin_powerup;
+
+typedef struct {
+	GameObject header;
+} ObjPowerup;
+
+extern GameObjectDesc obj_powerup_desc;
 
 // Rabbit Data
 
@@ -58,6 +88,12 @@ typedef struct {
 	bool force_jump;
 	bool force_dive;
 	bool input_disabled;
+
+	bool has_powerup[POWERUP_COUNT];
+	float rocket_time;
+	bool shield_up;
+	float shield_dh;
+	float shield_h;
 
 	bool jumped;
 	bool dived;
@@ -169,25 +205,6 @@ typedef struct {
 
 extern GameObjectDesc obj_bg_particle_anchor_desc;
 
-// Powerup (coin, etc)
-
-typedef struct {
-	const char* spr;
-	const char* btn;
-	PhysicsHitCallback hit_callback;
-} PowerupParams;
-
-extern PowerupParams bomb_powerup;
-extern PowerupParams coin_powerup;
-extern PowerupParams rocket_powerup;
-extern PowerupParams shield_powerup;
-
-typedef struct {
-	GameObject header;
-} ObjPowerup;
-
-extern GameObjectDesc obj_powerup_desc;
-
 // Floating text/img object
 
 typedef struct {
@@ -205,5 +222,13 @@ typedef struct {
 
 extern GameObjectDesc obj_floater_desc;
 
-#endif
+// Bomb
 
+typedef struct {
+	GameObject header;
+	GameObject * owner;
+} ObjBomb;
+
+extern GameObjectDesc obj_bomb_desc;
+
+#endif

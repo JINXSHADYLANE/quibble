@@ -11,10 +11,23 @@ static ObjFloaterParams bomb_floater_params = {
 	.duration = 0.15f
 };
 
+static void obj_powerup_bomb_effect(GameObject* other){
+	ObjRabbit* rabbit = (ObjRabbit*)other;
+	ObjRabbitData* d = rabbit->data;
+	PhysicsComponent* p = other->physics;	
+
+	objects_create(&obj_bomb_desc, p->cd_obj->pos, (void*)other);
+
+	d->has_powerup[BOMB] = false;
+}
+
 static void obj_powerup_bomb_collide(GameObject* self, GameObject* other) {
-	if(other->type == OBJ_RABBIT_TYPE) {
+	if(other->type == OBJ_RABBIT_TYPE) {\
+		ObjRabbit* rabbit = (ObjRabbit*)other;
+		ObjRabbitData* d = rabbit->data;
+
 		// Powerup effect
-		// TODO
+		d->has_powerup[BOMB] = true;
 
 		// Particles
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
@@ -22,7 +35,7 @@ static void obj_powerup_bomb_collide(GameObject* self, GameObject* other) {
 			rectf_center(&other->render->world_dest), 
 			NULL
 		);
-		mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
+		mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
 
 		// Dissapearing animation
 		Vector2 pos = rectf_center(&self->render->world_dest);
@@ -36,12 +49,6 @@ static void obj_powerup_bomb_collide(GameObject* self, GameObject* other) {
 	}
 }
 
-PowerupParams bomb_powerup = {
-	.spr = "bomb",
-	.btn = "btn_bomb",
-	.hit_callback = obj_powerup_bomb_collide
-};
-
 // Rocket powerup
 
 static ObjFloaterParams rocket_floater_params = {
@@ -50,10 +57,25 @@ static ObjFloaterParams rocket_floater_params = {
 	.duration = 0.15f
 };
 
+static void obj_powerup_rocket_effect(GameObject* other){
+	ObjRabbit* rabbit = (ObjRabbit*)other;
+	ObjRabbitData* d = rabbit->data;
+	//PhysicsComponent* p = other->physics;
+
+	const static float duration = 5.0f;
+
+	d->rocket_time = time_s() + duration;
+
+	d->has_powerup[ROCKET] = false;
+}
+
 static void obj_powerup_rocket_collide(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
+		ObjRabbit* rabbit = (ObjRabbit*)other;
+		ObjRabbitData* d = rabbit->data;
+
 		// Powerup effect
-		// TODO
+		d->has_powerup[ROCKET] = true;
 
 		// Particles
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
@@ -61,7 +83,7 @@ static void obj_powerup_rocket_collide(GameObject* self, GameObject* other) {
 			rectf_center(&other->render->world_dest), 
 			NULL
 		);
-		mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
+		mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
 
 		// Dissapearing animation
 		Vector2 pos = rectf_center(&self->render->world_dest);
@@ -75,12 +97,6 @@ static void obj_powerup_rocket_collide(GameObject* self, GameObject* other) {
 	}
 }
 
-PowerupParams rocket_powerup = {
-	.spr = "rocket",
-	.btn = "btn_rocket",
-	.hit_callback = obj_powerup_rocket_collide
-};
-
 // Shield powerup
 
 static ObjFloaterParams shield_floater_params = {
@@ -89,10 +105,22 @@ static ObjFloaterParams shield_floater_params = {
 	.duration = 0.15f
 };
 
+static void obj_powerup_shield_effect(GameObject* other){
+	ObjRabbit* rabbit = (ObjRabbit*)other;
+	ObjRabbitData* d = rabbit->data;
+
+	d->shield_up = true;
+
+	d->has_powerup[SHIELD] = false;
+}
+
 static void obj_powerup_shield_collide(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
+		ObjRabbit* rabbit = (ObjRabbit*)other;
+		ObjRabbitData* d = rabbit->data;
+
 		// Powerup effect
-		// TODO
+		d->has_powerup[SHIELD] = true;
 
 		// Particles
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
@@ -100,7 +128,7 @@ static void obj_powerup_shield_collide(GameObject* self, GameObject* other) {
 			rectf_center(&other->render->world_dest), 
 			NULL
 		);
-		mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
+		mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
 
 		// Dissapearing animation
 		Vector2 pos = rectf_center(&self->render->world_dest);
@@ -113,12 +141,6 @@ static void obj_powerup_shield_collide(GameObject* self, GameObject* other) {
 		objects_destroy(self);
 	}
 }
-
-PowerupParams shield_powerup = {
-	.spr = "shield",
-	.btn = "btn_shield",
-	.hit_callback = obj_powerup_shield_collide
-};
 
 // Coin powerup
 
@@ -152,12 +174,6 @@ static void obj_powerup_coin_collide(GameObject* self, GameObject* other) {
 	}
 }
 
-PowerupParams coin_powerup = {
-	.spr = "token",
-	.btn = NULL,
-	.hit_callback = obj_powerup_coin_collide
-};
-
 // Generic ObjPowerup code
 
 static void obj_powerup_construct(GameObject* self, Vector2 pos, void* user_data) {
@@ -188,4 +204,36 @@ GameObjectDesc obj_powerup_desc = {
 	.has_update = false,
 	.construct = obj_powerup_construct,
 	.destruct = NULL
+};
+
+PowerupParams powerup_params[] = {
+	{
+		"bomb",
+		"btn_bomb",
+		obj_powerup_bomb_collide,
+		obj_powerup_bomb_effect
+	},
+	
+	{
+		"rocket",
+		"btn_rocket",
+		obj_powerup_rocket_collide,
+		obj_powerup_rocket_effect
+	},
+
+	{
+		"shield",
+		"btn_shield",
+		obj_powerup_shield_collide,
+		obj_powerup_shield_effect
+	}
+
+};
+
+// Token/coin powerup stored seperately because it has no activation button
+PowerupParams coin_powerup = {
+	.spr = "token",
+	.btn = NULL,
+	.hit_callback = obj_powerup_coin_collide,
+	.powerup_callback = NULL
 };

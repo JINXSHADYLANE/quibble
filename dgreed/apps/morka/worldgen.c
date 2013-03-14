@@ -45,7 +45,7 @@ static void _gen_bg_page(void) {
 	bg_page_cursor += page_width;
 }
 
-static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupParams *params,PowerupType type){
+static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupType type){
 	uint num = powerups[type];
 	if(num){
 		float min = (float) (levels_current_desc()->distance + 2.0f) *
@@ -60,7 +60,7 @@ static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupParams *param
 		float place = max - ((max-min) * d);
 
 		if(pos.x > place && pos.x < max){
-			objects_create(desc, pos,(void*)params);
+			objects_create(desc, pos,(void*)&powerup_params[type]);
 			powerups[type]--;
 			return true;
 		}
@@ -150,7 +150,7 @@ static void _gen_mushrooms(void){
 
 				// placing bomb powerup after cactuses
 				Vector2 p = vec2(pos.x + advance / 2.0f + 100.0f, 579.0f);
-				place_powerup(&obj_powerup_desc, p, &bomb_powerup, BOMB);
+				place_powerup(&obj_powerup_desc, p, BOMB);
 				
 			} else {
 				objects_create(&obj_mushroom_desc, pos, (void*)spr);
@@ -163,12 +163,12 @@ static void _gen_mushrooms(void){
 					Vector2 p = vec2_add(pos, vec2(width/2.0f,-height - 50.0f));	
 					if(sym == 'j'){
 						// Place rocket or a coin on top of mushroom
-						if(!place_powerup(&obj_powerup_desc, p, &rocket_powerup, ROCKET))
+						if(!place_powerup(&obj_powerup_desc, p, ROCKET))
 							objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
 
 					} else if(sym == 'h'){
 						// Place shield or a coin on top of mushroom
-						if(!place_powerup(&obj_powerup_desc, p, &shield_powerup, SHIELD))
+						if(!place_powerup(&obj_powerup_desc, p, SHIELD))
 							objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
 
 					} else if(height >= 265.0f)

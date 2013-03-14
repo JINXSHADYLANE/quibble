@@ -7,27 +7,39 @@
 static void obj_cactus_collide(GameObject* self, GameObject* other) {
 	ObjCactus* cactus = (ObjCactus*)self;
 	if(other->type == OBJ_RABBIT_TYPE) {
-		if(cactus->damage == 1.0f){
+
+		ObjRabbit* rabbit = (ObjRabbit*)other;
+		ObjRabbitData* d = rabbit->data;
+
+		if(cactus->damage == 1.0f && d->rocket_time == 0.0f ){
+
+
 
 			const float animation_length = 1.0f; // seconds
 
 			cactus->t0 = time_s();
 			cactus->t1 = cactus->t0 + animation_length;
 
-			Vector2 f = {
-				.x = -100000.0f,
-				.y =  0.0f
-			};
-			if(other->physics->vel.y > 0.0f){	
-				f.y = -100000.0f;
-				other->physics->vel.y = 0.0f;
-			}
-
-			objects_apply_force(other, f);
-
 			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
-			mfx_trigger_follow("cactus_reaction",&anchor->screen_pos,NULL);
 
+			if(!d->shield_up){
+				Vector2 f = {
+					.x = -100000.0f,
+					.y =  0.0f
+				};
+
+				if(other->physics->vel.y > 0.0f){	
+					f.y = -100000.0f;
+					other->physics->vel.y = 0.0f;
+				}
+
+				objects_apply_force(other, f);
+			} else {
+				d->shield_up = false;
+				mfx_trigger_follow("bubble_explode",&anchor->screen_pos,NULL);	
+			}
+			
+			mfx_trigger_follow("cactus_reaction",&anchor->screen_pos,NULL);
 			cactus->damage = 0.0f;
 
 		}
