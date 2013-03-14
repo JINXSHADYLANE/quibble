@@ -751,9 +751,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		d->speed = 500.0f;
 		d->xjump = 100.0f;
 		d->yjump = 400.0f;
-		d->has_powerup[BOMB] = true;
-		d->has_powerup[SHIELD] = true;
-		d->has_powerup[ROCKET] = true;
 	} else {
 		// AI rabbit
 		LevelDesc* lvl_desc = levels_current_desc();
