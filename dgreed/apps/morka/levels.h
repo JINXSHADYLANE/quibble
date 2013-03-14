@@ -2,6 +2,7 @@
 #define LEVELS_H
 
 #include "utils.h"
+#include "obj_types.h"
 #include <darray.h>
 #include <sprsheet.h>
 
@@ -32,14 +33,6 @@
 	)
 )
 */
-
-typedef enum{
-	BOMB = 0,
-	ROCKET,
-	SHIELD,
-
-	POWERUP_COUNT 
-} PowerupType;
 
 typedef struct {
 	const char* name;

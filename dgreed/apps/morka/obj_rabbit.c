@@ -19,6 +19,10 @@ static const float rabbit_hitbox_width = 70.0f;
 static const float rabbit_hitbox_height = 62.0f;
 static const float ground_y = 579.0f;
 
+static SprHandle shield_spr;
+static float shield_width;
+static float shield_height;
+
 extern bool draw_ai_debug;
 extern bool camera_follow;
 extern ObjRabbit* rabbit;
@@ -71,7 +75,7 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 	}
 
 	// Gravity
-	result = vec2_add(result, vec2(0.0f, 6000.0f) );	
+	result = vec2_add(result, vec2(0.0f, 6000.0f) );
 
 	if(!gravity_only){
 		// Jumping
@@ -87,6 +91,12 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 				result = vec2_add(result, vec2(0.0f, 25000.0f) );
 			}
 		}
+	}
+
+	// Rocket
+	if(d->rocket_time > 0.0f){
+		result = vec2_add(result, vec2(2500.0f, 0.0f) );
+		result.y = 0.0f;
 	}
 
 	return result;
@@ -262,6 +272,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		RenderComponent* r = self->render;
 		r->anim_frame = anim_frame_ex(rabbit->anim, TIME_S);
 		
+		if(d->rocket_time == 0.0f){
+
 		if(d->touching_ground) {	
 			d->force_dive = false;	
 			d->is_diving = false;
@@ -286,6 +298,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 				if(r->was_visible)
 					mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+
+				d->shield_dh = -20.0f;
 			}
 
 			// Trigger water/land particle effects on ground
@@ -356,8 +370,29 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			}
 		}	
 
+		} else {
+			anim_play_ex(rabbit->anim, "rocket_ride", TIME_S);
+
+			if(d->boost == 0){
+				if(r->was_visible){
+					Vector2 rocket_pos = vec2_add(screen_pos,vec2(13.0f,2.0f));
+					mfx_trigger_ex("rocket", rocket_pos, 0.0f);
+				}	
+				d->boost = 3;
+			} else d->boost--;
+
+			if(p->cd_obj->pos.y > 552.0f)
+				p->cd_obj->pos.y = 552.0f;
+			p->vel.y = 0.0f;
+
+			if(time_s() > d->rocket_time){
+				d->rocket_time = 0.0f;
+				d->touching_ground = false;
+			}	
+
+		}
+
 		p->vel = _rabbit_damping(p->vel);
-	
 		d->on_water = false;
 
 		// Above screen
@@ -374,12 +409,51 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			if(!rabbit->data->game_over) rabbit->data->rabbit_time = -1.0f;
 		}
 
+		// Prevent player from moving out of screen on bomb/cactus hit
+		if(screen_pos.x < 0.0f && p->vel.x < 0.0f){
+			p->vel.x = 0.0f;
+		}
+
 		if(p->cd_obj->pos.y < ground_y) d->touching_ground = false;
 
 		if(!d->game_over) d->rabbit_time += time_delta() / 1000.0f;
 
 		objects_apply_force(self,_rabbit_calculate_forces(self,false));	
 
+	}
+
+}
+
+static void obj_rabbit_post_render(GameObject* self){
+	ObjRabbit* rabbit = (ObjRabbit*)self;
+	ObjRabbitData* d = rabbit->data;
+	PhysicsComponent* p = self->physics;
+
+	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+	pos.x += 37.0f;
+	//pos.y += rabbit_hitbox_height - 20;
+	
+	float f = 30.0f * (shield_height - d->shield_h);
+	d->shield_dh += f * (time_delta()/1000.0f);
+	d->shield_h += (d->shield_dh * 20.0f) * (time_delta()/1000.0f);
+	d->shield_dh *= 0.9f;
+
+	//r->world_dest.top = r->world_dest.bottom - mushroom->h;
+
+
+	RectF rec = {
+		.left = pos.x - shield_width / 2.0f, 
+		.top = (pos.y + shield_height / 2.0f) - d->shield_h,
+		.right = pos.x + shield_width / 2.0f,
+		.bottom = pos.y + shield_height / 2.0f
+	};
+	RectF result = objects_world2screen(rec,0);
+	//Vector2 screen_pos = vec2(result.left,result.top);
+
+	// Bubble powerup graphics
+	if(d->shield_up){
+		RenderComponent* render = self->render;
+		spr_draw_h(shield_spr, render->layer,result,COLOR_WHITE);
 	}
 
 }
@@ -511,6 +585,8 @@ static void _rabbit_delayed_bounce(void* r) {
 		d->combo_counter++;
 		 
 		if(d->player_control) hud_trigger_combo(d->combo_counter);
+
+		d->shield_dh = -20.0f;
 	}
 	else
 		d->combo_counter = 0;
@@ -534,6 +610,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			if(!d->touching_ground) {
 				if(d->player_control) hud_trigger_combo(0);
 				anim_play_ex(rabbit->anim, "land", TIME_S);
+				d->shield_dh = -20.0f;
 			}
 			d->touching_ground = true;
 			cd_rabbit->offset = vec2_add(
@@ -544,8 +621,8 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	}
 
 	// Collision with fall trigger
-	if(other->type == OBJ_FALL_TRIGGER_TYPE) {
-		if(!d->rubber_band) d->touching_ground = false;
+	if(other->type == OBJ_FALL_TRIGGER_TYPE && !d->rubber_band) {
+		d->touching_ground = false;
 		PhysicsComponent* p = self->physics;	
 
 		// Trampoline
@@ -577,7 +654,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	}
 
 	// Collision with speed trigger
-	if(other->type == OBJ_SPEED_TRIGGER_TYPE) {
+	if(other->type == OBJ_SPEED_TRIGGER_TYPE && d->rocket_time == 0.0f ) {
 		ObjSpeedTrigger* t = (ObjSpeedTrigger*)other;
 		objects_apply_force(self, 
 			vec2(-self->physics->vel.x * t->drag_coef, 0.0f)
@@ -650,6 +727,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->layer = rabbit_layer;
 	render->anim_frame = 0;
 	render->update_pos = obj_rabbit_update_pos;
+	render->post_render = obj_rabbit_post_render;
 	render->became_visible = obj_rabbit_became_visible;
 	render->became_invisible = obj_rabbit_became_invisible;
 	
@@ -673,6 +751,9 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		d->speed = 500.0f;
 		d->xjump = 100.0f;
 		d->yjump = 400.0f;
+		d->has_powerup[BOMB] = true;
+		d->has_powerup[SHIELD] = true;
+		d->has_powerup[ROCKET] = true;
 	} else {
 		// AI rabbit
 		LevelDesc* lvl_desc = levels_current_desc();
@@ -687,6 +768,13 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		d->ai_max_combo = lvl_desc->ai_max_combo[id];
 		render->layer = ai_rabbit_layer;
 	}
+
+	shield_spr = sprsheet_get_handle("bubble_obj");
+	size = sprsheet_get_size("bubble_obj");
+	shield_width = size.x;
+	shield_height = size.y;
+
+
 }
 
 static void obj_rabbit_destruct(GameObject* self) {

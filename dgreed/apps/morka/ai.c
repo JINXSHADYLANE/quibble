@@ -137,6 +137,17 @@ static void release_keys(GameObject* obj){
 
 }
 
+static void use_powerups(GameObject* obj){
+	ObjRabbit* rabbit = (ObjRabbit*)obj;
+	ObjRabbitData* d = rabbit->data;
+
+	if(d->has_powerup[SHIELD]) (powerup_params[SHIELD].powerup_callback) (obj);
+
+	if(d->has_powerup[BOMB]) (powerup_params[BOMB].powerup_callback) (obj);	
+
+	if(d->has_powerup[ROCKET]) (powerup_params[ROCKET].powerup_callback) (obj);
+}
+
 void ai_control(GameObject* obj){
 	ObjRabbit* rabbit = (ObjRabbit*)obj;
 	ObjRabbitData* d = rabbit->data;
@@ -144,6 +155,8 @@ void ai_control(GameObject* obj){
 	release_keys(obj);
 	
 	bool input = false;
+
+	use_powerups(obj);
 
 	if(d->touching_ground){
 

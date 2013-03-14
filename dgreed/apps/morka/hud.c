@@ -16,10 +16,82 @@ static uint last_combo = 0;
 static uint current_combo = 0;
 static float combo_flip_t = 0.0f;
 
+static float powerup_appear[POWERUP_COUNT] = {0};
+
 void hud_reset(void){
 	last_combo = 0;
 	current_combo = 0;
-	combo_flip_t = 0.0f;	
+	combo_flip_t = 0.0f;
+	for(uint i = 0; i < POWERUP_COUNT;i++)
+		powerup_appear[i] = 0.0f;
+}
+
+static void _hud_render_powerups(float t){
+	UIElement* element = uidesc_get("hud_powerups");
+
+	const float duration = 0.5f;
+
+	float alpha = 1.0f-fabsf(t);
+	byte a = lrintf(255.0f * alpha);
+	Color col = COLOR_RGBA(255, 255, 255, a);	
+
+	Vector2 center = element->vec2;
+
+	for(int i = 0; i < POWERUP_COUNT;i++){
+
+		float ts = time_s();
+		float y_offset = 0.0f;
+		SprHandle spr = sprsheet_get_handle(powerup_params[i].btn);
+		Vector2 size = sprsheet_get_size_h(spr);
+
+		if(rabbit->data->has_powerup[i]){
+
+			if(powerup_appear[i] == 0.0f) powerup_appear[i] = time_s() + duration;
+
+			float td = normalize(ts,powerup_appear[i]-duration,powerup_appear[i]);
+			td = clamp(0.0f,1.0f,td);
+
+			y_offset = sin(PI*td/2.0f) * -size.y;
+
+		} else {
+
+			if(powerup_appear[i] > 0.0f)
+				powerup_appear[i] = -(time_s() + duration);			
+
+			float td = normalize(ts,-powerup_appear[i]-duration,-powerup_appear[i]);
+			td = clamp(0.0f,1.0f,td);
+
+			if(td == 1.0f)
+				powerup_appear[i] = 0.0f;
+
+			y_offset = -size.y + (sin(PI*td/2.0f) * size.y);
+
+		}
+
+		if(powerup_appear[i] != 0.0f){
+
+			int count = -POWERUP_COUNT+1;
+			float x_offset = (count/2.0f + i) * (size.x + 27.0f);
+			Vector2 pos = vec2_add(center, vec2(x_offset, y_offset) );
+			spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col);
+
+			if(touches_down() && rabbit->data->has_powerup[i]) {
+				Touch* t = touches_get();
+				if(t){
+					float r_sqr = 40.0f * 40.0f;
+					if(vec2_length_sq(vec2_sub(t[0].hit_pos, pos)) < r_sqr) {
+						GameObject* r = (GameObject*) rabbit;
+
+						(powerup_params[i].powerup_callback) (r);
+					}
+				}
+			}
+
+
+
+		}
+	}
+
 }
 
 void _hud_render_ui(UIElement* element, uint layer, Color col) {
@@ -140,6 +212,9 @@ void hud_render(float t) {
 			half_size = vec2_scale(vfont_size(str), 0.5f);
 		}
 		vfont_draw(str, hud_layer, token_text->vec2, col);
+
+
+		if(!rabbit->data->game_over) _hud_render_powerups(t);
 
 	}
 
