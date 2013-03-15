@@ -13,5 +13,35 @@
 			(on_finish loop)
 		)
 		
+		(seq jump
+			(frames "4")
+			(on_finish play.glide)
+		)
+
+		(seq glide
+			(frames "5")
+			(on_finish stop)
+		)
+
+		(seq land
+			(frames "4")
+			(on_finish play.stand)
+		)
+
+		(seq stand_jump
+			(frames "6")
+			(on_finish play.stand_glide)
+		)
+
+		(seq stand_glide
+			(frames "0 7")
+			(on_finish stop)
+		)
+
+		(seq stand_land
+			(frames "6")
+			(on_finish play.stand)
+		)
+
 	)
 )
