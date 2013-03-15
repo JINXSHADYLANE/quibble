@@ -1898,11 +1898,11 @@ static int ml_tilemap_set_tileset(lua_State* l) {
 	TexHandle* ptex = checktexhandle(l, 3);
 
 	// Alloc/realloc space for defs if needed
-	if(i < tmap->n_tilesets) {
+	if(i >= tmap->n_tilesets) {
 		tmap->tilesets = tmap->n_tilesets ?
-			MEM_REALLOC(tmap->tilesets, i * sizeof(TilesetDef)) :
-			MEM_ALLOC(i * sizeof(TilesetDef));
-		tmap->n_tilesets = i;
+			MEM_REALLOC(tmap->tilesets, (i+1) * sizeof(TilesetDef)) :
+			MEM_ALLOC((i+1) * sizeof(TilesetDef));
+		tmap->n_tilesets = i+1;
 	}
 
 	TilesetDef* def = &tmap->tilesets[i];

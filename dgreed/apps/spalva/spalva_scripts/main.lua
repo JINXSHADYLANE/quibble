@@ -1,11 +1,13 @@
 
 asset_dir = 'spalva_assets/'
 
+tile_size = 32
 scr_size = vec2(480, 320)
 scr_rect = rect(0, 0, 480, 320)
 screen_rect = rect(0, 0, scr_size.x, scr_size.y)
 
 tile_layer = 2
+character_layer = 3
 
 bg_color = rgba(148/255, 74/255, 38/255)
 

@@ -152,11 +152,14 @@ Tilemap* tilemap_new(
 	t->height = height;
 	t->n_layers = layers;
 	t->layers = (TilemapLayer*)MEM_ALLOC(sizeof(TilemapLayer) * layers);
-	t->collision = (byte*)MEM_ALLOC((width * height) / 8); 
+	memset(t->layers, 0, sizeof(TilemapLayer) * layers);
+	t->collision = (byte*)MEM_ALLOC(width * height / 8); 
+	memset(t->collision, 0, width * height / 8);
 
 	for(uint i = 0; i < layers; ++i) {
 		TilemapLayer* l = &t->layers[i];
 		l->data = (uint16*)MEM_ALLOC(width * height * 2);
+		memset(l->data, 0, width * height * 2);
 		l->render_layer = 1 + i;
 	}
 
@@ -186,7 +189,7 @@ void tilemap_free(Tilemap* t) {
 	// Layers
 	assert(t->n_layers && t->layers);
 	for(uint i = 0; i < t->n_layers; ++i) {
-		assert(t->layers[i].name && t->layers[i].data);
+		assert(t->layers[i].data);
 		if(t->layers[i].name)
 			MEM_FREE(t->layers[i].name);
 		MEM_FREE(t->layers[i].data);
