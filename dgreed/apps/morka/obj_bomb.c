@@ -60,7 +60,7 @@ static void obj_bomb_update_pos(GameObject* self) {
 	RenderComponent* r = self->render;
 	PhysicsComponent* p = self->physics;
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-	//pos = vec2_add(pos, vec2(rabbit_hitbox_width / 2.0f, rabbit_hitbox_height / 2.0f));
+	pos = vec2_add(pos, vec2(19.0f,18.5f));
 	r->world_dest = rectf_centered(
 		pos, rectf_width(&r->world_dest), rectf_height(&r->world_dest)
 	);
