@@ -2,7 +2,7 @@ local character = {}
 local character_mt = {}
 character_mt.__index = character
 
-local gravity = 0.8
+local gravity = 0.3
 
 local function controls1(self)
 	if key.pressed(key._left) then
@@ -26,7 +26,7 @@ function character:new(obj)
 		height = 32,
 		move_acc = 0.5,
 		move_damp = 0.8,
-		jump_acc = 9.0,
+		jump_acc = 6.0,
 
 		pos = obj.pos + vec2(32/2, 32/2),
 		vel = vec2(0, 0),
@@ -91,6 +91,15 @@ function character:update(level)
 		else
 			anim.play(self.anim, 'stand')
 			self.walking = false
+		end
+
+		-- return color of tile we're standing on
+		local p = vec2((bbox.l + bbox.r) / 2, bbox.b + 2)
+		p.x = math.floor(p.x / 32)
+		p.y = math.floor(p.y / 32)
+		local tileset, tile = tilemap.tile(level, p.x, p.y, 0)
+		if tile > 0 and tile < 10 then
+			return tile
 		end
 	end
 end
