@@ -90,6 +90,7 @@ typedef struct {
 	bool input_disabled;
 
 	bool has_powerup[POWERUP_COUNT];
+	bool rocket_start;
 	float rocket_time;
 	bool shield_up;
 	float shield_dh;

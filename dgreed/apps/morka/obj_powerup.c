@@ -22,7 +22,7 @@ static void obj_powerup_bomb_effect(GameObject* other){
 }
 
 static void obj_powerup_bomb_collide(GameObject* self, GameObject* other) {
-	if(other->type == OBJ_RABBIT_TYPE) {\
+	if(other->type == OBJ_RABBIT_TYPE) {
 		ObjRabbit* rabbit = (ObjRabbit*)other;
 		ObjRabbitData* d = rabbit->data;
 
@@ -60,11 +60,16 @@ static ObjFloaterParams rocket_floater_params = {
 static void obj_powerup_rocket_effect(GameObject* other){
 	ObjRabbit* rabbit = (ObjRabbit*)other;
 	ObjRabbitData* d = rabbit->data;
-	//PhysicsComponent* p = other->physics;
+	PhysicsComponent* p = other->physics;
 
-	const static float duration = 5.0f;
-
-	d->rocket_time = time_s() + duration;
+	if(d->touching_ground || p->cd_obj->pos.y > 579.0f){
+		p->vel.y = 0.0f;
+		d->touching_ground = false;
+		d->rocket_start = true;
+		objects_apply_force(other, vec2(10000.0f, -160000.0f) );
+	} else {
+		d->rocket_time = time_s() + 5.0f;
+	}
 
 	d->has_powerup[ROCKET] = false;
 }

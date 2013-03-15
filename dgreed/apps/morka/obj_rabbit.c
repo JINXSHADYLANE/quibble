@@ -95,7 +95,8 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 
 	// Rocket
 	if(d->rocket_time > 0.0f){
-		result = vec2_add(result, vec2(2500.0f, 0.0f) );
+		float mult = d->rocket_time - time_s();
+		result = vec2_add(result, vec2(2500.0f * mult, 0.0f) );
 		result.y = 0.0f;
 	}
 
@@ -274,105 +275,120 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		
 		if(d->rocket_time == 0.0f){
 
-		if(d->touching_ground) {	
-			d->force_dive = false;	
-			d->is_diving = false;
-			d->has_trampoline = false;			
-			d->combo_counter = 0;
-			d->boost = 0;
-
-			// Jump
-			if(d->virtual_key_down || d->force_jump){
-				d->force_jump = false;
-				d->touching_ground = false;
-				d->jump_off_mushroom = false;
-				d->jump_time = ts;
-				d->jumped = true;
-				Vector2 force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
-				anim_play_ex(rabbit->anim, "jump", TIME_S);
-				
-				d->land = _predict_landing(rabbit,force).x;
-
+			if(d->touching_ground) {	
+				d->force_dive = false;	
+				d->is_diving = false;
+				d->has_trampoline = false;			
 				d->combo_counter = 0;
-			
-				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
-				if(r->was_visible)
-					mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+				d->boost = 0;
 
-				d->shield_dh = -20.0f;
-			}
-
-			// Trigger water/land particle effects on ground
-			if(d->last_frame != r->anim_frame && r->was_visible) {
-				const char* effect = NULL;
-				if(d->on_water){
-					if(r->anim_frame == 1)
-						effect = "water";
-					if(r->anim_frame == 11)
-						effect = "water_front";
-				}
-				else { 
-					if(r->anim_frame == 1)
-						effect = "run1";
-					if(r->anim_frame == 11)
-						effect = "run1_front";
-				}
-
-				if(effect)
-					mfx_trigger_ex(effect, screen_pos, 0.0f);
-			}
-			d->last_frame = r->anim_frame;
-
-		}
-		else {
-
-			if(d->combo_counter >= 3){
-				if(d->boost == 0){
-					if(r->was_visible)
-						mfx_trigger_ex("boost",vec2_add(screen_pos,vec2(20.0f,0.0f)),0.0f);
-					d->boost = 5;
-				} else d->boost--;
-			}			
-	
-			if(p->vel.y > 0.0f && !d->falling_down){
-				anim_play_ex(rabbit->anim, "down", TIME_S);
-				d->falling_down = true;
-			} else if (p->vel.y <= 0.0f) {
-				d->falling_down = false;		
-			}
-
-			if(ts - d->mushroom_hit_time < 0.1f) {
-
-				if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.1f)
-					d->jump_off_mushroom = true;
-
-				if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.1f)
-					d->jump_off_mushroom = true;
+				// Jump
+				if(d->virtual_key_down || d->force_jump){
+					d->force_jump = false;
+					d->touching_ground = false;
+					d->jump_off_mushroom = false;
+					d->jump_time = ts;
+					d->jumped = true;
+					Vector2 force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
+					anim_play_ex(rabbit->anim, "jump", TIME_S);
 					
+					d->land = _predict_landing(rabbit,force).x;
+
+					d->combo_counter = 0;
+				
+					ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
+					if(r->was_visible)
+						mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+
+					d->shield_dh = -20.0f;
+				}
+
+				// Trigger water/land particle effects on ground
+				if(d->last_frame != r->anim_frame && r->was_visible) {
+					const char* effect = NULL;
+					if(d->on_water){
+						if(r->anim_frame == 1)
+							effect = "water";
+						if(r->anim_frame == 11)
+							effect = "water_front";
+					}
+					else { 
+						if(r->anim_frame == 1)
+							effect = "run1";
+						if(r->anim_frame == 11)
+							effect = "run1_front";
+					}
+
+					if(effect)
+						mfx_trigger_ex(effect, screen_pos, 0.0f);
+				}
+				d->last_frame = r->anim_frame;
+
 			}
 			else {
-				if(d->virtual_key_pressed && (ts - d->jump_time) < 0.2f) {
-				//	objects_apply_force(self, vec2(0.0f, -8000.0f));
+
+				if(d->combo_counter >= 3){
+					if(d->boost == 0){
+						if(r->was_visible)
+							mfx_trigger_ex("boost",vec2_add(screen_pos,vec2(20.0f,0.0f)),0.0f);
+						d->boost = 5;
+					} else d->boost--;
+				}			
+		
+				if(p->vel.y > 0.0f && !d->falling_down){
+					anim_play_ex(rabbit->anim, "down", TIME_S);
+					d->falling_down = true;
+				} else if (p->vel.y <= 0.0f) {
+					d->falling_down = false;		
 				}
-				else if( (!d->is_diving && d->virtual_key_down) || d->force_dive ) {
-					// Dive	
-					d->is_diving = true;
-					d->dived = true;
-					anim_play_ex(rabbit->anim, "dive", TIME_S);
+
+				if(ts - d->mushroom_hit_time < 0.1f) {
+
+					if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.1f)
+						d->jump_off_mushroom = true;
+
+					if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.1f)
+						d->jump_off_mushroom = true;
+						
 				}
-				else if( (d->is_diving && d->virtual_key_pressed) || d->force_dive ) {
-					d->dived = true;
+				else {
+					if(d->virtual_key_pressed && (ts - d->jump_time) < 0.2f) {
+					//	objects_apply_force(self, vec2(0.0f, -8000.0f));
+					}
+					else if( (!d->is_diving && d->virtual_key_down) || d->force_dive ) {
+						// Dive	
+						d->is_diving = true;
+						d->dived = true;
+						anim_play_ex(rabbit->anim, "dive", TIME_S);
+					}
+					else if( (d->is_diving && d->virtual_key_pressed) || d->force_dive ) {
+						d->dived = true;
+					}
+					else if(d->is_diving && !d->virtual_key_pressed) {
+						d->is_diving = false;
+						anim_play_ex(rabbit->anim, "glide", TIME_S);
+					}
 				}
-				else if(d->is_diving && !d->virtual_key_pressed) {
-					d->is_diving = false;
-					anim_play_ex(rabbit->anim, "glide", TIME_S);
-				}
-			}
-		}	
+			}	
 
 		} else {
+
+			p->vel.y = 0.0f;
+			
+			// Ending rocket powerup
+			if(time_s() > d->rocket_time){
+				d->rocket_time = 0.0f;
+				d->touching_ground = false;
+				anim_play_ex(rabbit->anim, "down", TIME_S);
+			}	
+
+		}
+
+		// Rocket starting if activated on ground/gap
+		if(d->rocket_start || d->rocket_time != 0.0f){
 			anim_play_ex(rabbit->anim, "rocket_ride", TIME_S);
 
+			// Spawn rocket particles
 			if(d->boost == 0){
 				if(r->was_visible){
 					Vector2 rocket_pos = vec2_add(screen_pos,vec2(13.0f,2.0f));
@@ -381,19 +397,11 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				d->boost = 3;
 			} else d->boost--;
 
-			if(p->cd_obj->pos.y > 552.0f)
-				p->cd_obj->pos.y = 552.0f;
-			p->vel.y = 0.0f;
-
-			if(time_s() > d->rocket_time){
-				d->rocket_time = 0.0f;
-				d->touching_ground = false;
-			}	
-
+			if(p->vel.y > 0.0f){
+				d->rocket_start = false;
+				d->rocket_time = time_s() + 5.0f;
+			}
 		}
-
-		p->vel = _rabbit_damping(p->vel);
-		d->on_water = false;
 
 		// Above screen
 		if(p->cd_obj->pos.y < rabbit_hitbox_height){
@@ -414,12 +422,13 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			p->vel.x = 0.0f;
 		}
 
-		if(p->cd_obj->pos.y < ground_y) d->touching_ground = false;
-
 		if(!d->game_over) d->rabbit_time += time_delta() / 1000.0f;
 
-		objects_apply_force(self,_rabbit_calculate_forces(self,false));	
+		if(p->cd_obj->pos.y < ground_y) d->touching_ground = false;
+		d->on_water = false;
 
+		objects_apply_force(self,_rabbit_calculate_forces(self,false));	
+		p->vel = _rabbit_damping(p->vel);
 	}
 
 }
