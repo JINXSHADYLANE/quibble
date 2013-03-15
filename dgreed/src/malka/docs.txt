@@ -643,8 +643,22 @@ tilemap
 - tilemap.load(filename)
 loads tilemap from btm file, returns handle to it
 
+- tilemap.new(tile_width, tile_height, map_width, map_height, layers)
+creates a new empty tilemap
+
 - tilemap.free(tmaphandle)
 frees tilemap
+
+- tilemap.set_tileset(tmaphandle, i, texhandle)
+sets texture for i-th tileset
+
+- tilemap.collision(tmaphandle, x, y), 
+  tilemap.set_collision(tmaphandle, x, y, full)
+inspects/modifies collision layer
+
+- tilemap.tile(tmaphandle, x, y, layer), 
+  tilemap.set_tile(tmaphandle, x, y, layer, tileset, tile)
+inspects/modifies tile layers
 
 - tilemap.camera(tmaphandle), tilemap.set_camera(tmaphandle, pos, z, rot)
 sets/gets camera, which is described by position (vector), optional z depth 
