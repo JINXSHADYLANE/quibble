@@ -44,12 +44,16 @@ typedef struct {
 	uint n_layers;
 	TilemapLayer* layers;
 
-	byte* collission;
+	byte* collision;
 
 	TilemapCamera camera;
 } Tilemap;
 
 Tilemap* tilemap_load(const char* filename);
+Tilemap* tilemap_new(
+	uint tile_width, uint tile_height,
+	uint width, uint height, uint layers
+);
 void tilemap_save(Tilemap* t, const char* filename);
 void tilemap_free(Tilemap* t);
 
@@ -58,6 +62,8 @@ void tilemap_free(Tilemap* t);
 void tilemap_render(Tilemap* t, RectF viewport, float time);
 
 // Collissions
+// Returns true if tile (x, y in tile space) is solid
+bool tilemap_is_solid(Tilemap* t, int x, int y);
 bool tilemap_collide(Tilemap* t, RectF rect);
 bool tilemap_collide_point(Tilemap* t, Vector2 point);
 // Actually, ray segment cast. Returns end if no intersection.
