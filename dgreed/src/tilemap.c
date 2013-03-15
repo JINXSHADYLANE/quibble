@@ -120,7 +120,7 @@ Tilemap* tilemap_load(const char* filename) {
 	assert(compr_size);
 	void* compr = MEM_ALLOC(compr_size);
 	file_read(f, compr, compr_size);
-	t->collission = (byte*)lz_decompress(compr, compr_size, &decompr_size);
+	t->collision = (byte*)lz_decompress(compr, compr_size, &decompr_size);
 	uint expected_size = (t->width * t->height) / 8;
 	if(expected_size * 8 != t->width * t->height)
 		expected_size++;
@@ -134,6 +134,32 @@ Tilemap* tilemap_load(const char* filename) {
 	t->camera.rot = 0.0f;
 
 	file_close(f);
+	return t;
+}
+
+Tilemap* tilemap_new(
+	uint tile_width, uint tile_height,
+	uint width, uint height, uint layers
+) {
+	assert(layers && tile_width && tile_height && width && height);
+
+	Tilemap* t = (Tilemap*)MEM_ALLOC(sizeof(Tilemap));
+	memset(t, 0, sizeof(Tilemap));
+
+	t->tile_width = tile_width;
+	t->tile_height = tile_height;
+	t->width = width;
+	t->height = height;
+	t->n_layers = layers;
+	t->layers = (TilemapLayer*)MEM_ALLOC(sizeof(TilemapLayer) * layers);
+	t->collision = (byte*)MEM_ALLOC((width * height) / 8); 
+
+	for(uint i = 0; i < layers; ++i) {
+		TilemapLayer* l = &t->layers[i];
+		l->data = (uint16*)MEM_ALLOC(width * height * 2);
+		l->render_layer = 1 + i;
+	}
+
 	return t;
 }
 
@@ -161,13 +187,14 @@ void tilemap_free(Tilemap* t) {
 	assert(t->n_layers && t->layers);
 	for(uint i = 0; i < t->n_layers; ++i) {
 		assert(t->layers[i].name && t->layers[i].data);
-		MEM_FREE(t->layers[i].name);
+		if(t->layers[i].name)
+			MEM_FREE(t->layers[i].name);
 		MEM_FREE(t->layers[i].data);
 	}
 	MEM_FREE(t->layers);
 
-	assert(t->collission);
-	MEM_FREE(t->collission);
+	assert(t->collision);
+	MEM_FREE(t->collision);
 
 	MEM_FREE(t);
 }
@@ -321,7 +348,11 @@ static bool _is_solid(Tilemap* t, int x, int y) {
 		return true;
 	
 	uint tile = IDX_2D(x, y, t->width);
-	return (t->collission[tile/8] & (1 << (7-(tile % 8)))) != 0;
+	return (t->collision[tile/8] & (1 << (7-(tile % 8)))) != 0;
+}
+
+bool tilemap_is_solid(Tilemap* t, int x, int y) {
+	return _is_solid(t, x, y);
 }
 
 bool tilemap_collide(Tilemap* t, RectF rect) {

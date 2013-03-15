@@ -1865,10 +1865,133 @@ static int ml_tilemap_load(lua_State* l) {
 	return 1;
 }
 
+static int ml_tilemap_new(lua_State* l) {
+	checkargs(5, "tilemap.new");
+
+	uint tile_width = luaL_checkinteger(l, 1);
+	uint tile_height = luaL_checkinteger(l, 2);
+	uint width = luaL_checkinteger(l, 3);
+	uint height = luaL_checkinteger(l, 4);
+	uint layers = luaL_checkinteger(l, 5);
+
+	Tilemap* t = tilemap_new(
+		tile_width, tile_height,
+		width, height, layers
+	);
+
+	_new_tmaphandle(l, t);
+	return 1;
+}
+
 static int ml_tilemap_free(lua_State* l) {
 	checkargs(1, "tilemap.free");
 	Tilemap** t = checktmaphandle(l, 1);
 	tilemap_free(*t);
+	return 0;
+}
+
+static int ml_tilemap_set_tileset(lua_State* l) {
+	checkargs(3, "tilemap.set_tileset");
+	Tilemap** t = checktmaphandle(l, 1);
+	Tilemap* tmap = *t;
+	uint i = luaL_checkinteger(l, 2);
+	TexHandle* ptex = checktexhandle(l, 3);
+
+	// Alloc/realloc space for defs if needed
+	if(i < tmap->n_tilesets) {
+		tmap->tilesets = tmap->n_tilesets ?
+			MEM_REALLOC(tmap->tilesets, i * sizeof(TilesetDef)) :
+			MEM_ALLOC(i * sizeof(TilesetDef));
+		tmap->n_tilesets = i;
+	}
+
+	TilesetDef* def = &tmap->tilesets[i];
+	def->texture = *ptex;
+	uint w, h;
+	tex_size(*ptex, &w, &h);
+	def->width = w / tmap->tile_width;
+	def->height = h / tmap->tile_height;
+	def->n_animdefs = 0;
+	if(def->animdefs)
+		MEM_FREE(def->animdefs);
+	def->animdefs = NULL;
+
+	return 0;
+}
+
+static int ml_tilemap_collision(lua_State* l) {
+	checkargs(3, "tilemap.collision");
+	Tilemap** t = checktmaphandle(l, 1);
+	Tilemap* tmap = *t;
+	int x = luaL_checkinteger(l, 2);
+	int y = luaL_checkinteger(l, 3);
+
+	lua_pushboolean(l, tilemap_is_solid(tmap, x, y));
+
+	return 1;
+}
+
+static int ml_tilemap_set_collision(lua_State* l) {
+	checkargs(4, "tilemap.set_collision");
+	Tilemap** t = checktmaphandle(l, 1);
+	Tilemap* tmap = *t;
+	int x = luaL_checkinteger(l, 2);
+	int y = luaL_checkinteger(l, 3);
+	bool full = lua_toboolean(l, 4);
+
+	uint tile = IDX_2D(x, y, tmap->width);	
+	byte mask = (1 << (7-(tile % 8)));
+	if(full)
+		tmap->collision[tile/8] |= mask;  
+	else
+		tmap->collision[tile/8] &= ~mask;
+
+	return 0;
+}
+
+static int ml_tilemap_tile(lua_State* l) {
+	checkargs(4, "tilemap.tile");
+	Tilemap** t = checktmaphandle(l, 1);
+	Tilemap* tmap = *t;
+	int x = luaL_checkinteger(l, 2);
+	int y = luaL_checkinteger(l, 3);
+	int layer = luaL_checkinteger(l, 4);
+	
+	assert(x >= 0 && x < tmap->width);
+	assert(y >= 0 && y < tmap->height);
+	assert(layer >= 0 && layer < tmap->n_layers);
+
+	TilemapLayer* tl = &tmap->layers[layer];
+	uint idx = IDX_2D(x, y, tmap->width);
+	uint tileset = tl->data[idx] / 1024;
+	uint tile = tl->data[idx] % 1024;
+
+	lua_pushinteger(l, tileset);
+	lua_pushinteger(l, tile);
+
+	return 2;
+}
+
+static int ml_tilemap_set_tile(lua_State* l) {
+	checkargs(6, "tilemap.set_tile");
+	Tilemap** t = checktmaphandle(l, 1);
+	Tilemap* tmap = *t;
+	int x = luaL_checkinteger(l, 2);
+	int y = luaL_checkinteger(l, 3);
+	int layer = luaL_checkinteger(l, 4);
+	int tileset = luaL_checkinteger(l, 5);
+	int tile = luaL_checkinteger(l, 6);
+		
+	assert(x >= 0 && x < tmap->width);
+	assert(y >= 0 && y < tmap->height);
+	assert(layer >= 0 && layer < tmap->n_layers);
+	assert(tileset < tmap->n_tilesets);
+	assert(tile < 1024);
+
+	TilemapLayer* tl = &tmap->layers[layer];
+	uint idx = IDX_2D(x, y, tmap->width);
+	tl->data[idx] = tileset * 1024 + tile;
+
 	return 0;
 }
 
@@ -2022,7 +2145,13 @@ static int ml_tilemap_screen2world(lua_State* l) {
 
 static const luaL_Reg tilemap_fun[] = {
 	{"load", ml_tilemap_load},
+	{"new", ml_tilemap_new},
 	{"free", ml_tilemap_free},
+	{"set_tileset", ml_tilemap_set_tileset},
+	{"collision", ml_tilemap_collision},
+	{"set_collision",  ml_tilemap_set_collision},
+	{"tile", ml_tilemap_tile},
+	{"set_tile", ml_tilemap_set_tile},
 	{"camera", ml_tilemap_camera},
 	{"set_camera", ml_tilemap_set_camera},
 	{"objects", ml_tilemap_objects},
