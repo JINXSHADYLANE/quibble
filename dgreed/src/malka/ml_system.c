@@ -1912,8 +1912,6 @@ static int ml_tilemap_set_tileset(lua_State* l) {
 	def->width = w / tmap->tile_width;
 	def->height = h / tmap->tile_height;
 	def->n_animdefs = 0;
-	if(def->animdefs)
-		MEM_FREE(def->animdefs);
 	def->animdefs = NULL;
 
 	return 0;
