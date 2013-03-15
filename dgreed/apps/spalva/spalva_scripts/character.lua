@@ -2,6 +2,8 @@ local character = {}
 local character_mt = {}
 character_mt.__index = character
 
+local gravity = 0.8
+
 local function controls1(self)
 	if key.pressed(key._left) then
 		self.vel.x = self.vel.x - self.move_acc
@@ -14,25 +16,25 @@ local function controls1(self)
 	if key.down(key._up) and self.ground then
 		self.ground = false
 		self.vel.y = -self.jump_acc
-		mfx.trigger('jump')
+		--mfx.trigger('jump')
 	end
 end
 
 function character:new(obj)
 	local o = {
-		width = 28,
-		height = 64,
+		width = 32,
+		height = 32,
 		move_acc = 0.5,
 		move_damp = 0.8,
 		jump_acc = 9.0,
 
-		pos = obj.pos + vec2(32/2, 64/2),
+		pos = obj.pos + vec2(32/2, 32/2),
 		vel = vec2(0, 0),
 		dir = false,
 		ground = true,
 		frame = 0,
-		sprite = 'guy',
-		--anim = anim.new('guy'),
+		sprite = 'char',
+		anim = anim.new('char'),
 		controls = controls1,
 		color = i
 	}
@@ -81,13 +83,13 @@ function character:update(level)
 	self.bbox = bbox
 
 	if self.ground then
-		if math.abs(self.vel.x) > 0.01 then
+		if math.abs(self.vel.x) > 0.05 then
 			if not self.walking then
-				--anim.play(self.anim, 'walk')
+				anim.play(self.anim, 'run')
 				self.walking = true
 			end
 		else
-			--anim.play(self.anim, 'stand')
+			anim.play(self.anim, 'stand')
 			self.walking = false
 		end
 	end
@@ -102,9 +104,8 @@ function character:render(level)
 
 		local spr = self.sprite
 
-		--local f = anim.frame(self.anim)
-		--sprsheet.draw_anim(spr, f, character_layer, pos)
-		sprsheet.draw(spr, character_layer, pos)
+		local f = anim.frame(self.anim)
+		sprsheet.draw_anim(spr, f, character_layer, pos)
 	end
 end
 

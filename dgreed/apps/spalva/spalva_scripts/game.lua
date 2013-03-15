@@ -1,8 +1,10 @@
 local game = {}
 
 local levels = require('levels')
+local character = require('character')
 
 local level = nil
+local char = nil
 local tileset = nil
 
 function game.init()
@@ -32,8 +34,9 @@ function game.reset(desc)
 			if c == ' ' then
 				-- nothing
 			elseif c == 's' then
-				-- player start, center camera
-				tilemap.set_camera(level, vec2(x * tile_size, y * tile_size), 1, 0)
+				local p = vec2(x, y) * tile_size
+				tilemap.set_camera(level, p, 1, 0)
+				char = character:new({pos = p})
 			else
 				-- tile
 				local tile = c:byte() - ord_0
@@ -47,7 +50,9 @@ function game.reset(desc)
 end
 
 function game.update()
-	if key.up(key.quit) or char.up('q') then
+	char:update(level)
+
+	if key.up(key.quit) then
 		states.pop()
 	end
 	return true
@@ -56,7 +61,9 @@ end
 function game.render(t)
 	if level then
 		tilemap.render(level, scr_rect)
+		char:render(level)
 	end
+
 	return true
 end
 
