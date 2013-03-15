@@ -1,0 +1,55 @@
+(sprsheet spalva
+	(prefix "spalva_assets/")
+
+	(img empty
+		(tex tileset.png)
+		(src 0,0,32,32)
+	)
+	(img background
+		(tex tileset.png)
+		(src 0,32,32,64)
+	)
+	(anim char
+		(tex char.png)
+		(src 0,0,32,32)
+		(offset 32,32)
+		(frames 4)
+		(grid 4,1)
+	)
+	(img red
+		(tex tileset.png)
+		(src 32,0,64,32)
+	)
+	(img orange
+		(tex tileset.png)
+		(src 64,0,96,32)
+	)
+	(img yellow
+		(tex tileset.png)
+		(src 96,0,128,32)
+	)
+	(img green
+		(tex tileset.png)
+		(src 128,0,160,32)
+	)
+	(img cyan
+		(tex tileset.png)
+		(src 160,0,192,32)
+	)
+	(img blue
+		(tex tileset.png)
+		(src 192,0,224,32)
+	)
+	(img purple
+		(tex tileset.png)
+		(src 224,0,256,32)
+	)
+	(img white
+		(tex tileset.png)
+		(src 0,32,32,64)
+	)
+	(img black
+		(tex tileset.png)
+		(src 32,32,64,64)
+	)
+)
