@@ -30,7 +30,6 @@ extern ObjRabbit* rabbit;
 static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
-	PhysicsComponent* p = self->physics;
 
 	Vector2 result = {0.0f,0.0f};
 
@@ -40,39 +39,6 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 	// Boost
 	if(d->combo_counter >= 3)
 		result = vec2_add(result, vec2(200.0f * d->combo_counter, 0.0f) );
-
-	// Rubber band
-	if(d->rubber_band){
-
-		Vector2 rb = vec2(0.0f,0.0f);
-
-		for(int i = 0; i < minimap_get_count();i++){
-			ObjRabbit* other = minimap_get_rabbit(i);
-			ObjRabbitData* od = other->data;
-			if(other == rabbit)
-				continue;
-
-			float delta = other->header.physics->cd_obj->pos.x - p->cd_obj->pos.x;
-
-			if(other->data->player_control) {
-				delta = delta*2.0f + od->speed;
-				rb = vec2(delta, 0.0f);
-			} else {
-				float min_dist = 800.0f;
-				float force = od->speed * od->speed;
-				force *= 10.0f;
-
-				if(delta > 0.0f && delta < min_dist)
-					rb.x = -force/delta;
-			}
-		}
-
-		if(rb.x < 0.0f) 
-			rb.x = d->speed;
-
-		result = vec2_add(result, rb);
-
-	}
 
 	// Gravity
 	result = vec2_add(result, vec2(0.0f, 6000.0f) );
@@ -118,6 +84,8 @@ void obj_rabbit_player_control(GameObject* self){
 		d->virtual_key_down = key_down(KEY_A);
 		d->virtual_key_pressed = key_pressed(KEY_A);
 	}
+
+
 
 	if(tutorials_are_enabled()){
 
@@ -234,21 +202,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	if(!d->is_dead){
 
 		PhysicsComponent* p = self->physics;
-
 		d->jumped = false;
 		d->dived = false;
 
-		// rubber band
-		if(d->rubber_band){
-
-			p->cd_obj->pos.y = ground_y;
-			p->vel.y = 0.0f;
-			if(p->vel.x < 0.0f) 
-				p->vel.x = d->speed;
-			if(minimap_player_x() - p->cd_obj->pos.x < 0.0) 
-				d->rubber_band = false;
-
-		} else if(camera_follow)
+		if(camera_follow)
 			rabbit->control(self);
 
 		if(d->virtual_key_down)
@@ -399,7 +356,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 			if(p->vel.y > 0.0f){
 				d->rocket_start = false;
-				d->rocket_time = time_s() + 5.0f;
+				d->rocket_time = time_s() + 4.0f;
 			}
 		}
 
@@ -479,79 +436,8 @@ static void obj_rabbit_update_pos(GameObject* self) {
 }
 
 static void obj_rabbit_became_visible(GameObject* self) {
-	ObjRabbit* rabbit = (ObjRabbit*)self;
-	ObjRabbitData* d = rabbit->data;
-	PhysicsComponent* p = self->physics;
-	if(!d->player_control && d->rubber_band){
-		Vector2 pos = p->cd_obj->pos;
-
-		p->vel.y = 0.0f;
-		d->touching_ground = false;
-
-		// is it safe to appear on screen?
-		bool safe_to_appear = false;
-
-		RectF rec = {
-			.left = pos.x + rabbit_hitbox_width + 70.0f,
-			.top = HEIGHT - rabbit_hitbox_height,
-			.right = pos.x + rabbit_hitbox_width + 70.0f,
-			.bottom = HEIGHT
-		};
-
-		GameObject* obj = objects_raycast(vec2(rec.left,rec.top),vec2(rec.right,rec.bottom));
-
-		if(obj && obj->type == OBJ_GROUND_TYPE) {
-			safe_to_appear = true;
-		}	
-
-		if(safe_to_appear){
-			p->vel.x = rabbit->header.physics->vel.x;
-			p->cd_obj->pos.y = ground_y;
-			d->rubber_band = false;			
-		} else {
-			bool safe_to_jump = true;
-
-			float landing = _predict_landing(rabbit,vec2(d->xjump*d->xjump, -d->yjump*d->yjump)).x;
-
-			RectF rec = {
-				.left = landing,
-				.top = HEIGHT - 50.0f,
-				.right = landing + rabbit_hitbox_width,
-				.bottom = HEIGHT-10.0f
-			};
-
-			GameObject* obj = NULL;
-			objects_aabb_query(&rec,&obj,1);
-
-			if(obj && (obj->type == OBJ_FALL_TRIGGER_TYPE || obj->type == OBJ_TRAMPOLINE_TYPE )) {
-					safe_to_jump = false;
-			}	
-
-			if(safe_to_jump){
-				p->cd_obj->pos.y = rand_float_range(550.0f,ground_y);
-				Vector2 force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
-				objects_apply_force(self, force);
-				d->touching_ground = false;
-				d->jump_off_mushroom = false;
-				d->rubber_band = false;
-			} else {
-				// if it is unsafe to appear and jump, keep rubber band active
-			}			
-		}
-	}
 }
 static void obj_rabbit_became_invisible(GameObject* self) {
-	ObjRabbit* rabbit = (ObjRabbit*)self;
-	ObjRabbitData* d = rabbit->data;
-	PhysicsComponent* p = self->physics;
-	float delta = minimap_player_x() - p->cd_obj->pos.x;
-	if(!d->is_dead && !d->player_control && delta > 0.0f){
-		p->cd_obj->pos.y = ground_y;
-		p->vel.y = 0.0f;
-		p->acc.y = 0.0f;
-		d->touching_ground = true;
-		d->rubber_band = true;
-	} 
 }
 
 static void _rabbit_delayed_bounce(void* r) {
@@ -630,7 +516,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	}
 
 	// Collision with fall trigger
-	if(other->type == OBJ_FALL_TRIGGER_TYPE && !d->rubber_band) {
+	if(other->type == OBJ_FALL_TRIGGER_TYPE) {
 		d->touching_ground = false;
 		PhysicsComponent* p = self->physics;	
 

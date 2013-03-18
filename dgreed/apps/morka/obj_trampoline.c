@@ -2,6 +2,10 @@
 #include "common.h"
 #include <system.h>
 
+static void obj_trampoline_became_invisible(GameObject* self) {
+	// empty
+}
+
 static void obj_trampoline_collide(GameObject* self, GameObject* other) {
 	ObjTrampoline* trampoline = (ObjTrampoline*)self;
 	if(other->type == OBJ_RABBIT_TYPE && other == trampoline->owner) {
@@ -67,6 +71,7 @@ static void obj_trampoline_construct(GameObject* self, Vector2 pos, void* user_d
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
 	render->update_pos = obj_trampoline_update_pos;
+	render->became_invisible = obj_trampoline_became_invisible;
 
 	// for rising up animation
 	physics->cd_obj->pos.y += height/2.0f - 15.0f;
