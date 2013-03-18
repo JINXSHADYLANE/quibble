@@ -195,7 +195,7 @@
 	)
 	(img bomb
 		(tex r_atlas_3.png)
-		(src 1726,2,1906,158)
+		(src 1544,162,1724,318)
 	)
 	(img bomb_obj
 		(tex r_atlas_3.png)
@@ -203,13 +203,17 @@
 	)
 	(img btn_bomb
 		(tex r_atlas_3.png)
-		(src 1525,2,1724,160)
+		(src 1726,2,1925,160)
 	)
 	(img btn_rocket
 		(tex r_atlas_3.png)
-		(src 1048,591,1247,749)
+		(src 1525,2,1724,160)
 	)
 	(img btn_shield
+		(tex r_atlas_3.png)
+		(src 1048,591,1247,749)
+	)
+	(img btn_trampoline
 		(tex r_atlas_3.png)
 		(src 847,619,1046,777)
 	)
