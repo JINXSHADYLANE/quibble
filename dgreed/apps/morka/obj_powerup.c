@@ -3,6 +3,11 @@
 #include <system.h>
 #include <mfx.h>
 
+static void obj_powerup_became_invisible(GameObject* self) {
+	// empty
+}
+
+
 // Bomb powerup
 
 static ObjFloaterParams bomb_floater_params = {
@@ -68,7 +73,7 @@ static void obj_powerup_rocket_effect(GameObject* other){
 		d->rocket_start = true;
 		objects_apply_force(other, vec2(10000.0f, -160000.0f) );
 	} else {
-		d->rocket_time = time_s() + 5.0f;
+		d->rocket_time = time_s() + 4.0f;
 	}
 
 	d->has_powerup[ROCKET] = false;
@@ -193,6 +198,7 @@ static void obj_powerup_construct(GameObject* self, Vector2 pos, void* user_data
 	render->world_dest = rectf_centered(pos, width, height);
 	render->layer = foreground_layer;
 	render->anim_frame = MAX_UINT16;
+	render->became_invisible = obj_powerup_became_invisible;
 
 	// Physics
 	PhysicsComponent* physics = self->physics;

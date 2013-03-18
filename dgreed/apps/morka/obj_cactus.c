@@ -4,6 +4,10 @@
 #include <math.h>
 #include <mfx.h>
 
+static void obj_cactus_became_invisible(GameObject* self) {
+	// empty
+}
+
 static void obj_cactus_collide(GameObject* self, GameObject* other) {
 	ObjCactus* cactus = (ObjCactus*)self;
 	if(other->type == OBJ_RABBIT_TYPE) {
@@ -114,6 +118,7 @@ static void obj_cactus_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
 	render->update_pos = obj_cactus_update_pos;
+	render->became_invisible = obj_cactus_became_invisible;
 }
 
 GameObjectDesc obj_cactus_desc = {
