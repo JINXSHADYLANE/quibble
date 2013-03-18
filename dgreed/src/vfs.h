@@ -23,14 +23,14 @@ typedef struct {
 
 typedef struct VfsBlob {
 	// mmaped file
-	const void* blob;
+	void* blob;
 	uint32 size;
 
 	// file info table
 	uint32 n_files;
-	const char* file_names;
-	const uint32* file_offsets;
-	const uint32* file_lengths;
+	char* file_names;
+	uint32* file_offsets;
+	uint32* file_lengths;
 
 	// next blob in chain
 	struct VfsBlob* next;
