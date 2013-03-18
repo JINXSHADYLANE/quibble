@@ -13,10 +13,6 @@ static void obj_fall_trigger_construct(GameObject* self, Vector2 pos, void* user
 	};	
 		
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, 1, NULL);
-
-	// Init update
-	UpdateComponent* update = self->update;
-	update->update = obj_fall_trigger_update;	
 }
 
 GameObjectDesc obj_fall_trigger_desc = {
