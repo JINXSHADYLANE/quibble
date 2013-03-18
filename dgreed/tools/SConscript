@@ -1,6 +1,6 @@
 Import('env')
 
-SUBS = ['mkfnt', 'mkdig']
+SUBS = ['mkfnt', 'mkdig', 'mkvfs']
 
 for sub in SUBS:
 	SConscript(sub + '/SConscript', exports='env')
