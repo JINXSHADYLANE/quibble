@@ -137,11 +137,12 @@ float minimap_max_x(void){
 }
 
 float minimap_min_x(void){
-	float last = minimap_max_x();
+	float last = objects_camera[0].left;
 	for(int i = 0; i < minimap_pointers.size;i++){
 		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
 		ObjRabbit* rabbit = *p_rabbit;
-		if(rabbit && rabbit->header.type && !rabbit->data->is_dead){
+		if(rabbit && rabbit->header.type
+		&& !rabbit->data->is_dead && !rabbit->data->game_over){
 			PhysicsComponent* p = rabbit->header.physics;
 			Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 			if(pos.x < last) last = pos.x;

@@ -11,10 +11,7 @@ static void obj_eraser_collide(GameObject* self, GameObject* other) {
 
 static void obj_eraser_update(GameObject* self, float ts, float dt){
 	PhysicsComponent* p = self->physics;
-
 	float pos = minimap_min_x();
-	if(pos > minimap_player_x() ) pos = objects_camera[0].left;
-
 	p->cd_obj->offset = vec2(pos - p->cd_obj->pos.x - 512.0f,0.0f);
 }
 
