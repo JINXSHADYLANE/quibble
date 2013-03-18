@@ -37,10 +37,12 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 	mushroom->h = height;
 	mushroom->dh = 0.0f;
 
+	float adjust = 20.0f;
+
 	// Take 10 pixel slice at the top as a collider geometry
 	RectF collider = {
-		pos.x  + 20.0f, 		pos.y - height,
-		pos.x  + width - 20.0f, pos.y - height + 10.0f
+		pos.x  + adjust, 		pos.y - height,
+		pos.x  + width - adjust, pos.y - height + 10.0f
 	};
 
 	// Physics
