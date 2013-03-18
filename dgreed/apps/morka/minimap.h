@@ -12,6 +12,7 @@ void minimap_draw(float t);
 void minimap_draw_finish_line(void);
 void minimap_update_places(void);
 
+float minimap_min_x(void);
 float minimap_max_x(void);
 float minimap_player_x(void);
 

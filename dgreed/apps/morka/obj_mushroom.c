@@ -2,6 +2,10 @@
 #include "common.h"
 #include <system.h>
 
+static void obj_mushroom_became_invisible(GameObject* self) {
+	// empty
+}
+
 static void obj_mushroom_collide(GameObject* self, GameObject* other) {
 	ObjMushroom* mushroom = (ObjMushroom*)self;
 	if(other->type == OBJ_RABBIT_TYPE) {
@@ -61,6 +65,7 @@ static void obj_mushroom_construct(GameObject* self, Vector2 pos, void* user_dat
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
 	render->update_pos = obj_mushroom_update_pos;
+	render->became_invisible = obj_mushroom_became_invisible;
 }
 
 GameObjectDesc obj_mushroom_desc = {
