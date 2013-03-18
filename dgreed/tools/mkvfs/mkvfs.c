@@ -56,6 +56,7 @@ int process_manifest(const char* manifest, const char* output) {
 	}
 
 	// Write offsets & lengths
+	offsets[0] = hdr.data_pos;
 	for(uint i = 1; i < n_files; ++i) {
 		offsets[i] = offsets[i-1] + sizes[i-1];
 	}
