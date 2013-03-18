@@ -1,38 +1,52 @@
 #include "obj_types.h"
 #include "common.h"
+#include "minimap.h"
 #include <system.h>
 #include <math.h>
 #include <mfx.h>
 
+static void obj_bomb_detonate(GameObject* self){
+	PhysicsComponent* p = self->physics;
+
+	// Explosion particles
+	ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
+	mfx_trigger_follow("bomb_explode",&anchor->screen_pos,NULL);
+
+	float r = 200.0f;
+
+	Vector2 range = vec2(r,r);
+
+	// Apply explosion force to rabbits based on distance
+	for(int i = 0; i < minimap_get_count();i++){
+		ObjRabbit* rabbit = minimap_get_rabbit(i);
+		Vector2 delta = vec2_sub(rabbit->header.physics->cd_obj->pos, p->cd_obj->pos);
+
+		if(fabsf(delta.x) <= range.x && fabsf(delta.y) <= range.y){
+			if(rabbit->data->shield_up){
+				rabbit->data->shield_up = false;
+				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);	
+				mfx_trigger_follow("bubble_explode",&anchor->screen_pos,NULL);					
+			} else {	
+				if(delta.x < 0.0f) range.x *= -1.0f;
+				if(delta.y < 0.0f) range.y *= -1.0f;
+				
+				delta = vec2_sub(range,delta);
+				delta = vec2_scale(delta,1000.0f);
+
+				GameObject* other = (GameObject*) rabbit;
+				objects_apply_force(other, vec2(delta.x, delta.y));
+			}
+		}
+
+	}
+
+	objects_destroy(self);	
+}
+
 static void obj_bomb_collide(GameObject* self, GameObject* other) {
 	ObjBomb* bomb = (ObjBomb*)self;
 	if(other->type == OBJ_RABBIT_TYPE && other != bomb->owner) {
-
-		ObjRabbit* rabbit = (ObjRabbit*)other;
-		ObjRabbitData* d = rabbit->data;
-
-		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
-
-			if(!d->shield_up){
-				Vector2 f = {
-					.x = -100000.0f,
-					.y =  0.0f
-				};
-
-				if(other->physics->vel.y > 0.0f){	
-					f.y = -100000.0f;
-					other->physics->vel.y = 0.0f;
-				}
-				other->physics->vel.x = 0.0f;
-				objects_apply_force(other, f);
-			} else {
-				d->shield_up = false;
-				mfx_trigger_follow("bubble_explode",&anchor->screen_pos,NULL);	
-			}
-			
-			mfx_trigger_follow("bomb_explode",&anchor->screen_pos,NULL);
-			objects_destroy(self);
-
+		obj_bomb_detonate(self);
 	}
 
 	// Collision with ground
@@ -44,11 +58,9 @@ static void obj_bomb_collide(GameObject* self, GameObject* other) {
 			self->physics->vel.x *= 0.5f;
 			self->physics->vel.y *= -0.95f;
 
-			if(vel.y < 50.0f){
-				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
-				mfx_trigger_follow("bomb_explode",&anchor->screen_pos,NULL);
-				objects_destroy(self);			
-			}			
+			if(vel.y < 50.0f)
+				obj_bomb_detonate(self);		
+		
 		}
 
 	}
@@ -71,12 +83,12 @@ static void obj_bomb_update_pos(GameObject* self) {
 	};
 	RectF result = objects_world2screen(rec,0);
 	
-	if(result.right - 30.0f < 0.0f){
-		Vector2 position = vec2_add(self->physics->cd_obj->pos,vec2(80.0f,0.0f) );
-		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, position, NULL);
-		mfx_trigger_follow("bomb_explode",&anchor->screen_pos,NULL);		
-		objects_destroy(self);
-	}
+	if(result.right - 100.0f < 0.0f)
+		obj_bomb_detonate(self);
+
+	if(physics->cd_obj->pos.y > HEIGHT)
+		obj_bomb_detonate(self);	
+	
 }
 
 static void obj_bomb_update(GameObject* self, float ts, float dt) {
@@ -117,7 +129,7 @@ static void obj_bomb_construct(GameObject* self, Vector2 pos, void* user_data) {
 	physics->vel = p->vel;
 	physics->hit_callback = obj_bomb_collide;
 
-	objects_apply_force(self, vec2(0, -80000.0f) );	
+	objects_apply_force(self, vec2(0.0f, -80000.0f) );	
 
 	// Render
 	RenderComponent* render = self->render;
