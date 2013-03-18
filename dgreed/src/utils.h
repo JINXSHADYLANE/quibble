@@ -57,6 +57,11 @@ typedef unsigned char byte;
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
 #endif
 
+static inline size_t align_padding(size_t size, size_t alignment) {
+	size_t r = size % alignment;
+	return r ? size + (alignment - r) : size;
+}
+
 /*
 --------------------
 --- Branch hints ---
