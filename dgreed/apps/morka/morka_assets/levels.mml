@@ -24,6 +24,23 @@
 				(max_combo 1)
 			)
 		)
+		(powerups _
+			(rocket _
+				(num 1)
+				(xmin 0.6)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 6)
+				(xmin 0.0)
+				(xmax 0.8)
+			)
+			(shield _
+				(num 1)
+				(xmin 0.0)
+				(xmax 1.0)
+			)			
+		)		
 		(background background)
 		(bg_chain bg)
 		(fg_chain level2_fg)
@@ -54,6 +71,23 @@
 				(max_combo 5)
 			)
 		)
+		(powerups _
+			(rocket _
+				(num 1)
+				(xmin 0.6)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 2)
+				(xmin 0.0)
+				(xmax 0.5)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)			
+		)		
 		(background background)
 		(bg_chain bg)
 		(fg_chain level3_fg)
@@ -77,6 +111,13 @@
 				(max_combo 5)
 			)
 		)
+		(powerups _
+			(bomb _
+				(num 6)
+				(xmin 0.0)
+				(xmax 0.8)
+			)		
+		)		
 		(background background)
 		(bg_chain bg)
 		(fg_chain level4_fg)
