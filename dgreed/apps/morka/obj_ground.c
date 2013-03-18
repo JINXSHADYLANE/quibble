@@ -2,6 +2,10 @@
 #include "common.h"
 #include <system.h>
 
+static void obj_ground_became_invisible(GameObject* self) {
+	// empty
+}
+
 static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data) {
 	SprHandle spr_handle = (SprHandle)user_data;
 
@@ -28,6 +32,7 @@ static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data)
 	render->layer = ground_layer;
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
+	render->became_invisible = obj_ground_became_invisible;
 }
 
 GameObjectDesc obj_ground_desc = {

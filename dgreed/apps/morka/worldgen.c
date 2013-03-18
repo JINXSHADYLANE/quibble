@@ -226,6 +226,9 @@ void worldgen_reset(uint seed, const LevelDesc* desc) {
 	powerups[BOMB] = levels_current_desc()->powerup_num[BOMB];
 	powerups[ROCKET] = levels_current_desc()->powerup_num[ROCKET];
 	powerups[SHIELD] = levels_current_desc()->powerup_num[SHIELD];
+
+	objects_create(&obj_eraser_desc, vec2(-256.0f,0.0f), (void*)NULL);
+	objects_create(&obj_eraser_desc, vec2(-256.0f,400.0f), (void*)NULL);
 }
 
 void worldgen_close(void) {

@@ -136,6 +136,21 @@ float minimap_max_x(void){
 	return first + 1024.0f;
 }
 
+float minimap_min_x(void){
+	float last = minimap_max_x();
+	for(int i = 0; i < minimap_pointers.size;i++){
+		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
+		ObjRabbit* rabbit = *p_rabbit;
+		if(rabbit && rabbit->header.type && !rabbit->data->is_dead){
+			PhysicsComponent* p = rabbit->header.physics;
+			Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+			if(pos.x < last) last = pos.x;
+		}
+
+	}
+	return last;
+}
+
 float minimap_player_x(void){
 	return player_x;
 }
