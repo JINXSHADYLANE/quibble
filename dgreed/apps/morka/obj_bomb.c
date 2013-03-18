@@ -5,6 +5,10 @@
 #include <math.h>
 #include <mfx.h>
 
+static void obj_bomb_became_invisible(GameObject* self) {
+	// empty
+}
+
 static void obj_bomb_detonate(GameObject* self){
 	PhysicsComponent* p = self->physics;
 
@@ -29,7 +33,7 @@ static void obj_bomb_detonate(GameObject* self){
 			} else {	
 				if(delta.x < 0.0f) range.x *= -1.0f;
 				if(delta.y < 0.0f) range.y *= -1.0f;
-				
+
 				delta = vec2_sub(range,delta);
 				delta = vec2_scale(delta,1000.0f);
 
@@ -76,19 +80,13 @@ static void obj_bomb_update_pos(GameObject* self) {
 	r->world_dest = rectf_centered(
 		pos, rectf_width(&r->world_dest), rectf_height(&r->world_dest)
 	);
-
+/*
 	PhysicsComponent* physics = self->physics;
 	RectF rec = {
 		.right = physics->cd_obj->pos.x + physics->cd_obj->size.size.x
 	};
 	RectF result = objects_world2screen(rec,0);
-	
-	if(result.right - 100.0f < 0.0f)
-		obj_bomb_detonate(self);
-
-	if(physics->cd_obj->pos.y > HEIGHT)
-		obj_bomb_detonate(self);	
-	
+	*/
 }
 
 static void obj_bomb_update(GameObject* self, float ts, float dt) {
@@ -142,6 +140,7 @@ static void obj_bomb_construct(GameObject* self, Vector2 pos, void* user_data) {
 	render->anim_frame = MAX_UINT16;
 	render->spr = spr_handle;
 	render->update_pos = obj_bomb_update_pos;
+	render->became_invisible = obj_bomb_became_invisible;
 
 	// Init update
 	UpdateComponent* update = self->update;

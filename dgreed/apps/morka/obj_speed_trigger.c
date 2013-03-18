@@ -2,18 +2,6 @@
 
 #include <system.h>
 
-static void obj_speed_trigger_update(GameObject* self, float ts, float dt){
-	PhysicsComponent* physics = self->physics;
-	RectF pos = {
-		.right = physics->cd_obj->pos.x + physics->cd_obj->size.size.x
-	};
-	RectF result = objects_world2screen(pos,0);
-	
-	if(result.right < 0){
-		objects_destroy(self);
-	}
-}
-
 static void obj_speed_trigger_construct(GameObject* self, Vector2 pos, void* user_data) {
 	SprHandle spr_handle = (SprHandle)user_data;
 
@@ -39,7 +27,7 @@ GameObjectDesc obj_speed_trigger_desc = {
 	.size = sizeof(ObjSpeedTrigger),
 	.has_physics = true,
 	.has_render = false,
-	.has_update = true,
+	.has_update = false,
 	.construct = obj_speed_trigger_construct,
 	.destruct = NULL
 };

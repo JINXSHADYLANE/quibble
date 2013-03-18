@@ -19,7 +19,8 @@ enum {
 	OBJ_BG_PARTICLE_ANCHOR_TYPE,
 	OBJ_POWERUP_TYPE,
 	OBJ_FLOATER_TYPE,
-	OBJ_BOMB_TYPE
+	OBJ_BOMB_TYPE,
+	OBJ_ERASER_TYPE
 };
 
 // Powerup
@@ -76,7 +77,6 @@ typedef struct {
 	float rabbit_time;
 	const char* rabbit_name; 
 	bool game_over;
-	bool rubber_band;
 	int ai_max_combo;
 	int boost;
 	Color minimap_color;
@@ -231,5 +231,13 @@ typedef struct {
 } ObjBomb;
 
 extern GameObjectDesc obj_bomb_desc;
+
+// Eraser
+
+typedef struct {
+	GameObject header;
+} ObjEraser;
+
+extern GameObjectDesc obj_eraser_desc;
 
 #endif
