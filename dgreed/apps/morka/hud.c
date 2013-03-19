@@ -40,17 +40,11 @@ static void _hud_render_powerups(float t){
 
 	Vector2 powerup_place = element->vec2;
 
-	if(rabbit->data->tokens >= 10){
-		// draw trampoline
-	}
-
 	SprHandle spr = sprsheet_get_handle(powerup_params[0].btn);
 	Vector2 size = sprsheet_get_size_h(spr);
 
 	int count = levels_get_powerup_count() +1;
-
 	float x_offset = -count * (size.x + 27.0f);
-
 
 	for(int i = 0; i < POWERUP_COUNT;i++){
 

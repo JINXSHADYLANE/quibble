@@ -61,8 +61,8 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 
 	// Rocket
 	if(d->rocket_time > 0.0f){
-		float mult = d->rocket_time - time_s();
-		result = vec2_add(result, vec2(2500.0f * mult, 0.0f) );
+		float mult = d->rocket_time - TIME_S;
+		result = vec2_add(result, vec2(3500.0f * mult, 0.0f) );
 		result.y = 0.0f;
 	}
 
@@ -335,7 +335,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			p->vel.y = 0.0f;
 			
 			// Ending rocket powerup
-			if(time_s() > d->rocket_time){
+			if(TIME_S > d->rocket_time){
 				d->rocket_time = 0.0f;
 				d->touching_ground = false;
 				anim_play_ex(rabbit->anim, "down", TIME_S);
@@ -347,6 +347,14 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		if(d->rocket_start || d->rocket_time != 0.0f){
 			anim_play_ex(rabbit->anim, "rocket_ride", TIME_S);
 
+			if(d->rocket_time != 0.0f){
+				//float mult = (d->rocket_time - TIME_S );
+				float t = TIME_S;
+				t = normalize(t,d->rocket_time-3.0f,d->rocket_time);
+				float delta = sin(30.0 * t) * (1.0-t) * 5.0f;
+
+				p->cd_obj->offset.y += delta;
+			}
 			// Spawn rocket particles
 			if(d->boost == 0){
 				if(r->was_visible){
@@ -358,7 +366,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 			if(p->vel.y > 0.0f){
 				d->rocket_start = false;
-				d->rocket_time = time_s() + 4.0f;
+				d->rocket_time = TIME_S + 3.0f;
 			}
 		}
 
