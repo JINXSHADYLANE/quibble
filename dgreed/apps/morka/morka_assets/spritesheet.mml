@@ -276,62 +276,77 @@
 	(img branch_l_1
 		(tex atlas_31.png)
 		(src 311,254,496,325)
+		(cntr 401,290)
 	)
 	(img branch_l_2
 		(tex atlas_31.png)
 		(src 2,126,311,180)
+		(cntr 153,152)
 	)
 	(img branch_l_3_a
 		(tex atlas_31.png)
 		(src 2,65,354,126)
+		(cntr 178,95)
 	)
 	(img branch_l_3_b
 		(tex atlas_31.png)
 		(src 2,245,246,274)
+		(cntr 118,270)
 	)
 	(img branch_r_1_a
 		(tex atlas_31.png)
 		(src 2,180,258,245)
+		(cntr 130,214)
 	)
 	(img branch_r_1_b
 		(tex atlas_31.png)
 		(src 2,305,208,336)
+		(cntr 105,337)
 	)
 	(img branch_r_2_a
 		(tex atlas_31.png)
 		(src 2,2,378,65)
+		(cntr 190,34)
 	)
 	(img branch_r_2_b
 		(tex atlas_31.png)
 		(src 2,274,219,305)
+		(cntr 110,299)
 	)
 	(img trunk_1
 		(tex atlas_31.png)
 		(src 208,308,279,436)
+		(cntr 239,372)
 	)
 	(img trunk_2
 		(tex atlas_31.png)
 		(src 311,126,378,254)
+		(cntr 337,190)
 	)
 	(img trunk_3
 		(tex atlas_31.png)
 		(src 378,2,453,130)
+		(cntr 418,66)
 	)
 	(img trunk_4
 		(tex atlas_31.png)
 		(src 63,336,122,464)
+		(cntr 107,400)
 	)
 	(img trunk_4b
 		(tex atlas_31.png)
 		(src 2,336,63,464)
+		(cntr 48,400)
 	)
 	(img trunk_5
 		(tex atlas_31.png)
 		(src 258,180,311,308)
+		(cntr 295,244)
 	)
 	(img trunk_6
 		(tex atlas_31.png)
 		(src 453,2,506,130)
+		(cntr 490,66)
 	)
 
 
