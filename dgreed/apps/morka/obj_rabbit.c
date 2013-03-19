@@ -301,10 +301,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 				if(ts - d->mushroom_hit_time < 0.1f) {
 
-					if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.1f)
+					if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.2f)
 						d->jump_off_mushroom = true;
 
-					if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.1f)
+					if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.2f)
 						d->jump_off_mushroom = true;
 						
 				}

@@ -165,6 +165,8 @@
 		AAA8AD4F16B2CBB600C6D752 /* obj_fall_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */; };
 		AAA8AD5016B2CBB600C6D752 /* obj_speed_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */; };
 		AAC85EF716CE916500721CE8 /* obj_cactus.c in Sources */ = {isa = PBXBuildFile; fileRef = AAC85EF616CE916500721CE8 /* obj_cactus.c */; };
+		AAD3D88016F76E37000657F9 /* obj_bomb.c in Sources */ = {isa = PBXBuildFile; fileRef = AAD3D87E16F76E37000657F9 /* obj_bomb.c */; };
+		AAD3D88116F76E37000657F9 /* obj_eraser.c in Sources */ = {isa = PBXBuildFile; fileRef = AAD3D87F16F76E37000657F9 /* obj_eraser.c */; };
 		AAD9323416D51CD200F076B9 /* tutorials.c in Sources */ = {isa = PBXBuildFile; fileRef = AAD9323116D51CD200F076B9 /* tutorials.c */; };
 		AAF6778A16C550F400FDF975 /* level_select.c in Sources */ = {isa = PBXBuildFile; fileRef = AAF6776216C550F400FDF975 /* level_select.c */; };
 		AAF677AB16C550F400FDF975 /* pause.c in Sources */ = {isa = PBXBuildFile; fileRef = AAF6778816C550F400FDF975 /* pause.c */; };
@@ -431,6 +433,8 @@
 		AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_fall_trigger.c; path = ../obj_fall_trigger.c; sourceTree = "<group>"; };
 		AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_speed_trigger.c; path = ../obj_speed_trigger.c; sourceTree = "<group>"; };
 		AAC85EF616CE916500721CE8 /* obj_cactus.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_cactus.c; path = ../obj_cactus.c; sourceTree = "<group>"; };
+		AAD3D87E16F76E37000657F9 /* obj_bomb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_bomb.c; sourceTree = SOURCE_ROOT; };
+		AAD3D87F16F76E37000657F9 /* obj_eraser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_eraser.c; sourceTree = SOURCE_ROOT; };
 		AAD9323116D51CD200F076B9 /* tutorials.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tutorials.c; path = ../tutorials.c; sourceTree = "<group>"; };
 		AAD9323216D51CD200F076B9 /* tutorials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tutorials.h; path = ../tutorials.h; sourceTree = "<group>"; };
 		AAF6776216C550F400FDF975 /* level_select.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = level_select.c; path = ../level_select.c; sourceTree = "<group>"; };
@@ -550,6 +554,8 @@
 				219BEAED16776B3A002B614C /* objects.c */,
 				219BEAEE16776B3A002B614C /* objects.h */,
 				AA7B4FF816DF5153003CCF1E /* obj_powerup.c */,
+				AAD3D87E16F76E37000657F9 /* obj_bomb.c */,
+				AAD3D87F16F76E37000657F9 /* obj_eraser.c */,
 				AA64161F16D7B7E70066AEA8 /* obj_floater.c */,
 				219BEAEC16776B3A002B614C /* obj_types.h */,
 				219BEAE816776B3A002B614C /* obj_deco.c */,
@@ -1028,6 +1034,8 @@
 				AA7B4FF716DF511C003CCF1E /* ai.c in Sources */,
 				AA7B4FF916DF5153003CCF1E /* obj_powerup.c in Sources */,
 				2175DBD416F07AF900452F14 /* placement.c in Sources */,
+				AAD3D88016F76E37000657F9 /* obj_bomb.c in Sources */,
+				AAD3D88116F76E37000657F9 /* obj_eraser.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1115,13 +1123,13 @@
 		219BE9B216776981002B614C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "E0C42A6A-71B8-4017-8DBB-9B2B6408D4FB";
+				PROVISIONING_PROFILE = "26347D49-4968-4CC8-A334-D8C5A7BFC832";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1129,13 +1137,13 @@
 		219BE9B316776981002B614C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "E0C42A6A-71B8-4017-8DBB-9B2B6408D4FB";
+				PROVISIONING_PROFILE = "26347D49-4968-4CC8-A334-D8C5A7BFC832";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
