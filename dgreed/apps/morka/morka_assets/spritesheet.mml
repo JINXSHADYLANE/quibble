@@ -1,6 +1,8 @@
 (sprsheet morka
 	(prefix "morka_assets/")
 
+	### backgrounds ###
+	
 	(img background
 		(tex atlas_11.png)
 		(src 0,256,1024,1024)
@@ -9,6 +11,9 @@
 		(tex atlas_21.png)
 		(src 0,256,1024,1024)
 	)
+
+	### rabbits ###
+	
 	(anim rabbit
 		(tex atlas_0a.png)
 		(src 0,0,128,128)
@@ -37,6 +42,15 @@
 		(frames 16)
 		(grid 4,4)
 	)
+
+	#################
+	### Chapter I ###
+	#################
+	
+	#################
+	### atlas 1-2 ###
+	#################
+
 	(img blue_shade
 		(tex atlas_12.png)
 		(src 684,3,694,13)
@@ -178,6 +192,9 @@
 		(src 690,755,846,924)
 	)
 
+	#################
+	### atlas 1-3 ###
+	#################
 
 	(img bg_mushroom_2
 		(tex atlas_13.png)
@@ -272,6 +289,87 @@
 		(src 649,2,943,111)
 	)
 
+	#################
+	### atlas 1-4 ###
+	#################
+
+	(img element_1
+		(tex atlas_14.png)
+		(src 0,483,512,923)
+	)
+	(img element_2
+		(tex atlas_14.png)
+		(src 0,1351,512,1753)
+	)
+	(img element_3
+		(tex atlas_14.png)
+		(src 0,926,512,1348)
+	)
+	(img element_4
+		(tex atlas_14.png)
+		(src 0,0,512,480)
+	)
+
+	#################
+	### Chapter II ##
+	#################
+
+	#################
+	### atlas 2-2 ###
+	#################
+
+	(img ice1
+		(tex atlas_22.png)
+		(src 386,2,770,185)
+	)
+	(img ice2
+		(tex atlas_22.png)
+		(src 2,2,386,185)
+	)
+	(img ice_end
+		(tex atlas_22.png)
+		(src 770,509,898,678)
+	)
+	(img ice_start
+		(tex atlas_22.png)
+		(src 770,340,898,509)
+	)
+	(img snow1
+		(tex atlas_22.png)
+		(src 514,185,770,358)
+	)
+	(img snow2
+		(tex atlas_22.png)
+		(src 258,185,514,368)
+	)
+	(img snow3
+		(tex atlas_22.png)
+		(src 2,340,258,523)
+	)
+	(img snow4
+		(tex atlas_22.png)
+		(src 514,358,770,529)
+	)
+	(img snow_end1
+		(tex atlas_22.png)
+		(src 770,171,898,340)
+	)
+	(img snow_end2
+		(tex atlas_22.png)
+		(src 930,2,960,169)
+	)
+	(img snow_start1
+		(tex atlas_22.png)
+		(src 898,2,930,169)
+	)
+	(img snow_start2
+		(tex atlas_22.png)
+		(src 770,2,898,171)
+	)
+
+	#################
+	### atlas 2-3 ###
+	#################
 
 	(img branch_l_1
 		(tex atlas_23.png)
@@ -349,25 +447,9 @@
 		(cntr 490,66)
 	)
 
-
-
-
-	(img element_1
-		(tex atlas_14.png)
-		(src 0,483,512,923)
-	)
-	(img element_2
-		(tex atlas_14.png)
-		(src 0,1351,512,1753)
-	)
-	(img element_3
-		(tex atlas_14.png)
-		(src 0,926,512,1348)
-	)
-	(img element_4
-		(tex atlas_14.png)
-		(src 0,0,512,480)
-	)
+	#################
+	### atlas 2-4 ###
+	#################
 
 	(img element_5
 		(tex atlas_24.png)
