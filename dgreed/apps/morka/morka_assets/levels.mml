@@ -1,0 +1,175 @@
+(levels morka
+	(level level1
+		(distance 0)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level1_fg)
+		(ground_chain level1_ground)
+	)
+	(level level2
+		(distance 85)
+		(rabbits _
+			(name Lili
+				(spr rabbit_3)
+				(speed 350)
+				(xjump 90)
+				(yjump 390)
+				(max_combo 2)
+			)
+			(name Tori
+				(spr rabbit_2)
+				(speed 390)
+				(xjump 100)
+				(yjump 390)
+				(max_combo 1)
+			)
+		)
+		(powerups _
+			(rocket _
+				(num 1)
+				(xmin 0.6)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 6)
+				(xmin 0.0)
+				(xmax 0.8)
+			)
+			(shield _
+				(num 1)
+				(xmin 0.0)
+				(xmax 1.0)
+			)			
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level2_fg)
+		(ground_chain level2_ground)
+	)
+	(level level3
+		(distance 90)
+		(rabbits _
+			(name Tori
+				(spr rabbit_2)
+				(speed 355)
+				(xjump 122)
+				(yjump 405)
+				(max_combo 2)
+			)
+			(name Lili
+				(spr rabbit_3)
+				(speed 482)
+				(xjump 100)
+				(yjump 390)
+				(max_combo 3)
+			)
+			(name Kubo
+				(spr rabbit_4)
+				(speed 490)
+				(xjump 100)
+				(yjump 400)
+				(max_combo 5)
+			)
+		)
+		(powerups _
+			(rocket _
+				(num 1)
+				(xmin 0.6)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 2)
+				(xmin 0.0)
+				(xmax 0.5)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)			
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level3_fg)
+		(ground_chain level3_ground)
+	)
+	(level level4
+		(distance 100)
+		(rabbits _
+			(name Tori
+				(spr rabbit_2)
+				(speed 450)
+				(xjump 105)
+				(yjump 450)
+				(max_combo 3)
+			)
+			(name Lili
+				(spr rabbit_3)
+				(speed 507)
+				(xjump 101)
+				(yjump 404)
+				(max_combo 5)
+			)
+		)
+		(powerups _
+			(trampoline _)
+			(bomb _
+				(num 6)
+				(xmin 0.0)
+				(xmax 0.8)
+			)		
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level4_fg)
+		(ground_chain level4_ground)
+	)
+	(level level5
+		(distance 110)
+		(rabbits _
+			(name Tori
+				(spr rabbit_2)
+				(speed 459)
+				(xjump 100)
+				(yjump 450)
+				(max_combo 2)
+			)
+			(name Lili
+				(spr rabbit_3)
+				(speed 432)
+				(xjump 100)
+				(yjump 470)
+				(max_combo 5)
+			)
+			(name Kubo
+				(spr rabbit_4)
+				(speed 550)
+				(xjump 100)
+				(yjump 400)
+				(max_combo 30)
+			)
+		)
+		(powerups _
+			(trampoline _)		
+			(rocket _
+				(num 3)
+				(xmin 0.3)
+				(xmax 0.6)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)			
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level5_fg)
+		(ground_chain level5_ground)
+	)
+)
