@@ -46,6 +46,10 @@ int process_manifest(const char* manifest, const char* output) {
 		.padding = 0
 	};
 
+	printf("number of files: %d\n", n_files);
+	printf("sum of sizes: %d\n", total_size);
+	printf("total blob size: %d (%dk)\n", hdr.size, hdr.size / 1024);
+
 	FILE* out = fopen(output, "wb");
 	fwrite(&hdr, 1, sizeof(VfsHeader), out);
 
@@ -73,7 +77,12 @@ int process_manifest(const char* manifest, const char* output) {
 		fwrite(buffer, sizes[i], 1, out);
 		fclose(h);
 		free(buffer);
+		i++;
 	}
+
+	assert(ftell(out) == hdr.size);
+
+	printf("done\n");
 
 	fclose(out);
 

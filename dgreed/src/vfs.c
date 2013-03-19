@@ -81,9 +81,12 @@ const void* vfs_get(VfsBlob* blob, const char* filename, size_t* size) {
 	}
 
 	// Not found, try next blob in chain
-	if(i >= blob->n_files || strcmp(name, filename) != 0)
+	if(i >= blob->n_files || strcmp(name, filename) != 0) {
 		if(blob->next)
 			return vfs_get(blob->next, filename, size);
+		else
+			return NULL;
+	}
 
 	// Return size and ptr to file
 	if(size)

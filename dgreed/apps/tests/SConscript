@@ -29,6 +29,7 @@ tests = Split("""
 	mml.c
 	utils.c
 	uidesc.c
+	vfs.c
 """)
 
 test_data = env.Command('test_data' + postfix + '.c', tests,
