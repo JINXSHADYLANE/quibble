@@ -160,7 +160,7 @@ void ai_control(GameObject* obj){
 
 	if(d->touching_ground){
 
-		if(d->on_water)
+		if(d->on_water && !d->shield_up)
 			input = true;
 
 		if( there_is( OBJ_MUSHROOM_TYPE, in_front_of(obj) ) )

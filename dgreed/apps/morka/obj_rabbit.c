@@ -301,10 +301,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 				if(ts - d->mushroom_hit_time < 0.1f) {
 
-					if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.1f)
+					if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.18f)
 						d->jump_off_mushroom = true;
 
-					if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.1f)
+					if(fabsf(d->mushroom_hit_time - d->last_keyrelease_t) < 0.18f)
 						d->jump_off_mushroom = true;
 						
 				}
@@ -550,10 +550,12 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 	// Collision with speed trigger
 	if(other->type == OBJ_SPEED_TRIGGER_TYPE && d->rocket_time == 0.0f ) {
-		ObjSpeedTrigger* t = (ObjSpeedTrigger*)other;
-		objects_apply_force(self, 
-			vec2(-self->physics->vel.x * t->drag_coef, 0.0f)
-		);
+		if(!d->shield_up){
+			ObjSpeedTrigger* t = (ObjSpeedTrigger*)other;
+			objects_apply_force(self, 
+				vec2(-self->physics->vel.x * t->drag_coef, 0.0f)
+			);
+		}
 		d->on_water = true;
 	}
 
