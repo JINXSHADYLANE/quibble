@@ -73,7 +73,7 @@ static void obj_powerup_rocket_effect(GameObject* other){
 		d->rocket_start = true;
 		objects_apply_force(other, vec2(10000.0f, -160000.0f) );
 	} else {
-		d->rocket_time = time_s() + 4.0f;
+		d->rocket_start = true;
 	}
 
 	d->has_powerup[ROCKET] = false;
