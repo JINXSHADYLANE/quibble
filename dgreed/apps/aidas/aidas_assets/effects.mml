@@ -1,0 +1,35 @@
+(mfx _
+	(prefix "aidas_assets/")
+	(sounds _
+		(s jump.wav
+			(volume 0.3)
+		)
+		(s land.wav)
+		(s land2.wav)
+		(s win.wav)
+		(s door.wav)
+		(s roll.wav
+			(volume 0.2)
+		)
+	)
+	(effects _
+		(e jump
+			(sound jump.wav)
+		)
+		(e land
+			(sound land2.wav)
+		)
+		(e box_land
+			(sound land.wav)
+		)
+		(e box_push
+			(sound roll.wav)
+		)
+		(e win
+			(sound win.wav)
+		)
+		(e door
+			(sound door.wav)
+		)
+	)
+)
