@@ -112,6 +112,7 @@
 			)
 		)
 		(powerups _
+			(trampoline _)
 			(bomb _
 				(num 6)
 				(xmin 0.0)
@@ -149,6 +150,7 @@
 			)
 		)
 		(powerups _
+			(trampoline _)		
 			(rocket _
 				(num 3)
 				(xmin 0.3)

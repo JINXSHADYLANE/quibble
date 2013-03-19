@@ -26,9 +26,10 @@ enum {
 // Powerup
 
 typedef enum{
-	BOMB = 0,
-	ROCKET,
+	TRAMPOLINE = 0,
 	SHIELD,
+	BOMB,
+	ROCKET,
 
 	POWERUP_COUNT 
 } PowerupType;
@@ -38,6 +39,7 @@ typedef void (*PowerupCallback)(GameObject* other);
 typedef struct {
 	const char* spr;
 	const char* btn;
+	bool passive;
 	PhysicsHitCallback hit_callback;
 	PowerupCallback powerup_callback;
 } PowerupParams;
@@ -84,15 +86,14 @@ typedef struct {
 	float xjump;
 	float yjump;
 	int tokens;
-	bool has_trampoline;
 	bool force_jump;
 	bool force_dive;
 	bool input_disabled;
 
 	bool has_powerup[POWERUP_COUNT];
+	bool trampoline_placed;
 	bool rocket_start;
 	float rocket_time;
-	bool shield_up;
 	float shield_dh;
 	float shield_h;
 

@@ -205,6 +205,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		d->jumped = false;
 		d->dived = false;
 
+		d->has_powerup[TRAMPOLINE] = (d->tokens >= 10) && levels_current_desc()->powerup_num[TRAMPOLINE] >= 1;
+
 		if(camera_follow)
 			rabbit->control(self);
 
@@ -235,7 +237,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			if(d->touching_ground) {	
 				d->force_dive = false;	
 				d->is_diving = false;
-				d->has_trampoline = false;			
+				d->trampoline_placed = false;			
 				d->combo_counter = 0;
 				d->boost = 0;
 
@@ -417,7 +419,7 @@ static void obj_rabbit_post_render(GameObject* self){
 	//Vector2 screen_pos = vec2(result.left,result.top);
 
 	// Bubble powerup graphics
-	if(d->shield_up){
+	if(d->has_powerup[SHIELD]){
 		RenderComponent* render = self->render;
 		spr_draw_h(shield_spr, render->layer,result,COLOR_WHITE);
 	}
@@ -450,7 +452,7 @@ static void _rabbit_delayed_bounce(void* r) {
 		if(d->player_control) tutorial_event(BOUNCE_PERFORMED);
 		d->force_dive = false;
 		d->is_diving = false;
-		d->has_trampoline = false;
+		d->trampoline_placed = false;
 		GameObject* self = r;
 		objects_apply_force(self, d->bounce_force); 
 		d->jump_off_mushroom = false;
@@ -521,8 +523,8 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		PhysicsComponent* p = self->physics;	
 
 		// Trampoline
-		if(p->cd_obj->pos.y > ground_y && d->tokens >=10 && !d->has_trampoline && !rabbit->data->game_over){
-			d->has_trampoline = true;
+		if(p->cd_obj->pos.y > ground_y && d->has_powerup[TRAMPOLINE] && !d->trampoline_placed && !rabbit->data->game_over){
+			d->trampoline_placed = true;
 			d->tokens -= 10;
 
 			// Trampoline sprite
@@ -550,7 +552,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 	// Collision with speed trigger
 	if(other->type == OBJ_SPEED_TRIGGER_TYPE && d->rocket_time == 0.0f ) {
-		if(!d->shield_up){
+		if(!d->has_powerup[SHIELD]){
 			ObjSpeedTrigger* t = (ObjSpeedTrigger*)other;
 			objects_apply_force(self, 
 				vec2(-self->physics->vel.x * t->drag_coef, 0.0f)

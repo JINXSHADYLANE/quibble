@@ -65,4 +65,6 @@ LevelDesc* levels_current_desc(void);
 void levels_set_next(void);
 bool levels_is_final(void);
 
+uint levels_get_powerup_count(void);
+
 #endif

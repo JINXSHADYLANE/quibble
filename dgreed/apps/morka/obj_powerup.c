@@ -119,18 +119,13 @@ static void obj_powerup_shield_effect(GameObject* other){
 	ObjRabbit* rabbit = (ObjRabbit*)other;
 	ObjRabbitData* d = rabbit->data;
 
-	d->shield_up = true;
-
-	d->has_powerup[SHIELD] = false;
+	d->has_powerup[SHIELD] = true;
 }
 
 static void obj_powerup_shield_collide(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
-		ObjRabbit* rabbit = (ObjRabbit*)other;
-		ObjRabbitData* d = rabbit->data;
-
 		// Powerup effect
-		d->has_powerup[SHIELD] = true;
+		obj_powerup_shield_effect(other);
 
 		// Particles
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
@@ -219,8 +214,25 @@ GameObjectDesc obj_powerup_desc = {
 
 PowerupParams powerup_params[] = {
 	{
+		NULL,
+		"btn_trampoline",
+		true,
+		NULL,
+		NULL
+	},
+
+	{
+		"shield",
+		"btn_shield",
+		true,
+		obj_powerup_shield_collide,
+		obj_powerup_shield_effect
+	},
+
+	{
 		"bomb",
 		"btn_bomb",
+		false,
 		obj_powerup_bomb_collide,
 		obj_powerup_bomb_effect
 	},
@@ -228,16 +240,10 @@ PowerupParams powerup_params[] = {
 	{
 		"rocket",
 		"btn_rocket",
+		false,
 		obj_powerup_rocket_collide,
 		obj_powerup_rocket_effect
 	},
-
-	{
-		"shield",
-		"btn_shield",
-		obj_powerup_shield_collide,
-		obj_powerup_shield_effect
-	}
 
 };
 

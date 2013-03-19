@@ -11,6 +11,15 @@ static int level_num = 0;
 static LevelDesc* current_level = NULL;
 static MMLObject mml;
 
+uint levels_get_powerup_count(void){
+	if(!current_level) return 0;
+	uint count = 0;
+	for(uint i = 0; i < POWERUP_COUNT;i++)
+		if(current_level->powerup_num[i] > 0) count++;
+
+	return count;		
+}
+
 void levels_init(const char* filename){
 
 	levels_descs = darray_create(sizeof(LevelDesc), 0);
@@ -92,6 +101,10 @@ void levels_init(const char* filename){
 
 					PowerupType p = POWERUP_COUNT; 
 
+					if(strcmp(txt, "trampoline") == 0) {
+						p = TRAMPOLINE;
+						new.powerup_num[p] = 1;
+					} else 
 					if(strcmp(txt, "rocket") == 0) {
 						p = ROCKET;
 					} else if(strcmp(txt, "bomb") == 0) {
