@@ -26,8 +26,8 @@ static void obj_bomb_detonate(GameObject* self){
 		Vector2 delta = vec2_sub(rabbit->header.physics->cd_obj->pos, p->cd_obj->pos);
 
 		if(fabsf(delta.x) <= range.x && fabsf(delta.y) <= range.y){
-			if(rabbit->data->shield_up){
-				rabbit->data->shield_up = false;
+			if(rabbit->data->has_powerup[SHIELD]){
+				rabbit->data->has_powerup[SHIELD] = false;
 				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);	
 				mfx_trigger_follow("bubble_explode",&anchor->screen_pos,NULL);					
 			} else {	

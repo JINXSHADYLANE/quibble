@@ -235,7 +235,7 @@
 	(def hud_powerups
 		(add <-
 			(middle <- (get_rect screen))
-			(vec2 0,423)
+			(vec2 546,423)
 		)
 	)
 )

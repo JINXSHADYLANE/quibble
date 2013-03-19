@@ -26,7 +26,7 @@ static void obj_cactus_collide(GameObject* self, GameObject* other) {
 
 			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
 
-			if(!d->shield_up){
+			if(!d->has_powerup[SHIELD]){
 				Vector2 f = {
 					.x = -100000.0f,
 					.y =  0.0f
@@ -39,7 +39,7 @@ static void obj_cactus_collide(GameObject* self, GameObject* other) {
 
 				objects_apply_force(other, f);
 			} else {
-				d->shield_up = false;
+				d->has_powerup[SHIELD] = false;
 				mfx_trigger_follow("bubble_explode",&anchor->screen_pos,NULL);	
 			}
 			

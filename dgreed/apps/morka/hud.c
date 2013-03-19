@@ -35,63 +35,82 @@ static void _hud_render_powerups(float t){
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);	
 
-	Vector2 center = element->vec2;
+	Vector2 powerup_place = element->vec2;
+
+	if(rabbit->data->tokens >= 10){
+		// draw trampoline
+	}
+
+	SprHandle spr = sprsheet_get_handle(powerup_params[0].btn);
+	Vector2 size = sprsheet_get_size_h(spr);
+
+	int count = levels_get_powerup_count() +1;
+
+	float x_offset = -count * (size.x + 27.0f);
+
 
 	for(int i = 0; i < POWERUP_COUNT;i++){
 
-		float ts = time_s();
-		float y_offset = 0.0f;
-		SprHandle spr = sprsheet_get_handle(powerup_params[i].btn);
-		Vector2 size = sprsheet_get_size_h(spr);
+		if(levels_current_desc()->powerup_num[i] > 0){
 
-		if(rabbit->data->has_powerup[i]){
+			float ts = time_s();
+			float y_offset = 0.0f;
+			SprHandle spr = sprsheet_get_handle(powerup_params[i].btn);
+			Vector2 size = sprsheet_get_size_h(spr);
+			
+			x_offset += size.x + 27.0f;
+			Vector2 pos = vec2_add(powerup_place, vec2(x_offset, -size.y) );
+			spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, COLOR_RGBA(255,255,255,76));
 
-			if(powerup_appear[i] == 0.0f) powerup_appear[i] = time_s() + duration;
+			if(rabbit->data->has_powerup[i]){
 
-			float td = normalize(ts,powerup_appear[i]-duration,powerup_appear[i]);
-			td = clamp(0.0f,1.0f,td);
+				if(powerup_appear[i] == 0.0f) powerup_appear[i] = time_s() + duration;
 
-			y_offset = sin(PI*td/2.0f) * -size.y;
+				float td = normalize(ts,powerup_appear[i]-duration,powerup_appear[i]);
+				td = clamp(0.0f,1.0f,td);
 
-		} else {
+				y_offset = sin(PI*td/2.0f) * -size.y;
 
-			if(powerup_appear[i] > 0.0f)
-				powerup_appear[i] = -(time_s() + duration);			
+			} else {
 
-			float td = normalize(ts,-powerup_appear[i]-duration,-powerup_appear[i]);
-			td = clamp(0.0f,1.0f,td);
+				if(powerup_appear[i] > 0.0f)
+					powerup_appear[i] = -(time_s() + duration);			
 
-			if(td == 1.0f)
-				powerup_appear[i] = 0.0f;
+				float td = normalize(ts,-powerup_appear[i]-duration,-powerup_appear[i]);
+				td = clamp(0.0f,1.0f,td);
 
-			y_offset = -size.y + (sin(PI*td/2.0f) * size.y);
+				if(td == 1.0f)
+					powerup_appear[i] = 0.0f;
 
-		}
+				y_offset = -size.y + (sin(PI*td/2.0f) * size.y);
 
-		if(powerup_appear[i] != 0.0f){
-
-			int count = -POWERUP_COUNT+1;
-			float x_offset = (count/2.0f + i) * (size.x + 27.0f);
-			Vector2 pos = vec2_add(center, vec2(x_offset, y_offset) );
-			spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col);
-
-			if(touches_down() && rabbit->data->has_powerup[i]) {
-				Touch* t = touches_get();
-				if(t){
-					float r_sqr = 40.0f * 40.0f;
-					if(vec2_length_sq(vec2_sub(t[0].hit_pos, pos)) < r_sqr) {
-						GameObject* r = (GameObject*) rabbit;
-
-						(powerup_params[i].powerup_callback) (r);
-					}
-				}
 			}
 
+			if(powerup_appear[i] != 0.0f){
+
+				pos = vec2_add(powerup_place, vec2(x_offset, y_offset) );
+				spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col);
+
+				if(!powerup_params[i].passive){
+					if(touches_down() && rabbit->data->has_powerup[i]) {
+						Touch* t = touches_get();
+						if(t){
+							float r_sqr = 40.0f * 40.0f;
+							if(vec2_length_sq(vec2_sub(t[0].hit_pos, pos)) < r_sqr) {
+								GameObject* r = (GameObject*) rabbit;
+
+								(powerup_params[i].powerup_callback) (r);
+							}
+						}
+					}
+				}
+
+
+			}
 
 
 		}
 	}
-
 }
 
 void _hud_render_ui(UIElement* element, uint layer, Color col) {
@@ -172,36 +191,8 @@ void hud_render(float t) {
 
 	if(!tutorial_level){
 
-		static bool animation_reset = false;
-
 		UIElement* token_icon = uidesc_get("token_icon");
 		spr_draw_cntr_h(token_icon->spr, hud_layer,token_icon->vec2, 0.0f, 1.0f, col);
-
-		static float t0 = 0.0f;
-		static float t1 = 0.0f;
-
-		// Resque icon appearance animation
-		if(rabbit->data->tokens >= 10){
-			if(!animation_reset){
-				const float animation_length = 0.4f; // 1.0 - 1s
-				t0 = time_s();
-				t1 = t0 + animation_length;
-				animation_reset = true;
-			}
-
-			float ct = time_s();
-			float tt = 0.0f;
-			float s = 1.0f;
-
-			if(ct > t0 && ct < t1){
-				tt = (ct - t0) / (t1 - t0);
-				s = sin(tt*3.0f)+1.0f;
-			}
-			UIElement* resque_icon = uidesc_get("resque_icon");
-			spr_draw_cntr_h(resque_icon->spr, hud_layer,resque_icon->vec2, ct, s, col);
-		} else {
-			animation_reset = false;
-		}
 
 		UIElement* token_text = uidesc_get("token_text");
 		vfont_select(FONT_NAME, 38.0f);
