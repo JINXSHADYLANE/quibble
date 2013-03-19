@@ -35,6 +35,9 @@ static void _hud_render_powerups(float t){
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);	
 
+	byte a2 = lrintf(76.0f * alpha);
+	Color col_30 = COLOR_RGBA(255, 255, 255, a2);		
+
 	Vector2 powerup_place = element->vec2;
 
 	if(rabbit->data->tokens >= 10){
@@ -60,7 +63,7 @@ static void _hud_render_powerups(float t){
 			
 			x_offset += size.x + 27.0f;
 			Vector2 pos = vec2_add(powerup_place, vec2(x_offset, -size.y) );
-			spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, COLOR_RGBA(255,255,255,76));
+			spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col_30);
 
 			if(rabbit->data->has_powerup[i]){
 
