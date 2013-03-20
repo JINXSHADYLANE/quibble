@@ -1,0 +1,140 @@
+body {
+	background-color: #3b404e;
+	width:100%;
+	font-family:Arial, Helvetica, sans-serif;
+}
+h1 {
+	margin: 0px 0px 0px 0px;
+	color: #3b404e;
+	text-align:center;
+	font-size:0px;
+}
+form {
+	text-align:center;
+}
+#magic {
+	margin: 50px 0px 40px 0px;
+	color: #FFF;
+	text-align:center;
+	font-size:65px;
+}
+#code {
+	margin: 30px;
+	text-align:center;
+	width:256px;
+	font-size:70px;
+}
+#play {
+	margin:30px;
+	background-image: url(img/play.png);
+	text-align:center;
+	font-size:70px;
+	width:256px;
+	height:128px;
+	border-radius:50px;
+}
+#play:active {
+	margin:30px;
+	background-image: url(img/play.png);
+	text-align:center;
+	font-size:70px;
+	width:256px;
+	height:128px;
+	border-radius:50px;
+	opacity: 0.5;
+	-moz-opacity: 0.5;
+	filter:alpha(opacity=5);
+}
+.bup {
+	background-image: url(img/bup.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33%;
+	
+	border-style: none;
+	border-radius:80px;
+}
+.bup:active {
+	background-image: url(img/bup.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #ccc;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33%;
+	
+	border-style: none;
+	border-radius:80px;
+}
+.bdown {
+	background-image: url(img/bdown.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+.bdown:active {
+	background-image: url(img/bdown.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #CCC;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+.bleft {
+	background-image: url(img/bleft.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	float:left;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+
+.bleft:active {
+	background-image: url(img/bleft.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #CCC;
+	float:left;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+.bright {
+	background-image: url(img/bright.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	float:right;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
+.bright:active {
+	background-image: url(img/bright.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #CCC;
+	float:right;
+	width:33%;
+	height:33%;
+	border-style: none;
+	border-radius:80px;
+}
