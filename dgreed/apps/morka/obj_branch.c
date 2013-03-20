@@ -11,7 +11,7 @@ static void obj_branch_collide(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
 		PhysicsComponent* rabbit_physics = other->physics;
 		if(rabbit_physics->vel.y > 0.0f) {
-			branch->dh -= 10.0f;
+			branch->dh -= 5.0f;
 		}
 	}
 }
@@ -20,7 +20,7 @@ static void obj_branch_update_pos(GameObject* self) {
 	ObjMushroom* branch = (ObjMushroom*)self;
 	RenderComponent* r = self->render;
 
-	float f = 30.0f * (branch->oh - branch->h);
+	float f = 100.0f * (branch->oh - branch->h);
 	branch->dh += f * (time_delta()/1000.0f);
 	branch->h += (branch->dh * 10.0f) * (time_delta()/1000.0f);
 	branch->dh *= 0.9f;

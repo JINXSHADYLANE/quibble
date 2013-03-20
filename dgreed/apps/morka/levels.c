@@ -158,9 +158,7 @@ void levels_init(const char* filename){
 			else if(strcmp(type, "ground_chain") == 0) {
 				new.ground_chain = mml_getval_str(&mml, child);
 			}
-			else if(strcmp(type, "tree_chain") == 0) {
-				new.tree_chain = mml_getval_str(&mml, child);
-			}
+
 		}
 		assert(new.background != MAX_UINT32);
 		assert(new.bg_chain);
