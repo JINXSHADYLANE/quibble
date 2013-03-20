@@ -49,7 +49,6 @@ typedef struct {
 	const char* bg_chain;
 	const char* fg_chain;
 	const char* ground_chain;
-	const char* tree_chain;
 	uint ai_rabbit_num;
 	// ai rabbit data
 	const char* ai_rabbit_names[3];
