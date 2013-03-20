@@ -166,6 +166,9 @@ void ai_control(GameObject* obj){
 		if( there_is( OBJ_MUSHROOM_TYPE, in_front_of(obj) ) )
 			input = true;
 
+		if( there_is( OBJ_BRANCH_TYPE, in_front_of(obj) ) )
+			input = true;
+
 		if( there_is( OBJ_CACTUS_TYPE, in_front_of_avoid(obj) ) )
 			input = true;
 
@@ -178,6 +181,9 @@ void ai_control(GameObject* obj){
 			input = true;
 
 		if( there_is( OBJ_MUSHROOM_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ) 
+			input = true;
+
+		if( there_is( OBJ_BRANCH_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ) 
 			input = true;
 
 		if( there_is( OBJ_FALL_TRIGGER_TYPE, below(obj) ) ) 

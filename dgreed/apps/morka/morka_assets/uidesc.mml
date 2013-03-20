@@ -193,7 +193,20 @@
 			(def offset
 				(vec2 -9,1)
 			)
-		)					
+		)
+
+		(def level6
+			(spr planet_5)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -410,200)
+			)
+			(def offset
+				(vec2 -9,1)
+			)
+
+		)
+
 	)
 	(def pause
 		(def text

@@ -569,9 +569,9 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		d->on_water = true;
 	}
 
-	// Collision with mushroom
+	// Collision with mushroom or branch
 	Vector2 vel = self->physics->vel;
-	if(other->type == OBJ_MUSHROOM_TYPE && !d->touching_ground &&
+	if((other->type == OBJ_MUSHROOM_TYPE || other->type == OBJ_BRANCH_TYPE ) && !d->touching_ground &&
 		vel.y > 500.0f && d->bounce_force.y == 0.0f) {
 
 		d->mushroom_hit_time = time_s();

@@ -14,11 +14,27 @@ static void obj_deco_construct(GameObject* self, Vector2 pos, void* user_data) {
 	// Render
 	RenderComponent* render = self->render;
 	render->world_dest = dest;
-	render->layer = self->type == OBJ_DECO_TYPE ? bg_mushrooms_layer : ground_layer;
 	render->color = COLOR_RGBA(255, 255, 255, 255);
-	render->camera = self->type == OBJ_DECO_TYPE ? 1 : 0;
 	render->anim_frame = MAX_UINT16;
-	render->spr = spr_handle;
+	render->spr = spr_handle;	
+
+	switch(self->type){
+		case OBJ_FG_DECO_TYPE:
+			render->layer = ground_layer;
+			render->camera = 0;
+		break; 
+
+		case OBJ_TRUNK_TYPE:
+			render->layer = trunk_layer;
+			render->camera = 0;
+		break; 
+
+		default:
+			render->layer = bg_mushrooms_layer;
+			render->camera = 1;		
+		break;
+	}
+
 }
 
 GameObjectDesc obj_deco_desc = {
@@ -33,12 +49,23 @@ GameObjectDesc obj_deco_desc = {
 
 GameObjectDesc obj_fg_deco_desc = {
 	.type = OBJ_FG_DECO_TYPE,
-	.size = sizeof(ObjDeco),
+	.size = sizeof(ObjFgDeco),
 	.has_physics = false,
 	.has_render = true,
 	.has_update = false,
 	.construct = obj_deco_construct,
 	.destruct = NULL
 };
+
+GameObjectDesc obj_trunk_desc = {
+	.type = OBJ_TRUNK_TYPE,
+	.size = sizeof(ObjTrunk),
+	.has_physics = false,
+	.has_render = true,
+	.has_update = false,
+	.construct = obj_deco_construct,
+	.destruct = NULL
+};
+
 
 

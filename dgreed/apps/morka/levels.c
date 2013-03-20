@@ -58,6 +58,17 @@ void levels_init(const char* filename){
  			if(strcmp(type, "distance") == 0) {
 				new.distance = mml_getval_int(&mml, child);
 			}
+			else if(strcmp(type, "tileset") == 0) {
+				const char* tileset = mml_getval_str(&mml, child);
+				if(strcmp(tileset, "autumn") == 0)
+					new.tileset = AUTUMN;
+				else if(strcmp(tileset, "winter") == 0)
+					new.tileset = WINTER;
+				else if(strcmp(tileset, "spring") == 0)
+					new.tileset = SPRING;
+				else if(strcmp(tileset, "summer") == 0)
+					new.tileset = SUMMER;
+			}
 			else if(strcmp(type, "rabbits") == 0) {
 
 				NodeIdx r1 = mml_get_first_child(&mml, child);
@@ -146,6 +157,9 @@ void levels_init(const char* filename){
 			}
 			else if(strcmp(type, "ground_chain") == 0) {
 				new.ground_chain = mml_getval_str(&mml, child);
+			}
+			else if(strcmp(type, "tree_chain") == 0) {
+				new.tree_chain = mml_getval_str(&mml, child);
 			}
 		}
 		assert(new.background != MAX_UINT32);

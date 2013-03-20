@@ -16,11 +16,13 @@
 #define dust_layer 1 // needs to be changed in particles.mml
 #define bg_mushrooms_layer 2
 #define finish_line_layer 3
-#define foreground_layer 4
-#define ai_rabbit_layer 5
-#define rabbit_layer 6
-#define ground_layer 7
-#define particle_layer 8 // needs to be changed in particles.mml
-#define hud_layer 9
+#define trunk_layer 5
+#define branch_layer 6
+#define foreground_layer 7
+#define ai_rabbit_layer 8
+#define rabbit_layer 9
+#define ground_layer 10
+#define particle_layer 11 // needs to be changed in particles.mml
+#define hud_layer 12
 
 #endif
