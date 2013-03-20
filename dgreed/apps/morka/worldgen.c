@@ -25,7 +25,7 @@ static uint powerups[POWERUP_COUNT];
 
 static void _gen_bg_page(void) {
 	SprHandle spr;	
-	uint advance;
+	int advance;
 	
 	// Add background mushrooms
 	static float bg_x = page_width;
@@ -70,7 +70,7 @@ static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupType type){
 
 static void _gen_ground(void){
 	SprHandle spr;	
-	uint advance = 0;
+	int advance = 0;
 	static float ground_x = page_width;
 
 	ground_x -= page_width;
@@ -118,7 +118,7 @@ static void _gen_ground(void){
 
 static void _gen_mushrooms(void){
 	SprHandle spr;	
-	uint advance = 0;
+	int advance = 0;
 	static float fg_x = page_width;
 
 	fg_x -= page_width;	
@@ -127,7 +127,7 @@ static void _gen_mushrooms(void){
 		char sym = mchains_next(fg_chain, &rnd);
 		mchains_symbol_info(fg_chain, sym, &advance, &spr);
 		Vector2 pos = vec2(fg_page_cursor + fg_x, 641.0f);
-		if(spr) advance = (uint) sprsheet_get_size_h(spr).x;
+		if(spr) advance = (int) sprsheet_get_size_h(spr).x;
 		else if (!tutorial_level && coins > 0){
 			coins_cd = 2;
 			Vector2 p = vec2(pos.x + advance / 2.0f, 579.0f);
