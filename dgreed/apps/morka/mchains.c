@@ -13,8 +13,8 @@ static uint n_seq_chars = 0;
 
 static Ruleset* rulesets;
 static char* symbols;
-static uint* sym_advances;
-static SprHandle* sym_sprs;
+static int* sym_advances;
+static SymDesc* sym_descs;
 static char** sym_seqs;
 static char* seq_stores;
 static uint16* transitions;
@@ -88,14 +88,36 @@ static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs, uint* n
 			NodeIdx spr_node = mml_get_first_child(mml, child);
 			assert(spr_node);
 			const char* spr_name = mml_get_name(mml, spr_node);
-			SprHandle spr_handle = 0;
-			if(strcmp(spr_name, ".empty") != 0)
-				spr_handle = sprsheet_get_handle(spr_name);
-			uint advance = mml_getval_uint(mml, spr_node);
+
+			// Parse desc string - either sprite, another ruleset ptr or empty
+			SymDesc desc;
+			if(spr_name[0] == ':') {
+				// Only check already defined rulesets
+				desc.ruleset = NULL;
+				for(Ruleset* r = rulesets; r < rs; r++) {
+					if(strcmp(r->name, spr_name+1) == 0) {
+						desc.ruleset = r;
+						break;
+					}
+				}
+				if(!desc.ruleset) {
+					LOG_ERROR("Symbol %c in ruleset %s references unknown ruleset %s",
+							*symbol, rs->name, spr_name+1
+					);
+				}
+			}
+			else if(spr_name[0] == '.' && strcmp(spr_name, ".empty") != 0) {
+				desc.spr = 0;
+			}
+			else {
+				desc.spr = sprsheet_get_handle(spr_name);
+			}
+
+			int advance = mml_getval_int(mml, spr_node);
 
 			rs->symbols[n] = *symbol;
 			rs->sym_advance[n] = advance;
-			rs->sym_spr[n] = spr_handle;
+			rs->sym_desc[n] = desc;
 			rs->sym_seq[n] = NULL;
 			n++;
 		}
@@ -198,21 +220,21 @@ static void _mchains_load_desc(const char* desc) {
 
 	// Pad n_symbols, n_seq_chars and n_transitions to ensure that all memory
 	// accesses are aligned to 4 bytes
-	n_symbols += (4 - n_symbols % 4);
-	n_seq_chars += (4 - n_seq_chars % 4);
-	n_transitions += (4 - n_transitions % 4);
+	n_symbols = align_padding(n_symbols, 4);
+	n_seq_chars = align_padding(n_seq_chars, 4);
+	n_transitions = align_padding(n_transitions, 4);
 
 	// Alloc all buffers in a single bite
 	size_t total_size = n_rulesets * sizeof(Ruleset);
-	total_size += n_symbols * (1 + sizeof(uint) + sizeof(SprHandle) + sizeof(char*));
+	total_size += n_symbols * (1 + sizeof(int) + sizeof(SymDesc) + sizeof(char*));
 	total_size += n_seq_chars;
 	total_size += n_transitions * sizeof(uint16);
 	rulesets = MEM_ALLOC(total_size);
 
 	symbols = (void*)rulesets + n_rulesets * sizeof(Ruleset);
 	sym_advances = (void*)symbols + n_symbols;
-	sym_sprs = (void*)sym_advances + n_symbols * sizeof(uint);
-	sym_seqs = (void*)sym_sprs + n_symbols * sizeof(SprHandle);
+	sym_descs = (void*)sym_advances + n_symbols * sizeof(int);
+	sym_seqs = (void*)sym_descs + n_symbols * sizeof(SymDesc);
 	seq_stores = (void*)sym_seqs + n_symbols * sizeof(char*);
 	transitions = (void*)seq_stores + n_seq_chars;
 	
@@ -224,7 +246,7 @@ static void _mchains_load_desc(const char* desc) {
 		Ruleset* rs = &rulesets[i];
 		rs->symbols = &symbols[symbol_count];
 		rs->sym_advance = &sym_advances[symbol_count];
-		rs->sym_spr = &sym_sprs[symbol_count];
+		rs->sym_desc = &sym_descs[symbol_count];
 		rs->sym_seq = &sym_seqs[symbol_count];
 		rs->seq_store = &seq_stores[seq_char_count];
 		rs->trans = transition_dest;
@@ -248,9 +270,9 @@ void mchains_init(const char* desc) {
 	rulesets = NULL;
 	symbols = NULL;
 	sym_advances = NULL;
-	sym_sprs = NULL;
+	sym_descs = NULL;
 	transitions = NULL;
-	mempool_init_ex(&chain_pool, sizeof(Chain), 512);
+	mempool_init_ex(&chain_pool, sizeof(Chain), 256);
 
 	_mchains_load_desc(desc);
 }
@@ -276,19 +298,31 @@ Chain* mchains_new(const char* ruleset) {
 	}
 	assert(rules);
 
+	return mchains_new_ex(rules);
+}
+
+Chain* mchains_new_ex(Ruleset* ruleset) {
+	
 	// Alloc chain
 	Chain* new = mempool_alloc(&chain_pool);
-	new->rules = rules;
+	new->rules = ruleset;
 	new->cursor = 1;
 	new->seq_cursor = NULL;
-	new->buffer[1] = rules->init[0];
-	new->buffer[0] = rules->init[1];
+	new->buffer[1] = ruleset->init[0];
+	new->buffer[0] = ruleset->init[1];
 
 	return new;
 }
 
 void mchains_del(Chain* c) {
 	mempool_free(&chain_pool, c);
+}
+
+void mchains_reset(Chain* c) {
+	c->cursor = 1;
+	c->seq_cursor = NULL;
+	c->buffer[1] = c->rules->init[0];
+	c->buffer[0] = c->rules->init[1];
 }
 
 char mchains_next(Chain* c, RndContext* rnd) {
@@ -362,11 +396,17 @@ char mchains_next(Chain* c, RndContext* rnd) {
 		return sym;
 }
 
-void mchains_symbol_info(Chain* c, char symbol, uint* advance, SprHandle* spr) {
+void mchains_symbol_info(Chain* c, char symbol, int* advance, SprHandle* spr) {
 	Ruleset* rs = c->rules;
 	uint i = _get_idx(symbol, rs->symbols, rs->n_symbols);
 	*advance = rs->sym_advance[i];
-	*spr = rs->sym_spr[i];
+	*spr = rs->sym_desc[i].spr;
 }
 
+void mchains_symbol_info_ex(Chain* c, char symbol, int* advance, SymDesc* desc) {
+	Ruleset* rs = c->rules;
+	uint i = _get_idx(symbol, rs->symbols, rs->n_symbols);
+	*advance = rs->sym_advance[i];
+	*desc = rs->sym_desc[i];
+}
 
