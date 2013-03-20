@@ -320,51 +320,51 @@
 
 	(img ice1
 		(tex atlas_22.png)
-		(src 386,2,770,185)
+		(src 387,2,769,185)
 	)
 	(img ice2
 		(tex atlas_22.png)
-		(src 2,2,386,185)
+		(src 3,2,385,185)
 	)
 	(img ice_end
 		(tex atlas_22.png)
-		(src 770,509,898,678)
+		(src 771,509,897,678)
 	)
 	(img ice_start
 		(tex atlas_22.png)
-		(src 770,340,898,509)
+		(src 771,340,897,509)
 	)
 	(img snow1
 		(tex atlas_22.png)
-		(src 514,185,770,358)
+		(src 515,185,769,358)
 	)
 	(img snow2
 		(tex atlas_22.png)
-		(src 258,185,514,368)
+		(src 259,185,513,368)
 	)
 	(img snow3
 		(tex atlas_22.png)
-		(src 2,340,258,523)
+		(src 3,340,257,523)
 	)
 	(img snow4
 		(tex atlas_22.png)
-		(src 514,358,770,529)
+		(src 515,358,769,529)
 	)
 	(img snow_end1
 		(tex atlas_22.png)
-		(src 770,171,898,340)
+		(src 771,171,897,340)
 	)
 	(img snow_end2
 		(tex atlas_22.png)
-		(src 930,2,960,169)
+		(src 931,2,959,169)
 	)
 	(img snow_start1
 		(tex atlas_22.png)
-		(src 898,2,930,169)
+		(src 899,2,929,169)
 	)
 	(img snow_start2
 		(tex atlas_22.png)
-		(src 770,2,898,171)
+		(src 771,2,897,171)
 	)
 
 	#################
