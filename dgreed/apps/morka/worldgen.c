@@ -1,5 +1,6 @@
 #include "worldgen.h"
 #include "mchains.h"
+#include "common.h"
 #include "obj_types.h"
 #include "placement.h"
 
@@ -66,6 +67,162 @@ static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupType type){
 		}
 	}
 	return false;
+}
+
+static void _gen_tree(Vector2 pos,SymDesc sd){
+	Chain* tree_chain = mchains_new(sd.ruleset);
+
+	TexHandle tex;
+	RectF src;
+	Vector2 cntr_off;
+
+	SprHandle spr;
+	SprHandle spr2;
+	int branch;
+	uint tree_height = 0;
+
+	// skip first one
+	char sym = mchains_next(tree_chain, &rnd);
+
+	while(tree_height < 6) {
+		sym = mchains_next(tree_chain, &rnd);
+		mchains_symbol_info(tree_chain, sym, &branch, &spr);
+		if(spr){
+			Vector2 position = pos;
+			sprsheet_get_ex_h(spr, &tex, &src, &cntr_off);
+			Vector2 size = sprsheet_get_size_h(spr);
+			float delta = (size.x / 2.0f) - cntr_off.x;
+			position.x -= delta; 
+
+			// Add Trunk
+			objects_create(&obj_trunk_desc, position, (void*)spr);
+
+			// Add branch
+			switch(branch){
+
+				// No branches
+				default:
+					spr = empty_spr;
+					spr2 = empty_spr;
+				break;
+
+				// Left side branches
+				case -1:
+					spr = sprsheet_get_handle("branch_l_1");
+					spr2 = empty_spr;
+				break;
+
+				case -2:
+					spr = sprsheet_get_handle("branch_l_2");
+					spr2 = empty_spr;
+				break;
+
+				case -3:
+					spr = sprsheet_get_handle("branch_l_3_a");
+					spr2 = sprsheet_get_handle("branch_l_3_b");
+				break;			
+
+				// Right side branches
+				case 1:
+					spr = sprsheet_get_handle("branch_r_1_a");
+					spr2 = sprsheet_get_handle("branch_r_1_b");	
+				break;
+
+				case 2:
+					spr = sprsheet_get_handle("branch_r_2_a");
+					spr2 = sprsheet_get_handle("branch_r_2_b");
+				break;			
+
+			}
+
+			if(spr != empty_spr){
+				position.x += size.x / 2.0f;
+				size = sprsheet_get_size_h(spr);
+				sprsheet_get_ex_h(spr, &tex, &src, &cntr_off);
+				position.y -= (size.y / 2.0f) - cntr_off.y;
+				if(branch < 0.0f) 
+					position.x -= size.x;		
+				objects_create(&obj_branch_desc, position, (void*)spr);
+
+				if(spr2 != empty_spr){
+					Vector2 size2 = sprsheet_get_size_h(spr2);
+					sprsheet_get_ex_h(spr2, &tex, &src, &cntr_off);
+					position.y -= (size2.y / 2.0f) - cntr_off.y;
+
+					if(branch < 0.0f) 
+						position.x -= size2.x;
+					else	
+						position.x += size.x;
+					objects_create(&obj_branch_desc, position, (void*)spr2);
+				}	
+
+			}
+	}
+	// Increment
+	pos.y -= 128.0f;
+	tree_height++;
+
+	}
+	mchains_del(tree_chain);
+}
+
+static void _gen_winter_fg(void){
+	SymDesc sd;
+	int advance = 0;
+	static float fg_x = page_width;
+
+	fg_x -= page_width;	
+	while(fg_x < page_width) {
+
+		char sym = mchains_next(fg_chain, &rnd);
+
+		mchains_symbol_info_ex(fg_chain, sym, &advance, &sd);
+
+		Vector2 pos = vec2(fg_page_cursor + fg_x, HEIGHT);
+		if(sd.ruleset)
+			_gen_tree(pos,sd);
+
+		fg_x += (float)advance;
+	}
+}
+
+static void _gen_winter_ground(void){
+	SprHandle spr;	
+	int advance = 0;
+	static float ground_x = page_width;
+	ground_x -= page_width;
+	while(ground_x < page_width) {
+		char sym = mchains_next(ground_chain, &rnd);
+		mchains_symbol_info(ground_chain, sym, &advance, &spr);
+		Vector2 pos = vec2(fg_page_cursor + ground_x, 768.0f);		
+		if(spr) {
+			advance = (uint) sprsheet_get_size_h(spr).x;
+
+			// no collision for grass_start1 and grass_end2
+			if(sym == 'a' || sym == 'h')	
+				objects_create(&obj_fg_deco_desc, pos, (void*)spr);
+			else {
+				objects_create(&obj_ground_desc, pos, (void*)spr);
+
+				// ice speed trigger
+				if( sym == 'i' || sym == 'j' || sym == 'k' ||
+					sym == 'l'){
+					ObjSpeedTrigger* t = (ObjSpeedTrigger*)objects_create(&obj_speed_trigger_desc, pos, (void*)spr);
+					t->drag_coef = 1.9f;
+				}
+			}		
+		} else {
+			spr = empty_spr;
+			if(sym == '_' || sym == '-' || sym == '='){
+				// Fall trigger
+				objects_create(&obj_fall_trigger_desc, pos, (void*)advance);
+
+			}
+		}
+		placement_interval(vec2(pos.x,pos.x + advance),spr);
+
+		ground_x += (float)advance;
+	}
 }
 
 static void _gen_ground(void){
@@ -184,11 +341,28 @@ static void _gen_mushrooms(void){
 static void _gen_fg_page(void) {
 	placement_reset();
 
-	// Add ground
-	_gen_ground();
+	switch(levels_current_desc()->tileset){
+		case AUTUMN:
+			// Add ground
+			_gen_ground();
 
-	// Add foreground mushrooms
-	_gen_mushrooms();
+			// Add foreground mushrooms
+			_gen_mushrooms();		
+		break;
+
+		case WINTER:
+			// Add ground
+			_gen_winter_ground();
+
+			// Add winter foreground
+			_gen_winter_fg();
+		break;
+
+		case SPRING:
+		break;
+		default:
+		break;
+	}
 	
 	if(coins_cd > 0) coins_cd--;
 	if(coins_cd == 0) coins = 3;

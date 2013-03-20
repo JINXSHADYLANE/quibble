@@ -48,7 +48,7 @@ static bool level_select_render(float t) {
 	vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
 
 	// Five buttons for levels
-	for(int i = 1; i <= 5; i++){
+	for(int i = 1; i <= 6; i++){
 		char level_name[16];
 		sprintf(level_name, "level%d", i);
 		UIElement* level = uidesc_get_child(element, level_name);

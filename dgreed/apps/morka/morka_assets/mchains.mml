@@ -1,4 +1,5 @@
 (mchains morka
+
 	(ruleset bg
 		(def a (element_1 512))
 		(def b (element_2 512))
@@ -8,6 +9,103 @@
 		(init "ab")
 
 		(learn "abcdab")
+	)
+	(ruleset bg_winter
+		(def a (element_5 512))
+		(def b (element_6 512))
+		(def c (element_7 512))
+
+		(init "ab")
+
+		(learn "abcabc")
+	)
+
+
+	(ruleset tree_6
+		(def | (.empty  0))
+
+		(def > (trunk_1 0))
+
+		(def - (trunk_2  0))
+		(def a (trunk_2 -1))
+		(def b (trunk_2 -2))
+		(def c (trunk_2 -3))
+		(def d (trunk_2  1))
+		(def e (trunk_2  2))		
+
+		(def = (trunk_3  0))
+		(def f (trunk_3 -1))
+		(def g (trunk_3 -2))
+		(def h (trunk_3 -3))
+		(def i (trunk_3  1))
+		(def j (trunk_3  2))
+
+		(def _ (trunk_4  0))
+		(def k (trunk_4 -1))
+		(def l (trunk_4 -2))
+		(def m (trunk_4 -3))
+		(def n (trunk_4  1))
+		(def o (trunk_4  2))
+
+		(def + (trunk_5  0))
+		(def p (trunk_5 -1))
+		(def q (trunk_5 -2))
+		(def r (trunk_5 -3))
+		(def s (trunk_5  1))
+		(def t (trunk_5  2))
+
+		(def < (trunk_6  0))
+		(def u (trunk_6 -1))
+		(def v (trunk_6 -2))
+		(def w (trunk_6 -3))
+		(def x (trunk_6  1))
+		(def y (trunk_6  2))
+
+		(init "|>")
+
+	#	(learn "|>-=_+<|>") # Empty tree
+		(learn "|>ailtv|>")
+		(learn "|>-g_su|>")
+	)	
+
+	(ruleset tree_4
+		(def | (.empty  0))
+		
+		(def > (trunk_1 0))
+
+		(def - (trunk_2  0))
+		(def a (trunk_2 -1))
+		(def b (trunk_2 -2))
+		(def c (trunk_2 -3))
+		(def d (trunk_2  1))
+		(def e (trunk_2  2))		
+
+		(def = (trunk_3  0))
+		(def f (trunk_3 -1))
+		(def g (trunk_3 -2))
+		(def h (trunk_3 -3))
+		(def i (trunk_3  1))
+		(def j (trunk_3  2))
+
+		(def < (trunk_4b  0))
+		(def k (trunk_4b -1))
+		(def l (trunk_4b -2))
+		(def m (trunk_4b -3))
+		(def n (trunk_4b  1))
+		(def o (trunk_4b  2))
+
+		(def x (.empty  0))
+
+		(def z (.empty  0))
+
+		(init "|>")
+
+	#	(learn "|>-=<xz|>") # Empty tree
+		(learn "|>b=nxz|>")
+		(learn "|>ai<xz|>")
+		(learn "|>bh<xz|>")	
+		(learn "|>b=oxz|>")
+		(learn "|>ajnxz|>")					
 	)
 
 	### LEVEL 1 ###
@@ -273,6 +371,54 @@
 		#(learn "cdefijklmnopcd")
 		#(learn "cdefijklmnklmnopcd")
 		
+	)
+
+	### LEVEL 6 ###
+
+	(ruleset level6_fg
+		(def i (:tree_4 400))
+		(def y (:tree_6 400))
+
+		(def _ (.empty 250))
+		(def = (.empty 700))
+
+		(init "__")
+
+		(learn "__y=i__y=i=i__y__y__y")
+
+	)	
+	(ruleset level6_ground
+		(def a (snow_start1 0))
+		(def b (snow_start2 0))
+		(def c (snow1 0))
+		(def d (snow2 0))
+		(def e (snow3 0))
+		(def f (snow4 0))
+		(def g (snow_end1 0))
+		(def h (snow_end2 0))
+		(def i (ice_start 0))
+		(def j (ice1 0))
+		(def k (ice2 0))
+		(def l (ice_end 0))
+
+		(sdef z (seq "abcdef"))
+		(sdef y (seq "cdef"))
+		(sdef x (seq "cdefgh"))
+		(sdef w (seq "abcdefgh"))
+
+		(sdef u (seq "ijkl"))
+
+		(def _ (.empty 140))
+		(def = (.empty 240))
+		(def - (.empty 190))
+
+		(init "ab")
+
+		(learn "abyyuyx")
+		(learn "yx=zyx")
+		(learn "yx-w_zyy")
+		(learn "yyx-abyy")
+
 	)
 )
 

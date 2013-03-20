@@ -20,7 +20,9 @@ enum {
 	OBJ_POWERUP_TYPE,
 	OBJ_FLOATER_TYPE,
 	OBJ_BOMB_TYPE,
-	OBJ_ERASER_TYPE
+	OBJ_ERASER_TYPE,
+	OBJ_TRUNK_TYPE,
+	OBJ_BRANCH_TYPE
 };
 
 // Powerup
@@ -140,6 +142,14 @@ typedef struct {
 
 extern GameObjectDesc obj_fg_deco_desc;
 
+// Tree trunk
+
+typedef struct {
+	GameObject header;
+} ObjTrunk;
+
+extern GameObjectDesc obj_trunk_desc;
+
 // Mushroom
 
 typedef struct {
@@ -240,5 +250,15 @@ typedef struct {
 } ObjEraser;
 
 extern GameObjectDesc obj_eraser_desc;
+
+// Branch
+
+typedef struct {
+	GameObject header;
+	float oh, h, dh;
+} ObjBranch;
+
+extern GameObjectDesc obj_branch_desc;
+
 
 #endif
