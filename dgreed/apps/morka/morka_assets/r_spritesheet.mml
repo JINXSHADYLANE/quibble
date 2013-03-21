@@ -16,35 +16,36 @@
 	### Chapter UI ###
 
 	(img ball_autumn
-		(tex r_atlas_0e.png)
-		(src 2,1173,211,1390)
-		(cntr 106,1281)
-	)
-	(img ball_winter
-		(tex r_atlas_0e.png)
-		(src 2,954,211,1171)
-		(cntr 106,1062)
-	)
-	(img lock_autumn
-		(tex r_atlas_0e.png)
-		(src 2,1485,91,1576)
-		(cntr 47,1529)
-	)
-	(img lock_winter
-		(tex r_atlas_0e.png)
-		(src 2,1392,91,1483)
-		(cntr 47,1436)
-	)
-	(img season1
-		(tex r_atlas_0e.png)
-		(src 1006,2,2008,952)
-		(cntr 1507,477)
-	)
-	(img season2
-		(tex r_atlas_0e.png)
-		(src 2,2,1004,952)
-		(cntr 503,477)
-	)
+	(tex r_atlas_0e.png)
+	(src 2,697,211,914)
+	(cntr 106,805)
+)
+(img ball_winter
+	(tex r_atlas_0e.png)
+	(src 2,478,211,695)
+	(cntr 106,586)
+)
+(img lock_autumn
+	(tex r_atlas_0e.png)
+	(src 93,916,182,1007)
+	(cntr 138,960)
+)
+(img lock_winter
+	(tex r_atlas_0e.png)
+	(src 2,916,91,1007)
+	(cntr 47,960)
+)
+(img season1
+	(tex r_atlas_0e.png)
+	(src 504,2,1004,476)
+	(cntr 754,239)
+)
+(img season2
+	(tex r_atlas_0e.png)
+	(src 2,2,502,476)
+	(cntr 252,239)
+)
+
 
 	### rabbits ###
 
