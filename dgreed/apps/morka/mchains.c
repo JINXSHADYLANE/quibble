@@ -21,6 +21,38 @@ static uint16* transitions;
 
 static MemPool chain_pool;
 
+static uint _ruleset_symbols(MMLObject* mml, NodeIdx node, NodeIdx parent) {
+	uint count = 0;
+	NodeIdx child = mml_get_first_child(mml, node);
+	for(; child != 0; child = mml_get_next(mml, child)) {
+		const char* name = mml_get_name(mml, child);
+		if(strcmp(name, "def") == 0) {
+			count++;
+		}
+		if(strcmp(name, "sdef") == 0) {
+			count++;
+		}
+		if(strcmp(name, "clone_defs") == 0) {
+			// Get the node which we're cloning from,
+			// count its symbols again
+			const char* name = mml_getval_str(mml, child);
+			NodeIdx orig_node = mml_get_first_child(mml, parent);
+			while(orig_node && strcmp(mml_getval_str(mml, orig_node), name) != 0)
+				orig_node = mml_get_next(mml, orig_node);
+
+			if(orig_node) {
+				uint count = _ruleset_symbols(mml, orig_node, parent);
+				return count;
+			}
+
+			// Let the error propogate, it will be caught later
+			// and nice informative message will be printed
+		}
+	}
+
+	return count;
+}
+
 static void _predict_size(MMLObject* mml, NodeIdx root) {
 	assert(n_rulesets == 0);
 	assert(n_symbols == 0);
@@ -33,24 +65,26 @@ static void _predict_size(MMLObject* mml, NodeIdx root) {
 		n_rulesets++;
 
 		// Count symbol defs
-		uint rs_symbols = 0;
+		uint rs_symbols = _ruleset_symbols(mml, rs_node, root);
+
+		// Count total number of sequence characters
+		bool clone = false;
 		NodeIdx child = mml_get_first_child(mml, rs_node);
 		for(; child != 0; child = mml_get_next(mml, child)) {
 			const char* name = mml_get_name(mml, child);
-			if(strcmp(name, "def") == 0) {
-				rs_symbols++;
-			}
 			if(strcmp(name, "sdef") == 0) {
 				NodeIdx seq = mml_get_first_child(mml, child);
 				assert(strcmp(mml_get_name(mml, seq), "seq") == 0);
 				uint l = strlen(mml_getval_str(mml, seq));
 				n_seq_chars += l + 1;
-				rs_symbols++;
+			}
+			if(strcmp(name, "clone_defs") == 0) {
+				clone = true;
 			}
 		}
 
-		assert(rs_symbols <= 32);
-		n_symbols += rs_symbols;
+		assert(rs_symbols <= 33);
+		n_symbols += clone ? 0 : rs_symbols;
 		n_transitions += rs_symbols*rs_symbols*rs_symbols;
 	}
 
@@ -75,6 +109,8 @@ static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs, uint* n
 
 	uint n = 0; // symbol count
 	uint seq_idx = 0;
+
+	bool clone = false;
 
 	// Iterate first time, over all symbol defs
 	NodeIdx child = mml_get_first_child(mml, rs_node);
@@ -101,9 +137,12 @@ static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs, uint* n
 					}
 				}
 				if(!desc.ruleset) {
-					LOG_ERROR("Symbol %c in ruleset %s references unknown ruleset %s",
+#ifdef _DEBUG
+					printf("Symbol %c in ruleset %s references unknown ruleset %s\n",
 							*symbol, rs->name, spr_name+1
 					);
+					LOG_ERROR("mchains error");
+#endif
 				}
 			}
 			else if(spr_name[0] == '.' && strcmp(spr_name, ".empty") != 0) {
@@ -142,10 +181,45 @@ static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs, uint* n
 			rs->init[0] = init[0];
 			rs->init[1] = init[1];
 		}
+		else if(strcmp(type, "clone_defs") == 0) {
+			const char* ruleset = mml_getval_str(mml, child);
+			Ruleset* original = NULL;
+			for(Ruleset* r = rulesets; r < rs; r++) {
+				if(strcmp(r->name, ruleset) == 0) {
+					original = r;
+					break;
+				}
+			}
+
+			if(!original) {
+#ifdef _DEBUG
+				printf("Ruleset %s clones defs from unknown ruleset %s\n",
+					rs->name, ruleset
+				);
+				LOG_ERROR("mchains error");
+#endif
+			}
+			else {
+				rs->n_symbols = original->n_symbols;
+				rs->symbols = original->symbols;
+				rs->sym_advance = original->sym_advance;
+				rs->sym_desc = original->sym_desc;
+				rs->sym_seq = original->sym_seq;
+				rs->seq_store = original->seq_store; 
+				clone = true;
+			}
+		}
 	}
 
-	*new_seq_chars = seq_idx;
-	rs->n_symbols = n;
+	if(!clone) {
+		*new_seq_chars = seq_idx;
+		rs->n_symbols = n;
+	}
+	else {
+		*new_seq_chars = 0;
+		n = rs->n_symbols;
+	}
+
 	const uint nn = n*n;
 	const uint nnn = n*n*n;
 
@@ -168,7 +242,14 @@ static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs, uint* n
 
 			for(uint i = 2; str[i]; ++i) {
 				byte sym = _get_idx(str[i], rs->symbols, n);
-				assert(sym != 0xFF);
+#ifdef _DEBUG
+				if(sym == 0xFF) {
+					printf("Ruleset %s uses undefined symbol %c in learn directive %s\n",
+						rs->name, str[i], str
+					);
+					LOG_ERROR("mchains error");
+				}
+#endif
 				uint idx = nn * ctx0 + n * ctx1 + sym;
 				rs->trans[idx]++;
 
@@ -201,7 +282,7 @@ static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs, uint* n
 	}
 	*/
 
-	return n;
+	return clone ? 0 : n;
 }
 
 static void _mchains_load_desc(const char* desc) {
@@ -255,7 +336,7 @@ static void _mchains_load_desc(const char* desc) {
 		uint new_symbols = _parse_ruleset(&mml, rs_node, rs, &new_seq_chars);
 		seq_char_count += new_seq_chars;
 		symbol_count += new_symbols;
-		transition_dest += new_symbols * new_symbols * new_symbols;
+		transition_dest += rs->n_symbols * rs->n_symbols * rs->n_symbols;
 
 		assert(symbol_count <= n_symbols);
 		assert((void*)transition_dest <= (void*)rulesets + total_size);
