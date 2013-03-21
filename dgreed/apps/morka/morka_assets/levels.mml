@@ -1,6 +1,6 @@
 (levels morka
 	(level level1
-		(tileset autumn)
+		(season autumn)
 		(distance 0)
 		(background background)
 		(bg_chain bg)
@@ -8,7 +8,7 @@
 		(ground_chain level1_ground)
 	)
 	(level level2
-		(tileset autumn)
+		(season autumn)
 		(distance 85)
 		(rabbits _
 			(name Lili
@@ -49,7 +49,7 @@
 		(ground_chain level2_ground)
 	)
 	(level level3
-		(tileset autumn)
+		(season autumn)
 		(distance 90)
 		(rabbits _
 			(name Tori
@@ -97,7 +97,7 @@
 		(ground_chain level3_ground)
 	)
 	(level level4
-		(tileset autumn)
+		(season autumn)
 		(distance 100)
 		(rabbits _
 			(name Tori
@@ -129,7 +129,7 @@
 		(ground_chain level4_ground)
 	)
 	(level level5
-		(tileset autumn)
+		(season autumn)
 		(distance 110)
 		(rabbits _
 			(name Tori
@@ -176,9 +176,9 @@
 		(bg_chain bg)
 		(fg_chain level5_fg)
 		(ground_chain level5_ground)
-	)
+	)					
 	(level level6
-		(tileset winter)
+		(season winter)
 		(distance 85)
 		(rabbits _
 			(name Tori

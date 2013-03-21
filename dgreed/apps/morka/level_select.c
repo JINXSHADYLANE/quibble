@@ -2,8 +2,15 @@
 #include "game.h"
 #include "levels.h"
 #include "common.h"
+#include "hud.h"
 #include <uidesc.h>
 #include <vfont.h>
+
+static SeasonType current_season = AUTUMN;
+
+void level_select_set_season(SeasonType season){
+	current_season = season;
+}
 
 static void level_select_init(void) {
 
@@ -11,6 +18,15 @@ static void level_select_init(void) {
 
 static void level_select_close(void) {
 
+}
+
+static void level_select_preenter(void){
+	if(levels_current_desc()->season != current_season){
+		int offset = levels_start_of_season(current_season);
+		LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,offset);		
+		levels_reset(desc->name);
+		game_request_reset();		
+	}	
 }
 
 static void level_select_enter(void) {
@@ -27,10 +43,15 @@ static bool level_select_update(void) {
 }
 
 static bool level_select_render(float t) {
+	if(t != 0.0f) game_update_empty();
+
 	UIElement* element = uidesc_get("level_select");
 	uint layer = hud_layer+1;
 
 	UIElement* text = uidesc_get_child(element, "text");
+	UIElement* button_quit = uidesc_get_child(element, "quit");
+	SprHandle button_spr;
+	SprHandle lock_spr;	
 
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
@@ -47,31 +68,84 @@ static bool level_select_render(float t) {
 	}
 	vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
 
-	// Five buttons for levels
-	for(int i = 1; i <= 6; i++){
-		char level_name[16];
-		sprintf(level_name, "level%d", i);
-		UIElement* level = uidesc_get_child(element, level_name);
-		spr_draw_cntr_h(level->spr, layer, level->vec2, 0.0f, 1.0f, col);
+	int level_count = levels_count(current_season);
+	int offset = levels_start_of_season(current_season);
 
-		UIElement* offset = uidesc_get_child(level, "offset");
+	switch(current_season){
+		case WINTER:
+			button_spr = sprsheet_get_handle("ball_winter");
+			lock_spr = sprsheet_get_handle("lock_winter");
+		break;
 
-		if(touches_down() && t == 0.0f) {
-			Touch* t = touches_get();
-
-			if(!t)
-				continue;
-
-			Vector2 hit_pos = t[0].hit_pos;
-			Vector2 button_pos = vec2_add(level->vec2, offset->vec2);
-			float r_sqr = 70.0f * 70.0f;
-			if(vec2_length_sq(vec2_sub(hit_pos, button_pos)) < r_sqr) {
-				levels_reset(level_name);
-				game_request_reset();
-				malka_states_push("game");
-			}
-		}	
+		default:
+			button_spr = sprsheet_get_handle("ball_autumn");
+			lock_spr = sprsheet_get_handle("lock_autumn");
+		break;
 	}
+
+	Vector2 size = sprsheet_get_size_h(button_spr);
+	uint columns = 6;
+	if(level_count < columns) columns = level_count;
+	uint c = 0;
+
+	Vector2 spacing = vec2(size.x / 2.0f,size.y / 2.0f);
+
+	Vector2 button_pos = vec2(WIDTH / 2.0f, 256.0f);
+
+	button_pos.x -= ( size.x * (columns-1) +  (spacing.x * (columns-1) ) ) / 2.0f; 
+
+	for(int i = offset; i < offset + level_count;i++){
+
+		LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,i);
+
+		// Draw button
+		spr_draw_cntr_h(button_spr, layer, button_pos, 0.0f, 1.0f, col);
+
+		if(desc->locked){
+			// Draw lock
+			spr_draw_cntr_h(lock_spr, layer, button_pos, 0.0f, 1.0f, col);			
+		} else {
+
+			// Button action
+			if(touches_down() && t == 0.0f) {
+				Touch* t = touches_get();
+
+				if(!t)
+					continue;
+
+				Vector2 hit_pos = t[0].hit_pos;
+
+				float r_sqr = 20.0f * 20.0f;
+				if(vec2_length_sq(vec2_sub(hit_pos, button_pos)) < r_sqr) {
+					levels_reset(desc->name);
+					game_request_reset();
+					malka_states_push("game");
+				}
+			}
+
+			// Draw number
+			char n[4];
+			sprintf(n, "%d",i-offset+1);
+			Vector2 half_size = vec2_scale(vfont_size(n), 0.5f);
+			vfont_draw(n, layer, vec2_sub(button_pos,half_size), col);
+		}
+
+		// newline at end of column
+		if(++c >= columns){
+			c = 0;
+			button_pos.x -= (size.x + spacing.x) * (columns-1);
+			button_pos.y += size.y + spacing.y;
+		} else {
+			button_pos.x += size.x + spacing.x;
+		}			
+
+	}
+
+	// Quit button
+	if(hud_button(button_quit, col, t)) {
+		malka_states_replace("season_select");
+	}
+
 	return true;
 }
 
@@ -79,6 +153,7 @@ StateDesc level_select_state = {
 	.init = level_select_init,
 	.close = level_select_close,
 	.enter = level_select_enter,
+	.preenter = level_select_preenter,
 	.leave = level_select_leave,
 	.update = level_select_update,
 	.render = level_select_render

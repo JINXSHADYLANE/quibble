@@ -87,7 +87,6 @@ static void game_init(void) {
 }
 
 static void game_enter(void) {
-	if(game_need_reset) game_reset();	
 	game_paused = tutorials_paused();	
 }
 
@@ -212,7 +211,7 @@ bool game_update_empty(void) {
 }
 
 void game_render_level(void){
-
+	if(game_need_reset) game_reset();
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
 	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);

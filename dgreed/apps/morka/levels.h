@@ -39,12 +39,13 @@ typedef enum{
 	WINTER,
 	SPRING,
 	SUMMER
-} TilesetType;
+} SeasonType;
 
 typedef struct {
-	TilesetType tileset;
+	SeasonType season;
 	const char* name;
 	int distance;
+	bool locked;
 	SprHandle background;
 	const char* bg_chain;
 	const char* fg_chain;
@@ -64,6 +65,8 @@ typedef struct {
 
 } LevelDesc;
 
+extern DArray levels_descs;
+
 void levels_init(const char* filename);
 void levels_close(void);
 
@@ -74,5 +77,8 @@ void levels_set_next(void);
 bool levels_is_final(void);
 
 uint levels_get_powerup_count(void);
+
+uint levels_start_of_season(SeasonType type);
+uint levels_count(SeasonType type);
 
 #endif
