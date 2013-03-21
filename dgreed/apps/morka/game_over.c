@@ -4,6 +4,7 @@
 #include "hud.h"
 #include "common.h"
 #include "game.h"
+#include "level_select.h"
 #include <uidesc.h>
 #include <vfont.h>
 
@@ -26,6 +27,10 @@ static void game_over_enter(void) {
 }
 
 static void game_over_leave(void) {
+}
+
+static void game_over_postleave(void) {
+	level_select_set_season(levels_current_desc()->season);
 }
 
 static bool game_over_update(void) {
@@ -61,6 +66,7 @@ StateDesc game_over_state = {
 	.enter = game_over_enter,
 	.preenter = game_over_preenter,
 	.leave = game_over_leave,
+	.postleave = game_over_postleave,
 	.update = game_over_update,
 	.render = game_over_render
 };

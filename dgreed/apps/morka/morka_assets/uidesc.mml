@@ -18,13 +18,6 @@
 			(vec2 50,50)
 		)
 	)
-	(def resque_icon
-		(spr resque_tag)
-		(add <-
-			(tl <- (get_rect screen))
-			(vec2 52,51)
-		)
-	)
 	(def token_text
 		(add <-
 			(tl <- (get_rect screen))
@@ -135,16 +128,40 @@
 			)
 		)
 	)
+	(def season_select
+		(def season1
+			(spr season1)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -256,0)
+			)
+		)
+		(def season2
+			(spr season2)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 256,0)
+			)
+		)
+
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -195,42)
+			)
+		)
+	)		
 	(def level_select
 		(def text
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-250)
+				(vec2 0,-300)
 			)
 		)
 
-		(def level1
-			(spr planet_1)
+		(def level_icon
+			(spr ball_autumn)
 			(add <-
 				(middle <- (get_rect screen))
 				(vec2 -410,-30)
@@ -152,60 +169,15 @@
 			(def offset
 				(vec2 16,31)
 			)
-
-		)
-		(def level2
-			(spr planet_2)
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 -200,-10)
-			)
-			(def offset
-				(vec2 1,11)
-			)
-		)
-		(def level3
-			(spr planet_3)
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,0)
-			)
-			(def offset
-				(vec2 -14,1)
-			)
-		)
-		(def level4
-			(spr planet_4)
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 200,-18)
-			)
-			(def offset
-				(vec2 -15,19)
-			)
-		)
-		(def level5
-			(spr planet_5)
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 410,0)
-			)
-			(def offset
-				(vec2 -9,1)
-			)
 		)
 
-		(def level6
-			(spr planet_5)
+		(def quit
+			(spr quit)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 -410,200)
+				(vec2 0,300)
 			)
-			(def offset
-				(vec2 -9,1)
-			)
-
-		)
+		)		
 
 	)
 	(def pause
