@@ -404,16 +404,16 @@
 	#################
 	### atlas 2-3 ###
 	#################
-
+	
 	(img branch_l_1
 		(tex atlas_23.png)
-		(src 311,254,496,325)
-		(cntr 401,290)
+		(src 310,254,495,325)
+		(cntr 400,290)
 	)
 	(img branch_l_2
 		(tex atlas_23.png)
-		(src 2,126,311,180)
-		(cntr 153,152)
+		(src 2,193,311,247)
+		(cntr 153,219)
 	)
 	(img branch_l_3_a
 		(tex atlas_23.png)
@@ -422,18 +422,23 @@
 	)
 	(img branch_l_3_b
 		(tex atlas_23.png)
-		(src 2,245,246,274)
-		(cntr 118,270)
+		(src 258,325,502,354)
+		(cntr 374,350)
+	)
+	(img branch_l_spikes
+		(tex atlas_23.png)
+		(src 2,126,324,193)
+		(cntr 163,159)
 	)
 	(img branch_r_1_a
 		(tex atlas_23.png)
-		(src 2,180,258,245)
-		(cntr 130,214)
+		(src 2,301,258,366)
+		(cntr 130,335)
 	)
 	(img branch_r_1_b
 		(tex atlas_23.png)
-		(src 2,305,208,336)
-		(cntr 105,337)
+		(src 260,385,466,416)
+		(cntr 363,417)
 	)
 	(img branch_r_2_a
 		(tex atlas_23.png)
@@ -442,18 +447,23 @@
 	)
 	(img branch_r_2_b
 		(tex atlas_23.png)
-		(src 2,274,219,305)
-		(cntr 110,299)
+		(src 260,354,477,385)
+		(cntr 368,379)
+	)
+	(img branch_r_3
+		(tex atlas_23.png)
+		(src 2,247,310,301)
+		(cntr 156,274)
 	)
 	(img trunk_1
 		(tex atlas_23.png)
-		(src 208,308,279,436)
-		(cntr 239,372)
+		(src 2,366,73,494)
+		(cntr 33,430)
 	)
 	(img trunk_2
 		(tex atlas_23.png)
-		(src 311,126,378,254)
-		(cntr 337,190)
+		(src 73,366,140,494)
+		(cntr 99,430)
 	)
 	(img trunk_3
 		(tex atlas_23.png)
@@ -462,24 +472,25 @@
 	)
 	(img trunk_4
 		(tex atlas_23.png)
-		(src 63,336,122,464)
-		(cntr 107,400)
+		(src 201,366,260,494)
+		(cntr 245,430)
 	)
 	(img trunk_4b
 		(tex atlas_23.png)
-		(src 2,336,63,464)
-		(cntr 48,400)
+		(src 140,366,201,494)
+		(cntr 186,430)
 	)
 	(img trunk_5
 		(tex atlas_23.png)
-		(src 258,180,311,308)
-		(cntr 295,244)
+		(src 324,126,377,254)
+		(cntr 361,190)
 	)
 	(img trunk_6
 		(tex atlas_23.png)
 		(src 453,2,506,130)
 		(cntr 490,66)
 	)
+
 
 	#################
 	### atlas 2-4 ###

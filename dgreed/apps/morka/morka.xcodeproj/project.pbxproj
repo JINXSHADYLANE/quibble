@@ -164,6 +164,7 @@
 		AAA8AD4B16B28C1700C6D752 /* lua_utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4A16B28C1700C6D752 /* lua_utf8.c */; };
 		AAA8AD4F16B2CBB600C6D752 /* obj_fall_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */; };
 		AAA8AD5016B2CBB600C6D752 /* obj_speed_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */; };
+		AAAC22E716FB467D00FBD316 /* obj_branch.c in Sources */ = {isa = PBXBuildFile; fileRef = AAAC22E616FB467D00FBD316 /* obj_branch.c */; };
 		AAC85EF716CE916500721CE8 /* obj_cactus.c in Sources */ = {isa = PBXBuildFile; fileRef = AAC85EF616CE916500721CE8 /* obj_cactus.c */; };
 		AAD3D88016F76E37000657F9 /* obj_bomb.c in Sources */ = {isa = PBXBuildFile; fileRef = AAD3D87E16F76E37000657F9 /* obj_bomb.c */; };
 		AAD3D88116F76E37000657F9 /* obj_eraser.c in Sources */ = {isa = PBXBuildFile; fileRef = AAD3D87F16F76E37000657F9 /* obj_eraser.c */; };
@@ -432,6 +433,7 @@
 		AAA8AD4A16B28C1700C6D752 /* lua_utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lua_utf8.c; path = ../../src/malka/lua_utf8.c; sourceTree = "<group>"; };
 		AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_fall_trigger.c; path = ../obj_fall_trigger.c; sourceTree = "<group>"; };
 		AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_speed_trigger.c; path = ../obj_speed_trigger.c; sourceTree = "<group>"; };
+		AAAC22E616FB467D00FBD316 /* obj_branch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_branch.c; sourceTree = SOURCE_ROOT; };
 		AAC85EF616CE916500721CE8 /* obj_cactus.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_cactus.c; path = ../obj_cactus.c; sourceTree = "<group>"; };
 		AAD3D87E16F76E37000657F9 /* obj_bomb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_bomb.c; sourceTree = SOURCE_ROOT; };
 		AAD3D87F16F76E37000657F9 /* obj_eraser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_eraser.c; sourceTree = SOURCE_ROOT; };
@@ -554,6 +556,7 @@
 				219BEAED16776B3A002B614C /* objects.c */,
 				219BEAEE16776B3A002B614C /* objects.h */,
 				AA7B4FF816DF5153003CCF1E /* obj_powerup.c */,
+				AAAC22E616FB467D00FBD316 /* obj_branch.c */,
 				AAD3D87E16F76E37000657F9 /* obj_bomb.c */,
 				AAD3D87F16F76E37000657F9 /* obj_eraser.c */,
 				AA64161F16D7B7E70066AEA8 /* obj_floater.c */,
@@ -1036,6 +1039,7 @@
 				2175DBD416F07AF900452F14 /* placement.c in Sources */,
 				AAD3D88016F76E37000657F9 /* obj_bomb.c in Sources */,
 				AAD3D88116F76E37000657F9 /* obj_eraser.c in Sources */,
+				AAAC22E716FB467D00FBD316 /* obj_branch.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
