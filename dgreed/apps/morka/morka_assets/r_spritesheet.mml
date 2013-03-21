@@ -13,6 +13,39 @@
 		(src 0,512,2048,2048)
 	)
 
+	### Chapter UI ###
+
+	(img ball_autumn
+		(tex r_atlas_0e.png)
+		(src 2,1173,211,1390)
+		(cntr 106,1281)
+	)
+	(img ball_winter
+		(tex r_atlas_0e.png)
+		(src 2,954,211,1171)
+		(cntr 106,1062)
+	)
+	(img lock_autumn
+		(tex r_atlas_0e.png)
+		(src 2,1485,91,1576)
+		(cntr 47,1529)
+	)
+	(img lock_winter
+		(tex r_atlas_0e.png)
+		(src 2,1392,91,1483)
+		(cntr 47,1436)
+	)
+	(img season1
+		(tex r_atlas_0e.png)
+		(src 1006,2,2008,952)
+		(cntr 1507,477)
+	)
+	(img season2
+		(tex r_atlas_0e.png)
+		(src 2,2,1004,952)
+		(cntr 503,477)
+	)
+
 	### rabbits ###
 
 	(anim rabbit
