@@ -341,7 +341,7 @@ static void _gen_mushrooms(void){
 static void _gen_fg_page(void) {
 	placement_reset();
 
-	switch(levels_current_desc()->tileset){
+	switch(levels_current_desc()->season){
 		case AUTUMN:
 			// Add ground
 			_gen_ground();
