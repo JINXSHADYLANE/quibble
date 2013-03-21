@@ -11,8 +11,9 @@
 
 #include <time.h>
 
-#include "game.h"
+#include "season_select.h"
 #include "level_select.h"
+#include "game.h"
 #include "pause.h"
 #include "game_over.h"
 
@@ -76,12 +77,13 @@ bool dgreed_init(int argc, const char** argv) {
 	malka_states_register("level_select", &level_select_state);
 	malka_states_register("pause", &pause_state);
 	malka_states_register("game_over", &game_over_state);
+	malka_states_register("season_select", &season_select_state);
 
 	malka_states_set_transition_len(0.5f);
 
 	malka_states_prerender_cb(game_render_level);
 
-	malka_states_push("level_select");
+	malka_states_push("season_select");
 
 	sprsheet_init(sprsheet);
 	mchains_init(ASSETS_DIR "mchains.mml");
