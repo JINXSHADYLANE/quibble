@@ -160,17 +160,6 @@
 			)
 		)
 
-		(def level_icon
-			(spr ball_autumn)
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 -410,-30)
-			)
-			(def offset
-				(vec2 16,31)
-			)
-		)
-
 		(def quit
 			(spr quit)
 			(add <-

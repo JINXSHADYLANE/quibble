@@ -85,14 +85,18 @@ static bool level_select_render(float t) {
 
 	Vector2 size = sprsheet_get_size_h(button_spr);
 	uint columns = 6;
+	float result = (float) level_count / columns;
+	uint rows = ceil(result);
+
 	if(level_count < columns) columns = level_count;
 	uint c = 0;
 
 	Vector2 spacing = vec2(size.x / 2.0f,size.y / 2.0f);
 
-	Vector2 button_pos = vec2(WIDTH / 2.0f, 256.0f);
+	Vector2 button_pos = vec2(WIDTH / 2.0f, HEIGHT / 2.0f);
 
 	button_pos.x -= ( size.x * (columns-1) +  (spacing.x * (columns-1) ) ) / 2.0f; 
+	button_pos.y -= ( size.y * (rows-1) +  (spacing.y * (rows-1) ) ) / 2.0f;
 
 	for(int i = offset; i < offset + level_count;i++){
 
