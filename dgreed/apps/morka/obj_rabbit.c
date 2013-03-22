@@ -177,6 +177,7 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 	Vector2 landing = p->cd_obj->pos;	
 	acc = vec2_add(acc,force);
 
+	uint iterations = 0;
 	// predict landing
 	while(landing.y <= 579.0f || !jumped){
 		if(landing.y < 579.0f) jumped = true;
@@ -191,6 +192,9 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 
 			// damping
 			vel = _rabbit_damping(vel);
+
+			if(++iterations > 200)
+				LOG_ERROR("predict landing iterations > 200, propably stuck in loop.");
 	}
 	return landing;
 }
@@ -200,7 +204,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbitData* d = rabbit->data;
 
 	if(!d->is_dead){
-
 		PhysicsComponent* p = self->physics;
 		d->jumped = false;
 		d->dived = false;
@@ -208,7 +211,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		d->has_powerup[TRAMPOLINE] = (d->tokens >= 10) && levels_current_desc()->powerup_num[TRAMPOLINE] >= 1;
 
 		if(camera_follow)
-			rabbit->control(self);
+			rabbit->control(self);	
 
 		if(d->virtual_key_down)
 			d->last_keypress_t = ts;
@@ -302,6 +305,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				}
 
 				if(ts - d->mushroom_hit_time < 0.1f) {
+					d->jump_off_mushroom = false;
 
 					if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.2f)
 						d->jump_off_mushroom = true;
@@ -390,8 +394,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		}
 
 		if(!d->game_over) d->rabbit_time += time_delta() / 1000.0f;
-
-		if(p->cd_obj->pos.y < ground_y) d->touching_ground = false;
+		
 		d->on_water = false;
 
 		objects_apply_force(self,_rabbit_calculate_forces(self,false));	
@@ -454,7 +457,10 @@ static void _rabbit_delayed_bounce(void* r) {
 	ObjRabbit* rabbit = r;
 	ObjRabbitData* d = rabbit->data;
 	PhysicsComponent* p = rabbit->header.physics;
-	if(p->acc.y >= 0.0f && p->vel.y > 0.0f && !d->touching_ground && (d->jump_off_mushroom || d->is_diving)) {
+
+	if(p->acc.y >= 0.0f && !d->touching_ground && d->jump_off_mushroom) {
+		d->touching_ground = false;
+
 		d->land = _predict_landing(rabbit,d->bounce_force).x;
 
 		if(d->player_control) tutorial_event(BOUNCE_PERFORMED);
@@ -525,6 +531,63 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		}
 	}
 
+	// Collision with branch
+	if(other->type == OBJ_BRANCH_TYPE) {
+
+		Vector2 vel = self->physics->vel;
+
+		//printf("vel.y: %f\n",vel.y);
+		
+		// Branch bounce
+		if(vel.y > 500.0f && d->bounce_force.y == 0.0f && !d->touching_ground){
+
+			d->mushroom_hit_time = time_s();
+			anim_play_ex(rabbit->anim, "bounce", TIME_S);
+			vel.y = -vel.y;
+
+			Vector2 f = {
+				.x = MIN(vel.x*d->xjump, 110000.0f),
+				.y = MAX(vel.y*d->yjump,-250000.0f)
+			};
+
+			d->bounce_force = f;
+
+			// Slow down vertical movevment
+			self->physics->vel.y *= 0.2f;
+
+			// Delay actual bouncing
+			async_schedule(_rabbit_delayed_bounce, 20, self);
+		} else if(vel.y > 0.0f && d->bounce_force.y == 0.0f) {
+			// Branch run
+			CDObj* cd_rabbit = self->physics->cd_obj;
+			CDObj* cd_ground = other->physics->cd_obj;
+			float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
+			float ground_top = cd_ground->pos.y;
+
+			if(cd_rabbit->pos.y - cd_rabbit->size.size.y < ground_top){
+
+				float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
+				if(penetration > 0.0f && cd_rabbit->pos.y < cd_ground->pos.y) {
+					self->physics->vel.y = 0.0f;
+					if(!d->touching_ground) {
+						if(d->player_control) hud_trigger_combo(0);
+						anim_play_ex(rabbit->anim, "land", TIME_S);
+						d->shield_dh = -20.0f;
+					}
+					d->touching_ground = true;
+					cd_rabbit->offset = vec2_add(
+						cd_rabbit->offset, 
+						vec2(0.0f, -penetration)
+					);
+				}
+
+			}
+
+		}
+
+	}	
+	
+
 	// Collision with fall trigger
 	if(other->type == OBJ_FALL_TRIGGER_TYPE) {
 		d->touching_ground = false;
@@ -569,9 +632,9 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		d->on_water = true;
 	}
 
-	// Collision with mushroom or branch
+	// Collision with mushroom
 	Vector2 vel = self->physics->vel;
-	if((other->type == OBJ_MUSHROOM_TYPE || other->type == OBJ_BRANCH_TYPE ) && !d->touching_ground &&
+	if(other->type == OBJ_MUSHROOM_TYPE && !d->touching_ground &&
 		vel.y > 500.0f && d->bounce_force.y == 0.0f) {
 
 		d->mushroom_hit_time = time_s();
