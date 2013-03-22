@@ -22,8 +22,8 @@ end
 
 function character:new(obj)
 	local o = {
-		width = 32,
-		height = 32,
+		width = 26,
+		height = 30,
 		move_acc = 0.5,
 		move_damp = 0.8,
 		jump_acc = 6.0,
@@ -42,7 +42,7 @@ function character:new(obj)
 	return o
 end
 
-function character:update(level)
+function character:update(level, world_bottom)
 	self:controls()
 
 	self.vel.y = self.vel.y + gravity
@@ -82,7 +82,7 @@ function character:update(level)
 	bbox.b = bbox.b + dy.y
 	self.bbox = bbox
 
-	if self.ground then
+	if self.ground and bbox.b + 2 < world_bottom then
 		if math.abs(self.vel.x) > 0.05 then
 			if not self.walking then
 				anim.play(self.anim, 'run')
@@ -104,9 +104,13 @@ function character:update(level)
 	end
 end
 
-function character:render(level)
-	if self.bbox then
-		local pos = tilemap.world2screen(level, scr_rect, self.bbox)
+function character:render(level, world_bottom)
+	local b = self.bbox
+	if b then
+		local dest = rect(
+			b.l - 3, b.t - 2, b.r + 3, b.b	
+		)
+		local pos = tilemap.world2screen(level, scr_rect, dest)
 		if self.dir then
 			pos.l, pos.r = pos.r, pos.l
 		end

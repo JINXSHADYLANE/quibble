@@ -9,9 +9,8 @@ screen_rect = rect(0, 0, scr_size.x, scr_size.y)
 tile_layer = 2
 character_layer = 3
 
-bg_color = rgba(148/255, 74/255, 38/255)
-
 local game = require('game')
+local transition = require('transition')
 
 function game_init()
 	local scale = 2
@@ -26,7 +25,9 @@ function game_init()
 	--fnt = font.load(asset_dir..'Georgia_60px.bft', 0.5, asset_dir)
 	--sound.play(mus, true)
 
+	states.transition_len = 0.5
 	states.register('game', game)
+	states.register('transition', transition)
 	states.push('game')
 end
 
