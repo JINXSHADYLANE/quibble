@@ -42,5 +42,18 @@
 			(frames "6")
 			(on_finish play.stand)
 		)
+		(seq wake_up
+			(frames "8 9 10 4 2 0")
+			(on_finish play.stand)
+		)
+	)
+	(anim tv
+		(fps 30)
+		(start_seq no_signal)
+
+		(seq no_signal
+			(frames "0 1")
+			(on_finish loop)
+		)
 	)
 )

@@ -13,12 +13,31 @@
 		(tex door.png)
 		(src 0,0,32,64)
 	)
+	(img entrance
+		(tex door_start.png)
+		(src 0,0,32,64)
+	)
+	(img curse
+		(tex curse.png)
+		(src 0,0,29,19)
+	)
+	(img bed
+		(tex bed.png)
+		(src 0,0,45,16)
+	)
 	(anim char
 		(tex char.png)
 		(src 0,0,32,32)
 		(offset 32,32)
-		(frames 8)
-		(grid 4,2)
+		(frames 11)
+		(grid 4,3)
+	)
+	(anim tv
+		(tex tv.png)
+		(src 0,0,32,32)
+		(offset 32,32)
+		(frames 2)
+		(grid 2,1)
 	)
 	(img red
 		(tex tileset.png)
