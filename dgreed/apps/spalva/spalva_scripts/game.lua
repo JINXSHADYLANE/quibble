@@ -9,6 +9,7 @@ local level_desc = nil
 local level_number = 1
 local char = nil
 local exit = nil
+local entrance = nil
 local tileset = nil
 
 local max = math.max
@@ -77,6 +78,9 @@ function game.reset(desc)
 				camera_pos = p
 				tilemap.set_camera(level, p, 1, 0)
 				char = character:new({pos = p})
+				entrance = rect(
+					p.x, p.y - tile_size, p.x + tile_size, p.y + tile_size
+				)
 			elseif c == 'e' then
 				exit = rect(
 					p.x, p.y - tile_size, p.x + tile_size, p.y + tile_size
@@ -179,6 +183,11 @@ function game.render(t)
 		-- exit
 		if exit then
 			local dest = tilemap.world2screen(level, scr_rect, exit)
+			sprsheet.draw('exit', tile_layer, dest)
+		end
+		-- entrance
+		if entrance then
+			local dest = tilemap.world2screen(level, scr_rect, entrance)
 			sprsheet.draw('exit', tile_layer, dest)
 		end
 	end
