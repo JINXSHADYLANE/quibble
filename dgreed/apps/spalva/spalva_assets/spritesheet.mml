@@ -17,8 +17,8 @@
 		(tex char.png)
 		(src 0,0,32,32)
 		(offset 32,32)
-		(frames 4)
-		(grid 4,1)
+		(frames 8)
+		(grid 4,2)
 	)
 	(img red
 		(tex tileset.png)

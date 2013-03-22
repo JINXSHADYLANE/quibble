@@ -42,6 +42,5 @@
 			(frames "6")
 			(on_finish play.stand)
 		)
-
 	)
 )
