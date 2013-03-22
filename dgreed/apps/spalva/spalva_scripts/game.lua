@@ -2,17 +2,22 @@ local game = {}
 
 local levels = require('levels')
 local character = require('character')
+local transition = require('transition')
 
 local level = nil
 local level_desc = nil
-local level_number = 1
+local level_number = 5
 local char = nil
 local exit = nil
 local tileset = nil
 
+local max = math.max
+local min = math.min
+
 local background = rgba(0, 0, 0)
 local world_color = 8
 local camera_pos = nil
+local world_bottom = nil
 
 local colors = {
 	rgba(1, 0, 0),
@@ -29,7 +34,7 @@ local colors = {
 local transitions = { 2, 3, 4, 5, 6, 7, 1, 9, 8 }
 
 function game.init()
-	game.reset(levels[1])
+	game.reset(levels[level_number])
 end
 
 function game.close()
@@ -46,6 +51,7 @@ function game.reset(desc)
 	tileset = tex.load(asset_dir..'tileset.png')
 
 	local w, h = desc[1]:len(), #desc
+	world_bottom = (h+1) * tile_size
 	level_desc = desc
 	level = tilemap.new(tile_size, tile_size, w, h+1, 1)
 	exit = nil
@@ -94,9 +100,36 @@ function game.switch_off(col)
 		end
 	end
 end
+local function rect_inside_rect(a, b)
+	if not rect_rect_collision(a, b) then
+		return false
+	end
+
+	-- find logical intersection of both rects
+	local l = max(a.l, b.l)
+	local r = min(a.r, b.r)
+	local t = max(a.t, b.t)
+	local b = min(a.b, b.b)
+
+	-- find areas of intersection and a rect
+	local area = (r - l) * (b - t)
+	local a_area = (a.r - a.l) * (a.b - a.t)
+
+	-- define 'inside' as 90% inside
+	return area >= a_area * 0.9
+end
 
 function game.update()
-	local c = char:update(level)
+	local c = char:update(level, world_bottom)
+
+	-- check if player fell too far
+	if char.bbox.b+1 >= world_bottom then
+		states.push('transition')
+		transition.cb = function ()
+			game.reset(levels[level_number])
+		end
+	end
+
 	-- switch world color
 	if c and c ~= world_color and c ~= transitions[world_color] then
 		background = colors[transitions[c]]
@@ -112,14 +145,19 @@ function game.update()
 	camera_pos = p
 
 	-- check if player collides with exit
-	if exit and rect_rect_collision(char.bbox, exit) then
-		level_number = level_number + 1
-		game.reset(levels[level_number])
+	if exit and rect_inside_rect(char.bbox, exit) then
+		anim.play(char.anim, 'stand')
+		states.push('transition')
+		transition.cb = function ()
+			level_number = level_number + 1
+			game.reset(levels[level_number])
+		end
 	end
 
 	if key.up(key.quit) then
 		states.pop()
 	end
+
 	return true
 end
 
@@ -130,7 +168,7 @@ function game.render(t)
 		-- map
 		tilemap.render(level, scr_rect)
 		-- character
-		char:render(level)
+		char:render(level, world_bottom)
 		-- exit
 		if exit then
 			local dest = tilemap.world2screen(level, scr_rect, exit)
