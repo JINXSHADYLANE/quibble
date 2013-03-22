@@ -6,7 +6,7 @@ local transition = require('transition')
 
 local level = nil
 local level_desc = nil
-local level_number = 5
+local level_number = 1
 local char = nil
 local exit = nil
 local tileset = nil
@@ -43,6 +43,14 @@ function game.close()
 	end
 end
 
+local function update_world_color(c)
+	if c and c ~= world_color and c ~= transitions[world_color] then
+		background = colors[transitions[c]]
+		game.switch_off(transitions[c])
+		world_color = c
+	end
+end
+
 function game.reset(desc)
 	if level then
 		tilemap.free(level)
@@ -52,6 +60,7 @@ function game.reset(desc)
 
 	local w, h = desc[1]:len(), #desc
 	world_bottom = (h+1) * tile_size
+	world_color = nil
 	level_desc = desc
 	level = tilemap.new(tile_size, tile_size, w, h+1, 1)
 	exit = nil
@@ -82,6 +91,9 @@ function game.reset(desc)
 			x = x + 1
 		end
 	end
+
+	local c = char:update(level, world_bottom)
+	update_world_color(c)
 
 	game.switch_off(9)
 end
@@ -130,12 +142,7 @@ function game.update()
 		end
 	end
 
-	-- switch world color
-	if c and c ~= world_color and c ~= transitions[world_color] then
-		background = colors[transitions[c]]
-		game.switch_off(transitions[c])
-		world_color = c
-	end
+	update_world_color(c)	
 
 	-- update camera
 	local p = vec2()

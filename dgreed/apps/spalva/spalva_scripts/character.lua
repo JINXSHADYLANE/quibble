@@ -22,8 +22,8 @@ end
 
 function character:new(obj)
 	local o = {
-		width = 32,
-		height = 32,
+		width = 26,
+		height = 30,
 		move_acc = 0.5,
 		move_damp = 0.8,
 		jump_acc = 6.0,
@@ -105,8 +105,12 @@ function character:update(level, world_bottom)
 end
 
 function character:render(level, world_bottom)
-	if self.bbox then
-		local pos = tilemap.world2screen(level, scr_rect, self.bbox)
+	local b = self.bbox
+	if b then
+		local dest = rect(
+			b.l - 3, b.t - 2, b.r + 3, b.b	
+		)
+		local pos = tilemap.world2screen(level, scr_rect, dest)
 		if self.dir then
 			pos.l, pos.r = pos.r, pos.l
 		end
@@ -115,8 +119,6 @@ function character:render(level, world_bottom)
 
 		local f = anim.frame(self.anim)
 		sprsheet.draw_anim(spr, f, character_layer, pos)
-	else
-		self:update(level, world_bottom)
 	end
 end
 
