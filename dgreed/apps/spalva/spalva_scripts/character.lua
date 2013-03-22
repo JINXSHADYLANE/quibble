@@ -137,6 +137,10 @@ function character:render(level, world_bottom)
 			local p = vec2(pos.l, pos.t) + vec2(24, -16)
 			sprsheet.draw('curse', character_layer, p)
 		end
+
+		if self.curse and time.s() > self.curse + 3 then
+			self.completed = false
+		end
 	end
 end
 
