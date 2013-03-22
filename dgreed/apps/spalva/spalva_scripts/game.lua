@@ -11,6 +11,8 @@ local level_number = 1
 local ch = char
 local char = nil
 local exit = nil
+local tv = nil
+local bed = nil
 local entrance = nil
 local tileset = nil
 
@@ -67,6 +69,7 @@ function game.reset(desc)
 	level_desc = desc
 	level = tilemap.new(tile_size, tile_size, w, h+1, 1)
 	exit = nil
+	entrance = nil
 	tilemap.set_tileset(level, 0, tileset)
 
 	local ord_0 = string.byte('0')
@@ -82,6 +85,20 @@ function game.reset(desc)
 				char = character:new({pos = p})
 				entrance = rect(
 					p.x, p.y - tile_size, p.x + tile_size, p.y + tile_size
+				)
+			elseif c == 'S' then
+				camera_pos = p + vec2(100, 0)
+				tilemap.set_camera(level, camera_pos, 1, 0)
+				char = character:new({pos = p})
+				char.completed = true
+				anim.play(char.anim, 'wake_up')
+			elseif c == 't' then
+				tv = rect(
+					p.x, p.y, p.x + tile_size, p.y + tile_size
+				)
+			elseif c == 'b' then
+				bed = vec2(
+					p.x + tile_size - 45, p.y + tile_size -16
 				)
 			elseif c == 'e' then
 				exit = rect(
@@ -151,11 +168,13 @@ function game.update()
 	update_world_color(c)	
 
 	-- update camera
-	local p = vec2()
-	p.x = lerp(camera_pos.x, char.pos.x, 0.1)
-	p.y = lerp(camera_pos.y, char.pos.y, 0.03)
-	tilemap.set_camera(level, p, 1, 0)
-	camera_pos = p
+	if not char.completed then
+		local p = vec2()
+		p.x = lerp(camera_pos.x, char.pos.x, 0.1)
+		p.y = lerp(camera_pos.y, char.pos.y, 0.03)
+		tilemap.set_camera(level, p, 1, 0)
+		camera_pos = p
+	end
 
 	-- check if player collides with exit
 	if exit and rect_inside_rect(char.bbox, exit) then
@@ -178,19 +197,26 @@ function game.render(t)
 	sprsheet.draw('background', 0, scr_rect, background)
 
 	if level then
-		-- map
 		tilemap.render(level, scr_rect)
-		-- character
 		char:render(level, world_bottom)
-		-- exit
 		if exit then
 			local dest = tilemap.world2screen(level, scr_rect, exit)
 			sprsheet.draw('exit', tile_layer, dest)
 		end
-		-- entrance
 		if entrance then
 			local dest = tilemap.world2screen(level, scr_rect, entrance)
 			sprsheet.draw('exit', tile_layer, dest)
+		end
+
+		if tv then
+			local dest = tilemap.world2screen(level, scr_rect, tv)
+			local frame = math.fmod(math.floor(time.s() * 10), 2)
+			sprsheet.draw_anim('tv', frame, tile_layer, dest)
+		end
+
+		if bed then
+			local dest = tilemap.world2screen(level, scr_rect, bed)
+			sprsheet.draw('bed', tile_layer, dest)
 		end
 	end
 
