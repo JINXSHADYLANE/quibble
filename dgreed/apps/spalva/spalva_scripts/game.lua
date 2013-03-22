@@ -6,7 +6,7 @@ local transition = require('transition')
 
 local level = nil
 local level_desc = nil
-local level_number = 10 
+local level_number = 1 
 
 local ch = char
 local char = nil
