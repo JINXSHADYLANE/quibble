@@ -6,7 +6,7 @@ local transition = require('transition')
 
 local level = nil
 local level_desc = nil
-local level_number = 1
+local level_number = 10 
 
 local ch = char
 local char = nil
@@ -87,11 +87,13 @@ function game.reset(desc)
 					p.x, p.y - tile_size, p.x + tile_size, p.y + tile_size
 				)
 			elseif c == 'S' then
+				char = character:new({pos = p})
 				camera_pos = p + vec2(100, 0)
 				tilemap.set_camera(level, camera_pos, 1, 0)
-				char = character:new({pos = p})
 				char.completed = true
 				anim.play(char.anim, 'wake_up')
+				world_color = 9
+				background = rgba(0, 0, 0)
 			elseif c == 't' then
 				tv = rect(
 					p.x, p.y, p.x + tile_size, p.y + tile_size
@@ -127,7 +129,7 @@ function game.switch_off(col)
 	for y, line in ipairs(desc) do
 		local x = 0
 		for c in line:gmatch('.') do
-			if c ~= ' ' and c ~= 's' and c ~= 'e' then
+			if c ~= ' ' and c ~= 's' and c ~= 'e' and c ~= 'S' and c ~= 't' and c ~= 'b' then
 				local tile = c:byte() - ord_0
 				tilemap.set_collision(level, x, y, tile ~= col)
 			end
@@ -168,7 +170,7 @@ function game.update()
 	update_world_color(c)	
 
 	-- update camera
-	if not char.completed then
+	if not char.completed and not char.curse then
 		local p = vec2()
 		p.x = lerp(camera_pos.x, char.pos.x, 0.1)
 		p.y = lerp(camera_pos.y, char.pos.y, 0.03)
@@ -205,7 +207,7 @@ function game.render(t)
 		end
 		if entrance then
 			local dest = tilemap.world2screen(level, scr_rect, entrance)
-			sprsheet.draw('exit', tile_layer, dest)
+			sprsheet.draw('entrance', tile_layer, dest)
 		end
 
 		if tv then
