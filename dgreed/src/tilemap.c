@@ -153,8 +153,13 @@ Tilemap* tilemap_new(
 	t->n_layers = layers;
 	t->layers = (TilemapLayer*)MEM_ALLOC(sizeof(TilemapLayer) * layers);
 	memset(t->layers, 0, sizeof(TilemapLayer) * layers);
-	t->collision = (byte*)MEM_ALLOC(width * height / 8); 
-	memset(t->collision, 0, width * height / 8);
+
+	size_t collision_size = (width * height) / 8;
+	if(collision_size * 8 != width * height)
+		collision_size++;
+
+	t->collision = (byte*)MEM_ALLOC(collision_size); 
+	memset(t->collision, 0, collision_size);
 
 	for(uint i = 0; i < layers; ++i) {
 		TilemapLayer* l = &t->layers[i];

@@ -16,7 +16,12 @@ local function controls1(self)
 	if key.down(key._up) and self.ground then
 		self.ground = false
 		self.vel.y = -self.jump_acc
-		--mfx.trigger('jump')
+
+		if math.abs(self.vel.x) > 0.05 then
+			anim.play(self.anim, 'jump')
+		else
+			anim.play(self.anim, 'stand_jump')
+		end
 	end
 end
 
@@ -65,16 +70,12 @@ function character:update(level, world_bottom)
 	local was_on_ground = self.ground
 	if self.vel.y > 0 then
 		self.ground = dy.y == 0
-		if self.ground then
-			--self.frame = 0
-		end
 	end
 
-	--[[
 	if (not was_on_ground) and self.ground then
-		mfx.trigger('land')
+		anim.play(self.anim, 'land')
+		self.walking = false
 	end
-	]]
 
 	self.pos = self.pos + dy
 	self.vel.y = dy.y
