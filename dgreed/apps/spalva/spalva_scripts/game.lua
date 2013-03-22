@@ -7,6 +7,8 @@ local transition = require('transition')
 local level = nil
 local level_desc = nil
 local level_number = 1
+
+local ch = char
 local char = nil
 local exit = nil
 local entrance = nil
@@ -139,7 +141,7 @@ function game.update()
 	local c = char:update(level, world_bottom)
 
 	-- check if player fell too far
-	if char.bbox.b+1 >= world_bottom then
+	if char.bbox.b+1 >= world_bottom or ch.up('r') then
 		states.push('transition')
 		transition.cb = function ()
 			game.reset(levels[level_number])
