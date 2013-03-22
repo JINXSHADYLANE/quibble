@@ -43,7 +43,7 @@
 			(on_finish play.stand)
 		)
 		(seq wake_up
-			(frames "8 9 10 4 2 0")
+			(frames "8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 9 9 10 10 4 4 2 2 0 0")
 			(on_finish play.stand)
 		)
 	)

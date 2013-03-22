@@ -27,6 +27,7 @@ end
 
 function character:new(obj)
 	local o = {
+		completed = false,
 		width = 22,
 		height = 30,
 		move_acc = 0.5,
@@ -48,7 +49,9 @@ function character:new(obj)
 end
 
 function character:update(level, world_bottom)
-	self:controls()
+	if not self.completed then
+		self:controls()
+	end
 
 	self.vel.y = self.vel.y + gravity
 	self.vel.x = self.vel.x * self.move_damp
@@ -59,6 +62,11 @@ function character:update(level, world_bottom)
 	)
 	bbox.r = bbox.l + self.width
 	bbox.b = bbox.t + self.height
+
+	if self.completed then
+		self.bbox = bbox
+		return
+	end
 
 	local dx = tilemap.collide_swept(level, bbox, vec2(self.vel.x, 0))
 	self.pos = self.pos + dx
@@ -119,7 +127,16 @@ function character:render(level, world_bottom)
 		local spr = self.sprite
 
 		local f = anim.frame(self.anim)
+		if f == 10 then
+			-- show curse in 1 seconds
+			self.curse = time.s() + 1
+		end
 		sprsheet.draw_anim(spr, f, character_layer, pos)
+
+		if self.curse and time.s() > self.curse and time.s() < self.curse + 2 then
+			local p = vec2(pos.l, pos.t) + vec2(24, -16)
+			sprsheet.draw('curse', character_layer, p)
+		end
 	end
 end
 
