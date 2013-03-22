@@ -41,12 +41,10 @@ static void obj_branch_construct(GameObject* self, Vector2 pos, void* user_data)
 	branch->h = height;
 	branch->dh = 0.0f;
 
-	float adjust = 20.0f;
-
 	// Take 10 pixel slice at the top as a collider geometry
 	RectF collider = {
-		pos.x  + adjust, 		pos.y - height,
-		pos.x  + width - adjust, pos.y - height + 10.0f
+		pos.x, 		pos.y - height + 20.0f,
+		pos.x  + width, pos.y - height + 20.0f + 10.0f
 	};
 
 	// Physics

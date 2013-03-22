@@ -122,6 +122,12 @@ static void _gen_tree(Vector2 pos,SymDesc sd){
 					spr2 = sprsheet_get_handle("branch_l_3_b");
 				break;			
 
+				case -4:
+					spr = sprsheet_get_handle("branch_l_spikes");
+					spr2 = empty_spr;
+				break;
+
+
 				// Right side branches
 				case 1:
 					spr = sprsheet_get_handle("branch_r_1_a");
@@ -131,8 +137,12 @@ static void _gen_tree(Vector2 pos,SymDesc sd){
 				case 2:
 					spr = sprsheet_get_handle("branch_r_2_a");
 					spr2 = sprsheet_get_handle("branch_r_2_b");
-				break;			
+				break;
 
+				case 3:
+					spr = sprsheet_get_handle("branch_r_3");
+					spr2 = empty_spr;
+				break;	
 			}
 
 			if(spr != empty_spr){

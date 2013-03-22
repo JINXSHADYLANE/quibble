@@ -134,7 +134,7 @@ static void _move_camera(float new_pos_x, float follow_weight) {
 	float new_camera_x = lerp(camera_x, new_pos_x, follow_weight);
 	float camera_offset = new_camera_x - camera_x;
 	if(camera_offset > 0.0f){
-		camera_follow = true;
+		if(!game_paused) camera_follow = true;
 		objects_camera[0].left += camera_offset;
 		objects_camera[0].right += camera_offset;
 		objects_camera[1].left += camera_offset/2.0f;
