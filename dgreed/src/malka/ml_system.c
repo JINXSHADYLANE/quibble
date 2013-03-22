@@ -1935,9 +1935,12 @@ static int ml_tilemap_set_collision(lua_State* l) {
 	Tilemap* tmap = *t;
 	int x = luaL_checkinteger(l, 2);
 	int y = luaL_checkinteger(l, 3);
+	assert(x >= 0 && x < tmap->width);
+	assert(y >= 0 && y < tmap->height);
 	bool full = lua_toboolean(l, 4);
 
 	uint tile = IDX_2D(x, y, tmap->width);	
+
 	byte mask = (1 << (7-(tile % 8)));
 	if(full)
 		tmap->collision[tile/8] |= mask;  
