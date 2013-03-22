@@ -27,6 +27,32 @@
 			)
 		)
 		(powerups _
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level1_fg)
+		(ground_chain level1_ground)
+	)
+	(level level3
+		(season autumn)
+		(distance 85)
+		(rabbits _
+			(name Lili
+				(spr rabbit_3)
+				(speed 350)
+				(xjump 90)
+				(yjump 390)
+				(max_combo 2)
+			)
+			(name Tori
+				(spr rabbit_2)
+				(speed 390)
+				(xjump 100)
+				(yjump 390)
+				(max_combo 1)
+			)
+		)
+		(powerups _
 			(rocket _
 				(num 1)
 				(xmin 0.6)
@@ -48,7 +74,7 @@
 		(fg_chain level2_fg)
 		(ground_chain level2_ground)
 	)
-	(level level3
+	(level level4
 		(season autumn)
 		(distance 90)
 		(rabbits _
@@ -96,7 +122,7 @@
 		(fg_chain level3_fg)
 		(ground_chain level3_ground)
 	)
-	(level level4
+	(level level5
 		(season autumn)
 		(distance 100)
 		(rabbits _
@@ -128,7 +154,7 @@
 		(fg_chain level4_fg)
 		(ground_chain level4_ground)
 	)
-	(level level5
+	(level level6
 		(season autumn)
 		(distance 110)
 		(rabbits _
@@ -177,7 +203,7 @@
 		(fg_chain level5_fg)
 		(ground_chain level5_ground)
 	)					
-	(level level6
+	(level level21
 		(season winter)
 		(distance 85)
 		(rabbits _
@@ -191,8 +217,8 @@
 		)		
 		(background background2)
 		(bg_chain bg_winter)
-		(fg_chain level6_fg)
-		(ground_chain level6_ground)
+		(fg_chain level21_fg)
+		(ground_chain level21_ground)
 		(tree_chain tree)
 	)	
 )
