@@ -162,6 +162,7 @@ function game.update()
 	-- check if player fell too far
 	if char.bbox.b+1 >= world_bottom or ch.up('r') then
 		states.push('transition')
+		mfx.trigger('die')
 		transition.cb = function ()
 			game.reset(levels[level_number])
 		end
@@ -181,6 +182,7 @@ function game.update()
 	-- check if player collides with exit
 	if exit and rect_inside_rect(char.bbox, exit) then
 		anim.play(char.anim, 'stand')
+		mfx.trigger('win')
 		states.push('transition')
 		transition.cb = function ()
 			level_number = level_number + 1

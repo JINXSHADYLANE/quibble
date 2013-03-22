@@ -17,6 +17,7 @@ local function controls1(self)
 		self.ground = false
 		self.vel.y = -self.jump_acc
 
+		mfx.trigger('jump')
 		if math.abs(self.vel.x) > 0.05 then
 			anim.play(self.anim, 'jump')
 		else
@@ -82,6 +83,7 @@ function character:update(level, world_bottom)
 
 	if (not was_on_ground) and self.ground then
 		anim.play(self.anim, 'land')
+		mfx.trigger('land')
 		self.walking = false
 	end
 

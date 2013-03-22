@@ -1,0 +1,19 @@
+(mfx _
+	(prefix "spalva_assets/")
+	(sounds _
+	)
+	(effects _
+		(e jump 
+		)
+
+		(e land
+		)
+
+		(e win
+		)
+
+		(e die
+		)
+	)
+)
+

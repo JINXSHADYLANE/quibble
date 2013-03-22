@@ -18,7 +18,7 @@ function game_init()
 	video.init_exr(real_size.x, real_size.y, scr_size.x, scr_size.y, 'spalva', false)
 	sound.init()
 
-	--mfx.init(asset_dir..'effects.mml')
+	mfx.init(asset_dir..'effects.mml')
 	sprsheet.init(asset_dir..'spritesheet.mml')
 	anim.init(asset_dir..'animations.mml')
 	--mus = sound.load_stream(asset_dir..'aftermath.ogg')
@@ -29,6 +29,10 @@ function game_init()
 	states.register('game', game)
 	states.register('transition', transition)
 	states.push('game')
+
+	states.prerender_callback(function()
+		mfx.update()
+	end)
 end
 
 function game_close()
@@ -36,7 +40,7 @@ function game_close()
 --	sound.free(mus)
 	anim.close()
 	sprsheet.close()
---	mfx.close()
+	mfx.close()
 	sound.close()
 	video.close()
 end
