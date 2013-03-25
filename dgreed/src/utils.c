@@ -207,19 +207,6 @@ bool rectf_rectf_collision(const RectF* r1, const RectF* r2) {
 	return false;
 }
 
-float rectf_width(const RectF* r) {
-	assert(r);
-
-	return r->right - r->left;
-}
-
-float rectf_height(const RectF* r) {
-	assert(r);
-	
-	// CG coordinate system
-	return r->bottom - r->top;
-}
-
 Vector2 rectf_center(const RectF* r) {
 	assert(r);
 	return vec2(

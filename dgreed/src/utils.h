@@ -186,9 +186,16 @@ bool rectf_inside_circle(const RectF* rect, const Vector2* p, float r);
 bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r);
 // Returns true if two rectangles intersect
 bool rectf_rectf_collision(const RectF* rect1, const RectF* rect2);
+
 // Returns signed width/height
-float rectf_width(const RectF* r);
-float rectf_height(const RectF* r);
+static inline float rectf_width(const RectF* r) {
+	return r->right - r->left;
+}
+
+static inline float rectf_height(const RectF* r) {
+	return r->bottom - r->top;
+}
+
 // Returns center
 Vector2 rectf_center(const RectF* r);
 // Returns first intersection point or end
