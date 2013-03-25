@@ -119,8 +119,8 @@ void gfx_transform(Vector2* v, uint n_v, const Vector2* translate, float rotate,
 	assert(n_v);
 	assert(translate);
 
-	float s = sin(rotate);
-	float c = cos(rotate);
+	float s = sinf(rotate);
+	float c = cosf(rotate);
 	for(uint i = 0; i < n_v; ++i) {
 		float nx, ny;
 		nx = c * (v[i].x * scale) - s * (v[i].y * scale);

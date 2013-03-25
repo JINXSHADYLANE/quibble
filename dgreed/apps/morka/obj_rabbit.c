@@ -85,8 +85,6 @@ void obj_rabbit_player_control(GameObject* self){
 		d->virtual_key_pressed = key_pressed(KEY_A);
 	}
 
-
-
 	if(tutorials_are_enabled()){
 
 		ObjRabbit* rabbit = (ObjRabbit*)self;
@@ -315,10 +313,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 						
 				}
 				else {
-					if(d->virtual_key_pressed && (ts - d->jump_time) < 0.2f) {
-					//	objects_apply_force(self, vec2(0.0f, -8000.0f));
-					}
-					else if( (!d->is_diving && d->virtual_key_down) || d->force_dive ) {
+					if( (!d->is_diving && d->virtual_key_down) || d->force_dive ) {
 						// Dive	
 						d->is_diving = true;
 						d->dived = true;
@@ -399,6 +394,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		objects_apply_force(self,_rabbit_calculate_forces(self,false));	
 		p->vel = _rabbit_damping(p->vel);
+
 	}
 
 }
@@ -458,7 +454,7 @@ static void _rabbit_delayed_bounce(void* r) {
 	ObjRabbitData* d = rabbit->data;
 	PhysicsComponent* p = rabbit->header.physics;
 
-	if(p->acc.y >= 0.0f && !d->touching_ground && d->jump_off_mushroom) {
+	if(p->acc.y >= 0.0f && !d->touching_ground && (d->jump_off_mushroom || d->is_diving) ) {
 		d->touching_ground = false;
 
 		d->land = _predict_landing(rabbit,d->bounce_force).x;
@@ -508,6 +504,7 @@ static void _rabbit_delayed_bounce(void* r) {
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
+	PhysicsComponent* p = self->physics;
 
 	// Collision with ground
 	if(other->type == OBJ_GROUND_TYPE) {
@@ -531,56 +528,32 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		}
 	}
 
+
+
 	// Collision with branch
 	if(other->type == OBJ_BRANCH_TYPE) {
 
-		Vector2 vel = self->physics->vel;
+		// Branch run
+		CDObj* cd_rabbit = self->physics->cd_obj;
+		CDObj* cd_ground = other->physics->cd_obj;
+		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
+		float ground_top = cd_ground->pos.y;
 
-		//printf("vel.y: %f\n",vel.y);
-		
-		// Branch bounce
-		if(vel.y > 500.0f && d->bounce_force.y == 0.0f && !d->touching_ground){
+		if(p->vel.y > 0.0f){
 
-			d->mushroom_hit_time = time_s();
-			anim_play_ex(rabbit->anim, "bounce", TIME_S);
-			vel.y = -vel.y;
-
-			Vector2 f = {
-				.x = MIN(vel.x*d->xjump, 110000.0f),
-				.y = MAX(vel.y*d->yjump,-250000.0f)
-			};
-
-			d->bounce_force = f;
-
-			// Slow down vertical movevment
-			self->physics->vel.y *= 0.2f;
-
-			// Delay actual bouncing
-			async_schedule(_rabbit_delayed_bounce, 20, self);
-		} else if(vel.y > 0.0f && d->bounce_force.y == 0.0f) {
-			// Branch run
-			CDObj* cd_rabbit = self->physics->cd_obj;
-			CDObj* cd_ground = other->physics->cd_obj;
-			float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
-			float ground_top = cd_ground->pos.y;
-
-			if(cd_rabbit->pos.y - cd_rabbit->size.size.y < ground_top){
-
-				float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
-				if(penetration > 0.0f && cd_rabbit->pos.y < cd_ground->pos.y) {
-					self->physics->vel.y = 0.0f;
-					if(!d->touching_ground) {
-						if(d->player_control) hud_trigger_combo(0);
-						anim_play_ex(rabbit->anim, "land", TIME_S);
-						d->shield_dh = -20.0f;
-					}
-					d->touching_ground = true;
-					cd_rabbit->offset = vec2_add(
-						cd_rabbit->offset, 
-						vec2(0.0f, -penetration)
-					);
+			float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
+			if(penetration > 0.0f && cd_rabbit->pos.y < cd_ground->pos.y) {
+				self->physics->vel.y = 0.0f;
+				if(!d->touching_ground) {
+					if(d->player_control) hud_trigger_combo(0);
+					anim_play_ex(rabbit->anim, "land", TIME_S);
+					d->shield_dh = -20.0f;
 				}
-
+				d->touching_ground = true;
+				cd_rabbit->offset = vec2_add(
+					cd_rabbit->offset, 
+					vec2(0.0f, -penetration)
+				);
 			}
 
 		}
@@ -590,8 +563,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 	// Collision with fall trigger
 	if(other->type == OBJ_FALL_TRIGGER_TYPE) {
-		d->touching_ground = false;
-		PhysicsComponent* p = self->physics;	
+		d->touching_ground = false;	
 
 		// Trampoline
 		if(p->cd_obj->pos.y > ground_y && d->has_powerup[TRAMPOLINE] && !d->trampoline_placed && !rabbit->data->game_over){
@@ -714,7 +686,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		// Player rabbit
 		render->spr = sprsheet_get_handle("rabbit");
 		rabbit->control = obj_rabbit_player_control;
-		//rabbit->control = ai_control;
+		//rabbit->control = ai_control; d->ai_max_combo = 999;
 		d->minimap_color = COLOR_RGBA(150, 150, 150, 255);
 		d->rabbit_name = "You";
 		d->player_control = true;

@@ -1,5 +1,6 @@
 #include "coldet.h"
 #include "memory.h"
+#include "gfx_utils.h"
 
 #define HORIZ_WRAP(x, x_off) {\
 	int horiz_cells = lrintf(world->width / world->cell_size); \
@@ -137,6 +138,47 @@ static RectF _rectf_from_aabb(CDObj* obj) {
 	};
 
 	return rect;
+}
+
+static __attribute__((unused)) RectF _rectf_from_obb(CDObj* obj) {
+	assert(obj);
+	assert(obj->type == CD_AABB);
+
+	float x = obj->pos.x;
+	float y = obj->pos.y;
+	float w = obj->size.size.x;
+	float h = obj->size.size.y;
+
+	Vector2 center = {
+		.x = x + w * 0.5f,
+		.y = y + h * 0.5f
+	};
+
+	// Calculate four corner points
+	Vector2 pts[4];
+	pts[0] = vec2(x - center.x, y - center.y);
+	pts[1] = vec2(x + w - center.x, y - center.y);
+	pts[2] = vec2(x - center.x, y + h - center.y);
+	pts[3] = vec2(x + w - center.x, y + h - center.y);
+	gfx_transform(pts, 4, &center, obj->angle, 1.0f);
+
+	// Bounding box for the rotated obb
+	float x_min = pts[0].x, y_min = pts[0].y;
+	float x_max = pts[0].x, y_max = pts[0].y;
+
+	for(uint i = 1; i < 4; ++i) {
+		x_min = MIN(x_min, pts[i].x);
+		y_min = MIN(y_min, pts[i].y);
+		x_max = MAX(x_max, pts[i].x);
+		y_max = MAX(y_max, pts[i].y);
+	}
+
+	RectF bbox = {
+		.left = x_min, .top = y_min,
+		.right = x_max, .bottom = y_max
+	};
+
+	return bbox;
 }
 
 static void _coldet_hashmap_init(CDWorld* world, uint size) {
@@ -472,6 +514,34 @@ CDObj* coldet_new_aabb(CDWorld* cd, const RectF* rect, uint mask,
 	new->userdata = userdata;
 
 	_coldet_hashmap_insert(cd, new); 
+
+	return new;
+}
+
+CDObj* coldet_new_obb(CDWorld* cd, const RectF* rect, float angle,
+		uint mask, void* userdata) {
+	assert(cd);
+	assert(mask);
+
+	CDObj* new = mempool_alloc(&cd->allocator);
+
+	new->pos = vec2(rect->left, rect->top);
+	
+	float w = rectf_width(rect);
+	float h = rectf_height(rect);
+	
+	new->size.size = vec2(w, h);
+	new->angle = angle;
+
+	assert(w*w + h*h <= cd->cell_size * cd->cell_size);
+
+	new->offset = vec2(0.0f, 0.0f);
+	new->dirty = false;
+	new->type = CD_OBB;
+	new->mask = mask;
+	new->userdata = userdata;
+
+	_coldet_hashmap_insert(cd, new);
 
 	return new;
 }
