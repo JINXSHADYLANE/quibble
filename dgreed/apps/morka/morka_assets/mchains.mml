@@ -400,7 +400,7 @@
 		(def - (trunk_2  0))
 		(def a (trunk_2 -1))
 		(def b (trunk_2 -2))
-		(def c (trunk_2 -3))
+		(def c (trunk_2 -4))
 		(def d (trunk_2  1))
 		(def e (trunk_2  2))		
 
@@ -448,7 +448,7 @@
 		(def b (trunk_2 -2))
 		(def c (trunk_2 -3))
 		(def d (trunk_2  1))
-		(def e (trunk_2  2))		
+		(def e (trunk_2  5))		
 
 		(def = (trunk_3  0))
 		(def f (trunk_3 -1))

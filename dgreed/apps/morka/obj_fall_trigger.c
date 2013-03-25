@@ -8,7 +8,7 @@ static void obj_fall_trigger_construct(GameObject* self, Vector2 pos, void* user
 
 	PhysicsComponent* physics = self->physics;
 	RectF collider = {
-		pos.x, pos.y - 127 - 62,
+		pos.x, pos.y - 127 - 10,
 		pos.x + width, pos.y
 	};	
 		

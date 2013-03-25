@@ -127,8 +127,14 @@ static void _gen_tree(Vector2 pos,SymDesc sd){
 				case -4:
 					spr = sprsheet_get_handle("branch_l_spikes");
 					spr2 = empty_spr;
-					desc = &obj_cactus_desc;
+					desc = &obj_spike_branch_desc;
 				break;
+
+				case -5:
+					spr = sprsheet_get_handle("branch_l_spring");
+					spr2 = empty_spr;
+					desc = &obj_spring_branch_desc;
+				break;				
 
 
 				// Right side branches
@@ -145,7 +151,19 @@ static void _gen_tree(Vector2 pos,SymDesc sd){
 				case 3:
 					spr = sprsheet_get_handle("branch_r_3");
 					spr2 = empty_spr;
+				break;
+
+				case 4:
+					spr = sprsheet_get_handle("branch_r_spikes");
+					spr2 = empty_spr;
+					desc = &obj_spike_branch_desc;
 				break;	
+
+				case 5:
+					spr = sprsheet_get_handle("branch_r_spring");
+					spr2 = empty_spr;
+					desc = &obj_spring_branch_desc;
+				break;									
 			}
 
 			if(spr != empty_spr){

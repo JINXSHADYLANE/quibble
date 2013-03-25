@@ -8,12 +8,28 @@ static RectF in_front_and_below(GameObject* obj){
 	PhysicsComponent* p = obj->physics;
 
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-	pos.x += 80.0f + (p->vel.x * 0.1f);
+	pos.x += 80.0f + (p->vel.x * 0.2f);
 
 	RectF rec = {
 		.left = pos.x,
 		.top = pos.y ,
 		.right = pos.x,
+		.bottom = HEIGHT
+	};
+
+	return rec;
+}
+
+static RectF in_front_and_below2(GameObject* obj){
+	PhysicsComponent* p = obj->physics;
+
+	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+	pos.x += 80.0f + (p->vel.x * 0.2f);
+
+	RectF rec = {
+		.left = pos.x + 70.0f,
+		.top = pos.y ,
+		.right = pos.x + 70.0f,
 		.bottom = HEIGHT
 	};
 
@@ -154,7 +170,7 @@ static void use_powerups(GameObject* obj){
 	if(d->has_powerup[ROCKET]) (powerup_params[ROCKET].powerup_callback) (obj);
 }
 
-void ai_control(GameObject* obj){
+void ai_control_autumn(GameObject* obj){
 	ObjRabbit* rabbit = (ObjRabbit*)obj;
 	ObjRabbitData* d = rabbit->data;
 
@@ -170,8 +186,8 @@ void ai_control(GameObject* obj){
 				//printf("	water\n");
 			}
 
-			if( there_is( OBJ_BRANCH_TYPE | OBJ_MUSHROOM_TYPE, in_front_of(obj) ) ){
-				//printf("	branch/mushroom in front\n");
+			if( there_is( OBJ_MUSHROOM_TYPE, in_front_of(obj) ) ){
+				//printf("	mushroom in front\n");
 				input = true;
 			}	
 
@@ -187,7 +203,7 @@ void ai_control(GameObject* obj){
 
 		} else {
 
-			if( ! there_is( OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE | OBJ_BRANCH_TYPE , in_landing_location(obj) ) ){ 
+			if( ! there_is( OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE, in_landing_location(obj) ) ){ 
 				input = true;
 				//printf("	landing location unsafe\n");
 			}
@@ -195,6 +211,61 @@ void ai_control(GameObject* obj){
 			if( there_is( OBJ_MUSHROOM_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ){ 
 				input = true;
 				//printf("	mushroom below\n" );
+			}
+
+			if( there_is( OBJ_FALL_TRIGGER_TYPE, below(obj) ) ){ 
+				input = false;
+				//printf("	unsafe to land, blocking input.\n");
+			}
+		}
+	}
+	// if ai decided to take action, press virtual keys
+	if(input){	
+		if(!d->virtual_key_down && !d->virtual_key_pressed) d->virtual_key_down = true;
+		d->virtual_key_pressed = true;
+	}
+
+}
+
+void ai_control_winter(GameObject* obj){
+	ObjRabbit* rabbit = (ObjRabbit*)obj;
+	ObjRabbitData* d = rabbit->data;
+
+	bool release = release_keys(obj);
+	
+	bool input = false;
+	use_powerups(obj);
+	if(!release){
+		if(d->touching_ground){
+
+			if(d->on_water && !d->has_powerup[SHIELD]){
+				input = true;
+				//printf("	water\n");
+			}
+
+			if( there_is( OBJ_BRANCH_TYPE | OBJ_SPRING_BRANCH_TYPE, in_front_of(obj) ) ){
+				//printf("	branch/mushroom in front\n");
+				input = true;
+			}	
+
+			if( there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below(obj)) &&
+				there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below2(obj))
+			  ){
+				//printf("	gap in front\n");
+				input = true;
+			}
+
+		} else {
+
+			if( ! there_is( OBJ_GROUND_TYPE | OBJ_BRANCH_TYPE |
+							OBJ_SPRING_BRANCH_TYPE | OBJ_SPIKE_BRANCH_TYPE , in_landing_location(obj) ) ){ 
+				input = true;
+				//printf("	landing location unsafe\n");
+			}
+
+			if( there_is( OBJ_SPRING_BRANCH_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ){ 
+				input = true;
+				//printf("	spring branch below\n" );
 			}
 
 			if( there_is( OBJ_FALL_TRIGGER_TYPE, below(obj) ) ){ 

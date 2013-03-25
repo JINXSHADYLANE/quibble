@@ -190,7 +190,7 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 		// damping
 		vel = _rabbit_damping(vel);
 
-		int obj_type = OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE | OBJ_BRANCH_TYPE;
+		int obj_type = OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE | OBJ_BRANCH_TYPE | OBJ_SPRING_BRANCH_TYPE | OBJ_SPIKE_BRANCH_TYPE;
 
 		if(jumped){
 
@@ -414,6 +414,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		objects_apply_force(self,_rabbit_calculate_forces(self,false));	
 		p->vel = _rabbit_damping(p->vel);
 
+		if(p->vel.y > 0.0f) d->touching_ground = false;
+
 	}
 
 }
@@ -518,15 +520,20 @@ static void _rabbit_delayed_bounce(void* r) {
 		d->combo_counter = 0;
 
 	d->bounce_force = vec2(0.0f, 0.0f);
+
 }
 
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
 	PhysicsComponent* p = self->physics;
+	Vector2 vel = self->physics->vel;
 
 	// Collision with ground
 	if(other->type == OBJ_GROUND_TYPE) {
+
+		d->spike_hit = false;
+
 		CDObj* cd_rabbit = self->physics->cd_obj;
 		CDObj* cd_ground = other->physics->cd_obj;
 		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
@@ -546,11 +553,38 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			);
 		}
 	}
+	// Collision with spring branch
+	else if(other->type == OBJ_SPRING_BRANCH_TYPE && !d->touching_ground &&
+		vel.y > 500.0f && d->bounce_force.y == 0.0f) {
 
+		d->mushroom_hit_time = time_s();
+		anim_play_ex(rabbit->anim, "bounce", TIME_S);
+		vel.y = -vel.y;
 
+		Vector2 f = {
+			.x = MIN(vel.x*d->xjump, 110000.0f),
+			.y = MAX(vel.y*d->yjump,-250000.0f)
+		};
+
+		d->bounce_force = f;
+
+		// Slow down vertical movevment
+		self->physics->vel.y *= 0.2f;
+
+		// Delay actual bouncing 0.1s
+		async_schedule(_rabbit_delayed_bounce, 20, self);
+	}
 
 	// Collision with branch
-	if(other->type == OBJ_BRANCH_TYPE) {
+	else if(other->type == OBJ_BRANCH_TYPE ||
+
+		(other->type == OBJ_SPIKE_BRANCH_TYPE && d->spike_hit) ||
+
+		(other->type == OBJ_SPRING_BRANCH_TYPE && d->bounce_force.y == 0.0f)
+
+		) {
+
+		if(other->type != OBJ_SPIKE_BRANCH_TYPE) d->spike_hit = false;
 
 		// Branch run
 		CDObj* cd_rabbit = self->physics->cd_obj;
@@ -578,10 +612,9 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		}
 
 	}	
-	
 
 	// Collision with fall trigger
-	if(other->type == OBJ_FALL_TRIGGER_TYPE) {
+	else if(other->type == OBJ_FALL_TRIGGER_TYPE) {
 		d->touching_ground = false;	
 
 		// Trampoline
@@ -613,7 +646,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	}
 
 	// Collision with speed trigger
-	if(other->type == OBJ_SPEED_TRIGGER_TYPE && d->rocket_time == 0.0f ) {
+	else if(other->type == OBJ_SPEED_TRIGGER_TYPE && d->rocket_time == 0.0f ) {
 		if(!d->has_powerup[SHIELD]){
 			ObjSpeedTrigger* t = (ObjSpeedTrigger*)other;
 			objects_apply_force(self, 
@@ -624,8 +657,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	}
 
 	// Collision with mushroom
-	Vector2 vel = self->physics->vel;
-	if(other->type == OBJ_MUSHROOM_TYPE && !d->touching_ground &&
+	else if(other->type == OBJ_MUSHROOM_TYPE && !d->touching_ground &&
 		vel.y > 500.0f && d->bounce_force.y == 0.0f) {
 
 		d->mushroom_hit_time = time_s();
@@ -647,7 +679,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	}
 
 	// Collision with trampoline
-	if(other->type == OBJ_TRAMPOLINE_TYPE) {
+	else if(other->type == OBJ_TRAMPOLINE_TYPE) {
 		ObjTrampoline* trampoline = (ObjTrampoline*)other;
 
 		if(trampoline->owner == self && 
@@ -660,7 +692,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 				vec2(d->xjump*d->xjump, -d->yjump*d->yjump)
 			);
 		}
-	}	
+	}
 }
 
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
@@ -704,11 +736,10 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	if(id < 0){
 		// Player rabbit
 		render->spr = sprsheet_get_handle("rabbit");
-		rabbit->control = obj_rabbit_player_control;
-		//rabbit->control = ai_control; d->ai_max_combo = 999;
+		rabbit->control = obj_rabbit_player_control; d->player_control = true;
+		//rabbit->control = ai_control_autumn; d->ai_max_combo = 999; d->player_control = false;
 		d->minimap_color = COLOR_RGBA(150, 150, 150, 255);
 		d->rabbit_name = "You";
-		d->player_control = true;
 		d->speed = 500.0f;
 		d->xjump = 100.0f;
 		d->yjump = 400.0f;
@@ -716,9 +747,18 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		// AI rabbit
 		LevelDesc* lvl_desc = levels_current_desc();
 
+		switch(lvl_desc->season){
+			default:
+				rabbit->control = ai_control_autumn;
+			break;
+
+			case WINTER:
+				rabbit->control = ai_control_winter;
+			break;
+		}
+
 		render->spr = lvl_desc->ai_rabbit_spr[id];
 		d->minimap_color = lvl_desc->ai_rabbit_colors[id];
-		rabbit->control = ai_control;
 		d->rabbit_name = lvl_desc->ai_rabbit_names[id];
 		d->speed = lvl_desc->ai_rabbit_speeds[id];
 		d->xjump = lvl_desc->ai_rabbit_xjumps[id];
