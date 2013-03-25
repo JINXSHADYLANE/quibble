@@ -7,7 +7,7 @@
 #include "mempool.h"
 
 // Broad-phase collission detection system, using spatial hash map.
-// Supports circle and AABB primitives.
+// Supports circle, AABB and OBB primitives.
 
 typedef struct {
 	int x, y;
@@ -40,15 +40,20 @@ typedef struct {
 
 typedef enum {
 	CD_CIRCLE = 0,
-	CD_AABB
+	CD_AABB,
+	CD_OBB
 } CDObjType;
 
 typedef struct {
+	CDObjType type;	
+	uint mask;
+
 	Vector2 pos;
 	union {
 		Vector2 size;
 		float radius;
 	} size;
+	float angle; // Meaningfull only for OBB
 
 	// Moving is done by setting offset and calling coldet_process
 	Vector2 offset;
@@ -57,9 +62,8 @@ typedef struct {
 	// dirty flag must be set
 	bool dirty;
 
-	CDObjType type;	
-	uint mask;
 	void* userdata;
+
 	ListHead list;
 } CDObj;
 
@@ -88,6 +92,10 @@ CDObj* coldet_new_circle(CDWorld* cd, Vector2 center, float radius,
 // Creates a new AABB object, adds it to the world
 CDObj* coldet_new_aabb(CDWorld* cd, const RectF* rect, uint mask,
 		void* userdata);
+
+// Creates a new OBB objects, adds it to the world
+CDObj* coldet_new_obb(CDWorld* cd, const RectF* rect, float angle,
+		uint mask, void* userdata);
 
 // Removes any object. Pointers to it become invalid!
 // Calling this in query/collission callback results in
