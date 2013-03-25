@@ -61,6 +61,30 @@
 
 	### LEVEL 2 ###
 
+	(ruleset tall_mushrooms_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		
+		(sdef z (seq "c_g_b_h_a_i_e_f_j"))
+
+		(def _ (.empty 200))
+		(def = (.empty 100))
+
+		(init "__")
+
+		(learn "__b_z")
+		(learn "__b_z_abc_")
+		(learn "c_zz_b_z")
+	)	
 	(ruleset level2_fg
 		(def a (mushroom_1 150))
 		(def b (mushroom_6 150))
@@ -110,6 +134,33 @@
 
 	### LEVEL 3 ###
 
+	(ruleset cactuses_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		
+		(def g (bg_mushroom_6 150))
+		(def h (bg_mushroom_5 150))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 200))
+		(def x (spikeshroom_1 150))
+
+		(sdef z (seq "_f_x_e_x_cg_x_bh_x_ia_x_jac"))
+
+		(def _ (.empty 200))
+		
+		(init "__")
+
+		(learn "__a_b_a_b_z")
+		(learn "_e_d_b_a_")
+		(learn "__e")
+		(learn "a_d_b_dc_ca_f_c")
+		(learn "e_d_b_")
+		(learn "_z_dc_")
+	)	
 	(ruleset level3_fg
 		(def a (mushroom_1 150))
 		(def b (mushroom_6 150))
