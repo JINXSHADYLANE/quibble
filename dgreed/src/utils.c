@@ -224,8 +224,8 @@ bool rectf_obb_circle_collision(const RectF* rect, float rect_angle,
 	Vector2 d = vec2_sub(*p, center);
 	
 	// Basis vectors for new space
-	Vector2 xp = { .x = c, .y = s };
-	Vector2 yp = { .x = s, .y = -c };
+	Vector2 xp = { .x = c, .y = -s };
+	Vector2 yp = { .x = s, .y = c };
 
 	// Transform d to new space
 	Vector2 dp = {
@@ -235,8 +235,8 @@ bool rectf_obb_circle_collision(const RectF* rect, float rect_angle,
 
 	// We've now reduced this test to aabb-circle test!
 	
-	float hw = rectf_width(rect);
-	float hh = rectf_height(rect);
+	float hw = rectf_width(rect) * 0.5f;
+	float hh = rectf_height(rect) * 0.5f;
 
 	float sq_dist = 0.0f;
 	if(dp.x < -hw) {
@@ -307,7 +307,7 @@ bool rectf_obb_obb_collision(const RectF* a, float a_angle,
 	float bc = cosf(b_angle);
 
 	Vector2 axes[] = {
-		{ac, as}, {as, -ac}, {bc, bs}, {bs, -bc}
+		{ac, -as}, {as, ac}, {bc, -bs}, {bs, bc}
 	};
 
 	// Check if any of them separate sets
