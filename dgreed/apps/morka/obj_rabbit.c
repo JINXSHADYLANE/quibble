@@ -170,29 +170,48 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 	PhysicsComponent* p = rabbit->header.physics;	
 
 	bool jumped = false;
+	bool hit = false;
 	Vector2 acc = p->acc;
 	Vector2 vel = p->vel;
 	Vector2 landing = p->cd_obj->pos;	
 	acc = vec2_add(acc,force);
 
-	uint iterations = 0;
 	// predict landing
-	while(landing.y <= 579.0f || !jumped){
-		if(landing.y < 579.0f) jumped = true;
+	while(!hit || !jumped){
+		
+		acc = vec2_add(acc, _rabbit_calculate_forces(self,true) );
 
-			acc = vec2_add(acc, _rabbit_calculate_forces(self,true) );
+		// physics tick
+		Vector2 a = vec2_scale(acc, p->inv_mass * PHYSICS_DT);
+		vel = vec2_add(vel, a);
+		acc = vec2(0.0f, 0.0f);
+		landing = vec2_add(landing, vec2_scale(vel, PHYSICS_DT));
 
-			// physics tick
-			Vector2 a = vec2_scale(acc, p->inv_mass * PHYSICS_DT);
-			vel = vec2_add(vel, a);
-			acc = vec2(0.0f, 0.0f);
-			landing = vec2_add(landing, vec2_scale(vel, PHYSICS_DT));
+		// damping
+		vel = _rabbit_damping(vel);
 
-			// damping
-			vel = _rabbit_damping(vel);
+		int obj_type = OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE | OBJ_BRANCH_TYPE;
 
-			if(++iterations > 200)
-				LOG_ERROR("predict landing iterations > 200, propably stuck in loop.");
+		if(jumped){
+
+			RectF rec = {
+				.left = landing.x,
+				.top = landing.y,
+				.right = landing.x + rabbit_hitbox_width,
+				.bottom = landing.y + rabbit_hitbox_height
+			};
+
+			GameObject* result[3] = {0};
+			objects_aabb_query(&rec,&result[0],3);
+			for(uint i = 0; i < 3; i++)	{
+				if(result[i] && (result[i]->type & obj_type) ) hit = true;
+			}
+
+			if(landing.y > HEIGHT) hit = true;		
+		} else {
+			if(vel.y > 0.0f) jumped = true;
+		}
+
 	}
 	return landing;
 }
@@ -252,7 +271,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					Vector2 force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
 					anim_play_ex(rabbit->anim, "jump", TIME_S);
 					
-					d->land = _predict_landing(rabbit,force).x;
+					if(!d->player_control) d->land = _predict_landing(rabbit,force);
 
 					d->combo_counter = 0;
 				
@@ -322,7 +341,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					else if( (d->is_diving && d->virtual_key_pressed) || d->force_dive ) {
 						d->dived = true;
 					}
-					else if(d->is_diving && !d->virtual_key_pressed) {
+					else if( d->is_diving && !d->virtual_key_pressed) {
 						d->is_diving = false;
 						anim_play_ex(rabbit->anim, "glide", TIME_S);
 					}
@@ -457,7 +476,7 @@ static void _rabbit_delayed_bounce(void* r) {
 	if(p->acc.y >= 0.0f && !d->touching_ground && (d->jump_off_mushroom || d->is_diving) ) {
 		d->touching_ground = false;
 
-		d->land = _predict_landing(rabbit,d->bounce_force).x;
+		if(!d->player_control) d->land = _predict_landing(rabbit,d->bounce_force);
 
 		if(d->player_control) tutorial_event(BOUNCE_PERFORMED);
 		d->force_dive = false;

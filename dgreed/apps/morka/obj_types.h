@@ -5,24 +5,27 @@
 
 #include "objects.h"
 
+//1,2,4,8,10,20,40,80,100,200,400,800
 enum {
-	OBJ_RABBIT_TYPE = 1,
-	OBJ_GROUND_TYPE,
-	OBJ_DECO_TYPE,
-	OBJ_FG_DECO_TYPE,
-	OBJ_MUSHROOM_TYPE,
-	OBJ_TRAMPOLINE_TYPE,
-	OBJ_CACTUS_TYPE,
-	OBJ_SPEED_TRIGGER_TYPE,
-	OBJ_FALL_TRIGGER_TYPE,
-	OBJ_PARTICLE_ANCHOR_TYPE,
-	OBJ_BG_PARTICLE_ANCHOR_TYPE,
-	OBJ_POWERUP_TYPE,
-	OBJ_FLOATER_TYPE,
-	OBJ_BOMB_TYPE,
-	OBJ_ERASER_TYPE,
-	OBJ_TRUNK_TYPE,
-	OBJ_BRANCH_TYPE
+	OBJ_GROUND_TYPE = 0x01,
+	OBJ_MUSHROOM_TYPE = 0x02,
+	OBJ_TRAMPOLINE_TYPE = 0x04,
+	OBJ_CACTUS_TYPE = 0x08,
+	OBJ_FALL_TRIGGER_TYPE = 0x10,
+	OBJ_BRANCH_TYPE = 0x20
+};
+enum {
+	OBJ_RABBIT_TYPE 			=  1 << 8,
+	OBJ_DECO_TYPE 				=  2 << 8,
+	OBJ_FG_DECO_TYPE 			=  3 << 8,
+	OBJ_SPEED_TRIGGER_TYPE		=  4 << 8,
+	OBJ_ERASER_TYPE				=  5 << 8,
+	OBJ_TRUNK_TYPE				=  6 << 8,
+	OBJ_PARTICLE_ANCHOR_TYPE	=  7 << 8,
+	OBJ_BG_PARTICLE_ANCHOR_TYPE	=  8 << 8,
+	OBJ_FLOATER_TYPE			=  9 << 8,
+	OBJ_POWERUP_TYPE			= 10 << 8,
+	OBJ_BOMB_TYPE				= 11 << 8			
 };
 
 // Powerup
@@ -77,7 +80,7 @@ typedef struct {
 	Vector2 bounce_force;
 	bool player_control;
 	bool falling_down;
-	float land;
+	Vector2 land;
 	float rabbit_time;
 	const char* rabbit_name; 
 	bool game_over;

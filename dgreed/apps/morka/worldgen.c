@@ -97,6 +97,8 @@ static void _gen_tree(Vector2 pos,SymDesc sd){
 			// Add Trunk
 			objects_create(&obj_trunk_desc, position, (void*)spr);
 
+			GameObjectDesc * desc = &obj_branch_desc;
+
 			// Add branch
 			switch(branch){
 
@@ -125,6 +127,7 @@ static void _gen_tree(Vector2 pos,SymDesc sd){
 				case -4:
 					spr = sprsheet_get_handle("branch_l_spikes");
 					spr2 = empty_spr;
+					desc = &obj_cactus_desc;
 				break;
 
 
@@ -152,7 +155,9 @@ static void _gen_tree(Vector2 pos,SymDesc sd){
 				position.y -= (size.y / 2.0f) - cntr_off.y;
 				if(branch < 0.0f) 
 					position.x -= size.x;		
-				objects_create(&obj_branch_desc, position, (void*)spr);
+				objects_create(desc, position, (void*)spr);
+
+				if(position.y < 380.0f || position.y > 500.0f ) objects_create(&obj_powerup_desc, vec2(position.x + size.x / 2.0f,position.y - size.y - 20.0f),(void*)&coin_powerup);
 
 				if(spr2 != empty_spr){
 					Vector2 size2 = sprsheet_get_size_h(spr2);
@@ -163,7 +168,9 @@ static void _gen_tree(Vector2 pos,SymDesc sd){
 						position.x -= size2.x;
 					else	
 						position.x += size.x;
-					objects_create(&obj_branch_desc, position, (void*)spr2);
+					objects_create(desc, position, (void*)spr2);
+
+					if(position.y < 380.0f || position.y > 500.0f ) objects_create(&obj_powerup_desc, vec2(position.x + size2.x / 2.0f,position.y - size2.y - 20.0f),(void*)&coin_powerup);
 				}	
 
 			}
@@ -219,6 +226,8 @@ static void _gen_winter_ground(void){
 					sym == 'l'){
 					ObjSpeedTrigger* t = (ObjSpeedTrigger*)objects_create(&obj_speed_trigger_desc, pos, (void*)spr);
 					t->drag_coef = 1.9f;
+
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance/2.0f,585.0f),(void*)&coin_powerup);
 				}
 			}		
 		} else {

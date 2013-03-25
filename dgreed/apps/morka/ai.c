@@ -12,9 +12,9 @@ static RectF in_front_and_below(GameObject* obj){
 
 	RectF rec = {
 		.left = pos.x,
-		.top = 580.0f,
+		.top = pos.y ,
 		.right = pos.x,
-		.bottom = 620.0f
+		.bottom = HEIGHT
 	};
 
 	return rec;
@@ -24,8 +24,8 @@ static RectF below(GameObject* obj){
 	PhysicsComponent* p = obj->physics;
 
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-	pos.x += 80.0f + (p->vel.x * 0.3f) *(579.0f-pos.y)/579.0f;	
-	pos.y += 92.0f;
+	pos.x += 40.0f + (p->vel.x * 0.3f) *(579.0f-pos.y)/579.0f;	
+	pos.y += 80.0f;
 
 	RectF rec = {
 		.left = pos.x,
@@ -46,7 +46,7 @@ static RectF in_front_of(GameObject* obj){
 		.left = pos.x,
 		.top = pos.y - 100.0f,
 		.right = pos.x + 80.0f,
-		.bottom = pos.y
+		.bottom = pos.y + 10.0f
 	};
 
 	return rec;
@@ -61,7 +61,7 @@ static RectF in_front_of_avoid(GameObject* obj){
 		.left = pos.x,
 		.top = pos.y - 100.0f,
 		.right = pos.x + 80.0f,
-		.bottom = pos.y
+		.bottom = pos.y + 10.0f
 	};
 
 	return rec;
@@ -72,10 +72,10 @@ static RectF in_landing_location(GameObject* obj){
 	ObjRabbitData* d = rabbit->data;
 
 	RectF rec = {
-		.left = d->land,
-		.top = HEIGHT - 50.0f,
-		.right = d->land+70.0f,
-		.bottom = HEIGHT-10.0f
+		.left = d->land.x,
+		.top = d->land.y,
+		.right = d->land.x + 70.0f,
+		.bottom = d->land.y + 62.0f
 	};
 
 	return rec;
@@ -93,23 +93,25 @@ static bool there_is(int obj_type, RectF rec){
 		GameObject* result = NULL;
 		result = objects_raycast(vec2(rec.left,rec.top),vec2(rec.right,rec.bottom));
 
-		if(result && result->type == obj_type) return true;
+		if(result && (result->type & obj_type) ) return true;
 
 	} else {
 
-		GameObject* result[2] = {0};
-		objects_aabb_query(&rec,&result[0],2);
-		for(uint i = 0; i < 2; i++)	{
-			if(result[i] && result[i]->type == obj_type) return true;
+		GameObject* result[3] = {0};
+		objects_aabb_query(&rec,&result[0],3);
+		for(uint i = 0; i < 3; i++)	{
+			if(result[i] && (result[i]->type & obj_type) ) return true;
 		}
 	}
 
 	return false;
 }
 
-static void release_keys(GameObject* obj){
+static bool release_keys(GameObject* obj){
 	ObjRabbit* rabbit = (ObjRabbit*)obj;
 	ObjRabbitData* d = rabbit->data;
+
+	bool release = false;
 
 	// key_down and key_up only last one frame
 	if(d->virtual_key_down) d->virtual_key_down = false;
@@ -125,6 +127,7 @@ static void release_keys(GameObject* obj){
 
 		d->virtual_key_pressed = false;
 		d->virtual_key_up = true;
+		release = true;
 	}
 
 	// release button when in the air
@@ -132,8 +135,11 @@ static void release_keys(GameObject* obj){
 		if(d->virtual_key_pressed){
 			d->virtual_key_pressed = false;
 			d->virtual_key_up = true;
+			release = true;
 		}	
 	}
+
+	return release;
 
 }
 
@@ -152,44 +158,51 @@ void ai_control(GameObject* obj){
 	ObjRabbit* rabbit = (ObjRabbit*)obj;
 	ObjRabbitData* d = rabbit->data;
 
-	release_keys(obj);
+	bool release = release_keys(obj);
 	
 	bool input = false;
-
 	use_powerups(obj);
+	if(!release){
+		if(d->touching_ground){
 
-	if(d->touching_ground){
+			if(d->on_water && !d->has_powerup[SHIELD]){
+				input = true;
+				//printf("	water\n");
+			}
 
-		if(d->on_water && !d->has_powerup[SHIELD])
-			input = true;
+			if( there_is( OBJ_BRANCH_TYPE | OBJ_MUSHROOM_TYPE, in_front_of(obj) ) ){
+				//printf("	branch/mushroom in front\n");
+				input = true;
+			}	
 
-		if( there_is( OBJ_MUSHROOM_TYPE, in_front_of(obj) ) )
-			input = true;
+			if( there_is( OBJ_CACTUS_TYPE, in_front_of_avoid(obj) ) ){
+				//printf("	cactus in front\n");
+				input = true;
+			}
 
-		if( there_is( OBJ_BRANCH_TYPE, in_front_of(obj) ) )
-			input = true;
+			if( there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below(obj) ) ){
+				//printf("	gap in front\n");
+				input = true;
+			}
 
-		if( there_is( OBJ_CACTUS_TYPE, in_front_of_avoid(obj) ) )
-			input = true;
+		} else {
 
-		if( there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below(obj) ) )
-			input = true;
+			if( ! there_is( OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE | OBJ_BRANCH_TYPE , in_landing_location(obj) ) ){ 
+				input = true;
+				//printf("	landing location unsafe\n");
+			}
 
-	} else {
+			if( there_is( OBJ_MUSHROOM_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ){ 
+				input = true;
+				//printf("	mushroom below\n" );
+			}
 
-		if( there_is( OBJ_FALL_TRIGGER_TYPE, in_landing_location(obj) ) ) 
-			input = true;
-
-		if( there_is( OBJ_MUSHROOM_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ) 
-			input = true;
-
-		if( there_is( OBJ_BRANCH_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ) 
-			input = true;
-
-		if( there_is( OBJ_FALL_TRIGGER_TYPE, below(obj) ) ) 
-			input = false;
+			if( there_is( OBJ_FALL_TRIGGER_TYPE, below(obj) ) ){ 
+				input = false;
+				//printf("	unsafe to land, blocking input.\n");
+			}
+		}
 	}
-
 	// if ai decided to take action, press virtual keys
 	if(input){	
 		if(!d->virtual_key_down && !d->virtual_key_pressed) d->virtual_key_down = true;
