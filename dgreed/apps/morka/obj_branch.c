@@ -17,7 +17,7 @@ static void obj_branch_collide(GameObject* self, GameObject* other) {
 }
 
 static void obj_branch_update_pos(GameObject* self) {
-	ObjMushroom* branch = (ObjMushroom*)self;
+	ObjBranch* branch = (ObjBranch*)self;
 	RenderComponent* r = self->render;
 
 	float f = 100.0f * (branch->oh - branch->h);

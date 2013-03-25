@@ -12,7 +12,9 @@ enum {
 	OBJ_TRAMPOLINE_TYPE = 0x04,
 	OBJ_CACTUS_TYPE = 0x08,
 	OBJ_FALL_TRIGGER_TYPE = 0x10,
-	OBJ_BRANCH_TYPE = 0x20
+	OBJ_BRANCH_TYPE = 0x20,
+	OBJ_SPIKE_BRANCH_TYPE = 0x40,
+	OBJ_SPRING_BRANCH_TYPE = 0x80
 };
 enum {
 	OBJ_RABBIT_TYPE 			=  1 << 8,
@@ -104,6 +106,7 @@ typedef struct {
 
 	bool jumped;
 	bool dived;
+	bool spike_hit;
 
 	uint last_frame;
 } ObjRabbitData;
@@ -263,5 +266,22 @@ typedef struct {
 
 extern GameObjectDesc obj_branch_desc;
 
+// Spike Branch
+
+typedef struct {
+	GameObject header;
+	float oh, h, dh;
+} ObjSpikeBranch;
+
+extern GameObjectDesc obj_spike_branch_desc;
+
+// Spring Branch
+
+typedef struct {
+	GameObject header;
+	float oh, h, dh;
+} ObjSpringBranch;
+
+extern GameObjectDesc obj_spring_branch_desc;
 
 #endif

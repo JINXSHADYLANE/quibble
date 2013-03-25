@@ -3,6 +3,7 @@
 
 #include "obj_types.h"
 
-void ai_control(GameObject* obj);
+void ai_control_autumn(GameObject* obj);
+void ai_control_winter(GameObject* obj);
 
 #endif
