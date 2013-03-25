@@ -340,6 +340,43 @@ TEST_(rectf_inside_circle) {
 	ASSERT_(rectf_inside_circle(&b, &cb, 7.0f) == true);
 }
 
+TEST_(rectf_obb_circle_collision) {
+	RectF a = {1.0f, 3.0f, 5.0f, 4.0f};
+
+	Vector2 c = {0.0f, 3.4f};
+	ASSERT_(rectf_obb_circle_collision(&a, 0.0f, &c, 0.9f) == false);
+	ASSERT_(rectf_obb_circle_collision(&a, 0.0f, &c, 1.1f) == true);
+	ASSERT_(rectf_obb_circle_collision(&a, PI/2, &c, 1.1f) == false);
+	ASSERT_(rectf_obb_circle_collision(&a, PI/2, &c, 2.9f) == true);
+}
+
+TEST_(rectf_obb_obb_collision) {
+	// Easy tests
+	RectF a = {1.0f, 3.0f, 5.0f, 4.0f};
+	RectF b = {4.0f, -1.0f, 5.0f, 5.0f};
+
+	ASSERT_(rectf_obb_obb_collision(&a, 0.0f, &b, 0.0f) == true);
+	ASSERT_(rectf_obb_obb_collision(&a, PI/2.0f, &b, 0.0f) == false);
+	ASSERT_(rectf_obb_obb_collision(&a, PI, &b, 0.0f) == true);
+	ASSERT_(rectf_obb_obb_collision(&a, 0.0f, &b, -PI/2.0f) == false);
+	ASSERT_(rectf_obb_obb_collision(&a, 0.0f, &b, -PI) == true);
+	ASSERT_(rectf_obb_obb_collision(&a, -0.1f, &b, 0.1) == true);
+
+	// Corner case - 1st obb is aligned to axes, 2nd is rotated PI/4
+	// radians and barely not touching 1st obb top right vertex with
+	// an edge. No matter how 1st is rotated, there will be no collision,
+	// but rotating 2nd to axis-aligned position makes them collide.
+	RectF c = {0.0f, 0.0f, 1.0f, 1.0f};
+	float dx = 1.1f + 0.5f * sqrtf(2.0f) / 2.0f;
+	RectF d = {dx - 0.5f, dx - 0.5f, dx + 0.5f, dx + 0.5f};
+	ASSERT_(rectf_obb_obb_collision(&c, 0.0f, &d, PI/4.0f) == false);
+	ASSERT_(rectf_obb_obb_collision(&c, 0.0f, &d, PI/2.0f) == true);
+	ASSERT_(rectf_obb_obb_collision(&c, 0.2f, &d, PI/4.0f) == false);
+	ASSERT_(rectf_obb_obb_collision(&c, 0.4f, &d, PI/4.0f) == false);
+	ASSERT_(rectf_obb_obb_collision(&c, 0.6f, &d, PI/4.0f) == false);
+	ASSERT_(rectf_obb_obb_collision(&c, 0.8f, &d, PI/4.0f) == false);
+}
+
 bool _vec2_feql(Vector2 v, float x, float y) {
 	return feql(v.x, x) && feql(v.y, y); 
 }
