@@ -53,7 +53,9 @@ typedef struct {
 		Vector2 size;
 		float radius;
 	} size;
-	float angle; // Meaningfull only for OBB
+	
+	// Meaningfull only for OBB, must set 'dirty' flag if modified
+	float angle;
 
 	// Moving is done by setting offset and calling coldet_process
 	Vector2 offset;

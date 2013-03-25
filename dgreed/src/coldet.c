@@ -93,26 +93,6 @@ static void _pt_cell(CDWorld* world, Vector2 pt, int* x, int* y) {
 		*y -= 1;
 }
 
-static void _obj_cell(CDWorld* world, CDObj* obj, int* x, int* y) {
-	Vector2 pt = obj->pos;			// Upper left corner
-	if(obj->type == CD_CIRCLE)
-		pt = vec2_sub(pt, vec2(obj->size.radius, obj->size.radius));
-
-	_pt_cell(world, pt, x, y);
-
-	if(world->horiz_wrap) {
-		float x_off;
-		HORIZ_WRAP(*x, x_off);
-		obj->pos.x -= x_off;
-	}
-
-	if(world->vert_wrap) {
-		float y_off;
-		VERT_WRAP(*y, y_off);
-		obj->pos.y -= y_off;
-	}
-}
-
 static RectF _rectf_from_cell(CDWorld* world, int x, int y) {
 	assert(world);
 
@@ -140,46 +120,46 @@ static RectF _rectf_from_aabb(CDObj* obj) {
 	return rect;
 }
 
-static __attribute__((unused)) RectF _rectf_from_obb(CDObj* obj) {
+static RectF _rectf_from_obb(CDObj* obj) {
 	assert(obj);
 	assert(obj->type == CD_AABB);
 
-	float x = obj->pos.x;
-	float y = obj->pos.y;
-	float w = obj->size.size.x;
-	float h = obj->size.size.y;
-
-	Vector2 center = {
-		.x = x + w * 0.5f,
-		.y = y + h * 0.5f
+	RectF obb = {
+		.left = obj->pos.x,
+		.top = obj->pos.y,
+		.right = obj->pos.x + obj->size.size.x,
+		.bottom = obj->pos.y + obj->size.size.y
 	};
 
-	// Calculate four corner points
-	Vector2 pts[4];
-	pts[0] = vec2(x - center.x, y - center.y);
-	pts[1] = vec2(x + w - center.x, y - center.y);
-	pts[2] = vec2(x - center.x, y + h - center.y);
-	pts[3] = vec2(x + w - center.x, y + h - center.y);
-	gfx_transform(pts, 4, &center, obj->angle, 1.0f);
+	return rectf_obb_bbox(&obb, obj->angle);
+}
 
-	// Bounding box for the rotated obb
-	float x_min = pts[0].x, y_min = pts[0].y;
-	float x_max = pts[0].x, y_max = pts[0].y;
+static void _obj_cell(CDWorld* world, CDObj* obj, int* x, int* y) {
+	Vector2 pt = obj->pos;			// Upper left corner
 
-	for(uint i = 1; i < 4; ++i) {
-		x_min = MIN(x_min, pts[i].x);
-		y_min = MIN(y_min, pts[i].y);
-		x_max = MAX(x_max, pts[i].x);
-		y_max = MAX(y_max, pts[i].y);
+	if(obj->type == CD_CIRCLE)
+		pt = vec2_sub(pt, vec2(obj->size.radius, obj->size.radius));
+
+	if(obj->type == CD_OBB) {
+		RectF aabb = _rectf_from_obb(obj);
+		pt = vec2(aabb.left, aabb.top);
 	}
 
-	RectF bbox = {
-		.left = x_min, .top = y_min,
-		.right = x_max, .bottom = y_max
-	};
+	_pt_cell(world, pt, x, y);
 
-	return bbox;
+	if(world->horiz_wrap) {
+		float x_off;
+		HORIZ_WRAP(*x, x_off);
+		obj->pos.x -= x_off;
+	}
+
+	if(world->vert_wrap) {
+		float y_off;
+		VERT_WRAP(*y, y_off);
+		obj->pos.y -= y_off;
+	}
 }
+
 
 static void _coldet_hashmap_init(CDWorld* world, uint size) {
 	assert(world);

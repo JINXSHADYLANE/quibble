@@ -2,6 +2,7 @@
 #include "memory.h"
 #include "sophist.h"
 #include "async.h"
+#include "gfx_utils.h"
 
 #include <ctype.h>
 
@@ -205,6 +206,162 @@ bool rectf_rectf_collision(const RectF* r1, const RectF* r2) {
 			return true;
 
 	return false;
+}
+
+bool rectf_obb_circle_collision(const RectF* rect, float rect_angle, 
+	const Vector2* p, float r) {
+	assert(rect && p);
+	assert(r >= 0.0f);
+
+	Vector2 center = rectf_center(rect);
+
+	float s = sinf(rect_angle);
+	float c = cosf(rect_angle);
+
+	// Transform circle center to coordinate space where obb is aabb
+	
+	// Vector from obb center to circle center
+	Vector2 d = vec2_sub(*p, center);
+	
+	// Basis vectors for new space
+	Vector2 xp = { .x = c, .y = s };
+	Vector2 yp = { .x = s, .y = -c };
+
+	// Transform d to new space
+	Vector2 dp = {
+		.x = vec2_dot(xp, d),
+		.y = vec2_dot(yp, d)
+	};
+
+	// We've now reduced this test to aabb-circle test!
+	
+	float hw = rectf_width(rect);
+	float hh = rectf_height(rect);
+
+	float sq_dist = 0.0f;
+	if(dp.x < -hw) {
+		float p = -hw - dp.x;
+		sq_dist += p*p; 
+	}
+	if(dp.x > hw) {
+		float p = dp.x - hw;
+		sq_dist += p*p;
+	}
+	if(dp.y < -hh) {
+		float p = -hh - dp.y;
+		sq_dist += p*p; 
+	}
+	if(dp.y > hh) {
+		float p = dp.y - hh;
+		sq_dist += p*p;
+	}
+
+	return sq_dist <= r*r;
+}
+
+// Returns true if axis separates rectangular sets a and b
+static bool _separates(Vector2 axis, Vector2* a, Vector2* b) {
+	float a_min = FLT_MAX, a_max = FLT_MIN;
+	float b_min = FLT_MAX, b_max = FLT_MIN;
+
+	for(uint i = 0; i < 4; ++i) {
+		float ap = vec2_dot(axis, a[i]);	
+		float bp = vec2_dot(axis, b[i]); 
+		a_min = MIN(a_min, ap);
+		a_max = MAX(a_max, ap);
+		b_min = MIN(b_min, bp);
+		b_max = MAX(b_max, bp);
+	};
+
+	return !interval_collision(a_min, a_max, b_min, b_max);
+}
+
+bool rectf_obb_obb_collision(const RectF* a, float a_angle,
+	const RectF* b, float b_angle) {
+	assert(a && b);
+
+	Vector2 ca = rectf_center(a);
+	Vector2 cb = rectf_center(b);
+
+	// Calculate four corner points for both obb
+	Vector2 ap[] = {
+		{a->left - ca.x, a->top - ca.y},
+		{a->right - ca.x, a->top - ca.y},
+		{a->right - ca.x, a->bottom - ca.y},
+		{a->left - ca.x, a->bottom - ca.y}
+	};
+	gfx_transform(ap, 4, &ca, a_angle, 1.0f);
+
+	Vector2 bp[] = {
+		{b->left - cb.x, b->top - cb.y},
+		{b->right - cb.x, b->top - cb.y},
+		{b->right - cb.x, b->bottom - cb.y},
+		{b->left - cb.x, b->bottom - cb.y}
+	};
+	gfx_transform(bp, 4, &cb, b_angle, 1.0f);
+
+	// Calculate the four possible separating axes
+	float as = sinf(a_angle);
+	float ac = cosf(a_angle);
+	float bs = sinf(b_angle);
+	float bc = cosf(b_angle);
+
+	Vector2 axes[] = {
+		{ac, as}, {as, -ac}, {bc, bs}, {bs, -bc}
+	};
+
+	// Check if any of them separate sets
+	for(uint i = 0; i < 4; ++i) {
+		if(_separates(axes[i], ap, bp))
+			return false;
+	}
+
+	return true;
+}
+
+bool rectf_aabb_obb_collision(const RectF* aabb, const RectF* obb, 
+	float obb_angle) {
+
+	// TODO: There is a faster check
+	return rectf_obb_obb_collision(aabb, 0.0f, obb, obb_angle);
+}
+
+RectF rectf_obb_bbox(const RectF* obb, float angle) {
+	float x = obb->left; 
+	float y = obb->top;
+	float w = rectf_width(obb);
+	float h = rectf_height(obb);
+
+	Vector2 center = {
+		.x = x + w * 0.5f,
+		.y = y + h * 0.5f
+	};
+
+	// Calculate four corner points
+	Vector2 pts[4];
+	pts[0] = vec2(x - center.x, y - center.y);
+	pts[1] = vec2(x + w - center.x, y - center.y);
+	pts[2] = vec2(x - center.x, y + h - center.y);
+	pts[3] = vec2(x + w - center.x, y + h - center.y);
+	gfx_transform(pts, 4, &center, angle, 1.0f);
+
+	// Bounding box for the rotated obb
+	float x_min = pts[0].x, y_min = pts[0].y;
+	float x_max = pts[0].x, y_max = pts[0].y;
+
+	for(uint i = 1; i < 4; ++i) {
+		x_min = MIN(x_min, pts[i].x);
+		y_min = MIN(y_min, pts[i].y);
+		x_max = MAX(x_max, pts[i].x);
+		y_max = MAX(y_max, pts[i].y);
+	}
+
+	RectF bbox = {
+		.left = x_min, .top = y_min,
+		.right = x_max, .bottom = y_max
+	};
+
+	return bbox;
 }
 
 Vector2 rectf_center(const RectF* r) {

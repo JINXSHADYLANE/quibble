@@ -186,6 +186,15 @@ bool rectf_inside_circle(const RectF* rect, const Vector2* p, float r);
 bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r);
 // Returns true if two rectangles intersect
 bool rectf_rectf_collision(const RectF* rect1, const RectF* rect2);
+// Returns true if rotated rectangle and circle intersect
+bool rectf_obb_circle_collision(const RectF* rect, float rect_angle, const Vector2* p, float r);
+// Returns true if two rotated rectangles intersect
+bool rectf_obb_obb_collision(const RectF* a, float a_angle, const RectF* b, float b_angle);
+// Returns true if aabb and obb rectangles intersect
+bool rectf_aabb_obb_collision(const RectF* aabb, const RectF* obb, float obb_angle);
+
+// Returns bounding box for obb
+RectF rectf_obb_bbox(const RectF* obb, float angle);
 
 // Returns signed width/height
 static inline float rectf_width(const RectF* r) {
