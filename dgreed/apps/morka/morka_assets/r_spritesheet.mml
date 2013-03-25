@@ -408,90 +408,106 @@
 	#################
 
 	(img branch_l_1
-		(tex r_atlas_23.png)
-		(src 618,506,986,647)
-		(cntr 797,577)
-	)
-	(img branch_l_2
-		(tex r_atlas_23.png)
-		(src 2,384,619,492)
-		(cntr 304,436)
-	)
-	(img branch_l_3_a
-		(tex r_atlas_23.png)
-		(src 2,128,704,250)
-		(cntr 354,189)
-	)
-	(img branch_l_3_b
-		(tex r_atlas_23.png)
-		(src 2,739,488,799)
-		(cntr 232,791)
-	)
-	(img branch_l_spikes
-		(tex r_atlas_23.png)
-		(src 2,250,645,384)
-		(cntr 323,317)
-	)
-	(img branch_r_1_a
-		(tex r_atlas_23.png)
-		(src 2,600,512,739)
-		(cntr 256,678)
-	)
-	(img branch_r_1_b
-		(tex r_atlas_23.png)
-		(src 2,863,412,924)
-		(cntr 208,928)
-	)
-	(img branch_r_2_a
-		(tex r_atlas_23.png)
-		(src 2,2,753,128)
-		(cntr 377,67)
-	)
-	(img branch_r_2_b
-		(tex r_atlas_23.png)
-		(src 2,799,436,863)
-		(cntr 219,851)
-	)
-	(img branch_r_3
-		(tex r_atlas_23.png)
-		(src 2,492,618,600)
-		(cntr 310,546)
-	)
-	(img trunk_1
-		(tex r_atlas_23.png)
-		(src 617,647,760,903)
-		(cntr 681,775)
-	)
-	(img trunk_2
-		(tex r_atlas_23.png)
-		(src 760,647,895,903)
-		(cntr 814,775)
-	)
-	(img trunk_3
-		(tex r_atlas_23.png)
-		(src 753,2,904,258)
-		(cntr 835,130)
-	)
-	(img trunk_4
-		(tex r_atlas_23.png)
-		(src 904,2,1019,258)
-		(cntr 991,130)
-	)
-	(img trunk_4b
-		(tex r_atlas_23.png)
-		(src 895,647,1016,903)
-		(cntr 987,775)
-	)
-	(img trunk_5
-		(tex r_atlas_23.png)
-		(src 512,600,617,856)
-		(cntr 585,728)
-	)
-	(img trunk_6
-		(tex r_atlas_23.png)
-		(src 645,250,752,506)
-		(cntr 721,378)
-	)
+	(tex r_atlas_23.png)
+	(src 645,506,1013,647)
+	(cntr 824,577)
+)
+(img branch_l_2
+	(tex r_atlas_23.png)
+	(src 2,518,619,626)
+	(cntr 304,570)
+)
+(img branch_l_3_a
+	(tex r_atlas_23.png)
+	(src 2,128,704,250)
+	(cntr 354,189)
+)
+(img branch_l_3_b
+	(tex r_atlas_23.png)
+	(src 512,967,998,1027)
+	(cntr 742,1019)
+)
+(img branch_l_spikes
+	(tex r_atlas_23.png)
+	(src 2,384,645,518)
+	(cntr 323,451)
+)
+(img branch_l_spring
+	(tex r_atlas_23.png)
+	(src 2,832,554,930)
+	(cntr 277,886)
+)
+(img branch_r_1_a
+	(tex r_atlas_23.png)
+	(src 2,930,512,1069)
+	(cntr 256,1008)
+)
+(img branch_r_1_b
+	(tex r_atlas_23.png)
+	(src 512,1027,922,1088)
+	(cntr 718,1092)
+)
+(img branch_r_2_a
+	(tex r_atlas_23.png)
+	(src 2,2,753,128)
+	(cntr 377,67)
+)
+(img branch_r_2_b
+	(tex r_atlas_23.png)
+	(src 554,903,988,967)
+	(cntr 771,955)
+)
+(img branch_r_3
+	(tex r_atlas_23.png)
+	(src 2,626,618,734)
+	(cntr 310,680)
+)
+(img branch_r_spikes
+	(tex r_atlas_23.png)
+	(src 2,250,645,384)
+	(cntr 323,317)
+)
+(img branch_r_spring
+	(tex r_atlas_23.png)
+	(src 2,734,556,832)
+	(cntr 279,788)
+)
+(img trunk_1
+	(tex r_atlas_23.png)
+	(src 618,647,761,903)
+	(cntr 682,775)
+)
+(img trunk_2
+	(tex r_atlas_23.png)
+	(src 761,647,896,903)
+	(cntr 815,775)
+)
+(img trunk_3
+	(tex r_atlas_23.png)
+	(src 753,2,904,258)
+	(cntr 835,130)
+)
+(img trunk_4
+	(tex r_atlas_23.png)
+	(src 904,2,1019,258)
+	(cntr 991,130)
+)
+(img trunk_4b
+	(tex r_atlas_23.png)
+	(src 896,647,1017,903)
+	(cntr 988,775)
+)
+(img trunk_5
+	(tex r_atlas_23.png)
+	(src 2,1069,107,1325)
+	(cntr 75,1197)
+)
+(img trunk_6
+	(tex r_atlas_23.png)
+	(src 645,250,752,506)
+	(cntr 721,378)
+)
+
 
 	#################
 	### atlas 2-4 ###
