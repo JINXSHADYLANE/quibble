@@ -298,7 +298,7 @@
 )
 (img grass3_sign
 	(tex atlas_13.png)
-	(src 159,730,415,968)
+	(src 160,730,414,967)
 	(cntr 287,840)
 )
 (img mushroom_1
