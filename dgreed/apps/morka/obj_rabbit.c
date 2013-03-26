@@ -203,16 +203,95 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 
 			GameObject* result[3] = {0};
 			objects_aabb_query(&rec,&result[0],3);
+
 			for(uint i = 0; i < 3; i++)	{
-				if(result[i] && (result[i]->type & obj_type) ) hit = true;
+
+				if(result[i] && (result[i]->type & obj_type) &&\
+					landing.y < result[i]->physics->cd_obj->pos.y)
+				{
+
+						hit = true;
+				} 
 			}
 
-			if(landing.y > HEIGHT) hit = true;		
+			if(landing.y > HEIGHT){
+				hit = true;
+				landing.y = HEIGHT - rabbit_hitbox_height;
+			}			
 		} else {
 			if(vel.y > 0.0f) jumped = true;
 		}
 
 	}
+
+	return landing;
+}
+
+static Vector2 _predict_diving(ObjRabbit* rabbit){
+	GameObject* self = (GameObject*) rabbit;
+	PhysicsComponent* p = rabbit->header.physics;
+	ObjRabbitData* d = rabbit->data;	
+
+	bool hit = false;
+	Vector2 acc = p->acc;
+	Vector2 vel = p->vel;
+	Vector2 landing = p->cd_obj->pos;	
+
+	// save state
+	bool jumped = d->jumped;
+	bool dived = d->dived;
+
+	// modify state for prediction
+	d->jumped = false;
+	d->dived = true;
+
+	// predict landing
+	while(!hit){
+		
+		acc = vec2_add(acc, _rabbit_calculate_forces(self,false) );
+
+		// physics tick
+		Vector2 a = vec2_scale(acc, p->inv_mass * PHYSICS_DT);
+		vel = vec2_add(vel, a);
+		acc = vec2(0.0f, 0.0f);
+		landing = vec2_add(landing, vec2_scale(vel, PHYSICS_DT));
+
+		//printf("landing: %f\n",landing.y );
+
+		// damping
+		vel = _rabbit_damping(vel);
+
+		int obj_type = OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE | OBJ_BRANCH_TYPE | OBJ_SPRING_BRANCH_TYPE | OBJ_SPIKE_BRANCH_TYPE;
+
+		RectF rec = {
+			.left = landing.x,
+			.top = landing.y,
+			.right = landing.x + rabbit_hitbox_width,
+			.bottom = landing.y + rabbit_hitbox_height
+		};
+
+		GameObject* result[3] = {0};
+		objects_aabb_query(&rec,&result[0],3);
+		for(uint i = 0; i < 3; i++)	{
+			if(result[i] && (result[i]->type & obj_type) && result[i] != d->previuos_hit) hit = true;
+		}
+
+		if(landing.y > HEIGHT){
+			hit = true;
+			landing.y = HEIGHT - rabbit_hitbox_height;
+		}			
+
+
+	}
+
+	// restore state
+	d->jumped = jumped;
+	d->dived = dived;
+
+	if(landing.x < p->cd_obj->pos.x) landing.x = p->cd_obj->pos.x;
+
+	if(landing.y - p->cd_obj->pos.y + p->cd_obj->offset.y < rabbit_hitbox_height) landing.y = p->cd_obj->pos.y + p->cd_obj->offset.y + rabbit_hitbox_height;
+
 	return landing;
 }
 
@@ -221,6 +300,9 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 	ObjRabbitData* d = rabbit->data;
 
 	if(!d->is_dead){
+
+		d->tokens = 0;
+
 		PhysicsComponent* p = self->physics;
 		d->jumped = false;
 		d->dived = false;
@@ -260,6 +342,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				d->trampoline_placed = false;			
 				d->combo_counter = 0;
 				d->boost = 0;
+
+				d->land = p->cd_obj->pos;
 
 				// Jump
 				if(d->virtual_key_down || d->force_jump){
@@ -416,6 +500,12 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		if(p->vel.y > 0.0f) d->touching_ground = false;
 
+		if(!d->player_control){
+			if(!d->touching_ground)
+				d->dive = _predict_diving(rabbit);
+			else
+				d->dive = p->cd_obj->pos;
+		}
 	}
 
 }
@@ -468,6 +558,9 @@ static void obj_rabbit_update_pos(GameObject* self) {
 static void obj_rabbit_became_visible(GameObject* self) {
 }
 static void obj_rabbit_became_invisible(GameObject* self) {
+	ObjRabbit* rabbit = (ObjRabbit*)self;	
+	ObjRabbitData* d = rabbit->data;
+	if(d->game_over) d->is_dead = true;
 }
 
 static void _rabbit_delayed_bounce(void* r) {
@@ -584,6 +677,8 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 		) {
 
+		d->previuos_hit = other;
+
 		if(other->type != OBJ_SPIKE_BRANCH_TYPE) d->spike_hit = false;
 
 		// Branch run
@@ -659,6 +754,8 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	// Collision with mushroom
 	else if(other->type == OBJ_MUSHROOM_TYPE && !d->touching_ground &&
 		vel.y > 500.0f && d->bounce_force.y == 0.0f) {
+
+		d->previuos_hit = other;
 
 		d->mushroom_hit_time = time_s();
 		anim_play_ex(rabbit->anim, "bounce", TIME_S);
