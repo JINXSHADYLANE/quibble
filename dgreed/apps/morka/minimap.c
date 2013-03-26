@@ -26,6 +26,7 @@ void minimap_close(void){
 
 void minimap_track(ObjRabbit* rabbit){
 	darray_append(&minimap_pointers, &rabbit);
+	results[minimap_pointers.size-1] = rabbit;
 }
 
 void minimap_draw_finish_line(void){
@@ -91,25 +92,50 @@ void minimap_draw(float t){
 	minimap_update_places();
 }
 
-void minimap_update_places(void){
-	if(level_distance > 0){
-		for(int i = 0; i < minimap_pointers.size;i++){
-			ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
-			ObjRabbit* rabbit = *p_rabbit;
-			if(rabbit && rabbit->header.type && !rabbit->data->game_over){
-				if(rabbit->data->is_dead){
-					rabbit->data->game_over = true;
-					results[minimap_pointers.size-1-dead_rabbits++] = rabbit;
-				} else {
-					float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
-					if(rd > level_distance){
-						rabbit->data->game_over = true;
-						results[place++] = rabbit;
-					}
-				}
-			} 
-		}
+static int rabbit_compar(const void* a, const void* b) {
+	const ObjRabbit** pa = (const ObjRabbit**) a;
+	const ObjRabbit** pb = (const ObjRabbit**) b;
+
+	const ObjRabbit* ra = *pa;
+	const ObjRabbit* rb = *pb;
+
+	float fa;
+	float fb;
+
+	if( (ra->data->game_over || rb->data->game_over)  &&
+		ra->data->rabbit_time > 0 && rb->data->rabbit_time > 0
+		){
+		// if either of rabbits has finished the race, but not fallen out,
+		// compare times (smaller is better)
+		fa = ra->data->rabbit_time;
+		fb = rb->data->rabbit_time;
+	} else {
+		// if neither of rabbits has finished the race or fallen out,
+		// compare distances (longer is better)
+		fb = ra->header.render->world_dest.left;
+		fa = rb->header.render->world_dest.left;
 	}
+
+	return fa - fb;
+}
+
+void minimap_update_places(void){
+	for(uint i = 0; i < minimap_pointers.size;i++ ){
+		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
+		ObjRabbit* rabbit = *p_rabbit;
+
+		if(rabbit && rabbit->header.type && !rabbit->data->game_over){
+			if(rabbit->data->is_dead)
+				rabbit->data->game_over = true;
+			else {
+				float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
+				if(rd > level_distance)
+					rabbit->data->game_over = true;
+			}
+		} 				
+		
+	}
+	sort_insertion(results, minimap_pointers.size, sizeof(ObjRabbit*),rabbit_compar);
 }
 
 void minimap_reset(uint distance){
@@ -152,14 +178,10 @@ float minimap_min_x(void){
 	return last;
 }
 
-float minimap_player_x(void){
-	return player_x;
-}
-
 uint minimap_get_count(void){
 	return minimap_pointers.size;
 }
-ObjRabbit* minimap_get_place(uint i){
+ObjRabbit* minimap_get_rabbit_in_place(uint i){
 	return results[i];
 }
 
@@ -167,4 +189,11 @@ ObjRabbit* minimap_get_rabbit(uint i){
 	ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
 	ObjRabbit* rabbit = *p_rabbit;
 	return rabbit;
+}
+
+uint minimap_get_place_of_rabbit(ObjRabbit* rabbit){
+	for(uint i = 0; i < minimap_pointers.size;i++ )
+		if(results[i] == rabbit) return i+1;
+
+	return minimap_pointers.size;
 }
