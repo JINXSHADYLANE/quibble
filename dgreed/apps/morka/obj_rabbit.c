@@ -311,8 +311,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 	if(!d->is_dead){
 
-		d->tokens = 0;
-
 		PhysicsComponent* p = self->physics;
 		d->jumped = false;
 		d->dived = false;
