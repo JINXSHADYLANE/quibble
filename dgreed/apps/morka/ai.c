@@ -37,17 +37,14 @@ static RectF in_front_and_below2(GameObject* obj){
 }
 
 static RectF below(GameObject* obj){
-	PhysicsComponent* p = obj->physics;
-
-	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-	pos.x += 40.0f + (p->vel.x * 0.3f) *(579.0f-pos.y)/579.0f;	
-	pos.y += 80.0f;
+	ObjRabbit* rabbit = (ObjRabbit*)obj;
+	ObjRabbitData* d = rabbit->data;
 
 	RectF rec = {
-		.left = pos.x,
-		.top = pos.y,
-		.right = pos.x,
-		.bottom = HEIGHT
+		.left = d->dive.x + 70.0f,
+		.top = d->dive.y,
+		.right = d->dive.x + 70.0f,
+		.bottom = d->dive.y + 62.0f
 	};
 
 	return rec;
@@ -203,9 +200,8 @@ void ai_control_autumn(GameObject* obj){
 
 		} else {
 
-			if( ! there_is( OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE, in_landing_location(obj) ) ){ 
+			if( there_is( OBJ_FALL_TRIGGER_TYPE, in_landing_location(obj) ) ){ 
 				input = true;
-				//printf("	landing location unsafe\n");
 			}
 
 			if( there_is( OBJ_MUSHROOM_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ){ 
@@ -219,6 +215,7 @@ void ai_control_autumn(GameObject* obj){
 			}
 		}
 	}
+
 	// if ai decided to take action, press virtual keys
 	if(input){	
 		if(!d->virtual_key_down && !d->virtual_key_pressed) d->virtual_key_down = true;
@@ -257,10 +254,8 @@ void ai_control_winter(GameObject* obj){
 
 		} else {
 
-			if( ! there_is( OBJ_GROUND_TYPE | OBJ_BRANCH_TYPE |
-							OBJ_SPRING_BRANCH_TYPE | OBJ_SPIKE_BRANCH_TYPE , in_landing_location(obj) ) ){ 
+			if( there_is( OBJ_FALL_TRIGGER_TYPE, in_landing_location(obj) ) ){ 
 				input = true;
-				//printf("	landing location unsafe\n");
 			}
 
 			if( there_is( OBJ_SPRING_BRANCH_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ){ 

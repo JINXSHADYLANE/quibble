@@ -83,6 +83,8 @@ typedef struct {
 	bool player_control;
 	bool falling_down;
 	Vector2 land;
+	Vector2 dive;
+	GameObject* previuos_hit;
 	float rabbit_time;
 	const char* rabbit_name; 
 	bool game_over;
