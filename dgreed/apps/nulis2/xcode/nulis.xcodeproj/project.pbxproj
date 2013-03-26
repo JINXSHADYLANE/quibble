@@ -125,14 +125,16 @@
 		21744017150B699B002C92D7 /* utfrune.c in Sources */ = {isa = PBXBuildFile; fileRef = 2174400F150B699B002C92D7 /* utfrune.c */; };
 		21744018150B699B002C92D7 /* utfutf.c in Sources */ = {isa = PBXBuildFile; fileRef = 21744010150B699B002C92D7 /* utfutf.c */; };
 		2174AAC4162416D100C8B682 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 2174AAC3162416D100C8B682 /* UIImage+Resize.m */; };
-		2174AAC81624184000C8B682 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2174AAC61624182F00C8B682 /* Social.framework */; };
+		2174AAC81624184000C8B682 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2174AAC61624182F00C8B682 /* Social.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		2183CA2114E285BF00ECDC45 /* ml_gamecenter.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */; };
 		2183CA2214E285BF00ECDC45 /* ml_keyval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2183CA1F14E285BF00ECDC45 /* ml_keyval.c */; };
-		21903DF2169ED0CB00DBDC1B /* vfont_apple.m in Sources */ = {isa = PBXBuildFile; fileRef = 21903DF0169ED0CB00DBDC1B /* vfont_apple.m */; };
+		218E4FD81701E9D300346001 /* lua_utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = 218E4FD71701E9D300346001 /* lua_utf8.c */; };
+		218E4FDB1701EA0400346001 /* memlin.c in Sources */ = {isa = PBXBuildFile; fileRef = 218E4FD91701EA0400346001 /* memlin.c */; };
+		218E4FDD1701EA3E00346001 /* vfont_stbtt.c in Sources */ = {isa = PBXBuildFile; fileRef = 218E4FDC1701EA3E00346001 /* vfont_stbtt.c */; };
+		218E4FDF1701EAC400346001 /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 218E4FDE1701EAC400346001 /* sys_gfx_ios.m */; };
 		21903DF3169ED0CB00DBDC1B /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21903DF1169ED0CB00DBDC1B /* vfont.c */; };
 		21903DF6169ED10D00DBDC1B /* anim.c in Sources */ = {isa = PBXBuildFile; fileRef = 21903DF4169ED10D00DBDC1B /* anim.c */; };
 		21903DF8169ED14600DBDC1B /* ml_anim.c in Sources */ = {isa = PBXBuildFile; fileRef = 21903DF7169ED14600DBDC1B /* ml_anim.c */; };
-		21903DFA169ED2A400DBDC1B /* sys_gfx_gles2.c in Sources */ = {isa = PBXBuildFile; fileRef = 21903DF9169ED2A400DBDC1B /* sys_gfx_gles2.c */; };
 		2194F0C614D7FF5900147A0C /* ml_coldet.c in Sources */ = {isa = PBXBuildFile; fileRef = 2194F0C414D7FF5900147A0C /* ml_coldet.c */; };
 		21A6736714DC0D3700665A26 /* AutoRotateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 21A6736614DC0D3700665A26 /* AutoRotateViewController.m */; };
 		21A92A0E150A2D6F004AE2C3 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21A92A0C150A2D61004AE2C3 /* StoreKit.framework */; };
@@ -357,12 +359,15 @@
 		2174AAC61624182F00C8B682 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		2183CA1D14E285BF00ECDC45 /* ml_gamecenter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_gamecenter.c; path = ../../../src/malka/ml_gamecenter.c; sourceTree = "<group>"; };
 		2183CA1F14E285BF00ECDC45 /* ml_keyval.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_keyval.c; path = ../../../src/malka/ml_keyval.c; sourceTree = "<group>"; };
-		21903DF0169ED0CB00DBDC1B /* vfont_apple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = vfont_apple.m; path = ../../../src/vfont_apple.m; sourceTree = "<group>"; };
+		218E4FD71701E9D300346001 /* lua_utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lua_utf8.c; path = ../../../src/malka/lua_utf8.c; sourceTree = "<group>"; };
+		218E4FD91701EA0400346001 /* memlin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = memlin.c; path = ../../../src/memlin.c; sourceTree = "<group>"; };
+		218E4FDA1701EA0400346001 /* memlin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memlin.h; path = ../../../src/memlin.h; sourceTree = "<group>"; };
+		218E4FDC1701EA3E00346001 /* vfont_stbtt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont_stbtt.c; path = ../../../src/vfont_stbtt.c; sourceTree = "<group>"; };
+		218E4FDE1701EAC400346001 /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
 		21903DF1169ED0CB00DBDC1B /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../../src/vfont.c; sourceTree = "<group>"; };
 		21903DF4169ED10D00DBDC1B /* anim.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = anim.c; path = ../../../src/anim.c; sourceTree = "<group>"; };
 		21903DF5169ED10D00DBDC1B /* anim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = anim.h; path = ../../../src/anim.h; sourceTree = "<group>"; };
 		21903DF7169ED14600DBDC1B /* ml_anim.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_anim.c; path = ../../../src/malka/ml_anim.c; sourceTree = "<group>"; };
-		21903DF9169ED2A400DBDC1B /* sys_gfx_gles2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sys_gfx_gles2.c; path = ../../../src/sys_gfx_gles2.c; sourceTree = "<group>"; };
 		2194F0C414D7FF5900147A0C /* ml_coldet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ml_coldet.c; path = ../../../src/malka/ml_coldet.c; sourceTree = "<group>"; };
 		21A6736514DC0D3700665A26 /* AutoRotateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AutoRotateViewController.h; path = ../../../src/AutoRotateViewController.h; sourceTree = "<group>"; };
 		21A6736614DC0D3700665A26 /* AutoRotateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AutoRotateViewController.m; path = ../../../src/AutoRotateViewController.m; sourceTree = "<group>"; };
@@ -496,10 +501,10 @@
 				21744004150B698B002C92D7 /* lib9-utf */,
 				2137773814CD5B05004F01D2 /* malka */,
 				21CF3BF715AC266800BF33BC /* sys_misc_ios.m */,
+				218E4FDE1701EAC400346001 /* sys_gfx_ios.m */,
 				211523C615AADC3100C38EEC /* sys_misc.h */,
 				211523C415AADC2500C38EEC /* sys_snd_ios.m */,
 				211523C715AADC3C00C38EEC /* sys_snd.h */,
-				21903DF9169ED2A400DBDC1B /* sys_gfx_gles2.c */,
 				211523BF15AADBF600C38EEC /* sys_gfx.h */,
 				2137771614CD5AFB004F01D2 /* system.h */,
 				21107C3115E77B13004AC47F /* miniz.c */,
@@ -518,8 +523,8 @@
 				211523CE15AAE1B800C38EEC /* image.c */,
 				211523CF15AAE1B800C38EEC /* image.h */,
 				211523CB15AAE18B00C38EEC /* vfont.h */,
-				21903DF0169ED0CB00DBDC1B /* vfont_apple.m */,
 				21903DF1169ED0CB00DBDC1B /* vfont.c */,
+				218E4FDC1701EA3E00346001 /* vfont_stbtt.c */,
 				211523C815AAE16300C38EEC /* camera.h */,
 				2174AAC2162416D100C8B682 /* UIImage+Resize.h */,
 				2174AAC3162416D100C8B682 /* UIImage+Resize.m */,
@@ -554,6 +559,8 @@
 				2137770514CD5AFB004F01D2 /* memory.h */,
 				2137770614CD5AFB004F01D2 /* mempool.c */,
 				2137770714CD5AFB004F01D2 /* mempool.h */,
+				218E4FD91701EA0400346001 /* memlin.c */,
+				218E4FDA1701EA0400346001 /* memlin.h */,
 				216A5F311511E81500BFE24D /* http.h */,
 				216A5F321511E81500BFE24D /* http.m */,
 				2137770814CD5AFB004F01D2 /* mfx.c */,
@@ -605,6 +612,7 @@
 				21903DF7169ED14600DBDC1B /* ml_anim.c */,
 				21107C3315E77BAA004AC47F /* profiler.c */,
 				21107C3415E77BAA004AC47F /* profiler.h */,
+				218E4FD71701E9D300346001 /* lua_utf8.c */,
 			);
 			name = malka;
 			sourceTree = "<group>";
@@ -903,11 +911,13 @@
 				21107C3215E77B13004AC47F /* miniz.c in Sources */,
 				21107C3515E77BAA004AC47F /* profiler.c in Sources */,
 				2174AAC4162416D100C8B682 /* UIImage+Resize.m in Sources */,
-				21903DF2169ED0CB00DBDC1B /* vfont_apple.m in Sources */,
 				21903DF3169ED0CB00DBDC1B /* vfont.c in Sources */,
 				21903DF6169ED10D00DBDC1B /* anim.c in Sources */,
 				21903DF8169ED14600DBDC1B /* ml_anim.c in Sources */,
-				21903DFA169ED2A400DBDC1B /* sys_gfx_gles2.c in Sources */,
+				218E4FD81701E9D300346001 /* lua_utf8.c in Sources */,
+				218E4FDB1701EA0400346001 /* memlin.c in Sources */,
+				218E4FDD1701EA3E00346001 /* vfont_stbtt.c in Sources */,
+				218E4FDF1701EAC400346001 /* sys_gfx_ios.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -979,6 +989,14 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					_DEBUG,
+					TRACK_MEMORY,
+					MACOSX_BUNDLE,
+					TARGET_IOS,
+					"DEBUG=1",
+					VFONT_STBTT,
+				);
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = "nulis/nulis-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
@@ -996,6 +1014,13 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					TRACK_MEMORY,
+					MACOSX_BUNDLE,
+					TARGET_IOS,
+					VFONT_STBTT,
+				);
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = "nulis/nulis-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;

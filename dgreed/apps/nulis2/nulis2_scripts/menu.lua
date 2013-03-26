@@ -88,6 +88,8 @@ function enter()
 	touch_current = nil
 	touch_up = nil
 
+	has_twitter = os.has_twitter()
+
 	touch_released = false
 
 	unlocked = {}
@@ -210,7 +212,7 @@ function draw_competitive(t)
 	
 
 	-- twitter
-	if os.has_twitter() then
+	if has_twitter then
 		if menu_icon(sprs.twitter, nil, pos_music + off, nil, c, angle) then
 			local s = clevels.total_score()
 			local msg = "I'm chilling out playing #nulis, got "..tostring(s)..' points so far!'
