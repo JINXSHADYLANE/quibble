@@ -1,0 +1,222 @@
+(uidesc morka
+	(def screen
+		(rect 0,0,1024,768)
+	)
+
+	(def hud_pause
+		(spr pause)
+		(add <-
+			(tr <- (get_rect screen))
+			(vec2 -50,20)
+		)
+	)
+
+	(def place_text
+		(add <-
+			(tl <- (get_rect screen))
+			(vec2 50,100)
+		)
+	)
+
+	(def token_icon
+		(spr token_tag)
+		(add <-
+			(tl <- (get_rect screen))
+			(vec2 50,50)
+		)
+	)
+	(def token_text
+		(add <-
+			(tl <- (get_rect screen))
+			(vec2 100,30)
+		)
+	)
+
+	(def position_line
+		(spr position_line)
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 -219,-364)
+		)
+	)
+	(def game_over_tut
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+		(def next
+			(spr next)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 195,42)
+			)
+		)
+		(def restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,42)
+			)
+		)
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -195,42)
+			)
+		)
+	)	
+	(def game_over_out
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+
+		(def restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 100,42)
+			)
+		)
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -100,42)
+			)
+		)
+	)
+	(def game_over_scores
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-250)
+			)
+		)
+
+		(def result_text
+			(add <-
+				(get_vec2 text)
+				(vec2 -225,120)
+			)
+		)
+
+		(def result_time
+			(add <-
+				(get_vec2 text)
+				(vec2 70,120)
+			)
+		)
+
+		(def next
+			(spr next)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 195,200)
+			)
+		)
+		(def restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,200)
+			)
+		)
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -195,200)
+			)
+		)
+	)
+	(def season_select
+		(def season1
+			(spr season1)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -256,-128)
+			)
+		)
+		(def season2
+			(spr season2)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 256,-128)
+			)
+		)
+
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -195,42)
+			)
+		)
+	)		
+	(def level_select
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-300)
+			)
+		)
+
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,300)
+			)
+		)		
+
+	)
+	(def pause
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+		(def button_play
+			(spr play)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 195,42)
+			)
+		)
+		(def button_restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,42)
+			)
+		)
+		(def button_quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -195,42)
+			)
+		)
+	)
+
+	(def combo_text
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 0,-330)
+		)
+	)
+
+	(def hud_powerups
+		(add <-
+			(middle <- (get_rect screen))
+			(vec2 546,423)
+		)
+	)
+)

@@ -1,0 +1,55 @@
+(anims morka
+	(anim rabbit
+		(fps 30)
+		(start_seq run)
+
+		(seq still
+			(frames "12")
+			(on_finish stop)
+		)
+
+		(seq run
+			(frames "0 1 2 3 4 5 6 7 8 9 10 11 12")
+			(on_finish loop)
+		)
+
+		(seq jump
+			(frames "0 1 2 3 4")
+			(on_finish play.glide)
+		)
+
+		(seq bounce
+			(frames "8 10 12")
+			(on_finish play.jump)
+		)
+
+		(seq glide
+			(frames "5")
+			(on_finish stop)
+		)
+
+		(seq down
+			(frames "6 7 8")
+			(on_finish stop)
+		)
+
+		(seq land
+			(frames "9 10 11 12")
+			(on_finish play.run)
+		)
+
+		(seq dive
+			(frames "8 9 13")
+			(on_finish stop)
+		)
+
+		(seq scoot
+			(frames "10 11 12 14")
+			(on_finish stop)
+		)
+		(seq rocket_ride
+			(frames "15")
+			(on_finish stop)
+		)
+	)
+)
