@@ -176,6 +176,8 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 	Vector2 landing = p->cd_obj->pos;	
 	acc = vec2_add(acc,force);
 
+	uint iterations = 0;
+
 	// predict landing
 	while(!hit || !jumped){
 		
@@ -222,7 +224,11 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 			if(vel.y > 0.0f) jumped = true;
 		}
 
+		if(++iterations > 1000) LOG_ERROR("stuck in landing prediction loop");
+
 	}
+
+	//printf("landing: %u\n",iterations );
 
 	return landing;
 }
@@ -244,6 +250,8 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 	// modify state for prediction
 	d->jumped = false;
 	d->dived = true;
+
+	uint iterations = 0;
 
 	// predict landing
 	while(!hit){
@@ -281,8 +289,10 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 			landing.y = HEIGHT - rabbit_hitbox_height;
 		}			
 
+		if(++iterations > 1000) LOG_ERROR("stuck in diving prediction loop");
 
 	}
+	//printf("diving: %u\n",iterations );
 
 	// restore state
 	d->jumped = jumped;
