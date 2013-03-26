@@ -432,6 +432,39 @@ Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end) 
 	return hitp;
 }
 
+Vector2 rectf_obb_raycast(const RectF* r, float angle, 
+	const Vector2* start, const Vector2* end) {
+
+	// Calculate obb vertex positions
+	Vector2 c = rectf_center(r);
+	Vector2 p[] = {
+		{r->left - c.x, r->top - c.y},
+		{r->right - c.x, r->top - c.y},
+		{r->right - c.x, r->bottom - c.y},
+		{r->left - c.x, r->bottom - c.y}
+	};
+	gfx_transform(p, 4, &c, angle, 1.0f);
+
+	// Make four segments out of obb edges and intersect
+	// each one with the ray
+	Segment ray = {*start, *end};
+	float min_sq_d = FLT_MAX;
+	Vector2 min_hitp = ray.p2;
+	for(int i = 3, j = 0; j < 4; i = j++) {
+		Vector2 hitp;
+		Segment edge = {p[i], p[j]};
+		if(segment_intersect(ray, edge, &hitp)) {
+			float sq_d = vec2_length_sq(vec2_sub(hitp, ray.p1));
+			if(sq_d < min_sq_d) {
+				min_sq_d = sq_d;
+				min_hitp = hitp;
+			}
+		}
+	}
+
+	return min_hitp;
+}
+
 Vector2 rectf_sweep(const RectF* a, const RectF* b, const Vector2* offset) {
 	assert(a && b && offset);
 
