@@ -483,6 +483,7 @@ CDObj* coldet_new_aabb(CDWorld* cd, const RectF* rect, uint mask,
 	
 	new->pos = vec2(rect->left, rect->top);
 	new->size.size = vec2(rectf_width(rect), rectf_height(rect));
+	new->angle = 0.0f;
 
 	assert(new->size.size.x <= cd->cell_size);
 	assert(new->size.size.y <= cd->cell_size);
