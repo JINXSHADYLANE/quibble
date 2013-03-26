@@ -187,11 +187,14 @@ bool rectf_circle_collision(const RectF* rect, const Vector2* p, float r);
 // Returns true if two rectangles intersect
 bool rectf_rectf_collision(const RectF* rect1, const RectF* rect2);
 // Returns true if rotated rectangle and circle intersect
-bool rectf_obb_circle_collision(const RectF* rect, float rect_angle, const Vector2* p, float r);
+bool rectf_obb_circle_collision(const RectF* rect, float rect_angle, 
+	const Vector2* p, float r);
 // Returns true if two rotated rectangles intersect
-bool rectf_obb_obb_collision(const RectF* a, float a_angle, const RectF* b, float b_angle);
+bool rectf_obb_obb_collision(const RectF* a, float a_angle, 
+	const RectF* b, float b_angle);
 // Returns true if aabb and obb rectangles intersect
-bool rectf_aabb_obb_collision(const RectF* aabb, const RectF* obb, float obb_angle);
+bool rectf_aabb_obb_collision(const RectF* aabb, 
+	const RectF* obb, float obb_angle);
 
 // Returns bounding box for obb
 RectF rectf_obb_bbox(const RectF* obb, float angle);
@@ -209,6 +212,9 @@ static inline float rectf_height(const RectF* r) {
 Vector2 rectf_center(const RectF* r);
 // Returns first intersection point or end
 Vector2 rectf_raycast(const RectF* r, const Vector2* start, const Vector2* end);
+// Returns first intersection point or end
+Vector2 rectf_obb_raycast(const RectF* r, float angle, 
+	const Vector2* start, const Vector2* end);
 // Returns how much b can move before colliding with a
 Vector2 rectf_sweep(const RectF* a, const RectF* b, const Vector2* offset);
 // Does CSG subtraction a - b and returns number of rectangles in final shape.
