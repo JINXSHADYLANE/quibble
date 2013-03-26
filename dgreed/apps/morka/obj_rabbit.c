@@ -167,7 +167,7 @@ static ObjFloaterParams trampoline_floater_params = {
 
 static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 	GameObject* self = (GameObject*) rabbit;
-	PhysicsComponent* p = rabbit->header.physics;	
+	PhysicsComponent* p = rabbit->header.physics;
 
 	bool jumped = false;
 	bool hit = false;
@@ -175,8 +175,6 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 	Vector2 vel = p->vel;
 	Vector2 landing = p->cd_obj->pos;	
 	acc = vec2_add(acc,force);
-
-	uint iterations = 0;
 
 	// predict landing
 	while(!hit || !jumped){
@@ -222,21 +220,14 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 			}	
 
 			if(landing.y < rabbit_hitbox_height){
-				//printf("negative position in landing prediction\n");
-				landing.y = rabbit_hitbox_height;
-				vel.y = 0.0f;
-				//d->touching_ground = false;
+				hit = true;
 			}
 
 		} else {
 			if(vel.y > 0.0f) jumped = true;
 		}
 
-		if(++iterations > 1000) LOG_ERROR("stuck in landing prediction loop");
-
 	}
-
-	//printf("landing: %u\n",iterations );
 
 	return landing;
 }
@@ -259,8 +250,6 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 	d->jumped = false;
 	d->dived = true;
 
-	uint iterations = 0;
-
 	// predict landing
 	while(!hit){
 		
@@ -271,8 +260,6 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 		vel = vec2_add(vel, a);
 		acc = vec2(0.0f, 0.0f);
 		landing = vec2_add(landing, vec2_scale(vel, PHYSICS_DT));
-
-		//printf("landing: %f\n",landing.y );
 
 		// damping
 		vel = _rabbit_damping(vel);
@@ -298,16 +285,10 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 		}			
 
 		if(landing.y < rabbit_hitbox_height){
-			//printf("negative position in diving prediction\n");
-			landing.y = rabbit_hitbox_height;
-			vel.y = 0.0f;
-			//d->touching_ground = false;
+			hit = true;
 		}
 
-		if(++iterations > 1000) LOG_ERROR("stuck in diving prediction loop");
-
 	}
-	//printf("diving: %u\n",iterations );
 
 	// restore state
 	d->jumped = jumped;
