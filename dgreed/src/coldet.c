@@ -108,7 +108,7 @@ static RectF _rectf_from_cell(CDWorld* world, int x, int y) {
 
 static RectF _rectf_from_aabb(CDObj* obj) {
 	assert(obj);
-	assert(obj->type == CD_AABB);
+	assert(obj->type == CD_AABB || obj->type == CD_OBB);
 
 	RectF rect = {
 		.left = obj->pos.x,
@@ -483,6 +483,7 @@ CDObj* coldet_new_aabb(CDWorld* cd, const RectF* rect, uint mask,
 	
 	new->pos = vec2(rect->left, rect->top);
 	new->size.size = vec2(rectf_width(rect), rectf_height(rect));
+	new->angle = 0.0f;
 
 	assert(new->size.size.x <= cd->cell_size);
 	assert(new->size.size.y <= cd->cell_size);
@@ -594,11 +595,26 @@ uint coldet_query_circle(CDWorld* cd, Vector2 center, float radius, uint mask,
 						}
 					}
 					// Circle
-					if(pos->type == CD_CIRCLE) {
+					else if(pos->type == CD_CIRCLE) {
 						Vector2 p = vec2(pos->pos.x+x_off, pos->pos.y+y_off);
 						Vector2 d = vec2_sub(center, p);
 						float rr = radius + pos->size.radius;
 						if(vec2_length_sq(d) <= rr * rr) {
+							if(callback)
+								(*callback)(pos);
+							count++;
+						}
+					}
+					// OBB
+					else if(pos->type == CD_OBB) {
+						// Use _rectf_from_aabb to get unrotated rect, not bbox
+						// like _rectf_from_obb would give us
+						RectF obb = _rectf_from_aabb(pos);
+						obb.left += x_off; obb.right += x_off;
+						obb.top += y_off; obb.bottom += y_off;
+						if(rectf_obb_circle_collision(
+							&obb, pos->angle, &center, radius
+						)) {
 							if(callback)
 								(*callback)(pos);
 							count++;
@@ -666,9 +682,20 @@ uint coldet_query_aabb(CDWorld* cd, const RectF* rect, uint mask,
 						}
 					}
 					// Circle
-					if(pos->type == CD_CIRCLE) {
+					else if(pos->type == CD_CIRCLE) {
 						Vector2 p = vec2(pos->pos.x+x_off, pos->pos.y+y_off);
 						if(rectf_circle_collision(rect, &p, pos->size.radius)) {
+							if(callback)
+								(*callback)(pos);
+							count++;
+						}
+					}
+					// OBB 
+					else if(pos->type == CD_OBB) {
+						RectF obb = _rectf_from_aabb(pos);
+						obb.left += x_off; obb.right += x_off;
+						obb.top += y_off; obb.bottom += y_off;
+						if(rectf_aabb_obb_collision(rect, &obb, pos->angle)) {
 							if(callback)
 								(*callback)(pos);
 							count++;
@@ -711,6 +738,15 @@ static void _coldet_cell_cast(CDWorld* cd, int cell_x, int cell_y,
 			if(pos->type == CD_CIRCLE) {
 				Vector2 p = vec2(pos->pos.x+x_off, pos->pos.y+y_off);
 				hitp = circle_raycast(&p, pos->size.radius, &start, &end);
+				hittest = true;
+			}
+
+			// OBB
+			if(pos->type == CD_OBB) {
+				RectF r = _rectf_from_aabb(pos);
+				r.left += x_off; r.right += x_off;
+				r.top += y_off; r.bottom += y_off;
+				hitp = rectf_obb_raycast(&r, pos->angle, &start, &end);
 				hittest = true;
 			}
 
@@ -876,13 +912,31 @@ static void _coldet_obj_to_cell(CDWorld* cd, CDObj* obj, CDCell* cell,
 				RectF rect_b = _rectf_from_aabb(b);
 				intersects = rectf_rectf_collision(&rect_a, &rect_b); 
 			}
-			else {
+			else if((a->type == CD_AABB && b->type == CD_CIRCLE) ||
+					(a->type == CD_CIRCLE && b->type == CD_AABB)) {
 				// AABB & circle
 				CDObj* circle_obj = a->type == CD_CIRCLE ? a : b;
 				CDObj* aabb_obj = a->type == CD_AABB ? a : b;
 				RectF rect = _rectf_from_aabb(aabb_obj);
 				intersects = rectf_circle_collision(&rect, &circle_obj->pos,
 						circle_obj->size.radius);
+			}
+			else if((a->type == CD_OBB && b->type == CD_OBB) ||
+					(a->type == CD_OBB && b->type == CD_AABB) ||
+					(a->type == CD_AABB && b->type == CD_OBB)) {
+				// OBB & OBB, OBB & AABB
+				RectF rect_a = _rectf_from_aabb(a);
+				RectF rect_b = _rectf_from_aabb(b);
+				intersects = rectf_obb_obb_collision(&rect_a, a->angle, &rect_b, b->angle); 
+			}
+			else {
+				// OBB & circle 
+				CDObj* circle_obj = a->type == CD_CIRCLE ? a : b;
+				CDObj* obb_obj = a->type == CD_OBB ? a : b;
+				RectF rect = _rectf_from_aabb(obb_obj);
+				intersects = rectf_obb_circle_collision(&rect, obb_obj->angle,
+					&circle_obj->pos, circle_obj->size.radius);
+
 			}
 
 			if(intersects) {
@@ -1012,6 +1066,16 @@ void coldet_process(CDWorld* cd, CDCollissionCallback callback) {
 				if(local_x + obj->size.size.x >= cd->cell_size)
 					crosses_x = true;
 				if(local_y + obj->size.size.y >= cd->cell_size)
+					crosses_y = true;
+			}
+
+			if(obj->type == CD_OBB) {
+				RectF bbox = _rectf_from_obb(obj);
+				float w = rectf_width(&bbox);
+				float h = rectf_height(&bbox);
+				if(local_x + w >= cd->cell_size)
+					crosses_x = true;
+				if(local_y + h >= cd->cell_size)
 					crosses_y = true;
 			}
 

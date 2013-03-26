@@ -223,7 +223,7 @@ static void objects_physics_tick(uint n_components) {
 				collider_pos.x + cd->size.size.x,
 				collider_pos.y + cd->size.size.y
 			};
-			gfx_draw_rect(15, &collider, COLOR_RGBA(128, 128, 128, 255));
+			gfx_draw_rect_rotscale(15, &collider, cd->angle, 1.0f, COLOR_RGBA(128, 128, 128, 255));
 		}
 #endif
 	}
