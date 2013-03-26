@@ -234,9 +234,10 @@ static void _gen_winter_ground(void){
 			advance = (uint) sprsheet_get_size_h(spr).x;
 
 			// no collision for grass_start1 and grass_end2
-			if(sym == 'a' || sym == 'h')	
+			if(sym == 'a' || sym == 'h'){	
 				objects_create(&obj_fg_deco_desc, pos, (void*)spr);
-			else {
+				objects_create(&obj_fall_trigger_desc, vec2_add(pos,vec2(0.0f,127.0f)), (void*)advance);
+			} else {
 				objects_create(&obj_ground_desc, pos, (void*)spr);
 
 				// ice speed trigger
@@ -278,6 +279,7 @@ static void _gen_ground(void){
 			// no collision for grass_start1 and grass_end2
 			if(sym == 'a' || sym == 'h'){	
 				objects_create(&obj_fg_deco_desc, pos, (void*)spr);
+				objects_create(&obj_fall_trigger_desc, vec2_add(pos,vec2(0.0f,127.0f)), (void*)advance);
 			} else {
 				objects_create(&obj_ground_desc, pos, (void*)spr);
 

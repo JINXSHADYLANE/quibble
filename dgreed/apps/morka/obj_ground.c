@@ -12,13 +12,13 @@ static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data)
 	Vector2 size = sprsheet_get_size_h(spr_handle);
 	float width = size.x;
 	float height = size.y;
-	float col_height = 187;	// currently all ground is same height for collision
+	float col_height = 127;	// currently all ground is same height for collision
 
 	// Physics
 
 	PhysicsComponent* physics = self->physics;
 	RectF dest = {
-		pos.x, pos.y - col_height + 60,
+		pos.x, pos.y - col_height,
 		pos.x + width, pos.y
 	};	
 		
