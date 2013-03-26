@@ -15,35 +15,40 @@
 
 	### Chapter UI ###
 
-	(img ball_autumn
+(img ball_autumn
 	(tex r_atlas_0e.png)
-	(src 2,697,211,914)
-	(cntr 106,805)
+	(src 213,858,422,1075)
+	(cntr 317,966)
 )
 (img ball_winter
 	(tex r_atlas_0e.png)
-	(src 2,478,211,695)
-	(cntr 106,586)
+	(src 2,858,211,1075)
+	(cntr 106,966)
 )
 (img lock_autumn
 	(tex r_atlas_0e.png)
-	(src 93,916,182,1007)
-	(cntr 138,960)
+	(src 515,954,604,1045)
+	(cntr 560,998)
 )
 (img lock_winter
 	(tex r_atlas_0e.png)
-	(src 2,916,91,1007)
-	(cntr 47,960)
+	(src 424,954,513,1045)
+	(cntr 469,998)
+)
+(img rabbit_icon
+	(tex r_atlas_0e.png)
+	(src 2,2,512,856)
+	(cntr 258,429)
 )
 (img season1
 	(tex r_atlas_0e.png)
-	(src 504,2,1004,476)
-	(cntr 754,239)
+	(src 514,478,1014,952)
+	(cntr 764,715)
 )
 (img season2
 	(tex r_atlas_0e.png)
-	(src 2,2,502,476)
-	(cntr 252,239)
+	(src 514,2,1014,476)
+	(cntr 764,239)
 )
 
 
@@ -232,97 +237,126 @@
 	#################
 
 	(img bg_mushroom_2
-		(tex r_atlas_13.png)
-		(src 2,1450,485,2035)
-	)
-	(img bg_mushroom_3
-		(tex r_atlas_13.png)
-		(src 2,2,680,800)
-	)
-	(img bg_mushroom_5
-		(tex r_atlas_13.png)
-		(src 2,802,407,1448)
-	)
-	(img bg_mushroom_6
-		(tex r_atlas_13.png)
-		(src 409,802,717,1334)
-	)
-	(img bomb
-		(tex r_atlas_13.png)
-		(src 1544,162,1724,318)
-	)
-	(img bomb_obj
-		(tex r_atlas_13.png)
-		(src 409,1336,484,1409)
-	)
-	(img btn_bomb
-		(tex r_atlas_13.png)
-		(src 1726,2,1925,160)
-	)
-	(img btn_rocket
-		(tex r_atlas_13.png)
-		(src 1525,2,1724,160)
-	)
-	(img btn_shield
-		(tex r_atlas_13.png)
-		(src 1048,591,1247,749)
-	)
-	(img btn_trampoline
-		(tex r_atlas_13.png)
-		(src 847,619,1046,777)
-	)
-	(img bubble_obj
-		(tex r_atlas_13.png)
-		(src 682,2,999,318)
-	)
-	(img grass3_sign
-		(tex r_atlas_13.png)
-		(src 488,1336,998,1811)
-	)
-	(img mushroom_1
-		(tex r_atlas_13.png)
-		(src 719,802,975,1097)
-	)
-	(img mushroom_2
-		(tex r_atlas_13.png)
-		(src 682,320,883,617)
-	)
-	(img mushroom_3
-		(tex r_atlas_13.png)
-		(src 719,1099,867,1316)
-	)
-	(img mushroom_4
-		(tex r_atlas_13.png)
-		(src 977,779,1218,1025)
-	)
-	(img mushroom_5
-		(tex r_atlas_13.png)
-		(src 885,320,1182,589)
-	)
-	(img mushroom_6
-		(tex r_atlas_13.png)
-		(src 1253,2,1523,239)
-	)
-	(img next
-		(tex r_atlas_13.png)
-		(src 1001,2,1251,254)
-	)
-	(img rocket
-		(tex r_atlas_13.png)
-		(src 869,1099,1032,1282)
-	)
-	(img shield
-		(tex r_atlas_13.png)
-		(src 682,619,845,800)
-	)
-	(img spikeshroom_1
-		(tex r_atlas_13.png)
-		(src 1184,256,1542,500)
-	)
-	(img trampoline
-		(tex r_atlas_13.png)
-		(src 487,1814,1075,2032)
-	)
+	(tex r_atlas_13.png)
+	(src 2,1450,485,2035)
+	(cntr 256,1729)
+)
+(img bg_mushroom_3
+	(tex r_atlas_13.png)
+	(src 2,2,680,800)
+	(cntr 341,447)
+)
+(img bg_mushroom_5
+	(tex r_atlas_13.png)
+	(src 2,802,407,1448)
+	(cntr 210,1157)
+)
+(img bg_mushroom_6
+	(tex r_atlas_13.png)
+	(src 409,802,717,1334)
+	(cntr 570,1090)
+)
+(img bomb
+	(tex r_atlas_13.png)
+	(src 1427,248,1607,404)
+	(cntr 1518,326)
+)
+(img bomb_obj
+	(tex r_atlas_13.png)
+	(src 409,1336,484,1409)
+	(cntr 446,1372)
+)
+(img btn_bomb
+	(tex r_atlas_13.png)
+	(src 1814,241,2013,399)
+	(cntr 1913,320)
+)
+(img btn_rocket
+	(tex r_atlas_13.png)
+	(src 1613,241,1812,399)
+	(cntr 1712,320)
+)
+(img btn_shield
+	(tex r_atlas_13.png)
+	(src 1048,591,1247,749)
+	(cntr 1147,670)
+)
+(img btn_trampoline
+	(tex r_atlas_13.png)
+	(src 847,619,1046,777)
+	(cntr 946,698)
+)
+(img bubble_obj
+	(tex r_atlas_13.png)
+	(src 682,2,999,318)
+	(cntr 841,161)
+)
+(img buy
+	(tex r_atlas_13.png)
+	(src 977,779,1227,1031)
+	(cntr 1105,904)
+)
+(img grass3_sign
+	(tex r_atlas_13.png)
+	(src 487,1336,999,1812)
+	(cntr 743,1556)
+)
+(img mushroom_1
+	(tex r_atlas_13.png)
+	(src 719,802,975,1097)
+	(cntr 832,967)
+)
+(img mushroom_2
+	(tex r_atlas_13.png)
+	(src 682,320,883,617)
+	(cntr 789,496)
+)
+(img mushroom_3
+	(tex r_atlas_13.png)
+	(src 719,1099,867,1316)
+	(cntr 790,1211)
+)
+(img mushroom_4
+	(tex r_atlas_13.png)
+	(src 1184,256,1425,502)
+	(cntr 1313,402)
+)
+(img mushroom_5
+	(tex r_atlas_13.png)
+	(src 885,320,1182,589)
+	(cntr 1034,477)
+)
+(img mushroom_6
+	(tex r_atlas_13.png)
+	(src 1613,2,1883,239)
+	(cntr 1746,152)
+)
+(img next
+	(tex r_atlas_13.png)
+	(src 1001,2,1251,254)
+	(cntr 1129,127)
+)
+(img rocket
+	(tex r_atlas_13.png)
+	(src 869,1099,1032,1282)
+	(cntr 951,1191)
+)
+(img shield
+	(tex r_atlas_13.png)
+	(src 682,619,845,800)
+	(cntr 764,710)
+)
+(img spikeshroom_1
+	(tex r_atlas_13.png)
+	(src 1253,2,1611,246)
+	(cntr 1432,159)
+)
+(img trampoline
+	(tex r_atlas_13.png)
+	(src 487,1814,1075,2032)
+	(cntr 781,1923)
+)
+
 
 	#################
 	### atlas 1-4 ###
