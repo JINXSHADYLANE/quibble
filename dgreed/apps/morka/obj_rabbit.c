@@ -219,7 +219,15 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 			if(landing.y > HEIGHT){
 				hit = true;
 				landing.y = HEIGHT - rabbit_hitbox_height;
-			}			
+			}	
+
+			if(landing.y < rabbit_hitbox_height){
+				//printf("negative position in landing prediction\n");
+				landing.y = rabbit_hitbox_height;
+				vel.y = 0.0f;
+				//d->touching_ground = false;
+			}
+
 		} else {
 			if(vel.y > 0.0f) jumped = true;
 		}
@@ -288,6 +296,13 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 			hit = true;
 			landing.y = HEIGHT - rabbit_hitbox_height;
 		}			
+
+		if(landing.y < rabbit_hitbox_height){
+			//printf("negative position in diving prediction\n");
+			landing.y = rabbit_hitbox_height;
+			vel.y = 0.0f;
+			//d->touching_ground = false;
+		}
 
 		if(++iterations > 1000) LOG_ERROR("stuck in diving prediction loop");
 
