@@ -267,7 +267,7 @@ PowerupParams powerup_params[] = {
 		true,
 		obj_powerup_shield_collide,
 		obj_powerup_shield_effect,
-		10
+		20
 	},
 
 	{
@@ -276,7 +276,7 @@ PowerupParams powerup_params[] = {
 		false,
 		obj_powerup_bomb_collide,
 		obj_powerup_bomb_effect,
-		30
+		25
 	},
 	
 	{
@@ -285,7 +285,7 @@ PowerupParams powerup_params[] = {
 		false,
 		obj_powerup_rocket_collide,
 		obj_powerup_rocket_effect,
-		25
+		30
 	},
 
 };
