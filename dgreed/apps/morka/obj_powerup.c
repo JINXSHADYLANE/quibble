@@ -7,6 +7,45 @@ static void obj_powerup_became_invisible(GameObject* self) {
 	// empty
 }
 
+// Trampoline powerup
+
+static ObjFloaterParams trampoline_floater_params = {
+	.spr = "trampoline",
+	.text = NULL,
+	.duration = 0.15f
+};
+
+static void obj_powerup_trampoline_effect(GameObject* other){
+	ObjRabbit* rabbit = (ObjRabbit*)other;
+	ObjRabbitData* d = rabbit->data;
+	d->has_powerup[TRAMPOLINE] = true;
+}
+
+static void obj_powerup_trampoline_collide(GameObject* self, GameObject* other) {
+	if(other->type == OBJ_RABBIT_TYPE) {
+
+		// Powerup effect
+		obj_powerup_trampoline_effect(other);
+
+		// Particles
+		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
+			&obj_particle_anchor_desc, 
+			rectf_center(&other->render->world_dest), 
+			NULL
+		);
+		mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
+
+		// Dissapearing animation
+		Vector2 pos = rectf_center(&self->render->world_dest);
+		objects_create(
+			&obj_floater_desc, pos, 
+			(void*)&trampoline_floater_params
+		);
+
+		// Destroy powerup
+		objects_destroy(self);
+	}
+}
 
 // Bomb powerup
 
@@ -214,11 +253,12 @@ GameObjectDesc obj_powerup_desc = {
 
 PowerupParams powerup_params[] = {
 	{
-		NULL,
+		"trampoline",
 		"btn_trampoline",
 		true,
-		NULL,
-		NULL
+		obj_powerup_trampoline_collide,
+		obj_powerup_trampoline_effect,
+		15
 	},
 
 	{
@@ -226,7 +266,8 @@ PowerupParams powerup_params[] = {
 		"btn_shield",
 		true,
 		obj_powerup_shield_collide,
-		obj_powerup_shield_effect
+		obj_powerup_shield_effect,
+		10
 	},
 
 	{
@@ -234,7 +275,8 @@ PowerupParams powerup_params[] = {
 		"btn_bomb",
 		false,
 		obj_powerup_bomb_collide,
-		obj_powerup_bomb_effect
+		obj_powerup_bomb_effect,
+		30
 	},
 	
 	{
@@ -242,7 +284,8 @@ PowerupParams powerup_params[] = {
 		"btn_rocket",
 		false,
 		obj_powerup_rocket_collide,
-		obj_powerup_rocket_effect
+		obj_powerup_rocket_effect,
+		25
 	},
 
 };
@@ -252,5 +295,6 @@ PowerupParams coin_powerup = {
 	.spr = "token",
 	.btn = NULL,
 	.hit_callback = obj_powerup_coin_collide,
-	.powerup_callback = NULL
+	.powerup_callback = NULL,
+	.cost = 0
 };

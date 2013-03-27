@@ -48,6 +48,7 @@ static void _gen_bg_page(void) {
 
 static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupType type){
 	uint num = powerups[type];
+
 	if(num){
 		float min = (float) (levels_current_desc()->distance + 2.0f) *
 							(1024.0f/3.0f) *
@@ -59,6 +60,7 @@ static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupType type){
 
 		float d = (float)num / levels_current_desc()->powerup_num[type];
 		float place = max - ((max-min) * d);
+
 
 		if(pos.x > place && pos.x < max){
 			objects_create(desc, pos,(void*)&powerup_params[type]);
@@ -366,6 +368,10 @@ static void _gen_mushrooms(void){
 						// Place shield or a coin on top of mushroom
 						if(!place_powerup(&obj_powerup_desc, p, SHIELD))
 							objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
+					} else if(sym == 'c'){
+						// placing trampoline powerup after certain mushroom
+						Vector2 p = vec2(pos.x + advance / 2.0f + 200.0f, 579.0f);
+						place_powerup(&obj_powerup_desc, p, TRAMPOLINE);
 
 					} else if(height >= 265.0f)
 						objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
@@ -436,9 +442,9 @@ void worldgen_reset(uint seed, const LevelDesc* desc) {
 	coins_cd = 2;
 
 	// reset powerup counters
-	powerups[BOMB] = levels_current_desc()->powerup_num[BOMB];
-	powerups[ROCKET] = levels_current_desc()->powerup_num[ROCKET];
-	powerups[SHIELD] = levels_current_desc()->powerup_num[SHIELD];
+	for(int i = 0; i < POWERUP_COUNT;i++){
+		powerups[i] = levels_current_desc()->powerup_num[i];
+	}
 
 	objects_create(&obj_eraser_desc, vec2(-256.0f,0.0f), (void*)NULL);
 	objects_create(&obj_eraser_desc, vec2(-256.0f,400.0f), (void*)NULL);

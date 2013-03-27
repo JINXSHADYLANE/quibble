@@ -37,6 +37,8 @@ static bool season_select_render(float t) {
 
 	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
 
+	SprHandle lock_spr;
+
 	// Season buttons
 	for(int i = 0; i < 2; i++){
 		char season_name[16];
@@ -49,21 +51,39 @@ static bool season_select_render(float t) {
 		Vector2 cntr_off;
 		sprsheet_get_ex_h(season->spr, &tex, &src, &cntr_off);	
 
-		if(touches_down() && t == 0.0f) {
-			Touch* t = touches_get();
+		switch(i){
+			case WINTER:
+				lock_spr = sprsheet_get_handle("lock_winter");
+			break;
 
-			if(!t)
-				continue;
+			default:
+				lock_spr = sprsheet_get_handle("lock_autumn");
+			break;
+		}
 
-			Vector2 hit_pos = t[0].hit_pos;
-			
-			Vector2 button_pos = vec2_add(season->vec2, cntr_off);
-			float r_sqr = 70.0f * 70.0f;
-			if(vec2_length_sq(vec2_sub(hit_pos, button_pos)) < r_sqr) {
-				level_select_set_season(i);
-				malka_states_replace("level_select");
-			}
-		}	
+		Vector2 button_pos = vec2_add(season->vec2, cntr_off);
+
+		if(level_is_unlocked(levels_start_of_season(i))){
+
+			if(touches_down() && t == 0.0f) {
+				Touch* t = touches_get();
+
+				if(!t)
+					continue;
+
+				Vector2 hit_pos = t[0].hit_pos;
+				
+
+				float r_sqr = 70.0f * 70.0f;
+				if(vec2_length_sq(vec2_sub(hit_pos, button_pos)) < r_sqr) {
+					level_select_set_season(i);
+					malka_states_push("level_select");
+				}
+			}	
+
+		} else {
+			spr_draw_cntr_h(lock_spr, layer, button_pos, 0.0f, 1.0f, col);
+		}
 	}
 
 	return true;
