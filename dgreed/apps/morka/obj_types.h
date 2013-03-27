@@ -49,6 +49,7 @@ typedef struct {
 	bool passive;
 	PhysicsHitCallback hit_callback;
 	PowerupCallback powerup_callback;
+	uint cost;	
 } PowerupParams;
 
 extern PowerupParams powerup_params[];

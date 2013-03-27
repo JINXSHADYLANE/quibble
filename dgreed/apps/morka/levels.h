@@ -45,7 +45,6 @@ typedef struct {
 	SeasonType season;
 	const char* name;
 	int distance;
-	bool locked;
 	SprHandle background;
 	const char* bg_chain;
 	const char* fg_chain;
@@ -80,5 +79,9 @@ uint levels_get_powerup_count(void);
 
 uint levels_start_of_season(SeasonType type);
 uint levels_count(SeasonType type);
+
+bool levels_next_unlocked(void);
+bool level_is_unlocked(uint i);
+void levels_unlock_next();
 
 #endif

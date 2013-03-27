@@ -39,7 +39,7 @@ TutorialStep level1_steps[] = {
 	 MUSHROOM_IN_FRONT
 	},
 
-	{1.0f,
+	{0.0f,
 	 "Touch to jump",
 	 40.0f,
 	 {WIDTH/2.0f,150.0f},
@@ -54,7 +54,7 @@ TutorialStep level1_steps[] = {
 	 AUTO
 	},
 
-	{1.0f,
+	{0.0f,
 	 "Touch and hold to plunge down",
 	 40.0f,
 	 {WIDTH/2.0f,150.0f}, 
@@ -82,7 +82,7 @@ TutorialStep level1_steps[] = {
 	 AUTO,
 	 MUSHROOM_BELOW
 	},	
-	{1.0f,
+	{0.0f,
 	 "You're doing great!",
 	 40.0f,
 	 {WIDTH/2.0f,150.0f},
@@ -110,7 +110,7 @@ TutorialStep level1_steps[] = {
 	 AUTO,
 	 MUSHROOM_BELOW
 	},			
-	{1.0f,
+	{0.0f,
 	 "One more time",
 	 40.0f,
 	 {WIDTH/2.0f,150.0f},	 
