@@ -31,13 +31,10 @@ static void shop_leave(void) {
 }
 
 static bool shop_update(void) {
-	game_update_empty();
-	minimap_update_places();	
 	return true;
 }
 
 static bool shop_render(float t) {
-	if(t != 0.0f) game_update_empty();
 
 	hud_render_shop(t);
 
