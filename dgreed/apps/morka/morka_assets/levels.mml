@@ -9,7 +9,7 @@
 	)
 	(level level2
 		(season autumn)
-		(distance 60)
+		(distance 100)
 		(rabbits _
 			(name Lili
 				(spr rabbit_3)
@@ -28,7 +28,7 @@
 	)
 	(level level3
 		(season autumn)
-		(distance 70)
+		(distance 120)
 		(rabbits _
 			(name Lili
 				(spr rabbit_3)
@@ -46,6 +46,11 @@
 			)
 		)
 		(powerups _
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
 		)		
 		(background background)
 		(bg_chain bg)
@@ -54,7 +59,7 @@
 	)
 	(level level4
 		(season autumn)
-		(distance 75)
+		(distance 135)
 		(rabbits _
 			(name Kubo
 				(spr rabbit_4)
@@ -72,15 +77,25 @@
 			)
 		)
 		(powerups _
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
 		)		
 		(background background)
 		(bg_chain bg)
-		(fg_chain tall_mushrooms_fg)
-		(ground_chain level1_ground)
+		(fg_chain level2_fg)
+		(ground_chain level3_ground)
 	)
 	(level level5
 		(season autumn)
-		(distance 65)
+		(distance 120)
 		(rabbits _
 			(name Kubo
 				(spr rabbit_4)
@@ -105,6 +120,21 @@
 			)
 		)
 		(powerups _
+			(shield _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
 		)		
 		(background background)
 		(bg_chain bg)
@@ -113,45 +143,55 @@
 	)
 	(level level6
 		(season autumn)
-		(distance 75)
+		(distance 130)
 		(rabbits _
 			(name Kubo
 				(spr rabbit_4)
-				(speed 385)
-				(xjump 100)
+				(speed 370)
+				(xjump 95)
 				(yjump 410)
-				(max_combo 4)
+				(max_combo 3)
 			)
 			(name Tori
 				(spr rabbit_2)
-				(speed 350)
+				(speed 340)
 				(xjump 100)
 				(yjump 410)
 				(max_combo 2)
 			)
 			(name Lili
 				(spr rabbit_3)
-				(speed 340)
+				(speed 330)
 				(xjump 110)
 				(yjump 410)
-				(max_combo 5)
+				(max_combo 4)
 			)
 		)
 		(powerups _
 			(shield _
-				(num 4)
+				(num 3)
 				(xmin 0.0)
 				(xmax 1.0)
-			)	
+			)
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
 		)		
 		(background background)
 		(bg_chain bg)
-		(fg_chain cactuses_fg)
-		(ground_chain level1_ground)
+		(fg_chain level3_fg)
+		(ground_chain level3_ground)
 	)
 	(level level7
 		(season autumn)
-		(distance 75)
+		(distance 115)
 		(rabbits _
 			(name Kubo
 				(spr rabbit_4)
@@ -176,15 +216,32 @@
 			)
 		)
 		(powerups _	
+			(trampoline _
+			)
+			(shield _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
 		)		
 		(background background)
 		(bg_chain bg)
 		(fg_chain level2_fg)
-		(ground_chain level2_ground)
+		(ground_chain level4_ground)
 	)
 	(level level8
 		(season autumn)
-		(distance 90)
+		(distance 130)
 		(rabbits _
 			(name Kubo
 				(spr rabbit_4)
@@ -209,26 +266,32 @@
 			)
 		)
 		(powerups _
-			(rocket _
-				(num 1)
-				(xmin 0.6)
-				(xmax 1.0)
+			(trampoline _
 			)
 			(shield _
-				(num 4)
+				(num 3)
 				(xmin 0.0)
 				(xmax 1.0)
-			)			
+			)
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)		
 		)		
 		(background background)
 		(bg_chain bg)
-		(fg_chain level3_fg)
-		(ground_chain level3_ground)
+		(fg_chain level5_fg)
+		(ground_chain level4_ground)
 	)
-	### From here everything needs further AI tweak, jump size ###
 	(level level9
 		(season autumn)
-		(distance 90)
+		(distance 145)
 		(rabbits _
 			(name Kubo
 				(spr rabbit_4)
@@ -253,252 +316,79 @@
 			)
 		)
 		(powerups _
-			(rocket _
-				(num 1)
-				(xmin 0.6)
-				(xmax 1.0)
+			(trampoline _
 			)
 			(shield _
-				(num 4)
+				(num 3)
 				(xmin 0.0)
 				(xmax 1.0)
-			)			
+			)
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)		
 		)		
 		(background background)
 		(bg_chain bg)
-		(fg_chain tall_mushrooms_fg)
-		(ground_chain level3_ground)
+		(fg_chain level5_fg)
+		(ground_chain level5_ground)
 	)
 	(level level10
 		(season autumn)
-		(distance 100)
+		(distance 185)
 		(rabbits _
-			(name Tori
-				(spr rabbit_2)
-				(speed 450)
-				(xjump 105)
-				(yjump 450)
-				(max_combo 3)
-			)
-			(name Lili
-				(spr rabbit_3)
-				(speed 507)
-				(xjump 101)
-				(yjump 404)
-				(max_combo 5)
-			)
-		)
-		(powerups _
-			(trampoline _)
-			(rocket _
-				(num 1)
-				(xmin 0.6)
-				(xmax 1.0)
-			)		
-		)		
-		(background background)
-		(bg_chain bg)
-		(fg_chain level1_fg)
-		(ground_chain level4_ground)
-	)
-	(level level11
-		(season autumn)
-		(distance 100)
-		(rabbits _
-			(name Tori
-				(spr rabbit_2)
-				(speed 450)
-				(xjump 105)
-				(yjump 450)
-				(max_combo 3)
-			)
-			(name Lili
-				(spr rabbit_3)
-				(speed 507)
-				(xjump 101)
-				(yjump 404)
-				(max_combo 5)
-			)
-		)
-		(powerups _
-			(trampoline _)
-			(rocket _
-				(num 1)
-				(xmin 0.6)
-				(xmax 1.0)
-			)		
-		)		
-		(background background)
-		(bg_chain bg)
-		(fg_chain tall_mushrooms_fg)
-		(ground_chain level4_ground)
-	)
-	(level level12
-		(season autumn)
-		(distance 85)
-		(rabbits _
-			(name Lili
-				(spr rabbit_3)
-				(speed 350)
-				(xjump 90)
-				(yjump 390)
-				(max_combo 2)
-			)
-			(name Tori
-				(spr rabbit_2)
-				(speed 390)
-				(xjump 100)
-				(yjump 390)
-				(max_combo 1)
-			)
-		)
-		(powerups _
-			(trampoline _)
-			(rocket _
-				(num 3)
-				(xmin 0.6)
-				(xmax 1.0)
-			)	
-			(shield _
-				(num 6)
-				(xmin 0.6)
-				(xmax 1.0)
-			)	
-			(bomb _
-				(num 6)
-				(xmin 0.6)
-				(xmax 1.0)
-			)	
-		)		
-		(background background)
-		(bg_chain bg)
-		(fg_chain level3_fg)
-		(ground_chain level4_ground)
-	)
-	(level level13
-		(season autumn)
-		(distance 50)
-		(rabbits _
-			(name Lili
-				(spr rabbit_3)
-				(speed 350)
-				(xjump 95)
-				(yjump 410)
-				(max_combo 30)
-			)
-			(name Tori
-				(spr rabbit_2)
-				(speed 390)
-				(xjump 100)
-				(yjump 410)
-				(max_combo 30)
-			)
-		)
-		(powerups _
-			(trampoline _)
-			(shield _
-				(num 6)
-				(xmin 0.6)
-				(xmax 1.0)
-			)	
-			(bomb _
-				(num 6)
-				(xmin 0.6)
-				(xmax 1.0)
-			)	
-		)		
-		(background background)
-		(bg_chain bg)
-		(fg_chain cactuses_fg)
-		(ground_chain level4_ground)
-	)
-	(level level14
-		(season autumn)
-		(distance 100)
-		(rabbits _
-			(name Lili
-				(spr rabbit_3)
-				(speed 410)
-				(xjump 100)
-				(yjump 410)
-				(max_combo 30)
-			)
-			(name Tori
-				(spr rabbit_2)
-				(speed 400)
-				(xjump 110)
-				(yjump 410)
-				(max_combo 30)
-			)
-		)
-		(powerups _
-			(trampoline _)
-			(rocket _
-				(num 1)
-				(xmin 0.6)
-				(xmax 1.0)
-			)	
-			(bomb _
-				(num 1)
-				(xmin 0.6)
-				(xmax 1.0)
-			)	
-		)		
-		(background background)
-		(bg_chain bg)
-		(fg_chain level2_fg)
-		(ground_chain level5_ground)
-	)
-	(level level15
-		(season autumn)
-		(distance 120)
-		(rabbits _
-			(name Tori
-				(spr rabbit_2)
-				(speed 355)
-				(xjump 122)
-				(yjump 405)
-				(max_combo 30)
-			)
-			(name Lili
-				(spr rabbit_3)
-				(speed 482)
-				(xjump 100)
-				(yjump 390)
-				(max_combo 30)
-			)
 			(name Kubo
 				(spr rabbit_4)
-				(speed 490)
+				(speed 420)
 				(xjump 100)
-				(yjump 400)
+				(yjump 420)
+				(max_combo 30)
+			)
+			(name Tori
+				(spr rabbit_2)
+				(speed 420)
+				(xjump 100)
+				(yjump 450)
+				(max_combo 30)
+			)
+			(name Lili
+				(spr rabbit_3)
+				(speed 400)
+				(xjump 150)
+				(yjump 410)
 				(max_combo 30)
 			)
 		)
 		(powerups _
 			(trampoline _
 			)
-			(rocket _
-				(num 2)
-				(xmin 0.6)
-				(xmax 1.0)
-			)
-			(bomb _
-				(num 4)
-				(xmin 0.0)
-				(xmax 0.5)
-			)
 			(shield _
 				(num 3)
 				(xmin 0.0)
 				(xmax 1.0)
-			)			
+			)
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)		
 		)		
 		(background background)
 		(bg_chain bg)
 		(fg_chain level5_fg)
 		(ground_chain level5_ground)
-	)					
+	)
 	(level level21
 		(season winter)
 		(distance 85)
