@@ -21,7 +21,6 @@ static void game_over_close(void) {
 }
 
 static void game_over_preenter(void) {
-	keyval_set_int("coins",coins);
 	if(screen == WIN_SCREEN || screen == TUTORIAL_SCREEN ) levels_unlock_next();
 }
 
