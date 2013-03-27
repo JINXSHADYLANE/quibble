@@ -4,11 +4,13 @@
 #include "hud.h"
 #include "common.h"
 #include "game.h"
+#include "shop.h"
 #include "level_select.h"
+#include <keyval.h>
 #include <uidesc.h>
 #include <vfont.h>
 
-static ScreenType screen = SCORES_SCREEN;
+static ScreenType screen = WIN_SCREEN;
 
 static void game_over_init(void) {
 
@@ -19,7 +21,8 @@ static void game_over_close(void) {
 }
 
 static void game_over_preenter(void) {
-
+	keyval_set_int("coins",coins);
+	if(screen == WIN_SCREEN || screen == TUTORIAL_SCREEN ) levels_unlock_next();
 }
 
 static void game_over_enter(void) {
@@ -52,9 +55,12 @@ static bool game_over_render(float t) {
 		case OUT_SCREEN:
 			hud_render_game_over_out(t);
 		break;
-		case SCORES_SCREEN:
-			hud_render_game_over_scores(t);
+		case WIN_SCREEN:
+			hud_render_game_over_win(t);
 		break;
+		case LOSE_SCREEN:
+			hud_render_game_over_lose(t);
+		break;		
 	} 
 
 	return true;

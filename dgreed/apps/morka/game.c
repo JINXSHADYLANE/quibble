@@ -8,25 +8,24 @@
 #include "tutorials.h"
 #include "game_over.h"
 #include "placement.h"
+#include "shop.h"
 
+#include <keyval.h>
 #include <mfx.h>
 #include <particles.h>
-
-bool camera_follow = false;
 
 extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
 bool draw_ai_debug = false;
 
-// Game state
 ObjRabbit* rabbit = NULL;
 float camera_follow_weight;
+bool camera_follow = false;
 float bg_scroll = 0.0f;
 
 static bool game_need_reset = true;
 static bool game_over = false;
 static bool game_paused = false;
-
 bool tutorial_level = true;
 
 static void game_reset(void) {
@@ -153,26 +152,21 @@ bool game_update(void) {
 
 		float rabbit_pos = rabbit->header.render->world_dest.left;
 
-		if(game_over)
-			camera_follow_weight *= 0.95f;
-		else {
 
-			float rabbit_distance = rabbit_pos / (1024.0f / 3.0f) - 2.0f;
-			float level_distance = levels_current_desc()->distance;
-
-			if(level_distance > 0 && rabbit_distance >= level_distance) {
+			if(!game_over && rabbit->data->game_over){
 				game_over = true;
-				game_over_set_screen(SCORES_SCREEN);
+				if(rabbit->data->is_dead) 
+					game_over_set_screen(OUT_SCREEN);
+				else if(minimap_get_place_of_rabbit(rabbit) <= 3)
+					game_over_set_screen(WIN_SCREEN);
+				else
+					game_over_set_screen(LOSE_SCREEN);
+
+				if(!rabbit->data->is_dead)
+					keyval_set_int("coins",coins + rabbit->data->tokens);
+
 				malka_states_push("game_over");
 			}
-
-			if(rabbit->data->is_dead){
-				game_over = true;
-				game_over_set_screen(OUT_SCREEN);
-				malka_states_push("game_over");
-			}
-
-		}
 
 		_move_camera(rabbit_pos + 45.0f, camera_follow_weight);
 	}

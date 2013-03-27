@@ -1,6 +1,7 @@
 #include "levels.h"
 #include "mchains.h"
 #include "tutorials.h"
+#include <keyval.h>
 #include <mempool.h>
 #include <memory.h>
 #include <mml.h>
@@ -134,9 +135,7 @@ void levels_init(const char* filename){
 
 					if(strcmp(txt, "trampoline") == 0) {
 						p = TRAMPOLINE;
-						new.powerup_num[p] = 1;
-					} else 
-					if(strcmp(txt, "rocket") == 0) {
+					} else if(strcmp(txt, "rocket") == 0) {
 						p = ROCKET;
 					} else if(strcmp(txt, "bomb") == 0) {
 						p = BOMB;
@@ -217,10 +216,30 @@ void levels_set_next(void){
 	level_num++;
 }
 
+bool levels_next_unlocked(void){
+	return level_is_unlocked(level_num+1);
+}
+
 bool levels_is_final(void){
 	return level_num == levels_descs.size-1;
 }
 
 LevelDesc* levels_current_desc(void){
 	return current_level;
+}
+
+bool level_is_unlocked(uint i) {
+	char key_name[32];
+	sprintf(key_name, "ulck_l%d",i);
+
+	return i == 0 || keyval_get_bool(key_name, false);
+}
+
+void levels_unlock_next(){
+	if(level_num+1 <= levels_descs.size){
+		char key_name[32];
+		sprintf(key_name, "ulck_l%d",level_num+1);
+
+		keyval_set_bool(key_name,true);
+	}
 }
