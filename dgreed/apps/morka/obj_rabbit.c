@@ -339,8 +339,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		d->jumped = false;
 		d->dived = false;
 
-		d->has_powerup[TRAMPOLINE] = (d->tokens >= 10) && levels_current_desc()->powerup_num[TRAMPOLINE] >= 1;
-
 		if(camera_follow)
 			rabbit->control(self);	
 
@@ -747,10 +745,10 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		// Trampoline
 		if(p->cd_obj->pos.y > ground_y && d->has_powerup[TRAMPOLINE] && !d->trampoline_placed && !rabbit->data->game_over){
 			d->trampoline_placed = true;
-			d->tokens -= 10;
+			d->has_powerup[TRAMPOLINE] = false;
 
 			// Trampoline sprite
-			SprHandle sprt = sprsheet_get_handle("trampoline");
+			SprHandle sprt = sprsheet_get_handle("trampoline_obj");
 			Vector2 size = sprsheet_get_size_h(sprt);
 			float width = size.x;
 			float height = size.y;

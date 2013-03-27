@@ -256,6 +256,11 @@
 	(src 2,730,157,997)
 	(cntr 83,874)
 )
+(img trampoline
+	(tex atlas_13.png)
+	(src 344,2,444,81)
+	(cntr 394,41)
+)
 (img bomb
 	(tex atlas_13.png)
 	(src 551,520,640,597)
@@ -351,7 +356,7 @@
 	(src 449,2,628,125)
 	(cntr 538,80)
 )
-(img trampoline
+(img trampoline_obj
 	(tex atlas_13.png)
 	(src 649,2,943,111)
 	(cntr 796,56)

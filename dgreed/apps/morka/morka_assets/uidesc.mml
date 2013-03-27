@@ -18,14 +18,14 @@
 		)
 	)
 
-	(def token_icon
+	(def coin_icon
 		(spr token_tag)
 		(add <-
 			(tl <- (get_rect screen))
 			(vec2 50,50)
 		)
 	)
-	(def token_text
+	(def coin_text
 		(add <-
 			(tl <- (get_rect screen))
 			(vec2 100,30)
@@ -91,7 +91,7 @@
 			)
 		)
 	)
-	(def game_over_scores
+	(def game_over_win
 		(def text
 			(add <-
 				(middle <- (get_rect screen))
@@ -135,6 +135,43 @@
 			)
 		)
 	)
+	(def game_over_lose
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-250)
+			)
+		)
+
+		(def result_text
+			(add <-
+				(get_vec2 text)
+				(vec2 -225,120)
+			)
+		)
+
+		(def result_time
+			(add <-
+				(get_vec2 text)
+				(vec2 70,120)
+			)
+		)
+
+		(def restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 100,200)
+			)
+		)
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -100,200)
+			)
+		)
+	)	
 	(def season_select
 		(def season1
 			(spr season1)
@@ -160,10 +197,11 @@
 		)
 	)		
 	(def level_select
-		(def text
+
+		(def buttons_pos
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-300)
+				(vec2 0,-80)
 			)
 		)
 
@@ -176,6 +214,75 @@
 		)		
 
 	)
+	(def shop
+
+		(def coin_icon
+			(spr token_tag)
+			(add <-
+				(tl <- (get_rect screen))
+				(vec2 50,50)
+			)
+		)
+
+		(def coin_text
+			(add <-
+				(tl <- (get_rect screen))
+				(vec2 100,30)
+			)
+		)
+
+		(def character_icon
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-150)
+			)
+		)
+
+		(def character_name
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-300)
+			)
+		)
+
+		(def speed_txt
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-200)
+			)
+		)
+
+		(def jump_txt
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-150)
+			)
+		)		
+
+		(def button_play
+			(spr play)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 100,142)
+			)
+		)
+
+		(def button_quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -100,142)
+			)
+		)		
+
+		(def hud_powerups
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,423)
+			)
+		)
+
+	)	
 	(def pause
 		(def text
 			(add <-
