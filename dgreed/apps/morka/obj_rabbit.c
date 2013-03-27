@@ -168,13 +168,21 @@ static ObjFloaterParams trampoline_floater_params = {
 static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 	GameObject* self = (GameObject*) rabbit;
 	PhysicsComponent* p = rabbit->header.physics;
+	ObjRabbitData* d = rabbit->data;	
 
 	bool jumped = false;
 	bool hit = false;
-	Vector2 acc = p->acc;
+	Vector2 acc = vec2_add(p->acc,force);
 	Vector2 vel = p->vel;
-	Vector2 landing = p->cd_obj->pos;	
-	acc = vec2_add(acc,force);
+	Vector2 landing = p->cd_obj->pos;
+
+	// save state
+	float rocket_time = d->rocket_time;
+
+	// modify state for prediction
+	d->rocket_time = 0;
+
+	uint iterations = 0;
 
 	// predict landing
 	while(!hit || !jumped){
@@ -227,7 +235,13 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 			if(vel.y > 0.0f) jumped = true;
 		}
 
+		if(++iterations > 1000) 
+			printf("D landing[%f;%f] velocity[%f;%f] \n",landing.x, landing.y,vel.x,vel.y);
+
 	}
+
+	// restore state
+	d->rocket_time = rocket_time;
 
 	return landing;
 }
@@ -245,10 +259,18 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 	// save state
 	bool jumped = d->jumped;
 	bool dived = d->dived;
+	bool kd = d->virtual_key_down;
+	bool kp = d->virtual_key_pressed;
+	float rocket_time = d->rocket_time;
 
 	// modify state for prediction
 	d->jumped = false;
 	d->dived = true;
+	d->virtual_key_down = false;
+	d->virtual_key_pressed = true;
+	d->rocket_time = 0;
+
+	uint iterations = 0;
 
 	// predict landing
 	while(!hit){
@@ -288,11 +310,17 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 			hit = true;
 		}
 
+		if(++iterations > 1000) 
+			printf("D landing[%f;%f] velocity[%f;%f] \n",landing.x, landing.y,vel.x,vel.y);
+
 	}
 
 	// restore state
 	d->jumped = jumped;
 	d->dived = dived;
+	d->virtual_key_down = kd;
+	d->virtual_key_pressed = kp;
+	d->rocket_time = rocket_time;	
 
 	if(landing.x < p->cd_obj->pos.x) landing.x = p->cd_obj->pos.x;
 
