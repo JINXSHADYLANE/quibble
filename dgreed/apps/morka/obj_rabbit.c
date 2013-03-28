@@ -198,6 +198,7 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 		vel = _rabbit_damping(vel);
 
 		int obj_type = OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE | OBJ_BRANCH_TYPE | OBJ_SPRING_BRANCH_TYPE | OBJ_SPIKE_BRANCH_TYPE;
+		obj_type &= ~collision_flag;
 
 		if(jumped){
 
@@ -213,7 +214,7 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 
 			for(uint i = 0; i < 3; i++)	{
 
-				if(result[i] && (result[i]->type & obj_type) &&\
+				if(result[i] && ((result[i]->type & ~collision_flag ) & obj_type) &&\
 					landing.y < result[i]->physics->cd_obj->pos.y)
 				{
 
@@ -286,6 +287,7 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 		vel = _rabbit_damping(vel);
 
 		int obj_type = OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE | OBJ_BRANCH_TYPE | OBJ_SPRING_BRANCH_TYPE | OBJ_SPIKE_BRANCH_TYPE;
+		obj_type &= ~collision_flag;
 
 		RectF rec = {
 			.left = landing.x,
@@ -297,7 +299,7 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 		GameObject* result[3] = {0};
 		objects_aabb_query(&rec,&result[0],3);
 		for(uint i = 0; i < 3; i++)	{
-			if(result[i] && (result[i]->type & obj_type) && result[i] != d->previuos_hit) hit = true;
+			if(result[i] && ((result[i]->type & ~collision_flag ) & obj_type) && result[i] != d->previuos_hit) hit = true;
 		}
 
 		if(landing.y > HEIGHT){
