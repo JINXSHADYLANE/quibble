@@ -214,10 +214,20 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 
 			for(uint i = 0; i < 3; i++)	{
 
-				if(result[i] && ((result[i]->type & ~collision_flag ) & obj_type) &&\
-					landing.y < result[i]->physics->cd_obj->pos.y)
+				if(result[i] && ((result[i]->type & ~collision_flag ) & obj_type))
 				{
+					if((result[i]->type & ~collision_flag ) & (OBJ_GROUND_TYPE & ~collision_flag) ){
+						if(landing.y < result[i]->physics->cd_obj->pos.y){
 
+							hit = true;
+						}else if(landing.x < result[i]->physics->cd_obj->pos.x){
+
+							landing.x = result[i]->physics->cd_obj->pos.x - rabbit_hitbox_width;
+							landing.y = HEIGHT - rabbit_hitbox_height;
+							hit = true;
+						}
+
+					} else if(landing.y < result[i]->physics->cd_obj->pos.y)	
 						hit = true;
 				} 
 			}
