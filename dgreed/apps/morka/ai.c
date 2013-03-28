@@ -1,4 +1,5 @@
 #include "ai.h"
+#include "game.h"
 #include "common.h"
 #include <gfx_utils.h>
 
@@ -94,7 +95,9 @@ static RectF in_landing_location(GameObject* obj){
 	return rec;
 }
 
-static bool there_is(int obj_type, RectF rec){
+static bool there_is(uint obj_type, RectF rec){
+
+	obj_type = obj_type & ~collision_flag;
 
 	// Debug rendering
 	if(draw_ai_debug){
@@ -113,9 +116,15 @@ static bool there_is(int obj_type, RectF rec){
 		GameObject* result[3] = {0};
 		objects_aabb_query(&rec,&result[0],3);
 		for(uint i = 0; i < 3; i++)	{
-			if(result[i] && (result[i]->type & obj_type) ) return true;
+			if(result[i]){
+
+				uint type = result[i]->type & ~collision_flag;
+				if(type & obj_type)
+					return true;
+
+			}
 		}
-	}
+	}	
 
 	return false;
 }
@@ -161,9 +170,7 @@ static void use_powerups(GameObject* obj){
 	ObjRabbitData* d = rabbit->data;
 
 	if(d->has_powerup[SHIELD]) (powerup_params[SHIELD].powerup_callback) (obj);
-
 	if(d->has_powerup[BOMB]) (powerup_params[BOMB].powerup_callback) (obj);	
-
 	if(d->has_powerup[ROCKET]) (powerup_params[ROCKET].powerup_callback) (obj);
 }
 
@@ -174,7 +181,10 @@ void ai_control_autumn(GameObject* obj){
 	bool release = release_keys(obj);
 	
 	bool input = false;
-	use_powerups(obj);
+
+	if(camera_follow && d->respawn == 0.0f)
+		use_powerups(obj);
+
 	if(!release){
 		if(d->touching_ground){
 

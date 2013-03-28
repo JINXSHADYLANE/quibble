@@ -5,29 +5,31 @@
 
 #include "objects.h"
 
+#define collision_flag (1U << 30)
+
 //1,2,4,8,10,20,40,80,100,200,400,800
 enum {
-	OBJ_GROUND_TYPE = 0x01,
-	OBJ_MUSHROOM_TYPE = 0x02,
-	OBJ_TRAMPOLINE_TYPE = 0x04,
-	OBJ_CACTUS_TYPE = 0x08,
-	OBJ_FALL_TRIGGER_TYPE = 0x10,
-	OBJ_BRANCH_TYPE = 0x20,
-	OBJ_SPIKE_BRANCH_TYPE = 0x40,
-	OBJ_SPRING_BRANCH_TYPE = 0x80
+	OBJ_GROUND_TYPE 		= 0x01 | collision_flag,
+	OBJ_MUSHROOM_TYPE 		= 0x02 | collision_flag,
+	OBJ_TRAMPOLINE_TYPE 	= 0x04 | collision_flag,
+	OBJ_CACTUS_TYPE 		= 0x08 | collision_flag,
+	OBJ_FALL_TRIGGER_TYPE 	= 0x10 | collision_flag,
+	OBJ_BRANCH_TYPE 		= 0x20 | collision_flag,
+	OBJ_SPIKE_BRANCH_TYPE 	= 0x40 | collision_flag,
+	OBJ_SPRING_BRANCH_TYPE 	= 0x80 | collision_flag,
+	OBJ_RABBIT_TYPE 		= 0x100 | collision_flag,
+	OBJ_SPEED_TRIGGER_TYPE	= 0x200 | collision_flag,
+	OBJ_ERASER_TYPE			= 0x400 | collision_flag,
+	OBJ_POWERUP_TYPE		= 0x800 | collision_flag,
+	OBJ_BOMB_TYPE			= 0x1000 | collision_flag
 };
 enum {
-	OBJ_RABBIT_TYPE 			=  1 << 8,
-	OBJ_DECO_TYPE 				=  2 << 8,
-	OBJ_FG_DECO_TYPE 			=  3 << 8,
-	OBJ_SPEED_TRIGGER_TYPE		=  4 << 8,
-	OBJ_ERASER_TYPE				=  5 << 8,
-	OBJ_TRUNK_TYPE				=  6 << 8,
-	OBJ_PARTICLE_ANCHOR_TYPE	=  7 << 8,
-	OBJ_BG_PARTICLE_ANCHOR_TYPE	=  8 << 8,
-	OBJ_FLOATER_TYPE			=  9 << 8,
-	OBJ_POWERUP_TYPE			= 10 << 8,
-	OBJ_BOMB_TYPE				= 11 << 8			
+	OBJ_DECO_TYPE 				=  1 << 16,
+	OBJ_FG_DECO_TYPE 			=  2 << 16,
+	OBJ_TRUNK_TYPE				=  3 << 16,
+	OBJ_PARTICLE_ANCHOR_TYPE	=  4 << 16,
+	OBJ_BG_PARTICLE_ANCHOR_TYPE	=  5 << 16,
+	OBJ_FLOATER_TYPE			=  6 << 16,	
 };
 
 // Powerup
@@ -106,6 +108,8 @@ typedef struct {
 	float rocket_time;
 	float shield_dh;
 	float shield_h;
+
+	float respawn;
 
 	bool jumped;
 	bool dived;

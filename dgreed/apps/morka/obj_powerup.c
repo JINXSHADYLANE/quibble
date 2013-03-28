@@ -104,17 +104,7 @@ static ObjFloaterParams rocket_floater_params = {
 static void obj_powerup_rocket_effect(GameObject* other){
 	ObjRabbit* rabbit = (ObjRabbit*)other;
 	ObjRabbitData* d = rabbit->data;
-	PhysicsComponent* p = other->physics;
-
-	if(d->touching_ground || p->cd_obj->pos.y > 579.0f){
-		p->vel.y = 0.0f;
-		d->touching_ground = false;
-		d->rocket_start = true;
-		objects_apply_force(other, vec2(10000.0f, -160000.0f) );
-	} else {
-		d->rocket_start = true;
-	}
-
+	d->rocket_start = true;
 	d->has_powerup[ROCKET] = false;
 }
 
@@ -236,7 +226,7 @@ static void obj_powerup_construct(GameObject* self, Vector2 pos, void* user_data
 
 	// Physics
 	PhysicsComponent* physics = self->physics;
-	physics->cd_obj = coldet_new_aabb(objects_cdworld, &render->world_dest, 1, NULL);
+	physics->cd_obj = coldet_new_aabb(objects_cdworld, &render->world_dest, OBJ_POWERUP_TYPE, NULL);
 	physics->inv_mass = 0.0f;
 	physics->hit_callback = powerup->hit_callback;
 }

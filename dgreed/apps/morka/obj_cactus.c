@@ -101,7 +101,7 @@ static void obj_cactus_construct(GameObject* self, Vector2 pos, void* user_data)
 
 	// Physics
 	PhysicsComponent* physics = self->physics;
-	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, 1, NULL);
+	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, OBJ_CACTUS_TYPE, NULL);
 	physics->inv_mass = 0.0f;
 	physics->hit_callback = obj_cactus_collide;
 
