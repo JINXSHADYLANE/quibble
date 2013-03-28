@@ -16,41 +16,39 @@
 
 (img ball_autumn
 	(tex atlas_0e.png)
-	(src 109,431,214,540)
-	(cntr 161,485)
+	(src 342,241,447,350)
+	(cntr 394,295)
 )
 (img ball_winter
 	(tex atlas_0e.png)
-	(src 2,431,107,540)
-	(cntr 54,485)
+	(src 235,241,340,350)
+	(cntr 287,295)
 )
 (img lock_autumn
 	(tex atlas_0e.png)
-	(src 263,480,308,527)
-	(cntr 285,503)
+	(src 449,290,494,337)
+	(cntr 471,313)
 )
 (img lock_winter
 	(tex atlas_0e.png)
-	(src 216,480,261,527)
-	(cntr 238,503)
+	(src 449,241,494,288)
+	(cntr 471,264)
 )
 (img rabbit_icon
 	(tex atlas_0e.png)
-	(src 2,2,257,429)
-	(cntr 130,215)
+	(src 2,241,233,625)
+	(cntr 118,433)
 )
 (img season1
 	(tex atlas_0e.png)
-	(src 259,241,509,478)
-	(cntr 384,359)
+	(src 254,2,504,239)
+	(cntr 379,120)
 )
 (img season2
 	(tex atlas_0e.png)
-	(src 259,2,509,239)
-	(cntr 384,120)
+	(src 2,2,252,239)
+	(cntr 127,120)
 )
-
-
 
 	### rabbits ###
 	

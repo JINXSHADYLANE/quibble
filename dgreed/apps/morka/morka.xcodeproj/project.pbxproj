@@ -158,6 +158,7 @@
 		AA30D23116FFA54E009E1AF3 /* season_select.c in Sources */ = {isa = PBXBuildFile; fileRef = AA30D22F16FFA54E009E1AF3 /* season_select.c */; };
 		AA41F55416B93462000D077C /* obj_particle_anchor.c in Sources */ = {isa = PBXBuildFile; fileRef = AA41F55316B93462000D077C /* obj_particle_anchor.c */; };
 		AA64162016D7B7E70066AEA8 /* obj_floater.c in Sources */ = {isa = PBXBuildFile; fileRef = AA64161F16D7B7E70066AEA8 /* obj_floater.c */; };
+		AA7188C81703494900687C50 /* shop.c in Sources */ = {isa = PBXBuildFile; fileRef = AA7188C61703494900687C50 /* shop.c */; };
 		AA7B4FF716DF511C003CCF1E /* ai.c in Sources */ = {isa = PBXBuildFile; fileRef = AA7B4FF516DF511C003CCF1E /* ai.c */; };
 		AA7B4FF916DF5153003CCF1E /* obj_powerup.c in Sources */ = {isa = PBXBuildFile; fileRef = AA7B4FF816DF5153003CCF1E /* obj_powerup.c */; };
 		AA8213B4169DA89200A7EBA8 /* icon~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B3169DA89200A7EBA8 /* icon~ipad.png */; };
@@ -430,6 +431,8 @@
 		AA30D23016FFA54E009E1AF3 /* season_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = season_select.h; sourceTree = SOURCE_ROOT; };
 		AA41F55316B93462000D077C /* obj_particle_anchor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_particle_anchor.c; path = ../obj_particle_anchor.c; sourceTree = "<group>"; };
 		AA64161F16D7B7E70066AEA8 /* obj_floater.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_floater.c; sourceTree = SOURCE_ROOT; };
+		AA7188C61703494900687C50 /* shop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shop.c; sourceTree = SOURCE_ROOT; };
+		AA7188C71703494900687C50 /* shop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shop.h; sourceTree = SOURCE_ROOT; };
 		AA7B4FF516DF511C003CCF1E /* ai.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ai.c; sourceTree = SOURCE_ROOT; };
 		AA7B4FF616DF511C003CCF1E /* ai.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ai.h; sourceTree = SOURCE_ROOT; };
 		AA7B4FF816DF5153003CCF1E /* obj_powerup.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_powerup.c; sourceTree = SOURCE_ROOT; };
@@ -583,6 +586,8 @@
 				219BEAE516776B3A002B614C /* mchains.h */,
 				219BEAEF16776B3A002B614C /* worldgen.c */,
 				219BEAF016776B3A002B614C /* worldgen.h */,
+				AA7188C61703494900687C50 /* shop.c */,
+				AA7188C71703494900687C50 /* shop.h */,
 				AA30D22F16FFA54E009E1AF3 /* season_select.c */,
 				AA30D23016FFA54E009E1AF3 /* season_select.h */,
 				2175DBD216F07AF900452F14 /* placement.c */,
@@ -1054,6 +1059,7 @@
 				AA30D23116FFA54E009E1AF3 /* season_select.c in Sources */,
 				AA8289391700AD5F00F80966 /* obj_spike_branch.c in Sources */,
 				AA82893A1700AD5F00F80966 /* obj_spring_branch.c in Sources */,
+				AA7188C81703494900687C50 /* shop.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
