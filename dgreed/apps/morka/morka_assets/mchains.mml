@@ -253,11 +253,10 @@
 		(def f (mushroom_2 150))
 		
 		(def _ (.empty 400))
-		(def = (.empty 500))
 
 		(init "__")
 
-		(learn "__=e_a_b_d_e_")
+		(learn "__e_a_b_d_e_")
 	)
 	(ruleset level3_fg
 		(def a (mushroom_1 150))
@@ -274,16 +273,12 @@
 		
 		(sdef z (seq "_f=ag=bh=ei=fj"))
 
-		(def _ (.empty 200))
+		(def _ (.empty 350))
 		(def = (.empty 300))
 
 		(init "__")
 
-		(learn "__a_b_a__b_z")
-		(learn "__e_d__b_a_")
-		(learn "a_c_d_b_dc__ca_f_c")
-		(learn "e__d_b_")
-		(learn "_z_dc__")
+		(learn "__e_a_b_d_f_e_z_a_")
 	)
 	(ruleset level4_fg
 		(def a (mushroom_1 150))
@@ -298,18 +293,14 @@
 		(def i (bg_mushroom_3 400))
 		(def j (bg_mushroom_2 400))
 		
-		(sdef z (seq "_f=ag=bh=ei=fj"))
-
-		(def _ (.empty 200))
+		(def _ (.empty 400))
 		(def = (.empty 300))
 
 		(init "__")
 
-		(learn "__a_b_a__b_z")
-		(learn "__e_d__b_a_")
-		(learn "a_c_d_b_dc__ca_f_c")
-		(learn "e__d_b_")
-		(learn "_z_dc__")
+		(learn "__e_fg_bh_di_caj_a_e_")
+		(learn "bh_ag_jac_a_e_")		
+	
 	)
 	(ruleset level5_fg
 		(def a (mushroom_1 150))
@@ -325,18 +316,14 @@
 		(def j (bg_mushroom_2 200))
 		(def x (spikeshroom_1 150))
 
-		(sdef z (seq "_f_x_e_x_cg_x_bh_x_ia_x_jac"))
+		(sdef z (seq "_f__x_c_a_j_x_ia_x_hb_gf_x_d"))
 
 		(def _ (.empty 200))
+		(def = (.empty 400))
 		
 		(init "__")
 
-		(learn "__a_b_a_b_z")
-		(learn "_e_d_b_a_")
-		(learn "__e")
-		(learn "a_d_b_dc_ca_f_c")
-		(learn "e_d_b_")
-		(learn "_z_dc_")
+		(learn "__=f=a=e=b=z=d=f")
 	)	
 	(ruleset level6_fg
 		(def a (mushroom_1 150))
@@ -352,18 +339,15 @@
 		(def j (bg_mushroom_2 200))
 		(def x (spikeshroom_1 150))
 
-		(sdef z (seq "_f_x_e_x_cg_x_bh_x_ia_x_jac"))
+		(sdef z (seq "f__fg_x_bh_x_di_x_c_a_j"))
+		(sdef w (seq "d__bh_x_eg_x_jac"))
+		(def _ (.empty 120))
+		(def = (.empty 400))
+		(init "==")
 
-		(def _ (.empty 200))
-		
-		(init "__")
-
-		(learn "__a_b_a_b_z")
-		(learn "_e_d_b_a_")
-		(learn "__e")
-		(learn "a_d_b_dc_ca_f_c")
-		(learn "e_d_b_")
-		(learn "_z_dc_")
+		(learn "==b=e=z=a=e=d")
+		(learn "=d=e=w=b=")		
+	
 	)
 	(ruleset level7_fg
 		(def a (mushroom_1 150))
@@ -378,18 +362,13 @@
 		(def i (bg_mushroom_3 400))
 		(def j (bg_mushroom_2 400))
 		
-		(sdef z (seq "_f=ag=bh=ei=fj"))
+		(sdef z (seq "_f_dg_bh_ei_a_j"))
 
-		(def _ (.empty 200))
-		(def = (.empty 300))
-
+		(def _ (.empty 180))
+	
 		(init "__")
 
-		(learn "__a_b_a__b_z")
-		(learn "__e_d__b_a_")
-		(learn "a_c_d_b_dc__ca_f_c")
-		(learn "e__d_b_")
-		(learn "_z_dc__")
+		(learn "__e_z_b_d_e_z_f_ac_e")
 	)
 	(ruleset level8_fg
 		(def a (mushroom_1 150))

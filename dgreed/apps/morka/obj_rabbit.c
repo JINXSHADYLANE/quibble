@@ -62,7 +62,7 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 	// Rocket
 	if(d->rocket_time > 0.0f){
 		float mult = d->rocket_time - TIME_S;
-		result = vec2_add(result, vec2(3500.0f * mult, 0.0f) );
+		result = vec2_add(result, vec2(7500.0f * mult, 0.0f) );
 		result.y = 0.0f;
 	}
 
@@ -498,7 +498,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 			if(p->vel.y > 0.0f){
 				d->rocket_start = false;
-				d->rocket_time = TIME_S + 3.0f;
+				d->rocket_time = TIME_S + 2.0f;
 			}
 		}
 

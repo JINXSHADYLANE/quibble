@@ -235,7 +235,7 @@
 	### atlas 1-3 ###
 	#################
 
-	(img bg_mushroom_2
+(img bg_mushroom_2
 	(tex r_atlas_13.png)
 	(src 2,1450,485,2035)
 	(cntr 256,1729)
@@ -255,10 +255,15 @@
 	(src 409,802,717,1334)
 	(cntr 570,1090)
 )
+(img blocked
+	(tex r_atlas_13.png)
+	(src 1885,2,2002,120)
+	(cntr 1943,62)
+)
 (img bomb
 	(tex r_atlas_13.png)
-	(src 1427,248,1607,404)
-	(cntr 1518,326)
+	(src 1427,394,1607,550)
+	(cntr 1518,472)
 )
 (img bomb_obj
 	(tex r_atlas_13.png)
@@ -351,6 +356,11 @@
 	(cntr 1432,159)
 )
 (img trampoline
+	(tex r_atlas_13.png)
+	(src 1427,248,1611,392)
+	(cntr 1520,321)
+)
+(img trampoline_obj
 	(tex r_atlas_13.png)
 	(src 487,1814,1075,2032)
 	(cntr 781,1923)
