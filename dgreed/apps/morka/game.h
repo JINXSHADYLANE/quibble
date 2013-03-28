@@ -5,6 +5,8 @@
 
 extern StateDesc game_state;
 
+extern bool camera_follow;
+
 void game_pause(void);
 void game_unpause(void);
 void game_request_reset(void);

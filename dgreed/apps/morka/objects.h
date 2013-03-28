@@ -9,8 +9,8 @@
 
 // Game object
 
-#define TYPE_MASK 0xffff
-#define DESTROY_BIT 0x10000
+#define DESTROY_BIT (1 << 31)
+#define TYPE_MASK ~DESTROY_BIT
 
 // 24 bytes
 typedef struct {

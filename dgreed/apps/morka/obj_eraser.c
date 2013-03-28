@@ -24,7 +24,7 @@ static void obj_eraser_construct(GameObject* self, Vector2 pos, void* user_data)
 		pos.x, pos.y + 400.0f
 	};	
 		
-	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, 1, NULL);
+	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, OBJ_ERASER_TYPE, NULL);
 	physics->hit_callback = obj_eraser_collide;
 
 	// Init update

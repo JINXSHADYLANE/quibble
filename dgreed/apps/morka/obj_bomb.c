@@ -121,7 +121,7 @@ static void obj_bomb_construct(GameObject* self, Vector2 pos, void* user_data) {
 
 	// Physics
 	PhysicsComponent* physics = self->physics;
-	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, 1, NULL);
+	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, OBJ_BOMB_TYPE, NULL);
 	float mass = 3.0f;
 	physics->inv_mass = 1.0f / mass;
 	physics->vel = p->vel;

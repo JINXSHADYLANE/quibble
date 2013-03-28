@@ -43,6 +43,8 @@ static void _hud_render_powerups(float t){
 	Vector2 powerup_place = element->vec2;
 
 	SprHandle spr = sprsheet_get_handle(powerup_params[0].btn);
+	SprHandle block = sprsheet_get_handle("blocked");
+
 	Vector2 size = sprsheet_get_size_h(spr);
 
 	int count = levels_get_powerup_count() +1;
@@ -90,17 +92,24 @@ static void _hud_render_powerups(float t){
 				pos = vec2_add(powerup_place, vec2(x_offset, y_offset) );
 				spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col);
 
-				if(!powerup_params[i].passive){
-					if(touches_down() && rabbit->data->has_powerup[i]) {
-						Touch* t = touches_get();
-						if(t){
-							float r_sqr = 40.0f * 40.0f;
-							if(vec2_length_sq(vec2_sub(t[0].hit_pos, pos)) < r_sqr) {
-								GameObject* r = (GameObject*) rabbit;
+				if(!powerup_params[i].passive && rabbit->data->has_powerup[i]){
 
-								(powerup_params[i].powerup_callback) (r);
+					if(camera_follow && rabbit->data->respawn == 0.0f){
+
+						if(touches_down()) {
+							Touch* t = touches_get();
+							if(t){
+								float r_sqr = 40.0f * 40.0f;
+								if(vec2_length_sq(vec2_sub(t[0].hit_pos, pos)) < r_sqr) {
+									GameObject* r = (GameObject*) rabbit;
+
+									(powerup_params[i].powerup_callback) (r);
+								}
 							}
 						}
+
+					} else {
+						spr_draw_cntr_h(block, hud_layer, vec2_add(pos,vec2(0.0f,5.0f)), 0.0f, 1.0f, col);
 					}
 				}
 

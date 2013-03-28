@@ -22,7 +22,7 @@ static void obj_ground_construct(GameObject* self, Vector2 pos, void* user_data)
 		pos.x + width, pos.y
 	};	
 		
-	physics->cd_obj = coldet_new_aabb(objects_cdworld, &dest, 1, NULL);
+	physics->cd_obj = coldet_new_aabb(objects_cdworld, &dest, OBJ_GROUND_TYPE, NULL);
 
 	// Render
 	RenderComponent* render = self->render;

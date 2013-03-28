@@ -15,7 +15,7 @@ static void obj_speed_trigger_construct(GameObject* self, Vector2 pos, void* use
 		pos.x + width, pos.y - 127
 	};	
 		
-	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, 1, NULL);
+	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, OBJ_SPEED_TRIGGER_TYPE, NULL);
 }
 
 GameObjectDesc obj_speed_trigger_desc = {

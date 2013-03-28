@@ -24,7 +24,6 @@ static float shield_width;
 static float shield_height;
 
 extern bool draw_ai_debug;
-extern bool camera_follow;
 extern ObjRabbit* rabbit;
 
 static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
@@ -477,6 +476,15 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		// Rocket starting if activated on ground/gap
 		if(d->rocket_start || d->rocket_time != 0.0f){
+
+			if(d->touching_ground || p->cd_obj->pos.y > 579.0f){
+				p->vel.y = 0.0f;
+				d->touching_ground = false;
+				d->rocket_start = true;
+				objects_apply_force(self, vec2(10000.0f, -160000.0f) );
+			}
+
+
 			anim_play_ex(rabbit->anim, "rocket_ride", TIME_S);
 
 			if(d->rocket_time != 0.0f){
@@ -508,13 +516,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			p->vel.y = 0.0f;
 			d->touching_ground = false;
 		}
-		// Below screen
-		if(p->cd_obj->pos.y > HEIGHT){
-			rabbit->data->is_dead = true;
-			p->vel.x = 0.0f;
-			p->vel.y = 0.0f;
-			if(!rabbit->data->game_over) rabbit->data->rabbit_time = -1.0f;
-		}
 
 		// Prevent player from moving out of screen on bomb/cactus hit
 		if(screen_pos.x < 0.0f && p->vel.x < 0.0f){
@@ -529,6 +530,56 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		p->vel = _rabbit_damping(p->vel);
 
 		if(p->vel.y > 0.0f) d->touching_ground = false;
+
+		if(p->cd_obj->pos.y > HEIGHT + 33.0f && !d->game_over){
+			p->vel.x = 0.0f;
+			p->vel.y = 0.0f;
+			p->cd_obj->pos.y = HEIGHT + 33.0f;
+			d->combo_counter = 0;
+			d->boost = 0;				
+
+			if(d->respawn > 0.0f && TIME_S > d->respawn){
+
+				if(levels_current_desc()->season == AUTUMN){
+					// Find next ground tile
+					Vector2 start = vec2(p->cd_obj->pos.x,HEIGHT - 10.0f);
+					Vector2 end = vec2_add(start,vec2(400.0f,0.0f));
+
+					Vector2 hitpoint;
+					CDObj* cdobj = coldet_cast_segment(
+						objects_cdworld, start, end, OBJ_GROUND_TYPE & ~collision_flag, &hitpoint
+					);
+
+					GameObject* obj = NULL;
+
+					if(cdobj)
+						obj = (GameObject*)cdobj->userdata;
+
+					assert(obj);
+
+					// Jump the rabbit out of the gap
+					p->cd_obj->pos.x = obj->physics->cd_obj->pos.x - rabbit_hitbox_width*2.0f;
+					p->cd_obj->pos.y = HEIGHT;
+					p->cd_obj->dirty = true;
+
+					objects_apply_force(self, 
+						vec2(11500.0f, -200000.0f)
+					);
+					anim_play_ex(rabbit->anim, "jump", TIME_S);	
+
+				} else {
+					p->cd_obj->pos.y = 0.0f;
+					p->cd_obj->dirty = true;				
+				}
+
+			} else if(d->respawn == 0.0f) {
+				// time to spend in gap
+				d->respawn = TIME_S + 1.0f;
+			}
+
+		} else {
+			d->respawn = 0.0f;
+		}
 
 		if(!d->player_control){
 			if(!d->touching_ground)
@@ -590,7 +641,8 @@ static void obj_rabbit_became_visible(GameObject* self) {
 static void obj_rabbit_became_invisible(GameObject* self) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;	
 	ObjRabbitData* d = rabbit->data;
-	if(d->game_over) d->is_dead = true;
+
+	d->is_dead = d->game_over;
 }
 
 static void _rabbit_delayed_bounce(void* r) {
@@ -768,6 +820,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 				objects_create(&obj_floater_desc, txt_pos, (void*)&trampoline_floater_params);
 			}
 		}
+
 	}
 
 	// Collision with speed trigger
@@ -831,7 +884,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	// Init physics
 	PhysicsComponent* physics = self->physics;
 	RectF rect = rectf_centered(pos, rabbit_hitbox_width, rabbit_hitbox_height);
-	physics->cd_obj = coldet_new_aabb(objects_cdworld, &rect, 1, NULL);
+	physics->cd_obj = coldet_new_aabb(objects_cdworld, &rect, OBJ_RABBIT_TYPE, NULL);
 	float mass = 3.0f;
 	physics->inv_mass = 1.0f / mass;
 	physics->vel = vec2(0.0f, 0.0f);

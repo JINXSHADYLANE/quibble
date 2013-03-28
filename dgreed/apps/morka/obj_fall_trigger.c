@@ -12,7 +12,7 @@ static void obj_fall_trigger_construct(GameObject* self, Vector2 pos, void* user
 		pos.x + width, pos.y
 	};	
 		
-	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, 1, NULL);
+	physics->cd_obj = coldet_new_aabb(objects_cdworld, &collider, OBJ_FALL_TRIGGER_TYPE, NULL);
 }
 
 GameObjectDesc obj_fall_trigger_desc = {
