@@ -95,30 +95,21 @@ void levels_init(const char* filename){
 				NodeIdx r1 = mml_get_first_child(&mml, child);
 				for(; r1 != 0; r1 = mml_get_next(&mml, r1)) {
 					const char* txt = mml_get_name(&mml, r1);
-					if(strcmp(txt, "name") == 0) {
-						new.ai_rabbit_names[new.ai_rabbit_num] = mml_getval_str(&mml, r1);
+					if(strcmp(txt, "max_combo") == 0) {
+						new.ai_max_combo[new.ai_rabbit_num] = mml_getval_int(&mml, r1);
 					}
 
 					NodeIdx r = mml_get_first_child(&mml, r1);
 					for(; r != 0; r = mml_get_next(&mml, r)) {
 
 						const char* txt = mml_get_name(&mml, r);
-						if(strcmp(txt, "spr") == 0) {
-							const char* spr_name = mml_getval_str(&mml, r);
-							new.ai_rabbit_spr[new.ai_rabbit_num] = sprsheet_get_handle(spr_name);
-							if(strcmp(spr_name, "rabbit_2") == 0) new.ai_rabbit_colors[new.ai_rabbit_num] = COLOR_RGBA(255, 255, 0, 255);
-							else if(strcmp(spr_name, "rabbit_3") == 0) new.ai_rabbit_colors[new.ai_rabbit_num] = COLOR_RGBA(0, 0, 255, 255);
-							else if(strcmp(spr_name, "rabbit_4") == 0) new.ai_rabbit_colors[new.ai_rabbit_num] = COLOR_RGBA(255, 0, 0, 255);						
-						} else if(strcmp(txt, "speed") == 0){
+						if(strcmp(txt, "speed") == 0){
 							new.ai_rabbit_speeds[new.ai_rabbit_num] = mml_getval_float(&mml, r);
 						} else if(strcmp(txt, "xjump") == 0){
 							new.ai_rabbit_xjumps[new.ai_rabbit_num] = mml_getval_float(&mml, r);
 						} else if(strcmp(txt, "yjump") == 0){
 							new.ai_rabbit_yjumps[new.ai_rabbit_num] = mml_getval_float(&mml, r);
-						} else if(strcmp(txt, "max_combo") == 0){
-							new.ai_max_combo[new.ai_rabbit_num] = mml_getval_int(&mml, r);
 						}
-
 					}
 					new.ai_rabbit_num++;
 

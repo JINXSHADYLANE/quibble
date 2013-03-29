@@ -51,9 +51,6 @@ typedef struct {
 	const char* ground_chain;
 	uint ai_rabbit_num;
 	// ai rabbit data
-	const char* ai_rabbit_names[3];
-	SprHandle ai_rabbit_spr[3];
-	Color ai_rabbit_colors[3];
 	float ai_rabbit_speeds[3];
 	float ai_rabbit_xjumps[3];
 	float ai_rabbit_yjumps[3];

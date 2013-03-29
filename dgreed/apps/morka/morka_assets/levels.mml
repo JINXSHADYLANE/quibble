@@ -11,12 +11,10 @@
 		(season autumn)
 		(distance 100)
 		(rabbits _
-			(name Lili
-				(spr rabbit_3)
+			(max_combo 1
 				(speed 400)
 				(xjump 90)
 				(yjump 400)
-				(max_combo 1)
 			)
 		)
 		(powerups _
@@ -30,19 +28,15 @@
 		(season autumn)
 		(distance 120)
 		(rabbits _
-			(name Lili
-				(spr rabbit_3)
+			(max_combo 5
 				(speed 450)
 				(xjump 90)
 				(yjump 400)
-				(max_combo 5)
 			)
-			(name Tori
-				(spr rabbit_2)
+			(max_combo 3
 				(speed 400)
 				(xjump 100)
 				(yjump 400)
-				(max_combo 3)
 			)
 		)
 		(powerups _
@@ -61,26 +55,20 @@
 		(season autumn)
 		(distance 135)
 		(rabbits _
-			(name Kubo
-				(spr rabbit_4)
+			(max_combo 4
 				(speed 480)
 				(xjump 95)
 				(yjump 410)
-				(max_combo 4)
 			)
-			(name Tori
-				(spr rabbit_2)
+			(max_combo 2
 				(speed 400)
 				(xjump 100)
 				(yjump 410)
-				(max_combo 2)
 			)
-			(name Lili
-				(spr rabbit_3)
+			(max_combo 6
 				(speed 420)
 				(xjump 110)
 				(yjump 410)
-				(max_combo 6)
 			)
 		)
 		(powerups _
@@ -104,26 +92,20 @@
 		(season autumn)
 		(distance 120)
 		(rabbits _
-			(name Kubo
-				(spr rabbit_4)
+			(max_combo 5
 				(speed 480)
 				(xjump 110)
 				(yjump 410)
-				(max_combo 5)
 			)
-			(name Tori
-				(spr rabbit_2)
+			(max_combo 3
 				(speed 420)
 				(xjump 110)
 				(yjump 410)
-				(max_combo 3)
 			)
-			(name Lili
-				(spr rabbit_3)
+			(max_combo 7
 				(speed 465)
 				(xjump 110)
 				(yjump 410)
-				(max_combo 7)
 			)
 		)
 		(powerups _
@@ -152,26 +134,20 @@
 		(season autumn)
 		(distance 130)
 		(rabbits _
-			(name Lili
-				(spr rabbit_3)
+			(max_combo 8
 				(speed 490)
 				(xjump 110)
 				(yjump 410)
-				(max_combo 8)
 			)
-			(name Kubo
-				(spr rabbit_4)
+			(max_combo 6
 				(speed 490)
 				(xjump 100)
 				(yjump 410)
-				(max_combo 6)
 			)
-			(name Tori
-				(spr rabbit_2)
+			(max_combo 4
 				(speed 440)
 				(xjump 110)
 				(yjump 410)
-				(max_combo 4)
 			)
 		)
 		(powerups _
@@ -200,26 +176,20 @@
 		(season autumn)
 		(distance 115)
 		(rabbits _
-			(name Lili
-				(spr rabbit_3)
+			(max_combo 8
 				(speed 490)
 				(xjump 110)
 				(yjump 410)
-				(max_combo 8)
 			)
-			(name Kubo
-				(spr rabbit_4)
+			(max_combo 6
 				(speed 490)
 				(xjump 100)
 				(yjump 410)
-				(max_combo 6)
 			)
-			(name Tori
-				(spr rabbit_2)
+			(max_combo 4
 				(speed 440)
 				(xjump 110)
 				(yjump 410)
-				(max_combo 4)
 			)
 		)
 		(powerups _	
@@ -253,26 +223,20 @@
 		(season autumn)
 		(distance 130)
 		(rabbits _
-			(name Lili
-				(spr rabbit_3)
+			(max_combo 11
 				(speed 500)
 				(xjump 110)
 				(yjump 400)
-				(max_combo 11)
 			)
-			(name Kubo
-				(spr rabbit_4)
+			(max_combo 6
 				(speed 495)
 				(xjump 105)
 				(yjump 410)
-				(max_combo 6)
 			)
-			(name Tori
-				(spr rabbit_2)
+			(max_combo 4
 				(speed 450)
 				(xjump 105)
 				(yjump 415)
-				(max_combo 4)
 			)
 		)
 		(powerups _
@@ -306,26 +270,20 @@
 		(season autumn)
 		(distance 145)
 		(rabbits _
-			(name Lili
-				(spr rabbit_3)
+			(max_combo 20
 				(speed 500)
 				(xjump 110)
 				(yjump 400)
-				(max_combo 20)
 			)
-			(name Kubo
-				(spr rabbit_4)
+			(max_combo 15
 				(speed 500)
 				(xjump 100)
 				(yjump 400)
-				(max_combo 15)
 			)
-			(name Tori
-				(spr rabbit_2)
+			(max_combo 10
 				(speed 520)
 				(xjump 105)
 				(yjump 400)
-				(max_combo 10)
 			)
 		)
 		(powerups _
@@ -359,26 +317,20 @@
 		(season autumn)
 		(distance 185)
 		(rabbits _
-			(name Lili
-				(spr rabbit_3)
+			(max_combo 30
 				(speed 510)
 				(xjump 110)
 				(yjump 410)
-				(max_combo 30)
 			)
-			(name Kubo
-				(spr rabbit_4)
+			(max_combo 30
 				(speed 500)
 				(xjump 100)
 				(yjump 400)
-				(max_combo 30)
 			)
-			(name Tori
-				(spr rabbit_2)
+			(max_combo 30
 				(speed 500)
 				(xjump 115)
 				(yjump 415)
-				(max_combo 30)
 			)
 		)
 		(powerups _
@@ -412,12 +364,10 @@
 		(season winter)
 		(distance 85)
 		(rabbits _
-			(name Tori
-				(spr rabbit_2)
+			(max_combo 2
 				(speed 459)
 				(xjump 100)
 				(yjump 450)
-				(max_combo 2)
 			)
 		)		
 		(background background2)
