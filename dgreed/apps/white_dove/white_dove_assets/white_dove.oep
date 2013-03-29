@@ -1,0 +1,36 @@
+<project>
+<name> room </name>
+<settings> 
+	<defaultWidth> 1024 </defaultWidth> 
+	<defaultHeight> 768 </defaultHeight>
+	<workingDirectory>./images</workingDirectory>
+</settings>
+	<tilesets>
+		<tileset name="tiles0" image="reikalingas_failas.png" tileWidth="16" tileHeight="16" 
+		width="16" height="16"/>s
+	</tilesets>	
+	<objects>
+		<object name="room" image="1.png" width="1024" height="768"/>
+		<object name="room" image="2.png" width="1024" height="768"/>
+		<object name="room" image="3.png" width="1024" height="768"/>
+		<object name="room" image="4.png" width="1024" height="768"/>
+		<object name="room" image="5.png" width="1024" height="768"/>
+		<object name="room" image="6.png" width="1024" height="768"/>
+		<object name="room" image="7.png" width="1024" height="768"/>
+		<object name="room" image="8.png" width="1024" height="768"/>
+		<object name="room" image="9.png" width="1024" height="768"/>
+		<object name="room" image="10.png" width="1024" height="768"/>
+		<object name="room" image="11.png" width="1024" height="768"/>
+		<object name="room" image="12.png" width="1024" height="768"/>
+		<object name="room" image="13.png" width="1024" height="768"/>
+		<object name="room" image="14.png" width="1024" height="768"/>
+		<object name="room" image="15.png" width="1024" height="768"/>
+		<object name="room" image="16.png" width="1024" height="768"/>
+	</objects>
+	<layers>
+		<tiles name="backgr" gridSize="16"/>
+		<grid name="objects" gridSize="16"/>
+		<objects name="objs" gridSize="16"/>
+	</layers>
+
+</project>

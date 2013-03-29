@@ -1,0 +1,748 @@
+(mchains morka
+
+	(ruleset bg
+		(def a (element_1 512))
+		(def b (element_2 512))
+		(def c (element_3 512))
+		(def d (element_4 512))
+
+		(init "ab")
+
+		(learn "abcdab")
+	)
+	(ruleset bg_winter
+		(def a (element_5 512))
+		(def b (element_6 512))
+		(def c (element_7 512))
+
+		(init "ab")
+
+		(learn "abcabc")
+	)
+
+	###########################
+	###                     ###
+	###       Autumn        ###
+	###                     ###
+	###########################
+	###						###
+	###		 Grounds	    ###
+	###						###
+	###########################
+
+	(ruleset grass_ground
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+
+		(def _ (.empty 100))
+		(def = (.empty 350))
+		(def - (.empty 200))
+
+		(init "cd")
+
+		(learn "cdef")
+		(learn "efcd")
+	)
+	(ruleset water_ground
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+		(def i (water_start1 0))
+		(def j (water_start2 0))
+		(def k (water1 0))
+		(def l (water2 0))
+		(def m (water3 0))
+		(def n (water4 0))
+		(def o (water_end1 0))
+		(def p (water_end2 0))
+		(sdef w (seq "cdefcdefcdef"))
+
+		(init "ce")
+
+		(learn "cewcdef")
+		(learn "efcd")
+		(learn "cdefijklmnopcd")
+		(learn "cdefijklmnklmnopcd")
+		
+	)
+	(ruleset level7_ground
+		(def a (grass_start1 0))
+		(def b (grass_start2 0))
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+		(def g (grass_end1 0))
+		(def h (grass_end2 0))
+		(def q (grass3_sign 0))
+
+		(sdef z (seq "abcdef"))
+		(sdef y (seq "cdef"))
+		(sdef x (seq "cdqfgh"))
+		(sdef w (seq "abcdqfgh"))
+		
+		(def _ (.empty 190))
+		(def = (.empty 240))
+		(def - (.empty 200))
+
+		(init "ab")
+
+		(learn "abyyx")
+		(learn "yx=zyx")
+		(learn "yx-w_zyy")
+		(learn "yyx-abyy")
+
+		#(learn "cdef")
+		#(learn "efcd")
+		#(learn "cdefgh_abcd")
+		#(learn "cdefgh=abcd")
+		#(learn "cdefgh-abcd")
+	)
+	(ruleset level8_ground
+		(def a (grass_start1 0))
+		(def b (grass_start2 0))
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+		(def g (grass_end1 0))
+		(def h (grass_end2 0))
+		(def q (grass3_sign 0))
+
+		(sdef z (seq "abcdef"))
+		(sdef y (seq "cdef"))
+		(sdef x (seq "cdqfgh"))
+		(sdef w (seq "abcdqfgh"))
+		
+		(def _ (.empty 190))
+		(def = (.empty 240))
+		(def - (.empty 200))
+
+		(init "ab")
+
+		(learn "abyyx")
+		(learn "yx=zyx")
+		(learn "yx-w_zyy")
+		(learn "yyx-abyy")
+
+		#(learn "cdef")
+		#(learn "efcd")
+		#(learn "cdefgh_abcd")
+		#(learn "cdefgh=abcd")
+		#(learn "cdefgh-abcd")
+	)
+	(ruleset level9_ground
+		(def a (grass_start1 0))
+		(def b (grass_start2 0))
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+		(def g (grass_end1 0))
+		(def h (grass_end2 0))
+		(def i (water_start1 0))
+		(def j (water_start2 0))
+		(def k (water1 0))
+		(def l (water2 0))
+		(def m (water3 0))
+		(def n (water4 0))
+		(def o (water_end1 0))
+		(def p (water_end2 0))
+		(def q (grass3_sign 0))
+
+		(sdef z (seq "abcdef"))
+		(sdef y (seq "cdef"))
+		(sdef x (seq "cdqfgh"))
+		(sdef w (seq "abcdqfgh"))
+
+		(sdef u (seq "ijklmnop"))
+		#(sdef v (seq "abcdqfgh"))
+
+		(def _ (.empty 140))
+		(def = (.empty 240))
+		(def - (.empty 190))
+		(init "ab")
+
+		(learn "abyyuyx")
+		(learn "yx=zyx")
+		(learn "yx-w_zyy")
+		(learn "yyx-abyy")
+
+		#(learn "cdefgh_abcd")
+		#(learn "cdefgh=abcd")
+		#(learn "cdefgh-abcd")
+		#(learn "cdefijklmnopcd")
+		#(learn "cdefijklmnklmnopcd")
+		
+	)
+	(ruleset level10_ground
+		(def a (grass_start1 0))
+		(def b (grass_start2 0))
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+		(def g (grass_end1 0))
+		(def h (grass_end2 0))
+		(def i (water_start1 0))
+		(def j (water_start2 0))
+		(def k (water1 0))
+		(def l (water2 0))
+		(def m (water3 0))
+		(def n (water4 0))
+		(def o (water_end1 0))
+		(def p (water_end2 0))
+		(def q (grass3_sign 0))
+
+		(sdef z (seq "abcdef"))
+		(sdef y (seq "cdef"))
+		(sdef x (seq "cdqfgh"))
+		(sdef w (seq "abcdqfgh"))
+
+		(sdef u (seq "ijklmnop"))
+		#(sdef v (seq "abcdqfgh"))
+
+		(def _ (.empty 140))
+		(def = (.empty 240))
+		(def - (.empty 190))
+		(init "ab")
+
+		(learn "abyyuyx")
+		(learn "yx=zyx")
+		(learn "yx-w_zyy")
+		(learn "yyx-abyy")
+
+		#(learn "cdefgh_abcd")
+		#(learn "cdefgh=abcd")
+		#(learn "cdefgh-abcd")
+		#(learn "cdefijklmnopcd")
+		#(learn "cdefijklmnklmnopcd")
+		
+	)
+
+	###########################
+	###						###
+	###		 Mushrooms	    ###
+	###						###
+	###########################
+
+	(ruleset level1_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 150))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		
+		(def _ (.empty 400))
+		(def = (.empty 500))
+
+		(init "__")
+
+		(learn "__=e_a_b_d_e_")
+	)
+	(ruleset level2_fg
+ 		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 150))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		
+		(def _ (.empty 400))
+
+		(init "__")
+
+		(learn "__e_a_b_d_e_")
+	)
+	(ruleset level3_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		
+		(sdef z (seq "_f=ag=bh=ei=fj"))
+
+		(def _ (.empty 350))
+		(def = (.empty 300))
+
+		(init "__")
+
+		(learn "__e_a_b_d_f_e_z_a_")
+	)
+	(ruleset level4_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		
+		(def _ (.empty 400))
+		(def = (.empty 300))
+
+		(init "__")
+
+		(learn "__e_fg_bh_di_caj_a_e_")
+		(learn "bh_ag_jac_a_e_")		
+	
+	)
+	(ruleset level5_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		
+		(def g (bg_mushroom_6 150))
+		(def h (bg_mushroom_5 150))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 200))
+		(def x (spikeshroom_1 150))
+
+		(sdef z (seq "_f__x_c_a_j_x_ia_x_hb_gf_x_d"))
+
+		(def _ (.empty 200))
+		(def = (.empty 400))
+		
+		(init "__")
+
+		(learn "__=f=a=e=b=z=d=f")
+	)	
+	(ruleset level6_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		
+		(def g (bg_mushroom_6 150))
+		(def h (bg_mushroom_5 150))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 200))
+		(def x (spikeshroom_1 150))
+
+		(sdef z (seq "f__fg_x_bh_x_di_x_c_a_j"))
+		(sdef w (seq "d__bh_x_eg_x_jac"))
+		(def _ (.empty 120))
+		(def = (.empty 400))
+		(init "==")
+
+		(learn "==b=e=z=a=e=d")
+		(learn "=d=e=w=b=")		
+	
+	)
+	(ruleset level7_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		
+		(sdef z (seq "_f_dg_bh_ei_a_j"))
+
+		(def _ (.empty 180))
+	
+		(init "__")
+
+		(learn "__e_z_b_d_e_z_f_ac_e")
+	)
+	(ruleset level8_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		(def x (spikeshroom_1 150))
+
+		(sdef z (seq "x=d__b__gchidj__x=a"))
+
+		(def _ (.empty 250))
+		(def = (.empty 50))
+
+		(init "__")
+
+		(learn "__f_a_c_e_d_z_f_")
+	)
+	(ruleset level9_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		(def x (spikeshroom_1 150))
+
+		(sdef z (seq "x=d__b__gchidj__x=a"))
+
+		(def _ (.empty 250))
+		(def = (.empty 50))
+
+		(init "__")
+
+		(learn "__f_a_c_e_d_z_f_")
+	)
+	(ruleset level10_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		(def x (spikeshroom_1 150))
+
+		(sdef z (seq "x=d__b__gchidj__x=a"))
+
+		(def _ (.empty 250))
+		(def = (.empty 50))
+
+		(init "__")
+
+		(learn "__f_a_c_e_d_z_f_")
+	)
+
+	###########################
+	###                     ###
+	###       Trees         ###
+	###                     ###
+	###########################
+
+	(ruleset tree_1
+		(def | (.empty  0))
+
+		(def > (trunk_1 0))
+
+		(def - (trunk_2  0))
+		(def a (trunk_2 -1))
+		(def b (trunk_2 -2))
+		(def c (trunk_2 -3))
+		(def d (trunk_2  1))
+		(def e (trunk_2  2))		
+
+		(def = (trunk_3  0))
+		(def f (trunk_3 -1))
+		(def g (trunk_3 -2))
+		(def h (trunk_3 -3))
+		(def i (trunk_3  1))
+		(def j (trunk_3  2))
+
+		(def _ (trunk_4  0))
+		(def k (trunk_4 -1))
+		(def l (trunk_4 -2))
+		(def m (trunk_4 -3))
+		(def n (trunk_4  1))
+		(def o (trunk_4  2))
+
+		(def + (trunk_5  0))
+		(def p (trunk_5 -1))
+		(def q (trunk_5 -2))
+		(def r (trunk_5 -3))
+		(def s (trunk_5  1))
+		(def t (trunk_5  2))
+
+		(def < (trunk_6  0))
+		(def u (trunk_6 -1))
+		(def v (trunk_6 -2))
+		(def w (trunk_6 -3))
+		(def x (trunk_6  1))
+		(def y (trunk_6  2))
+
+		(init "|>")
+
+		(learn "|>ajl+<|>")
+	)
+	(ruleset tree_2
+		(def | (.empty  0))
+
+		(def > (trunk_1 0))
+
+		(def - (trunk_2  0))
+		(def a (trunk_2 -1))
+		(def b (trunk_2 -2))
+		(def c (trunk_2 -4))
+		(def d (trunk_2  1))
+		(def e (trunk_2  2))		
+
+		(def = (trunk_3  0))
+		(def f (trunk_3 -1))
+		(def g (trunk_3 -2))
+		(def h (trunk_3 -3))
+		(def i (trunk_3  1))
+		(def j (trunk_3  2))
+
+		(def _ (trunk_4  0))
+		(def k (trunk_4 -1))
+		(def l (trunk_4 -2))
+		(def m (trunk_4 -3))
+		(def n (trunk_4  1))
+		(def o (trunk_4  2))
+
+		(def + (trunk_5  0))
+		(def p (trunk_5 -1))
+		(def q (trunk_5 -2))
+		(def r (trunk_5 -3))
+		(def s (trunk_5  1))
+		(def t (trunk_5  2))
+
+		(def < (trunk_6  0))
+		(def u (trunk_6 -1))
+		(def v (trunk_6 -2))
+		(def w (trunk_6 -3))
+		(def x (trunk_6  1))
+		(def y (trunk_6  2))
+
+		(init "|>")
+
+	#	(learn "|>-=_+<|>") # Empty tree
+		(learn "|>cil+<|>")
+	)	
+
+	(ruleset tree_3
+		(def | (.empty  0))
+
+		(def > (trunk_1 0))
+
+		(def - (trunk_2  0))
+		(def a (trunk_2 -1))
+		(def b (trunk_2 -2))
+		(def c (trunk_2 -3))
+		(def d (trunk_2  1))
+		(def e (trunk_2  5))		
+
+		(def = (trunk_3  0))
+		(def f (trunk_3 -1))
+		(def g (trunk_3 -2))
+		(def h (trunk_3 -3))
+		(def i (trunk_3  1))
+		(def j (trunk_3  2))
+
+		(def _ (trunk_4  0))
+		(def k (trunk_4 -1))
+		(def l (trunk_4 -2))
+		(def m (trunk_4 -3))
+		(def n (trunk_4  1))
+		(def o (trunk_4  2))
+
+		(def + (trunk_5  0))
+		(def p (trunk_5 -1))
+		(def q (trunk_5 -2))
+		(def r (trunk_5 -3))
+		(def s (trunk_5  1))
+		(def t (trunk_5  2))
+
+		(def < (trunk_6  0))
+		(def u (trunk_6 -1))
+		(def v (trunk_6 -2))
+		(def w (trunk_6 -3))
+		(def x (trunk_6  1))
+		(def y (trunk_6  2))
+
+		(init "|>")
+
+		(learn "|>eg_p<|>")
+	)	
+
+	(ruleset tree_11
+		(def | (.empty  0))
+		
+		(def > (trunk_1 0))
+
+		(def - (trunk_2  0))
+		(def a (trunk_2 -1))
+		(def b (trunk_2 -2))
+		(def c (trunk_2 -3))
+		(def d (trunk_2  1))
+		(def e (trunk_2  2))		
+
+		(def = (trunk_3  0))
+		(def f (trunk_3 -1))
+		(def g (trunk_3 -2))
+		(def h (trunk_3 -3))
+		(def i (trunk_3  1))
+		(def j (trunk_3  2))
+
+		(def < (trunk_4b  0))
+		(def k (trunk_4b -1))
+		(def l (trunk_4b -2))
+		(def m (trunk_4b -3))
+		(def n (trunk_4b  1))
+		(def o (trunk_4b  2))
+
+		(def x (.empty  0))
+
+		(def z (.empty  0))
+
+		(init "|>")
+
+	#	(learn "|>-=<xz|>") # Empty tree
+		(learn "|>a=nxz|>")				
+	)
+
+	(ruleset tree_12
+		(def | (.empty  0))
+		
+		(def > (trunk_1 0))
+
+		(def - (trunk_2  0))
+		(def a (trunk_2 -1))
+		(def b (trunk_2 -2))
+		(def c (trunk_2 -3))
+		(def d (trunk_2  1))
+		(def e (trunk_2  2))		
+
+		(def = (trunk_3  0))
+		(def f (trunk_3 -1))
+		(def g (trunk_3 -2))
+		(def h (trunk_3 -3))
+		(def i (trunk_3  1))
+		(def j (trunk_3  2))
+
+		(def < (trunk_4b  0))
+		(def k (trunk_4b -1))
+		(def l (trunk_4b -2))
+		(def m (trunk_4b -3))
+		(def n (trunk_4b  1))
+		(def o (trunk_4b  2))
+
+		(def x (.empty  0))
+
+		(def z (.empty  0))
+
+		(init "|>")
+
+	#	(learn "|>-=<xz|>") # Empty tree
+		(learn "|>ci<xz|>")			
+	)
+
+	(ruleset tree_13
+		(def | (.empty  0))
+		
+		(def > (trunk_1 0))
+
+		(def - (trunk_2  0))
+		(def a (trunk_2 -1))
+		(def b (trunk_2 -2))
+		(def c (trunk_2 -3))
+		(def d (trunk_2  1))
+		(def e (trunk_2  2))		
+
+		(def = (trunk_3  0))
+		(def f (trunk_3 -1))
+		(def g (trunk_3 -2))
+		(def h (trunk_3 -3))
+		(def i (trunk_3  1))
+		(def j (trunk_3  2))
+
+		(def < (trunk_4b  0))
+		(def k (trunk_4b -1))
+		(def l (trunk_4b -2))
+		(def m (trunk_4b -3))
+		(def n (trunk_4b  1))
+		(def o (trunk_4b  2))
+
+		(def x (.empty  0))
+
+		(def z (.empty  0))
+
+		(init "|>")
+
+	#	(learn "|>-=<xz|>") # Empty tree
+		(learn "|>bh<xz|>")				
+	)
+
+	###########################
+	###                     ###
+	###       Winter        ###
+	###                     ###
+	###########################
+
+	(ruleset level21_fg
+		(def a (:tree_1 600))
+		(def b (:tree_2 600))
+		(def c (:tree_3 600))
+
+		(def f (:tree_11 600))
+		(def g (:tree_12 600))
+		(def h (:tree_13 600))
+		
+		(def _ (.empty 250))
+		(def = (.empty 400))
+		(def - (.empty 50))
+
+		(sdef x (seq "a_b_c"))
+
+		(init "_a")
+
+		(learn "_a_=h-c_f_b_g_a")
+
+	)	
+	(ruleset level21_ground
+		(def a (snow_start1 0))
+		(def b (snow_start2 0))
+		(def c (snow1 0))
+		(def d (snow2 0))
+		(def e (snow3 0))
+		(def f (snow4 0))
+		(def g (snow_end1 0))
+		(def h (snow_end2 0))
+		(def i (ice_start 0))
+		(def j (ice1 0))
+		(def k (ice2 0))
+		(def l (ice_end 0))
+
+		(sdef + (seq "_______________"))
+		(sdef x (seq "abijkl"))
+		
+
+		(def _ (.empty 400))
+		(def = (.empty 400))
+		(def - (.empty 400))
+
+		(init "ab")
+
+		(learn "abcdefgh")
+
+		(learn "h+xgh")
+
+		(learn "gh+ab")
+
+	)
+
+)
+
