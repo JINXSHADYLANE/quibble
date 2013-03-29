@@ -79,7 +79,11 @@ typedef enum {
 	MBTN_LEFT = 0,
 	MBTN_RIGHT = 1,
 
-	MBTN_COUNT = 3
+	// Mouse wheel
+	MBTN_WHEELUP = 3,
+	MBTN_WHEELDOWN = 4,
+
+	MBTN_COUNT = 5
 } MouseButton;
 
 // Returns true if key is being held down
