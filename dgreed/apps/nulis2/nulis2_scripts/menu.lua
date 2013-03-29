@@ -341,6 +341,19 @@ function draw_levels(scores, t)
 	end
 	local off = levels_off 
 
+	local wheel_scroll = false
+	if mouse.pressed(mouse.wheelup) then
+		levels_off_target = levels_off_target + off_levels.y
+		levels_off_target = clamp(-off_levels.y*6, 0, levels_off_target)
+		--wheel_scroll = true
+	end
+
+	if mouse.pressed(mouse.wheeldown) then
+		levels_off_target = levels_off_target - off_levels.y
+		levels_off_target = clamp(-off_levels.y*6, 0, levels_off_target)
+		--wheel_scroll = true
+	end
+
 	if not touch_current then
 		levels_off = lerp(levels_off, levels_off_target, 0.1)
 	end
@@ -351,7 +364,7 @@ function draw_levels(scores, t)
 	if touch_current then
 		d = touch_current.pos.y - touch_current.hit_pos.y
 	end
-	if touch_sliding and math.abs(d) > 4 then
+	if wheel_scroll or (touch_sliding and math.abs(d) > 4) then
 		off = off + d
 		levels_off_target = math.floor(0.5 + off / off_levels.y) * off_levels.y
 		levels_off_target = clamp(-off_levels.y*6, 0, levels_off_target)
