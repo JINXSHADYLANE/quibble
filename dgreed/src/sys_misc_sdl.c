@@ -68,7 +68,7 @@ uint keybindings[8] = {
 
 // Totaly arbitrary. Only thing known - 256 is not enough.
 #define N_KEYS 400
-#define N_MOUSE_BUTTONS 4
+#define N_MOUSE_BUTTONS 6
 
 byte old_keystate[N_KEYS];
 byte keystate[N_KEYS];
@@ -243,6 +243,10 @@ uint _sdl_to_greed_mbtn(uint mbtn_id) {
 			return MBTN_RIGHT;
 		case SDL_BUTTON_MIDDLE:
 			return MBTN_MIDDLE;
+		case SDL_BUTTON_WHEELUP:
+			return MBTN_WHEELUP;
+		case SDL_BUTTON_WHEELDOWN:
+			return MBTN_WHEELDOWN;
 		default:
 			break;
 	}
@@ -258,13 +262,17 @@ bool system_update(void) {
 
 	memcpy(old_mousestate, mousestate, sizeof(mousestate));
 	memcpy(old_keystate, keystate, sizeof(keystate));
+	mousestate[MBTN_WHEELUP] = 0;
+	mousestate[MBTN_WHEELDOWN] = 0;
 	while(SDL_PollEvent(&evt)) {
 		if(evt.type == SDL_MOUSEMOTION) {
 			mouse_x = evt.motion.x;
 			mouse_y = evt.motion.y;
 		}
 		if(evt.type == SDL_MOUSEBUTTONUP) {
-			mousestate[_sdl_to_greed_mbtn(evt.button.button)] = 0;
+			if( evt.button.button != SDL_BUTTON_WHEELUP &&
+				evt.button.button != SDL_BUTTON_WHEELDOWN)
+				mousestate[_sdl_to_greed_mbtn(evt.button.button)] = 0;
 		}
 		if(evt.type == SDL_MOUSEBUTTONDOWN) {
 			mousestate[_sdl_to_greed_mbtn(evt.button.button)] = 1;
