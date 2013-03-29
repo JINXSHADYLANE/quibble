@@ -33,11 +33,31 @@ images = {
 			  }
 }
 
+if not running_on_ios then
+	images['l1'] = {'title', 'tut_primary_mouse'}
+	images['l2'] = {'tut_secondary_mouse', 'hint1'}
+	images['l3'] = {'tut_menu_esc', 'hint2', 'hint3'}
+end
+
 tut_fingers = {
 	['tut_one_finger'] = 1,
 	['tut_two_fingers'] = 2,
 	['tut_menu_fingers'] = 5 
 }
+
+if not running_on_ios then
+	tut_fingers['tut_primary_mouse'] = function()
+		return mouse.down(mouse.primary)
+	end
+
+	tut_fingers['tut_secondary_mouse'] = function()
+		return mouse.down(mouse.secondary)
+	end
+
+	tut_fingers['tut_menu_esc'] = function()
+		return key.down(key.quit)
+	end
+end
 
 cr_size = 0
 cr_positions = {}
@@ -160,8 +180,9 @@ function render(level)
 				end
 
 				if freeze_t then
-					if touch.count() == tut or (tut == 2 and mouse.down(mouse.secondary)) or
-						(tut == 5 and key.pressed(key.quit)) then
+					local non_ios = not running_on_ios and tut()
+					local ios = touch.count() == tut
+					if non_ios or ios then
 						local unfreeze_t = gt - start_t 
 						start_t = start_t + (unfreeze_t - freeze_t)
 						freeze_t = nil
