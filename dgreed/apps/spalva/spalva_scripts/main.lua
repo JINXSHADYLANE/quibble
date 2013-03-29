@@ -38,7 +38,7 @@ end
 
 function game_close()
 --	font.free(fnt)
---	sound.free(mus)
+	sound.free(mus)
 	anim.close()
 	sprsheet.close()
 	mfx.close()
