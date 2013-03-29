@@ -220,6 +220,43 @@ function draw_competitive(t)
 		end
 	end
 
+	if not gamecenter and not has_twitter then
+		-- if we have no gamecenter and no twitter - show the same
+		-- reset/sound/music buttons
+		local off, c = animate_menu(t)
+		if menu_icon(sprs.replay, nil, pos_replay + off, nil, c, angle) then
+			if not popped then
+				csim.reset('l'..tostring(current_level+1))
+				tutorials.render('...')
+				tutorials.start_t = states.time('game')
+				states.pop()
+				popped = true
+			end
+		end
+
+		local new_state_sound = menu_icon(sprs.sound, sprs.sound_off, pos_sound + off, state_sound, c, angle) 
+		if state_sound ~= new_state_sound then
+			if new_state_sound then
+				mfx.snd_set_volume(1.0)
+			else
+				mfx.snd_set_volume(0.0)
+			end
+			keyval.set('state_sound', new_state_sound)
+		end
+		state_sound = new_state_sound
+
+		local new_state_music = menu_icon(sprs.music, sprs.music_off, pos_music + off, state_music, c, angle) 
+		if state_music ~= new_state_music then
+			if new_state_music then
+				sound.resume(music_source)
+			else
+				sound.pause(music_source)
+			end
+			keyval.set('state_music', new_state_music)
+		end
+		state_music = new_state_music
+	end
+
 	if menu_icon(sprs.back, nil, pos_score + off, nil, c, angle) then
 		show_scores = false
 		touch_released = false
