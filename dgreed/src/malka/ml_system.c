@@ -1311,7 +1311,7 @@ static const char* key_names[] = {
 };	
 
 static const char* mbtn_names[] = {
-	"primary", "secondary", "middle"
+	"primary", "secondary", "middle", "wheelup", "wheeldown"
 };	
 
 
