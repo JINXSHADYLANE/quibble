@@ -383,14 +383,14 @@
 		(def j (bg_mushroom_2 400))
 		(def x (spikeshroom_1 150))
 
-		(sdef z (seq "x=d__b__gchidj__x=a"))
+		(sdef z (seq "x=d_b_gchdi=jac_bx=a"))
 
 		(def _ (.empty 250))
 		(def = (.empty 50))
 
 		(init "__")
 
-		(learn "__f_a_c_e_d_z_f_")
+		(learn "__f_a_e_d_z_f_")
 	)
 	(ruleset level9_fg
 		(def a (mushroom_1 150))
@@ -405,14 +405,14 @@
 		(def j (bg_mushroom_2 400))
 		(def x (spikeshroom_1 150))
 
-		(sdef z (seq "x=d__b__gchidj__x=a"))
+		(sdef z (seq "d_c=a=j=x=fh=x=ei=x=bg_b"))
 
 		(def _ (.empty 250))
-		(def = (.empty 50))
+		(def = (.empty 40))
 
 		(init "__")
 
-		(learn "__f_a_c_e_d_z_f_")
+		(learn "__f_a_e_d_z_f_")
 	)
 	(ruleset level10_fg
 		(def a (mushroom_1 150))
