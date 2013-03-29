@@ -21,9 +21,9 @@ function game_init()
 	mfx.init(asset_dir..'effects.mml')
 	sprsheet.init(asset_dir..'spritesheet.mml')
 	anim.init(asset_dir..'animations.mml')
-	--mus = sound.load_stream(asset_dir..'aftermath.ogg')
+	mus = sound.load_stream(asset_dir..'Show Your Moves.ogg')
+	sound.play(mus, true)
 	--fnt = font.load(asset_dir..'Georgia_60px.bft', 0.5, asset_dir)
-	--sound.play(mus, true)
 
 	states.transition_len = 0.5
 	states.register('game', game)
@@ -32,6 +32,7 @@ function game_init()
 
 	states.prerender_callback(function()
 		mfx.update()
+		sound.update()
 	end)
 end
 
