@@ -76,6 +76,15 @@
 	(img tut_menu_fingers
 		(tex "tut_menu_fingers.png")
 	)
+	(img tut_primary_mouse
+		(tex "tut_primary_mouse.png")
+	)
+	(img tut_secondary_mouse
+		(tex "tut_secondary_mouse.png")
+	)
+	(img tut_menu_esc
+		(tex "tut_menu_esc.png")
+	)
 	(img clock
 		(tex "clock.png")
 	)
