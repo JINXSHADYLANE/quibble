@@ -1,4 +1,7 @@
 #include "game.h"
+
+#include "ai.h"
+#include "characters.h"
 #include "common.h"
 #include "objects.h"
 #include "obj_types.h"
@@ -28,29 +31,74 @@ static bool game_over = false;
 static bool game_paused = false;
 bool tutorial_level = true;
 
+uint player = 0;
+
+CharacterParams character_params[character_count];
+
 static void game_reset(void) {
 	if(rabbit) {
 		objects_destroy_all();
 	}
 
+	LevelDesc * lvl_desc = levels_current_desc();
+
 	// Check if this level is a tutorial
-	tutorial_level = !strcmp(levels_current_desc()->name, "level1");
+	tutorial_level = !strcmp(lvl_desc->name, "level1");
 
-	minimap_reset(levels_current_desc()->distance);
+	minimap_reset(lvl_desc->distance);
 
-	// Player rabbit
-	Vector2 pos = vec2(512.0f, 579.0f);
-	rabbit = (ObjRabbit*)objects_create(&obj_rabbit_desc,pos,(void*)-1);
-	minimap_track(rabbit);
-	tutorials_reset(rabbit);
+	uint ai_num = 0;
 
-	// AI rabbits
-	for(int i = 0;i < levels_current_desc()->ai_rabbit_num;i++){
-		Vector2 pos = vec2(640.0f+128.0f*i,579.0f);
-		ObjRabbit* ai_rabbit = (ObjRabbit*)objects_create(
-			&obj_rabbit_desc, pos, (void*)(size_t)i
-		);
-		minimap_track(ai_rabbit);
+	for(int i = 0;i < character_count;i++){
+
+		character_params[i].sprite = sprsheet_get_handle(default_characters[i].spr_handle);
+		character_params[i].minimap_color = default_characters[i].minimap_color;
+
+		if(i == player){
+			// Player character
+			Vector2 pos = vec2(512.0f, 579.0f);
+
+			character_params[i].name = "You";
+			character_params[i].speed = default_characters[i].speed;
+			character_params[i].xjump = default_characters[i].xjump;
+			character_params[i].yjump = default_characters[i].yjump;
+			character_params[i].control = obj_rabbit_player_control;
+
+			rabbit = (ObjRabbit*)objects_create(
+				&obj_rabbit_desc, pos, (void*)&character_params[i]
+			);
+
+			minimap_track(rabbit);
+			tutorials_reset(rabbit);
+		} else if(ai_num < lvl_desc->ai_rabbit_num) {
+			// AI character
+			Vector2 pos = vec2(640.0f+128.0f*ai_num,579.0f);
+
+			character_params[i].name = default_characters[i].name;
+
+			switch(lvl_desc->season){
+				case AUTUMN: character_params[i].control = ai_control_autumn;
+				break;
+				case WINTER: character_params[i].control = ai_control_winter;
+				break;
+				case SPRING: character_params[i].control = ai_control_spring;
+				break;
+				case SUMMER: character_params[i].control = ai_control_summer;
+				break;
+			}
+			character_params[i].ai_max_combo = lvl_desc->ai_max_combo[ai_num];
+			character_params[i].speed = lvl_desc->ai_rabbit_speeds[ai_num];
+			character_params[i].xjump = lvl_desc->ai_rabbit_xjumps[ai_num];
+			character_params[i].yjump = lvl_desc->ai_rabbit_yjumps[ai_num];
+			ai_num++;
+
+			ObjRabbit* ai_rabbit = (ObjRabbit*)objects_create(
+				&obj_rabbit_desc, pos, (void*)&character_params[i]
+			);
+
+			minimap_track(ai_rabbit);
+		}
+		
 	}	
 
 	float p = 512.0f + 50.0f + levels_current_desc()->ai_rabbit_num * 128.0f;

@@ -115,7 +115,6 @@ static bool level_select_render(float t) {
 				float r_sqr = 20.0f * 20.0f;
 				if(vec2_length_sq(vec2_sub(hit_pos, pos)) < r_sqr) {
 					levels_reset(desc->name);
-					game_request_reset();
 					malka_states_push("shop");
 				}
 			}

@@ -1,6 +1,7 @@
 #include "hud.h"
 #include "common.h"
 #include "game.h"
+#include "shop.h"
 #include "minimap.h"
 #include "levels.h"
 
@@ -114,108 +115,6 @@ static void _hud_render_powerups(float t){
 				}
 
 
-			}
-
-
-		}
-	}
-}
-
-static void _hud_render_powerups_buy(float t){
-	UIElement* parent = uidesc_get("shop");
-	UIElement* element = uidesc_get_child(parent, "hud_powerups");
-
-	const float duration = 0.5f;
-
-	float alpha = 1.0f-fabsf(t);
-	byte a = lrintf(255.0f * alpha);
-	Color col = COLOR_RGBA(255, 255, 255, a);	
-
-	byte a2 = lrintf(76.0f * alpha);
-	Color col_30 = COLOR_RGBA(255, 255, 255, a2);		
-
-	byte alpha_txt = 255;
-
-	Vector2 powerup_place = element->vec2;
-
-	SprHandle spr = sprsheet_get_handle(powerup_params[0].btn);
-	Vector2 size = sprsheet_get_size_h(spr);
-
-	int count = levels_get_powerup_count() +1;
-	float x_offset = (-count * (size.x + 27.0f)) /2.0f;
-
-	for(int i = 0; i < POWERUP_COUNT;i++){
-
-		if(levels_current_desc()->powerup_num[i] > 0){
-
-			float ts = time_s();
-			float y_offset = 0.0f;
-			SprHandle spr = sprsheet_get_handle(powerup_params[i].btn);
-			Vector2 size = sprsheet_get_size_h(spr);
-			
-			x_offset += size.x + 27.0f;
-			Vector2 pos = vec2_add(powerup_place, vec2(x_offset, -size.y) );
-			spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col_30);
-
-			if(rabbit->data->has_powerup[i]){
-
-				if(powerup_appear[i] == 0.0f) powerup_appear[i] = time_s() + duration;
-
-				float td = normalize(ts,powerup_appear[i]-duration,powerup_appear[i]);
-				td = clamp(0.0f,1.0f,td);
-
-				alpha_txt = lrintf(255.0f * (1-td));
-
-				y_offset = sin(PI*td/2.0f) * -size.y;
-
-			} else {
-
-				if(powerup_appear[i] > 0.0f)
-					powerup_appear[i] = -(time_s() + duration);			
-
-				float td = normalize(ts,-powerup_appear[i]-duration,-powerup_appear[i]);
-				td = clamp(0.0f,1.0f,td);
-
-				alpha_txt = 255;
-
-				if(td == 1.0f)
-					powerup_appear[i] = 0.0f;
-
-				y_offset = -size.y + (sin(PI*td/2.0f) * size.y);
-
-
-				if(touches_down() && !rabbit->data->has_powerup[i] && coins >= powerup_params[i].cost) {
-					Touch* t = touches_get();
-					if(t){
-						float r_sqr = 40.0f * 40.0f;
-						if(vec2_length_sq(vec2_sub(t[0].hit_pos, pos)) < r_sqr) {
-							rabbit->data->has_powerup[i] = true;
-							coins -= powerup_params[i].cost;	
-						}
-					}
-				}
-
-
-			}
-
-			Vector2 txt_pos = pos;
-			Color col_txt = COLOR_RGBA(255, 255, 255, alpha_txt);
-
-			if(powerup_appear[i] != 0.0f){
-				Vector2 pos2 = vec2_add(powerup_place, vec2(x_offset, y_offset) );
-				spr_draw_cntr_h(spr, hud_layer, pos2, 0.0f, 1.0f, col);
-
-				txt_pos.y += y_offset;
-			}
-			if(alpha_txt){
-				// Txt
-				vfont_select(FONT_NAME, 38.0f);
-				char str[32];
-				sprintf(str, "%dc",powerup_params[i].cost);
-				Vector2	half_size = vec2_scale(vfont_size(str), 0.5f);
-				txt_pos = vec2_sub(txt_pos, half_size);
-				txt_pos.y -= size.y - 20.0f;
-				vfont_draw(str, hud_layer, txt_pos, col_txt);
 			}
 
 
@@ -640,64 +539,4 @@ void hud_render_regular_pause(float t){
 			hud_reset();
 			malka_states_pop_multi(3);
 		}		
-}
-
-void hud_render_shop(float t){
-	vfont_select(FONT_NAME, 48.0f);
-
-	UIElement* element = uidesc_get("shop");
-
-	UIElement* coin_icon = uidesc_get_child(element, "coin_icon");
-	UIElement* coin_text = uidesc_get_child(element, "coin_text");	
-	UIElement* character_icon = uidesc_get_child(element, "character_icon");
-	UIElement* character_name = uidesc_get_child(element, "character_name");
-	UIElement* speed_txt = uidesc_get_child(element, "speed_txt");
-	UIElement* jump_txt = uidesc_get_child(element, "jump_txt");
-	UIElement* button_play = uidesc_get_child(element, "button_play");
-	UIElement* button_quit = uidesc_get_child(element, "button_quit");
-
-	float alpha = 1.0f-fabsf(t);
-	byte a = lrintf(255.0f * alpha);
-	Color col = COLOR_RGBA(255, 255, 255, a);
-
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
-
-	// Coin icon
-	spr_draw_cntr_h(coin_icon->spr, hud_layer,coin_icon->vec2, 0.0f, 1.0f, col);
-	// Coin txt
-	vfont_select(FONT_NAME, 38.0f);
-	char str[32];
-	sprintf(str, "%d",coins);
-	vfont_draw(str, hud_layer, coin_text->vec2, col);
-
-	// Character icon
-	SprHandle icon = sprsheet_get_handle("rabbit_icon");
-	Vector2 size = sprsheet_get_size_h(icon);
-	Vector2 icon_pos = character_icon->vec2;
-	icon_pos.x -= size.x / 2.0f;
-	spr_draw_cntr_h(icon, hud_layer,icon_pos, 0.0f, 1.0f, col);
-
-	// Character txt
-	vfont_select(FONT_NAME, 38.0f);
-
-	const char* name = "Rabbit";
-	vfont_draw(name, hud_layer, character_name->vec2, col);	
-
-	// Stats
-	const char* speed = "Speed";
-	vfont_draw(speed, hud_layer, speed_txt->vec2, col);	
-	const char* jump = "Jump";
-	vfont_draw(jump, hud_layer, jump_txt->vec2, col);	
-
-	// Play button
-	if(hud_button(button_play, col, t)) {
-		malka_states_push("game");
-	}
-
-	// Quit button
-	if(hud_button(button_quit, col, t)) {
-		malka_states_pop();
-	}
-
-	_hud_render_powerups_buy(t);
 }

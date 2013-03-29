@@ -286,3 +286,11 @@ void ai_control_winter(GameObject* obj){
 	}
 
 }
+
+void ai_control_spring(GameObject* obj){
+	// placeholder
+}
+
+void ai_control_summer(GameObject* obj){
+	// placeholder
+}

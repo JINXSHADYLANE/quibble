@@ -120,6 +120,8 @@ typedef struct {
 
 typedef void (*ControlCallback)(GameObject* self);
 
+void obj_rabbit_player_control(GameObject* self);
+
 // Rabbit
 
 typedef struct {

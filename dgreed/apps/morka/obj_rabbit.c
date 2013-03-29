@@ -1,11 +1,13 @@
-#include "common.h"
 #include "obj_types.h"
+#include "characters.h"
+#include "common.h"
 #include "levels.h"
 #include "minimap.h"
 #include "game.h"
 #include "hud.h"
 #include "tutorials.h"
 #include "ai.h"
+#include "shop.h"
 
 #include <mfx.h>
 #include <memory.h>
@@ -20,8 +22,8 @@ static const float rabbit_hitbox_height = 62.0f;
 static const float ground_y = 579.0f;
 
 static SprHandle shield_spr;
-static float shield_width;
-static float shield_height;
+static float shield_width = 0.0f;
+static float shield_height = 0.0f;
 
 extern bool draw_ai_debug;
 extern ObjRabbit* rabbit;
@@ -157,12 +159,6 @@ void obj_rabbit_player_control(GameObject* self){
 
 	}
 }
-
-static ObjFloaterParams trampoline_floater_params = {
-	.spr = "token",
-	.text = "-10",
-	.duration = 0.5f
-};
 
 static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 	GameObject* self = (GameObject*) rabbit;
@@ -650,6 +646,7 @@ static void obj_rabbit_update_pos(GameObject* self) {
 
 static void obj_rabbit_became_visible(GameObject* self) {
 }
+
 static void obj_rabbit_became_invisible(GameObject* self) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;	
 	ObjRabbitData* d = rabbit->data;
@@ -707,7 +704,6 @@ static void _rabbit_delayed_bounce(void* r) {
 		d->combo_counter = 0;
 
 	d->bounce_force = vec2(0.0f, 0.0f);
-
 }
 
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
@@ -815,22 +811,13 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			SprHandle sprt = sprsheet_get_handle("trampoline_obj");
 			Vector2 size = sprsheet_get_size_h(sprt);
 			float width = size.x;
-			float height = size.y;
 
 			PhysicsComponent* gap = other->physics;
 			Vector2 gap_pos = vec2(gap->cd_obj->pos.x + (gap->cd_obj->size.size.x - width) / 2.0f,HEIGHT + 15.0f);
-			Vector2 txt_pos = vec2(gap->cd_obj->pos.x + (gap->cd_obj->size.size.x) / 2.0f,HEIGHT + 15.0f - height);
 
 			// Create Trampoline
 			ObjTrampoline* trampoline = (ObjTrampoline*) objects_create(&obj_trampoline_desc, gap_pos, (void*)sprt);
 			trampoline->owner = self;
-
-			if(d->player_control){
-				sprt = sprsheet_get_handle("token_tag");
-
-				// Create floating text
-				objects_create(&obj_floater_desc, txt_pos, (void*)&trampoline_floater_params);
-			}
 		}
 
 	}
@@ -888,10 +875,11 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 }
 
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
-	int id = (int)user_data;
+	CharacterParams* c = (CharacterParams*)user_data;
 
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	rabbit->anim = anim_new_ex("rabbit", TIME_S);
+	rabbit->control = c->control;
 	
 	// Init physics
 	PhysicsComponent* physics = self->physics;
@@ -909,13 +897,13 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	RenderComponent* render = self->render;
 	render->world_dest = rectf_centered(pos, size.x, size.y);
 	render->angle = 0.0f;
-	render->layer = rabbit_layer;
 	render->anim_frame = 0;
 	render->update_pos = obj_rabbit_update_pos;
 	render->post_render = obj_rabbit_post_render;
 	render->became_visible = obj_rabbit_became_visible;
 	render->became_invisible = obj_rabbit_became_invisible;
-	
+	render->spr = c->sprite;
+
 	// Init update
 	UpdateComponent* update = self->update;
 	update->update = obj_rabbit_update;
@@ -925,46 +913,33 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	ObjRabbitData* d = rabbit->data;
 	memset(d, 0, sizeof(ObjRabbitData));
 	// Everything is initialized to zero, except these:
-	if(id < 0){
-		// Player rabbit
-		render->spr = sprsheet_get_handle("rabbit");
-		rabbit->control = obj_rabbit_player_control; d->player_control = true;
-		//rabbit->control = ai_control_autumn; d->ai_max_combo = 999; d->player_control = false;
-		d->minimap_color = COLOR_RGBA(150, 150, 150, 255);
-		d->rabbit_name = "You";
-		d->speed = 500.0f;
-		d->xjump = 100.0f;
-		d->yjump = 400.0f;
-	} else {
-		// AI rabbit
-		LevelDesc* lvl_desc = levels_current_desc();
+	d->minimap_color = c->minimap_color;
+	d->rabbit_name = c->name;
+	d->speed = c->speed;
+	d->xjump = c->xjump;
+	d->yjump = c->yjump;
+	d->ai_max_combo = c->ai_max_combo;
+	d->player_control = rabbit->control == obj_rabbit_player_control;
 
-		switch(lvl_desc->season){
-			default:
-				rabbit->control = ai_control_autumn;
-			break;
+	if(d->player_control){
+		render->layer = rabbit_layer;
 
-			case WINTER:
-				rabbit->control = ai_control_winter;
-			break;
+		// Transfer shop powerups to rabbit
+		for(uint i = 0; i < POWERUP_COUNT;i++){
+			rabbit->data->has_powerup[i] = powerups[i];
 		}
 
-		render->spr = lvl_desc->ai_rabbit_spr[id];
-		d->minimap_color = lvl_desc->ai_rabbit_colors[id];
-		d->rabbit_name = lvl_desc->ai_rabbit_names[id];
-		d->speed = lvl_desc->ai_rabbit_speeds[id];
-		d->xjump = lvl_desc->ai_rabbit_xjumps[id];
-		d->yjump = lvl_desc->ai_rabbit_yjumps[id];
-		d->ai_max_combo = lvl_desc->ai_max_combo[id];
-		render->layer = ai_rabbit_layer;
 	}
+	else
+		render->layer = ai_rabbit_layer;
 
-	shield_spr = sprsheet_get_handle("bubble_obj");
-	size = sprsheet_get_size("bubble_obj");
-	shield_width = size.x;
-	shield_height = size.y;
-
-
+	// Load once
+	if(shield_width == 0.0f){
+		shield_spr = sprsheet_get_handle("bubble_obj");
+		size = sprsheet_get_size_h(shield_spr);
+		shield_width = size.x;
+		shield_height = size.y;
+	}
 }
 
 static void obj_rabbit_destruct(GameObject* self) {
@@ -982,4 +957,3 @@ GameObjectDesc obj_rabbit_desc = {
 	.construct = obj_rabbit_construct,
 	.destruct = obj_rabbit_destruct
 };
-
