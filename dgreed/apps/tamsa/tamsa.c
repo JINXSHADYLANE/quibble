@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-static Color backbuffer[scr_width * scr_height] = {0};
+static Color backbuffer[scr_size] = {0};
 static TexHandle backbuffer_tex;
 
 void init(void) {
