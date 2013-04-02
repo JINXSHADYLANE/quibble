@@ -295,7 +295,7 @@ static int ml_aitvaras_close(lua_State* l) {
 	strcpy(remove_req, lobby_addr);
 	strcat(remove_req, "/remove");
 
-	http_post(remove_req, false, server_addr, NULL, _remove_cb);
+	if(server_id != -1) http_post(remove_req, false, server_addr, NULL, _remove_cb);
 
 	mg_stop(mg_ctx);
 

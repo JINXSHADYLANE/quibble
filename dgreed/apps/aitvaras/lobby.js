@@ -47,21 +47,6 @@ function getLobbyAddr(){
 	return temp;
 }
 
-// replacing lobby address
-fs.readFile('./aitvaras_html/index.html', 'utf8', function (err,data) {
-	if (err) {
-		return console.log(err);
-	}
-	var result = data.toString();
-	var lobbyString = 'var lobby_addr = "' + lobby_addr + '"';
-	result = result.replace(/var lobby_addr = ".*"/, lobbyString);
-	
-	fs.writeFile('./aitvaras_html/index.html', result, 'utf8', function (err) {
-		if (err) return console.log(err);
-	});
-	console.log('ready');
-});
-
 function startsWith(str, prefix) {
 	return str.indexOf(prefix) === 0;
 }
@@ -101,13 +86,11 @@ function getContent(req, res, contentType){
 				if(typeof id !== 'number' || typeof servers[id] !== 'string')
 					throw 'bad addr or no such server';
 
-				console.log('Server for id ' + id + ' = ' + servers[id]);
+				var path = lobby_addr + '/inputs.html?server=' + servers[id];
+				console.log('redirecting to: ' + path);
 
-				res.writeHead(200, {
-					'Content-Type': 'text/plain',
-					'Access-Control-Allow-Origin' : '*' 
-				});
-				res.end(servers[id]);
+				res.writeHead(302, {'Location': path});
+				res.end();
 			}
 			catch(err) {
 				console.log('Error in GET request');
@@ -117,7 +100,6 @@ function getContent(req, res, contentType){
 		}
 	});
 }
-
 route.get(/\.css(?!\.)/i, function(req, res) {
 	getContent(req,res,'text/css');
 });
