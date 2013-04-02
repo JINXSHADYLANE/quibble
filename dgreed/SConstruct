@@ -6,7 +6,7 @@ BUILD_DIR = 'build_'
 TOOL_DIR = 'tools'
 SUBS = ['src', 'apps', 'tools']
 
-common_flags = '-DTRACK_MEMORY -Werror -Wall -DVFONT_STBTT '
+common_flags = '-DTRACK_MEMORY -Wall -DVFONT_STBTT '
 env = Environment(CCFLAGS=common_flags + '-std=c99 ',
 	CPPPATH='#/src', LIBPATH='#/bin', DGREED_BIN_DIR=BIN_DIR)
 

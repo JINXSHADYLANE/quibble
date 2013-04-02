@@ -357,7 +357,7 @@ function game.update()
 end
 
 function game.render(t)
-	local msg = 'antrasekranas.lt -> ' .. tostring(aitvaras.id())
+	local msg = config.lobby_addr ..'/' .. tostring(aitvaras.id())
 
 	video.draw_text(fnt, 6, msg, vec2(90, 25), rgba(1, 1, 1, 1))
 
