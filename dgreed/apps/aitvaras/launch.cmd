@@ -3,9 +3,8 @@
 FOR /F "TOKENS=2* DELIMS=:" %%A IN ('IPCONFIG ^| FIND "IPv4"') DO FOR %%B IN (%%A) DO SET IPADDR=%%B
 
 :: 2. Rebuild config file with current IP
-pushd aitvaras_scripts
-del config.lua
-echo local config = {}>> config.lua
+pushd ..\..\bin\aitvaras_scripts
+echo local config = {}> config.lua
 echo config.lobby_addr = 'http://%IPADDR%'>> config.lua
 echo config.lobby_port = 80>> config.lua
 echo config.server_addr = 'http://%IPADDR%:8008'>> config.lua
