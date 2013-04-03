@@ -22,9 +22,10 @@ echo return config >> config.lua
 cd ../../apps/aitvaras
 
 # Start lobby
-ID=$(node lobby.js &)
+node lobby.js &
+ID=$!
 
 # Start game server
 cd ../../bin
 ./aitvaras
-kill $ID
+kill -9 $ID
