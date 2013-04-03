@@ -6,9 +6,6 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
-# kill lobby if it already exists
-pkill -9 node
-
 # Find current IP adress
 IP=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 
@@ -25,8 +22,9 @@ echo return config >> config.lua
 cd ../../apps/aitvaras
 
 # Start lobby
-node lobby.js &
+ID=$(node lobby.js &)
 
 # Start game server
 cd ../../bin
 ./aitvaras
+kill $ID
