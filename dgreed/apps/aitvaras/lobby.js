@@ -10,7 +10,7 @@ var route = router();
 // reading lobby port number from config file
 var lobby_port = getLobbyPort();
 var lobby_addr = getLobbyAddr();
-
+console.log('lobby ready.');
 function getLobbyPort(){
 	var fs = require('fs');
 	var temp = -1;
