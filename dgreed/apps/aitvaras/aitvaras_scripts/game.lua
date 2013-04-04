@@ -110,6 +110,8 @@ function player:new(id)
 	local hues = {0, 0.5, 0.7, 0.3, 0.9, 0.1, 0.8};
 
 	local obj = {
+		['id'] = id,
+		keep_alive = states.time(),
 		dir = nil,
 		sprite = 'box',
 		col = to_rgba(hsva(hues[color_counter], 0.6, 0.9, 1)),
@@ -204,6 +206,11 @@ function player:update()
 			self.t = states.time()
 		end
 	end
+
+	if states.time() - self.keep_alive > config.timeout then
+		aitvaras.leave_cb(self.id)
+	end
+
 end
 
 function player:draw()
@@ -279,6 +286,12 @@ function game.leave(id)
 	players[id] = nil
 end
 
+function game.keep_alive(id)
+	if players[id] then
+		players[id].keep_alive = states.time()
+	end	
+end
+
 function game.control(id, msg)
 	local p = players[id]
 
@@ -325,6 +338,7 @@ function game.init()
 	aitvaras.join_cb = game.join
 	aitvaras.leave_cb = game.leave
 	aitvaras.input_cb = game.control
+	aitvaras.keep_alive_cb = game.keep_alive
 
 	aitvaras.init()
 
@@ -338,12 +352,6 @@ function game.close()
 	tilemap.free(game.map)
 
 	aitvaras.close()
-end
-
-function game.enter()
-end
-
-function game.leave()
 end
 
 function game.update()
