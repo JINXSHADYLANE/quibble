@@ -168,6 +168,29 @@ static void mg_input(struct mg_connection* conn, const struct mg_request_info* r
 	}
 }
 
+static void mg_keep_alive(struct mg_connection* conn, const struct mg_request_info* ri) {
+	const char *cl;
+	char *buf;
+	int len;
+
+	mg_printf(conn, "%s", standard_reply);
+	if (strcmp(ri->request_method, "POST") == 0 &&
+		(cl = mg_get_header(conn, "Content-Length")) != NULL) {
+		len = atoi(cl);
+		if ((buf = MEM_ALLOC(len+1)) != NULL) {
+			mg_read(conn, buf, len);
+			buf[len] = '\0';
+
+			uint id;
+			sscanf(buf, "%u", &id); 
+			MEM_FREE(buf);
+			uint new_id = rand_uint();
+			// Invoke keep_alive
+			_invoke("keep_alive_cb", id, NULL);
+		}
+	}
+}
+
 static const struct mg_config {
 	enum mg_event event;
 	const char* uri;
@@ -176,6 +199,7 @@ static const struct mg_config {
 	{MG_NEW_REQUEST, "/join", &mg_join},
 	{MG_NEW_REQUEST, "/leave", &mg_leave},
 	{MG_NEW_REQUEST, "/input", &mg_input},
+	{MG_NEW_REQUEST, "/keep_alive", &mg_keep_alive},
 	{MG_HTTP_ERROR, "", &mg_error},
 	{0, NULL, NULL}
 };
@@ -212,6 +236,7 @@ static bool _validate_conf(lua_State* l) {
 	check_conf("join_cb", function);
 	check_conf("leave_cb", function);
 	check_conf("input_cb", function);
+	check_conf("keep_alive_cb", function);
 
 	return true;
 }
