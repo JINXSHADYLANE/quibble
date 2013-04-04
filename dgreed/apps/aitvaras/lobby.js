@@ -9,7 +9,8 @@ var route = router();
 
 // reading lobby port number from config file
 var lobby_port = getLobbyPort();
-console.log('lobby ready.');
+var keep_alive = getKeepAliveFreq();
+
 function getLobbyPort(){
 	var fs = require('fs');
 	var temp = -1;
@@ -25,6 +26,25 @@ function getLobbyPort(){
 	if(temp == -1){
 		console.log('Lobby port is undefined in the config file, using default: 80');
 		temp = 80;
+	}
+	return temp;
+}
+
+function getKeepAliveFreq(){
+	var fs = require('fs');
+	var temp = -1;
+	var data = fs.readFileSync('./aitvaras_scripts/config.lua', 'utf8');
+	var lines = data.split("\n");
+	for (var i in lines) {
+		var regex = /^(?!--)config.keep_alive/;
+		var result = lines[i].match(regex);
+		if(result !== null){
+			temp = parseInt(lines[i].replace(/.*?=/,''));
+		}
+	}
+	if(temp == -1){
+		console.log('Keep alive frequency is undefined in the config file, using default: 5');
+		temp = 5;
 	}
 	return temp;
 }
@@ -68,7 +88,7 @@ function getContent(req, res, contentType){
 				if(typeof id !== 'number' || typeof servers[id] !== 'string')
 					throw 'bad addr or no such server';
 
-				var path = '/inputs.html?server=' + servers[id];
+				var path = '/inputs.html?server=' + servers[id]+'&keep_alive='+keep_alive;
 				console.log('redirecting to: ' + path);
 
 				res.writeHead(302, {'Location': path});
@@ -165,5 +185,5 @@ route.post('/remove', function(req, res) {
 		res.end();
 	});
 });		
-
 http.createServer(route).listen(lobby_port);
+console.log('lobby ready.');
