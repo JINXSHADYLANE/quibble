@@ -19,6 +19,14 @@
 
 			var vars = getUrlVars();
 
+			function keep_alive() {
+				var req = new XMLHttpRequest();
+				req.open("POST", vars.server + "/keep_alive", true);
+				req.send(vars.client_id);
+			};
+
+			setInterval(keep_alive,vars.keep_alive*1000);
+			
 			function join() {
 				var req = new XMLHttpRequest();
 				req.onreadystatechange = function() {

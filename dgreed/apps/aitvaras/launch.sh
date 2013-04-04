@@ -17,6 +17,8 @@ echo config.lobby_addr = \'http://$IP\' >> config.lua
 echo config.lobby_port = 80 >> config.lua
 echo config.server_addr = \'http://$IP:8008\' >> config.lua
 echo config.server_port = 8008 >>config.lua
+echo config.timeout = 10>>config.lua
+echo config.keep_alive = 5>>config.lua
 echo return config >> config.lua
 
 cd ../../apps/aitvaras
