@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 	<head>
-        <meta name="viewport" content="width=device-width, initial-scale=0.4, maximum-scale=0.4, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+        <meta charset="utf-8" />
 		<title>aitvaras</title>
 		<!--<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css" />-->
-        <script type="text/javascript" charset="utf-8" src="http://code.jquery.com/jquery-1.7.2.js"></script>
-        <script src="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.js"></script>
+        <script type="text/javascript" charset="utf-8" src="jquery-1.7.2.js"></script>
+        <script src="jquery.mobile-1.0.1.js"></script>
 		<link href="style.css" rel="stylesheet" type="text/css" />
 		<script type="application/javascript">
 			function getUrlVars() {
@@ -51,80 +52,89 @@
 			join();
 			window.onbeforeunload = leave;
             
-            //here starts virtual mouse events
+            //colors active/inactive button
+            function ColorBtn(canvas_id) {
+				var ctx = canvas_id.getContext("2d");
+				ctx.fillStyle = "rgba(100,255,255,0.5)";
+				ctx.fillRect(0,0,1000,1000);
+			}
+			function ClearColorBtn(canvas_id) {
+				var ctx = canvas_id.getContext("2d");
+				ctx.clearRect(0,0,1000,1000);
+			}
+			//here starts virtual mouse events
 			$(function(){
                 $(".bup").bind({
                     vmousedown: function() {
                         move("u", "d");
+			            ColorBtn(canvas_up);
                     },
                     vmouseup: function() {
                         move("u", "u");
+                        ClearColorBtn(canvas_up);
                     }
     			});
                 $(".bleft").bind({
                     vmousedown: function() {
                         move("l", "d");
+                        ColorBtn(canvas_left);
                     },
                     vmouseup: function() {
                         move("l", "u");
+                        ClearColorBtn(canvas_left);
                     }
     			});
                 $(".bright").bind({
                     vmousedown: function() {
                         move("r", "d");
+                        ColorBtn(canvas_right);
                     },
                     vmouseup: function() {
                         move("r", "u");
+                        ClearColorBtn(canvas_right);
                     }
     			});
                 $(".bdown").bind({
                     vmousedown: function() {
                         move("d", "d");
+                        ColorBtn(canvas_down);
                     },
                     vmouseup: function() {
                         move("d", "u");
+                        ClearColorBtn(canvas_down);
                     }
     			});
 			});
 		</script>
 		<script type="text/javascript">
-			//this defines screen width (x) and height (y)
-			var w=window,
-				d=document,
-				e=d.documentElement,
-				g=d.getElementsByTagName("body")[0],
-				x=w.innerWidth||e.clientWidth||g.clientWidth,
-				y=w.innerHeight||e.clientHeight||g.clientHeight;
-			
-			//based on the sceen dimensions buttons are set to a proper size
-			$(document).ready(function(){
-				$(".bup").css("height", y/3 );
-				$(".bleft").css("height", y/3 );
-				$(".bright").css("height", y/3 );
-				$(".bdown").css("height", y/3 );
-			});
-
-			//orientation change refreshes the screen size
-			$(window).bind('orientationchange', function(event) {
-   				//location.reload();
-   				//this defines screen width (x) and height (y)
+			//defines screen width (x) and height (y)
+			function ScreenSize() {
 				var w=window,
 					d=document,
 					e=d.documentElement,
 					g=d.getElementsByTagName("body")[0],
 					x=w.innerWidth||e.clientWidth||g.clientWidth,
 					y=w.innerHeight||e.clientHeight||g.clientHeight;
-			
+
 				//based on the sceen dimensions buttons are set to a proper size
 				$(document).ready(function(){
-					$(".bup").css("height", y/3 );
-					$(".bleft").css("height", y/3 );
-					$(".bright").css("height", y/3 );
-					$(".bdown").css("height", y/3 );
-				});   				
-   			});
+					$(".bup").css("height", y*0.3 );
+					$(".bleft").css("height", y*0.3 );
+					$(".bright").css("height", y*0.3 );
+					$(".bdown").css("height", y*0.3 );
+				});
+			}
+			
+			//sets proper button size on page load
+			ScreenSize();
 
-			//this hides safari url bar
+			//orientation change refreshes the screen size
+			$(window).bind('orientationchange', function(event) { 
+				ScreenSize(); 
+				//alert('orientation change');
+			});
+
+			//hides safari url bar
 			addEventListener("load", function() { 
 				setTimeout(hideURLbar, 0); }, false);
 				function hideURLbar(){ window.scrollTo(0,1);
@@ -132,9 +142,10 @@
 		</script>
 	</head>
 	<body>
-		<button class="bup" ></button>
-		<button class="bleft"></button>
-		<button class="bright"></button>
-		<button class="bdown"></button>
+		<canvas id="canvas_up" class="bup" ></canvas>
+		<canvas id="canvas_left" class="bleft"></canvas>
+		<canvas id="canvas_right" class="bright"></canvas>
+		<canvas id="canvas_down" class="bdown"></canvas>
+</body>
 	</body>
 </html>
