@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1" />
         <meta charset="utf-8" />
 		<title>aitvaras</title>
 		<!--<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css" />-->
@@ -9,6 +9,31 @@
         <script src="jquery.mobile-1.0.1.js"></script>
 		<link href="style.css" rel="stylesheet" type="text/css" />
 		<script type="application/javascript">
+
+			function absorbEvent_(event) {
+			  var e = event || window.event;
+			  e.preventDefault && e.preventDefault();
+			  //e.stopPropagation && e.stopPropagation();
+			 // e.cancelBubble = true;
+			  //e.returnValue = false;
+			  return false;
+			}
+
+			function preventLongPressMenu(node) {
+			  node.ontouchstart = absorbEvent_;
+			  node.ontouchmove = absorbEvent_;
+			  node.ontouchend = absorbEvent_;
+			  node.ontouchcancel = absorbEvent_;
+			}
+
+			function init() {
+			  preventLongPressMenu(document.getElementById('canvas_up'));
+			  preventLongPressMenu(document.getElementById('canvas_left'));
+			  preventLongPressMenu(document.getElementById('canvas_right'));
+			  preventLongPressMenu(document.getElementById('canvas_down'));
+			  preventLongPressMenu(document.getElementById('body'));
+			}		
+		
 			function getUrlVars() {
 				var vars = {};
 				var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
@@ -139,6 +164,7 @@
 			//orientation change refreshes the screen size
 			$(window).bind('orientationchange', function(event) { 
 				ScreenSize(); 
+				window.scrollTo(0,1);
 				//alert('orientation change');
 			});
 
@@ -149,7 +175,7 @@
 			}	
 		</script>
 	</head>
-	<body>
+	<body id="body" onload="init()">
 		<canvas id="canvas_up" class="bup" ></canvas>
 		<canvas id="canvas_left" class="bleft"></canvas>
 		<canvas id="canvas_right" class="bright"></canvas>

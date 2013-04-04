@@ -79,6 +79,7 @@ form {
 	/* Rules below not implemented in browsers yet */
 	-o-user-select: none;
 	user-select: none;
+	-webkit-touch-callout: none;
 }
 .bdown {
 	background-image: url(img/bdown.png);
@@ -98,6 +99,7 @@ form {
 	/* Rules below not implemented in browsers yet */
 	-o-user-select: none;
 	user-select: none;
+	-webkit-touch-callout: none;	
 }
 .bleft {
 	background-image: url(img/bleft.png);
@@ -116,6 +118,7 @@ form {
 	/* Rules below not implemented in browsers yet */
 	-o-user-select: none;
 	user-select: none;
+	-webkit-touch-callout: none;	
 }
 
 .bright {
@@ -135,12 +138,13 @@ form {
 	/* Rules below not implemented in browsers yet */
 	-o-user-select: none;
 	user-select: none;
+	-webkit-touch-callout: none;	
 }
 .bup:active {
-	background-image: url(img/bup.png);
+	/*background-image: url(img/bup.png);*/
 	background-position: center;
 	background-repeat:no-repeat;
-	background-color: #ebebeb;
+	background-color: #b9b9b9;
 	margin-left:33.5%;
 	margin-right:33.5%;
 	width:33.3%;
@@ -154,12 +158,13 @@ form {
 	/* Rules below not implemented in browsers yet */
 	-o-user-select: none;
 	user-select: none;
+	-webkit-touch-callout: none;	
 }
 .bdown:active {
-	background-image: url(img/bdown.png);
+	/*background-image: url(img/bdown.png);*/
 	background-position: center;
 	background-repeat:no-repeat;
-	background-color: #ebebeb;
+	background-color: #b9b9b9;
 	margin-left:33.5%;
 	margin-right:33.5%;
 	width:33.3%;
@@ -173,12 +178,13 @@ form {
 	/* Rules below not implemented in browsers yet */
 	-o-user-select: none;
 	user-select: none;
+	-webkit-touch-callout: none;	
 }
 .bleft:active {
-	background-image: url(img/bleft.png);
+	/*background-image: url(img/bleft.png);*/
 	background-position: center;
 	background-repeat:no-repeat;
-	background-color: #ebebeb;
+	background-color: #b9b9b9;
 	float:left;
 	width:33.3%;
 	height:33.3%;
@@ -191,13 +197,14 @@ form {
 	/* Rules below not implemented in browsers yet */
 	-o-user-select: none;
 	user-select: none;
+	-webkit-touch-callout: none;
 }
 
 .bright:active {
-	background-image: url(img/bright.png);
+	/*background-image: url(img/bright.png);*/
 	background-position: center;
 	background-repeat:no-repeat;
-	background-color: #ebebeb;
+	background-color: #b9b9b9;
 	float:right;
 	width:33.3%;
 	height:33.3%;
@@ -210,4 +217,5 @@ form {
 	/* Rules below not implemented in browsers yet */
 	-o-user-select: none;
 	user-select: none;
+	-webkit-touch-callout: none;
 }
