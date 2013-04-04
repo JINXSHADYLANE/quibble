@@ -9,7 +9,6 @@ var route = router();
 
 // reading lobby port number from config file
 var lobby_port = getLobbyPort();
-var lobby_addr = getLobbyAddr();
 console.log('lobby ready.');
 function getLobbyPort(){
 	var fs = require('fs');
@@ -27,23 +26,6 @@ function getLobbyPort(){
 		console.log('Lobby port is undefined in the config file, using default: 80');
 		temp = 80;
 	}
-	return temp;
-}
-
-function getLobbyAddr(){
-	var fs = require('fs');
-	var temp = '';
-	var data = fs.readFileSync('./aitvaras_scripts/config.lua', 'utf8');
-	var lines = data.split("\n");
-	for (var i in lines) {
-		var regex = /^(?!--)config.lobby_addr/;
-		var result = lines[i].match(regex);
-		if(result !== null){
-			temp = lines[i].replace(/.*?'/,'');
-			temp = temp.replace(/'/,'');
-		}
-	}
-	if(temp == '') console.log('Lobby adress is undefined in the config file');
 	return temp;
 }
 
@@ -86,7 +68,7 @@ function getContent(req, res, contentType){
 				if(typeof id !== 'number' || typeof servers[id] !== 'string')
 					throw 'bad addr or no such server';
 
-				var path = lobby_addr + '/inputs.html?server=' + servers[id];
+				var path = '/inputs.html?server=' + servers[id];
 				console.log('redirecting to: ' + path);
 
 				res.writeHead(302, {'Location': path});
