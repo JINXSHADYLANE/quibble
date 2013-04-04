@@ -1,0 +1,213 @@
+body {
+	background-color: #3b404e;
+	width:90%;
+	font-family:Arial, Helvetica, sans-serif;
+	margin-left: auto;
+	margin-right: auto;
+}
+h1 {
+	margin: 0px 0px 0px 0px;
+	color: #3b404e;
+	text-align:center;
+	font-size:0px;
+}
+form {
+	text-align:center;
+}
+#magic {
+	margin: 50px 0px 40px 0px;
+	color: #FFF;
+	text-align:center;
+	font-size:65px;
+}
+#code {
+	margin: 30px;
+	text-align:center;
+	width:256px;
+	font-size:70px;
+}
+#play {
+	margin:30px;
+	background-image: url(img/play.png);
+	text-align:center;
+	font-size:70px;
+	width:256px;
+	height:128px;
+	border-radius:50px;
+
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
+#play:active {
+	margin:30px;
+	background-image: url(img/play.png);
+	text-align:center;
+	font-size:70px;
+	width:256px;
+	height:128px;
+	border-radius:50px;
+	opacity: 0.5;
+	-moz-opacity: 0.5;
+	filter:alpha(opacity=5);
+
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
+.bup {
+	background-image: url(img/bup.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33.3%;
+	height: 33.3%;
+	border-style: none;
+	border-radius:20px;
+
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
+.bdown {
+	background-image: url(img/bdown.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33.3%;
+	height:33.3%;
+	border-style: none;
+	border-radius:20px;
+
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
+.bleft {
+	background-image: url(img/bleft.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	float:left;
+	width:33.3%;
+	height:33.3%;
+	border-style: none;
+	border-radius:20px;
+
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
+
+.bright {
+	background-image: url(img/bright.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #FFF;
+	float:right;
+	width:33.3%;
+	height:33.3%;
+	border-style: none;
+	border-radius:20px;
+
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
+.bup:active {
+	background-image: url(img/bup.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #ebebeb;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33.3%;
+	height: 33.3%;
+	border-style: none;
+	border-radius:20px;
+
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
+.bdown:active {
+	background-image: url(img/bdown.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #ebebeb;
+	margin-left:33.5%;
+	margin-right:33.5%;
+	width:33.3%;
+	height:33.3%;
+	border-style: none;
+	border-radius:20px;
+
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
+.bleft:active {
+	background-image: url(img/bleft.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #ebebeb;
+	float:left;
+	width:33.3%;
+	height:33.3%;
+	border-style: none;
+	border-radius:20px;
+
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
+
+.bright:active {
+	background-image: url(img/bright.png);
+	background-position: center;
+	background-repeat:no-repeat;
+	background-color: #ebebeb;
+	float:right;
+	width:33.3%;
+	height:33.3%;
+	border-style: none;
+	border-radius:20px;
+
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	/* Rules below not implemented in browsers yet */
+	-o-user-select: none;
+	user-select: none;
+}
