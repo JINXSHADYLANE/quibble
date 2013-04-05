@@ -1,0 +1,27 @@
+<project>
+	<name>sausra</name>
+	<settings>
+		<defaultWidth>2880</defaultWidth>
+		<defaultHeight>1920</defaultHeight>
+		<workingDirectory>./</workingDirectory>
+	</settings>
+	<tilesets>
+		<tileset name="tiles0" image="atlas.png" tileWidth="16" tileHeight="16" width="256" height="256"/>
+	</tilesets>	
+	<objects>
+		<object name="start" image="obj_start.png" width="16" height="16" />
+		<object name="end" image="obj_end.png" width="16" height="16" />
+		<object name="spike_up" image="obj_u.png" width="16" height="16" />
+		<object name="spike_down" image="obj_d.png" width="16" height="16" />
+		<object name="spike_left" image="obj_l.png" width="16" height="16" />
+		<object name="spike_right" image="obj_r.png" width="16" height="16" />
+		<object name="savept" image="obj_save.png" width="16" height="16" />
+		<object name="jumppt" image="obj_pt.png" width="16" height="16" />
+	</objects>
+	<layers>
+		<tiles name="background" gridSize="16" />
+		<grid name="col" gridSize="16" />
+		<objects name="objs" gridSize="16" />
+	</layers>	
+</project>
+

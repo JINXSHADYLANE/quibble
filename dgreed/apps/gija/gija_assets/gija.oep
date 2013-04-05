@@ -1,0 +1,27 @@
+<project>
+	<name>gija</name>
+	<settings>
+		<defaultWidth>3072</defaultWidth>
+		<defaultHeight>1728</defaultHeight>
+		<workingDirectory>./</workingDirectory>
+	</settings>
+	<tilesets>
+		<tileset name="tiles0" image="atlas.png" tileWidth="32" tileHeight="32" width="512" height="512"/>
+	</tilesets>	
+	
+	<objects>
+		<object name="start0" image="obj_start0.png" width="32" height="64" />
+		<object name="start1" image="obj_start1.png" width="32" height="64" />
+		<object name="end" image="obj_end.png" width="32" height="64" />
+		<object name="door0" image="obj_door0.png" width="32" height="64" />
+		<object name="door1" image="obj_door1.png" width="32" height="64" />
+	</objects>
+	
+	<layers>
+		<tiles name="background" gridSize="32" />
+		<grid name="col" gridSize="32" />
+		<objects name="objs" gridSize="32" />
+		<tiles name="foreground" gridSize="32" />
+	</layers>	
+</project>
+
