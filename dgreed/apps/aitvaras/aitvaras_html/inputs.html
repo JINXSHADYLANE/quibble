@@ -105,22 +105,14 @@
                     vmouseup: function() {
                         move("u", "u");
                         ClearColorBtn(canvas_up);
-                    },
-                    vmousemove: function() {
-                        move("u", "u");
-                        ClearColorBtn(canvas_up);
                     }
     			});
                 $(".bleft").bind({
                     vmousedown: function() {
                         move("l", "d");
-                        ColorBtn(canvas_left);
+                        ColorBtn(canvas_left);				
                     },
                     vmouseup: function() {
-                        move("l", "u");
-                        ClearColorBtn(canvas_left);
-                    },
-                    vmousemove: function() {
                         move("l", "u");
                         ClearColorBtn(canvas_left);
                     }
@@ -133,22 +125,14 @@
                     vmouseup: function() {
                         move("r", "u");
                         ClearColorBtn(canvas_right);
-                    },
-                    vmousemove: function() {
-                        move("r", "u");
-                        ClearColorBtn(canvas_right);
                     }
     			});
                 $(".bdown").bind({
                     vmousedown: function() {
                         move("d", "d");
-                        ColorBtn(canvas_down);
+                        ColorBtn(canvas_down);					
                     },
                     vmouseup: function() {
-                        move("d", "u");
-                        ClearColorBtn(canvas_down);
-                    },
-                    vmousemove: function() {
                         move("d", "u");
                         ClearColorBtn(canvas_down);
                     }
@@ -173,20 +157,21 @@
 					$(".bdown").css("height", y*0.3 );
 				});
 			}
+
+			function hideURLbar(){ window.scrollTo(0,1);}	
 			
 			//sets proper button size on page load
 			ScreenSize();
 
 			//orientation change refreshes the screen size
 			$(window).bind('orientationchange', function(event) { 
-				ScreenSize(); 
-				window.scrollTo(0,1);
+				setTimeout(ScreenSize, 10);
+				setTimeout(hideURLbar, 10);
 			});
 			//hides safari url bar
-			addEventListener("load", function() { 
-				setTimeout(hideURLbar, 0); }, false);
-				function hideURLbar(){ window.scrollTo(0,1);
-			}	
+			addEventListener("load", function() {setTimeout(hideURLbar, 10); }, false);
+
+			
 		</script>
 	</head>
 	<body id="body" onload="init()">
