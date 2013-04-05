@@ -1,6 +1,7 @@
 #include <system.h>
 
 #include "common.h"
+#include "kdtree.h"
 
 static Color backbuffer[scr_size] = {0};
 static TexHandle backbuffer_tex;
@@ -10,6 +11,25 @@ void init(void) {
 		next_pow2(scr_width), 
 		next_pow2(scr_height)
 	);
+
+
+	KdSeg segs[] = {
+		{0, 0, 6, 0, 7},
+		{6, 0, 6, 5, 7},
+		{6, 5, 0, 5, 7},
+		{0, 5, 0, 0, 7},
+		{2, 2, 2, 3, 13},
+		{2, 3, 4, 3, 13},
+		{4, 3, 4, 2, 13},
+		{4, 2, 2, 2, 13}
+	};
+
+	KdTree tree;
+	kdtree_init(&tree, segs, 8);
+
+	// ...
+
+	kdtree_free(&tree);
 }
 
 bool render(void) {
