@@ -7,6 +7,7 @@
 		<!--<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css" />-->
         <script type="text/javascript" charset="utf-8" src="jquery-1.7.2.js"></script>
         <script src="jquery.mobile-1.0.1.js"></script>
+		<script src="hammer.min.js"></script>
 		<link href="style.css" rel="stylesheet" type="text/css" />
 		<script type="application/javascript">
 
@@ -73,12 +74,12 @@
 
 			var btnState = {};
 
-			function move(dir, up) {
-				if(btnState[dir] !== up) {
-					btnState[dir] = up;
+			function move(dir, state) {
+				if(btnState[dir] !== state) {
+					btnState[dir] = state;
 					var req = new XMLHttpRequest();
 					req.open("POST", vars.server + "/input", true);
-					req.send(vars.client_id + ":" + dir + ":" + up);
+					req.send(vars.client_id + ":" + dir + ":" + state);
 				}
 			}
 
@@ -95,50 +96,7 @@
 				var ctx = canvas_id.getContext("2d");
 				ctx.clearRect(0,0,1000,1000);
 			}
-			//here starts virtual mouse events
-			$(function(){
-                $(".bup").bind({
-                    vmousedown: function() {
-                        move("u", "d");
-			            ColorBtn(canvas_up);
-                    },
-                    vmouseup: function() {
-                        move("u", "u");
-                        ClearColorBtn(canvas_up);
-                    }
-    			});
-                $(".bleft").bind({
-                    vmousedown: function() {
-                        move("l", "d");
-                        ColorBtn(canvas_left);				
-                    },
-                    vmouseup: function() {
-                        move("l", "u");
-                        ClearColorBtn(canvas_left);
-                    }
-    			});
-                $(".bright").bind({
-                    vmousedown: function() {
-                        move("r", "d");
-                        ColorBtn(canvas_right);
-                    },
-                    vmouseup: function() {
-                        move("r", "u");
-                        ClearColorBtn(canvas_right);
-                    }
-    			});
-                $(".bdown").bind({
-                    vmousedown: function() {
-                        move("d", "d");
-                        ColorBtn(canvas_down);					
-                    },
-                    vmouseup: function() {
-                        move("d", "u");
-                        ClearColorBtn(canvas_down);
-                    }
-    			});
-			});
-		</script>
+			</script>
 		<script type="text/javascript">
 			//defines screen width (x) and height (y)
 			function ScreenSize() {
@@ -179,6 +137,71 @@
 		<canvas id="canvas_left" class="bleft"></canvas>
 		<canvas id="canvas_right" class="bright"></canvas>
 		<canvas id="canvas_down" class="bdown"></canvas>
+		<script>		
+		
+			var btn_up = Hammer(document.getElementById('canvas_up'), {});
+			var btn_down = Hammer(document.getElementById('canvas_down'), {});			
+			var btn_left = Hammer(document.getElementById('canvas_left'), {});
+			var btn_right = Hammer(document.getElementById('canvas_right'), {});			
+
+		
+			btn_up.on('touch release', function(ev) {
+				switch(ev.type) {
+					case 'touch':
+                        move("u", "d");
+			            ColorBtn(canvas_up);	
+					break;				
+					
+					case 'release':
+                        move("u", "u");
+                        ClearColorBtn(canvas_up);
+					break;
+				}
+			});	
+			
+		
+			btn_down.on('touch release', function(ev) {
+				switch(ev.type) {
+					case 'touch':
+                        move("d", "d");
+			            ColorBtn(canvas_down);	
+					break;				
+					
+					case 'release':
+                        move("d", "u");
+                        ClearColorBtn(canvas_down);
+					break;
+				}
+			});	
+
+			btn_left.on('touch release', function(ev) {
+				switch(ev.type) {
+					case 'touch':
+                        move("l", "d");
+			            ColorBtn(canvas_left);	
+					break;
+					
+					case 'release':
+                        move("l", "u");
+                        ClearColorBtn(canvas_left);
+					break;
+				}
+			});	
+
+			btn_right.on('touch release', function(ev) {
+				switch(ev.type) {
+					case 'touch':
+                        move("r", "d");
+			            ColorBtn(canvas_right);	
+					break;
+					
+					case 'release':
+                        move("r", "u");
+                        ClearColorBtn(canvas_right);
+					break;
+				}
+			});			
+		</script>
 </body>
 	</body>
 </html>
