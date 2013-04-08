@@ -220,7 +220,6 @@ static bool shop_render(float t) {
 			current_x = touch->pos.x;
 		}
 		delta = clamp(-100.0f,100.0f,prev_x - current_x);	
-		//printf("%f\n",delta );
 
 		if(delta < 0.0f){
 			if(xpos < 0){
@@ -249,14 +248,15 @@ static bool shop_render(float t) {
 	} else {
 		if(!release){
 			release = true;
-		//	printf("delta time: %.2f <= 0.15\n",time_s() - start);
-			if(fabsf(delta) > 5.0f && time_s() - start <= 0.15f){
+			printf("delta: %f > 4.0f\n",delta );
+			printf("delta: %.2f <= 0.15\n",time_s() - start);
+			if(fabsf(delta) > 4.0f && time_s() - start <= 0.15f){
 				if(delta > 0.0f) 
 					delta = 100.0f;
 				else
 					delta = -100.0f;
 
-		//		printf("flick\n");
+				printf("flick\n");
 			}
 		}
 		hold = false;
