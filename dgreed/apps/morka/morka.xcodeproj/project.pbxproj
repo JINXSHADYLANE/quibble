@@ -165,6 +165,7 @@
 		AA8213B7169DA89500A7EBA8 /* icon@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */; };
 		AA8289391700AD5F00F80966 /* obj_spike_branch.c in Sources */ = {isa = PBXBuildFile; fileRef = AA8289371700AD5F00F80966 /* obj_spike_branch.c */; };
 		AA82893A1700AD5F00F80966 /* obj_spring_branch.c in Sources */ = {isa = PBXBuildFile; fileRef = AA8289381700AD5F00F80966 /* obj_spring_branch.c */; };
+		AA8AFB401712FD260092DBF4 /* characters.c in Sources */ = {isa = PBXBuildFile; fileRef = AA8AFB3E1712FD260092DBF4 /* characters.c */; };
 		AAA8AD4B16B28C1700C6D752 /* lua_utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4A16B28C1700C6D752 /* lua_utf8.c */; };
 		AAA8AD4F16B2CBB600C6D752 /* obj_fall_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */; };
 		AAA8AD5016B2CBB600C6D752 /* obj_speed_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */; };
@@ -440,6 +441,8 @@
 		AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x~ipad.png"; sourceTree = "<group>"; };
 		AA8289371700AD5F00F80966 /* obj_spike_branch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_spike_branch.c; sourceTree = SOURCE_ROOT; };
 		AA8289381700AD5F00F80966 /* obj_spring_branch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_spring_branch.c; sourceTree = SOURCE_ROOT; };
+		AA8AFB3E1712FD260092DBF4 /* characters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = characters.c; sourceTree = SOURCE_ROOT; };
+		AA8AFB3F1712FD260092DBF4 /* characters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = characters.h; sourceTree = SOURCE_ROOT; };
 		AAA8AD4A16B28C1700C6D752 /* lua_utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lua_utf8.c; path = ../../src/malka/lua_utf8.c; sourceTree = "<group>"; };
 		AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_fall_trigger.c; path = ../obj_fall_trigger.c; sourceTree = "<group>"; };
 		AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_speed_trigger.c; path = ../obj_speed_trigger.c; sourceTree = "<group>"; };
@@ -543,6 +546,8 @@
 			children = (
 				AA7B4FF516DF511C003CCF1E /* ai.c */,
 				AA7B4FF616DF511C003CCF1E /* ai.h */,
+				AA8AFB3E1712FD260092DBF4 /* characters.c */,
+				AA8AFB3F1712FD260092DBF4 /* characters.h */,
 				21A6F7EF16D7D860004A22D9 /* common.h */,
 				219BEAE616776B3A002B614C /* morka.c */,
 				21A6F7F016D7D860004A22D9 /* devmode.c */,
@@ -1060,6 +1065,7 @@
 				AA8289391700AD5F00F80966 /* obj_spike_branch.c in Sources */,
 				AA82893A1700AD5F00F80966 /* obj_spring_branch.c in Sources */,
 				AA7188C81703494900687C50 /* shop.c in Sources */,
+				AA8AFB401712FD260092DBF4 /* characters.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
