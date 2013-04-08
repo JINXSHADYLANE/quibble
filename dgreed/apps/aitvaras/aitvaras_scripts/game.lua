@@ -281,7 +281,7 @@ function game.join(id)
 	players[id] = player:new(id)
 end
 
-function game.leave(id)
+function game.player_leave(id)
 	print('player id '..tostring(id)..' left')
 	players[id] = nil
 end
@@ -336,7 +336,7 @@ function game.init()
 	aitvaras.listening_port = config.server_port
 	aitvaras.document_root = 'aitvaras_html/'
 	aitvaras.join_cb = game.join
-	aitvaras.leave_cb = game.leave
+	aitvaras.leave_cb = game.player_leave
 	aitvaras.input_cb = game.control
 	aitvaras.keep_alive_cb = game.keep_alive
 
@@ -348,7 +348,7 @@ function game.init()
 	init_candies()
 end
 
-function game.close()
+function game.leave()
 	tilemap.free(game.map)
 
 	aitvaras.close()
