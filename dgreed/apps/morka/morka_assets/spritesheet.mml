@@ -234,6 +234,11 @@
 	### atlas 1-3 ###
 	#################
 
+(img base_place
+	(tex atlas_13.png)
+	(src 586,2,895,61)
+	(cntr 740,-111)
+)
 (img bg_mushroom_2
 	(tex atlas_13.png)
 	(src 207,404,447,697)
@@ -256,13 +261,13 @@
 )
 (img blocked
 	(tex atlas_13.png)
-	(src 576,2,635,62)
-	(cntr 605,33)
+	(src 672,174,731,234)
+	(cntr 701,205)
 )
 (img bomb
 	(tex atlas_13.png)
-	(src 551,519,640,596)
-	(cntr 595,557)
+	(src 551,608,640,685)
+	(cntr 595,646)
 )
 (img bomb_obj
 	(tex atlas_13.png)
@@ -271,33 +276,38 @@
 )
 (img btn_bomb
 	(tex atlas_13.png)
-	(src 449,600,549,679)
-	(cntr 499,639)
+	(src 449,608,549,687)
+	(cntr 499,647)
 )
 (img btn_rocket
 	(tex atlas_13.png)
-	(src 449,519,549,598)
-	(cntr 499,558)
+	(src 344,315,444,394)
+	(cntr 394,354)
 )
 (img btn_shield
 	(tex atlas_13.png)
-	(src 344,83,444,162)
-	(cntr 394,122)
+	(src 344,234,444,313)
+	(cntr 394,273)
 )
 (img btn_trampoline
 	(tex atlas_13.png)
-	(src 344,2,444,81)
-	(cntr 394,41)
+	(src 344,153,444,232)
+	(cntr 394,192)
 )
 (img bubble_obj
 	(tex atlas_13.png)
-	(src 417,699,574,857)
-	(cntr 495,779)
+	(src 830,253,987,411)
+	(cntr 908,333)
 )
 (img buy
 	(tex atlas_13.png)
-	(src 496,128,620,252)
-	(cntr 559,190)
+	(src 446,273,570,397)
+	(cntr 509,335)
+)
+(img first_place
+	(tex atlas_13.png)
+	(src 417,699,570,928)
+	(cntr 494,791)
 )
 (img grass3_sign
 	(tex atlas_13.png)
@@ -306,66 +316,74 @@
 )
 (img mushroom_1
 	(tex atlas_13.png)
-	(src 520,859,647,1007)
-	(cntr 575,942)
+	(src 449,123,576,271)
+	(cntr 504,206)
 )
 (img mushroom_2
 	(tex atlas_13.png)
-	(src 417,859,518,1008)
-	(cntr 471,947)
+	(src 344,2,445,151)
+	(cntr 398,90)
 )
 (img mushroom_3
 	(tex atlas_13.png)
-	(src 945,2,1020,111)
-	(cntr 981,58)
+	(src 753,174,828,283)
+	(cntr 789,230)
 )
 (img mushroom_4
 	(tex atlas_13.png)
-	(src 513,254,635,377)
-	(cntr 579,326)
+	(src 882,128,1004,251)
+	(cntr 948,200)
 )
 (img mushroom_5
 	(tex atlas_13.png)
-	(src 344,164,494,299)
-	(cntr 420,242)
+	(src 572,687,722,822)
+	(cntr 648,765)
 )
 (img mushroom_6
 	(tex atlas_13.png)
-	(src 622,113,757,232)
-	(cntr 688,188)
+	(src 449,2,584,121)
+	(cntr 515,77)
 )
 (img next
 	(tex atlas_13.png)
-	(src 449,2,573,126)
-	(cntr 512,64)
+	(src 897,2,1021,126)
+	(cntr 960,64)
 )
 (img rocket
 	(tex atlas_13.png)
-	(src 429,301,511,392)
-	(cntr 471,347)
+	(src 502,930,584,1021)
+	(cntr 544,976)
+)
+(img second_place
+	(tex atlas_13.png)
+	(src 449,399,600,606)
+	(cntr 524,469)
 )
 (img shield
 	(tex atlas_13.png)
-	(src 344,301,427,392)
-	(cntr 386,347)
+	(src 417,930,500,1021)
+	(cntr 459,976)
 )
 (img spikeshroom_1
 	(tex atlas_13.png)
-	(src 449,394,628,517)
-	(cntr 538,472)
+	(src 572,273,751,396)
+	(cntr 661,351)
+)
+(img third_place
+	(tex atlas_13.png)
+	(src 602,398,743,587)
+	(cntr 671,451)
 )
 (img trampoline
 	(tex atlas_13.png)
-	(src 551,598,643,670)
-	(cntr 598,635)
+	(src 578,174,670,246)
+	(cntr 625,211)
 )
 (img trampoline_obj
 	(tex atlas_13.png)
-	(src 649,2,943,111)
-	(cntr 796,56)
+	(src 586,63,880,172)
+	(cntr 733,117)
 )
-
-
 
 	#################
 	### atlas 1-4 ###
