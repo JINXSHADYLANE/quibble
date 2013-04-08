@@ -203,11 +203,15 @@ static bool shop_render(float t) {
 	static float current_x = 0.0f;
 	static float prev_x = 0.0f;
 	static bool hold = false;
+	static bool release = false;
+
+	static float start = 0.0f;
 
 	Touch* touch = touches_get();
 	if(touch && touch->hit_pos.y < 467.0f){
 
 		if(!hold){
+			start = time_s();
 			current_x = touch->hit_pos.x;
 			prev_x = touch->hit_pos.x;
 			hold = true;
@@ -215,10 +219,8 @@ static bool shop_render(float t) {
  			prev_x = current_x;
 			current_x = touch->pos.x;
 		}
-
-		delta = clamp(-20.0f,20.0f,prev_x - current_x);
-		if (delta > 0.0f && delta < 15.0f) delta = 15.0f;
-		else if (delta < 0.0f && delta > -15.0f) delta = -15.0f;			
+		delta = clamp(-100.0f,100.0f,prev_x - current_x);	
+		//printf("%f\n",delta );
 
 		if(delta < 0.0f){
 			if(xpos < 0){
@@ -242,13 +244,27 @@ static bool shop_render(float t) {
 			}
 		}
 
+		release = false;
+
 	} else {
+		if(!release){
+			release = true;
+		//	printf("delta time: %.2f <= 0.15\n",time_s() - start);
+			if(fabsf(delta) > 5.0f && time_s() - start <= 0.15f){
+				if(delta > 0.0f) 
+					delta = 100.0f;
+				else
+					delta = -100.0f;
+
+		//		printf("flick\n");
+			}
+		}
 		hold = false;
 		xpos = lerp(xpos,find_closest_pos(xpos,-inc),0.1f);
-		delta *= 0.85f;	
+		delta *= 0.8f;	
 	}
 
-	xpos -= delta * 3.0f;
+	xpos -= delta;
 
 	for(uint i = 0; i < character_count;i++){
 
