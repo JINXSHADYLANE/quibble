@@ -184,7 +184,7 @@ static void mg_keep_alive(struct mg_connection* conn, const struct mg_request_in
 			uint id;
 			sscanf(buf, "%u", &id); 
 			MEM_FREE(buf);
-			uint new_id = rand_uint();
+
 			// Invoke keep_alive
 			_invoke("keep_alive_cb", id, NULL);
 		}

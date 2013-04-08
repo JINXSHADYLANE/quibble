@@ -10,7 +10,7 @@ echo config.lobby_port = 80>> config.lua
 echo config.server_addr = 'http://%IPADDR%:8008'>> config.lua
 echo config.server_port = 8008>>config.lua
 echo config.timeout = 10>>config.lua
-echo config.keep_alive = 5>>config.lua
+echo config.keep_alive = 5 >> config.lua
 echo return config>> config.lua
 popd
 
