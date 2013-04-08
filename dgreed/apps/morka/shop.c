@@ -248,8 +248,8 @@ static bool shop_render(float t) {
 	} else {
 		if(!release){
 			release = true;
-			if(fabsf(delta) > 1.0f && time_s() - start <= 0.15f){
-				if(delta > 0.0f) 
+			if(fabsf(prev_x - current_x) > 1.0f && time_s() - start <= 0.15f){
+				if(prev_x - current_x > 0.0f) 
 					delta = 120.0f;
 				else
 					delta = -120.0f;
