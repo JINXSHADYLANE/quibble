@@ -80,7 +80,7 @@ void obj_rabbit_player_control(GameObject* self){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
 
-	if(!d->input_disabled){
+	if(!d->input_disabled && !hud_click){
 		d->virtual_key_up = key_up(KEY_A);
 		d->virtual_key_down = key_down(KEY_A);
 		d->virtual_key_pressed = key_pressed(KEY_A);

@@ -177,7 +177,6 @@ static bool shop_render(float t) {
 	vfont_select(FONT_NAME, 48.0f);
 
 	UIElement* element = uidesc_get("shop");
-
 	UIElement* coin_icon = uidesc_get_child(element, "coin_icon");
 	UIElement* coin_text = uidesc_get_child(element, "coin_text");	
 	UIElement* character_icon = uidesc_get_child(element, "character_icon");
@@ -201,23 +200,55 @@ static bool shop_render(float t) {
 	sprintf(str, "%d",coins);
 	vfont_draw(str, hud_layer, coin_text->vec2, col);
 
+	static float current_x = 0.0f;
+	static float prev_x = 0.0f;
+	static bool hold = false;
 
 	Touch* touch = touches_get();
-	if(touch){
-		delta = touch->pos.x - touch->hit_pos.x;
-	}
-	
-	delta *= 0.9f;
+	if(touch && touch->hit_pos.y < 467.0f){
 
-	if(xpos > 0)
-		xpos = lerp(xpos,0.0f,0.1f);
-	else if(xpos < (character_count-1) * -inc)
-		xpos = lerp(xpos,(character_count-1) * -inc,0.1f);
+		if(!hold){
+			current_x = touch->hit_pos.x;
+			prev_x = touch->hit_pos.x;
+			hold = true;
+ 		} else {
+ 			prev_x = current_x;
+			current_x = touch->pos.x;
+		}
 
-	if(!touches_down()){
-		xpos += delta / 10.0f;
+		delta = clamp(-20.0f,20.0f,prev_x - current_x);
+		if (delta > 0.0f && delta < 15.0f) delta = 15.0f;
+		else if (delta < 0.0f && delta > -15.0f) delta = -15.0f;			
+
+		if(delta < 0.0f){
+			if(xpos < 0){
+				//regular scroll speed within main bounds
+			} else if (xpos > 0.0f && xpos < inc/2.0f){
+				// Damping when trying to scroll outside bounds
+				delta *= 0.15f;
+			} else {
+				// Disable scroll past certain point
+				delta = 0.0f;
+			}
+		} else {
+			if(xpos > (character_count-1) * -inc){
+				//regular scroll speed within main bounds
+			} else if (xpos < (character_count-1) * -inc && (xpos > (character_count-0.5) * -inc) ){
+				// Damping when trying to scroll outside bounds
+				delta *= 0.15f;
+			} else {
+				// Disable scroll past certain point
+				delta = 0.0f;
+			}
+		}
+
+	} else {
+		hold = false;
 		xpos = lerp(xpos,find_closest_pos(xpos,-inc),0.1f);
+		delta *= 0.85f;	
 	}
+
+	xpos -= delta * 3.0f;
 
 	for(uint i = 0; i < character_count;i++){
 

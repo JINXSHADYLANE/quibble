@@ -21,6 +21,8 @@ static float combo_flip_t = 0.0f;
 
 static float powerup_appear[POWERUP_COUNT] = {0};
 
+bool hud_click = false;
+
 void hud_reset(void){
 	last_combo = 0;
 	current_combo = 0;
@@ -31,6 +33,8 @@ void hud_reset(void){
 
 static void _hud_render_powerups(float t){
 	UIElement* element = uidesc_get("hud_powerups");
+
+	hud_click = false;
 
 	const float duration = 0.5f;
 
@@ -103,8 +107,8 @@ static void _hud_render_powerups(float t){
 								float r_sqr = 40.0f * 40.0f;
 								if(vec2_length_sq(vec2_sub(t[0].hit_pos, pos)) < r_sqr) {
 									GameObject* r = (GameObject*) rabbit;
-
 									(powerup_params[i].powerup_callback) (r);
+									hud_click = true;
 								}
 							}
 						}

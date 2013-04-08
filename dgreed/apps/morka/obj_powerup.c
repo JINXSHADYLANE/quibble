@@ -23,27 +23,31 @@ static void obj_powerup_trampoline_effect(GameObject* other){
 
 static void obj_powerup_trampoline_collide(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
+		ObjRabbit* rabbit = (ObjRabbit*)other;
+		ObjRabbitData* d = rabbit->data;
 
-		// Powerup effect
-		obj_powerup_trampoline_effect(other);
+		if(!d->has_powerup[TRAMPOLINE]){
+			// Powerup effect
+			obj_powerup_trampoline_effect(other);
 
-		// Particles
-		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
-			&obj_particle_anchor_desc, 
-			rectf_center(&other->render->world_dest), 
-			NULL
-		);
-		mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
+			// Particles
+			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
+				&obj_particle_anchor_desc, 
+				rectf_center(&other->render->world_dest), 
+				NULL
+			);
+			mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
 
-		// Dissapearing animation
-		Vector2 pos = rectf_center(&self->render->world_dest);
-		objects_create(
-			&obj_floater_desc, pos, 
-			(void*)&trampoline_floater_params
-		);
+			// Dissapearing animation
+			Vector2 pos = rectf_center(&self->render->world_dest);
+			objects_create(
+				&obj_floater_desc, pos, 
+				(void*)&trampoline_floater_params
+			);
 
-		// Destroy powerup
-		objects_destroy(self);
+			// Destroy powerup
+			objects_destroy(self);
+		}
 	}
 }
 
@@ -70,26 +74,28 @@ static void obj_powerup_bomb_collide(GameObject* self, GameObject* other) {
 		ObjRabbit* rabbit = (ObjRabbit*)other;
 		ObjRabbitData* d = rabbit->data;
 
-		// Powerup effect
-		d->has_powerup[BOMB] = true;
+		if(!d->has_powerup[BOMB]){
+			// Powerup effect
+			d->has_powerup[BOMB] = true;
 
-		// Particles
-		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
-			&obj_particle_anchor_desc, 
-			rectf_center(&other->render->world_dest), 
-			NULL
-		);
-		mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
+			// Particles
+			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
+				&obj_particle_anchor_desc, 
+				rectf_center(&other->render->world_dest), 
+				NULL
+			);
+			mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
 
-		// Dissapearing animation
-		Vector2 pos = rectf_center(&self->render->world_dest);
-		objects_create(
-			&obj_floater_desc, pos, 
-			(void*)&bomb_floater_params
-		);
+			// Dissapearing animation
+			Vector2 pos = rectf_center(&self->render->world_dest);
+			objects_create(
+				&obj_floater_desc, pos, 
+				(void*)&bomb_floater_params
+			);
 
-		// Destroy powerup
-		objects_destroy(self);
+			// Destroy powerup
+			objects_destroy(self);
+		}
 	}
 }
 
@@ -113,26 +119,28 @@ static void obj_powerup_rocket_collide(GameObject* self, GameObject* other) {
 		ObjRabbit* rabbit = (ObjRabbit*)other;
 		ObjRabbitData* d = rabbit->data;
 
-		// Powerup effect
-		d->has_powerup[ROCKET] = true;
+		if(!d->has_powerup[ROCKET]){
+			// Powerup effect
+			d->has_powerup[ROCKET] = true;
 
-		// Particles
-		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
-			&obj_particle_anchor_desc, 
-			rectf_center(&other->render->world_dest), 
-			NULL
-		);
-		mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
+			// Particles
+			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
+				&obj_particle_anchor_desc, 
+				rectf_center(&other->render->world_dest), 
+				NULL
+			);
+			mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
 
-		// Dissapearing animation
-		Vector2 pos = rectf_center(&self->render->world_dest);
-		objects_create(
-			&obj_floater_desc, pos, 
-			(void*)&rocket_floater_params
-		);
+			// Dissapearing animation
+			Vector2 pos = rectf_center(&self->render->world_dest);
+			objects_create(
+				&obj_floater_desc, pos, 
+				(void*)&rocket_floater_params
+			);
 
-		// Destroy powerup
-		objects_destroy(self);
+			// Destroy powerup
+			objects_destroy(self);
+		}
 	}
 }
 
@@ -153,26 +161,31 @@ static void obj_powerup_shield_effect(GameObject* other){
 
 static void obj_powerup_shield_collide(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
-		// Powerup effect
-		obj_powerup_shield_effect(other);
+		ObjRabbit* rabbit = (ObjRabbit*)other;
+		ObjRabbitData* d = rabbit->data;
 
-		// Particles
-		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
-			&obj_particle_anchor_desc, 
-			rectf_center(&other->render->world_dest), 
-			NULL
-		);
-		mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
+		if(!d->has_powerup[SHIELD]){	
+			// Powerup effect
+			obj_powerup_shield_effect(other);
 
-		// Dissapearing animation
-		Vector2 pos = rectf_center(&self->render->world_dest);
-		objects_create(
-			&obj_floater_desc, pos, 
-			(void*)&shield_floater_params
-		);
+			// Particles
+			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
+				&obj_particle_anchor_desc, 
+				rectf_center(&other->render->world_dest), 
+				NULL
+			);
+			mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
 
-		// Destroy powerup
-		objects_destroy(self);
+			// Dissapearing animation
+			Vector2 pos = rectf_center(&self->render->world_dest);
+			objects_create(
+				&obj_floater_desc, pos, 
+				(void*)&shield_floater_params
+			);
+
+			// Destroy powerup
+			objects_destroy(self);
+		}
 	}
 }
 

@@ -23,4 +23,6 @@ void hud_render_regular_pause(float t);
 
 bool hud_button(UIElement* element, Color col, float ts);
 
+extern bool hud_click;
+
 #endif
