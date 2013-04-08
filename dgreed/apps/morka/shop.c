@@ -248,15 +248,11 @@ static bool shop_render(float t) {
 	} else {
 		if(!release){
 			release = true;
-			printf("delta: %f > 4.0f\n",delta );
-			printf("delta: %.2f <= 0.15\n",time_s() - start);
-			if(fabsf(delta) > 4.0f && time_s() - start <= 0.15f){
+			if(fabsf(delta) > 1.0f && time_s() - start <= 0.15f){
 				if(delta > 0.0f) 
-					delta = 100.0f;
+					delta = 120.0f;
 				else
-					delta = -100.0f;
-
-				printf("flick\n");
+					delta = -120.0f;
 			}
 		}
 		hold = false;
