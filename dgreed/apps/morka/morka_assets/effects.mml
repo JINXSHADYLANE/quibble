@@ -32,6 +32,11 @@
 
 			)
 		)
+		(e dusts2
+			(particles dusts2
+
+			)
+		)		
 		(e boost_explosion
 			(particles boost_explosion
 

@@ -122,6 +122,10 @@ static void game_reset(void) {
 	game_need_reset = false;
 }
 
+void game_force_reset(void){
+	game_reset();
+}
+
 static void game_init(void) {
 	levels_init(ASSETS_DIR "levels.mml");
 	objects_init();
@@ -134,11 +138,11 @@ static void game_init(void) {
 }
 
 static void game_enter(void) {
-	game_paused = tutorials_paused();	
+	game_paused = tutorials_paused();
+	if(game_need_reset) game_reset();		
 }
 
 static void game_preenter(void) {
-
 }
 static void game_postleave(void) {
 }
@@ -258,7 +262,6 @@ bool game_update_empty(void) {
 }
 
 void game_render_level(void){
-	if(game_need_reset) game_reset();
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
 	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);

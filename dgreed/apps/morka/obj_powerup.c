@@ -203,7 +203,8 @@ static void obj_powerup_coin_collide(GameObject* self, GameObject* other) {
 		ObjRabbitData* d = rabbit->data;
 
 		// Powerup effect
-		d->tokens += 1;
+		if(!d->game_over)
+			d->tokens += 1;
 
 		// Particles
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);

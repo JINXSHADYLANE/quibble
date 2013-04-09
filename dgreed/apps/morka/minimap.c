@@ -135,7 +135,8 @@ void minimap_update_places(void){
 		} 				
 		
 	}
-	sort_insertion(results, minimap_pointers.size, sizeof(ObjRabbit*),rabbit_compar);
+	if(results[0] && results[0]->header.type )
+		sort_insertion(results, minimap_pointers.size, sizeof(ObjRabbit*),rabbit_compar);
 }
 
 void minimap_reset(uint distance){

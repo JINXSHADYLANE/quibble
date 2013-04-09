@@ -267,27 +267,27 @@ static bool shop_render(float t) {
 		Vector2 offset = vec2(xpos + i * inc,0.0f);
 		float d = normalize(fabsf(offset.x),0.0f,inc * (character_count-1));
 
-		float alpha = 1.0f / exp(PI*d);
-		byte a = lrintf(255.0f * alpha);
-		Color col = COLOR_RGBA(255, 255, 255, a);
+		float alpha2 = 1.0f / exp(PI*d);
+		byte a2 = lrintf(255.0f * alpha2 * alpha);
+		Color col2 = COLOR_RGBA(255, 255, 255, a2);
 
 		// Character icon
 		SprHandle icon = sprsheet_get_handle(default_characters[i].icon);
 		Vector2 size = sprsheet_get_size_h(icon);
 		Vector2 icon_pos = character_icon->vec2;
 		icon_pos.x -= size.x / 2.0f;
-		spr_draw_cntr_h(icon, hud_layer,vec2_add(icon_pos,offset), 0.0f, 1.0f, col);
+		spr_draw_cntr_h(icon, hud_layer,vec2_add(icon_pos,offset), 0.0f, 1.0f, col2);
 
 		// Character txt
 		vfont_select(FONT_NAME, 38.0f);
 
-		vfont_draw(default_characters[i].name, hud_layer, vec2_add(character_name->vec2,offset), col);	
+		vfont_draw(default_characters[i].name, hud_layer, vec2_add(character_name->vec2,offset), col2);	
 
 		// Stats
 		const char* speed = "Speed";
-		vfont_draw(speed, hud_layer, vec2_add(speed_txt->vec2,offset), col);	
+		vfont_draw(speed, hud_layer, vec2_add(speed_txt->vec2,offset), col2);	
 		const char* jump = "Jump";
-		vfont_draw(jump, hud_layer, vec2_add(jump_txt->vec2,offset), col);			
+		vfont_draw(jump, hud_layer, vec2_add(jump_txt->vec2,offset), col2);			
 	}
 
 	// Play button

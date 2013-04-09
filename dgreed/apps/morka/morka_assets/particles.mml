@@ -28,7 +28,7 @@
         ( max_start_color 200,200,200,200 )
         ( min_end_color 70,70,70,0 )
         ( max_end_color 220,220,220,100 )
-        ( particles_layer 7 )
+        ( particles_layer 13 )
     )
     ( psystem bomb_explode
         ( texture particles.png )

@@ -12,6 +12,11 @@
 
 static ScreenType screen = WIN_SCREEN;
 
+float game_over_anim_start = 0.0f;
+float game_over_anim_end = 0.0f;
+
+uint coins_earned = 0;
+
 static void game_over_init(void) {
 
 }
@@ -22,10 +27,12 @@ static void game_over_close(void) {
 
 static void game_over_preenter(void) {
 	if(screen == WIN_SCREEN || screen == TUTORIAL_SCREEN ) levels_unlock_next();
+	game_over_anim_start = time_s();
+	game_over_anim_end = time_s() + 0.3f;
+	coins_earned = 0;	
 }
 
-static void game_over_enter(void) {
-
+static void game_over_enter(void) {	
 }
 
 static void game_over_leave(void) {
