@@ -251,6 +251,6 @@ void levels_set_place(uint place){
 
 	uint prev = keyval_get_int(key_name,0);
 
-	if(prev > 0 && place < prev)	
+	if(prev == 0 || place < prev)	
 		keyval_set_int(key_name,place);	
 }
