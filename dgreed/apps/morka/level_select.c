@@ -52,6 +52,7 @@ static bool level_select_render(float t) {
 
 	UIElement* buttons_pos = uidesc_get_child(element, "buttons_pos");
 	UIElement* button_quit = uidesc_get_child(element, "quit");
+	SprHandle place_spr;
 	SprHandle button_spr;
 	SprHandle lock_spr;	
 
@@ -103,6 +104,47 @@ static bool level_select_render(float t) {
 			spr_draw_cntr_h(lock_spr, layer, pos, 0.0f, 1.0f, col);			
 		} else {
 
+			uint place = levels_get_place(i);
+			char place_txt[16];
+
+
+			switch(place){
+				case 1:
+					place_spr = sprsheet_get_handle("ribbon_first");
+					sprintf(place_txt, "First");
+				break;
+
+				case 2:
+					place_spr = sprsheet_get_handle("ribbon_second");
+					sprintf(place_txt, "Second");
+				break;	
+
+				case 3:
+					place_spr = sprsheet_get_handle("ribbon_third");
+					sprintf(place_txt, "Third");
+				break;
+
+				case 4:
+					place_spr = sprsheet_get_handle("ribbon_last");
+					sprintf(place_txt, "Last");
+				break;	
+
+				default:
+					place_spr = empty_spr;
+				break;						
+			}
+			if(place_spr != empty_spr){
+
+				Vector2 ribbon_pos = vec2_add(pos,vec2(0.0f,40.0f));
+
+				spr_draw_cntr_h(place_spr, layer, ribbon_pos, 0.0f, 1.0f, col);
+
+				vfont_select(FONT_NAME, 13.0f);
+
+				Vector2 half_size = vec2_scale(vfont_size(place_txt), 0.5f);
+				vfont_draw(place_txt, layer, vec2_sub(ribbon_pos,half_size), col);				
+			}
+
 			// Button action
 			if(touches_down() && t == 0.0f) {
 				Touch* t = touches_get();
@@ -118,7 +160,7 @@ static bool level_select_render(float t) {
 					malka_states_push("shop");
 				}
 			}
-
+			vfont_select(FONT_NAME, 48.0f);
 			// Draw number
 			char n[4];
 			sprintf(n, "%d",i-offset+1);

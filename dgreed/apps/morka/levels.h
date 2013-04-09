@@ -81,4 +81,7 @@ bool levels_next_unlocked(void);
 bool level_is_unlocked(uint i);
 void levels_unlock_next();
 
+uint levels_get_place(uint level);
+void levels_set_place(uint place);
+
 #endif
