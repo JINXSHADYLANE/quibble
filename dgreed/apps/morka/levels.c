@@ -234,3 +234,23 @@ void levels_unlock_next(){
 		keyval_set_bool(key_name,true);
 	}
 }
+
+uint levels_get_place(uint level){
+	assert(level < levels_descs.size);
+
+	char key_name[32];
+	sprintf(key_name, "place_l%d",level);	
+
+	return keyval_get_int(key_name,0);
+}
+
+void levels_set_place(uint place){
+
+	char key_name[32];
+	sprintf(key_name, "place_l%d",level_num);
+
+	uint prev = keyval_get_int(key_name,0);
+
+	if(prev > 0 && place < prev)	
+		keyval_set_int(key_name,place);	
+}
