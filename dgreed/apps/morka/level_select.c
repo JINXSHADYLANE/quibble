@@ -25,7 +25,7 @@ static void level_select_preenter(void){
 		int offset = levels_start_of_season(current_season);
 		LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,offset);		
 		levels_reset(desc->name);
-		game_request_reset();		
+		game_force_reset();		
 	}	
 }
 
@@ -48,7 +48,6 @@ static bool level_select_render(float t) {
 	vfont_select(FONT_NAME, 48.0f);
 
 	UIElement* element = uidesc_get("level_select");
-	uint layer = hud_layer+1;
 
 	UIElement* buttons_pos = uidesc_get_child(element, "buttons_pos");
 	UIElement* button_quit = uidesc_get_child(element, "quit");
@@ -60,7 +59,7 @@ static bool level_select_render(float t) {
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
 
 	int level_count = levels_count(current_season);
 	int offset = levels_start_of_season(current_season);
@@ -97,11 +96,11 @@ static bool level_select_render(float t) {
 		LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,i);
 
 		// Draw level icon
-		spr_draw_cntr_h(button_spr, layer, pos, 0.0f, 1.0f, col);
+		spr_draw_cntr_h(button_spr, hud_layer, pos, 0.0f, 1.0f, col);
 
 		if(!level_is_unlocked(i)){
 			// Draw lock
-			spr_draw_cntr_h(lock_spr, layer, pos, 0.0f, 1.0f, col);			
+			spr_draw_cntr_h(lock_spr, hud_layer, pos, 0.0f, 1.0f, col);			
 		} else {
 
 			uint place = levels_get_place(i);
@@ -137,12 +136,12 @@ static bool level_select_render(float t) {
 
 				Vector2 ribbon_pos = vec2_add(pos,vec2(0.0f,40.0f));
 
-				spr_draw_cntr_h(place_spr, layer, ribbon_pos, 0.0f, 1.0f, col);
+				spr_draw_cntr_h(place_spr, hud_layer, ribbon_pos, 0.0f, 1.0f, col);
 
 				vfont_select(FONT_NAME, 13.0f);
 
 				Vector2 half_size = vec2_scale(vfont_size(place_txt), 0.5f);
-				vfont_draw(place_txt, layer, vec2_sub(ribbon_pos,half_size), col);				
+				vfont_draw(place_txt, hud_layer, vec2_sub(ribbon_pos,half_size), col);				
 			}
 
 			// Button action
@@ -165,7 +164,7 @@ static bool level_select_render(float t) {
 			char n[4];
 			sprintf(n, "%d",i-offset+1);
 			Vector2 half_size = vec2_scale(vfont_size(n), 0.5f);
-			vfont_draw(n, layer, vec2_sub(pos,half_size), col);
+			vfont_draw(n, hud_layer, vec2_sub(pos,half_size), col);
 		}
 
 		// newline at end of column

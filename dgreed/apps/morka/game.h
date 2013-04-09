@@ -17,4 +17,6 @@ bool game_update_empty(void);
 
 void game_render_level(void);
 
+void game_force_reset(void);
+
 #endif

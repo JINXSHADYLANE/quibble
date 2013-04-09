@@ -29,13 +29,12 @@ static bool season_select_update(void) {
 
 static bool season_select_render(float t) {
 	UIElement* element = uidesc_get("season_select");
-	uint layer = hud_layer+1;
 
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
 
 	SprHandle lock_spr;
 
@@ -44,7 +43,7 @@ static bool season_select_render(float t) {
 		char season_name[16];
 		sprintf(season_name, "season%d", i+1);
 		UIElement* season = uidesc_get_child(element, season_name);
-		spr_draw_cntr_h(season->spr, layer, season->vec2, 0.0f, 1.0f, col);
+		spr_draw_cntr_h(season->spr, hud_layer, season->vec2, 0.0f, 1.0f, col);
 
 		TexHandle tex;
 		RectF src;
@@ -82,7 +81,7 @@ static bool season_select_render(float t) {
 			}	
 
 		} else {
-			spr_draw_cntr_h(lock_spr, layer, button_pos, 0.0f, 1.0f, col);
+			spr_draw_cntr_h(lock_spr, hud_layer, button_pos, 0.0f, 1.0f, col);
 		}
 	}
 

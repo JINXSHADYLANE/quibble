@@ -95,23 +95,60 @@
 		(def text
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-250)
+				(vec2 0,-300)
 			)
 		)
 
-		(def result_text
+		(def place_icon
 			(add <-
-				(get_vec2 text)
-				(vec2 -225,120)
+				(middle <- (get_rect screen))
+				(vec2 0,-150)
 			)
 		)
 
-		(def result_time
+		(def platform
+			(spr base_place)
 			(add <-
-				(get_vec2 text)
-				(vec2 70,120)
+				(middle <- (get_rect screen))
+				(vec2 0,-150)
 			)
 		)
+
+		(def particles1
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -50,-30.0f)
+			)
+		)
+
+		(def particles2
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 50,-30.0f)
+			)
+		)
+
+		(def text2
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,50)
+			)
+		)
+
+		(def coin_text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,100)
+			)
+		)	
+
+		(def coin_icon
+			(spr token_tag)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,100)
+			)
+		)				
 
 		(def next
 			(spr next)
@@ -139,23 +176,60 @@
 		(def text
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-250)
+				(vec2 0,-300)
 			)
 		)
 
-		(def result_text
+		(def place_icon
 			(add <-
-				(get_vec2 text)
-				(vec2 -225,120)
+				(middle <- (get_rect screen))
+				(vec2 0,-94)
 			)
 		)
 
-		(def result_time
+		(def platform
+			(spr base_place)
 			(add <-
-				(get_vec2 text)
-				(vec2 70,120)
+				(middle <- (get_rect screen))
+				(vec2 0,-150)
 			)
 		)
+
+		(def particles1
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -50,-30.0f)
+			)
+		)
+
+		(def particles2
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 50,-30.0f)
+			)
+		)
+
+		(def text2
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,50)
+			)
+		)
+
+		(def coin_text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,100)
+			)
+		)	
+
+		(def coin_icon
+			(spr token_tag)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,100)
+			)
+		)				
 
 		(def restart
 			(spr restart)

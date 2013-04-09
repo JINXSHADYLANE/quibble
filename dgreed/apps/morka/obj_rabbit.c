@@ -651,7 +651,12 @@ static void obj_rabbit_became_invisible(GameObject* self) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;	
 	ObjRabbitData* d = rabbit->data;
 
-	d->is_dead = d->game_over;
+	if(d->game_over){
+		d->is_dead = true;
+		PhysicsComponent* p = rabbit->header.physics;
+		p->cd_obj->pos.y = HEIGHT + rabbit_hitbox_height;
+	}
+
 }
 
 static void _rabbit_delayed_bounce(void* r) {

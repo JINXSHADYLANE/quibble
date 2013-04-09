@@ -5,6 +5,7 @@
 #include "minimap.h"
 #include "levels.h"
 
+#include <mfx.h>
 #include <vfont.h>
 #include <malka/ml_states.h>
 
@@ -12,6 +13,10 @@ extern void game_pause(void);
 
 extern ObjRabbit* rabbit;
 extern bool tutorial_level;
+
+extern float game_over_anim_start;
+extern float game_over_anim_end;
+extern uint coins_earned;
 
 extern uint coins;
 
@@ -283,7 +288,7 @@ void hud_render(float t) {
 }
 
 bool hud_button(UIElement* element, Color col, float ts) {
-	spr_draw_cntr_h(element->spr, hud_layer+1, element->vec2, 0.0f, 1.0f, col);	
+	spr_draw_cntr_h(element->spr, hud_layer, element->vec2, 0.0f, 1.0f, col);	
 	Touch* t = touches_get();
 	if(touches_down() && t && ts == 0.0f) {
 		float r_sqr = 40.0f * 40.0f;		
@@ -295,7 +300,6 @@ bool hud_button(UIElement* element, Color col, float ts) {
 
 void hud_render_game_over_out(float t) {	
 	UIElement* element = uidesc_get("game_over_out");
-	uint layer = hud_layer+1;	
 
 	UIElement* complete = uidesc_get_child(element, "text");
 	UIElement* button_restart = uidesc_get_child(element, "restart");
@@ -305,7 +309,7 @@ void hud_render_game_over_out(float t) {
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
@@ -314,7 +318,7 @@ void hud_render_game_over_out(float t) {
 	if(half_size.x == 0.0f) {
 		half_size = vec2_scale(vfont_size(str), 0.5f);
 	}
-	vfont_draw(str, layer, vec2_sub(complete->vec2, half_size), col);
+	vfont_draw(str, hud_layer, vec2_sub(complete->vec2, half_size), col);
 
 	// Restart button
 	if(hud_button(button_restart, col, t)) {
@@ -331,7 +335,6 @@ void hud_render_game_over_out(float t) {
 
 void hud_render_game_over_tut(float t) {
 	UIElement* element = uidesc_get("game_over_tut");
-	uint layer = hud_layer+1;	
 
 	UIElement* complete = uidesc_get_child(element, "text");
 	UIElement* button_next = uidesc_get_child(element, "next");
@@ -342,7 +345,7 @@ void hud_render_game_over_tut(float t) {
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
@@ -351,7 +354,7 @@ void hud_render_game_over_tut(float t) {
 	if(half_size.x == 0.0f) {
 		half_size = vec2_scale(vfont_size(str), 0.5f);
 	}
-	vfont_draw(str, layer, vec2_sub(complete->vec2, half_size), col);
+	vfont_draw(str, hud_layer, vec2_sub(complete->vec2, half_size), col);
 
 	// Next button
 	if(hud_button(button_next, col, t)) {
@@ -375,52 +378,125 @@ void hud_render_game_over_tut(float t) {
 
 void hud_render_game_over_win(float t) {
 	UIElement* element = uidesc_get("game_over_win");
-	uint layer = hud_layer+1;
 
 	UIElement* text = uidesc_get_child(element, "text");
-	UIElement* result_text = uidesc_get_child(element, "result_text");
-	UIElement* result_time = uidesc_get_child(element, "result_time");
+	UIElement* place_icon = uidesc_get_child(element, "place_icon");
+	UIElement* platform = uidesc_get_child(element, "platform");
+	UIElement* particles1 = uidesc_get_child(element, "particles1");
+	UIElement* particles2 = uidesc_get_child(element, "particles2");	
+	
+	UIElement* text2 = uidesc_get_child(element, "text2");
+	UIElement* coin_text = uidesc_get_child(element, "coin_text");
+	UIElement* coin_icon = uidesc_get_child(element, "coin_icon");
 
 	UIElement* button_next = uidesc_get_child(element, "next");
 	UIElement* button_restart = uidesc_get_child(element, "restart");
 	UIElement* button_quit = uidesc_get_child(element, "quit");
 
+	SprHandle place_spr;
+
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+
+	uint place = minimap_get_place_of_rabbit(rabbit);
+	char place_txt[32];
+	
+	switch(place){
+		case 1:
+			place_spr = sprsheet_get_handle("first_place");
+			sprintf(place_txt, "You're first!");
+		break;
+		case 2:
+			place_spr = sprsheet_get_handle("second_place");
+			sprintf(place_txt, "You're second!");
+		break;
+		default:
+			place_spr = sprsheet_get_handle("third_place");
+			sprintf(place_txt, "You're third!");
+		break;					
+	}
+
+	spr_draw_cntr_h(platform->spr, hud_layer,platform->vec2, 0.0f, 1.0f, col);
+
+	float off = 0;
+	float ts = time_s();
+	static bool particles_spawned = false;
+
+	if(ts < game_over_anim_start){
+		off = HEIGHT/2.0f;
+	} else if(ts > game_over_anim_start && ts < game_over_anim_end ){
+		float td = normalize(ts,game_over_anim_start,game_over_anim_end);
+		td = clamp(0.0f,1.0f,td);
+
+		off = sin(PI/2.0f*td + PI/2.0f) * HEIGHT/2.0f;
+		particles_spawned = false;
+	} else {
+		if(!particles_spawned){
+			mfx_trigger_ex("dusts2", particles2->vec2, 0.0f);
+			mfx_trigger_ex("dusts2", particles1->vec2, 180.0f);
+			particles_spawned = true;
+			rabbit->data->tokens += 10 * (4-place);
+		}
+		off = 0.0f;
+	}
+
+	static float coin_time = 0.0f;
+
+	if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
+		float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
+
+		delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
+
+		coin_time = time_s() + delta;
+		coins_earned++;
+	}	
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
-	const char* str = "The race is over.";
+	static uint prev_place = 0;
 	static Vector2 half_size = {0.0f, 0.0f};
-	if(half_size.x == 0.0f) {
-		half_size = vec2_scale(vfont_size(str), 0.5f);
+	if(prev_place != place) {
+		prev_place = place;
+		half_size = vec2_scale(vfont_size(place_txt), 0.5f);
 	}
-	vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
+	Vector2 txt_pos = vec2_sub(text->vec2, half_size);
+	txt_pos.y -= off;
+	vfont_draw(place_txt, hud_layer,txt_pos , col);
 
-	// Timetable
-	for(int i = 0; i < minimap_get_count();i++){
-		Color c = COLOR_RGBA(255, 255, 255, a);
-		char result_str[32];
-		char result_time_str[32];
-		ObjRabbit* rabbit = minimap_get_rabbit_in_place(i);
+	Vector2 place_pos = place_icon->vec2;
+	place_pos.y -= off;
+	spr_draw_cntr_h(place_spr, hud_layer,place_pos, 0.0f, 1.0f, col);
 
-		if(rabbit->data->rabbit_time > 0.0f){
-			sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
-			sprintf(result_time_str, "%5.1fs",rabbit->data->rabbit_time);
-		}
-		else{
-			sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
-			sprintf(result_time_str, " Out");	
-		}
-		if(rabbit->data->player_control) 
-			c = COLOR_RGBA(237, 78, 0, a);
-		
-		vfont_draw(result_str, layer,vec2_add(result_text->vec2,vec2(0.0f,i*60.0f)), c);
-		vfont_draw(result_time_str, layer,vec2_add(result_time->vec2,vec2(0.0f,i*60.0f)), c);
-	}	
+	// Text
+	vfont_select(FONT_NAME, 38.0f); 
+	const char* str = "You earned:";
+	static Vector2 half_size2 = {0.0f, 0.0f};
+	if(half_size2.x == 0.0f) {
+		half_size2 = vec2_scale(vfont_size(str), 0.5f);
+	}
+	vfont_draw(str, hud_layer, vec2_sub(text2->vec2, half_size2), col);
+
+
+	// Coin icon
+	Vector2 size = sprsheet_get_size_h(coin_icon->spr);
+	Vector2 pos = vec2_add(coin_icon->vec2,vec2(size.x/2.0f,0.0f)); 
+	
+	// Coin txt
+	vfont_select(FONT_NAME, 48.0f);
+	char coins_str[32];
+	sprintf(coins_str, "%d",coins_earned);
+	Vector2 fsize = vfont_size(coins_str);
+	Vector2 str_pos = vec2_sub(coin_text->vec2, vec2(fsize.x,fsize.y/2.0f));
+
+	float offset = fsize.x + size.x + 20.0f; 
+	pos.x += offset/2.0f - size.x;
+	str_pos.x += -offset/2.0f + fsize.x;
+	spr_draw_cntr_h(coin_icon->spr, hud_layer,pos, 0.0f, 1.0f, col);
+
+	vfont_draw(coins_str, hud_layer, str_pos, col);
 
 	// Next button
 	if(hud_button(button_next, col, t)) {
@@ -444,51 +520,97 @@ void hud_render_game_over_win(float t) {
 
 void hud_render_game_over_lose(float t) {
 	UIElement* element = uidesc_get("game_over_lose");
-	uint layer = hud_layer+1;
 
 	UIElement* text = uidesc_get_child(element, "text");
-	UIElement* result_text = uidesc_get_child(element, "result_text");
-	UIElement* result_time = uidesc_get_child(element, "result_time");
+	UIElement* place_icon = uidesc_get_child(element, "place_icon");
+	UIElement* platform = uidesc_get_child(element, "platform");
+	UIElement* particles1 = uidesc_get_child(element, "particles1");
+	UIElement* particles2 = uidesc_get_child(element, "particles2");	
+	
+	UIElement* text2 = uidesc_get_child(element, "text2");
+	UIElement* coin_text = uidesc_get_child(element, "coin_text");
+	UIElement* coin_icon = uidesc_get_child(element, "coin_icon");
 
 	UIElement* button_restart = uidesc_get_child(element, "restart");
 	UIElement* button_quit = uidesc_get_child(element, "quit");
+
+	SprHandle place_spr = sprsheet_get_handle("last_place");
 
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+
+	uint place = minimap_get_place_of_rabbit(rabbit);
+	const char* place_txt = "You're fourth";
+	
+	spr_draw_cntr_h(platform->spr, hud_layer,platform->vec2, 0.0f, 1.0f, col);
+
+	float off = 0;
+	float ts = time_s();
+	static bool particles_spawned = false;
+
+	if(ts < game_over_anim_start){
+		off = HEIGHT/2.0f;
+	} else if(ts > game_over_anim_start && ts < game_over_anim_end ){
+		float td = normalize(ts,game_over_anim_start,game_over_anim_end);
+		td = clamp(0.0f,1.0f,td);
+
+		off = sin(PI/2.0f*td + PI/2.0f) * HEIGHT/2.0f;
+		particles_spawned = false;
+	} else {
+		if(!particles_spawned){
+			mfx_trigger_ex("dusts2", particles2->vec2, 0.0f);
+			mfx_trigger_ex("dusts2", particles1->vec2, 180.0f);
+			particles_spawned = true;
+		}
+		off = 0.0f;
+	}
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
-	const char* str = "The race is over.";
+	static uint prev_place = 0;
 	static Vector2 half_size = {0.0f, 0.0f};
-	if(half_size.x == 0.0f) {
-		half_size = vec2_scale(vfont_size(str), 0.5f);
+	if(prev_place != place) {
+		prev_place = place;
+		half_size = vec2_scale(vfont_size(place_txt), 0.5f);
 	}
-	vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
+	Vector2 txt_pos = vec2_sub(text->vec2, half_size);
+	txt_pos.y -= off;
+	vfont_draw(place_txt, hud_layer,txt_pos , col);
 
-	// Timetable
-	for(int i = 0; i < minimap_get_count();i++){
-		Color c = COLOR_RGBA(255, 255, 255, a);
-		char result_str[32];
-		char result_time_str[32];
-		ObjRabbit* rabbit = minimap_get_rabbit_in_place(i);
+	Vector2 place_pos = place_icon->vec2;
+	place_pos.y -= off;
+	spr_draw_cntr_h(place_spr, hud_layer,place_pos, 0.0f, 1.0f, col);
 
-		if(rabbit->data->rabbit_time > 0.0f){
-			sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
-			sprintf(result_time_str, "%5.1fs",rabbit->data->rabbit_time);
-		}
-		else{
-			sprintf(result_str, "%d. %s",i+1,rabbit->data->rabbit_name);
-			sprintf(result_time_str, " Out");	
-		}
-		if(rabbit->data->player_control) 
-			c = COLOR_RGBA(237, 78, 0, a);
-		
-		vfont_draw(result_str, layer,vec2_add(result_text->vec2,vec2(0.0f,i*60.0f)), c);
-		vfont_draw(result_time_str, layer,vec2_add(result_time->vec2,vec2(0.0f,i*60.0f)), c);
-	}	
+	// Text
+	vfont_select(FONT_NAME, 38.0f); 
+	const char* str = "You earned:";
+	static Vector2 half_size2 = {0.0f, 0.0f};
+	if(half_size2.x == 0.0f) {
+		half_size2 = vec2_scale(vfont_size(str), 0.5f);
+	}
+	vfont_draw(str, hud_layer, vec2_sub(text2->vec2, half_size2), col);
+
+
+	// Coin icon
+	Vector2 size = sprsheet_get_size_h(coin_icon->spr);
+	Vector2 pos = vec2_add(coin_icon->vec2,vec2(size.x/2.0f,0.0f)); 
+	
+	// Coin txt
+	vfont_select(FONT_NAME, 48.0f);
+	char coins_str[32];
+	sprintf(coins_str, "+%d",rabbit->data->tokens);
+	Vector2 fsize = vfont_size(coins_str);
+	Vector2 str_pos = vec2_sub(coin_text->vec2, vec2(fsize.x,fsize.y/2.0f));
+
+	float offset = fsize.x + size.x + 20.0f; 
+	pos.x += offset/2.0f - size.x;
+	str_pos.x += -offset/2.0f + fsize.x;
+	spr_draw_cntr_h(coin_icon->spr, hud_layer,pos, 0.0f, 1.0f, col);
+
+	vfont_draw(coins_str, hud_layer, str_pos, col);
 
 	// Restart Button
 	if(hud_button(button_restart, col, t)) {
@@ -506,7 +628,6 @@ void hud_render_game_over_lose(float t) {
 void hud_render_regular_pause(float t){
 		// Pause overlay
 		UIElement* element = uidesc_get("pause");
-		uint layer = hud_layer+1;
 
 		UIElement* text = uidesc_get_child(element, "text");
 		UIElement* button_play = uidesc_get_child(element, "button_play");
@@ -517,7 +638,7 @@ void hud_render_regular_pause(float t){
 		byte a = lrintf(255.0f * alpha);
 		Color col = COLOR_RGBA(255, 255, 255, a);
 
-		spr_draw("blue_shade", layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+		spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
 		// Text
 		vfont_select(FONT_NAME, 48.0f); 
 		const char* str = "Paused";
@@ -525,7 +646,7 @@ void hud_render_regular_pause(float t){
 		if(half_size.x == 0.0f) {
 			half_size = vec2_scale(vfont_size(str), 0.5f);
 		}
-		vfont_draw(str, layer, vec2_sub(text->vec2, half_size), col);
+		vfont_draw(str, hud_layer, vec2_sub(text->vec2, half_size), col);
 
 		// Play (continue) button
 		if(hud_button(button_play, col, t)) {
