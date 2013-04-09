@@ -518,6 +518,7 @@ void hud_render_game_over_win(float t) {
 	}
 }
 
+// TODO: fix repeating code
 void hud_render_game_over_lose(float t) {
 	UIElement* element = uidesc_get("game_over_lose");
 
@@ -568,6 +569,17 @@ void hud_render_game_over_lose(float t) {
 		off = 0.0f;
 	}
 
+	static float coin_time = 0.0f;
+
+	if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
+		float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
+
+		delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
+
+		coin_time = time_s() + delta;
+		coins_earned++;
+	}	
+
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
 	static uint prev_place = 0;
@@ -601,7 +613,7 @@ void hud_render_game_over_lose(float t) {
 	// Coin txt
 	vfont_select(FONT_NAME, 48.0f);
 	char coins_str[32];
-	sprintf(coins_str, "+%d",rabbit->data->tokens);
+	sprintf(coins_str, "%d",coins_earned);
 	Vector2 fsize = vfont_size(coins_str);
 	Vector2 str_pos = vec2_sub(coin_text->vec2, vec2(fsize.x,fsize.y/2.0f));
 
