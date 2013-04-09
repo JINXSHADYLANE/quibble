@@ -203,15 +203,20 @@ bool game_update(void) {
 
 			if(!game_over && rabbit->data->game_over){
 				game_over = true;
+
+				uint place = minimap_get_place_of_rabbit(rabbit);
+
 				if(rabbit->data->is_dead) 
 					game_over_set_screen(OUT_SCREEN);
-				else if(minimap_get_place_of_rabbit(rabbit) <= 3)
+				else if(place <= 3)
 					game_over_set_screen(WIN_SCREEN);
 				else
 					game_over_set_screen(LOSE_SCREEN);
 
 				if(!rabbit->data->is_dead)
 					keyval_set_int("coins",coins + rabbit->data->tokens);
+
+				levels_set_place(place);
 
 				malka_states_push("game_over");
 			}
