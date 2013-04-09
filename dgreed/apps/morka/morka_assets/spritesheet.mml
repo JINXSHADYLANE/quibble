@@ -261,8 +261,8 @@
 )
 (img blocked
 	(tex atlas_13.png)
-	(src 668,540,727,600)
-	(cntr 697,571)
+	(src 603,501,662,561)
+	(cntr 632,532)
 )
 (img bomb
 	(tex atlas_13.png)
@@ -276,8 +276,8 @@
 )
 (img btn_bomb
 	(tex atlas_13.png)
-	(src 675,459,775,538)
-	(cntr 725,498)
+	(src 799,552,899,631)
+	(cntr 849,591)
 )
 (img btn_rocket
 	(tex atlas_13.png)
@@ -314,6 +314,11 @@
 	(src 160,730,414,967)
 	(cntr 287,840)
 )
+(img last_place
+	(tex atlas_13.png)
+	(src 449,512,601,673)
+	(cntr 530,596)
+)
 (img mushroom_1
 	(tex atlas_13.png)
 	(src 895,2,1022,150)
@@ -331,8 +336,8 @@
 )
 (img mushroom_4
 	(tex atlas_13.png)
-	(src 449,552,571,675)
-	(cntr 515,624)
+	(src 675,459,797,582)
+	(cntr 741,531)
 )
 (img mushroom_5
 	(tex atlas_13.png)
@@ -351,24 +356,28 @@
 )
 (img ribbon_first
 	(tex atlas_13.png)
-	(src 449,512,547,546)
+	(src 575,465,673,499)
+	(cntr 624,482)
 )
 (img ribbon_last
 	(tex atlas_13.png)
 	(src 399,970,497,1004)
+	(cntr 448,987)
 )
 (img ribbon_second
 	(tex atlas_13.png)
 	(src 299,970,397,1004)
+	(cntr 348,987)
 )
 (img ribbon_third
 	(tex atlas_13.png)
 	(src 199,970,297,1004)
+	(cntr 248,987)
 )
 (img rocket
 	(tex atlas_13.png)
-	(src 584,465,666,556)
-	(cntr 626,511)
+	(src 901,552,983,643)
+	(cntr 943,598)
 )
 (img second_place
 	(tex atlas_13.png)
