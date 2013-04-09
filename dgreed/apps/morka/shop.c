@@ -265,6 +265,11 @@ static bool shop_render(float t) {
 	for(uint i = 0; i < character_count;i++){
 
 		Vector2 offset = vec2(xpos + i * inc,0.0f);
+		float d = normalize(fabsf(offset.x),0.0f,inc * (character_count-1));
+
+		float alpha = 1.0f / exp(PI*d);
+		byte a = lrintf(255.0f * alpha);
+		Color col = COLOR_RGBA(255, 255, 255, a);
 
 		// Character icon
 		SprHandle icon = sprsheet_get_handle(default_characters[i].icon);
