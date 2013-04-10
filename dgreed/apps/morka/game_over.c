@@ -10,6 +10,8 @@
 #include <uidesc.h>
 #include <vfont.h>
 
+extern ObjRabbit* rabbit;
+
 static ScreenType screen = WIN_SCREEN;
 
 float game_over_anim_start = 0.0f;
@@ -29,7 +31,11 @@ static void game_over_preenter(void) {
 	if(screen == WIN_SCREEN || screen == TUTORIAL_SCREEN ) levels_unlock_next();
 	game_over_anim_start = time_s();
 	game_over_anim_end = time_s() + 0.3f;
-	coins_earned = 0;	
+	coins_earned = 0;
+
+	uint place = minimap_get_place_of_rabbit(rabbit);
+	rabbit->data->tokens += 10 * (4-place);
+	keyval_set_int("coins",coins + rabbit->data->tokens);	
 }
 
 static void game_over_enter(void) {	

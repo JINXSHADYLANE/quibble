@@ -302,7 +302,6 @@
 (img buy
 	(tex atlas_13.png)
 	(src 449,386,573,510)
-	(cntr 512,448)
 )
 (img first_place
 	(tex atlas_13.png)
