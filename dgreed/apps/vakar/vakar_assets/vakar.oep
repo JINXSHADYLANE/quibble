@@ -1,0 +1,26 @@
+<project>
+	<name>vakar</name>
+	<settings>
+		<defaultWidth>1600</defaultWidth>
+		<defaultHeight>1600</defaultHeight>
+		<workingDirectory>./</workingDirectory>
+	</settings>
+	<tilesets>
+		<tileset name="tiles0" image="atlas.png" tileWidth="16" tileHeight="16" width="512" height="512"/>
+	</tilesets>	
+	<objects>
+		<object name="start" image="obj_start.png" width="16" height="16" />
+		<object name="end" image="obj_end.png" width="16" height="16" />
+		<object name="star_left" image="star_left.png" width="16" height="16" />
+		<object name="star_right" image="star_right.png" width="16" height="16" />
+		<object name="star_grow" image="star_grow.png" width="16" height="16" />
+		<object name="star_shrink" image="star_shrink.png" width="16" height="16" />
+	</objects>
+	<layers>
+		<tiles name="background" gridSize="16" />
+		<grid name="col" gridSize="16" />
+		<objects name="objs" gridSize="16" />
+		<tiles name="foreground" gridSize="16" />
+	</layers>	
+</project>
+
