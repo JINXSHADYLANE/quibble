@@ -146,7 +146,7 @@ static void _render_powerups_buy(float t){
 				// Txt
 				vfont_select(FONT_NAME, 38.0f);
 				char str[32];
-				sprintf(str, "%dc",powerup_params[i].cost);
+				sprintf(str, "%uc",powerup_params[i].cost);
 				Vector2	half_size = vec2_scale(vfont_size(str), 0.5f);
 				txt_pos = vec2_sub(txt_pos, half_size);
 				txt_pos.y -= size.y - 20.0f;
@@ -173,16 +173,16 @@ static float find_closest_pos(float value, float increment){
 }
 
 bool _shop_character_owned(uint i){
-	char key_name[4];
-	sprintf(key_name, "ulck_c%d",i);
+	char key_name[32];
+	sprintf(key_name, "ulck_c%u",i);
 
 	return i == 0 || keyval_get_bool(key_name, false);
 }
 
 void _shop_character_buy(uint i){
 	if(coins >= default_characters[i].cost){
-		char key_name[4];
-		sprintf(key_name, "ulck_c%d",i);
+		char key_name[32];
+		sprintf(key_name, "ulck_c%u",i);
 
 		keyval_set_bool(key_name, true);		
 	}
@@ -221,7 +221,7 @@ static bool shop_render(float t) {
 	// Coin txt
 	vfont_select(FONT_NAME, 38.0f);
 	char str[32];
-	sprintf(str, "%d",coins);
+	sprintf(str, "%u",coins);
 	vfont_draw(str, hud_layer, coin_text->vec2, col);
 
 	static float current_x = 0.0f;
@@ -376,7 +376,7 @@ static bool shop_render(float t) {
 		if(!_shop_character_owned(i)){
 			vfont_select(FONT_NAME, 48.0f);
 			char cost[32];
-			sprintf(cost, "%dc",default_characters[i].cost);
+			sprintf(cost, "%uc",default_characters[i].cost);
 			vfont_draw(cost, hud_layer, vec2_add(cost_txt->vec2,offset), col2);
 		}
 
