@@ -266,6 +266,36 @@ void vfont_draw(const char* string, uint layer, Vector2 topleft, Color tint) {
     video_draw_rect(text->tex, layer, &text->src, &dest, tint);
 }
 
+// TODO: test for retina
+void vfont_draw_ex(const char* string, uint layer, Vector2 topleft, Color tint, float scale) {
+    assert(string);
+    
+    if(strcmp(string, "") == 0)
+        return;
+    
+    const CachedText* text = _get_text(string, false);
+
+    Vector2 original = vec2(rectf_width(&text->src),rectf_height(&text->src));
+
+    if(vfont_retina){
+        original = vec2_scale(original,0.5f);
+    }   
+
+    Vector2 scaled = vec2_scale(original,scale);
+    Vector2 offset = vec2_scale( vec2_sub(original,scaled), 0.5f );
+    
+    topleft = vec2_add(topleft,offset);
+
+    RectF dest = rectf(
+                        floorf(topleft.x) ,
+                        floorf(topleft.y) ,
+                        floorf(topleft.x + scaled.x) ,
+                        floorf(topleft.y + scaled.y)
+                    );
+
+    video_draw_rect(text->tex, layer, &text->src, &dest, tint);
+}
+
 void vfont_draw_input(const char* string, uint layer, Vector2 topleft, Color tint) {
     assert(string);
     
