@@ -19,7 +19,8 @@ static float xpos = 0.0f;
 static float delta = 0.0f;
 const float inc = 470.0f;
 
-uint coins = 1;
+uint coins = 0;
+static uint coins_original = 0;
 
 bool powerups[POWERUP_COUNT];
 static float powerup_appear[POWERUP_COUNT] = {0};
@@ -36,6 +37,7 @@ static void shop_preenter(void) {
 	player = keyval_get_int("player_character",0);
 
 	coins = keyval_get_int("coins",0);
+	coins_original = coins;
 	xpos = player * -inc;
 
 	for(uint i = 0; i < POWERUP_COUNT;i++){
@@ -184,7 +186,10 @@ void _shop_character_buy(uint i){
 		char key_name[32];
 		sprintf(key_name, "ulck_c%u",i);
 
-		keyval_set_bool(key_name, true);		
+		keyval_set_bool(key_name, true);
+		coins -= default_characters[i].cost;
+		coins_original -= default_characters[i].cost;
+		keyval_set_int("coins",coins_original);	
 	}
 }
 

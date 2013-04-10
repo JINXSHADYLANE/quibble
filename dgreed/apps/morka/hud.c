@@ -440,18 +440,21 @@ void hud_render_game_over_win(float t) {
 			particles_spawned = true;
 		}
 		off = 0.0f;
+
+		static float coin_time = 0.0f;
+
+		if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
+			float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
+
+			delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
+
+			coin_time = time_s() + delta;
+			coins_earned++;
+		}
+
 	}
 
-	static float coin_time = 0.0f;
-
-	if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
-		float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
-
-		delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
-
-		coin_time = time_s() + delta;
-		coins_earned++;
-	}	
+	
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
@@ -566,18 +569,19 @@ void hud_render_game_over_lose(float t) {
 			particles_spawned = true;
 		}
 		off = 0.0f;
+
+		static float coin_time = 0.0f;
+
+		if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
+			float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
+
+			delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
+
+			coin_time = time_s() + delta;
+			coins_earned++;
+		}	
+			
 	}
-
-	static float coin_time = 0.0f;
-
-	if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
-		float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
-
-		delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
-
-		coin_time = time_s() + delta;
-		coins_earned++;
-	}	
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
