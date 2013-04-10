@@ -229,8 +229,12 @@ static bool shop_render(float t) {
 	sprintf(str, "%u",coins);
 	vfont_draw(str, hud_layer, coin_text->vec2, col);
 
+	static float x1 = 0.0f;
+	static float x2 = 0.0f;
+
 	static float current_x = 0.0f;
 	static float prev_x = 0.0f;
+
 	static bool hold = false;
 	static bool release = false;
 
@@ -239,10 +243,13 @@ static bool shop_render(float t) {
 	Touch* touch = touches_get();
 	if(touch && touch->hit_pos.y < 467.0f){
 
+		x1 = touch->hit_pos.x;
+		x2 = touch->pos.x;
+
 		if(!hold){
 			start = time_s();
 			current_x = touch->hit_pos.x;
-			prev_x = touch->hit_pos.x;
+			prev_x = touch->pos.x;
 			hold = true;
  		} else {
  			prev_x = current_x;
@@ -276,9 +283,11 @@ static bool shop_render(float t) {
 
 	} else {
 		if(!release){
+			//printf("delta: %f\n",fabsf(x1 - x2) );			
+			//printf("time: %f\n",time_s() - start);			
 			release = true;
-			if(fabsf(prev_x - current_x) > 1.0f && time_s() - start <= 1.0f){
-				if(prev_x - current_x > 0.0f) 
+			if(fabsf(x1 - x2) > 1.0f && time_s() - start <= 0.2f){
+				if(x1 - x2 > 0.0f) 
 					delta = 120.0f;
 				else
 					delta = -120.0f;
