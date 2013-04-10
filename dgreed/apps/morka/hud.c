@@ -323,7 +323,7 @@ void hud_render_game_over_out(float t) {
 	// Restart button
 	if(hud_button(button_restart, col, t)) {
 		game_request_reset();
-		malka_states_pop();
+		malka_states_pop_multi(2);
 	}
 
 	// Quit button
@@ -366,7 +366,7 @@ void hud_render_game_over_tut(float t) {
 	// Restart button
 	if(hud_button(button_restart, col, t)) {
 		game_request_reset();
-		malka_states_pop();
+		malka_states_pop_multi(2);
 	}
 
 	// Quit button
@@ -438,7 +438,6 @@ void hud_render_game_over_win(float t) {
 			mfx_trigger_ex("dusts2", particles2->vec2, 0.0f);
 			mfx_trigger_ex("dusts2", particles1->vec2, 180.0f);
 			particles_spawned = true;
-			rabbit->data->tokens += 10 * (4-place);
 		}
 		off = 0.0f;
 	}
@@ -508,7 +507,7 @@ void hud_render_game_over_win(float t) {
 	// Restart Button
 	if(hud_button(button_restart, col, t)) {
 		game_request_reset();
-		malka_states_pop();
+		malka_states_pop_multi(2);
 	}
 
 	// Quit button
@@ -627,7 +626,7 @@ void hud_render_game_over_lose(float t) {
 	// Restart Button
 	if(hud_button(button_restart, col, t)) {
 		game_request_reset();
-		malka_states_pop();
+		malka_states_pop_multi(2);
 	}
 
 	// Quit button
@@ -668,7 +667,7 @@ void hud_render_regular_pause(float t){
 		// Restart button
 		if(hud_button(button_restart, col, t)) {
 			game_request_reset();
-			malka_states_pop();	
+			malka_states_pop_multi(2);	
 		}
 
 		// Quit button

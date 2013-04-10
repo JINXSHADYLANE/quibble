@@ -217,9 +217,6 @@ bool game_update(void) {
 				else
 					game_over_set_screen(LOSE_SCREEN);
 
-				if(!rabbit->data->is_dead)
-					keyval_set_int("coins",coins + rabbit->data->tokens);
-
 				levels_set_place(place);
 
 				malka_states_push("game_over");

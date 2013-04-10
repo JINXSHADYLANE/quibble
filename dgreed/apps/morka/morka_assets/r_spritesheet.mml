@@ -303,7 +303,6 @@
 (img buy
 	(tex r_atlas_13.png)
 	(src 1081,1063,1331,1315)
-	(cntr 1209,1188)
 )
 (img first_place
 	(tex r_atlas_13.png)
