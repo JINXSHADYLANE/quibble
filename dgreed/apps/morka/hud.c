@@ -424,37 +424,49 @@ void hud_render_game_over_win(float t) {
 	float off = 0;
 	float ts = time_s();
 	static bool particles_spawned = false;
+	static float coin_start = 0.0f;
 
 	if(ts < game_over_anim_start){
 		off = HEIGHT/2.0f;
-	} else if(ts > game_over_anim_start && ts < game_over_anim_end ){
+
+		particles_spawned = false;
+		coin_start = 0.0f;
+
+	} else if(ts >= game_over_anim_start && ts < game_over_anim_end ){
 		float td = normalize(ts,game_over_anim_start,game_over_anim_end);
 		td = clamp(0.0f,1.0f,td);
 
 		off = sin(PI/2.0f*td + PI/2.0f) * HEIGHT/2.0f;
+
 		particles_spawned = false;
+		coin_start = 0.0f;	
+
 	} else {
+
 		if(!particles_spawned){
 			mfx_trigger_ex("dusts2", particles2->vec2, 0.0f);
 			mfx_trigger_ex("dusts2", particles1->vec2, 180.0f);
 			particles_spawned = true;
+			coin_start = time_s() + 0.5f;
 		}
 		off = 0.0f;
 
-		static float coin_time = 0.0f;
+		if(coin_start > 0.0f && time_s() > coin_start){
 
-		if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
-			float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
+			static float coin_time = 0.0f;
 
-			delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
+			if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
+				float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
 
-			coin_time = time_s() + delta;
-			coins_earned++;
+				delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
+
+				coin_time = time_s() + delta;
+				coins_earned++;
+			}
+
 		}
 
-	}
-
-	
+	}	
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
@@ -472,33 +484,35 @@ void hud_render_game_over_win(float t) {
 	place_pos.y -= off;
 	spr_draw_cntr_h(place_spr, hud_layer,place_pos, 0.0f, 1.0f, col);
 
-	// Text
-	vfont_select(FONT_NAME, 38.0f); 
-	const char* str = "You earned:";
-	static Vector2 half_size2 = {0.0f, 0.0f};
-	if(half_size2.x == 0.0f) {
-		half_size2 = vec2_scale(vfont_size(str), 0.5f);
+	if(coin_start > 0.0f){
+		// Text
+		vfont_select(FONT_NAME, 38.0f); 
+		const char* str = "You earned:";
+		static Vector2 half_size2 = {0.0f, 0.0f};
+		if(half_size2.x == 0.0f) {
+			half_size2 = vec2_scale(vfont_size(str), 0.5f);
+		}
+		vfont_draw(str, hud_layer, vec2_sub(text2->vec2, half_size2), col);
+
+
+		// Coin icon
+		Vector2 size = sprsheet_get_size_h(coin_icon->spr);
+		Vector2 pos = vec2_add(coin_icon->vec2,vec2(size.x/2.0f,0.0f)); 
+		
+		// Coin txt
+		vfont_select(FONT_NAME, 48.0f);
+		char coins_str[32];
+		sprintf(coins_str, "%d",coins_earned);
+		Vector2 fsize = vfont_size(coins_str);
+		Vector2 str_pos = vec2_sub(coin_text->vec2, vec2(fsize.x,fsize.y/2.0f));
+
+		float offset = fsize.x + size.x + 20.0f; 
+		pos.x += offset/2.0f - size.x;
+		str_pos.x += -offset/2.0f + fsize.x;
+		spr_draw_cntr_h(coin_icon->spr, hud_layer,pos, 0.0f, 1.0f, col);
+
+		vfont_draw(coins_str, hud_layer, str_pos, col);
 	}
-	vfont_draw(str, hud_layer, vec2_sub(text2->vec2, half_size2), col);
-
-
-	// Coin icon
-	Vector2 size = sprsheet_get_size_h(coin_icon->spr);
-	Vector2 pos = vec2_add(coin_icon->vec2,vec2(size.x/2.0f,0.0f)); 
-	
-	// Coin txt
-	vfont_select(FONT_NAME, 48.0f);
-	char coins_str[32];
-	sprintf(coins_str, "%d",coins_earned);
-	Vector2 fsize = vfont_size(coins_str);
-	Vector2 str_pos = vec2_sub(coin_text->vec2, vec2(fsize.x,fsize.y/2.0f));
-
-	float offset = fsize.x + size.x + 20.0f; 
-	pos.x += offset/2.0f - size.x;
-	str_pos.x += -offset/2.0f + fsize.x;
-	spr_draw_cntr_h(coin_icon->spr, hud_layer,pos, 0.0f, 1.0f, col);
-
-	vfont_draw(coins_str, hud_layer, str_pos, col);
 
 	// Next button
 	if(hud_button(button_next, col, t)) {
@@ -553,35 +567,49 @@ void hud_render_game_over_lose(float t) {
 	float off = 0;
 	float ts = time_s();
 	static bool particles_spawned = false;
+	static float coin_start = 0.0f;
 
 	if(ts < game_over_anim_start){
 		off = HEIGHT/2.0f;
-	} else if(ts > game_over_anim_start && ts < game_over_anim_end ){
+
+		particles_spawned = false;
+		coin_start = 0.0f;
+
+	} else if(ts >= game_over_anim_start && ts < game_over_anim_end ){
 		float td = normalize(ts,game_over_anim_start,game_over_anim_end);
 		td = clamp(0.0f,1.0f,td);
 
 		off = sin(PI/2.0f*td + PI/2.0f) * HEIGHT/2.0f;
+
 		particles_spawned = false;
+		coin_start = 0.0f;	
+
 	} else {
+
 		if(!particles_spawned){
 			mfx_trigger_ex("dusts2", particles2->vec2, 0.0f);
 			mfx_trigger_ex("dusts2", particles1->vec2, 180.0f);
 			particles_spawned = true;
+			coin_start = time_s() + 0.5f;
 		}
 		off = 0.0f;
 
-		static float coin_time = 0.0f;
+		if(coin_start > 0.0f && time_s() > coin_start){
 
-		if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
-			float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
+			static float coin_time = 0.0f;
 
-			delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
+			if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
+				float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
 
-			coin_time = time_s() + delta;
-			coins_earned++;
-		}	
-			
-	}
+				delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
+
+				coin_time = time_s() + delta;
+				coins_earned++;
+			}
+
+		}
+
+	}	
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
@@ -599,33 +627,36 @@ void hud_render_game_over_lose(float t) {
 	place_pos.y -= off;
 	spr_draw_cntr_h(place_spr, hud_layer,place_pos, 0.0f, 1.0f, col);
 
-	// Text
-	vfont_select(FONT_NAME, 38.0f); 
-	const char* str = "You earned:";
-	static Vector2 half_size2 = {0.0f, 0.0f};
-	if(half_size2.x == 0.0f) {
-		half_size2 = vec2_scale(vfont_size(str), 0.5f);
+	if(coin_start > 0.0f){
+		// Text
+		vfont_select(FONT_NAME, 38.0f); 
+		const char* str = "You earned:";
+		static Vector2 half_size2 = {0.0f, 0.0f};
+		if(half_size2.x == 0.0f) {
+			half_size2 = vec2_scale(vfont_size(str), 0.5f);
+		}
+		vfont_draw(str, hud_layer, vec2_sub(text2->vec2, half_size2), col);
+
+
+		// Coin icon
+		Vector2 size = sprsheet_get_size_h(coin_icon->spr);
+		Vector2 pos = vec2_add(coin_icon->vec2,vec2(size.x/2.0f,0.0f)); 
+		
+		// Coin txt
+		vfont_select(FONT_NAME, 48.0f);
+		char coins_str[32];
+		sprintf(coins_str, "%d",coins_earned);
+		Vector2 fsize = vfont_size(coins_str);
+		Vector2 str_pos = vec2_sub(coin_text->vec2, vec2(fsize.x,fsize.y/2.0f));
+
+		float offset = fsize.x + size.x + 20.0f; 
+		pos.x += offset/2.0f - size.x;
+		str_pos.x += -offset/2.0f + fsize.x;
+		spr_draw_cntr_h(coin_icon->spr, hud_layer,pos, 0.0f, 1.0f, col);
+
+		vfont_draw(coins_str, hud_layer, str_pos, col);
 	}
-	vfont_draw(str, hud_layer, vec2_sub(text2->vec2, half_size2), col);
 
-
-	// Coin icon
-	Vector2 size = sprsheet_get_size_h(coin_icon->spr);
-	Vector2 pos = vec2_add(coin_icon->vec2,vec2(size.x/2.0f,0.0f)); 
-	
-	// Coin txt
-	vfont_select(FONT_NAME, 48.0f);
-	char coins_str[32];
-	sprintf(coins_str, "%d",coins_earned);
-	Vector2 fsize = vfont_size(coins_str);
-	Vector2 str_pos = vec2_sub(coin_text->vec2, vec2(fsize.x,fsize.y/2.0f));
-
-	float offset = fsize.x + size.x + 20.0f; 
-	pos.x += offset/2.0f - size.x;
-	str_pos.x += -offset/2.0f + fsize.x;
-	spr_draw_cntr_h(coin_icon->spr, hud_layer,pos, 0.0f, 1.0f, col);
-
-	vfont_draw(coins_str, hud_layer, str_pos, col);
 
 	// Restart Button
 	if(hud_button(button_restart, col, t)) {
