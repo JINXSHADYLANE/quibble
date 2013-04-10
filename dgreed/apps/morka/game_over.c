@@ -29,8 +29,8 @@ static void game_over_close(void) {
 
 static void game_over_preenter(void) {
 	if(screen == WIN_SCREEN || screen == TUTORIAL_SCREEN ) levels_unlock_next();
-	game_over_anim_start = time_s();
-	game_over_anim_end = time_s() + 0.3f;
+	game_over_anim_start = time_s() + 0.6f;
+	game_over_anim_end = time_s() + 0.9f;
 	coins_earned = 0;
 
 	uint place = minimap_get_place_of_rabbit(rabbit);
