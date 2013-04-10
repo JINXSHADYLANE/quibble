@@ -207,7 +207,7 @@ void hud_render(float t) {
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);	
 
-	if(!tutorial_level){
+	if(!tutorial_level && rabbit && rabbit->header.type){
 
 		UIElement* coin_icon = uidesc_get("coin_icon");
 		spr_draw_cntr_h(coin_icon->spr, hud_layer,coin_icon->vec2, 0.0f, 1.0f, col);

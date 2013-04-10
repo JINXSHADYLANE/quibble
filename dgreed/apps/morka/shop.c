@@ -172,6 +172,22 @@ static float find_closest_pos(float value, float increment){
 	return result;
 }
 
+bool _shop_character_owned(uint i){
+	char key_name[4];
+	sprintf(key_name, "ulck_c%d",i);
+
+	return i == 0 || keyval_get_bool(key_name, false);
+}
+
+void _shop_character_buy(uint i){
+	if(coins >= default_characters[i].cost){
+		char key_name[4];
+		sprintf(key_name, "ulck_c%d",i);
+
+		keyval_set_bool(key_name, true);		
+	}
+}
+
 static bool shop_render(float t) {
 
 	vfont_select(FONT_NAME, 48.0f);
@@ -181,10 +197,18 @@ static bool shop_render(float t) {
 	UIElement* coin_text = uidesc_get_child(element, "coin_text");	
 	UIElement* character_icon = uidesc_get_child(element, "character_icon");
 	UIElement* character_name = uidesc_get_child(element, "character_name");
+	UIElement* bar_size = uidesc_get_child(element, "bar_size");	
 	UIElement* speed_txt = uidesc_get_child(element, "speed_txt");
+	UIElement* speed_bar = uidesc_get_child(element, "speed_bar");	
 	UIElement* jump_txt = uidesc_get_child(element, "jump_txt");
+	UIElement* jump_bar = uidesc_get_child(element, "jump_bar");	
+	UIElement* about_txt = uidesc_get_child(element, "about_txt");
+	UIElement* cost_txt = uidesc_get_child(element, "cost_txt");	
 	UIElement* button_play = uidesc_get_child(element, "button_play");
+	UIElement* button_buy = uidesc_get_child(element, "button_buy");
 	UIElement* button_quit = uidesc_get_child(element, "button_quit");
+
+	Vector2 pos;
 
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
@@ -271,6 +295,12 @@ static bool shop_render(float t) {
 		byte a2 = lrintf(255.0f * alpha2 * alpha);
 		Color col2 = COLOR_RGBA(255, 255, 255, a2);
 
+		Color yel = COLOR_RGBA(255, 234, 0, a2);
+
+		byte a20 = lrintf(255.0f * alpha2 * alpha * 0.2f);
+		Color col20 = COLOR_RGBA(255, 255, 255, a20);
+
+
 		// Character icon
 		SprHandle icon = sprsheet_get_handle(default_characters[i].icon);
 		Vector2 size = sprsheet_get_size_h(icon);
@@ -280,20 +310,90 @@ static bool shop_render(float t) {
 
 		// Character txt
 		vfont_select(FONT_NAME, 38.0f);
-
 		vfont_draw(default_characters[i].name, hud_layer, vec2_add(character_name->vec2,offset), col2);	
 
-		// Stats
+		SprHandle empty = sprsheet_get_handle("position_knob");
+
+		vfont_select(FONT_NAME, 30.0f);
 		const char* speed = "Speed";
-		vfont_draw(speed, hud_layer, vec2_add(speed_txt->vec2,offset), col2);	
+		Vector2	half_size = vec2_scale(vfont_size(speed), 0.5f);
+		pos = vec2_add(speed_txt->vec2,offset);
+		pos = vec2_sub(pos,vec2(0.0f,half_size.y));		
+		vfont_draw(speed, hud_layer, pos, col2);
+
+		pos = vec2_add(speed_bar->vec2,offset);
+
+		RectF rec1 = {
+			.left = pos.x,
+			.top = pos.y - bar_size->vec2.y/ 2.0f,
+			.right = pos.x + bar_size->vec2.x,
+			.bottom = pos.y + bar_size->vec2.y/ 2.0f			
+		};
+
+		spr_draw_h(empty,hud_layer,rec1,col20);
+
+		float speed_n = normalize(default_characters[i].speed,0.0f,600.0f);
+
+		RectF rec1b = {
+			.left = pos.x,
+			.top = pos.y - bar_size->vec2.y/ 2.0f,
+			.right = pos.x + bar_size->vec2.x * speed_n,
+			.bottom = pos.y + bar_size->vec2.y/ 2.0f			
+		};
+
+		spr_draw_h(empty,hud_layer,rec1b,col2);		
+
 		const char* jump = "Jump";
-		vfont_draw(jump, hud_layer, vec2_add(jump_txt->vec2,offset), col2);			
+		half_size = vec2_scale(vfont_size(jump), 0.5f);
+		pos = vec2_add(jump_txt->vec2,offset);
+		pos = vec2_sub(pos,vec2(0.0f,half_size.y));
+		vfont_draw(jump, hud_layer, pos, col2);
+
+		pos = vec2_add(jump_bar->vec2,offset);
+
+		RectF rec2 = {
+			.left = pos.x,
+			.top = pos.y - bar_size->vec2.y/ 2.0f,
+			.right = pos.x + bar_size->vec2.x,
+			.bottom = pos.y + bar_size->vec2.y/ 2.0f			
+		};
+
+		spr_draw_h(empty,hud_layer,rec2,col20);		
+
+		float jump_n = normalize(default_characters[i].yjump*default_characters[i].xjump,0.0f,50000.0f);
+
+		RectF rec2b = {
+			.left = pos.x,
+			.top = pos.y - bar_size->vec2.y/ 2.0f,
+			.right = pos.x + bar_size->vec2.x * jump_n,
+			.bottom = pos.y + bar_size->vec2.y/ 2.0f			
+		};
+
+		spr_draw_h(empty,hud_layer,rec2b,col2);	
+
+		vfont_draw(default_characters[i].description, hud_layer, vec2_add(about_txt->vec2,offset), yel);	
+
+		if(!_shop_character_owned(i)){
+			vfont_select(FONT_NAME, 48.0f);
+			char cost[32];
+			sprintf(cost, "%dc",default_characters[i].cost);
+			vfont_draw(cost, hud_layer, vec2_add(cost_txt->vec2,offset), col2);
+		}
+
+
 	}
 
-	// Play button
-	if(hud_button(button_play, col, t)) {
-		game_request_reset();
-		malka_states_push("game");
+	if(_shop_character_owned(player)){
+		// Play button
+		if(hud_button(button_play, col, t)) {
+			game_request_reset();
+			malka_states_push("game");
+		}
+	} else {
+		// Buy button
+		if(hud_button(button_buy, col, t)) {
+			_shop_character_buy(player);
+		}
 	}
 
 	// Quit button
