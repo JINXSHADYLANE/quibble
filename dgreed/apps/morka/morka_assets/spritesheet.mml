@@ -61,8 +61,8 @@
 	)
 	(anim rabbit_2
 		(tex atlas_0b.png)
-		(src 0,0,128,128)
-		(offset 128,128)
+		(src 0,0,256,256)
+		(offset 256,256)
 		(frames 16)
 		(grid 4,4)
 	)

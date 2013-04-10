@@ -898,7 +898,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	physics->cd_obj->pos.y = ground_y;
 
 	// Init render
-	Vector2 size = sprsheet_get_size("rabbit");
+	Vector2 size = sprsheet_get_size_h(c->sprite);
 	RenderComponent* render = self->render;
 	render->world_dest = rectf_centered(pos, size.x, size.y);
 	render->angle = 0.0f;
