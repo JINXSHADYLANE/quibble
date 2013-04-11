@@ -215,12 +215,25 @@ void hud_render(float t) {
 		UIElement* coin_text = uidesc_get("coin_text");
 		vfont_select(FONT_NAME, 38.0f);
 		char str[32];
-		sprintf(str, "%d",rabbit->data->tokens);
-		static Vector2 half_size = {0.0f, 0.0f};
-		if(half_size.x == 0.0f) {
-			half_size = vec2_scale(vfont_size(str), 0.5f);
-		}
-		vfont_draw(str, hud_layer, coin_text->vec2, col);
+
+		static uint coins = 0;
+		static uint prev = 0;
+		static float anim = 0.0f;
+		static float duration = 0.3f;
+
+		prev = coins;
+		coins = rabbit->data->tokens;
+
+		sprintf(str, "%d",coins);
+
+		if(prev != coins && coins != 0)
+			anim = time_s() + duration;
+
+		float scale = 1.0f;
+		if(anim - time_s() > 0)
+			scale += anim - time_s();
+
+		vfont_draw_ex(str, hud_layer, coin_text->vec2, col,scale);
 
 
 		if(!rabbit->data->game_over) _hud_render_powerups(t);
@@ -459,7 +472,6 @@ void hud_render_game_over_main(float t){
 
 			if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
 
-
 				float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
 
 				delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
@@ -507,19 +519,18 @@ void hud_render_game_over_main(float t){
 
 		// Coin icon
 		Vector2 size = sprsheet_get_size_h(coin_icon->spr);
-		Vector2 pos = vec2_add(coin_icon->vec2,vec2(size.x/2.0f,0.0f)); 
+		Vector2 pos = vec2_add(coin_icon->vec2,vec2(size.x/2.0f,0.0f));
+		spr_draw_cntr_h(coin_icon->spr, hud_layer,pos, 0.0f, scale1, col); 
 		
 		// Coin txt
 		vfont_select(FONT_NAME, 48.0f);
 		char coins_str[32];
 		sprintf(coins_str, "%d",coins_earned);
-		Vector2 fsize = vfont_size(coins_str);
-		Vector2 str_pos = vec2_sub(coin_text->vec2, vec2(fsize.x,fsize.y/2.0f));
+		static Vector2 fsize = {0};
+		Vector2 fsize2 = vfont_size(coins_str);
+		if(fsize2.x > fsize.x) fsize = fsize2;
 
-		float offset = fsize.x + size.x + 20.0f; 
-		pos.x += offset/2.0f - size.x;
-		str_pos.x += -offset/2.0f + fsize.x;
-		spr_draw_cntr_h(coin_icon->spr, hud_layer,pos, 0.0f, scale1, col);
+		Vector2 str_pos = vec2_sub(coin_text->vec2, vec2(fsize.x,fsize.y/2.0f));
 
 		float scale2 = scale1;
 		if(coin_anim > 0.0f) scale2 += coin_anim - time_s();
