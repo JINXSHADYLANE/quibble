@@ -9,6 +9,7 @@ typedef struct {
 	const char* name;
 	const char* icon;
 	const char* spr_handle;
+	const char* animation;
 	const char* description;
 	uint cost;
 	Color minimap_color;
@@ -19,6 +20,7 @@ typedef struct {
 
 typedef struct {
 	const char* name;
+	const char* animation;	
 	SprHandle sprite;
 	Color minimap_color;
 	float speed;

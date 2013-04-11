@@ -53,6 +53,7 @@ static void game_reset(void) {
 
 		character_params[i].sprite = sprsheet_get_handle(default_characters[i].spr_handle);
 		character_params[i].minimap_color = default_characters[i].minimap_color;
+		character_params[i].animation = default_characters[i].animation;
 
 		if(i == player){
 			// Player character
