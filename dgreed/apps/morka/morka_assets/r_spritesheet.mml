@@ -60,12 +60,12 @@
 		(frames 16)
 		(grid 4,4)
 	)
-	(anim rabbit_2
+	(anim squirrel
 		(tex r_atlas_0b.png)
-		(src 0,0,256,256)
-		(offset 256,256)
-		(frames 16)
-		(grid 4,4)
+		(src 0,0,410,172)
+		(offset 410,172)
+		(frames 19)
+		(grid 2,10)
 	)
 	(anim rabbit_3
 		(tex r_atlas_0c.png)

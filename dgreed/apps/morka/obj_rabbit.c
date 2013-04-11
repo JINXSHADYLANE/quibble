@@ -492,9 +492,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				objects_apply_force(self, vec2(10000.0f, -160000.0f) );
 			}
 
-
-			anim_play_ex(rabbit->anim, "rocket_ride", TIME_S);
-
 			if(d->rocket_time != 0.0f){
 				//float mult = (d->rocket_time - TIME_S );
 				float t = TIME_S;
@@ -513,6 +510,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			} else d->boost--;
 
 			if(p->vel.y > 0.0f){
+				anim_play_ex(rabbit->anim, "rocket_ride", TIME_S);
 				d->rocket_start = false;
 				d->rocket_time = TIME_S + 2.0f;
 			}
