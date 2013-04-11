@@ -346,7 +346,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		d->jumped = false;
 		d->dived = false;
 
-		if(camera_follow)
+		if(camera_follow && !d->jump_out)
 			rabbit->control(self);	
 
 		if(d->virtual_key_down)
@@ -539,6 +539,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		if(p->vel.y > 0.0f) d->touching_ground = false;
 
+
+		if(d->jump_out && d->touching_ground)
+			d->jump_out = false;
+
 		if(p->cd_obj->pos.y > HEIGHT + 33.0f && !d->game_over){
 			p->vel.x = 0.0f;
 			p->vel.y = 0.0f;
@@ -583,6 +587,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			} else if(d->respawn == 0.0f) {
 				// time to spend in gap
 				d->respawn = TIME_S + 1.0f;
+				d->jump_out = true;
 			}
 
 		} else {
@@ -613,9 +618,6 @@ static void obj_rabbit_post_render(GameObject* self){
 	d->shield_h += (d->shield_dh * 20.0f) * (time_delta()/1000.0f);
 	d->shield_dh *= 0.9f;
 
-	//r->world_dest.top = r->world_dest.bottom - mushroom->h;
-
-
 	RectF rec = {
 		.left = pos.x - shield_width / 2.0f, 
 		.top = (pos.y + shield_height / 2.0f) - d->shield_h,
@@ -623,7 +625,6 @@ static void obj_rabbit_post_render(GameObject* self){
 		.bottom = pos.y + shield_height / 2.0f
 	};
 	RectF result = objects_world2screen(rec,0);
-	//Vector2 screen_pos = vec2(result.left,result.top);
 
 	// Bubble powerup graphics
 	if(d->has_powerup[SHIELD]){
@@ -883,7 +884,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	CharacterParams* c = (CharacterParams*)user_data;
 
 	ObjRabbit* rabbit = (ObjRabbit*)self;
-	rabbit->anim = anim_new_ex("rabbit", TIME_S);
+	rabbit->anim = anim_new_ex(c->animation, TIME_S);
 	rabbit->control = c->control;
 	
 	// Init physics

@@ -181,7 +181,7 @@ bool _shop_character_owned(uint i){
 	return i == 0 || keyval_get_bool(key_name, false);
 }
 
-void _shop_character_buy(uint i){
+bool _shop_character_buy(uint i){
 	if(coins >= default_characters[i].cost){
 		char key_name[32];
 		sprintf(key_name, "ulck_c%u",i);
@@ -189,8 +189,11 @@ void _shop_character_buy(uint i){
 		keyval_set_bool(key_name, true);
 		coins -= default_characters[i].cost;
 		coins_original -= default_characters[i].cost;
-		keyval_set_int("coins",coins_original);	
+		keyval_set_int("coins",coins_original);
+		return true;	
 	}
+
+	return false;
 }
 
 static bool shop_render(float t) {
@@ -215,8 +218,8 @@ static bool shop_render(float t) {
 
 	Vector2 pos;
 
-	float alpha = 1.0f-fabsf(t);
-	byte a = lrintf(255.0f * alpha);
+	float state_alpha = 1.0f-fabsf(t);
+	byte a = lrintf(255.0f * state_alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
 	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
@@ -240,8 +243,11 @@ static bool shop_render(float t) {
 
 	static float start = 0.0f;
 
+	static float anim_start = 0.0f;
+	static float anim_end = 0.0f;
+
 	Touch* touch = touches_get();
-	if(touch && touch->hit_pos.y < 467.0f){
+	if(touch && touch->hit_pos.y < 467.0f && t == 0.0f){
 
 		x1 = touch->hit_pos.x;
 		x2 = touch->pos.x;
@@ -305,22 +311,22 @@ static bool shop_render(float t) {
 		Vector2 offset = vec2(xpos + i * inc,0.0f);
 		float d = normalize(fabsf(offset.x),0.0f,inc * (character_count-1));
 
-		float alpha2 = 1.0f / exp(PI*d);
-		byte a2 = lrintf(255.0f * alpha2 * alpha);
+		float scroll_alpha = 1.0f / exp(PI*d);
+		byte a2 = lrintf(255.0f * scroll_alpha * state_alpha);
 		Color col2 = COLOR_RGBA(255, 255, 255, a2);
 
 		Color yel = COLOR_RGBA(255, 234, 0, a2);
 
-		byte a20 = lrintf(255.0f * alpha2 * alpha * 0.2f);
+		byte a20 = lrintf(255.0f * scroll_alpha * state_alpha * 0.2f);
 		Color col20 = COLOR_RGBA(255, 255, 255, a20);
-
 
 		// Character icon
 		SprHandle icon = sprsheet_get_handle(default_characters[i].icon);
 		Vector2 size = sprsheet_get_size_h(icon);
 		Vector2 icon_pos = character_icon->vec2;
 		icon_pos.x -= size.x / 2.0f;
-		spr_draw_cntr_h(icon, hud_layer,vec2_add(icon_pos,offset), 0.0f, 1.0f, col2);
+		icon_pos = vec2_add(icon_pos,offset);
+		spr_draw_cntr_h(icon, hud_layer,icon_pos, 0.0f, 1.0f, col2);
 
 		// Character txt
 		vfont_select(FONT_NAME, 38.0f);
@@ -347,15 +353,9 @@ static bool shop_render(float t) {
 		spr_draw_h(empty,hud_layer,rec1,col20);
 
 		float speed_n = normalize(default_characters[i].speed,0.0f,600.0f);
+		rec1.right = pos.x + bar_size->vec2.x * speed_n,
 
-		RectF rec1b = {
-			.left = pos.x,
-			.top = pos.y - bar_size->vec2.y/ 2.0f,
-			.right = pos.x + bar_size->vec2.x * speed_n,
-			.bottom = pos.y + bar_size->vec2.y/ 2.0f			
-		};
-
-		spr_draw_h(empty,hud_layer,rec1b,col2);		
+		spr_draw_h(empty,hud_layer,rec1,col2);		
 
 		const char* jump = "Jump";
 		half_size = vec2_scale(vfont_size(jump), 0.5f);
@@ -375,25 +375,42 @@ static bool shop_render(float t) {
 		spr_draw_h(empty,hud_layer,rec2,col20);		
 
 		float jump_n = normalize(default_characters[i].yjump*default_characters[i].xjump,0.0f,50000.0f);
+		rec2.right = pos.x + bar_size->vec2.x * jump_n,
 
-		RectF rec2b = {
-			.left = pos.x,
-			.top = pos.y - bar_size->vec2.y/ 2.0f,
-			.right = pos.x + bar_size->vec2.x * jump_n,
-			.bottom = pos.y + bar_size->vec2.y/ 2.0f			
-		};
-
-		spr_draw_h(empty,hud_layer,rec2b,col2);	
+		spr_draw_h(empty,hud_layer,rec2,col2);	
 
 		vfont_draw(default_characters[i].description, hud_layer, vec2_add(about_txt->vec2,offset), yel);	
 
-		if(!_shop_character_owned(i)){
+		float t = time_s();
+
+		if(!_shop_character_owned(i) || (i == player && t < anim_end) ){
+
+			byte alpha_txt = lrintf(255.0f * scroll_alpha * state_alpha);
+			Color col_a = COLOR_RGBA(255, 255, 255, alpha_txt);
+			Vector2 pos = vec2_add(cost_txt->vec2,offset);
+
+			if( (i == player && t < anim_end) ){
+
+				float td = 0.0f;
+				if(anim_end > 0.0f){
+					td = normalize(t,anim_start,anim_end);
+					td = clamp(0.0f,1.0f,td);
+				}
+
+				float y_offset = sin(PI*td/2.0f) * 30.0f;
+
+				alpha_txt = lrintf(255.0f  * scroll_alpha * state_alpha * (1.0f - td) );
+				col_a = COLOR_RGBA(255, 255, 255, alpha_txt);		
+
+				pos.y -= y_offset;
+
+			}
+
 			vfont_select(FONT_NAME, 48.0f);
 			char cost[32];
 			sprintf(cost, "%uc",default_characters[i].cost);
-			vfont_draw(cost, hud_layer, vec2_add(cost_txt->vec2,offset), col2);
+			vfont_draw(cost, hud_layer, pos, col_a);
 		}
-
 
 	}
 
@@ -406,7 +423,10 @@ static bool shop_render(float t) {
 	} else {
 		// Buy button
 		if(hud_button(button_buy, col, t)) {
-			_shop_character_buy(player);
+			if(_shop_character_buy(player)){
+				anim_start = time_s();
+				anim_end = anim_start + 0.7f;
+			}
 		}
 	}
 

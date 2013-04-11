@@ -91,7 +91,7 @@
 			)
 		)
 	)
-	(def game_over_win
+	(def game_over_main
 		(def text
 			(add <-
 				(middle <- (get_rect screen))
@@ -150,6 +150,8 @@
 			)
 		)				
 
+	)
+	(def game_over_win
 		(def next
 			(spr next)
 			(add <-
@@ -173,64 +175,6 @@
 		)
 	)
 	(def game_over_lose
-		(def text
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,-300)
-			)
-		)
-
-		(def place_icon
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,-94)
-			)
-		)
-
-		(def platform
-			(spr base_place)
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,-150)
-			)
-		)
-
-		(def particles1
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 -50,-30.0f)
-			)
-		)
-
-		(def particles2
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 50,-30.0f)
-			)
-		)
-
-		(def text2
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,50)
-			)
-		)
-
-		(def coin_text
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,100)
-			)
-		)	
-
-		(def coin_icon
-			(spr token_tag)
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,100)
-			)
-		)				
-
 		(def restart
 			(spr restart)
 			(add <-

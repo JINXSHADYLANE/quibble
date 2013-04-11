@@ -376,8 +376,8 @@ void hud_render_game_over_tut(float t) {
 	}
 }
 
-void hud_render_game_over_win(float t) {
-	UIElement* element = uidesc_get("game_over_win");
+void hud_render_game_over_main(float t){
+	UIElement* element = uidesc_get("game_over_main");
 
 	UIElement* text = uidesc_get_child(element, "text");
 	UIElement* place_icon = uidesc_get_child(element, "place_icon");
@@ -389,10 +389,6 @@ void hud_render_game_over_win(float t) {
 	UIElement* coin_text = uidesc_get_child(element, "coin_text");
 	UIElement* coin_icon = uidesc_get_child(element, "coin_icon");
 
-	UIElement* button_next = uidesc_get_child(element, "next");
-	UIElement* button_restart = uidesc_get_child(element, "restart");
-	UIElement* button_quit = uidesc_get_child(element, "quit");
-
 	SprHandle place_spr;
 
 	float alpha = 1.0f-fabsf(t);
@@ -403,7 +399,9 @@ void hud_render_game_over_win(float t) {
 
 	uint place = minimap_get_place_of_rabbit(rabbit);
 	char place_txt[32];
-	
+
+	float off = 0;
+
 	switch(place){
 		case 1:
 			place_spr = sprsheet_get_handle("first_place");
@@ -413,21 +411,26 @@ void hud_render_game_over_win(float t) {
 			place_spr = sprsheet_get_handle("second_place");
 			sprintf(place_txt, "You're second!");
 		break;
-		default:
+		case 3:
 			place_spr = sprsheet_get_handle("third_place");
 			sprintf(place_txt, "You're third!");
-		break;					
+		break;
+		default:
+			place_spr = sprsheet_get_handle("last_place");
+			sprintf(place_txt, "You're fourth");
+			off -= 55.0f;
+		break;							
 	}
 
 	spr_draw_cntr_h(platform->spr, hud_layer,platform->vec2, 0.0f, 1.0f, col);
 
-	float off = 0;
 	float ts = time_s();
 	static bool particles_spawned = false;
 	static float coin_start = 0.0f;
+	float coin_anim = 0.0f;	
 
 	if(ts < game_over_anim_start){
-		off = HEIGHT/2.0f;
+		off += HEIGHT/2.0f;
 
 		particles_spawned = false;
 		coin_start = 0.0f;
@@ -436,7 +439,7 @@ void hud_render_game_over_win(float t) {
 		float td = normalize(ts,game_over_anim_start,game_over_anim_end);
 		td = clamp(0.0f,1.0f,td);
 
-		off = sin(PI/2.0f*td + PI/2.0f) * HEIGHT/2.0f;
+		off += sin(PI/2.0f*td + PI/2.0f) * HEIGHT/2.0f;
 
 		particles_spawned = false;
 		coin_start = 0.0f;	
@@ -449,18 +452,19 @@ void hud_render_game_over_win(float t) {
 			particles_spawned = true;
 			coin_start = time_s() + 0.5f;
 		}
-		off = 0.0f;
 
 		if(coin_start > 0.0f && time_s() > coin_start){
 
 			static float coin_time = 0.0f;
 
 			if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
+
+
 				float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
 
 				delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
-
 				coin_time = time_s() + delta;
+				coin_anim = time_s() + 0.22f;
 				coins_earned++;
 			}
 
@@ -492,8 +496,14 @@ void hud_render_game_over_win(float t) {
 		if(half_size2.x == 0.0f) {
 			half_size2 = vec2_scale(vfont_size(str), 0.5f);
 		}
-		vfont_draw(str, hud_layer, vec2_sub(text2->vec2, half_size2), col);
 
+		float scale1 = -(coin_start - 0.4f - time_s()) * 3.0f;
+		if(scale1 < 0.0f) 
+			scale1 += 1.0f;
+		else
+			scale1 = 1.0f;
+
+		vfont_draw_ex(str, hud_layer, vec2_sub(text2->vec2, half_size2), col,scale1);
 
 		// Coin icon
 		Vector2 size = sprsheet_get_size_h(coin_icon->spr);
@@ -509,10 +519,28 @@ void hud_render_game_over_win(float t) {
 		float offset = fsize.x + size.x + 20.0f; 
 		pos.x += offset/2.0f - size.x;
 		str_pos.x += -offset/2.0f + fsize.x;
-		spr_draw_cntr_h(coin_icon->spr, hud_layer,pos, 0.0f, 1.0f, col);
+		spr_draw_cntr_h(coin_icon->spr, hud_layer,pos, 0.0f, scale1, col);
 
-		vfont_draw(coins_str, hud_layer, str_pos, col);
+		float scale2 = scale1;
+		if(coin_anim > 0.0f) scale2 += coin_anim - time_s();
+
+		vfont_draw_ex(coins_str, hud_layer, str_pos, col, scale2);
 	}
+
+}
+
+void hud_render_game_over_win(float t) {
+
+	hud_render_game_over_main(t);
+
+	UIElement* element = uidesc_get("game_over_win");
+	UIElement* button_next = uidesc_get_child(element, "next");
+	UIElement* button_restart = uidesc_get_child(element, "restart");
+	UIElement* button_quit = uidesc_get_child(element, "quit");	
+
+	float alpha = 1.0f-fabsf(t);
+	byte a = lrintf(255.0f * alpha);
+	Color col = COLOR_RGBA(255, 255, 255, a);
 
 	// Next button
 	if(hud_button(button_next, col, t)) {
@@ -534,129 +562,17 @@ void hud_render_game_over_win(float t) {
 	}
 }
 
-// TODO: fix repeating code
 void hud_render_game_over_lose(float t) {
+
+	hud_render_game_over_main(t);
+
 	UIElement* element = uidesc_get("game_over_lose");
-
-	UIElement* text = uidesc_get_child(element, "text");
-	UIElement* place_icon = uidesc_get_child(element, "place_icon");
-	UIElement* platform = uidesc_get_child(element, "platform");
-	UIElement* particles1 = uidesc_get_child(element, "particles1");
-	UIElement* particles2 = uidesc_get_child(element, "particles2");	
-	
-	UIElement* text2 = uidesc_get_child(element, "text2");
-	UIElement* coin_text = uidesc_get_child(element, "coin_text");
-	UIElement* coin_icon = uidesc_get_child(element, "coin_icon");
-
 	UIElement* button_restart = uidesc_get_child(element, "restart");
 	UIElement* button_quit = uidesc_get_child(element, "quit");
-
-	SprHandle place_spr = sprsheet_get_handle("last_place");
 
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
-
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
-
-	uint place = minimap_get_place_of_rabbit(rabbit);
-	const char* place_txt = "You're fourth";
-	
-	spr_draw_cntr_h(platform->spr, hud_layer,platform->vec2, 0.0f, 1.0f, col);
-
-	float off = 0;
-	float ts = time_s();
-	static bool particles_spawned = false;
-	static float coin_start = 0.0f;
-
-	if(ts < game_over_anim_start){
-		off = HEIGHT/2.0f;
-
-		particles_spawned = false;
-		coin_start = 0.0f;
-
-	} else if(ts >= game_over_anim_start && ts < game_over_anim_end ){
-		float td = normalize(ts,game_over_anim_start,game_over_anim_end);
-		td = clamp(0.0f,1.0f,td);
-
-		off = sin(PI/2.0f*td + PI/2.0f) * HEIGHT/2.0f;
-
-		particles_spawned = false;
-		coin_start = 0.0f;	
-
-	} else {
-
-		if(!particles_spawned){
-			mfx_trigger_ex("dusts2", particles2->vec2, 0.0f);
-			mfx_trigger_ex("dusts2", particles1->vec2, 180.0f);
-			particles_spawned = true;
-			coin_start = time_s() + 0.5f;
-		}
-		off = 0.0f;
-
-		if(coin_start > 0.0f && time_s() > coin_start){
-
-			static float coin_time = 0.0f;
-
-			if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
-				float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
-
-				delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
-
-				coin_time = time_s() + delta;
-				coins_earned++;
-			}
-
-		}
-
-	}	
-
-	// Text
-	vfont_select(FONT_NAME, 48.0f); 
-	static uint prev_place = 0;
-	static Vector2 half_size = {0.0f, 0.0f};
-	if(prev_place != place) {
-		prev_place = place;
-		half_size = vec2_scale(vfont_size(place_txt), 0.5f);
-	}
-	Vector2 txt_pos = vec2_sub(text->vec2, half_size);
-	txt_pos.y -= off;
-	vfont_draw(place_txt, hud_layer,txt_pos , col);
-
-	Vector2 place_pos = place_icon->vec2;
-	place_pos.y -= off;
-	spr_draw_cntr_h(place_spr, hud_layer,place_pos, 0.0f, 1.0f, col);
-
-	if(coin_start > 0.0f){
-		// Text
-		vfont_select(FONT_NAME, 38.0f); 
-		const char* str = "You earned:";
-		static Vector2 half_size2 = {0.0f, 0.0f};
-		if(half_size2.x == 0.0f) {
-			half_size2 = vec2_scale(vfont_size(str), 0.5f);
-		}
-		vfont_draw(str, hud_layer, vec2_sub(text2->vec2, half_size2), col);
-
-
-		// Coin icon
-		Vector2 size = sprsheet_get_size_h(coin_icon->spr);
-		Vector2 pos = vec2_add(coin_icon->vec2,vec2(size.x/2.0f,0.0f)); 
-		
-		// Coin txt
-		vfont_select(FONT_NAME, 48.0f);
-		char coins_str[32];
-		sprintf(coins_str, "%d",coins_earned);
-		Vector2 fsize = vfont_size(coins_str);
-		Vector2 str_pos = vec2_sub(coin_text->vec2, vec2(fsize.x,fsize.y/2.0f));
-
-		float offset = fsize.x + size.x + 20.0f; 
-		pos.x += offset/2.0f - size.x;
-		str_pos.x += -offset/2.0f + fsize.x;
-		spr_draw_cntr_h(coin_icon->spr, hud_layer,pos, 0.0f, 1.0f, col);
-
-		vfont_draw(coins_str, hud_layer, str_pos, col);
-	}
-
 
 	// Restart Button
 	if(hud_button(button_restart, col, t)) {
