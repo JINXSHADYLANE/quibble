@@ -2,37 +2,37 @@
 
 CharacterDefaultParams default_characters[character_count] = {
 	{
-	"Name",
+	"Rabbit",
 	"rabbit_icon",
 	"rabbit",
 	"rabbit",
-	"Fastest racer",
+	"Sprinter",
 	0,
 	COLOR_RGBA(150, 150, 150, 255),
-	500.0f,
+	550.0f,
 	100.0f,
 	400.0f
 	},
 
 	{
-	"Tori",
+	"Squirrel",
 	"rabbit_icon",
-	"rabbit_2",
-	"rabbit",
-	"Fastest racer",
+	"squirrel",
+	"squirrel",
+	"Jumper",
 	49,	
 	COLOR_RGBA(255, 255, 0, 255),
-	500.0f,
-	100.0f,
-	400.0f	
+	490.0f,
+	120.0f,
+	420.0f	
 	},
 
 	{
-	"Lili",
+	"Ocean king",
 	"rabbit_icon",
 	"rabbit_3",
 	"rabbit",
-	"Fastest racer",
+	"Swimmer",
 	99,	
 	COLOR_RGBA(0, 0, 255, 255),
 	500.0f,
@@ -41,11 +41,11 @@ CharacterDefaultParams default_characters[character_count] = {
 	},
 
 	{
-	"Kubo",
+	"Skunk",
 	"rabbit_icon",
 	"rabbit_4",
 	"rabbit",
-	"Fastest racer",
+	"Tough",
 	149,	
 	COLOR_RGBA(255, 0, 0, 255),
 	500.0f,
