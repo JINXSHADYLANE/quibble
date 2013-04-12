@@ -92,7 +92,7 @@ static void _render_powerups_buy(float t){
 			Vector2 size = sprsheet_get_size_h(spr);
 			
 			x_offset += size.x + 27.0f;
-			Vector2 pos = vec2_add(powerup_place, vec2(x_offset, -size.y) );
+			Vector2 pos = vec2_add(powerup_place, vec2(x_offset, -size.y / 2.0f ) );
 			spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col_30);
 
 			if(powerups[i]){
@@ -104,7 +104,7 @@ static void _render_powerups_buy(float t){
 
 				alpha_txt = lrintf(255.0f * (1-td) * alpha);
 
-				y_offset = sin(PI*td/2.0f) * -size.y;
+				y_offset = sin(PI*td/2.0f) * -size.y / 2.0f;
 
 			} else {
 
@@ -119,7 +119,7 @@ static void _render_powerups_buy(float t){
 				if(td == 1.0f)
 					powerup_appear[i] = 0.0f;
 
-				y_offset = -size.y + (sin(PI*td/2.0f) * size.y);
+				y_offset = -size.y + (sin(PI*td/2.0f) * size.y / 2.0f);
 
 				if(touches_down() && !powerups[i] && coins >= powerup_params[i].cost) {
 					Touch* t = touches_get();
@@ -222,15 +222,7 @@ static bool shop_render(float t) {
 	byte a = lrintf(255.0f * state_alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
-
-	// Coin icon
-	spr_draw_cntr_h(coin_icon->spr, hud_layer,coin_icon->vec2, 0.0f, 1.0f, col);
-	// Coin txt
-	vfont_select(FONT_NAME, 38.0f);
-	char str[32];
-	sprintf(str, "%u",coins);
-	vfont_draw(str, hud_layer, coin_text->vec2, col);
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, WIDTH, HEIGHT), col); 
 
 	static float x1 = 0.0f;
 	static float x2 = 0.0f;
@@ -413,6 +405,14 @@ static bool shop_render(float t) {
 		}
 
 	}
+
+	// Coin icon
+	spr_draw_cntr_h(coin_icon->spr, hud_layer,coin_icon->vec2, 0.0f, 1.0f, col);
+	// Coin txt
+	vfont_select(FONT_NAME, 38.0f);
+	char str[32];
+	sprintf(str, "%u",coins);
+	vfont_draw(str, hud_layer, coin_text->vec2, col);
 
 	if(_shop_character_owned(player)){
 		// Play button

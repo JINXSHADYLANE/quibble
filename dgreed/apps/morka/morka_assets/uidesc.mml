@@ -31,12 +31,11 @@
 			(vec2 100,30)
 		)
 	)
-
 	(def position_line
 		(spr position_line)
 		(add <-
-			(middle <- (get_rect screen))
-			(vec2 -219,-364)
+			(x vec2 (middle <- (get_rect screen)))
+			(vec2 0,20)	
 		)
 	)
 	(def game_over_tut
@@ -337,8 +336,8 @@
 
 		(def hud_powerups
 			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,423)
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
 			)
 		)
 
@@ -382,8 +381,8 @@
 
 	(def hud_powerups
 		(add <-
-			(middle <- (get_rect screen))
-			(vec2 546,423)
+			(br <- (get_rect screen))
+			(vec2 0,0)
 		)
 	)
 )

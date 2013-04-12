@@ -105,11 +105,11 @@ static void game_reset(void) {
 
 	float p = 512.0f + 50.0f + levels_current_desc()->ai_rabbit_num * 128.0f;
 	objects_camera[0].left = p;
-	objects_camera[0].right = p + 1024.0f;
+	objects_camera[0].right = p + WIDTH;
 	objects_camera[1].left = p;
-	objects_camera[1].right = p + 1024.0f;
+	objects_camera[1].right = p + WIDTH;
 	objects_camera[2].left = p;
-	objects_camera[2].right = p + 1024.0f;
+	objects_camera[2].right = p + WIDTH;
 	bg_scroll = p;
 
 	camera_follow_weight = 0.2f;
