@@ -516,13 +516,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			}
 		}
 
-		// Above screen
-		if(p->cd_obj->pos.y < rabbit_hitbox_height){
-			p->cd_obj->pos.y = rabbit_hitbox_height;
-			p->vel.y = 0.0f;
-			d->touching_ground = false;
-		}
-
 		// Prevent player from moving out of screen on bomb/cactus hit
 		if(screen_pos.x < 0.0f && p->vel.x < 0.0f){
 			p->vel.x = 0.0f;
