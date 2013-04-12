@@ -25,6 +25,7 @@ ObjRabbit* rabbit = NULL;
 float camera_follow_weight;
 bool camera_follow = false;
 float bg_scroll = 0.0f;
+float bg_y = 0.0f;
 
 static bool game_need_reset = true;
 static bool game_over = false;
@@ -181,19 +182,44 @@ static float _camera_x(void) {
 	return camera_x;
 }
 
-static void _move_camera(float new_pos_x, float follow_weight) {
-	float camera_x = _camera_x();
-	float new_camera_x = lerp(camera_x, new_pos_x, follow_weight);
-	float camera_offset = new_camera_x - camera_x;
-	if(camera_offset > 0.0f){
+static void _move_camera(Vector2 new_pos, Vector2 follow_weight) {
+	Vector2 camera = vec2(_camera_x(),0.0f);
+	Vector2 new_camera;
+	new_camera.x = lerp(camera.x, new_pos.x, follow_weight.x);
+	new_camera.y = lerp(camera.y, new_pos.y, follow_weight.y);
+
+	Vector2 offset = vec2_sub(new_camera,camera);
+
+	if(offset.x > 0.0f){
 		if(!game_paused) camera_follow = true;
-		objects_camera[0].left += camera_offset;
-		objects_camera[0].right += camera_offset;
-		objects_camera[1].left += camera_offset/2.0f;
-		objects_camera[1].right += camera_offset/2.0f;
-		objects_camera[2].left += camera_offset/8.0f;
-		objects_camera[2].right += camera_offset/8.0f;
-		bg_scroll += camera_offset/8.0f;
+
+		objects_camera[0].left += offset.x;
+		objects_camera[0].right += offset.x;
+		objects_camera[0].top += offset.y;
+		objects_camera[0].bottom += offset.y;
+
+		if(objects_camera[0].bottom > HEIGHT){
+			offset.y -= objects_camera[0].top;
+			objects_camera[0].top = 0.0f;
+			objects_camera[0].bottom = HEIGHT;			
+		} else if(objects_camera[0].top < -110.0f) {
+			offset.y += -objects_camera[0].top - 110.0f;
+			objects_camera[0].top = -110.0f;
+			objects_camera[0].bottom = objects_camera[0].top + HEIGHT;			
+		}
+
+		objects_camera[1].left += offset.x / 2.0f;
+		objects_camera[1].right += offset.x / 2.0f;
+		objects_camera[1].top += offset.y / 2.0f;
+		objects_camera[1].bottom += offset.y / 2.0f;
+
+		objects_camera[2].left += offset.x / 8.0f;
+		objects_camera[2].right += offset.x / 8.0f;
+		objects_camera[2].top += offset.y / 8.0f;
+		objects_camera[2].bottom += offset.y / 8.0f;
+
+		bg_scroll += offset.x/8.0f;
+		//bg_y += offset.y/8.0f;
 	}
 }
 
@@ -202,28 +228,44 @@ bool game_update(void) {
 		return true;
 
 	if(rabbit && rabbit->header.type) {
+		Vector2 camera;
+		Vector2 follow = vec2(camera_follow_weight,0.0f);
 
-		float rabbit_pos = rabbit->header.render->world_dest.left;
+		Vector2 pos = rabbit->header.physics->cd_obj->pos;
+
+		camera.x = rabbit->header.render->world_dest.left + 45.0f;
+		camera.y = - ( objects_camera[0].top - (pos.y - 579.0f + HEIGHT /3) / 1.0f );
+
+		if(camera.y < 0.0f && pos.y > HEIGHT / 3.0f)
+			camera.y = 0.0f;
+
+		if(camera.y < 0.0f){
+			float c = normalize(HEIGHT / 3.0f - pos.y, 0.0f, HEIGHT / 3.0f);
+			follow.y = 0.3f * c;
+		} else {
+			float c = normalize(pos.y, HEIGHT / 3.0f, 579.0f);
+			follow.y = 0.005f * MAX(0.0f,c);
+		}
+
+		_move_camera(camera, follow);
 
 
-			if(!game_over && rabbit->data->game_over){
-				game_over = true;
+		if(!game_over && rabbit->data->game_over){
+			game_over = true;
 
-				uint place = minimap_get_place_of_rabbit(rabbit);
+			uint place = minimap_get_place_of_rabbit(rabbit);
 
-				if(rabbit->data->is_dead) 
-					game_over_set_screen(OUT_SCREEN);
-				else if(place <= 3)
-					game_over_set_screen(WIN_SCREEN);
-				else
-					game_over_set_screen(LOSE_SCREEN);
+			if(rabbit->data->is_dead) 
+				game_over_set_screen(OUT_SCREEN);
+			else if(place <= 3)
+				game_over_set_screen(WIN_SCREEN);
+			else
+				game_over_set_screen(LOSE_SCREEN);
 
-				levels_set_place(place);
-
-				malka_states_push("game_over");
-			}
-
-		_move_camera(rabbit_pos + 45.0f, camera_follow_weight);
+			levels_set_place(place);
+			malka_states_push("game_over");
+		}
+		
 	}
 
 	float pos = minimap_max_x();
@@ -249,8 +291,8 @@ bool game_update(void) {
 bool game_update_empty(void) {
 	float scroll_speed = 3.0;
 
-	float camera_x = _camera_x();
-	_move_camera(camera_x + scroll_speed, 0.2f);
+	Vector2 camera = vec2(_camera_x() + scroll_speed,-objects_camera[0].top);
+	_move_camera(camera, vec2(0.2f,0.01f) );
 
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
 	
@@ -262,10 +304,11 @@ bool game_update_empty(void) {
 void game_render_level(void){
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
-	RectF dest = rectf(-off_x, 0.0f, 0.0f, 0.0f);
+	float off_y = bg_y;
+	RectF dest = rectf(-off_x, -off_y, 0.0f, 0.0f);
 	Color col = COLOR_WHITE;
 	spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
-	dest = rectf(1024.0f - off_x, 0.0f, 0.0f, 0.0f);
+	dest = rectf(1024.0f - off_x, -off_y, 0.0f, 0.0f);
 	spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
 	
 	objects_tick(game_paused);
