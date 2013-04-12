@@ -1,0 +1,4 @@
+* high-res mode
+? better music/sounds
+* OS X icon
+

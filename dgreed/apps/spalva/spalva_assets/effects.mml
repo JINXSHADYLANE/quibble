@@ -1,0 +1,28 @@
+(mfx _
+	(prefix "spalva_assets/")
+	(sounds _
+		(s jump.wav)
+		#(s walk.wav)
+		(s land.wav)
+		(s win.wav)
+		(s die.wav)
+	)
+	(effects _
+		(e jump 
+			(sound jump.wav)
+		)
+
+		(e land
+			(sound land.wav)
+		)
+
+		(e win
+			(sound win.wav)
+		)
+
+		(e die
+			(sound die.wav)
+		)
+	)
+)
+
