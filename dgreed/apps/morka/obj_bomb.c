@@ -25,7 +25,7 @@ static void obj_bomb_detonate(GameObject* self){
 		ObjRabbit* rabbit = minimap_get_rabbit(i);
 		Vector2 delta = vec2_sub(rabbit->header.physics->cd_obj->pos, p->cd_obj->pos);
 
-		if(fabsf(delta.x) <= range.x && fabsf(delta.y) <= range.y){
+		if(fabsf(delta.x) <= range.x && fabsf(delta.y) <= range.y && !rabbit->data->jump_out){
 			if(rabbit->data->has_powerup[SHIELD]){
 				rabbit->data->has_powerup[SHIELD] = false;
 				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);	
