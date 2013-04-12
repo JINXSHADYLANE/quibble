@@ -54,14 +54,15 @@ void minimap_draw(float t){
 	Color col = COLOR_RGBA(255, 255, 255, a);	
 
 	UIElement* position_line = uidesc_get("position_line");
-	_hud_render_ui(position_line, hud_layer,col);
 
-	Vector2 pos = position_line->vec2;
+	spr_draw_cntr_h(position_line->spr, hud_layer, position_line->vec2, 0.0f, 1.0f, col);
 
 	Vector2 size = sprsheet_get_size_h(position_line->spr);
 		
-	float w = size.x - 14.0f;
-	float h = size.y;
+	float w = size.x;
+
+	Vector2 pos = position_line->vec2;
+	pos = vec2_add(pos,vec2(-size.x/2.0f,0.0f));	
 
 	for(int i = 0; i < minimap_pointers.size;i++){
 		ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
@@ -73,19 +74,15 @@ void minimap_draw(float t){
 				player_x = rabbit->header.physics->cd_obj->pos.x;
 
 			rd = (float)rd*w/level_distance;
-			if(rd > w)	rd = w;
+			rd = clamp(7.0f,w - 7.0f,rd );
 
-			RectF dest = {
-				.left = pos.x + rd + 4.0f, 
-				.top = pos.y+h/2.0f - 4.0f,
-				.right = 0,
-				.bottom = 0
-			};
+			Vector2 dest = vec2(pos.x + rd,pos.y);
+
 			byte r,g,b,a2;
 			COLOR_DECONSTRUCT(rabbit->data->minimap_color,r,g,b,a2);
 			Color c = COLOR_RGBA(r,g,b,a);
 
-			spr_draw_h(handle, hud_layer,dest,c);
+			spr_draw_cntr_h(handle, hud_layer, dest, 0.0f, 1.0f, c);
 		}
 	}
 

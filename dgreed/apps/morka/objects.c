@@ -1,5 +1,6 @@
 #include "objects.h"
 
+#include "common.h"
 #include <sophist.h>
 #include <datastruct.h>
 #include <darray.h>
@@ -15,9 +16,9 @@
 #endif
 
 RectF objects_camera[3] = {
-	{0.0f, 0.0f, 1024.0f, 768.0f},
-	{0.0f, 0.0f, 1024.0f, 768.0f},
-	{0.0f, 0.0f, 1024.0f, 768.0f}
+	{0.0f, 0.0f, WIDTH, HEIGHT},
+	{0.0f, 0.0f, WIDTH, HEIGHT},
+	{0.0f, 0.0f, WIDTH, HEIGHT}
 };
 
 SprHandle empty_spr = (SprHandle)MAX_UINT32;

@@ -58,7 +58,7 @@ static void _hud_render_powerups(float t){
 	Vector2 size = sprsheet_get_size_h(spr);
 
 	int count = levels_get_powerup_count() +1;
-	float x_offset = -count * (size.x + 27.0f);
+	float x_offset = -count * (size.x + 27.0f) + size.x / 2.0f;
 
 	for(int i = 0; i < POWERUP_COUNT;i++){
 
@@ -70,7 +70,7 @@ static void _hud_render_powerups(float t){
 			Vector2 size = sprsheet_get_size_h(spr);
 			
 			x_offset += size.x + 27.0f;
-			Vector2 pos = vec2_add(powerup_place, vec2(x_offset, -size.y) );
+			Vector2 pos = vec2_add(powerup_place, vec2(x_offset, -size.y / 2.0f) );
 			spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col_30);
 
 			if(rabbit->data->has_powerup[i]){
@@ -80,7 +80,7 @@ static void _hud_render_powerups(float t){
 				float td = normalize(ts,powerup_appear[i]-duration,powerup_appear[i]);
 				td = clamp(0.0f,1.0f,td);
 
-				y_offset = sin(PI*td/2.0f) * -size.y;
+				y_offset = sin(PI*td/2.0f) * -size.y / 2.0f;
 
 			} else {
 
@@ -93,7 +93,7 @@ static void _hud_render_powerups(float t){
 				if(td == 1.0f)
 					powerup_appear[i] = 0.0f;
 
-				y_offset = -size.y + (sin(PI*td/2.0f) * size.y);
+				y_offset = -size.y / 2.0f + (sin(PI*td/2.0f) * size.y);
 
 			}
 
