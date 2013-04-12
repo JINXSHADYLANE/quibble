@@ -234,18 +234,15 @@ bool game_update(void) {
 		Vector2 pos = rabbit->header.physics->cd_obj->pos;
 
 		camera.x = rabbit->header.render->world_dest.left + 45.0f;
-		camera.y = - ( objects_camera[0].top - (pos.y - 579.0f + HEIGHT /3) / 1.0f );
+		camera.y =	rabbit->header.physics->vel.y;
 
-		if(camera.y < 0.0f){
-			float c = normalize(HEIGHT / 3.0f - pos.y, 0.0f, HEIGHT / 3.0f);
-			follow.y = 0.3f * c;
-		} else {
-			float c = normalize(pos.y, HEIGHT / 3.0f, 579.0f);
-			follow.y = 0.005f * MAX(0.0f,c);
-		}
+		float c = normalize(579.0f - pos.y, 0.0f, 579.0f);
+		c = MAX(0.0f,c);
+		follow.y = 0.005 * c * c;
 
 		_move_camera(camera, follow);
 
+		//printf("pos.y: %f c: %f fy: %f\n",579.0f - pos.y,c,follow.y );
 
 		if(!game_over && rabbit->data->game_over){
 			game_over = true;
