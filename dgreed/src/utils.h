@@ -72,9 +72,9 @@ static inline size_t align_padding(size_t size, size_t alignment) {
 #define unlikely(x) __builtin_expect((x),0)
 
 /*
--------------------
---- Vector math ---
--------------------
+------------------
+--- 2d vectors ---
+------------------
 */
 
 typedef struct {
@@ -136,6 +136,68 @@ static inline Vector2 vec2_lerp(Vector2 a, Vector2 b, float t) {
 	Vector2 result = {
 		.x = a.x + (b.x-a.x)*t,
 		.y = a.y + (b.y-a.y)*t
+	};
+	return result;
+}
+
+/*
+------------------
+--- 3d vectors ---
+------------------
+*/
+
+typedef struct {
+	float x, y, z;
+} Vector3;	
+
+static inline Vector3 vec3(float x, float y, float z) {
+	Vector3 result = {x, y, z};
+	return result;
+}
+
+static inline Vector3 vec3_add(Vector3 a, Vector3 b) {
+	return vec3(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
+static inline Vector3 vec3_sub(Vector3 a, Vector3 b) {
+	return vec3(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+static inline Vector3 vec3_scale(Vector3 a, float b) {
+	return vec3(a.x * b, a.y * b, a.z * b);
+}
+
+static inline float vec3_length(Vector3 a) {
+	return sqrtf(a.x*a.x + a.y*a.y + a.z*a.z);
+}	
+
+static inline Vector3 vec3_normalize(Vector3 a) {
+	float inv_len = 1.0f / vec3_length(a);
+	return vec3_scale(a, inv_len);
+}	
+
+static inline float vec3_dot(Vector3 a, Vector3 b) {
+	return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+static inline Vector3 vec3_cross(Vector3 a, Vector3 b) {
+	Vector3 result = {
+		.x = a.y * b.z - a.z * b.y,
+		.y = a.z * b.x - a.x * b.z,
+		.z = a.x * b.y - a.y * b.x
+	};
+	return result;
+}
+
+static inline float vec3_length_sq(Vector3 a) {
+	return a.x * a.x + a.y * a.y + a.z * a.z;
+}	
+
+static inline Vector3 vec3_lerp(Vector3 a, Vector3 b, float t) {
+	Vector3 result = {
+		.x = a.x + (b.x-a.x)*t,
+		.y = a.y + (b.y-a.y)*t,
+		.z = a.z + (b.z-a.z)*t
 	};
 	return result;
 }
