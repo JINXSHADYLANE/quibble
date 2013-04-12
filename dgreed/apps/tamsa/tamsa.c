@@ -6,7 +6,7 @@
 static Color backbuffer[scr_size] = {0};
 static TexHandle backbuffer_tex;
 
-void init(void) {
+void tm_init(void) {
 	backbuffer_tex = tex_create(
 		next_pow2(scr_width), 
 		next_pow2(scr_height)
@@ -32,7 +32,7 @@ void init(void) {
 	kdtree_free(&tree);
 }
 
-bool render(void) {
+bool tm_render(void) {
 	// Fill backbuffer with noise
 	for(uint y = 0; y < scr_height; ++y) {
 		for(uint x = 0; x < scr_width; ++x) {
@@ -50,7 +50,7 @@ bool render(void) {
 	return !key_up(KEY_QUIT) && !char_up('q');
 }
 
-void close(void) {
+void tm_close(void) {
 	tex_free(backbuffer_tex);
 }
 
@@ -60,15 +60,15 @@ int dgreed_main(int argc, const char** argv) {
 		scr_width, scr_height, "tamsa", false
 	);
 
-	init();
+	tm_init();
 
 	while(system_update()) {
-		if(!render())
+		if(!tm_render())
 			break;
 		video_present();
 	}
 
-	close();
+	tm_close();
 
 	video_close();
 	return 0;
