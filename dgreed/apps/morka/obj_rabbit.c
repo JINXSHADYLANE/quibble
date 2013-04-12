@@ -534,7 +534,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		if(d->jump_out && d->touching_ground)
 			d->jump_out = false;
 
-		if(p->cd_obj->pos.y > HEIGHT + 33.0f && !d->game_over){
+		if(p->cd_obj->pos.y > HEIGHT + 33.0f && !d->game_over && !d->jump_out){
 			p->vel.x = 0.0f;
 			p->vel.y = 0.0f;
 			p->cd_obj->pos.y = HEIGHT + 33.0f;
@@ -568,7 +568,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					objects_apply_force(self, 
 						vec2(11500.0f, -200000.0f)
 					);
-					anim_play_ex(rabbit->anim, "jump", TIME_S);	
+					anim_play_ex(rabbit->anim, "jump", TIME_S);
+					d->jump_out = true;	
 
 				} else {
 					p->cd_obj->pos.y = 0.0f;
@@ -578,7 +579,6 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			} else if(d->respawn == 0.0f) {
 				// time to spend in gap
 				d->respawn = TIME_S + 1.0f;
-				d->jump_out = true;
 			}
 
 		} else {

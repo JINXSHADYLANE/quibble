@@ -236,9 +236,6 @@ bool game_update(void) {
 		camera.x = rabbit->header.render->world_dest.left + 45.0f;
 		camera.y = - ( objects_camera[0].top - (pos.y - 579.0f + HEIGHT /3) / 1.0f );
 
-		if(camera.y < 0.0f && pos.y > HEIGHT / 3.0f)
-			camera.y = 0.0f;
-
 		if(camera.y < 0.0f){
 			float c = normalize(HEIGHT / 3.0f - pos.y, 0.0f, HEIGHT / 3.0f);
 			follow.y = 0.3f * c;
@@ -265,7 +262,7 @@ bool game_update(void) {
 			levels_set_place(place);
 			malka_states_push("game_over");
 		}
-		
+
 	}
 
 	float pos = minimap_max_x();
