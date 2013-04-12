@@ -36,10 +36,10 @@ void minimap_draw_finish_line(void){
 		if(d - player_x < 1024.0f){
 			for(int i = -110; i < HEIGHT;i+=66){
 				RectF dest = {
-					.left = d, 
+					.left = d,
+					.top = (float) i 
 				};
 				RectF result = objects_world2screen(dest,0);
-				result.top = (float) i;
 				result.right = 0.0f;
 				result.bottom = 0.0f;
 				spr_draw_h(finish, finish_line_layer,result,COLOR_WHITE);
