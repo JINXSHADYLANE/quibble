@@ -431,7 +431,6 @@ void hud_render_game_over_main(float t){
 		default:
 			place_spr = sprsheet_get_handle("last_place");
 			sprintf(place_txt, "You're fourth");
-			off -= 55.0f;
 		break;							
 	}
 
@@ -443,7 +442,7 @@ void hud_render_game_over_main(float t){
 	float coin_anim = 0.0f;	
 
 	if(ts < game_over_anim_start){
-		off += HEIGHT/2.0f;
+		off = HEIGHT/1.8f;
 
 		particles_spawned = false;
 		coin_start = 0.0f;
@@ -452,7 +451,7 @@ void hud_render_game_over_main(float t){
 		float td = normalize(ts,game_over_anim_start,game_over_anim_end);
 		td = clamp(0.0f,1.0f,td);
 
-		off += sin(PI/2.0f*td + PI/2.0f) * HEIGHT/2.0f;
+		off = sin(PI/2.0f*td + PI/2.0f) * HEIGHT/1.8f;
 
 		particles_spawned = false;
 		coin_start = 0.0f;	
@@ -492,12 +491,13 @@ void hud_render_game_over_main(float t){
 		prev_place = place;
 		half_size = vec2_scale(vfont_size(place_txt), 0.5f);
 	}
-	Vector2 txt_pos = vec2_sub(text->vec2, half_size);
+	Vector2 txt_pos = vec2_sub(text->vec2, vec2(half_size.x,0));
 	txt_pos.y -= off;
 	vfont_draw(place_txt, hud_layer,txt_pos , col);
 
 	Vector2 place_pos = place_icon->vec2;
-	place_pos.y -= off;
+	place_pos.y -= off + sprsheet_get_size_h(place_spr).y / 2.0f;
+	if(place > 3) place_pos.y += 20;
 	spr_draw_cntr_h(place_spr, hud_layer,place_pos, 0.0f, 1.0f, col);
 
 	if(coin_start > 0.0f){

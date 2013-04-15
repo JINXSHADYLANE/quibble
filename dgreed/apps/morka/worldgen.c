@@ -300,11 +300,11 @@ static void _gen_ground(void){
 
 				// Coin arc over gap
 				if(!tutorial_level){
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * -0.3f,475.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.1f,425.0f),(void*)&coin_powerup);		
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.5f,400.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.9f,425.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 1.3f,475.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * -0.3f,HEIGHT - 293.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.1f,HEIGHT - 343.0f),(void*)&coin_powerup);		
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.5f,HEIGHT - 368.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.9f,HEIGHT - 343.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 1.3f,HEIGHT - 293.0f),(void*)&coin_powerup);
 				}
 			}
 		}
@@ -324,11 +324,11 @@ static void _gen_mushrooms(void){
 
 		char sym = mchains_next(fg_chain, &rnd);
 		mchains_symbol_info(fg_chain, sym, &advance, &spr);
-		Vector2 pos = vec2(fg_page_cursor + fg_x, 641.0f);
+		Vector2 pos = vec2(fg_page_cursor + fg_x, HEIGHT-128.0f);
 		if(spr) advance = (int) sprsheet_get_size_h(spr).x;
 		else if (!tutorial_level && coins > 0){
 			coins_cd = 2;
-			Vector2 p = vec2(pos.x + advance / 2.0f, 579.0f);
+			Vector2 p = vec2(pos.x + advance / 2.0f, HEIGHT-189.0f);
 			SprHandle spr = sprsheet_get_handle(coin_powerup.spr);
 			float width = sprsheet_get_size_h(spr).x;
 
@@ -347,7 +347,7 @@ static void _gen_mushrooms(void){
 				objects_create(&obj_cactus_desc, pos, (void*)spr);
 
 				// placing bomb powerup after cactuses
-				Vector2 p = vec2(pos.x + advance / 2.0f + 100.0f, 579.0f);
+				Vector2 p = vec2(pos.x + advance / 2.0f + 100.0f, HEIGHT-189.0f);
 				place_powerup(&obj_powerup_desc, p, BOMB);
 				
 			} else {
@@ -370,7 +370,7 @@ static void _gen_mushrooms(void){
 							objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
 					} else if(sym == 'c'){
 						// placing trampoline powerup after certain mushroom
-						Vector2 p = vec2(pos.x + advance / 2.0f + 200.0f, 579.0f);
+						Vector2 p = vec2(pos.x + advance / 2.0f + 200.0f, HEIGHT-189.0f);
 						place_powerup(&obj_powerup_desc, p, TRAMPOLINE);
 
 					} else if(height >= 265.0f)

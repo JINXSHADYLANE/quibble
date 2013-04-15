@@ -58,7 +58,7 @@ static void game_reset(void) {
 
 		if(i == player){
 			// Player character
-			Vector2 pos = vec2(512.0f, 579.0f);
+			Vector2 pos = vec2(512.0f, HEIGHT-128.0f);
 
 			character_params[i].name = "You";
 			character_params[i].speed = default_characters[i].speed;
@@ -74,7 +74,7 @@ static void game_reset(void) {
 			tutorials_reset(rabbit);
 		} else if(ai_num < lvl_desc->ai_rabbit_num) {
 			// AI character
-			Vector2 pos = vec2(640.0f+128.0f*ai_num,579.0f);
+			Vector2 pos = vec2(640.0f+128.0f*ai_num,HEIGHT-128.0f);
 
 			character_params[i].name = default_characters[i].name;
 
@@ -234,9 +234,14 @@ bool game_update(void) {
 		Vector2 pos = rabbit->header.physics->cd_obj->pos;
 
 		camera.x = rabbit->header.render->world_dest.left + 45.0f;
-		camera.y =	rabbit->header.physics->vel.y;
+		camera.y = rabbit->header.physics->vel.y;
 
-		float c = normalize(579.0f - pos.y, 0.0f, 579.0f);
+		if(camera.y == 0.0f && objects_camera[0].top < 0.0f){
+			camera.y = -objects_camera[0].top * 1000.0f;
+		}
+		//printf("%f %f\n",camera.y,objects_camera[0].top );
+
+		float c = normalize(HEIGHT-128.0f - pos.y, 0.0f,HEIGHT-128.0f);
 		c = MAX(0.0f,c);
 		follow.y = 0.005 * c * c;
 
@@ -270,7 +275,7 @@ bool game_update(void) {
 	if(delta == 0){
 		delta = rand_int(40,70); // new particle every 40-70 frames
 		float x = rand_float_range(objects_camera[2].left,objects_camera[2].right);
-		float y = rand_float_range(0.0f,579.0f);
+		float y = rand_float_range(0.0f,HEIGHT-128.0f);
 		Vector2 pos = vec2(x,y);
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_bg_particle_anchor_desc, pos, NULL);
 		mfx_trigger_follow("dusts",&anchor->screen_pos,NULL);
