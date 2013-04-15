@@ -93,15 +93,15 @@
 	(def game_over_main
 		(def text
 			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,-300)
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 0,30)
 			)
 		)
 
 		(def place_icon
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-150)
+				(vec2 0,-5)
 			)
 		)
 
@@ -109,35 +109,35 @@
 			(spr base_place)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-150)
+				(vec2 0,-120)
 			)
 		)
 
 		(def particles1
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 -50,-30.0f)
+				(vec2 -50,0.0f)
 			)
 		)
 
 		(def particles2
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 50,-30.0f)
+				(vec2 50,0.0f)
 			)
 		)
 
 		(def text2
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,50)
+				(vec2 0,80)
 			)
 		)
 
 		(def coin_text
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,100)
+				(vec2 0,130)
 			)
 		)	
 
@@ -145,7 +145,7 @@
 			(spr token_tag)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,100)
+				(vec2 0,130)
 			)
 		)				
 
@@ -154,22 +154,25 @@
 		(def next
 			(spr next)
 			(add <-
-				(middle <- (get_rect screen))
-				(vec2 195,200)
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 195,-90)
 			)
 		)
 		(def restart
 			(spr restart)
 			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,200)
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 0,-90)
 			)
 		)
 		(def quit
 			(spr quit)
 			(add <-
-				(middle <- (get_rect screen))
-				(vec2 -195,200)
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 -195,-90)
 			)
 		)
 	)
@@ -177,15 +180,17 @@
 		(def restart
 			(spr restart)
 			(add <-
-				(middle <- (get_rect screen))
-				(vec2 100,200)
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 100,-90)
 			)
 		)
 		(def quit
 			(spr quit)
 			(add <-
-				(middle <- (get_rect screen))
-				(vec2 -100,200)
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 -100,-90)
 			)
 		)
 	)	
@@ -204,14 +209,6 @@
 				(vec2 256,-128)
 			)
 		)
-
-		(def quit
-			(spr quit)
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 -195,42)
-			)
-		)
 	)		
 	(def level_select
 
@@ -225,8 +222,9 @@
 		(def quit
 			(spr quit)
 			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,300)
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))
+				(vec2 0,-84)	
 			)
 		)		
 
@@ -374,8 +372,8 @@
 
 	(def combo_text
 		(add <-
-			(middle <- (get_rect screen))
-			(vec2 0,-330)
+			(x vec2 (middle <- (get_rect screen)))
+			(vec2 0,54)	
 		)
 	)
 

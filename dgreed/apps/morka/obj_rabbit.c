@@ -19,7 +19,7 @@
 
 static const float rabbit_hitbox_width = 70.0f;
 static const float rabbit_hitbox_height = 62.0f;
-static const float ground_y = 579.0f;
+static const float ground_y = HEIGHT - 128.0f;
 
 static SprHandle shield_spr;
 static float shield_width = 0.0f;
