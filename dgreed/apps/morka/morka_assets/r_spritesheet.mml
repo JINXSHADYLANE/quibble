@@ -307,7 +307,6 @@
 (img first_place
 	(tex r_atlas_13.png)
 	(src 719,779,1025,1239)
-	(cntr 873,965)
 )
 (img grass3_sign
 	(tex r_atlas_13.png)
@@ -317,7 +316,6 @@
 (img last_place
 	(tex r_atlas_13.png)
 	(src 1342,342,1647,662)
-	(cntr 1503,509)
 )
 (img mushroom_1
 	(tex r_atlas_13.png)
@@ -382,7 +380,6 @@
 (img second_place
 	(tex r_atlas_13.png)
 	(src 682,361,986,777)
-	(cntr 834,503)
 )
 (img shield
 	(tex r_atlas_13.png)
@@ -397,7 +394,6 @@
 (img third_place
 	(tex r_atlas_13.png)
 	(src 1001,1401,1283,1779)
-	(cntr 1140,1507)
 )
 (img trampoline
 	(tex r_atlas_13.png)

@@ -101,7 +101,7 @@
 		(def place_icon
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-5)
+				(vec2 0,17)
 			)
 		)
 
