@@ -598,8 +598,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				d->dive = p->cd_obj->pos;
 		}
 
-		if(d->game_over && !r->was_visible){
+		if(d->game_over && !r->was_visible && !d->is_dead){
 			d->is_dead = true;
+			p->vel = vec2(0.0f,0.0f);
+			p->cd_obj->pos.y = v_height + 100.0f;
 		}
 
 	}
