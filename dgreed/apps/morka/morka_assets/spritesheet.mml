@@ -58,10 +58,10 @@
 	)
 	(anim squirrel
 		(tex atlas_0b.png)
-		(src 0,0,164,86)
-		(offset 164,86)
-		(frames 22)
-		(grid 3,8)
+		(src 0,0,165,75)
+		(offset 165,75)
+		(frames 27)
+		(grid 3,9)
 	)
 	(anim rabbit_3
 		(tex atlas_0c.png)

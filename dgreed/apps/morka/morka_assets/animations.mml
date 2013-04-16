@@ -53,7 +53,7 @@
 		)
 
 		(seq jump
-			(frames "0 1 2 3 18 19 4 5")
+			(frames "0 1 2 3 13 14 15 16 17 4 5")
 			(on_finish play.glide)
 		)
 
@@ -63,13 +63,13 @@
 		)
 
 		(seq glide
-			(frames "6 20 21 20")
-			(on_finish stop)
+			(frames "6 18 19 20 19")
+			(on_finish loop)
 		)
 
 		(seq down
-			(frames "8 9")
-			(on_finish play.dive)
+			(frames "21 22 7 8  9 10")
+			(on_finish play.land)
 		)
 
 		(seq land
@@ -78,12 +78,12 @@
 		)
 
 		(seq dive
-			(frames "15 16 17 16")
+			(frames "8 21 22")
 			(on_finish loop)
 		)
 
 		(seq rocket_ride
-			(frames "13 14")
+			(frames "25 26")
 			(on_finish loop)
 		)
 	)
