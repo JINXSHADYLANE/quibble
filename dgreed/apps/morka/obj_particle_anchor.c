@@ -15,7 +15,7 @@ static void obj_particle_anchor_update(GameObject* self, float ts, float dt){
 	
 	anchor->screen_pos = vec2(result.left,result.top);
 	
-	if(result.left < -WIDTH){
+	if(result.left < -v_width){
 		objects_destroy(self);	
 	}
 }

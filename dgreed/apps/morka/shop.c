@@ -222,7 +222,7 @@ static bool shop_render(float t) {
 	byte a = lrintf(255.0f * state_alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, WIDTH, HEIGHT), col); 
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	static float x1 = 0.0f;
 	static float x2 = 0.0f;
@@ -239,7 +239,7 @@ static bool shop_render(float t) {
 	static float anim_end = 0.0f;
 
 	Touch* touch = touches_get();
-	if(touch && touch->hit_pos.y < 467.0f && t == 0.0f){
+	if(touch && touch->hit_pos.y < v_height*0.61f && t == 0.0f){
 
 		x1 = touch->hit_pos.x;
 		x2 = touch->pos.x;

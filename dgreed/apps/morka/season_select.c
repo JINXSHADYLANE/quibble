@@ -34,7 +34,7 @@ static bool season_select_render(float t) {
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, WIDTH, HEIGHT), col); 
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	SprHandle lock_spr;
 

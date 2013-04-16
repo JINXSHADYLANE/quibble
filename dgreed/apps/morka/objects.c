@@ -15,12 +15,7 @@
 #define MAX_GAMEOBJECT_SIZE 64
 #endif
 
-RectF objects_camera[3] = {
-	{0.0f, 0.0f, WIDTH, HEIGHT},
-	{0.0f, 0.0f, WIDTH, HEIGHT},
-	{0.0f, 0.0f, WIDTH, HEIGHT}
-};
-
+RectF objects_camera[3] = {{0}};
 SprHandle empty_spr = (SprHandle)MAX_UINT32;
 
 static CDWorld cdworld;
@@ -142,7 +137,7 @@ void objects_destroy_all(void) {
 
 	// Reset cameras
 	for(uint i = 0; i < ARRAY_SIZE(objects_camera); ++i) {
-		objects_camera[i] = rectf(0.0f, 0.0f, 1024.0f, 768.0f);
+		objects_camera[i] = rectf(0.0f, 0.0f, v_width, v_height);
 	}
 
 	physics.size = 0;

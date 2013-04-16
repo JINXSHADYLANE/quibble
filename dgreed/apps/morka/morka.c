@@ -22,23 +22,18 @@
 #include "devmode.h"
 #include "common.h"
 
-bool button_click = false;	// prevents buttons from being clicked multiple times during transition.
+uint v_width = 1024;
+uint v_height = 768;
 
 void dgreed_preinit(void) {
 }
 
 bool dgreed_init(int argc, const char** argv) {
-#ifndef _WIN32
 	params_init(argc, argv);
-#else
-	params_init(1, NULL);
-#endif
 
 	rand_init(time(NULL));
 
 	const char* sprsheet = ASSETS_DIR "spritesheet.mml";
-	uint v_width = 1024;
-	uint v_height = 768;
     
     uint n_width, n_height;
     video_get_native_resolution(&n_width, &n_height);
@@ -48,7 +43,21 @@ bool dgreed_init(int argc, const char** argv) {
 		n_width = 2048;
 		n_height = 1536;
 	}
-	else {
+	else if(params_find("-iphone") != ~0 || (n_width == 960 && n_height == 640)) {
+		n_width = 960;
+		n_height = 640;
+
+		v_width = 960;
+		v_height = 640;
+	}
+	else if(params_find("-iphone5") != ~0 || (n_width == 1136 && n_height == 640)) {
+		n_width = 1136;
+		n_height = 640;	
+
+		v_width = 1136;
+		v_height = 640;
+
+	} else {
 		n_width = 1024;
 		n_height = 768;
 	}

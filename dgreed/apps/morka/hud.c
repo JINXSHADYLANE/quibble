@@ -322,7 +322,7 @@ void hud_render_game_over_out(float t) {
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
@@ -358,7 +358,7 @@ void hud_render_game_over_tut(float t) {
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
@@ -408,7 +408,7 @@ void hud_render_game_over_main(float t){
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	uint place = minimap_get_place_of_rabbit(rabbit);
 	char place_txt[32];
@@ -442,7 +442,7 @@ void hud_render_game_over_main(float t){
 	float coin_anim = 0.0f;	
 
 	if(ts < game_over_anim_start){
-		off = HEIGHT/1.8f;
+		off = v_height/1.8f;
 
 		particles_spawned = false;
 		coin_start = 0.0f;
@@ -451,7 +451,7 @@ void hud_render_game_over_main(float t){
 		float td = normalize(ts,game_over_anim_start,game_over_anim_end);
 		td = clamp(0.0f,1.0f,td);
 
-		off = sin(PI/2.0f*td + PI/2.0f) * HEIGHT/1.8f;
+		off = sin(PI/2.0f*td + PI/2.0f) * v_height/1.8f;
 
 		particles_spawned = false;
 		coin_start = 0.0f;	
@@ -611,7 +611,7 @@ void hud_render_regular_pause(float t){
 		byte a = lrintf(255.0f * alpha);
 		Color col = COLOR_RGBA(255, 255, 255, a);
 
-		spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, 1024.0f, 768.0f), col); 
+		spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
 		// Text
 		vfont_select(FONT_NAME, 48.0f); 
 		const char* str = "Paused";

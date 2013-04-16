@@ -32,9 +32,9 @@ void minimap_track(ObjRabbit* rabbit){
 void minimap_draw_finish_line(void){
 	if(level_distance > 0){
 		// Draw a finish line when its visible to player rabbit
-		float d = (float)(level_distance + 2.0f) * (1024.0f/3.0f);
-		if(d - player_x < 1024.0f){
-			for(int i = -110; i < HEIGHT;i+=66){
+		float d = (float)(level_distance + 2.0f) * (v_width/3.0f);
+		if(d - player_x < v_width){
+			for(int i = -110; i < v_height;i+=66){
 				RectF dest = {
 					.left = d,
 					.top = (float) i 
@@ -69,7 +69,7 @@ void minimap_draw(float t){
 		ObjRabbit* rabbit = *p_rabbit;
 		if(rabbit && rabbit->header.type){
 				
-			float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
+			float rd = rabbit->header.render->world_dest.left / (v_width / 3.0f) - 2.0f;
 			if(rabbit->data->player_control) 
 				player_x = rabbit->header.physics->cd_obj->pos.x;
 
@@ -125,7 +125,7 @@ void minimap_update_places(void){
 			if(rabbit->data->is_dead)
 				rabbit->data->game_over = true;
 			else {
-				float rd = rabbit->header.render->world_dest.left / (1024.0f / 3.0f) - 2.0f;
+				float rd = rabbit->header.render->world_dest.left / (v_width / 3.0f) - 2.0f;
 				if(rd > level_distance)
 					rabbit->data->game_over = true;
 			}
@@ -157,7 +157,7 @@ float minimap_max_x(void){
 		}
 
 	}
-	return first + 1024.0f;
+	return first + v_width;
 }
 
 float minimap_min_x(void){

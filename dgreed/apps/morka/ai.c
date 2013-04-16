@@ -15,7 +15,7 @@ static RectF in_front_and_below(GameObject* obj){
 		.left = pos.x,
 		.top = pos.y ,
 		.right = pos.x,
-		.bottom = HEIGHT
+		.bottom = v_height
 	};
 
 	return rec;
@@ -31,7 +31,7 @@ static RectF in_front_and_below2(GameObject* obj){
 		.left = pos.x + 70.0f,
 		.top = pos.y ,
 		.right = pos.x + 70.0f,
-		.bottom = HEIGHT
+		.bottom = v_height
 	};
 
 	return rec;

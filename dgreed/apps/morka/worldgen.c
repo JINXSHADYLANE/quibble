@@ -10,7 +10,7 @@
 extern ObjRabbit* rabbit;
 extern bool tutorial_level;
 
-#define page_width 1024.0f
+static float page_width = 0.0f;
 static float fg_page_cursor = 0.0f;
 static float bg_page_cursor = 0.0f;
 
@@ -29,20 +29,20 @@ static void _gen_bg_page(void) {
 	int advance;
 	
 	// Add background mushrooms
-	static float bg_x = page_width;
-	bg_x -= page_width;	
+	static float bg_x = 0;
+		
 	while(bg_x < page_width) {
 		char sym = mchains_next(bg_chain, &rnd);
 		mchains_symbol_info(bg_chain, sym, &advance, &spr);
 
 		if(spr) {
-			Vector2 pos = vec2(bg_page_cursor + bg_x + 100.0f, HEIGHT);
+			Vector2 pos = vec2(bg_page_cursor + bg_x + 100.0f, v_height);
 			objects_create(&obj_deco_desc, pos, (void*)spr);
 		}
 
 		bg_x += (float)advance;
 	}
-
+	bg_x -= page_width;
 	bg_page_cursor += page_width;
 }
 
@@ -51,11 +51,11 @@ static bool place_powerup(GameObjectDesc* desc, Vector2 pos,PowerupType type){
 
 	if(num){
 		float min = (float) (levels_current_desc()->distance + 2.0f) *
-							(1024.0f/3.0f) *
+							(v_width/3.0f) *
 							levels_current_desc()->powerup_pos[type].x;
 
 		float max = (float) (levels_current_desc()->distance + 2.0f) *
-							(1024.0f/3.0f) *
+							(v_width/3.0f) *
 							levels_current_desc()->powerup_pos[type].y;
 
 		float d = (float)num / levels_current_desc()->powerup_num[type];
@@ -206,32 +206,32 @@ static void _gen_tree(Vector2 pos,SymDesc sd){
 static void _gen_winter_fg(void){
 	SymDesc sd;
 	int advance = 0;
-	static float fg_x = page_width;
+	static float fg_x = 0;
 
-	fg_x -= page_width;	
 	while(fg_x < page_width) {
 
 		char sym = mchains_next(fg_chain, &rnd);
 
 		mchains_symbol_info_ex(fg_chain, sym, &advance, &sd);
 
-		Vector2 pos = vec2(fg_page_cursor + fg_x, HEIGHT);
+		Vector2 pos = vec2(fg_page_cursor + fg_x, v_height);
 		if(sd.ruleset)
 			_gen_tree(pos,sd);
 
 		fg_x += (float)advance;
 	}
+	fg_x -= page_width;	
 }
 
 static void _gen_winter_ground(void){
 	SprHandle spr;	
 	int advance = 0;
-	static float ground_x = page_width;
-	ground_x -= page_width;
+	static float ground_x = 0;
+
 	while(ground_x < page_width) {
 		char sym = mchains_next(ground_chain, &rnd);
 		mchains_symbol_info(ground_chain, sym, &advance, &spr);
-		Vector2 pos = vec2(fg_page_cursor + ground_x, HEIGHT);		
+		Vector2 pos = vec2(fg_page_cursor + ground_x, v_height);		
 		if(spr) {
 			advance = (uint) sprsheet_get_size_h(spr).x;
 
@@ -263,18 +263,19 @@ static void _gen_winter_ground(void){
 
 		ground_x += (float)advance;
 	}
+	ground_x -= page_width;
 }
 
 static void _gen_ground(void){
 	SprHandle spr;	
 	int advance = 0;
-	static float ground_x = page_width;
+	static float ground_x = 0;
 
-	ground_x -= page_width;
+
 	while(ground_x < page_width) {
 		char sym = mchains_next(ground_chain, &rnd);
 		mchains_symbol_info(ground_chain, sym, &advance, &spr);
-		Vector2 pos = vec2(fg_page_cursor + ground_x, HEIGHT);		
+		Vector2 pos = vec2(fg_page_cursor + ground_x, v_height);		
 		if(spr) {
 			advance = (uint) sprsheet_get_size_h(spr).x;
 
@@ -300,11 +301,11 @@ static void _gen_ground(void){
 
 				// Coin arc over gap
 				if(!tutorial_level){
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * -0.3f,HEIGHT - 293.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.1f,HEIGHT - 343.0f),(void*)&coin_powerup);		
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.5f,HEIGHT - 368.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.9f,HEIGHT - 343.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 1.3f,HEIGHT - 293.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * -0.3f,v_height - 293.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.1f,v_height - 343.0f),(void*)&coin_powerup);		
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.5f,v_height - 368.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.9f,v_height - 343.0f),(void*)&coin_powerup);
+					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 1.3f,v_height - 293.0f),(void*)&coin_powerup);
 				}
 			}
 		}
@@ -312,23 +313,24 @@ static void _gen_ground(void){
 
 		ground_x += (float)advance;
 	}
+	ground_x -= page_width;	
 }
 
 static void _gen_mushrooms(void){
 	SprHandle spr;	
 	int advance = 0;
-	static float fg_x = page_width;
+	static float fg_x = 0;
 
-	fg_x -= page_width;	
+
 	while(fg_x < page_width) {
 
 		char sym = mchains_next(fg_chain, &rnd);
 		mchains_symbol_info(fg_chain, sym, &advance, &spr);
-		Vector2 pos = vec2(fg_page_cursor + fg_x, HEIGHT-128.0f);
+		Vector2 pos = vec2(fg_page_cursor + fg_x, v_height-128.0f);
 		if(spr) advance = (int) sprsheet_get_size_h(spr).x;
 		else if (!tutorial_level && coins > 0){
 			coins_cd = 2;
-			Vector2 p = vec2(pos.x + advance / 2.0f, HEIGHT-189.0f);
+			Vector2 p = vec2(pos.x + advance / 2.0f, v_height-189.0f);
 			SprHandle spr = sprsheet_get_handle(coin_powerup.spr);
 			float width = sprsheet_get_size_h(spr).x;
 
@@ -347,7 +349,7 @@ static void _gen_mushrooms(void){
 				objects_create(&obj_cactus_desc, pos, (void*)spr);
 
 				// placing bomb powerup after cactuses
-				Vector2 p = vec2(pos.x + advance / 2.0f + 100.0f, HEIGHT-189.0f);
+				Vector2 p = vec2(pos.x + advance / 2.0f + 100.0f, v_height-189.0f);
 				place_powerup(&obj_powerup_desc, p, BOMB);
 				
 			} else {
@@ -370,7 +372,7 @@ static void _gen_mushrooms(void){
 							objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
 					} else if(sym == 'c'){
 						// placing trampoline powerup after certain mushroom
-						Vector2 p = vec2(pos.x + advance / 2.0f + 200.0f, HEIGHT-189.0f);
+						Vector2 p = vec2(pos.x + advance / 2.0f + 200.0f, v_height-189.0f);
 						place_powerup(&obj_powerup_desc, p, TRAMPOLINE);
 
 					} else if(height >= 265.0f)
@@ -381,6 +383,7 @@ static void _gen_mushrooms(void){
 
 		fg_x += (float)advance;
 	}
+	fg_x -= page_width;	
 }
 
 static void _gen_fg_page(void) {
@@ -419,6 +422,7 @@ void worldgen_reset(uint seed, const LevelDesc* desc) {
 	if(!rnd) {
 		// First time
 		rand_init_ex(&rnd, seed);
+		page_width = v_width;
 	}
 	else {
 		// Not first time

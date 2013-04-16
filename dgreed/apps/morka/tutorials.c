@@ -11,7 +11,7 @@ TutorialStep level1_steps[] = {
 	{0.0f,					// delay before finishing a step
 	"Example step",			// text
 	 40.0f,					// text font size
-	 {WIDTH/2.0f,150.0f},	// text position
+	 {0.5f,0.5f},			// text position ( 0.5f * width, 0.5f * height )
 	 "spikeshroom_1",		// image
 	 "level_select",		// state to push on event
 	 {50.0f, 50.0f},		// finger touch animation (negative values to hide)
@@ -27,7 +27,7 @@ TutorialStep level1_steps[] = {
 	{0.0f,
 	 "Welcome to the training",
 	 40.0f,
-	 {WIDTH/2.0f,150.0f},
+	 {0.5f,0.178385416f},
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -42,10 +42,10 @@ TutorialStep level1_steps[] = {
 	{0.0f,
 	 "Touch to jump",
 	 40.0f,
-	 {WIDTH/2.0f,150.0f},
+	 {0.5f,0.178385416f},
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f, 300.0f},
+	 {-2.0f, 300.0f},
 	 true,
 	 true,
 	 true,
@@ -57,10 +57,10 @@ TutorialStep level1_steps[] = {
 	{0.0f,
 	 "Touch and hold to plunge down",
 	 40.0f,
-	 {WIDTH/2.0f,150.0f}, 
+	 {0.5f,0.178385416f}, 
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f, 300.0f},
+	 {0.0f, 300.0f},
 	 true,
 	 true,
 	 true,
@@ -85,10 +85,10 @@ TutorialStep level1_steps[] = {
 	{0.0f,
 	 "You're doing great!",
 	 40.0f,
-	 {WIDTH/2.0f,150.0f},
+	 {0.5f,0.178385416f},
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f, 300.0f},
+	 {0.0f, 300.0f},
 	 true,
 	 true,
 	 true,
@@ -113,10 +113,10 @@ TutorialStep level1_steps[] = {
 	{0.0f,
 	 "One more time",
 	 40.0f,
-	 {WIDTH/2.0f,150.0f},	 
+	 {0.5f,0.178385416f},	 
 	 NULL,
 	 NULL,
-	 {WIDTH/2.0f, 300.0f},
+	 {0.0f, 300.0f},
 	 true,
 	 true,
 	 true,
@@ -127,7 +127,7 @@ TutorialStep level1_steps[] = {
 	{0.0f,
 	 "Now try it all by yourself",
 	 40.0f,
-	 {WIDTH/2.0f,150.0f},	 
+	 {0.5f,0.178385416f},	 
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -142,7 +142,7 @@ TutorialStep level1_steps[] = {
 	{2.5f,
 	 "You are ready for the race!",
 	 40.0f,
-	 {WIDTH/2.0f,150.0f},	 
+	 {0.5f,0.178385416f},	 
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -190,7 +190,7 @@ TutorialStep default_steps[] = {
 	{0.625f,
 	 "3",
 	 150.0f,
-	 {WIDTH/2.0f,HEIGHT/2.0f},	 
+	 {0.5f,0.5f},	 
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -205,7 +205,7 @@ TutorialStep default_steps[] = {
 	{0.625f,
 	 "2",
 	 150.0f,
-	 {WIDTH/2.0f,HEIGHT/2.0f},	 	 
+	 {0.5f,0.5f},	 	 
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -220,7 +220,7 @@ TutorialStep default_steps[] = {
 	{0.625f,
 	 "1",
 	 150.0f,
-	 {WIDTH/2.0f,HEIGHT/2.0f},	 	 
+	 {0.5f,0.5f},	 	 
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -235,7 +235,7 @@ TutorialStep default_steps[] = {
 	{0.625f,
 	 "Go!",
 	 150.0f,
-	 {WIDTH/2.0f,HEIGHT/2.0f},	 	 
+	 {0.5f,0.5f},	 	 
 	 NULL,
 	 NULL,
 	 {-1.0f, -1.0f},
@@ -367,7 +367,7 @@ void tutorial_event(EventType e){
 }
 
 static void _tutorial_image(byte a){
-	Vector2 pos = vec2(WIDTH/2.0f,HEIGHT/2.0f);
+	Vector2 pos = vec2(v_width/2.0f,v_height/2.0f);
 	SprHandle handle = sprsheet_get_handle(current_step->img);
 	Vector2 size = sprsheet_get_size_h(handle);
 
@@ -393,7 +393,8 @@ static void _tutorial_text(TutorialStep* step,byte a){
 		half_size = vec2_scale(vfont_size(str), 0.5f);
 	}
 	Color col = COLOR_RGBA(255, 255, 255, a);
-	vfont_draw(str, hud_layer, vec2_sub(step->text_pos, half_size),col);
+	Vector2 pos = vec2(v_width * step->text_pos.x,v_height * step->text_pos.y);
+	vfont_draw(str, hud_layer, vec2_sub(pos, half_size),col);
 	old = step;
 }
 
