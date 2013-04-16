@@ -9,8 +9,6 @@ static SprHandle finish;
 DArray minimap_pointers;
 
 ObjRabbit* results[4];
-static int dead_rabbits = 0;
-static int place = 0;
 
 static float player_x;
 
@@ -139,8 +137,6 @@ void minimap_update_places(void){
 void minimap_reset(uint distance){
 	minimap_pointers.size = 0;
 	level_distance = distance;
-	dead_rabbits = 0;
-	place = 0;
 	for(int i = 0; i < 4;i++)
 		results[i] = NULL;
 }

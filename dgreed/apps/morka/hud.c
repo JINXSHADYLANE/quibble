@@ -497,7 +497,7 @@ void hud_render_game_over_main(float t){
 
 	Vector2 place_pos = place_icon->vec2;
 	place_pos.y -= off + sprsheet_get_size_h(place_spr).y / 2.0f;
-	if(place > 3) place_pos.y += 20;
+	if(place > 3) place_pos.y -= 7;
 	spr_draw_cntr_h(place_spr, hud_layer,place_pos, 0.0f, 1.0f, col);
 
 	if(coin_start > 0.0f){
