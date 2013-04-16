@@ -40,10 +40,15 @@ static void obj_cactus_collide(GameObject* self, GameObject* other) {
 				objects_apply_force(other, f);
 			} else {
 				d->has_powerup[SHIELD] = false;
-				mfx_trigger_follow("bubble_explode",&anchor->screen_pos,NULL);	
+				RenderComponent* rr = other->render;
+				if(rr->was_visible){	
+					mfx_trigger_follow("bubble_explode",&anchor->screen_pos,NULL);	
+				}
 			}
-			
-			mfx_trigger_follow("cactus_reaction",&anchor->screen_pos,NULL);
+			RenderComponent* sr = self->render;
+			if(sr->was_visible){
+				mfx_trigger_follow("cactus_reaction",&anchor->screen_pos,NULL);
+			}
 			cactus->damage = 0.0f;
 
 		}

@@ -30,21 +30,23 @@ static void obj_powerup_trampoline_collide(GameObject* self, GameObject* other) 
 			// Powerup effect
 			obj_powerup_trampoline_effect(other);
 
-			// Particles
-			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
-				&obj_particle_anchor_desc, 
-				rectf_center(&other->render->world_dest), 
-				NULL
-			);
-			mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
+			RenderComponent* sr = self->render;
+			if(sr->was_visible){
+				// Particles
+				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
+					&obj_particle_anchor_desc, 
+					rectf_center(&other->render->world_dest), 
+					NULL
+				);
+				mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
 
-			// Dissapearing animation
-			Vector2 pos = rectf_center(&self->render->world_dest);
-			objects_create(
-				&obj_floater_desc, pos, 
-				(void*)&trampoline_floater_params
-			);
-
+				// Dissapearing animation
+				Vector2 pos = rectf_center(&self->render->world_dest);
+				objects_create(
+					&obj_floater_desc, pos, 
+					(void*)&trampoline_floater_params
+				);
+			}
 			// Destroy powerup
 			objects_destroy(self);
 		}
@@ -78,21 +80,23 @@ static void obj_powerup_bomb_collide(GameObject* self, GameObject* other) {
 			// Powerup effect
 			d->has_powerup[BOMB] = true;
 
-			// Particles
-			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
-				&obj_particle_anchor_desc, 
-				rectf_center(&other->render->world_dest), 
-				NULL
-			);
-			mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
+			RenderComponent* sr = self->render;
+			if(sr->was_visible){
+				// Particles
+				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
+					&obj_particle_anchor_desc, 
+					rectf_center(&other->render->world_dest), 
+					NULL
+				);
+				mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
 
-			// Dissapearing animation
-			Vector2 pos = rectf_center(&self->render->world_dest);
-			objects_create(
-				&obj_floater_desc, pos, 
-				(void*)&bomb_floater_params
-			);
-
+				// Dissapearing animation
+				Vector2 pos = rectf_center(&self->render->world_dest);
+				objects_create(
+					&obj_floater_desc, pos, 
+					(void*)&bomb_floater_params
+				);
+			}
 			// Destroy powerup
 			objects_destroy(self);
 		}
@@ -123,20 +127,23 @@ static void obj_powerup_rocket_collide(GameObject* self, GameObject* other) {
 			// Powerup effect
 			d->has_powerup[ROCKET] = true;
 
-			// Particles
-			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
-				&obj_particle_anchor_desc, 
-				rectf_center(&other->render->world_dest), 
-				NULL
-			);
-			mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
+			RenderComponent* sr = self->render;
+			if(sr->was_visible){
+				// Particles
+				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
+					&obj_particle_anchor_desc, 
+					rectf_center(&other->render->world_dest), 
+					NULL
+				);
+				mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
 
-			// Dissapearing animation
-			Vector2 pos = rectf_center(&self->render->world_dest);
-			objects_create(
-				&obj_floater_desc, pos, 
-				(void*)&rocket_floater_params
-			);
+				// Dissapearing animation
+				Vector2 pos = rectf_center(&self->render->world_dest);
+				objects_create(
+					&obj_floater_desc, pos, 
+					(void*)&rocket_floater_params
+				);
+			}
 
 			// Destroy powerup
 			objects_destroy(self);
@@ -168,21 +175,23 @@ static void obj_powerup_shield_collide(GameObject* self, GameObject* other) {
 			// Powerup effect
 			obj_powerup_shield_effect(other);
 
-			// Particles
-			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
-				&obj_particle_anchor_desc, 
-				rectf_center(&other->render->world_dest), 
-				NULL
-			);
-			mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
+			RenderComponent* sr = self->render;
+			if(sr->was_visible){
+				// Particles
+				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(
+					&obj_particle_anchor_desc, 
+					rectf_center(&other->render->world_dest), 
+					NULL
+				);
+				mfx_trigger_follow("powerup_pick",&anchor->screen_pos,NULL);
 
-			// Dissapearing animation
-			Vector2 pos = rectf_center(&self->render->world_dest);
-			objects_create(
-				&obj_floater_desc, pos, 
-				(void*)&shield_floater_params
-			);
-
+				// Dissapearing animation
+				Vector2 pos = rectf_center(&self->render->world_dest);
+				objects_create(
+					&obj_floater_desc, pos, 
+					(void*)&shield_floater_params
+				);
+			}
 			// Destroy powerup
 			objects_destroy(self);
 		}
@@ -206,17 +215,19 @@ static void obj_powerup_coin_collide(GameObject* self, GameObject* other) {
 		if(!d->game_over)
 			d->tokens += 1;
 
-		// Particles
-		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
-		mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
+		RenderComponent* sr = self->render;
+		if(sr->was_visible){
+			// Particles
+			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
+			mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
 
-		// Dissapearing animation
-		Vector2 pos = rectf_center(&self->render->world_dest);
-		objects_create(
-			&obj_floater_desc, pos, 
-			(void*)&coin_floater_params
-		);
-
+			// Dissapearing animation
+			Vector2 pos = rectf_center(&self->render->world_dest);
+			objects_create(
+				&obj_floater_desc, pos, 
+				(void*)&coin_floater_params
+			);
+		}
 		// Destroy powerup
 		objects_destroy(self);
 	}

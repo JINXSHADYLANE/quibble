@@ -11,10 +11,12 @@ static void obj_bomb_became_invisible(GameObject* self) {
 
 static void obj_bomb_detonate(GameObject* self){
 	PhysicsComponent* p = self->physics;
-
+	RenderComponent* sr = self->render;
 	// Explosion particles
-	ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
-	mfx_trigger_follow("bomb_explode",&anchor->screen_pos,NULL);
+	if(sr->was_visible){
+		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
+		mfx_trigger_follow("bomb_explode",&anchor->screen_pos,NULL);
+	}
 
 	float r = 200.0f;
 
@@ -28,8 +30,13 @@ static void obj_bomb_detonate(GameObject* self){
 		if(fabsf(delta.x) <= range.x && fabsf(delta.y) <= range.y && !rabbit->data->jump_out){
 			if(rabbit->data->has_powerup[SHIELD]){
 				rabbit->data->has_powerup[SHIELD] = false;
-				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);	
-				mfx_trigger_follow("bubble_explode",&anchor->screen_pos,NULL);					
+
+				RenderComponent* rr = rabbit->header.render;
+				if(rr->was_visible){
+					ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);	
+					mfx_trigger_follow("bubble_explode",&anchor->screen_pos,NULL);	
+				}	
+
 			} else {	
 				if(delta.x < 0.0f) range.x *= -1.0f;
 				if(delta.y < 0.0f) range.y *= -1.0f;
@@ -80,17 +87,9 @@ static void obj_bomb_update_pos(GameObject* self) {
 	r->world_dest = rectf_centered(
 		pos, rectf_width(&r->world_dest), rectf_height(&r->world_dest)
 	);
-/*
-	PhysicsComponent* physics = self->physics;
-	RectF rec = {
-		.right = physics->cd_obj->pos.x + physics->cd_obj->size.size.x
-	};
-	RectF result = objects_world2screen(rec,0);
-	*/
 }
 
 static void obj_bomb_update(GameObject* self, float ts, float dt) {
-	
 	PhysicsComponent* p = self->physics;
 
 	// gravity
@@ -107,7 +106,6 @@ static void obj_bomb_construct(GameObject* self, Vector2 pos, void* user_data) {
 	SprHandle spr_handle = sprsheet_get_handle("bomb_obj");
 
 	bomb->owner = (GameObject*)user_data;
-	//ObjRabbit* rabbit = (ObjRabbit*)self;
 	PhysicsComponent* p = bomb->owner->physics;
 
 	Vector2 size = sprsheet_get_size_h(spr_handle);

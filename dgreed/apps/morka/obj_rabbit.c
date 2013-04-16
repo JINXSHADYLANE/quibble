@@ -348,6 +348,11 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		if(camera_follow && !d->jump_out)
 			rabbit->control(self);	
+		else{
+			d->virtual_key_up = false;
+			d->virtual_key_down = false;
+			d->virtual_key_pressed = false;
+		}
 
 		if(d->virtual_key_down)
 			d->last_keypress_t = ts;
@@ -395,10 +400,11 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					if(!d->player_control) d->land = _predict_landing(rabbit,force);
 
 					d->combo_counter = 0;
-				
-					ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
-					if(r->was_visible)
+					
+					if(r->was_visible){			
+						ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 						mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+					}
 
 					d->shield_dh = -20.0f;
 				}
@@ -419,7 +425,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 							effect = "run1_front";
 					}
 
-					if(effect)
+					if(effect && r->was_visible)
 						mfx_trigger_ex(effect, screen_pos, 0.0f);
 				}
 				d->last_frame = r->anim_frame;
@@ -668,9 +674,13 @@ static void _rabbit_delayed_bounce(void* r) {
 		GameObject* self = r;
 		objects_apply_force(self, d->bounce_force); 
 		d->jump_off_mushroom = false;
+		
+		RenderComponent* render = rabbit->header.render;
 
-		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, p->cd_obj->pos, NULL);
-		mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+		if(render->was_visible){
+			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, p->cd_obj->pos, NULL);
+			mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+		}
 
 		if(d->combo_counter+1 == 3){
 			if(d->player_control) tutorial_event(COMBO_X3);	
@@ -686,7 +696,7 @@ static void _rabbit_delayed_bounce(void* r) {
 			RectF result = objects_world2screen(rec,0);
 			Vector2 screen_pos = vec2(result.left,result.top);
 
-			RenderComponent* render = rabbit->header.render;
+
 			if(render->was_visible)
 				mfx_trigger_ex("boost_explosion",screen_pos,0.0f);
 		} 

@@ -303,7 +303,7 @@ bool game_update_empty(void) {
 
 	return true;
 }
-// TODO: fix background for resolutions wider than 1024
+
 void game_render_level(void){
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
@@ -313,6 +313,10 @@ void game_render_level(void){
 	spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
 	dest = rectf(1024.0f - off_x, -off_y, 0.0f, 0.0f);
 	spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
+	if(v_width > 1024.0f){
+		dest = rectf(2048.0f - off_x, -off_y, 0.0f, 0.0f);
+		spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
+	}
 	
 	objects_tick(game_paused);
 
