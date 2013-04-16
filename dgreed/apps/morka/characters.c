@@ -16,7 +16,7 @@ CharacterDefaultParams default_characters[character_count] = {
 
 	{
 	"Squirrel",
-	"rabbit_icon",
+	"squirrel_icon",
 	"squirrel",
 	"squirrel",
 	"Jumper",
