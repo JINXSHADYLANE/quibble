@@ -19,7 +19,7 @@
 
 static const float rabbit_hitbox_width = 70.0f;
 static const float rabbit_hitbox_height = 62.0f;
-static const float ground_y = HEIGHT - 128.0f;
+static float ground_y = 0;
 
 static SprHandle shield_spr;
 static float shield_width = 0.0f;
@@ -98,13 +98,13 @@ void obj_rabbit_player_control(GameObject* self){
 		if(d->touching_ground){
 			tutorials_hint_press(false);
 			// coldet for shroom in front
-			start = vec2(pos.x + 50.0f + p->vel.x * 0.6f,pos.y - 90.0f);
+			start = vec2(pos.x + 50.0f + p->vel.x * 0.5f,pos.y - 90.0f);
 			
 			RectF rec = {
 				.left = start.x - 35.0f,
-				.top = 500.0f,
+				.top = v_height - 300.0f,
 				.right = start.x + rabbit_hitbox_width,
-				.bottom = 500.0f + rabbit_hitbox_height
+				.bottom = v_height - 300.0f + rabbit_hitbox_height
 			};				
 
 			if(draw_ai_debug){
@@ -126,15 +126,15 @@ void obj_rabbit_player_control(GameObject* self){
 		} else {
 
 			// coldet below rabbit for shrooms
-			float x = pos.x + (p->vel.x * 0.3f) *(ground_y-pos.y)/ground_y;
+			float x = pos.x + (p->vel.x * 0.2f) *(ground_y-pos.y)/ground_y;
 			float y = pos.y+rabbit_hitbox_height + 30.0f;
 			start = vec2(x,y);
 
 			RectF rec = {
 				.left = start.x - 20.0f,
-				.top = 500.0f,
+				.top = v_height - 268.0f,
 				.right = start.x + rabbit_hitbox_width,
-				.bottom = 500.0f + rabbit_hitbox_height
+				.bottom = v_height - 268.0f + rabbit_hitbox_height
 			};
 
 			if(draw_ai_debug){
@@ -219,7 +219,7 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 						}else if(landing.x < result[i]->physics->cd_obj->pos.x){
 
 							landing.x = result[i]->physics->cd_obj->pos.x - rabbit_hitbox_width;
-							landing.y = HEIGHT - rabbit_hitbox_height;
+							landing.y = v_height - rabbit_hitbox_height;
 							hit = true;
 						}
 
@@ -228,9 +228,9 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 				} 
 			}
 
-			if(landing.y > HEIGHT){
+			if(landing.y > v_height){
 				hit = true;
-				landing.y = HEIGHT - rabbit_hitbox_height;
+				landing.y = v_height - rabbit_hitbox_height;
 			}	
 
 			if(landing.y < rabbit_hitbox_height){
@@ -308,9 +308,9 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 			if(result[i] && ((result[i]->type & ~collision_flag ) & obj_type) && result[i] != d->previuos_hit) hit = true;
 		}
 
-		if(landing.y > HEIGHT){
+		if(landing.y > v_height){
 			hit = true;
-			landing.y = HEIGHT - rabbit_hitbox_height;
+			landing.y = v_height - rabbit_hitbox_height;
 		}			
 
 		if(landing.y < rabbit_hitbox_height){
@@ -534,10 +534,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		if(d->jump_out && d->touching_ground)
 			d->jump_out = false;
 
-		if(p->cd_obj->pos.y > HEIGHT + 33.0f && !d->game_over && !d->jump_out){
+		if(p->cd_obj->pos.y > v_height + 33.0f && !d->game_over && !d->jump_out){
 			p->vel.x = 0.0f;
 			p->vel.y = 0.0f;
-			p->cd_obj->pos.y = HEIGHT + 33.0f;
+			p->cd_obj->pos.y = v_height + 33.0f;
 			d->combo_counter = 0;
 			d->boost = 0;				
 
@@ -545,7 +545,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 				if(levels_current_desc()->season == AUTUMN){
 					// Find next ground tile
-					Vector2 start = vec2(p->cd_obj->pos.x,HEIGHT - 10.0f);
+					Vector2 start = vec2(p->cd_obj->pos.x,v_height - 10.0f);
 					Vector2 end = vec2_add(start,vec2(400.0f,0.0f));
 
 					Vector2 hitpoint;
@@ -562,7 +562,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 					// Jump the rabbit out of the gap
 					p->cd_obj->pos.x = obj->physics->cd_obj->pos.x - rabbit_hitbox_width*2.0f;
-					p->cd_obj->pos.y = HEIGHT;
+					p->cd_obj->pos.y = v_height;
 					p->cd_obj->dirty = true;
 
 					objects_apply_force(self, 
@@ -646,7 +646,7 @@ static void obj_rabbit_became_invisible(GameObject* self) {
 	if(d->game_over){
 		d->is_dead = true;
 		PhysicsComponent* p = rabbit->header.physics;
-		p->cd_obj->pos.y = HEIGHT + rabbit_hitbox_height;
+		p->cd_obj->pos.y = v_height + rabbit_hitbox_height;
 	}
 
 }
@@ -810,7 +810,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			float width = size.x;
 
 			PhysicsComponent* gap = other->physics;
-			Vector2 gap_pos = vec2(gap->cd_obj->pos.x + (gap->cd_obj->size.size.x - width) / 2.0f,HEIGHT + 15.0f);
+			Vector2 gap_pos = vec2(gap->cd_obj->pos.x + (gap->cd_obj->size.size.x - width) / 2.0f,v_height + 15.0f);
 
 			// Create Trampoline
 			ObjTrampoline* trampoline = (ObjTrampoline*) objects_create(&obj_trampoline_desc, gap_pos, (void*)sprt);
@@ -937,6 +937,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 		shield_width = size.x;
 		shield_height = size.y;
 	}
+	if(ground_y == 0) ground_y = v_height - 128.0f;
 }
 
 static void obj_rabbit_destruct(GameObject* self) {

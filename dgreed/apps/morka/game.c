@@ -58,7 +58,7 @@ static void game_reset(void) {
 
 		if(i == player){
 			// Player character
-			Vector2 pos = vec2(512.0f, HEIGHT-128.0f);
+			Vector2 pos = vec2(512.0f, v_height-128.0f);
 
 			character_params[i].name = "You";
 			character_params[i].speed = default_characters[i].speed;
@@ -74,7 +74,7 @@ static void game_reset(void) {
 			tutorials_reset(rabbit);
 		} else if(ai_num < lvl_desc->ai_rabbit_num) {
 			// AI character
-			Vector2 pos = vec2(640.0f+128.0f*ai_num,HEIGHT-128.0f);
+			Vector2 pos = vec2(640.0f+128.0f*ai_num,v_height-128.0f);
 
 			character_params[i].name = default_characters[i].name;
 
@@ -105,11 +105,15 @@ static void game_reset(void) {
 
 	float p = 512.0f + 50.0f + levels_current_desc()->ai_rabbit_num * 128.0f;
 	objects_camera[0].left = p;
-	objects_camera[0].right = p + WIDTH;
+	objects_camera[0].right = p + v_width;
+	objects_camera[0].bottom = v_height;
 	objects_camera[1].left = p;
-	objects_camera[1].right = p + WIDTH;
+	objects_camera[1].right = p + v_width;
+	objects_camera[1].bottom = v_height;	
 	objects_camera[2].left = p;
-	objects_camera[2].right = p + WIDTH;
+	objects_camera[2].right = p + v_width;
+	objects_camera[2].bottom = v_height;
+
 	bg_scroll = p;
 
 	camera_follow_weight = 0.2f;
@@ -136,7 +140,7 @@ static void game_init(void) {
 	tutorials_init();
 	levels_reset("level1");
 	placement_init();
-	game_reset();
+	game_reset();		
 }
 
 static void game_enter(void) {
@@ -198,14 +202,14 @@ static void _move_camera(Vector2 new_pos, Vector2 follow_weight) {
 		objects_camera[0].top += offset.y;
 		objects_camera[0].bottom += offset.y;
 
-		if(objects_camera[0].bottom > HEIGHT){
+		if(objects_camera[0].bottom > v_height){
 			offset.y -= objects_camera[0].top;
 			objects_camera[0].top = 0.0f;
-			objects_camera[0].bottom = HEIGHT;			
+			objects_camera[0].bottom = v_height;			
 		} else if(objects_camera[0].top < -110.0f) {
 			offset.y += -objects_camera[0].top - 110.0f;
 			objects_camera[0].top = -110.0f;
-			objects_camera[0].bottom = objects_camera[0].top + HEIGHT;			
+			objects_camera[0].bottom = objects_camera[0].top + v_height;			
 		}
 
 		objects_camera[1].left += offset.x / 2.0f;
@@ -241,7 +245,7 @@ bool game_update(void) {
 		}
 		//printf("%f %f\n",camera.y,objects_camera[0].top );
 
-		float c = normalize(HEIGHT-128.0f - pos.y, 0.0f,HEIGHT-128.0f);
+		float c = normalize(v_height-128.0f - pos.y, 0.0f,v_height-128.0f);
 		c = MAX(0.0f,c);
 		follow.y = 0.005 * c * c;
 
@@ -275,7 +279,7 @@ bool game_update(void) {
 	if(delta == 0){
 		delta = rand_int(40,70); // new particle every 40-70 frames
 		float x = rand_float_range(objects_camera[2].left,objects_camera[2].right);
-		float y = rand_float_range(0.0f,HEIGHT-128.0f);
+		float y = rand_float_range(0.0f,v_height-128.0f);
 		Vector2 pos = vec2(x,y);
 		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_bg_particle_anchor_desc, pos, NULL);
 		mfx_trigger_follow("dusts",&anchor->screen_pos,NULL);
@@ -299,7 +303,7 @@ bool game_update_empty(void) {
 
 	return true;
 }
-
+// TODO: fix background for resolutions wider than 1024
 void game_render_level(void){
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
