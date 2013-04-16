@@ -34,7 +34,7 @@ void minimap_draw_finish_line(void){
 		// Draw a finish line when its visible to player rabbit
 		float d = (float)(level_distance + 2.0f) * (v_width/3.0f);
 		if(d - player_x < v_width){
-			for(int i = -110; i < v_height;i+=66){
+			for(int i = -110; i < (int)v_height;i+=66){
 				RectF dest = {
 					.left = d,
 					.top = (float) i 
