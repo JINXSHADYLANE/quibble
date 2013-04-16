@@ -56,24 +56,15 @@ static void obj_bomb_detonate(GameObject* self){
 
 static void obj_bomb_collide(GameObject* self, GameObject* other) {
 	ObjBomb* bomb = (ObjBomb*)self;
-	if(other->type == OBJ_RABBIT_TYPE && other != bomb->owner) {
-		obj_bomb_detonate(self);
-	}
 
-	// Collision with ground
 	if(other->type == OBJ_GROUND_TYPE){
-
 		Vector2 vel = self->physics->vel;
-
 		if(vel.y > 0.0f){
-			self->physics->vel.x *= 0.5f;
-			self->physics->vel.y *= -0.95f;
-
-			if(vel.y < 50.0f)
-				obj_bomb_detonate(self);		
-		
+			self->physics->vel.x = 0.0f;
+			self->physics->vel.y = -1000.0f;
 		}
-
+	} else if(other->type == OBJ_RABBIT_TYPE && other != bomb->owner) {
+		obj_bomb_detonate(self);
 	}
 
 }
