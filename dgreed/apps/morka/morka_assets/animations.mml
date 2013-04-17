@@ -53,7 +53,7 @@
 		)
 
 		(seq jump
-			(frames "0 1 2 3 13 14 15 16 17 4 5")
+			(frames "13 14 15 16 17 4 5 ")
 			(on_finish play.glide)
 		)
 
