@@ -50,12 +50,12 @@ static bool season_select_render(float t) {
 		switch(i){
 			case WINTER:
 				lock_spr = sprsheet_get_handle("lock_winter");
-				sprintf(season_text, "Autumn");
+				sprintf(season_text, "Winter");
 			break;
 
 			default:
 				lock_spr = sprsheet_get_handle("lock_autumn");
-				sprintf(season_text, "Winter");
+				sprintf(season_text, "Autumn");
 			break;
 		}
 
