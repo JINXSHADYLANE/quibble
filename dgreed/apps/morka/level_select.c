@@ -141,7 +141,7 @@ static bool level_select_render(float t) {
 				vfont_select(FONT_NAME, 13.0f);
 
 				Vector2 half_size = vec2_scale(vfont_size(place_txt), 0.5f);
-				vfont_draw(place_txt, hud_layer, vec2_sub(ribbon_pos,half_size), col);				
+				vfont_draw(place_txt, hud_layer+1, vec2_sub(ribbon_pos,half_size), col);				
 			}
 
 			// Button action
@@ -164,7 +164,7 @@ static bool level_select_render(float t) {
 			char n[4];
 			sprintf(n, "%d",i-offset+1);
 			Vector2 half_size = vec2_scale(vfont_size(n), 0.5f);
-			vfont_draw(n, hud_layer, vec2_sub(pos,half_size), col);
+			vfont_draw(n, hud_layer+1, vec2_sub(pos,half_size), col);
 		}
 
 		// newline at end of column
