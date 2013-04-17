@@ -37,6 +37,8 @@ static bool season_select_render(float t) {
 	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	SprHandle lock_spr;
+	char season_text[16];
+
 
 	// Season buttons
 	for(int i = 0; i < 2; i++){
@@ -45,22 +47,19 @@ static bool season_select_render(float t) {
 		UIElement* season = uidesc_get_child(element, season_name);
 		spr_draw_cntr_h(season->spr, hud_layer, season->vec2, 0.0f, 1.0f, col);
 
-		TexHandle tex;
-		RectF src;
-		Vector2 cntr_off;
-		sprsheet_get_ex_h(season->spr, &tex, &src, &cntr_off);	
-
 		switch(i){
 			case WINTER:
 				lock_spr = sprsheet_get_handle("lock_winter");
+				sprintf(season_text, "Autumn");
 			break;
 
 			default:
 				lock_spr = sprsheet_get_handle("lock_autumn");
+				sprintf(season_text, "Winter");
 			break;
 		}
 
-		Vector2 button_pos = vec2_add(season->vec2, cntr_off);
+		Vector2 button_pos = season->vec2;
 
 		if(level_is_unlocked(levels_start_of_season(i))){
 
@@ -79,6 +78,19 @@ static bool season_select_render(float t) {
 					malka_states_push("level_select");
 				}
 			}	
+
+			vfont_select(FONT_NAME, 58.0f);
+			char season_num[2];
+			sprintf(season_num, "%d", i+1);
+			Vector2 half_size = vec2_scale(vfont_size(season_num), 0.5f);	
+			vfont_draw(season_num, hud_layer, vec2_sub(button_pos,half_size), col);
+
+			vfont_select(FONT_NAME, 20.0f);
+			Vector2 half_size2 = vec2_scale(vfont_size(season_text), 0.5f);
+			button_pos.y += 30.0f;	
+			vfont_draw(season_text, hud_layer, vec2_sub(button_pos,half_size2), col);						
+
+
 
 		} else {
 			spr_draw_cntr_h(lock_spr, hud_layer, button_pos, 0.0f, 1.0f, col);
