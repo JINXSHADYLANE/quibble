@@ -43,8 +43,8 @@ CharacterDefaultParams default_characters[character_count] = {
 	{
 	"Skunk",
 	"rabbit_icon",
-	"rabbit_4",
-	"rabbit",
+	"skunk",
+	"squirrel",
 	"Tough",
 	149,	
 	COLOR_RGBA(255, 0, 0, 255),
