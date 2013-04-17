@@ -71,7 +71,6 @@ static bool season_select_render(float t) {
 
 				Vector2 hit_pos = t[0].hit_pos;
 				
-
 				float r_sqr = 70.0f * 70.0f;
 				if(vec2_length_sq(vec2_sub(hit_pos, button_pos)) < r_sqr) {
 					level_select_set_season(i);
@@ -82,15 +81,16 @@ static bool season_select_render(float t) {
 			vfont_select(FONT_NAME, 58.0f);
 			char season_num[2];
 			sprintf(season_num, "%d", i+1);
-			Vector2 half_size = vec2_scale(vfont_size(season_num), 0.5f);	
-			vfont_draw(season_num, hud_layer, vec2_sub(button_pos,half_size), col);
+			Vector2 half_size = vec2_scale(vfont_size(season_num), 0.5f);
 
 			vfont_select(FONT_NAME, 20.0f);
 			Vector2 half_size2 = vec2_scale(vfont_size(season_text), 0.5f);
-			button_pos.y += 30.0f;	
-			vfont_draw(season_text, hud_layer, vec2_sub(button_pos,half_size2), col);						
 
-
+			Vector2 pos = vec2_add( button_pos, vec2(-half_size2.x,half_size.y-half_size2.y - 7.0f) );
+			vfont_draw(season_text, hud_layer, pos, col);	
+			vfont_select(FONT_NAME, 58.0f);
+			pos = vec2_sub( button_pos, vec2(half_size.x,half_size.y + half_size2.y - 7.0f) );					
+			vfont_draw(season_num, hud_layer, pos, col);
 
 		} else {
 			spr_draw_cntr_h(lock_spr, hud_layer, button_pos, 0.0f, 1.0f, col);

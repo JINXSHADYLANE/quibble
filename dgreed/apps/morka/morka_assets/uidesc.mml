@@ -249,14 +249,14 @@
 		(def character_icon
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-120)
+				(vec2 -30,-120)
 			)
 		)
 
 		(def character_name
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-250)
+				(vec2 30,-250)
 			)
 		)
 
@@ -269,42 +269,42 @@
 		(def speed_txt
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-165)
+				(vec2 30,-165)
 			)
 		)
 
 		(def speed_bar
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 120,-165)
+				(vec2 150,-165)
 			)
 		)
 
 		(def jump_txt
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-115)
+				(vec2 30,-115)
 			)
 		)
 
 		(def jump_bar
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 120,-115)
+				(vec2 150,-115)
 			)
 		)				
 
 		(def about_txt
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-60)
+				(vec2 30,-60)
 			)
 		)
 
 		(def cost_txt
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,0)
+				(vec2 30,0)
 			)
 		)	
 
