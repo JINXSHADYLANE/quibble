@@ -72,12 +72,12 @@
 		(frames 16)
 		(grid 4,4)
 	)
-	(anim rabbit_4
+	(anim skunk
 		(tex atlas_0d.png)
-		(src 0,0,128,128)
-		(offset 128,128)
-		(frames 16)
-		(grid 4,4)
+		(src 0,0,165,75)
+		(offset 165,75)
+		(frames 27)
+		(grid 3,9)
 	)
 
 	#################
