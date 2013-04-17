@@ -14,38 +14,40 @@
 
 	### Chapter UI ###
 
-(img ball_autumn
-	(tex atlas_0e.png)
-	(src 306,113,411,222)
-)
-(img ball_winter
-	(tex atlas_0e.png)
-	(src 306,2,411,111)
-)
-(img lock_autumn
-	(tex atlas_0e.png)
-	(src 460,2,505,49)
-)
-(img lock_winter
-	(tex atlas_0e.png)
-	(src 413,2,458,49)
-)
-(img rabbit_icon
-	(tex atlas_0e.png)
-	(src 287,288,500,665)
-)
-(img season1
-	(tex atlas_0e.png)
-	(src 2,2,304,286)
-)
-(img season2
-	(tex atlas_0e.png)
-	(src 2,673,262,943)
-)
-(img squirrel_icon
-	(tex atlas_0e.png)
-	(src 2,288,285,671)
-)
+	(img ball_autumn
+		(tex atlas_0e.png)
+		(src 361,607,466,716)
+	)
+	(img ball_winter
+		(tex atlas_0e.png)
+		(src 254,607,359,716)
+	)
+	(img lock_autumn
+		(tex atlas_0e.png)
+		(src 49,627,94,674)
+	)
+	(img lock_winter
+		(tex atlas_0e.png)
+		(src 2,627,47,674)
+	)
+	(img rabbit_icon
+		(tex atlas_0e.png)
+		(src 287,2,500,379)
+	)
+	(img season1
+		(tex atlas_0e.png)
+		(src 2,387,252,625)
+		(cntr 126,525)
+	)
+	(img season2
+		(tex atlas_0e.png)
+		(src 287,381,497,605)
+		(cntr 375,515)
+	)
+	(img squirrel_icon
+		(tex atlas_0e.png)
+		(src 2,2,285,385)
+	)
 
 	### rabbits ###
 	
