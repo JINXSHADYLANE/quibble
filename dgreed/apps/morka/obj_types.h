@@ -102,6 +102,8 @@ typedef struct {
 	bool force_dive;
 	bool input_disabled;
 	bool jump_out;
+	bool over_branch;
+	bool collision_update;
 
 	bool has_powerup[POWERUP_COUNT];
 	bool trampoline_placed;
