@@ -604,6 +604,11 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 			p->cd_obj->pos.y = v_height + 100.0f;
 		}
 
+		if(d->collision_update)
+			d->collision_update = false;
+		else
+			d->over_branch = false;
+
 	}
 
 }
@@ -717,6 +722,8 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	PhysicsComponent* p = self->physics;
 	Vector2 vel = self->physics->vel;
 
+	d->collision_update = true;
+
 	// Collision with ground
 	if(other->type == OBJ_GROUND_TYPE) {
 
@@ -728,6 +735,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		float ground_top = cd_ground->pos.y;
 		float penetration_y = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
 		if(penetration_y > 0.0f && cd_rabbit->pos.y < ground_top) {
+
 			self->physics->vel.y = 0.0f;
 			if(!d->touching_ground) {
 				if(d->player_control) hud_trigger_combo(0);
@@ -756,7 +764,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 
 	}
-	// Collision with spring branch
+	// Collision with spring branch (bounce)
 	else if(other->type == OBJ_SPRING_BRANCH_TYPE && !d->touching_ground &&
 		vel.y > 500.0f && d->bounce_force.y == 0.0f) {
 
@@ -778,7 +786,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		async_schedule(_rabbit_delayed_bounce, 20, self);
 	}
 
-	// Collision with branch
+	// Collision with branches (run)
 	else if(other->type == OBJ_BRANCH_TYPE ||
 
 		(other->type == OBJ_SPIKE_BRANCH_TYPE && d->spike_hit) ||
@@ -797,11 +805,13 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
 		float ground_top = cd_ground->pos.y;
 
-		if(p->vel.y > 0.0f){
+		if(p->vel.y >= 0.0f){
 
 			float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
-			if(penetration > 0.0f && cd_rabbit->pos.y < cd_ground->pos.y) {
+			if(penetration > 0.0f && cd_rabbit->pos.y < ground_top && !d->over_branch  ) {
+
 				self->physics->vel.y = 0.0f;
+				d->over_branch = false;
 				if(!d->touching_ground) {
 					if(d->player_control) hud_trigger_combo(0);
 					anim_play_ex(rabbit->anim, "land", TIME_S);
@@ -814,9 +824,12 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 				);
 			}
 
+		} else {
+			d->over_branch = true;
 		}
 
-	}	
+
+	}
 
 	// Collision with fall trigger
 	else if(other->type == OBJ_FALL_TRIGGER_TYPE) {
@@ -892,6 +905,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			);
 		}
 	}
+
 }
 
 static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data) {
