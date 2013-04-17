@@ -17,7 +17,7 @@ extern uint player;
 // Character select variables
 static float xpos = 0.0f;
 static float delta = 0.0f;
-const float inc = 470.0f;
+const float inc = 600.0f;
 
 uint coins = 0;
 static uint coins_original = 0;
@@ -286,9 +286,9 @@ static bool shop_render(float t) {
 			release = true;
 			if(fabsf(x1 - x2) > 1.0f && time_s() - start <= 0.2f){
 				if(x1 - x2 > 0.0f) 
-					delta = 120.0f;
+					delta = 150.0f;
 				else
-					delta = -120.0f;
+					delta = -150.0f;
 			}
 		}
 		hold = false;
