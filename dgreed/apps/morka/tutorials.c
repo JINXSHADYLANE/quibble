@@ -45,7 +45,7 @@ TutorialStep level1_steps[] = {
 	 {0.5f,0.178385416f},
 	 NULL,
 	 NULL,
-	 {-2.0f, 300.0f},
+	 {0.5, 0.390625},
 	 true,
 	 true,
 	 true,
@@ -60,7 +60,7 @@ TutorialStep level1_steps[] = {
 	 {0.5f,0.178385416f}, 
 	 NULL,
 	 NULL,
-	 {0.0f, 300.0f},
+	 {0.5f, 0.390625},
 	 true,
 	 true,
 	 true,
@@ -88,7 +88,7 @@ TutorialStep level1_steps[] = {
 	 {0.5f,0.178385416f},
 	 NULL,
 	 NULL,
-	 {0.0f, 300.0f},
+	 {0.5f, 0.390625},
 	 true,
 	 true,
 	 true,
@@ -116,7 +116,7 @@ TutorialStep level1_steps[] = {
 	 {0.5f,0.178385416f},	 
 	 NULL,
 	 NULL,
-	 {0.0f, 300.0f},
+	 {0.5f, 0.390625},
 	 true,
 	 true,
 	 true,
@@ -399,6 +399,10 @@ static void _tutorial_text(TutorialStep* step,byte a){
 }
 
 static void _tutorial_finger_animation(Vector2 finger_pos,byte a){
+	Vector2 half_size = vec2_scale(sprsheet_get_size_h(finger),0.5f);
+	finger_pos = vec2(v_width * finger_pos.x,v_height * finger_pos.y);
+	finger_pos = vec2_sub(finger_pos,half_size);
+
 	// animate finger according to hints, or loop pressing animation
 	float d = 0.0f;
 	if(current_step->show_hint_press){
@@ -454,10 +458,8 @@ bool tutorials_render(float t){
 		if(current_step->text) _tutorial_text(current_step,a);
 
 		// Finger animation
-		Vector2 half_size = vec2_scale(sprsheet_get_size_h(finger),0.5f);
-		Vector2 finger_pos = vec2_sub(current_step->finger_pos,half_size);
-		if(finger_pos.x >= 0.0f && finger_pos.y >= 0.0f)
-			_tutorial_finger_animation(finger_pos, a);
+		if(current_step->finger_pos.x >= 0.0f && current_step->finger_pos.y >= 0.0f)
+			_tutorial_finger_animation(current_step->finger_pos, a);
 		
 		// If tutorial has paused gameplay, unpause on touch
 		if(current_step->pause_game){
