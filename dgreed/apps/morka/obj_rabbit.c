@@ -726,8 +726,8 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		CDObj* cd_ground = other->physics->cd_obj;
 		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
 		float ground_top = cd_ground->pos.y;
-		float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
-		if(penetration > 0.0f && cd_rabbit->pos.y < cd_ground->pos.y) {
+		float penetration_y = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
+		if(penetration_y > 0.0f && cd_rabbit->pos.y < ground_top) {
 			self->physics->vel.y = 0.0f;
 			if(!d->touching_ground) {
 				if(d->player_control) hud_trigger_combo(0);
@@ -737,9 +737,24 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			d->touching_ground = true;
 			cd_rabbit->offset = vec2_add(
 				cd_rabbit->offset, 
-				vec2(0.0f, -penetration)
+				vec2(0.0f, -penetration_y)
 			);
+		} else if(cd_rabbit->pos.y > ground_top) {
+
+			float rabbit_right = cd_rabbit->pos.x + cd_rabbit->size.size.x;
+			float ground_left = cd_ground->pos.x;;
+			float penetration_x = (rabbit_right + cd_rabbit->offset.x) - ground_left;
+			
+			if(penetration_x > 0.0f) {
+				cd_rabbit->offset = vec2_add(
+					cd_rabbit->offset, 
+					vec2(-penetration_x, 0.0f)
+				);
+			}
+
 		}
+
+
 	}
 	// Collision with spring branch
 	else if(other->type == OBJ_SPRING_BRANCH_TYPE && !d->touching_ground &&
@@ -756,7 +771,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 		d->bounce_force = f;
 
-		// Slow down vertical movevment
+		// Slow down vertical movement
 		self->physics->vel.y *= 0.2f;
 
 		// Delay actual bouncing 0.1s
