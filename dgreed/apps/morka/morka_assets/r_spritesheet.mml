@@ -17,19 +17,19 @@
 
 	(img ball_autumn
 		(tex r_atlas_0e.png)
-		(src 504,1207,713,1424)
+		(src 556,1207,765,1424)
 	)
 	(img ball_winter
 		(tex r_atlas_0e.png)
-		(src 715,1207,924,1422)
+		(src 767,1207,976,1422)
 	)
 	(img lock_autumn
 		(tex r_atlas_0e.png)
-		(src 926,1300,1015,1391)
+		(src 858,1424,947,1515)
 	)
 	(img lock_winter
 		(tex r_atlas_0e.png)
-		(src 926,1207,1015,1298)
+		(src 767,1424,856,1515)
 	)
 	(img rabbit_icon
 		(tex r_atlas_0e.png)
@@ -37,13 +37,17 @@
 	)
 	(img season1
 		(tex r_atlas_0e.png)
-		(src 2,770,502,1246)
-		(cntr 249,1048)
+		(src 2,1552,502,2028)
+		(cntr 250,1834)
 	)
 	(img season2
 		(tex r_atlas_0e.png)
 		(src 570,758,990,1205)
-		(cntr 752,1024)
+		(cntr 749,1024)
+	)
+	(img skunk_icon
+		(tex r_atlas_0e.png)
+		(src 2,770,554,1550)
 	)
 	(img squirrel_icon
 		(tex r_atlas_0e.png)

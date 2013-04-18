@@ -42,7 +42,7 @@ CharacterDefaultParams default_characters[character_count] = {
 
 	{
 	"Skunk",
-	"rabbit_icon",
+	"skunk_icon",
 	"skunk",
 	"squirrel",
 	"Tough",
