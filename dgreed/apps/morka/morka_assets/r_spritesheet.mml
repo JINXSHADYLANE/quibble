@@ -238,7 +238,7 @@
 	### atlas 1-3 ###
 	#################
 	
-(img base_place
+	(img base_place
 	(tex r_atlas_13.png)
 	(src 1090,2,1710,120)
 	(cntr 1400,-224)
@@ -298,6 +298,11 @@
 	(src 487,1884,686,2042)
 	(cntr 586,1963)
 )
+(img bubble1_obj
+	(tex r_atlas_13.png)
+	(src 880,2,1085,250)
+	(cntr 982,126)
+)
 (img bubble_obj
 	(tex r_atlas_13.png)
 	(src 1712,2,2029,318)
@@ -305,11 +310,13 @@
 )
 (img buy
 	(tex r_atlas_13.png)
-	(src 1081,1063,1331,1315)
+	(src 1284,1063,1534,1315)
+	(cntr 1412,1188)
 )
 (img first_place
 	(tex r_atlas_13.png)
 	(src 719,779,1025,1239)
+	(cntr 873,965)
 )
 (img grass3_sign
 	(tex r_atlas_13.png)
@@ -319,6 +326,7 @@
 (img last_place
 	(tex r_atlas_13.png)
 	(src 1342,342,1647,662)
+	(cntr 1503,509)
 )
 (img mushroom_1
 	(tex r_atlas_13.png)
@@ -327,8 +335,8 @@
 )
 (img mushroom_2
 	(tex r_atlas_13.png)
-	(src 880,2,1081,299)
-	(cntr 987,178)
+	(src 1081,1063,1282,1360)
+	(cntr 1188,1239)
 )
 (img mushroom_3
 	(tex r_atlas_13.png)
@@ -383,6 +391,7 @@
 (img second_place
 	(tex r_atlas_13.png)
 	(src 682,361,986,777)
+	(cntr 834,503)
 )
 (img shield
 	(tex r_atlas_13.png)
@@ -397,6 +406,7 @@
 (img third_place
 	(tex r_atlas_13.png)
 	(src 1001,1401,1283,1779)
+	(cntr 1140,1507)
 )
 (img trampoline
 	(tex r_atlas_13.png)
@@ -408,7 +418,6 @@
 	(src 1090,122,1678,340)
 	(cntr 1384,231)
 )
-
 
 	#################
 	### atlas 1-4 ###
