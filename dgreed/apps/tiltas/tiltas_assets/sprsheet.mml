@@ -1,0 +1,37 @@
+(sprsheet tiltas 
+	(prefix "tiltas_assets/")
+	(img empty
+		(tex empty.png)
+	)
+	(img wall
+		(tex atlas1.png)
+		(src 0,0,16,16)
+	)
+	(img wall_glow
+		(tex atlas1.png)
+		(src 0,16,48,64)
+	)
+	(img blob_big
+		(tex atlas1.png)
+		(src 16,0,32,16)
+	)
+	(img blob_small
+		(tex atlas1.png)
+		(src 32,0,48,16)
+	)
+	(img overlay
+		(tex overlay.png)
+		(src 0,0,512,512)
+	)
+	(img noise
+		(tex noise.png)
+		(src 0,0,128,128)
+	)
+	(anim grain
+		(tex grain.png)
+		(src 0,0,300,300)
+		(offset 16,16)
+		(frames 9)
+		(grid 3,3)
+	)
+)
