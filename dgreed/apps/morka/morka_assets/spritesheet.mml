@@ -92,7 +92,7 @@
 	### atlas 1-2 ###
 	#################
 	
-		(img blue_shade
+	(img blue_shade
 		(tex atlas_12.png)
 		(src 683,2,695,14)
 	)
@@ -245,7 +245,7 @@
 	### atlas 1-3 ###
 	#################
 
-		(img base_place
+	(img base_place
 		(tex atlas_13.png)
 		(src 584,2,893,61)
 		(cntr 738,-111)

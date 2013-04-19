@@ -297,7 +297,8 @@ void hud_render(float t) {
 			_render_combo(current_combo, 0.5f);
 	}	
 	// Minimap
-	if(levels_current_desc()->distance > 0) minimap_draw(t);	
+	if(levels_current_desc()->distance > 0) minimap_draw(t);
+	//if(levels_current_desc()->ai_rabbit_num > 0) minimap_draw_distance_from(t,rabbit);	
 }
 
 bool hud_button(UIElement* element, Color col, float ts) {
