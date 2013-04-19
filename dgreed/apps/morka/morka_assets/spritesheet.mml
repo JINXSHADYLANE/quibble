@@ -93,7 +93,7 @@
 	#################
 	
 	(img distance_pointer
-		(tex atlas.png)
+		(tex atlas_12.png)
 		(src 463,395,486,413)
 	)
 	(img distance_id

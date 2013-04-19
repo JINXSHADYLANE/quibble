@@ -17,8 +17,6 @@ static void obj_cactus_collide(GameObject* self, GameObject* other) {
 
 		if(cactus->damage == 1.0f && d->rocket_time == 0.0f ){
 
-
-
 			const float animation_length = 1.0f; // seconds
 
 			cactus->t0 = time_s();
@@ -27,6 +25,9 @@ static void obj_cactus_collide(GameObject* self, GameObject* other) {
 			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
 
 			if(!d->has_powerup[SHIELD]){
+
+				d->touching_ground = false;
+
 				Vector2 f = {
 					.x = -100000.0f,
 					.y =  0.0f
