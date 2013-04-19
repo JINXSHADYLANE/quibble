@@ -35,32 +35,27 @@ bool dgreed_init(int argc, const char** argv) {
 
 	const char* sprsheet = ASSETS_DIR "spritesheet.mml";
     
-    uint n_width, n_height;
-    video_get_native_resolution(&n_width, &n_height);
+    uint r = params_find("-r");
+    if(r != ~0 && params_count() > r+1){
+    	char* token = strtok(params_get(r+1), "xX");
+		v_width = atoi(token);		
+	    token = strtok(NULL, "xX");
+	    v_height = atoi(token);
+	    
+	    if(v_width == 0) 
+	    	v_width = 1024;
+	    if(v_height == 0)
+	    	v_height = 768; 
 
-	if(params_find("-retina") != ~0 || (n_width == 2048 && n_height == 1536)) {
-		sprsheet = ASSETS_DIR "r_spritesheet.mml";
-		n_width = 2048;
-		n_height = 1536;
-	}
-	else if(params_find("-iphone") != ~0 || (n_width == 960 && n_height == 640)) {
-		n_width = 960;
-		n_height = 640;
+	   	assert(v_width >= 480 && v_height >= 320 && v_width <= 2560 && v_height <=1600);
 
-		v_width = 960;
-		v_height = 640;
-	}
-	else if(params_find("-iphone5") != ~0 || (n_width == 1136 && n_height == 640)) {
-		n_width = 1136;
-		n_height = 640;	
+    }
 
-		v_width = 1136;
-		v_height = 640;
+    if(v_width > 1024 || v_height > 768)
+    	sprsheet = ASSETS_DIR "r_spritesheet.mml";
 
-	} else {
-		n_width = 1024;
-		n_height = 768;
-	}
+    uint n_width = v_width;
+    uint n_height = v_height;
 
 	if(params_find("-s") != ~0) {
 		n_width /= 2;

@@ -463,7 +463,7 @@ uint params_count(void);
 const char* params_get(uint n);
 
 // Searches for specified parameter, returns its position, 
-// or 0 if there is no such parameter 
+// or MAX_UINT if there is no such parameter 
 uint params_find(const char* param);
 
 /*
