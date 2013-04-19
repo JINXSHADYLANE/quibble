@@ -3,10 +3,28 @@
 
 TEST_(empty) {
 	uidesc_init_str(
-			"(uidesc empty)"
+			"(uidesc empty)",
+			vec2(0.0f, 0.0f)
 	);
 
-	ASSERT_(uidesc_get("screen") == NULL);
+	ASSERT_(uidesc_get("element") == NULL);
+
+	uidesc_close();
+}
+
+TEST_(screen) {
+	uidesc_init_str(
+			"(uidesc empty)",
+			vec2(1024.0f, 768.0f)
+	);
+
+	UIElement* element = uidesc_get("screen");
+	ASSERT_(element);
+	ASSERT_(element->members == UI_EL_RECT);
+	ASSERT_(element->rect.left == 0.0f);
+	ASSERT_(element->rect.top == 0.0f);
+	ASSERT_(element->rect.right == 1024.0f);
+	ASSERT_(element->rect.bottom == 768.0f);
 
 	uidesc_close();
 }
@@ -14,14 +32,15 @@ TEST_(empty) {
 TEST_(def) {
 	uidesc_init_str(
 			"(uidesc def"
-			"	(def screen"
+			"	(def element"
 			"	)"
-			")"
+			")",
+			vec2(0.0f, 0.0f)
 	);
 
-	UIElement* screen = uidesc_get("screen");
+	UIElement* screen = uidesc_get("element");
 	ASSERT_(screen);
-	ASSERT_(strcmp(screen->name, "screen") == 0);
+	ASSERT_(strcmp(screen->name, "element") == 0);
 	ASSERT_(screen->members == 0);
 
 	ASSERT_(uidesc_get("el1") == NULL);
@@ -35,7 +54,8 @@ TEST_(def_vec2) {
 			"	(def el1"
 			"		(vec2 32,17)"
 			"	)"
-			")"
+			")",
+			vec2(0.0f, 0.0f)
 	);
 
 	UIElement* el1 = uidesc_get("el1");
@@ -55,7 +75,8 @@ TEST_(def_rect) {
 			"		(vec2 -32,-17)"
 			"		(rect 1,2,3,4)"
 			"	)"
-			")"
+			")",
+			vec2(0.0f, 0.0f)
 	);
 
 	UIElement* el1 = uidesc_get("el1");
@@ -81,7 +102,8 @@ TEST_(def_nested) {
 			"		)"
 			"		(rect 1,2,3,4)"
 			"	)"
-			")"
+			")",
+			vec2(0.0f, 0.0f)
 	);
 
 	UIElement* el1 = uidesc_get("el1");
@@ -106,7 +128,8 @@ TEST_(get_vec2) {
 		"	(def el2"
 		"		(get_vec2 el1)"
 		"	)"
-		")"
+		")",
+		vec2(0.0f, 0.0f)
 	);
 
 	UIElement* el1 = uidesc_get("el1");
@@ -139,7 +162,8 @@ TEST_(get_rect_nested) {
 		"		(vec2 3,4)"
 		"		(get_rect el1)"
 		"	)"
-		")"
+		")",
+		vec2(0.0f, 0.0f)
 	);
 
 	UIElement* el1 = uidesc_get("el1");
@@ -180,7 +204,8 @@ TEST_(add) {
 		"	(def el2"
 		"		(add <- (get_vec2 el1) (add <- (vec2 -5,0) (vec2 10,10)))"
 		"	)"
-		")"
+		")",
+		vec2(0.0f, 0.0f)
 	);
 
 	UIElement* el1 = uidesc_get("el1");
@@ -208,7 +233,8 @@ TEST_(avg) {
 		"	(def el2"
 		"		(avg <- (vec2 1,-5) (vec2 2,0) (vec2 3,5))"
 		"	)"
-		")"
+		")",
+		vec2(0.0f, 0.0f)
 	);
 
 	UIElement* el1 = uidesc_get("el1");
@@ -233,7 +259,8 @@ TEST_(middle) {
 		"	(def el1"
 		"		(middle <- (rect 0,10,100,40))"	
 		"	)"
-		")"
+		")",
+		vec2(0.0f, 0.0f)
 	);
 
 	UIElement* el1 = uidesc_get("el1");
@@ -264,7 +291,8 @@ TEST_(tl_tr_bl_br) {
 		"			(br <- (rect -1,-4,15,23))"
 		"		)"
 		"	)"
-		")"
+		")",
+		vec2(0.0f, 0.0f)
 	);
 
 	UIElement* el1 = uidesc_get("el1");
@@ -301,7 +329,8 @@ TEST_(radd) {
 		"	(def el2"
 		"		(radd <- (get_rect el1) (add <- (vec2 -5,0) (vec2 10,10)))"
 		"	)"
-		")"
+		")",
+		vec2(0.0f, 0.0f)
 	);
 
 	UIElement* el1 = uidesc_get("el1");
@@ -338,7 +367,8 @@ TEST_(contexts) {
 		"		(get_rect el3)"
 		"		(vec2 1,2)"
 		"	)"
-		")"
+		")",
+		vec2(0.0f, 0.0f)
 	);
 
 	UIElement* el1 = uidesc_get("el1");

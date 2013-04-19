@@ -98,7 +98,7 @@ bool dgreed_init(int argc, const char** argv) {
 
 	sprsheet_init(sprsheet);
 	mchains_init(ASSETS_DIR "mchains.mml");
-	uidesc_init(ASSETS_DIR "uidesc.mml");
+	uidesc_init(ASSETS_DIR "uidesc.mml", vec2((float)v_width, (float)v_height));
 
 	malka_states_init(SCRIPTS_DIR "main.lua");
 	malka_states_start();

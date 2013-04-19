@@ -245,10 +245,7 @@ static void _rebase_strs(void* min, void* max, ptrdiff_t delta) {
 	}
 }
 
-UIElement* _parse_def(MMLObject* mml, NodeIdx node, int i_parent) {
-	assert(strcmp(mml_get_name(mml, node), "def") == 0);
-
-	// Set the name, keep it in name_strings darray
+static uint _reserve_element(const char* name) {
 	void* old_data = ui_elements.data;
 	darray_append_nulls(&ui_elements, 1);
 	if(old_data != ui_elements.data)
@@ -259,7 +256,6 @@ UIElement* _parse_def(MMLObject* mml, NodeIdx node, int i_parent) {
 		);
 	uint i = ui_elements.size-1;
 	UIElement* new = darray_get(&ui_elements, i);
-	const char* name = mml_getval_str(mml, node);
 	uint old_size = name_strings.size;
 	old_data = name_strings.data;
 	darray_append_multi(&name_strings, name, strlen(name)+1);
@@ -267,6 +263,17 @@ UIElement* _parse_def(MMLObject* mml, NodeIdx node, int i_parent) {
 		_rebase_strs(old_data, old_data + old_size, name_strings.data - old_data);
 	new->name = name_strings.data + old_size;
 
+	return i;
+}
+
+UIElement* _parse_def(MMLObject* mml, NodeIdx node, int i_parent) {
+	assert(strcmp(mml_get_name(mml, node), "def") == 0);
+
+	const char* name = mml_getval_str(mml, node);
+	uint i = _reserve_element(name);
+	UIElement* new = darray_get(&ui_elements, i);
+
+	// Set the name, keep it in name_strings darray
 	// Init child list
 	list_init(&new->child_list);
 
@@ -321,11 +328,17 @@ static void _init(void) {
 	dict_init(&ui_dict);
 }
 
-void uidesc_init(const char* desc) {
+void uidesc_init(const char* desc, Vector2 screen) {
 	assert(desc);
 	const char* mml_text = txtfile_read(desc);	
 
 	_init();
+
+	uint i = _reserve_element("screen");
+	UIElement* scr_el = darray_get(&ui_elements, i);
+	scr_el->rect = rectf(0.0f, 0.0f, screen.x, screen.y);
+	dict_insert(&ui_dict, scr_el->name, scr_el);
+	scr_el->members |= UI_EL_RECT;
 
 	MMLObject mml;
 	if(!mml_deserialize(&mml, mml_text))
@@ -337,10 +350,17 @@ void uidesc_init(const char* desc) {
 	mml_free(&mml);
 }
 
-void uidesc_init_str(const char* mmldesc) {
+void uidesc_init_str(const char* mmldesc, Vector2 screen) {
 	assert(mmldesc);
 
 	_init();
+
+	uint i = _reserve_element("screen");
+	UIElement* scr_el = darray_get(&ui_elements, i);
+	scr_el->rect = rectf(0.0f, 0.0f, screen.x, screen.y);
+	scr_el->members |= UI_EL_RECT;
+
+	dict_insert(&ui_dict, scr_el->name, scr_el);
 
 	MMLObject mml;
 	if(!mml_deserialize(&mml, mmldesc))

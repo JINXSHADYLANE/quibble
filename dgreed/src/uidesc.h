@@ -97,8 +97,8 @@ typedef struct {
 	RectF rect;
 } UIElement;
 
-void uidesc_init(const char* desc);
-void uidesc_init_str(const char* mmldesc);
+void uidesc_init(const char* desc, Vector2 screen);
+void uidesc_init_str(const char* mmldesc, Vector2 screen);
 void uidesc_close(void);
 
 // Returns UIElement, searches only root elements.
