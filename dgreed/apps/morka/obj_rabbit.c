@@ -601,7 +601,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		if(d->game_over && !r->was_visible && !d->is_dead){
 			d->is_dead = true;
 			p->vel = vec2(0.0f,0.0f);
-			p->cd_obj->pos.y = v_height + 100.0f;
+			self->render->spr = empty_spr;
 		}
 
 		if(d->collision_update)
@@ -609,6 +609,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		else
 			d->over_branch = false;
 
+	} else {
+		self->physics->vel = vec2(0.0f,0.0f);
 	}
 
 }
@@ -666,8 +668,9 @@ static void _rabbit_delayed_bounce(void* r) {
 	PhysicsComponent* p = rabbit->header.physics;
 
 	if(p->acc.y >= 0.0f && !d->touching_ground && (d->jump_off_mushroom || d->is_diving) ) {
-		d->touching_ground = false;
 
+		d->jump_out = false;
+		d->touching_ground = false;
 		if(!d->player_control) d->land = _predict_landing(rabbit,d->bounce_force);
 
 		if(d->player_control) tutorial_event(BOUNCE_PERFORMED);
