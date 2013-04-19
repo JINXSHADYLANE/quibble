@@ -407,12 +407,12 @@ static bool shop_render(float t) {
 	}
 
 	// Coin icon
-	spr_draw_cntr_h(coin_icon->spr, hud_layer,coin_icon->vec2, 0.0f, 1.0f, col);
+	spr_draw_cntr_h(coin_icon->spr, hud_layer+1,coin_icon->vec2, 0.0f, 1.0f, col);
 	// Coin txt
 	vfont_select(FONT_NAME, 38.0f);
 	char str[32];
 	sprintf(str, "%u",coins);
-	vfont_draw(str, hud_layer, coin_text->vec2, col);
+	vfont_draw(str, hud_layer+1, coin_text->vec2, col);
 
 	if(_shop_character_owned(player)){
 		// Play button
