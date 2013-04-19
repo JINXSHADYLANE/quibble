@@ -109,7 +109,7 @@
 			(spr base_place)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-120)
+				(vec2 0,23)
 			)
 		)
 
