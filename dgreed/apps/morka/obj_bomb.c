@@ -9,51 +9,6 @@ static void obj_bomb_became_invisible(GameObject* self) {
 	// empty
 }
 
-static void obj_bomb_detonate(GameObject* self){
-	PhysicsComponent* p = self->physics;
-	RenderComponent* sr = self->render;
-	// Explosion particles
-	if(sr->was_visible){
-		ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
-		mfx_trigger_follow("bomb_explode",&anchor->screen_pos,NULL);
-	}
-
-	float r = 200.0f;
-
-	Vector2 range = vec2(r,r);
-
-	// Apply explosion force to rabbits based on distance
-	for(int i = 0; i < minimap_get_count();i++){
-		ObjRabbit* rabbit = minimap_get_rabbit(i);
-		Vector2 delta = vec2_sub(rabbit->header.physics->cd_obj->pos, p->cd_obj->pos);
-
-		if(fabsf(delta.x) <= range.x && fabsf(delta.y) <= range.y && !rabbit->data->jump_out){
-			if(rabbit->data->has_powerup[SHIELD]){
-				rabbit->data->has_powerup[SHIELD] = false;
-
-				RenderComponent* rr = rabbit->header.render;
-				if(rr->was_visible){
-					ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);	
-					mfx_trigger_follow("bubble_explode",&anchor->screen_pos,NULL);	
-				}	
-
-			} else {	
-				if(delta.x < 0.0f) range.x *= -1.0f;
-				if(delta.y < 0.0f) range.y *= -1.0f;
-
-				delta = vec2_sub(range,delta);
-				delta = vec2_scale(delta,1000.0f);
-
-				GameObject* other = (GameObject*) rabbit;
-				objects_apply_force(other, vec2(delta.x, delta.y));
-			}
-		}
-
-	}
-
-	objects_destroy(self);	
-}
-
 static void obj_bomb_collide(GameObject* self, GameObject* other) {
 	ObjBomb* bomb = (ObjBomb*)self;
 
@@ -64,7 +19,46 @@ static void obj_bomb_collide(GameObject* self, GameObject* other) {
 			self->physics->vel.y = -1000.0f;
 		}
 	} else if(other->type == OBJ_RABBIT_TYPE && other != bomb->owner) {
-		obj_bomb_detonate(self);
+			
+			RenderComponent* sr = self->render;
+			// Explosion particles
+			if(sr->was_visible){
+				ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
+				mfx_trigger_follow("bomb_explode",&anchor->screen_pos,NULL);
+			}
+
+			ObjRabbit* rabbit = (ObjRabbit*)other;
+			ObjRabbitData* d = rabbit->data;
+
+			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
+
+			if(!d->has_powerup[SHIELD]){
+
+				other->physics->vel.x = 0.0f;
+				d->touching_ground = false;
+				d->jump_out = false;
+
+				Vector2 f = {
+					.x = -50000.0f,
+					.y =  0.0f
+				};
+
+				if(other->physics->vel.y > 0.0f){	
+					//f.y = -100000.0f;
+					other->physics->vel.y = -other->physics->vel.y * 0.5f;
+				}
+
+				objects_apply_force(other, f);
+			} else {
+				d->has_powerup[SHIELD] = false;
+				RenderComponent* rr = other->render;
+				if(rr->was_visible){	
+					mfx_trigger_follow("bubble_explode",&anchor->screen_pos,NULL);	
+				}
+			}
+
+		objects_destroy(self);
+
 	}
 
 }
