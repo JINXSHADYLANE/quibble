@@ -1,7 +1,7 @@
 (uidesc morka
-	(def screen
-		(rect 0,0,1024,768)
-	)
+#	(def screen
+#		(rect 0,0,1024,768)
+#	)
 
 	(def hud_pause
 		(spr pause)
