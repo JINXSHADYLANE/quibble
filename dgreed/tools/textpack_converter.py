@@ -9,10 +9,16 @@ def parse_coords(string):
 	return string
 
 filename = sys.argv[1]
-if len(sys.argv) == 3:
+if len(sys.argv) >= 3:
 	outname = sys.argv[2]
 else:
 	outname = 'out_'+filename
+
+use_centers = False
+
+if len(sys.argv) > 3:
+	if sys.argv[3] == "c":
+		use_centers = True
 
 fileobj = open(filename)
 line = fileobj.readline().strip()
@@ -64,8 +70,9 @@ for i in range(len(coords)):
 	outfile.write('(img ' + titles[i] + '\n')
 	outfile.write('\t(tex atlas.png)\n')
 	outfile.write('\t(src ' + ",".join("%s" % el for el in coords[i]) + ')\n')
-	##
-	outfile.write('\t(cntr ' + ",".join("%s" % el for el in calc_center) + ')\n')
-	##
+
+	if use_centers == True:
+		outfile.write('\t(cntr ' + ",".join("%s" % el for el in calc_center) + ')\n')
+
 	outfile.write(')\n')
 outfile.close()
