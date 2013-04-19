@@ -92,21 +92,21 @@
 	### atlas 1-2 ###
 	#################
 	
-	(img distance_pointer
-		(tex atlas.png)
-		(src 463,395,486,413)
+		(img blue_shade
+		(tex atlas_12.png)
+		(src 683,2,695,14)
 	)
 	(img distance_id
 		(tex atlas_12.png)
 		(src 761,354,770,363)
 	)
-	(img blue_shade
+	(img distance_pointer
 		(tex atlas_12.png)
-		(src 684,3,694,13)
+		(src 463,395,486,413)
 	)
 	(img finish_tile
 		(tex atlas_12.png)
-		(src 78,943,121,1009)
+		(src 78,945,121,1011)
 	)
 	(img grass1
 		(tex atlas_12.png)
@@ -162,7 +162,7 @@
 	)
 	(img planet_4
 		(tex atlas_12.png)
-		(src 2,733,203,939)
+		(src 2,733,203,941)
 	)
 	(img planet_5
 		(tex atlas_12.png)
@@ -174,7 +174,7 @@
 	)
 	(img position_knob
 		(tex atlas_12.png)
-		(src 463,395,471,403)
+		(src 422,715,430,723)
 	)
 	(img position_line
 		(tex atlas_12.png)
@@ -186,7 +186,7 @@
 	)
 	(img resque_tag
 		(tex atlas_12.png)
-		(src 126,945,180,999)
+		(src 125,945,180,999)
 	)
 	(img restart
 		(tex atlas_12.png)
@@ -198,7 +198,7 @@
 	)
 	(img token_tag
 		(tex atlas_12.png)
-		(src 2,943,74,1011)
+		(src 2,945,74,1013)
 	)
 	(img tut_finger
 		(tex atlas_12.png)
@@ -245,7 +245,7 @@
 	### atlas 1-3 ###
 	#################
 
-	(img base_place
+		(img base_place
 		(tex atlas_13.png)
 		(src 584,2,893,61)
 		(cntr 738,-111)
@@ -253,22 +253,18 @@
 	(img bg_mushroom_2
 		(tex atlas_13.png)
 		(src 207,404,447,697)
-		(cntr 333,543)
 	)
 	(img bg_mushroom_3
 		(tex atlas_13.png)
 		(src 2,2,342,402)
-		(cntr 172,225)
 	)
 	(img bg_mushroom_5
 		(tex atlas_13.png)
 		(src 2,404,205,728)
-		(cntr 106,582)
 	)
 	(img bg_mushroom_6
 		(tex atlas_13.png)
 		(src 2,730,157,997)
-		(cntr 83,874)
 	)
 	(img blocked
 		(tex atlas_13.png)
@@ -318,7 +314,6 @@
 	(img buy
 		(tex atlas_13.png)
 		(src 449,386,573,510)
-		(cntr 512,448)
 	)
 	(img first_place
 		(tex atlas_13.png)
@@ -328,7 +323,6 @@
 	(img grass3_sign
 		(tex atlas_13.png)
 		(src 160,730,414,967)
-		(cntr 287,840)
 	)
 	(img last_place
 		(tex atlas_13.png)
@@ -338,37 +332,30 @@
 	(img mushroom_1
 		(tex atlas_13.png)
 		(src 895,2,1022,150)
-		(cntr 950,85)
 	)
 	(img mushroom_2
 		(tex atlas_13.png)
 		(src 344,2,445,151)
-		(cntr 398,90)
 	)
 	(img mushroom_3
 		(tex atlas_13.png)
 		(src 598,248,673,357)
-		(cntr 634,304)
 	)
 	(img mushroom_4
 		(tex atlas_13.png)
 		(src 675,459,797,582)
-		(cntr 741,531)
 	)
 	(img mushroom_5
 		(tex atlas_13.png)
 		(src 446,249,596,384)
-		(cntr 522,327)
 	)
 	(img mushroom_6
 		(tex atlas_13.png)
 		(src 447,128,582,247)
-		(cntr 513,203)
 	)
 	(img next
 		(tex atlas_13.png)
 		(src 449,2,573,126)
-		(cntr 512,64)
 	)
 	(img ribbon_first
 		(tex atlas_13.png)

@@ -93,6 +93,10 @@
 	### atlas 1-2 ###
 	#################
 
+		(img blue_shade
+		(tex r_atlas_12.png)
+		(src 2004,114,2028,138)
+	)
 	(img distance_id
 		(tex r_atlas_12.png)
 		(src 2027,2,2045,20)
@@ -100,10 +104,6 @@
 	(img distance_pointer
 		(tex r_atlas_12.png)
 		(src 1914,322,1960,357)
-	)
-	(img blue_shade
-		(tex r_atlas_12.png)
-		(src 2005,115,2027,137)
 	)
 	(img finish_tile
 		(tex r_atlas_12.png)
@@ -143,7 +143,7 @@
 	)
 	(img pause
 		(tex r_atlas_12.png)
-		(src 1914,322,1958,367)
+		(src 1964,330,2008,375)
 	)
 	(img pin
 		(tex r_atlas_12.png)
@@ -175,7 +175,7 @@
 	)
 	(img position_knob
 		(tex r_atlas_12.png)
-		(src 2027,2,2043,18)
+		(src 2027,24,2043,40)
 	)
 	(img position_line
 		(tex r_atlas_12.png)
@@ -246,186 +246,173 @@
 	### atlas 1-3 ###
 	#################
 	
-(img base_place
-	(tex r_atlas_13.png)
-	(src 1090,2,1710,120)
-	(cntr 1400,-224)
-)
-(img bg_mushroom_2
-	(tex r_atlas_13.png)
-	(src 2,1450,485,2035)
-	(cntr 256,1729)
-)
-(img bg_mushroom_3
-	(tex r_atlas_13.png)
-	(src 2,2,680,800)
-	(cntr 341,447)
-)
-(img bg_mushroom_5
-	(tex r_atlas_13.png)
-	(src 2,802,407,1448)
-	(cntr 210,1157)
-)
-(img bg_mushroom_6
-	(tex r_atlas_13.png)
-	(src 409,802,717,1334)
-	(cntr 570,1090)
-)
-(img blocked
-	(tex r_atlas_13.png)
-	(src 1153,646,1270,764)
-	(cntr 1211,706)
-)
-(img bomb
-	(tex r_atlas_13.png)
-	(src 1153,488,1333,644)
-	(cntr 1244,566)
-)
-(img bomb_obj
-	(tex r_atlas_13.png)
-	(src 409,1336,484,1409)
-	(cntr 446,1372)
-)
-(img btn_bomb
-	(tex r_atlas_13.png)
-	(src 880,1241,1079,1399)
-	(cntr 979,1320)
-)
-(img btn_rocket
-	(tex r_atlas_13.png)
-	(src 889,1884,1088,2042)
-	(cntr 988,1963)
-)
-(img btn_shield
-	(tex r_atlas_13.png)
-	(src 688,1884,887,2042)
-	(cntr 787,1963)
-)
-(img btn_trampoline
-	(tex r_atlas_13.png)
-	(src 487,1884,686,2042)
-	(cntr 586,1963)
-)
-(img bubble1_obj
-	(tex r_atlas_13.png)
-	(src 880,2,1085,250)
-	(cntr 982,126)
-)
-(img bubble_obj
-	(tex r_atlas_13.png)
-	(src 1712,2,2029,318)
-	(cntr 1871,161)
-)
-(img buy
-	(tex r_atlas_13.png)
-	(src 1284,1063,1534,1315)
-	(cntr 1412,1188)
-)
-(img first_place
-	(tex r_atlas_13.png)
-	(src 719,779,1025,1239)
-	(cntr 873,965)
-)
-(img grass3_sign
-	(tex r_atlas_13.png)
-	(src 488,1406,998,1881)
-	(cntr 743,1626)
-)
-(img last_place
-	(tex r_atlas_13.png)
-	(src 1342,342,1647,662)
-	(cntr 1503,509)
-)
-(img mushroom_1
-	(tex r_atlas_13.png)
-	(src 1081,766,1337,1061)
-	(cntr 1194,931)
-)
-(img mushroom_2
-	(tex r_atlas_13.png)
-	(src 1081,1063,1282,1360)
-	(cntr 1188,1239)
-)
-(img mushroom_3
-	(tex r_atlas_13.png)
-	(src 719,142,867,359)
-	(cntr 790,254)
-)
-(img mushroom_4
-	(tex r_atlas_13.png)
-	(src 1614,837,1855,1083)
-	(cntr 1743,983)
-)
-(img mushroom_5
-	(tex r_atlas_13.png)
-	(src 1649,566,1946,835)
-	(cntr 1798,723)
-)
-(img mushroom_6
-	(tex r_atlas_13.png)
-	(src 1342,664,1612,901)
-	(cntr 1475,814)
-)
-(img next
-	(tex r_atlas_13.png)
-	(src 1090,1781,1340,2033)
-	(cntr 1218,1906)
-)
-(img ribbon_first
-	(tex r_atlas_13.png)
-	(src 682,72,877,140)
-	(cntr 779,106)
-)
-(img ribbon_last
-	(tex r_atlas_13.png)
-	(src 682,2,877,70)
-	(cntr 779,36)
-)
-(img ribbon_second
-	(tex r_atlas_13.png)
-	(src 683,1336,878,1404)
-	(cntr 780,1370)
-)
-(img ribbon_third
-	(tex r_atlas_13.png)
-	(src 486,1336,681,1404)
-	(cntr 583,1370)
-)
-(img rocket
-	(tex r_atlas_13.png)
-	(src 988,566,1151,749)
-	(cntr 1070,658)
-)
-(img second_place
-	(tex r_atlas_13.png)
-	(src 682,361,986,777)
-	(cntr 834,503)
-)
-(img shield
-	(tex r_atlas_13.png)
-	(src 988,342,1151,523)
-	(cntr 1070,433)
-)
-(img spikeshroom_1
-	(tex r_atlas_13.png)
-	(src 1680,320,2038,564)
-	(cntr 1859,477)
-)
-(img third_place
-	(tex r_atlas_13.png)
-	(src 1001,1401,1283,1779)
-	(cntr 1140,1507)
-)
-(img trampoline
-	(tex r_atlas_13.png)
-	(src 1153,342,1337,486)
-	(cntr 1246,415)
-)
-(img trampoline_obj
-	(tex r_atlas_13.png)
-	(src 1090,122,1678,340)
-	(cntr 1384,231)
-)
+	(img base_place
+		(tex r_atlas_13.png)
+		(src 1090,2,1710,120)
+		(cntr 1400,-224)
+	)
+	(img bg_mushroom_2
+		(tex r_atlas_13.png)
+		(src 2,1450,485,2035)
+	)
+	(img bg_mushroom_3
+		(tex r_atlas_13.png)
+		(src 2,2,680,800)
+	)
+	(img bg_mushroom_5
+		(tex r_atlas_13.png)
+		(src 2,802,407,1448)
+	)
+	(img bg_mushroom_6
+		(tex r_atlas_13.png)
+		(src 409,802,717,1334)
+	)
+	(img blocked
+		(tex r_atlas_13.png)
+		(src 1153,646,1270,764)
+		(cntr 1211,706)
+	)
+	(img bomb
+		(tex r_atlas_13.png)
+		(src 1153,488,1333,644)
+		(cntr 1244,566)
+	)
+	(img bomb_obj
+		(tex r_atlas_13.png)
+		(src 409,1336,484,1409)
+		(cntr 446,1372)
+	)
+	(img btn_bomb
+		(tex r_atlas_13.png)
+		(src 880,1241,1079,1399)
+		(cntr 979,1320)
+	)
+	(img btn_rocket
+		(tex r_atlas_13.png)
+		(src 889,1884,1088,2042)
+		(cntr 988,1963)
+	)
+	(img btn_shield
+		(tex r_atlas_13.png)
+		(src 688,1884,887,2042)
+		(cntr 787,1963)
+	)
+	(img btn_trampoline
+		(tex r_atlas_13.png)
+		(src 487,1884,686,2042)
+		(cntr 586,1963)
+	)
+	(img bubble1_obj
+		(tex r_atlas_13.png)
+		(src 880,2,1085,250)
+		(cntr 982,126)
+	)
+	(img bubble_obj
+		(tex r_atlas_13.png)
+		(src 1712,2,2029,318)
+		(cntr 1871,161)
+	)
+	(img buy
+		(tex r_atlas_13.png)
+		(src 1284,1063,1534,1315)
+	)
+	(img first_place
+		(tex r_atlas_13.png)
+		(src 719,779,1025,1239)
+		(cntr 873,965)
+	)
+	(img grass3_sign
+		(tex r_atlas_13.png)
+		(src 488,1406,998,1881)
+	)
+	(img last_place
+		(tex r_atlas_13.png)
+		(src 1342,342,1647,662)
+		(cntr 1503,509)
+	)
+	(img mushroom_1
+		(tex r_atlas_13.png)
+		(src 1081,766,1337,1061)
+	)
+	(img mushroom_2
+		(tex r_atlas_13.png)
+		(src 1081,1063,1282,1360)
+	)
+	(img mushroom_3
+		(tex r_atlas_13.png)
+		(src 719,142,867,359)
+	)
+	(img mushroom_4
+		(tex r_atlas_13.png)
+		(src 1614,837,1855,1083)
+	)
+	(img mushroom_5
+		(tex r_atlas_13.png)
+		(src 1649,566,1946,835)
+	)
+	(img mushroom_6
+		(tex r_atlas_13.png)
+		(src 1342,664,1612,901)
+	)
+	(img next
+		(tex r_atlas_13.png)
+		(src 1090,1781,1340,2033)
+	)
+	(img ribbon_first
+		(tex r_atlas_13.png)
+		(src 682,72,877,140)
+		(cntr 779,106)
+	)
+	(img ribbon_last
+		(tex r_atlas_13.png)
+		(src 682,2,877,70)
+		(cntr 779,36)
+	)
+	(img ribbon_second
+		(tex r_atlas_13.png)
+		(src 683,1336,878,1404)
+		(cntr 780,1370)
+	)
+	(img ribbon_third
+		(tex r_atlas_13.png)
+		(src 486,1336,681,1404)
+		(cntr 583,1370)
+	)
+	(img rocket
+		(tex r_atlas_13.png)
+		(src 988,566,1151,749)
+		(cntr 1070,658)
+	)
+	(img second_place
+		(tex r_atlas_13.png)
+		(src 682,361,986,777)
+		(cntr 834,503)
+	)
+	(img shield
+		(tex r_atlas_13.png)
+		(src 988,342,1151,523)
+		(cntr 1070,433)
+	)
+	(img spikeshroom_1
+		(tex r_atlas_13.png)
+		(src 1680,320,2038,564)
+		(cntr 1859,477)
+	)
+	(img third_place
+		(tex r_atlas_13.png)
+		(src 1001,1401,1283,1779)
+		(cntr 1140,1507)
+	)
+	(img trampoline
+		(tex r_atlas_13.png)
+		(src 1153,342,1337,486)
+		(cntr 1246,415)
+	)
+	(img trampoline_obj
+		(tex r_atlas_13.png)
+		(src 1090,122,1678,340)
+		(cntr 1384,231)
+	)
 
 	#################
 	### atlas 1-4 ###
