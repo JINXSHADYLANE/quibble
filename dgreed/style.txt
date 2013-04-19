@@ -1,0 +1,64 @@
+1. Naming:
+	1. Functions are named_like_this. They should be static whenever possible
+	(unless a part of subsystem interface). Interfaces should be prefixed with
+	short subsystem name (usually same as header / source file name) like
+	this: ai_init, ai_update. Local helper functions used only in the same
+	compilation unit should be prefixed with underscore.
+
+	2. Variables are also named_like_this. Short names are preferred for
+	local variables.
+
+	3. Types (structs, unions, enums, typedefs) are NamedLikeThis. Enums often
+	have postfix Type (eg. ForceType). Others common postfixes are Desc
+	(descriptor, usually stored somewhere to later perform defered actions), 
+	Params (aggregate type of multiple parameters, passed as 'void* userdata'
+	or similarly).
+
+	4. Preprocessor macros can be named either in uppercase LIKE_THIS, or like
+	functions / variables, depending on weather the person reading code should
+	be aware that something is a macro.
+
+	5. Commonly used function postfix pairs - init/close, load/free, new/del.
+
+
+2. Microscopic style:
+	1. All lines contain 80 or less characters. Even shorter lines are
+	encouraged.
+
+	2. Opening curly brace goes in the same line as precedeing control
+	structure, closing curly brace goes in its own new line.
+
+	3. Indentation level is 1 tab.
+
+	4. Commenting is for human readable comments. Code should only be
+	commented out in rare cases where it might be useful to quickly put the
+	code back in, preferrably with explanation of what it does. Deleting code
+	is encouraged in all other cases, source control makes sure it isn't lost.
+
+	5. Anything longer than 1 line should never be copy-pasted, unless there
+	would be significant changes. Putting such code in a separate function
+	must be considered.
+
+	6. Long functions (50 lines or more) are discouraged. The longer it is,
+	the better it would be to split it into a few shorter ones.
+
+	7. Const pointers are preferred over non-const pointers.
+
+	8. Unsigned integers are preferred over signed ones. Exception - loops
+	which iterate backwards, unsigned integers must never be used for indices
+	in that case.
+
+
+3. Macroscopic style
+	1. Headers should be as short as possible, defining as few functions/types as 
+	is absolutely neccessary to use the subsystem/module.
+
+	2. Dynamic memory allocation (MEM_ALLOC) is discouraged. Static allocation
+	must be considered first (for reasonably small data), then specialized
+	allocators (mempool for lots of uniform size allocations, memlin for lots
+	of small different size allocations), then adapting darrays to your
+	particular use case.
+
+	3. Keyword extern should be used cautiously. It's ok if it breaks include
+	cycle or is used in a minor way to simplify include tree.
+
