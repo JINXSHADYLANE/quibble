@@ -93,6 +93,14 @@
 	### atlas 1-2 ###
 	#################
 
+	(img distance_id
+		(tex r_atlas_12.png)
+		(src 2027,2,2045,20)
+	)
+	(img distance_pointer
+		(tex r_atlas_12.png)
+		(src 1914,322,1960,357)
+	)
 	(img blue_shade
 		(tex r_atlas_12.png)
 		(src 2005,115,2027,137)
@@ -238,7 +246,7 @@
 	### atlas 1-3 ###
 	#################
 	
-	(img base_place
+(img base_place
 	(tex r_atlas_13.png)
 	(src 1090,2,1710,120)
 	(cntr 1400,-224)
