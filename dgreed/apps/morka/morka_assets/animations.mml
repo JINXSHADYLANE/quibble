@@ -39,8 +39,8 @@
 		)
 
 		(seq rocket_ride
-			(frames "15")
-			(on_finish stop)
+			(frames "14 15")
+			(on_finish loop)
 		)
 	)
 	(anim squirrel

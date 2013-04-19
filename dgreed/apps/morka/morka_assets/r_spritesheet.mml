@@ -70,10 +70,10 @@
 		(frames 27)
 		(grid 3,9)
 	)
-	(anim rabbit_3
+	(anim golden_rabbit
 		(tex r_atlas_0c.png)
-		(src 0,0,256,256)
-		(offset 256,256)
+		(src 0,0,216,196)
+		(offset 216,196)
 		(frames 16)
 		(grid 4,4)
 	)

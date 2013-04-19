@@ -30,7 +30,7 @@ CharacterDefaultParams default_characters[character_count] = {
 	{
 	"Ocean king",
 	"rabbit_icon",
-	"rabbit_3",
+	"golden_rabbit",
 	"rabbit",
 	"Swimmer",
 	99,	

@@ -69,10 +69,10 @@
 		(frames 27)
 		(grid 3,9)
 	)
-	(anim rabbit_3
+	(anim golden_rabbit
 		(tex atlas_0c.png)
-		(src 0,0,128,128)
-		(offset 128,128)
+		(src 0,0,108,98)
+		(offset 108,98)
 		(frames 16)
 		(grid 4,4)
 	)
@@ -248,7 +248,6 @@
 	(img base_place
 		(tex atlas_13.png)
 		(src 584,2,893,61)
-		(cntr 738,-111)
 	)
 	(img bg_mushroom_2
 		(tex atlas_13.png)
@@ -318,7 +317,6 @@
 	(img first_place
 		(tex atlas_13.png)
 		(src 417,699,570,928)
-		(cntr 494,791)
 	)
 	(img grass3_sign
 		(tex atlas_13.png)
@@ -327,7 +325,6 @@
 	(img last_place
 		(tex atlas_13.png)
 		(src 449,512,601,673)
-		(cntr 530,596)
 	)
 	(img mushroom_1
 		(tex atlas_13.png)
@@ -385,7 +382,6 @@
 	(img second_place
 		(tex atlas_13.png)
 		(src 834,343,985,550)
-		(cntr 909,413)
 	)
 	(img shield
 		(tex atlas_13.png)
@@ -400,7 +396,6 @@
 	(img third_place
 		(tex atlas_13.png)
 		(src 880,152,1021,341)
-		(cntr 949,205)
 	)
 	(img trampoline
 		(tex atlas_13.png)
