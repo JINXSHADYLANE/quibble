@@ -41,7 +41,7 @@ static void game_reset(void) {
 		objects_destroy_all();
 	}
 
-	LevelDesc * lvl_desc = levels_current_desc();
+	LevelDesc* lvl_desc = levels_current_desc();
 
 	// Check if this level is a tutorial
 	tutorial_level = !strcmp(lvl_desc->name, "level1");
@@ -51,20 +51,21 @@ static void game_reset(void) {
 	uint ai_num = 0;
 
 	for(int i = 0;i < character_count;i++){
+		CharacterParams* cp = &character_params[i];
 
-		character_params[i].sprite = sprsheet_get_handle(default_characters[i].spr_handle);
-		character_params[i].minimap_color = default_characters[i].minimap_color;
-		character_params[i].animation = default_characters[i].animation;
+		cp->sprite = sprsheet_get_handle(default_characters[i].spr_handle);
+		cp->minimap_color = default_characters[i].minimap_color;
+		cp->animation = default_characters[i].animation;
 
 		if(i == player){
 			// Player character
 			Vector2 pos = vec2(512.0f, v_height-128.0f);
 
-			character_params[i].name = "You";
-			character_params[i].speed = default_characters[i].speed;
-			character_params[i].xjump = default_characters[i].xjump;
-			character_params[i].yjump = default_characters[i].yjump;
-			character_params[i].control = obj_rabbit_player_control;
+			cp->name = "You";
+			cp->speed = default_characters[i].speed;
+			cp->xjump = default_characters[i].xjump;
+			cp->yjump = default_characters[i].yjump;
+			cp->control = obj_rabbit_player_control;
 
 			rabbit = (ObjRabbit*)objects_create(
 				&obj_rabbit_desc, pos, (void*)&character_params[i]
@@ -76,22 +77,22 @@ static void game_reset(void) {
 			// AI character
 			Vector2 pos = vec2(640.0f+128.0f*ai_num,v_height-128.0f);
 
-			character_params[i].name = default_characters[i].name;
+			cp->name = default_characters[i].name;
 
 			switch(lvl_desc->season){
-				case AUTUMN: character_params[i].control = ai_control_autumn;
+				case AUTUMN: cp->control = ai_control_autumn;
 				break;
-				case WINTER: character_params[i].control = ai_control_winter;
+				case WINTER: cp->control = ai_control_winter;
 				break;
-				case SPRING: character_params[i].control = ai_control_spring;
+				case SPRING: cp->control = ai_control_spring;
 				break;
-				case SUMMER: character_params[i].control = ai_control_summer;
+				case SUMMER: cp->control = ai_control_summer;
 				break;
 			}
-			character_params[i].ai_max_combo = lvl_desc->ai_max_combo[ai_num];
-			character_params[i].speed = lvl_desc->ai_rabbit_speeds[ai_num];
-			character_params[i].xjump = lvl_desc->ai_rabbit_xjumps[ai_num];
-			character_params[i].yjump = lvl_desc->ai_rabbit_yjumps[ai_num];
+			cp->ai_max_combo = lvl_desc->ai_max_combo[ai_num];
+			cp->speed = lvl_desc->ai_rabbit_speeds[ai_num];
+			cp->xjump = lvl_desc->ai_rabbit_xjumps[ai_num];
+			cp->yjump = lvl_desc->ai_rabbit_yjumps[ai_num];
 			ai_num++;
 
 			ObjRabbit* ai_rabbit = (ObjRabbit*)objects_create(
@@ -104,15 +105,10 @@ static void game_reset(void) {
 	}	
 
 	float p = 512.0f + 50.0f + levels_current_desc()->ai_rabbit_num * 128.0f;
-	objects_camera[0].left = p;
-	objects_camera[0].right = p + v_width;
-	objects_camera[0].bottom = v_height;
-	objects_camera[1].left = p;
-	objects_camera[1].right = p + v_width;
-	objects_camera[1].bottom = v_height;	
-	objects_camera[2].left = p;
-	objects_camera[2].right = p + v_width;
-	objects_camera[2].bottom = v_height;
+	for(uint i = 0; i < N_CAMERAS; ++i) {
+		objects_camera[i].left = p;
+		objects_camera[i].right = p + v_width;
+	}
 
 	bg_scroll = p;
 
@@ -150,8 +146,10 @@ static void game_enter(void) {
 
 static void game_preenter(void) {
 }
+
 static void game_postleave(void) {
 }
+
 static void game_leave(void) {
 }
 
@@ -230,6 +228,17 @@ static void _move_camera(Vector2 new_pos, Vector2 follow_weight) {
 bool game_update(void) {
 	if(game_paused)
 		return true;
+
+	if(char_pressed('i')) {
+		for(uint i = 0; i < N_CAMERAS; ++i)
+			objects_camera_z[i] += 0.05f;
+	}
+
+	if(char_pressed('k')) {
+		for(uint i = 0; i < N_CAMERAS; ++i)
+			objects_camera_z[i] -= 0.05f;
+	}
+
 
 	if(rabbit && rabbit->header.type) {
 		Vector2 camera;

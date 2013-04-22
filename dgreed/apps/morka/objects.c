@@ -15,7 +15,8 @@
 #define MAX_GAMEOBJECT_SIZE 64
 #endif
 
-RectF objects_camera[3] = {{0}};
+RectF objects_camera[N_CAMERAS] = {{0}};
+float objects_camera_z[N_CAMERAS];
 SprHandle empty_spr = (SprHandle)MAX_UINT32;
 
 static CDWorld cdworld;
@@ -64,6 +65,9 @@ void objects_init(void) {
 	to_add = darray_create(sizeof(NewObject), 0);
 
 	coldet_init(objects_cdworld, 400.0f);
+
+	for(uint i = 0; i < N_CAMERAS; ++i)
+		objects_camera_z[i] = 1.0f;
 }
 
 static void objects_destruct_all(void) {
@@ -227,10 +231,26 @@ static void objects_physics_tick(uint n_components) {
 	coldet_process(objects_cdworld, objects_collision_callback);
 }
 
+static RectF _transform_rect(RectF in, float z) {
+	float w = in.right - in.left;
+	float h = in.bottom - in.top;
+
+	float cx = (in.right + in.left) * 0.5f;
+
+	RectF out = {
+		.left = cx - w * z * 0.5f,
+		.top = in.bottom - h * z,
+		.right = cx + w * z * 0.5f,
+		.bottom = in.bottom
+	};
+
+	return out;
+}
+
 static void objects_render_tick(uint n_components) {
 	assert(render.size >= n_components);
 	RenderComponent* rndr = darray_get(&render, 0);
-	
+
 	// This checks visibility of every object,
 	// might be a good idea to optimize later on
 	for(uint i = 0; i < n_components; ++i) {
@@ -239,9 +259,15 @@ static void objects_render_tick(uint n_components) {
 		if(r->update_pos)
 			(r->update_pos)(r->owner);
 	
-		RectF* camera = &objects_camera[r->camera];
+		RectF* p_camera = &objects_camera[r->camera];
+		float z = objects_camera_z[r->camera];
+		float inv_z = 1.0f / z;
 
-		bool is_visible = rectf_rectf_collision(&r->world_dest, camera); 
+		RectF camera = _transform_rect(*p_camera, z);
+		float scx = (camera.right - camera.left) * 0.5f;
+		float sby = camera.bottom;
+
+		bool is_visible = rectf_rectf_collision(&r->world_dest, &camera); 
 
 		if(is_visible) {
 			if(!r->was_visible && r->became_visible)
@@ -252,25 +278,31 @@ static void objects_render_tick(uint n_components) {
 
 			if(likely(r->spr != empty_spr)) {
 				Vector2 camera_topleft = {
-					.x = camera->left,
-					.y = camera->top
+					.x = p_camera->left,
+					.y = p_camera->top
 				};
 
-				RectF screen_dest = rectf(
+				RectF sd = rectf(
 					r->world_dest.left - camera_topleft.x, 
 					r->world_dest.top - camera_topleft.y,
 					r->world_dest.right - camera_topleft.x,
 					r->world_dest.bottom - camera_topleft.y
 				);
 
+				// Transform Z
+				sd.left = scx + (sd.left - scx) * inv_z;
+				sd.right = scx + (sd.right - scx) * inv_z;
+				sd.top = sby - (sby - sd.top) * inv_z;
+				sd.bottom = sby - (sby - sd.bottom) * inv_z;
+
 				// Render
 				if(r->anim_frame != MAX_UINT16) {
 					// Animation sprite
-					spr_draw_anim_h(r->spr, r->anim_frame, r->layer, screen_dest, r->color);
+					spr_draw_anim_h(r->spr, r->anim_frame, r->layer, sd, r->color);
 				}
 				else {
 					// Static sprite
-					spr_draw_h(r->spr, r->layer, screen_dest, r->color);
+					spr_draw_h(r->spr, r->layer, sd, r->color);
 				}
 			}
 
