@@ -5,7 +5,7 @@
 	
 	(img background
 		(tex atlas_11.png)
-		(src 0,256,1024,1024)
+		(src 0,0,1024,1024)
 	)
 	(img background2
 		(tex atlas_21.png)
@@ -270,47 +270,38 @@
 	(img blocked
 		(tex atlas_13.png)
 		(src 603,501,662,561)
-		(cntr 632,532)
 	)
 	(img bomb
 		(tex atlas_13.png)
 		(src 584,386,673,463)
-		(cntr 628,424)
 	)
 	(img bomb_obj
 		(tex atlas_13.png)
 		(src 159,970,197,1007)
-		(cntr 178,988)
 	)
 	(img btn_bomb
 		(tex atlas_13.png)
 		(src 799,552,899,631)
-		(cntr 849,591)
 	)
 	(img btn_rocket
 		(tex atlas_13.png)
 		(src 344,315,444,394)
-		(cntr 394,354)
 	)
 	(img btn_shield
 		(tex atlas_13.png)
 		(src 344,234,444,313)
-		(cntr 394,273)
 	)
 	(img btn_trampoline
 		(tex atlas_13.png)
 		(src 344,153,444,232)
-		(cntr 394,192)
 	)
 	(img bubble1_obj
 		(tex atlas_13.png)
-		(src 901,552,998,674)
-		(cntr 946,614)
+		(src 901,588,998,710)
 	)
 	(img bubble_obj
 		(tex atlas_13.png)
 		(src 675,299,832,457)
-		(cntr 753,379)
 	)
 	(img buy
 		(tex atlas_13.png)
@@ -358,28 +349,27 @@
 	)
 	(img ribbon_first
 		(tex atlas_13.png)
-		(src 575,465,673,499)
-		(cntr 624,482)
+		(src 901,552,999,586)
 	)
 	(img ribbon_last
 		(tex atlas_13.png)
-		(src 399,970,497,1004)
-		(cntr 448,987)
+		(src 575,465,673,499)
 	)
 	(img ribbon_second
 		(tex atlas_13.png)
-		(src 299,970,397,1004)
-		(cntr 348,987)
+		(src 399,970,497,1004)
 	)
 	(img ribbon_third
 		(tex atlas_13.png)
-		(src 199,970,297,1004)
-		(cntr 248,987)
+		(src 299,970,397,1004)
+	)
+	(img ribbon_tutorial
+		(tex atlas_13.png)
+		(src 199,970,297,1005)
 	)
 	(img rocket
 		(tex atlas_13.png)
 		(src 603,584,685,675)
-		(cntr 645,630)
 	)
 	(img second_place
 		(tex atlas_13.png)
@@ -388,12 +378,10 @@
 	(img shield
 		(tex atlas_13.png)
 		(src 499,930,582,1021)
-		(cntr 541,976)
 	)
 	(img spikeshroom_1
 		(tex atlas_13.png)
 		(src 678,174,857,297)
-		(cntr 767,252)
 	)
 	(img third_place
 		(tex atlas_13.png)
@@ -402,12 +390,10 @@
 	(img trampoline
 		(tex atlas_13.png)
 		(src 584,174,676,246)
-		(cntr 631,211)
 	)
 	(img trampoline_obj
 		(tex atlas_13.png)
 		(src 584,63,878,172)
-		(cntr 731,117)
 	)
 
 	#################
