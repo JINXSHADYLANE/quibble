@@ -251,6 +251,18 @@ static void objects_render_tick(uint n_components) {
 	assert(render.size >= n_components);
 	RenderComponent* rndr = darray_get(&render, 0);
 
+	float z = objects_camera_z[0];
+	float inv_z = 1.0f / z;
+
+	// Scale everything except background and UI according to camera z
+	float v_half_w = v_width * 0.5f;
+	static float m[6];
+	m[0] = inv_z; m[1] = 0.0f; m[2] = (v_half_w - v_half_w * inv_z) * 0.5f;
+	m[3] = 0.0f; m[4] = inv_z; m[5] = v_height - v_height * inv_z;
+
+	for(uint l = dust_layer; l < hud_layer; ++l)
+		video_set_transform(l, m);
+
 	// This checks visibility of every object,
 	// might be a good idea to optimize later on
 	for(uint i = 0; i < n_components; ++i) {
@@ -260,21 +272,9 @@ static void objects_render_tick(uint n_components) {
 			(r->update_pos)(r->owner);
 	
 		RectF* p_camera = &objects_camera[r->camera];
-		float z = objects_camera_z[r->camera];
-		float inv_z = 1.0f / z;
-
 		RectF camera = _transform_rect(*p_camera, z);
-		float scx = (camera.right - camera.left) * 0.5f;
-		float sby = camera.bottom;
-
-		// Scale everything except background and UI according to camera z
-		static float m[6];
-		m[0] = inv_z; m[1] = 0.0f; m[2] = (scx - scx * inv_z) * 0.5f;
-		m[3] = 0.0f; m[4] = inv_z; m[5] = sby - sby * inv_z;
-
-		for(uint l = dust_layer; l < hud_layer; ++l)
-			video_set_transform(l, m);
-
+		//float scx = (camera.right - camera.left) * 0.5f;
+		//float sby = camera.bottom;
 		bool is_visible = rectf_rectf_collision(&r->world_dest, &camera); 
 
 		if(is_visible) {
