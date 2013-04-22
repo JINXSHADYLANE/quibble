@@ -71,8 +71,8 @@
 	)
 	(anim golden_rabbit
 		(tex atlas_0c.png)
-		(src 0,0,108,98)
-		(offset 108,98)
+		(src 0,0,128,128)
+		(offset 128,128)
 		(frames 16)
 		(grid 4,4)
 	)
