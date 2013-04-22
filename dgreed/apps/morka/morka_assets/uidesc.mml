@@ -11,13 +11,6 @@
 		)
 	)
 
-	(def place_text
-		(add <-
-			(tl <- (get_rect screen))
-			(vec2 50,100)
-		)
-	)
-
 	(def coin_icon
 		(spr token_tag)
 		(add <-

@@ -75,13 +75,46 @@ void minimap_draw(float t){
 		if(rabbit && rabbit->header.type){
 				
 			float rd = rabbit->header.render->world_dest.left / (v_width / 3.0f) - 2.0f;
-			if(rabbit->data->player_control) 
-				player_x = rabbit->header.physics->cd_obj->pos.x;
 
 			rd = (float)rd*w/level_distance;
 			rd = clamp(7.0f,w - 7.0f,rd );
-
 			Vector2 dest = vec2(pos.x + rd,pos.y);
+
+			if(rabbit->data->player_control){ 
+				player_x = rabbit->header.physics->cd_obj->pos.x;
+
+				uint place = minimap_get_place_of_rabbit(rabbit);
+
+				vfont_select(FONT_NAME, 28.0f);
+				char str[32];
+				
+				switch(place){
+					case 1:
+						sprintf(str, "1st");
+					break;
+
+					case 2:
+						sprintf(str, "2nd");
+					break;
+
+					case 3:
+						sprintf(str, "3rd");
+					break;
+
+					default:
+						sprintf(str, "4th");
+					break;															
+				}
+
+
+				Vector2	half_size = vec2_scale(vfont_size(str), 0.5f);
+
+				Vector2 txt_pos = vec2(dest.x, dest.y + 20.0f);
+
+				txt_pos = vec2_sub(txt_pos, half_size);
+				vfont_draw(str, hud_layer, txt_pos, col);
+
+			}	
 
 			byte r,g,b,a2;
 			COLOR_DECONSTRUCT(rabbit->data->minimap_color,r,g,b,a2);

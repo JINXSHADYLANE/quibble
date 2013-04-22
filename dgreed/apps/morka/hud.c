@@ -11,7 +11,7 @@
 
 extern void game_pause(void);
 
-extern ObjRabbit* rabbit;
+extern ObjRabbit* player;
 extern bool tutorial_level;
 
 extern float game_over_anim_start;
@@ -73,7 +73,7 @@ static void _hud_render_powerups(float t){
 			Vector2 pos = vec2_add(powerup_place, vec2(x_offset, -size.y / 2.0f) );
 			spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col_30);
 
-			if(rabbit->data->has_powerup[i]){
+			if(player->data->has_powerup[i]){
 
 				if(powerup_appear[i] == 0.0f) powerup_appear[i] = time_s() + duration;
 
@@ -102,12 +102,12 @@ static void _hud_render_powerups(float t){
 				pos = vec2_add(powerup_place, vec2(x_offset, y_offset) );
 				spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col);
 
-				if(!powerup_params[i].passive && rabbit->data->has_powerup[i]){
+				if(!powerup_params[i].passive && player->data->has_powerup[i]){
 
-					if(camera_follow && rabbit->data->respawn == 0.0f){
+					if(camera_follow && player->data->respawn == 0.0f){
 
 						if(hud_button_ex(empty_spr,pos,40.0f,col,t)){
-							GameObject* r = (GameObject*) rabbit;
+							GameObject* r = (GameObject*) player;
 							(powerup_params[i].powerup_callback) (r);							
 						}
 
@@ -200,7 +200,7 @@ void hud_render(float t) {
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);	
 
-	if(!tutorial_level && rabbit && rabbit->header.type){
+	if(!tutorial_level && player && player->header.type){
 
 		UIElement* coin_icon = uidesc_get("coin_icon");
 		spr_draw_cntr_h(coin_icon->spr, hud_layer,coin_icon->vec2, 0.0f, 1.0f, col);
@@ -215,7 +215,7 @@ void hud_render(float t) {
 		static float duration = 0.3f;
 
 		prev = coins;
-		coins = rabbit->data->tokens;
+		coins = player->data->tokens;
 
 		sprintf(str, "%d",coins);
 
@@ -229,18 +229,7 @@ void hud_render(float t) {
 		vfont_draw_ex(str, hud_layer, coin_text->vec2, col,scale);
 
 
-		if(!rabbit->data->game_over) _hud_render_powerups(t);
-
-		UIElement* place_text = uidesc_get("place_text");
-		vfont_select(FONT_NAME, 48.0f);
-		char place[32];
-		sprintf(place, "%d/%d",minimap_get_place_of_rabbit(rabbit),minimap_get_count());
-		static Vector2 half_size2 = {0.0f, 0.0f};
-		if(half_size2.x == 0.0f) {
-			half_size2 = vec2_scale(vfont_size(str), 0.5f);
-		}
-		vfont_draw(place, hud_layer, place_text->vec2, col);
-	
+		if(!player->data->game_over) _hud_render_powerups(t);
 
 	}
 
@@ -284,7 +273,7 @@ void hud_render(float t) {
 	}	
 	// Minimap
 	if(levels_current_desc()->distance > 0) minimap_draw(t);
-	//if(levels_current_desc()->ai_rabbit_num > 0) minimap_draw_distance_from(t,rabbit);	
+	//if(levels_current_desc()->ai_rabbit_num > 0) minimap_draw_distance_from(t,player);	
 }
 
 bool hud_button(UIElement* element, Color col, float ts) {
@@ -403,7 +392,7 @@ void hud_render_game_over_main(float t){
 
 	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
-	uint place = minimap_get_place_of_rabbit(rabbit);
+	uint place = minimap_get_place_of_rabbit(player);
 	char place_txt[32];
 
 	float off = 0;
@@ -462,9 +451,9 @@ void hud_render_game_over_main(float t){
 
 			static float coin_time = 0.0f;
 
-			if(coins_earned < rabbit->data->tokens && time_s() > coin_time){
+			if(coins_earned < player->data->tokens && time_s() > coin_time){
 
-				float delta = normalize((float)coins_earned,0.0f,(float)rabbit->data->tokens);
+				float delta = normalize((float)coins_earned,0.0f,(float)player->data->tokens);
 
 				delta = 1.01f - powf( cos(delta * PI/2.0f),0.2f ); 
 				coin_time = time_s() + delta;

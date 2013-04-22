@@ -10,7 +10,7 @@
 #include <uidesc.h>
 #include <vfont.h>
 
-extern ObjRabbit* rabbit;
+extern ObjRabbit* player;
 
 static ScreenType screen = WIN_SCREEN;
 
@@ -33,9 +33,9 @@ static void game_over_preenter(void) {
 	game_over_anim_end = time_s() + 0.9f;
 	coins_earned = 0;
 
-	uint place = minimap_get_place_of_rabbit(rabbit);
-	rabbit->data->tokens += 10 * (4-place);
-	keyval_set_int("coins",coins + rabbit->data->tokens);	
+	uint place = minimap_get_place_of_rabbit(player);
+	player->data->tokens += 10 * (4-place);
+	keyval_set_int("coins",coins + player->data->tokens);	
 }
 
 static void game_over_enter(void) {	
