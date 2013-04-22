@@ -108,6 +108,7 @@ static void game_reset(void) {
 	for(uint i = 0; i < N_CAMERAS; ++i) {
 		objects_camera[i].left = p;
 		objects_camera[i].right = p + v_width;
+		objects_camera[i].bottom = v_height;
 	}
 
 	bg_scroll = p;

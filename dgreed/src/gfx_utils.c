@@ -138,7 +138,7 @@ void gfx_matmul(Vector2* v, uint n_v, float* m) {
 	float nx, ny;
 	for(uint i = 0; i < n_v; ++i) {
 		nx = m[0] * v[i].x + m[1] * v[i].y + m[2];
-		ny = m[3] * v[i].x + m[4] * v[i].y + m[3];
+		ny = m[3] * v[i].x + m[4] * v[i].y + m[5];
 		v[i].x = nx; v[i].y = ny;
 	}
 }
