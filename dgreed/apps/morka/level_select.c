@@ -145,20 +145,11 @@ static bool level_select_render(float t) {
 			}
 
 			// Button action
-			if(touches_down() && t == 0.0f) {
-				Touch* t = touches_get();
-
-				if(!t)
-					continue;
-
-				Vector2 hit_pos = t[0].hit_pos;
-
-				float r_sqr = 20.0f * 20.0f;
-				if(vec2_length_sq(vec2_sub(hit_pos, pos)) < r_sqr) {
-					levels_reset(desc->name);
-					malka_states_push("shop");
-				}
+			if(hud_button_ex(empty_spr,pos,50.0f,col,t)){
+				levels_reset(desc->name);
+				malka_states_push("shop");				
 			}
+
 			vfont_select(FONT_NAME, 48.0f);
 			// Draw number
 			char n[4];

@@ -1,8 +1,11 @@
 #include "season_select.h"
-#include "level_select.h"
-#include "game.h"
-#include "levels.h"
+
 #include "common.h"
+#include "game.h"
+#include "hud.h"
+#include "level_select.h"
+#include "levels.h"
+
 #include <uidesc.h>
 #include <vfont.h>
 
@@ -63,20 +66,11 @@ static bool season_select_render(float t) {
 
 		if(level_is_unlocked(levels_start_of_season(i))){
 
-			if(touches_down() && t == 0.0f) {
-				Touch* t = touches_get();
-
-				if(!t)
-					continue;
-
-				Vector2 hit_pos = t[0].hit_pos;
-				
-				float r_sqr = 70.0f * 70.0f;
-				if(vec2_length_sq(vec2_sub(hit_pos, button_pos)) < r_sqr) {
-					level_select_set_season(i);
-					malka_states_push("level_select");
-				}
-			}	
+			// Button action
+			if(hud_button_ex(empty_spr,button_pos,70.0f,col,t)){
+				level_select_set_season(i);
+				malka_states_push("level_select");				
+			}
 
 			vfont_select(FONT_NAME, 58.0f);
 			char season_num[2];
