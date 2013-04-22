@@ -37,18 +37,14 @@ bool dgreed_init(int argc, const char** argv) {
     
     uint r = params_find("-r");
     if(r != ~0 && params_count() > r+1){
-    	char* token = strtok(params_get(r+1), "xX");
-		v_width = atoi(token);		
-	    token = strtok(NULL, "xX");
-	    v_height = atoi(token);
-	    
+		sscanf(params_get(r+1), "%ux%u", &v_width, &v_height);
+
 	    if(v_width == 0) 
 	    	v_width = 1024;
 	    if(v_height == 0)
 	    	v_height = 768; 
 
 	   	assert(v_width >= 480 && v_height >= 320 && v_width <= 2560 && v_height <=1600);
-
     }
 
     if(v_width > 1024 || v_height > 768)

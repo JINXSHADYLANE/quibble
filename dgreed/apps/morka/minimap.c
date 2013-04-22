@@ -94,19 +94,23 @@ void minimap_draw(float t){
 	minimap_update_places();
 }
 
+static float _pix_to_meters(float pix) {
+	return pix * (3.0f / v_width) - 2.0f;
+}
+
 void minimap_draw_distance_from(float t, ObjRabbit* rabbit){
-	if(camera_follow && rabbit && rabbit->header.type){
+	if(camera_follow && rabbit && rabbit->header.type) {
 		float alpha = 1.0f-fabsf(t);
 		byte a = lrintf(255.0f * alpha);
 		Color col = COLOR_RGBA(255, 255, 255, a);
 
-		float d1 = rabbit->header.render->world_dest.left / (v_width / 3.0f) - 2.0f;
+		float d1 = _pix_to_meters(rabbit->header.render->world_dest.left);
 
 		for(int i = 0; i < minimap_pointers.size;i++){
 			ObjRabbit** p_rabbit = darray_get(&minimap_pointers, i);
 			ObjRabbit* other = *p_rabbit;
 			if(other && other->header.type && other != rabbit && !other->header.render->was_visible){
-				float d2 = other->header.render->world_dest.left / (v_width / 3.0f) - 2.0f;
+				float d2 = _pix_to_meters(other->header.render->world_dest.left);
 
 				float delta = d2 - d1;
 
@@ -114,33 +118,34 @@ void minimap_draw_distance_from(float t, ObjRabbit* rabbit){
 				Vector2 txt_pos = {0};
 
 				byte r,g,b,a2;
-				COLOR_DECONSTRUCT(other->data->minimap_color,r,g,b,a2);
-				Color c = COLOR_RGBA(r,g,b,a);
+				COLOR_DECONSTRUCT(other->data->minimap_color, r, g, b, a2);
+				Color c = COLOR_RGBA(r, g, b, a);
 
 				vfont_select(FONT_NAME, 28.0f);
 				char str[32];
-				sprintf(str, "%d m",lrintf(fabsf(delta)) );
+				sprintf(str, "%ldm", lrintf(fabsf(delta)));
 				Vector2	half_size = vec2_scale(vfont_size(str), 0.5f);
 
-				if(delta < 0){
-					float y = other->header.physics->cd_obj->pos.y;
-					distance_pos[i] = lerp(distance_pos[i],y,0.01f);
-					dest = vec2(20.0f,distance_pos[i]);
-					txt_pos = vec2(75.0f,dest.y);
-					spr_draw_cntr_h(distance_pointer, hud_layer, dest, 0.0f, 1.0f, col);
-				} else {
-					float y = other->header.physics->cd_obj->pos.y;
-					distance_pos[i] = lerp(distance_pos[i],y,0.01f);					
-					dest = vec2(v_width - 20.0f,distance_pos[i]);
-					txt_pos = vec2(v_width - 75.0f,dest.y);
-					spr_draw_cntr_h(distance_pointer, hud_layer, dest, 3.14159265, 1.0f, col);
-				}	
+				float dest_x = 20.0f;
+				float txt_x = 75.0f;
+				float angle = 0.0f;
+
+				if(delta >= 0.0f) {
+					dest_x = v_width - 20.0f;
+					txt_x = v_width - 75.0f;
+					angle = PI;
+				}
+
+				float y = other->header.physics->cd_obj->pos.y;
+				distance_pos[i] = lerp(distance_pos[i], y, 0.01f);
+				dest = vec2(dest_x,distance_pos[i]);
+				txt_pos = vec2(txt_x,dest.y);
+				spr_draw_cntr_h(distance_pointer, hud_layer, dest, angle, 1.0f, col);
 
 				spr_draw_cntr_h(distance_id, hud_layer, dest, 0.0f, 1.0f, c);
 
 				txt_pos = vec2_sub(txt_pos, half_size);
 				vfont_draw(str, hud_layer, txt_pos, col);
-
 			}
 		}
 	}

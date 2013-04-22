@@ -5,6 +5,8 @@
 #include <coldet.h>
 #include <datastruct.h>
 
+#define N_CAMERAS 3
+
 #define PHYSICS_DT (1.0 / 60.0)
 
 // Game object
@@ -100,7 +102,8 @@ typedef struct {
 // Public api:
 
 extern CDWorld* objects_cdworld;
-extern RectF objects_camera[3];
+extern RectF objects_camera[N_CAMERAS];
+extern float objects_camera_z[N_CAMERAS];
 
 void objects_init(void);
 void objects_close(void);
