@@ -618,29 +618,30 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 static void obj_rabbit_post_render(GameObject* self){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
-	PhysicsComponent* p = self->physics;
-
-	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-	pos.x += 37.0f;
-	//pos.y += rabbit_hitbox_height - 20;
 	
-	float f = 30.0f * (shield_height - d->shield_h);
-	d->shield_dh += f * (time_delta()/1000.0f);
-	d->shield_h += (d->shield_dh * 20.0f) * (time_delta()/1000.0f);
-	d->shield_dh *= 0.9f;
+	if(d->has_powerup[SHIELD] && !d->is_dead){
 
-	RectF rec = {
-		.left = pos.x - shield_width / 2.0f, 
-		.top = (pos.y + shield_height / 2.0f) - d->shield_h,
-		.right = pos.x + shield_width / 2.0f,
-		.bottom = pos.y + shield_height / 2.0f
-	};
-	RectF result = objects_world2screen(rec,0);
+		PhysicsComponent* p = self->physics;
 
-	// Bubble powerup graphics
-	if(d->has_powerup[SHIELD]){
+		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+		pos.x += 37.0f;
+		
+		float f = 30.0f * (shield_height - d->shield_h);
+		d->shield_dh += f * (time_delta()/1000.0f);
+		d->shield_h += (d->shield_dh * 20.0f) * (time_delta()/1000.0f);
+		d->shield_dh *= 0.9f;
+
+		RectF rec = {
+			.left = pos.x - shield_width / 2.0f, 
+			.top = (pos.y + shield_height / 2.0f) - d->shield_h,
+			.right = pos.x + shield_width / 2.0f,
+			.bottom = pos.y + shield_height / 2.0f
+		};
+		RectF result = objects_world2screen(rec,0);
+
 		RenderComponent* render = self->render;
 		spr_draw_h(shield_spr, render->layer,result,COLOR_WHITE);
+
 	}
 
 }
