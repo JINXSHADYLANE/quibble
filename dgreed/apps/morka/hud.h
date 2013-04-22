@@ -22,6 +22,7 @@ void hud_render_tutorial_pause(float t);
 void hud_render_regular_pause(float t);
 
 bool hud_button(UIElement* element, Color col, float ts);
+bool hud_button_ex(SprHandle spr, Vector2 pos, float r, Color col, float ts);
 
 extern bool hud_click;
 

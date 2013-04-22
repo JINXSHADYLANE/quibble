@@ -106,16 +106,9 @@ static void _hud_render_powerups(float t){
 
 					if(camera_follow && rabbit->data->respawn == 0.0f){
 
-						if(touches_down()) {
-							Touch* t = touches_get();
-							if(t){
-								float r_sqr = 40.0f * 40.0f;
-								if(vec2_length_sq(vec2_sub(t[0].hit_pos, pos)) < r_sqr) {
-									GameObject* r = (GameObject*) rabbit;
-									(powerup_params[i].powerup_callback) (r);
-									hud_click = true;
-								}
-							}
+						if(hud_button_ex(empty_spr,pos,40.0f,col,t)){
+							GameObject* r = (GameObject*) rabbit;
+							(powerup_params[i].powerup_callback) (r);							
 						}
 
 					} else {
@@ -251,19 +244,12 @@ void hud_render(float t) {
 
 	}
 
+	//Pause button
 	UIElement* pause = uidesc_get("hud_pause");
-	_hud_render_ui(pause, hud_layer,col);
-	if(touches_down() && t == 0.0f) {
-		Touch* t = touches_get();
-		if(t){
-			float r_sqr = 40.0f * 40.0f;
-			if(vec2_length_sq(vec2_sub(t[0].hit_pos, pause->vec2)) < r_sqr) {
-				game_pause();
-				malka_states_push("pause");
-			}
-		}
+	if(hud_button(pause, col, t)) {
+		game_pause();
+		malka_states_push("pause");
 	}
-
 	const char* combo_text;
 	float combo_text_size;
 	uint min_combo;
@@ -302,14 +288,20 @@ void hud_render(float t) {
 }
 
 bool hud_button(UIElement* element, Color col, float ts) {
-	spr_draw_cntr_h(element->spr, hud_layer, element->vec2, 0.0f, 1.0f, col);	
+	return hud_button_ex(element->spr,element->vec2,40.0f,col,ts);
+}
+
+bool hud_button_ex(SprHandle spr, Vector2 pos, float r, Color col, float ts){
+	if(spr != empty_spr)
+		spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col);	
 	Touch* t = touches_get();
-	if(touches_down() && t && ts == 0.0f) {
-		float r_sqr = 40.0f * 40.0f;		
-		if(vec2_length_sq(vec2_sub(t[0].hit_pos, element->vec2)) < r_sqr)
+	if(touches_down() && t && ts == 0.0f) {		
+		if(vec2_length_sq(vec2_sub(t[0].hit_pos, pos)) < r * r){
+			hud_click = true;
 			return true;
+		}
 	}
-	return false;
+	return false;	
 }
 
 void hud_render_game_over_out(float t) {	

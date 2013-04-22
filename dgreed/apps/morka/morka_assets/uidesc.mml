@@ -7,7 +7,7 @@
 		(spr pause)
 		(add <-
 			(tr <- (get_rect screen))
-			(vec2 -50,20)
+			(vec2 -40,30)
 		)
 	)
 

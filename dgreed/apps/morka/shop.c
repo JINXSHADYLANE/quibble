@@ -121,17 +121,11 @@ static void _render_powerups_buy(float t){
 
 				y_offset = -size.y + (sin(PI*td/2.0f) * size.y / 2.0f);
 
-				if(touches_down() && !powerups[i] && coins >= powerup_params[i].cost) {
-					Touch* t = touches_get();
-					if(t){
-						float r_sqr = 40.0f * 40.0f;
-						if(vec2_length_sq(vec2_sub(t[0].hit_pos, pos)) < r_sqr) {
-							powerups[i] = true;
-							coins -= powerup_params[i].cost;	
-						}
-					}
+				// Button action
+				if(hud_button_ex(empty_spr,pos,40.0f,col,t) && !powerups[i] && coins >= powerup_params[i].cost){
+					powerups[i] = true;
+					coins -= powerup_params[i].cost;				
 				}
-
 
 			}
 
