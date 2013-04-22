@@ -1,0 +1,65 @@
+(sprsheet tiltas 
+	(prefix "gija_assets/")
+	(img empty
+		(tex empty.png)
+	)
+
+	(img door_red
+		(tex door_red.png)
+		(src 0,0,32,64)
+	)
+
+	(img door_blue
+		(tex door_blue.png)
+		(src 0,0,32,64)
+	)
+
+	(img exit_red
+		(tex exits.png)
+		(src 32,0,64,64)
+	)
+
+	(img exit_blue
+		(tex exits.png)
+		(src 0,0,32,64)
+	)
+
+	(anim red
+		(tex red.png)
+		(src 0,0,32,64)
+		(offset 32,64)
+		(grid 8,3)
+		(frames 24)
+	)
+
+	(anim blue 
+		(tex blue.png)
+		(src 0,0,32,64)
+		(offset 32,64)
+		(grid 8,3)
+		(frames 24)
+	)
+
+	(anim beat
+		(tex raibulys256.png)
+		(src 0,0,256,256)
+		(offset 256,256)
+		(grid 4,4)
+		(frames 16)
+	)
+
+	(img heart
+		(tex atlas.png)
+		(src 0,0,5,5)
+	)
+
+	(img blue_end
+		(tex blue_end.png)
+		(src 0,0,1024,576)
+	)
+
+	(img red_end
+		(tex red_end.png)
+		(src 0,0,1024,576)
+	)
+)
