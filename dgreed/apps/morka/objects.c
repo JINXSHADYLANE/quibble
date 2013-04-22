@@ -267,6 +267,13 @@ static void objects_render_tick(uint n_components) {
 		float scx = (camera.right - camera.left) * 0.5f;
 		float sby = camera.bottom;
 
+		static float m[6];
+		m[0] = inv_z; m[1] = 0.0f; m[2] = (scx - scx * inv_z) * 0.5f;
+		m[3] = 0.0f; m[4] = inv_z; m[5] = sby - sby * inv_z;
+
+		for(uint l = dust_layer; l < hud_layer; ++l)
+			video_set_transform(l, m);
+
 		bool is_visible = rectf_rectf_collision(&r->world_dest, &camera); 
 
 		if(is_visible) {
@@ -288,12 +295,6 @@ static void objects_render_tick(uint n_components) {
 					r->world_dest.right - camera_topleft.x,
 					r->world_dest.bottom - camera_topleft.y
 				);
-
-				// Transform Z
-				sd.left = scx + (sd.left - scx) * inv_z;
-				sd.right = scx + (sd.right - scx) * inv_z;
-				sd.top = sby - (sby - sd.top) * inv_z;
-				sd.bottom = sby - (sby - sd.bottom) * inv_z;
 
 				// Render
 				if(r->anim_frame != MAX_UINT16) {
