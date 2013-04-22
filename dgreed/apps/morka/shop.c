@@ -12,7 +12,7 @@
 #include <uidesc.h>
 #include <vfont.h>
 
-extern uint player;
+extern uint selected_char;
 
 // Character select variables
 static float xpos = 0.0f;
@@ -34,11 +34,11 @@ static void shop_close(void) {
 }
 
 static void shop_preenter(void) {
-	player = keyval_get_int("player_character",0);
+	selected_char = keyval_get_int("player_character",0);
 
 	coins = keyval_get_int("coins",0);
 	coins_original = coins;
-	xpos = player * -inc;
+	xpos = selected_char * -inc;
 
 	for(uint i = 0; i < POWERUP_COUNT;i++){
 		powerups[i] = false;
@@ -51,7 +51,7 @@ static void shop_enter(void) {
 }
 
 static void shop_leave(void) {
-	keyval_set_int("player_character",player);
+	keyval_set_int("player_character",selected_char);
 }
 
 static bool shop_update(void) {
@@ -160,7 +160,7 @@ static float find_closest_pos(float value, float increment){
 	for(uint i = 0; i < character_count;i++){
 		float t = fabsf(value - (i * increment) );
 		if(t <= min){
-			player = i;
+			selected_char = i;
 			result = i * increment;
 			min = t;
 		}
@@ -369,13 +369,13 @@ static bool shop_render(float t) {
 
 		float t = time_s();
 
-		if(!_shop_character_owned(i) || (i == player && t < anim_end) ){
+		if(!_shop_character_owned(i) || (i == selected_char && t < anim_end) ){
 
 			byte alpha_txt = lrintf(255.0f * scroll_alpha * state_alpha);
 			Color col_a = COLOR_RGBA(255, 255, 255, alpha_txt);
 			Vector2 pos = vec2_add(cost_txt->vec2,offset);
 
-			if( (i == player && t < anim_end) ){
+			if( (i == selected_char && t < anim_end) ){
 
 				float td = 0.0f;
 				if(anim_end > 0.0f){
@@ -408,7 +408,7 @@ static bool shop_render(float t) {
 	sprintf(str, "%u",coins);
 	vfont_draw(str, hud_layer+1, coin_text->vec2, col);
 
-	if(_shop_character_owned(player)){
+	if(_shop_character_owned(selected_char)){
 		// Play button
 		if(hud_button(button_play, col, t)) {
 			game_request_reset();
@@ -417,7 +417,7 @@ static bool shop_render(float t) {
 	} else {
 		// Buy button
 		if(hud_button(button_buy, col, t)) {
-			if(_shop_character_buy(player)){
+			if(_shop_character_buy(selected_char)){
 				anim_start = time_s();
 				anim_end = anim_start + 0.7f;
 			}

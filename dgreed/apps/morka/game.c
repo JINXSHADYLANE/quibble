@@ -21,7 +21,7 @@ extern bool draw_gfx_debug;
 extern bool draw_physics_debug;
 bool draw_ai_debug = false;
 
-ObjRabbit* rabbit = NULL;
+ObjRabbit* player = NULL;
 float camera_follow_weight;
 bool camera_follow = false;
 float bg_scroll = 0.0f;
@@ -32,12 +32,12 @@ static bool game_over = false;
 static bool game_paused = false;
 bool tutorial_level = true;
 
-uint player = 0;
+uint selected_char = 0;
 
 CharacterParams character_params[character_count];
 
 static void game_reset(void) {
-	if(rabbit) {
+	if(player) {
 		objects_destroy_all();
 	}
 
@@ -57,7 +57,7 @@ static void game_reset(void) {
 		cp->minimap_color = default_characters[i].minimap_color;
 		cp->animation = default_characters[i].animation;
 
-		if(i == player){
+		if(i == selected_char){
 			// Player character
 			Vector2 pos = vec2(512.0f, v_height-128.0f);
 
@@ -67,12 +67,12 @@ static void game_reset(void) {
 			cp->yjump = default_characters[i].yjump;
 			cp->control = obj_rabbit_player_control;
 
-			rabbit = (ObjRabbit*)objects_create(
+			player = (ObjRabbit*)objects_create(
 				&obj_rabbit_desc, pos, (void*)&character_params[i]
 			);
 
-			minimap_track(rabbit);
-			tutorials_reset(rabbit);
+			minimap_track(player);
+			tutorials_reset(player);
 		} else if(ai_num < lvl_desc->ai_rabbit_num) {
 			// AI character
 			Vector2 pos = vec2(640.0f+128.0f*ai_num,v_height-128.0f);
@@ -233,16 +233,16 @@ bool game_update(void) {
 	if(game_paused)
 		return true;
 
-	if(rabbit && rabbit->header.type) {
+	if(player && player->header.type) {
 		Vector2 camera;
 		Vector2 follow = vec2(camera_follow_weight,0.0f);
 
-		Vector2 pos = rabbit->header.physics->cd_obj->pos;
+		Vector2 pos = player->header.physics->cd_obj->pos;
 
-		camera.x = rabbit->header.render->world_dest.left + 45.0f;
+		camera.x = player->header.render->world_dest.left + 45.0f;
 
 		// Calculate camera z from rabbit horizontal velocity
-		float vel_x = rabbit->header.physics->vel.x;
+		float vel_x = player->header.physics->vel.x;
 		float target_z = 1.0f + clamp(0.0f, 1.0f, (vel_x - 1000.0f) / 500.0f);
 		objects_camera_z[0] = lerp(objects_camera_z[0], target_z, 0.005f);
 
@@ -254,12 +254,12 @@ bool game_update(void) {
 
 		//printf("pos.y: %f c: %f fy: %f\n",579.0f - pos.y,c,follow.y );
 
-		if(!game_over && rabbit->data->game_over){
+		if(!game_over && player->data->game_over){
 			game_over = true;
 
-			uint place = minimap_get_place_of_rabbit(rabbit);
+			uint place = minimap_get_place_of_rabbit(player);
 
-			if(rabbit->data->is_dead) 
+			if(player->data->is_dead) 
 				game_over_set_screen(OUT_SCREEN);
 			else if(place <= 3)
 				game_over_set_screen(WIN_SCREEN);
@@ -335,7 +335,7 @@ static bool game_render(float t) {
 	hud_render(t);
 
 	if(tutorials_are_enabled()){ 
-		if(rabbit && rabbit->header.type && !game_paused) tutorial_event(AUTO);
+		if(player && player->header.type && !game_paused) tutorial_event(AUTO);
 		tutorials_render(t);
 	}
 

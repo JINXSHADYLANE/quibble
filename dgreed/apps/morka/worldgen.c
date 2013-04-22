@@ -7,7 +7,6 @@
 #include <mfx.h>
 #include <mempool.h>
 
-extern ObjRabbit* rabbit;
 extern bool tutorial_level;
 
 static float page_width = 0.0f;
