@@ -230,17 +230,6 @@ bool game_update(void) {
 	if(game_paused)
 		return true;
 
-	if(char_pressed('i')) {
-		for(uint i = 0; i < N_CAMERAS; ++i)
-			objects_camera_z[i] += 0.05f;
-	}
-
-	if(char_pressed('k')) {
-		for(uint i = 0; i < N_CAMERAS; ++i)
-			objects_camera_z[i] -= 0.05f;
-	}
-
-
 	if(rabbit && rabbit->header.type) {
 		Vector2 camera;
 		Vector2 follow = vec2(camera_follow_weight,0.0f);
@@ -248,7 +237,14 @@ bool game_update(void) {
 		Vector2 pos = rabbit->header.physics->cd_obj->pos;
 
 		camera.x = rabbit->header.render->world_dest.left + 45.0f;
-		camera.y = rabbit->header.physics->vel.y;
+		//camera.y = rabbit->header.physics->vel.y;
+
+		//printf("%f\n", rabbit->header.physics->vel.x);
+		float vel_x = rabbit->header.physics->vel.x;
+		float target_z = 1.0f + clamp(0.0f, 1.0f, (vel_x - 1000.0f) / 500.0f);
+		for(uint i = 0; i < N_CAMERAS; ++i) {
+			objects_camera_z[i] = lerp(objects_camera_z[i], target_z, 0.01f);
+		}
 
 		if(camera.y == 0.0f && objects_camera[0].top < 0.0f){
 			camera.y = -objects_camera[0].top * 1000.0f;

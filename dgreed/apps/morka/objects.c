@@ -267,6 +267,7 @@ static void objects_render_tick(uint n_components) {
 		float scx = (camera.right - camera.left) * 0.5f;
 		float sby = camera.bottom;
 
+		// Scale everything except background and UI according to camera z
 		static float m[6];
 		m[0] = inv_z; m[1] = 0.0f; m[2] = (scx - scx * inv_z) * 0.5f;
 		m[3] = 0.0f; m[4] = inv_z; m[5] = sby - sby * inv_z;
