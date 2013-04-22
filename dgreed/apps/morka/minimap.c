@@ -222,7 +222,7 @@ float minimap_max_x(void){
 		}
 
 	}
-	return first + v_width;
+	return first + v_width * objects_camera_z[0];
 }
 
 float minimap_min_x(void){
@@ -238,7 +238,7 @@ float minimap_min_x(void){
 		}
 
 	}
-	return last;
+	return last + v_width - (v_width * objects_camera_z[0]);
 }
 
 uint minimap_get_count(void){

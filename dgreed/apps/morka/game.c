@@ -118,7 +118,10 @@ static void game_reset(void) {
 	camera_follow = false;
 
 	worldgen_reset(rand_uint(),levels_current_desc());
-	worldgen_update(objects_camera[0].right, objects_camera[1].right);
+	worldgen_update(
+		objects_camera[0].right + v_width,
+		objects_camera[1].right + v_width
+	);
 
 	hud_reset();
 
@@ -237,19 +240,11 @@ bool game_update(void) {
 		Vector2 pos = rabbit->header.physics->cd_obj->pos;
 
 		camera.x = rabbit->header.render->world_dest.left + 45.0f;
-		//camera.y = rabbit->header.physics->vel.y;
 
-		//printf("%f\n", rabbit->header.physics->vel.x);
+		// Calculate camera z from rabbit horizontal velocity
 		float vel_x = rabbit->header.physics->vel.x;
 		float target_z = 1.0f + clamp(0.0f, 1.0f, (vel_x - 1000.0f) / 500.0f);
-		for(uint i = 0; i < N_CAMERAS; ++i) {
-			objects_camera_z[i] = lerp(objects_camera_z[i], target_z, 0.01f);
-		}
-
-		if(camera.y == 0.0f && objects_camera[0].top < 0.0f){
-			camera.y = -objects_camera[0].top * 1000.0f;
-		}
-		//printf("%f %f\n",camera.y,objects_camera[0].top );
+		objects_camera_z[0] = lerp(objects_camera_z[0], target_z, 0.005f);
 
 		float c = normalize(v_height-128.0f - pos.y, 0.0f,v_height-128.0f);
 		c = MAX(0.0f,c);

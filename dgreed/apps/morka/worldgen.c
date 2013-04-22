@@ -301,11 +301,17 @@ static void _gen_ground(void){
 
 				// Coin arc over gap
 				if(!tutorial_level){
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * -0.3f,v_height - 293.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.1f,v_height - 343.0f),(void*)&coin_powerup);		
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.5f,v_height - 368.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 0.9f,v_height - 343.0f),(void*)&coin_powerup);
-					objects_create(&obj_powerup_desc, vec2(pos.x + advance * 1.3f,v_height - 293.0f),(void*)&coin_powerup);
+					for(uint i = 0; i < 5; ++i) {
+						float x = pos.x + advance * (-0.3f + i * 0.4f);
+						int d = MIN(i, 4 - i);
+						float y = v_height - 293.0f;
+						if(d)
+							y -= (d+1) * 25.0f;
+
+						objects_create(
+							&obj_powerup_desc, vec2(x, y), (void*)&coin_powerup
+						);
+					}
 				}
 			}
 		}
@@ -462,8 +468,8 @@ void worldgen_close(void) {
 }
 
 void worldgen_update(float fg_camera_extent_max, float bg_camera_extent_max) {
-	if(fg_camera_extent_max >= fg_page_cursor)
+	while(fg_camera_extent_max >= fg_page_cursor)
 		_gen_fg_page();
-	if(bg_camera_extent_max >= bg_page_cursor)
+	while(bg_camera_extent_max >= bg_page_cursor)
 		_gen_bg_page();
 }
