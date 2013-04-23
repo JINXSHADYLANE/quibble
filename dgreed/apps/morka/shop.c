@@ -20,7 +20,7 @@ static float delta = 0.0f;
 const float inc = 600.0f;
 
 uint coins = 0;
-static uint coins_original = 0;
+uint coins_original = 0;
 
 bool powerups[POWERUP_COUNT];
 static float powerup_appear[POWERUP_COUNT] = {0};
@@ -33,17 +33,20 @@ static void shop_close(void) {
 
 }
 
-static void shop_preenter(void) {
-	selected_char = keyval_get_int("player_character",0);
-
+void shop_reset(void){
 	coins = keyval_get_int("coins",0);
-	coins_original = coins;
+	coins_original = coins;	
+	selected_char = keyval_get_int("player_character",0);
 	xpos = selected_char * -inc;
 
 	for(uint i = 0; i < POWERUP_COUNT;i++){
 		powerups[i] = false;
 		powerup_appear[i] = 0.0f;
 	}
+}
+
+static void shop_preenter(void) {
+
 }
 
 static void shop_enter(void) {

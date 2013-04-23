@@ -9,4 +9,6 @@ extern StateDesc shop_state;
 extern uint coins;
 extern bool powerups[POWERUP_COUNT];
 
+void shop_reset(void);
+
 #endif

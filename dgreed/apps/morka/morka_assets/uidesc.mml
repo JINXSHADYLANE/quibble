@@ -350,6 +350,27 @@
 			)
 		)
 
+		(def buy_1
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-200)
+			)
+		)
+
+		(def buy_2
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+
+		(def buy_3
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,0)
+			)
+		)
+
 		(def button_quit
 			(spr quit)
 			(add <-

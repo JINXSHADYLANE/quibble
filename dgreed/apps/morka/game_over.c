@@ -44,6 +44,7 @@ static void game_over_enter(void) {
 }
 
 static void game_over_leave(void) {
+	shop_reset();
 }
 
 static void game_over_postleave(void) {
