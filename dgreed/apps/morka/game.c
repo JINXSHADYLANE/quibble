@@ -50,7 +50,7 @@ static void game_reset(void) {
 
 	uint ai_num = 0;
 
-	for(int i = 0;i < character_count;i++){
+	for(int i = 0; i < character_count; i++){
 		CharacterParams* cp = &character_params[i];
 
 		cp->sprite = sprsheet_get_handle(default_characters[i].spr_handle);
@@ -108,6 +108,7 @@ static void game_reset(void) {
 		objects_camera[i].left = p;
 		objects_camera[i].right = p + v_width;
 		objects_camera[i].bottom = v_height;
+		objects_camera[i].top = 0.0f;
 	}
 
 	bg_scroll = p;
@@ -232,7 +233,7 @@ bool game_update(void) {
 		return true;
 
 	if(player && player->header.type) {
-		Vector2 camera;
+		Vector2 camera = {0.0f, 0.0f};
 		Vector2 follow = vec2(camera_follow_weight,0.0f);
 
 		Vector2 pos = player->header.physics->cd_obj->pos;
@@ -246,7 +247,7 @@ bool game_update(void) {
 
 		float c = normalize(v_height-128.0f - pos.y, 0.0f,v_height-128.0f);
 		c = MAX(0.0f,c);
-		follow.y = 0.005 * c * c;
+		follow.y = 0.005f * c * c;
 
 		_move_camera(camera, follow);
 
@@ -312,9 +313,9 @@ void game_render_level(void){
 
 	Vector2 size = sprsheet_get_size_h(levels_current_desc()->background);
 
-	float z = 1.0f -  (objects_camera_z[0] - 1.0f) / 8.0f;
+	float z = 1.0f + (objects_camera_z[0] - 1.0f) / 8.0f;
 
-	size = vec2_scale(size,z);
+	size = vec2_scale(size, 1.0f / z);
 
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, size.x);
