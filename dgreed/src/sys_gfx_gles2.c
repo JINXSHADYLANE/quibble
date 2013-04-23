@@ -58,6 +58,7 @@ typedef enum {
 typedef struct {
 	uint32 layer;
 	BlendMode mode;
+	float* transform;
 } LayerTag;
 
 bool draw_gfx_debug = false;
@@ -521,11 +522,13 @@ void video_present(void) {
 		}
 
 		// Find layer tag
+		LayerTag* t = NULL;
 		BlendMode mode = BM_NORMAL;
 		for(uint i = 0; i < tags.size; ++i) {
-			LayerTag* t = darray_get(&tags, i);
-			if(t->layer == layer) {
-				mode = t->mode;
+			LayerTag* tt = darray_get(&tags, i);
+			if(tt->layer == layer) {
+				mode = tt->mode;
+				t = tt;
 				break;
 			}
 		}
@@ -600,6 +603,22 @@ void video_present(void) {
 					}
 				}
 
+				if(t && t->transform) {
+					const float* m = t->transform;
+					fix16_t mat[6]
+					for(uint i = 0; i < 6; ++i)
+						mat[i] = (int)(m[i] * 65536.0f);
+
+					for(uint i = 0; i < 4; ++i) {
+						int16* x = &pos[i*2+0];
+						int16* y = &pos[i*2+1];
+						int16 nx = (mat[0] * *x) >> 16 + (mat[1] * *y) >> 16 + mat[2];
+						int16 ny = (mat[3] * *x) >> 16 + (mat[4] * *y) >> 16 + mat[5];
+						*x = nx;
+						*y = ny;
+					}
+				}
+
 				uint k = vertices.size;
 				for(uint v = 0; v < 4; ++v) {
 					vb[k+v].x = pos[v*2+0];
@@ -656,27 +675,34 @@ uint video_get_frame(void) {
 	return frame;
 }
 
-void video_set_blendmode(uint layer, BlendMode bmode) {
+void LayerTag* _get_tag(uint layer) {
 	// Find out if layer is tagged already
 	for(uint i = 0; i < tags.size; ++i) {
 		LayerTag* tag = darray_get(&tags, i);
 		if(tag->layer == layer) {
-			// Layer has a tag, overwrite it
-			tag->mode = bmode;
-			return;
+			// Layer has a tag, return it
+			return tag;
 		}
 	}
 
 	// Create a new tag
 	LayerTag new = {
 		.layer = layer,
-		.mode = bmode
+		.mode = BM_NORMAL,
+		.transform = NULL
 	};
 	darray_append(&tags, &new);
+	return darray_get(&tags, tags.size-1);
+}
+
+void video_set_blendmode(uint layer, BlendMode bmode) {
+	LayerTag* tag = _get_tag(layer);
+	tag->mode = bmode;
 }
 
 void video_set_transform(uint layer, float* matrix) {
-	// Not implemented, currently no game uses it anyway...
+	LayerTag* tag = _get_tag(layer);
+	tag->transform = matrix;
 }
 
 static void _pf_to_gles(PixelFormat format, GLenum* fmt, GLenum* type) {
