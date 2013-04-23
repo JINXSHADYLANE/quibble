@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		21445E451726DD540096B9FD /* in_app.c in Sources */ = {isa = PBXBuildFile; fileRef = 21445E431726DD540096B9FD /* in_app.c */; };
 		2175DBD416F07AF900452F14 /* placement.c in Sources */ = {isa = PBXBuildFile; fileRef = 2175DBD216F07AF900452F14 /* placement.c */; };
 		219BE99816776981002B614C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BE99716776981002B614C /* UIKit.framework */; };
 		219BE99A16776981002B614C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BE99916776981002B614C /* Foundation.framework */; };
@@ -180,6 +181,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		21445E431726DD540096B9FD /* in_app.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = in_app.c; sourceTree = SOURCE_ROOT; };
+		21445E441726DD540096B9FD /* in_app.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = in_app.h; sourceTree = SOURCE_ROOT; };
 		2175DBD216F07AF900452F14 /* placement.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = placement.c; sourceTree = SOURCE_ROOT; };
 		2175DBD316F07AF900452F14 /* placement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = placement.h; sourceTree = SOURCE_ROOT; };
 		219BE99316776981002B614C /* morka.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = morka.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -593,6 +596,8 @@
 				219BEAF016776B3A002B614C /* worldgen.h */,
 				AA7188C61703494900687C50 /* shop.c */,
 				AA7188C71703494900687C50 /* shop.h */,
+				21445E431726DD540096B9FD /* in_app.c */,
+				21445E441726DD540096B9FD /* in_app.h */,
 				AA30D22F16FFA54E009E1AF3 /* season_select.c */,
 				AA30D23016FFA54E009E1AF3 /* season_select.h */,
 				2175DBD216F07AF900452F14 /* placement.c */,
@@ -1066,6 +1071,7 @@
 				AA82893A1700AD5F00F80966 /* obj_spring_branch.c in Sources */,
 				AA7188C81703494900687C50 /* shop.c in Sources */,
 				AA8AFB401712FD260092DBF4 /* characters.c in Sources */,
+				21445E451726DD540096B9FD /* in_app.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1153,13 +1159,13 @@
 		219BE9B216776981002B614C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "26347D49-4968-4CC8-A334-D8C5A7BFC832";
+				PROVISIONING_PROFILE = "C43D3236-6740-4981-B318-89AB0177B511";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1167,13 +1173,13 @@
 		219BE9B316776981002B614C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "26347D49-4968-4CC8-A334-D8C5A7BFC832";
+				PROVISIONING_PROFILE = "C43D3236-6740-4981-B318-89AB0177B511";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
