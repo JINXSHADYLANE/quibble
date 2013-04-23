@@ -333,6 +333,32 @@
 		)
 
 	)	
+	(def in_app
+
+		(def coin_icon
+			(spr token_tag)
+			(add <-
+				(tl <- (get_rect screen))
+				(vec2 50,50)
+			)
+		)
+
+		(def coin_text
+			(add <-
+				(tl <- (get_rect screen))
+				(vec2 100,30)
+			)
+		)
+
+		(def button_quit
+			(spr quit)
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 0,-90)
+			)
+		)
+	)
 	(def pause
 		(def text
 			(add <-

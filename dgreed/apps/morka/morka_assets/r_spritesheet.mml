@@ -175,7 +175,7 @@
 		(tex r_atlas_12.png)
 		(src 1505,1303,1755,1555)
 	)
-	(img position_knob
+	(img solid
 		(tex r_atlas_12.png)
 		(src 2027,24,2043,40)
 	)

@@ -122,9 +122,13 @@ static void _render_powerups_buy(float t){
 				y_offset = -size.y + (sin(PI*td/2.0f) * size.y / 2.0f);
 
 				// Button action
-				if(hud_button_ex(empty_spr,pos,40.0f,col,t) && !powerups[i] && coins >= powerup_params[i].cost){
-					powerups[i] = true;
-					coins -= powerup_params[i].cost;				
+				if(hud_button_ex(empty_spr,pos,40.0f,col,t) && !powerups[i]){
+					if(coins >= powerup_params[i].cost){
+						powerups[i] = true;
+						coins -= powerup_params[i].cost;
+					} else {
+						malka_states_push("in_app");
+					}				
 				}
 
 			}
@@ -318,7 +322,7 @@ static bool shop_render(float t) {
 		vfont_select(FONT_NAME, 38.0f);
 		vfont_draw(default_characters[i].name, hud_layer, vec2_add(character_name->vec2,offset), col2);	
 
-		SprHandle empty = sprsheet_get_handle("position_knob");
+		SprHandle empty = sprsheet_get_handle("solid");
 
 		vfont_select(FONT_NAME, 30.0f);
 		const char* speed = "Speed";
@@ -420,14 +424,28 @@ static bool shop_render(float t) {
 			if(_shop_character_buy(selected_char)){
 				anim_start = time_s();
 				anim_end = anim_start + 0.7f;
+			} else {
+				malka_states_push("in_app");
 			}
 		}
 	}
 
+	Vector2 coin_size = sprsheet_get_size_h(coin_icon->spr); 
+	Vector2 txt_size = vfont_size(str);
+	Vector2 btn_pos;
+	btn_pos.x = coin_icon->vec2.x - coin_size.x / 2.0f +
+				coin_text->vec2.x + txt_size.x;
+	btn_pos.x /= 2.0f;
+	btn_pos.y = coin_icon->vec2.y;
+	Vector2 dim = vec2( coin_size.x + txt_size.x + 15.0f, coin_size.y );
+
+	// in app store button
+	if(hud_button_rect(empty_spr,btn_pos,dim,col,t))
+		malka_states_push("in_app");
+
 	// Quit button
-	if(hud_button(button_quit, col, t)) {
+	if(hud_button(button_quit, col, t))
 		malka_states_pop();
-	}
 
 	_render_powerups_buy(t);
 
