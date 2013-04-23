@@ -44,7 +44,7 @@ void minimap_draw_finish_line(void){
 		float d = (float)(level_distance + 2.0f) * (v_width/3.0f);
 		if(d - player_x < v_width * z ){
 			for(float y = v_height - h;
-				y > v_height - v_height * z + h;
+				y > v_height - v_height * z - h;
 				y -= h) {
 
 				RectF dest = {
