@@ -250,9 +250,6 @@ bool game_update(void) {
 
 		_move_camera(camera, follow);
 
-		Vector2 size = sprsheet_get_size_h(levels_current_desc()->background);
-		bg_y = (size.y - v_height) * (2.0f - objects_camera_z[0]);
-
 		if(!game_over && player->data->game_over){
 			game_over = true;
 
@@ -300,9 +297,6 @@ bool game_update_empty(void) {
 	Vector2 camera = vec2(_camera_x() + scroll_speed,-objects_camera[0].top);
 	_move_camera(camera, vec2(0.2f,0.01f) );
 
-	Vector2 size = sprsheet_get_size_h(levels_current_desc()->background);
-	bg_y = (size.y - v_height) * (2.0f - objects_camera_z[0]);
-
 	worldgen_update(
 		objects_camera[0].left + v_width * objects_camera_z[0],
 		objects_camera[1].left + v_width * objects_camera_z[0]
@@ -315,16 +309,25 @@ bool game_update_empty(void) {
 
 void game_render_level(void){
 	hud_click = false;
+
+	Vector2 size = sprsheet_get_size_h(levels_current_desc()->background);
+
+	float z = 1.0f -  (objects_camera_z[0] - 1.0f) / 8.0f;
+
+	size = vec2_scale(size,z);
+
 	// Draw scrolling background
-	float off_x = fmodf(bg_scroll, 1024.0f);
-	float off_y = bg_y;
-	RectF dest = rectf(-off_x, -off_y, 0.0f, 0.0f);
+	float off_x = fmodf(bg_scroll, size.x);
+	float off_y = size.y - v_height;
+
+	RectF dest = rectf(-off_x, -off_y, -off_x + size.x, -off_y + size.y);
 	Color col = COLOR_WHITE;
 	spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
-	dest = rectf(1024.0f - off_x, -off_y, 0.0f, 0.0f);
+	dest = rectf(size.x - off_x, -off_y, size.x - off_x + size.x, -off_y + size.y);
 	spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
-	if(v_width > 1024.0f){
-		dest = rectf(2048.0f - off_x, -off_y, 0.0f, 0.0f);
+
+	if(v_width > size.x){
+		dest = rectf(size.x*2.0f - off_x, -off_y, size.x*2.0f - off_x + size.x, -off_y + size.y);
 		spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
 	}
 	
