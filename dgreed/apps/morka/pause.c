@@ -3,6 +3,7 @@
 #include "hud.h"
 #include "common.h"
 #include "level_select.h"
+#include "shop.h"
 #include <uidesc.h>
 #include <vfont.h>
 
@@ -19,6 +20,7 @@ static void pause_preenter(void) {
 }
 
 static void pause_leave(void) {
+	shop_reset();
 }
 
 static void pause_postleave(void) {

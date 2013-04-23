@@ -152,6 +152,7 @@ static bool level_select_render(float t) {
 			// Button action
 			if(hud_button_ex(empty_spr,pos,50.0f,col,t)){
 				levels_reset(desc->name);
+				shop_reset();
 				malka_states_push("shop");				
 			}
 

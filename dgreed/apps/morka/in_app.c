@@ -12,7 +12,14 @@
 #include <uidesc.h>
 #include <vfont.h>
 
+#ifdef TARGET_IOS
+	#include "iap.h"
+#else
+ 
+#endif
+
 extern uint coins;
+extern uint coins_original;
 
 static void in_app_init(void) {
 
@@ -31,7 +38,7 @@ static void in_app_enter(void) {
 }
 
 static void in_app_leave(void) {
-
+	keyval_set_int("coins",coins_original);
 }
 
 static bool in_app_update(void) {
@@ -42,8 +49,6 @@ static bool in_app_update(void) {
 static bool in_app_render(float t) {
 	if(t != 0.0f) game_update_empty();
 	
-	vfont_select(FONT_NAME, 48.0f);
-
 	UIElement* element = uidesc_get("in_app");
 	UIElement* coin_icon = uidesc_get_child(element, "coin_icon");
 	UIElement* coin_text = uidesc_get_child(element, "coin_text");
@@ -64,7 +69,43 @@ static bool in_app_render(float t) {
 	sprintf(str, "%u",coins);
 	vfont_draw(str, hud_layer+1, coin_text->vec2, col);
 
-	// TODO: purchase buttons
+	vfont_select(FONT_NAME, 48.0f);
+
+	// Buttons
+	for(int i = 1; i <= 3; i++){
+		char element_name[16];
+		sprintf(element_name, "buy_%d", i);
+		UIElement* elem = uidesc_get_child(element, element_name);
+
+		char txt[32];
+		uint value;
+		switch(i){
+			case 1:
+				sprintf(txt, "Buy 100c for 0.99$");
+				value = 100;
+			break;
+
+			case 2:
+				sprintf(txt, "Buy 300c for 1.99$");
+				value = 300;
+			break;
+
+			default:
+				sprintf(txt, "Buy 1000c for 2.99$");
+				value = 1000;
+			break;
+		}
+	
+		Vector2 half_size = vec2_scale(vfont_size(txt), 0.5f);
+		vfont_draw(txt, hud_layer, vec2_sub(elem->vec2, half_size), col);
+		Vector2 dim = vec2_scale(half_size, 2.0f);
+
+		if(hud_button_rect(empty_spr,elem->vec2,dim,col,t)){
+			coins += value;
+			coins_original += value;
+		}
+	
+	}
 
 	// Quit button
 	if(hud_button(button_quit, col, t)) {
