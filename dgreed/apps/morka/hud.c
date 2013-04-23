@@ -39,8 +39,6 @@ void hud_reset(void){
 static void _hud_render_powerups(float t){
 	UIElement* element = uidesc_get("hud_powerups");
 
-	hud_click = false;
-
 	const float duration = 0.5f;
 
 	float alpha = 1.0f-fabsf(t);
