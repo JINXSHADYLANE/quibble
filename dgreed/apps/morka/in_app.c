@@ -40,7 +40,8 @@ static bool in_app_update(void) {
 }
 
 static bool in_app_render(float t) {
-
+	if(t != 0.0f) game_update_empty();
+	
 	vfont_select(FONT_NAME, 48.0f);
 
 	UIElement* element = uidesc_get("in_app");

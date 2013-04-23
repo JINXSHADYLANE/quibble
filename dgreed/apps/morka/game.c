@@ -303,6 +303,7 @@ bool game_update_empty(void) {
 }
 
 void game_render_level(void){
+	hud_click = false;
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
 	float off_y = bg_y;
