@@ -224,7 +224,6 @@ static void _move_camera(Vector2 new_pos, Vector2 follow_weight) {
 		objects_camera[2].bottom += offset.y / 8.0f;
 
 		bg_scroll += offset.x/8.0f;
-		//bg_y += offset.y/8.0f;
 	}
 }
 
@@ -250,6 +249,9 @@ bool game_update(void) {
 		follow.y = 0.005 * c * c;
 
 		_move_camera(camera, follow);
+
+		Vector2 size = sprsheet_get_size_h(levels_current_desc()->background);
+		bg_y = (size.y - v_height) * (2.0f - objects_camera_z[0]);
 
 		if(!game_over && player->data->game_over){
 			game_over = true;
@@ -294,6 +296,9 @@ bool game_update_empty(void) {
 
 	Vector2 camera = vec2(_camera_x() + scroll_speed,-objects_camera[0].top);
 	_move_camera(camera, vec2(0.2f,0.01f) );
+
+	Vector2 size = sprsheet_get_size_h(levels_current_desc()->background);
+	bg_y = (size.y - v_height) * (2.0f - objects_camera_z[0]);
 
 	worldgen_update(objects_camera[0].right, objects_camera[1].right);
 	
