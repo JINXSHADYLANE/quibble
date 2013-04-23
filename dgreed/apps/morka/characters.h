@@ -12,7 +12,6 @@ typedef struct {
 	const char* animation;
 	const char* description;
 	uint cost;
-	Color minimap_color;
 	float speed;
 	float xjump;
 	float yjump;
@@ -22,7 +21,6 @@ typedef struct {
 	const char* name;
 	const char* animation;	
 	SprHandle sprite;
-	Color minimap_color;
 	float speed;
 	float xjump;
 	float yjump;

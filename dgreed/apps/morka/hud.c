@@ -39,8 +39,6 @@ void hud_reset(void){
 static void _hud_render_powerups(float t){
 	UIElement* element = uidesc_get("hud_powerups");
 
-	hud_click = false;
-
 	const float duration = 0.5f;
 
 	float alpha = 1.0f-fabsf(t);
@@ -291,6 +289,29 @@ bool hud_button_ex(SprHandle spr, Vector2 pos, float r, Color col, float ts){
 		}
 	}
 	return false;	
+}
+
+bool hud_button_rect(SprHandle spr, Vector2 pos, Vector2 size, Color col, float ts){
+	if(spr != empty_spr)
+		spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col);	
+	Touch* t = touches_get();
+	if(touches_down() && t && ts == 0.0f) {		
+
+		size = vec2_scale(size,0.5f);
+
+		RectF rec = {
+			.left = pos.x - size.x,
+			.top = pos.y - size.y,
+			.right = pos.x + size.x,
+			.bottom = pos.y + size.y
+		};
+
+		if(rectf_contains_point(&rec,&t[0].hit_pos)){
+			hud_click = true;
+			return true;
+		}
+	}	
+	return false;
 }
 
 void hud_render_game_over_out(float t) {	

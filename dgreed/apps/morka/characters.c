@@ -8,7 +8,6 @@ CharacterDefaultParams default_characters[character_count] = {
 	"rabbit",
 	"Sprinter",
 	0,
-	COLOR_RGBA(150, 150, 150, 255),
 	550.0f,
 	100.0f,
 	400.0f
@@ -21,7 +20,6 @@ CharacterDefaultParams default_characters[character_count] = {
 	"squirrel",
 	"Jumper",
 	49,	
-	COLOR_RGBA(254, 100, 0, 255),
 	490.0f,
 	120.0f,
 	420.0f	
@@ -34,7 +32,6 @@ CharacterDefaultParams default_characters[character_count] = {
 	"rabbit",
 	"Swimmer",
 	99,	
-	COLOR_RGBA(0, 0, 255, 255),
 	500.0f,
 	100.0f,
 	400.0f		
@@ -47,7 +44,6 @@ CharacterDefaultParams default_characters[character_count] = {
 	"squirrel",
 	"Tough",
 	149,	
-	COLOR_RGBA(0, 0, 0, 255),
 	500.0f,
 	100.0f,
 	400.0f		

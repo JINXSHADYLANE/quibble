@@ -54,7 +54,6 @@ static void game_reset(void) {
 		CharacterParams* cp = &character_params[i];
 
 		cp->sprite = sprsheet_get_handle(default_characters[i].spr_handle);
-		cp->minimap_color = default_characters[i].minimap_color;
 		cp->animation = default_characters[i].animation;
 
 		if(i == selected_char){
@@ -252,8 +251,6 @@ bool game_update(void) {
 
 		_move_camera(camera, follow);
 
-		//printf("pos.y: %f c: %f fy: %f\n",579.0f - pos.y,c,follow.y );
-
 		if(!game_over && player->data->game_over){
 			game_over = true;
 
@@ -306,6 +303,7 @@ bool game_update_empty(void) {
 }
 
 void game_render_level(void){
+	hud_click = false;
 	// Draw scrolling background
 	float off_x = fmodf(bg_scroll, 1024.0f);
 	float off_y = bg_y;

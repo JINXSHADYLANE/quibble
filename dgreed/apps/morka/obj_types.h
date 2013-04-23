@@ -51,6 +51,7 @@ typedef struct {
 	bool passive;
 	PhysicsHitCallback hit_callback;
 	PowerupCallback powerup_callback;
+	RenderCallback update_pos;
 	uint cost;	
 } PowerupParams;
 
