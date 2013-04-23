@@ -17,6 +17,7 @@
 #include "pause.h"
 #include "game_over.h"
 #include "shop.h"
+#include "in_app.h"
 
 #include "mchains.h"
 #include "devmode.h"
@@ -80,6 +81,7 @@ bool dgreed_init(int argc, const char** argv) {
 	malka_states_register("game_over", &game_over_state);
 	malka_states_register("season_select", &season_select_state);
 	malka_states_register("shop", &shop_state);
+	malka_states_register("in_app", &in_app_state);
 
 	malka_states_set_transition_len(0.5f);
 
