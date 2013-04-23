@@ -87,6 +87,25 @@
 		(grid 3,9)
 	)
 
+	### unlocks ###
+
+	(img bomb_unlock
+		(tex r_atlas_13.png)
+		(src 854,2,1346,412)
+	)
+	(img rocket_unlock
+		(tex r_atlas_13.png)
+		(src 430,2,852,484)
+	)
+	(img shield_unlock
+		(tex r_atlas_13.png)
+		(src 2,2,428,490)
+	)
+	(img trampoline_unlock
+		(tex r_atlas_13.png)
+		(src 1348,2,2017,349)
+	)
+
 	#################
 	### Chapter I ###
 	#################
