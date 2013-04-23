@@ -38,18 +38,23 @@ void minimap_track(ObjRabbit* rabbit){
 
 void minimap_draw_finish_line(void){
 	if(level_distance > 0){
+		float z = objects_camera_z[0];
+		const float h = 66.0f;
 		// Draw a finish line when its visible to player rabbit
 		float d = (float)(level_distance + 2.0f) * (v_width/3.0f);
-		if(d - player_x < v_width){
-			for(int i = -110; i < (int)v_height;i+=66){
+		if(d - player_x < v_width * z ){
+			for(float y = v_height - h;
+				y > v_height - v_height * z + h;
+				y -= h) {
+
 				RectF dest = {
 					.left = d,
-					.top = (float) i 
+					.top = y 
 				};
-				RectF result = objects_world2screen(dest,0);
+				RectF result = objects_world2screen(dest, 0);
 				result.right = 0.0f;
 				result.bottom = 0.0f;
-				spr_draw_h(finish, finish_line_layer,result,COLOR_WHITE);
+				spr_draw_h(finish, finish_line_layer, result, COLOR_WHITE);
 			}
 		}
 	} 	

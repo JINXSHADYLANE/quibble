@@ -272,7 +272,10 @@ bool game_update(void) {
 	}
 
 	float pos = minimap_max_x();
-	worldgen_update( pos, pos );
+	worldgen_update(
+		pos, 
+		objects_camera[1].left + v_width * objects_camera_z[0]
+	);
 
 	// spawn background dust particles
 	static int delta = 0;	
@@ -300,7 +303,10 @@ bool game_update_empty(void) {
 	Vector2 size = sprsheet_get_size_h(levels_current_desc()->background);
 	bg_y = (size.y - v_height) * (2.0f - objects_camera_z[0]);
 
-	worldgen_update(objects_camera[0].right, objects_camera[1].right);
+	worldgen_update(
+		objects_camera[0].left + v_width * objects_camera_z[0],
+		objects_camera[1].left + v_width * objects_camera_z[0]
+	);
 	
 	particles_update(time_s());
 

@@ -272,10 +272,11 @@ static void objects_render_tick(uint n_components) {
 			(r->update_pos)(r->owner);
 	
 		RectF* p_camera = &objects_camera[r->camera];
-		RectF camera = _transform_rect(*p_camera, z);
+		RectF camera = _transform_rect(*p_camera, z*1.2f);
 		//float scx = (camera.right - camera.left) * 0.5f;
 		//float sby = camera.bottom;
 		bool is_visible = rectf_rectf_collision(&r->world_dest, &camera); 
+		//bool is_visible = true;
 
 		if(is_visible) {
 			if(!r->was_visible && r->became_visible)
