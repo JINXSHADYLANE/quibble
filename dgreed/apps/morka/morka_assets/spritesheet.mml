@@ -247,14 +247,6 @@
 	### atlas 1-3 ###
 	#################
 
-	(img blue_knob
-		(tex atlas_13.png)
-		(src 25,999,35,1009)
-	)
-	(img red_knob
-		(tex atlas_13.png)
-		(src 2,999,23,1020)
-	)
 	(img base_place
 		(tex atlas_13.png)
 		(src 584,2,893,61)
@@ -277,11 +269,15 @@
 	)
 	(img blocked
 		(tex atlas_13.png)
-		(src 603,501,662,561)
+		(src 603,503,662,563)
+	)
+	(img blue_knob
+		(tex atlas_13.png)
+		(src 25,999,35,1009)
 	)
 	(img bomb
 		(tex atlas_13.png)
-		(src 584,386,673,463)
+		(src 584,388,673,465)
 	)
 	(img bomb_obj
 		(tex atlas_13.png)
@@ -289,7 +285,7 @@
 	)
 	(img btn_bomb
 		(tex atlas_13.png)
-		(src 799,552,899,631)
+		(src 572,843,672,922)
 	)
 	(img btn_rocket
 		(tex atlas_13.png)
@@ -305,7 +301,7 @@
 	)
 	(img bubble1_obj
 		(tex atlas_13.png)
-		(src 901,588,998,710)
+		(src 924,680,1021,802)
 	)
 	(img bubble_obj
 		(tex atlas_13.png)
@@ -313,7 +309,11 @@
 	)
 	(img buy
 		(tex atlas_13.png)
-		(src 449,386,573,510)
+		(src 699,715,823,839)
+	)
+	(img dot
+		(tex atlas_13.png)
+		(src 572,715,697,841)
 	)
 	(img first_place
 		(tex atlas_13.png)
@@ -325,7 +325,7 @@
 	)
 	(img last_place
 		(tex atlas_13.png)
-		(src 449,512,601,673)
+		(src 449,516,601,677)
 	)
 	(img mushroom_1
 		(tex atlas_13.png)
@@ -341,27 +341,39 @@
 	)
 	(img mushroom_4
 		(tex atlas_13.png)
-		(src 675,459,797,582)
+		(src 800,841,922,964)
 	)
 	(img mushroom_5
 		(tex atlas_13.png)
-		(src 446,249,596,384)
+		(src 446,251,596,386)
 	)
 	(img mushroom_6
 		(tex atlas_13.png)
-		(src 447,128,582,247)
+		(src 447,130,582,249)
+	)
+	(img music
+		(tex atlas_13.png)
+		(src 603,587,728,713)
+	)
+	(img music_off
+		(tex atlas_13.png)
+		(src 803,552,928,678)
 	)
 	(img next
 		(tex atlas_13.png)
-		(src 449,2,573,126)
+		(src 674,843,798,967)
+	)
+	(img red_knob
+		(tex atlas_13.png)
+		(src 2,999,23,1020)
 	)
 	(img ribbon_first
 		(tex atlas_13.png)
-		(src 901,552,999,586)
+		(src 584,969,682,1003)
 	)
 	(img ribbon_last
 		(tex atlas_13.png)
-		(src 575,465,673,499)
+		(src 576,467,674,501)
 	)
 	(img ribbon_second
 		(tex atlas_13.png)
@@ -377,15 +389,27 @@
 	)
 	(img rocket
 		(tex atlas_13.png)
-		(src 603,584,685,675)
+		(src 930,552,1012,643)
 	)
 	(img second_place
 		(tex atlas_13.png)
 		(src 834,343,985,550)
 	)
+	(img settings
+		(tex atlas_13.png)
+		(src 676,459,801,585)
+	)
 	(img shield
 		(tex atlas_13.png)
 		(src 499,930,582,1021)
+	)
+	(img sound
+		(tex atlas_13.png)
+		(src 449,388,574,514)
+	)
+	(img sound_off
+		(tex atlas_13.png)
+		(src 449,2,574,128)
 	)
 	(img spikeshroom_1
 		(tex atlas_13.png)
