@@ -54,6 +54,8 @@ typedef struct {
 } NewObject;
 
 void objects_init(void) {
+	memset(objects_camera, 0, sizeof(objects_camera));
+
 	aatree_init(&desc_map);
 	mempool_init(&objects, MAX_GAMEOBJECT_SIZE);
 	list_init(&objects_list);
@@ -271,12 +273,10 @@ static void objects_render_tick(uint n_components) {
 		if(r->update_pos)
 			(r->update_pos)(r->owner);
 	
-		RectF* p_camera = &objects_camera[r->camera];
-		RectF camera = _transform_rect(*p_camera, z*1.2f);
-		//float scx = (camera.right - camera.left) * 0.5f;
-		//float sby = camera.bottom;
+		assert(r->camera < N_CAMERAS);
+		RectF un_camera = objects_camera[r->camera];
+		RectF camera = _transform_rect(un_camera, z * 1.5f);
 		bool is_visible = rectf_rectf_collision(&r->world_dest, &camera); 
-		//bool is_visible = true;
 
 		if(is_visible) {
 			if(!r->was_visible && r->became_visible)
@@ -287,8 +287,8 @@ static void objects_render_tick(uint n_components) {
 
 			if(likely(r->spr != empty_spr)) {
 				Vector2 camera_topleft = {
-					.x = p_camera->left,
-					.y = p_camera->top
+					.x = un_camera.left,
+					.y = un_camera.top
 				};
 
 				RectF sd = rectf(
