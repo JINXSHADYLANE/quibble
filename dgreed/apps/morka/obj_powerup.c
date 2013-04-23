@@ -3,6 +3,8 @@
 #include <system.h>
 #include <mfx.h>
 
+extern ObjRabbit* player;
+
 static void obj_powerup_became_invisible(GameObject* self) {
 	// empty
 }
@@ -206,6 +208,10 @@ static ObjFloaterParams coin_floater_params = {
 	.duration = 0.15f
 };
 
+static void obj_powerup_coin_update_pos(GameObject* self){
+	//TODO: coins move towards golden rabbit
+}
+
 static void obj_powerup_coin_collide(GameObject* self, GameObject* other) {
 	if(other->type == OBJ_RABBIT_TYPE) {
 		ObjRabbit* rabbit = (ObjRabbit*)other;
@@ -248,12 +254,15 @@ static void obj_powerup_construct(GameObject* self, Vector2 pos, void* user_data
 	render->layer = foreground_layer;
 	render->anim_frame = MAX_UINT16;
 	render->became_invisible = obj_powerup_became_invisible;
+	render->update_pos = powerup->update_pos;
 
 	// Physics
 	PhysicsComponent* physics = self->physics;
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &render->world_dest, OBJ_POWERUP_TYPE, NULL);
-	physics->inv_mass = 0.0f;
+	float mass = 2.0f;
+	physics->inv_mass = 1.0f / mass;
 	physics->hit_callback = powerup->hit_callback;
+
 }
 
 GameObjectDesc obj_powerup_desc = {
@@ -273,6 +282,7 @@ PowerupParams powerup_params[] = {
 		true,
 		obj_powerup_trampoline_collide,
 		obj_powerup_trampoline_effect,
+		NULL,
 		15
 	},
 
@@ -282,6 +292,7 @@ PowerupParams powerup_params[] = {
 		true,
 		obj_powerup_shield_collide,
 		obj_powerup_shield_effect,
+		NULL,
 		20
 	},
 
@@ -291,6 +302,7 @@ PowerupParams powerup_params[] = {
 		false,
 		obj_powerup_bomb_collide,
 		obj_powerup_bomb_effect,
+		NULL,
 		25
 	},
 	
@@ -300,6 +312,7 @@ PowerupParams powerup_params[] = {
 		false,
 		obj_powerup_rocket_collide,
 		obj_powerup_rocket_effect,
+		NULL,
 		30
 	},
 
@@ -311,5 +324,6 @@ PowerupParams coin_powerup = {
 	.btn = NULL,
 	.hit_callback = obj_powerup_coin_collide,
 	.powerup_callback = NULL,
+	.update_pos = obj_powerup_coin_update_pos,
 	.cost = 0
 };

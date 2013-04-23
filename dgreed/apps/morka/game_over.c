@@ -35,7 +35,9 @@ static void game_over_preenter(void) {
 
 	uint place = minimap_get_place_of_rabbit(player);
 	player->data->tokens += 10 * (4-place);
-	keyval_set_int("coins",coins + player->data->tokens);	
+	keyval_set_int("coins",coins + player->data->tokens);
+
+	if(screen == TUTORIAL_SCREEN) levels_set_place(5);	
 }
 
 static void game_over_enter(void) {	

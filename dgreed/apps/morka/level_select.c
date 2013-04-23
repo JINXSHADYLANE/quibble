@@ -128,6 +128,11 @@ static bool level_select_render(float t) {
 					sprintf(place_txt, "Last");
 				break;	
 
+				case 5:
+					place_spr = sprsheet_get_handle("ribbon_tutorial");
+					sprintf(place_txt, "Done");
+				break;	
+
 				default:
 					place_spr = empty_spr;
 				break;						

@@ -8,7 +8,8 @@
 static uint level_distance = 1;
 static SprHandle distance_pointer;
 static SprHandle distance_id;
-static SprHandle handle;
+static SprHandle red_knob;
+static SprHandle blue_knob;
 static SprHandle finish;
 DArray minimap_pointers;
 
@@ -21,7 +22,8 @@ void minimap_init(void){
 	minimap_pointers = darray_create(sizeof(ObjRabbit*), 0);
 	distance_pointer = sprsheet_get_handle("distance_pointer");
 	distance_id = sprsheet_get_handle("distance_id");
-	handle = sprsheet_get_handle("position_knob");
+	red_knob = sprsheet_get_handle("red_knob");
+	blue_knob = sprsheet_get_handle("blue_knob");
 	finish = sprsheet_get_handle("finish_tile");
 }
 
@@ -80,7 +82,12 @@ void minimap_draw(float t){
 			rd = clamp(7.0f,w - 7.0f,rd );
 			Vector2 dest = vec2(pos.x + rd,pos.y);
 
+			SprHandle handle = blue_knob;
+			uint layer = hud_layer;
+
 			if(rabbit->data->player_control){ 
+				handle = red_knob;
+				layer = hud_layer + 1;
 				player_x = rabbit->header.physics->cd_obj->pos.x;
 
 				uint place = minimap_get_place_of_rabbit(rabbit);
@@ -112,15 +119,11 @@ void minimap_draw(float t){
 				Vector2 txt_pos = vec2(dest.x, dest.y + 20.0f);
 
 				txt_pos = vec2_sub(txt_pos, half_size);
-				vfont_draw(str, hud_layer, txt_pos, col);
+				vfont_draw(str, layer, txt_pos, col);
 
 			}	
 
-			byte r,g,b,a2;
-			COLOR_DECONSTRUCT(rabbit->data->minimap_color,r,g,b,a2);
-			Color c = COLOR_RGBA(r,g,b,a);
-
-			spr_draw_cntr_h(handle, hud_layer, dest, 0.0f, 1.0f, c);
+			spr_draw_cntr_h(handle, layer, dest, 0.0f, 1.0f, col);
 		}
 	}
 

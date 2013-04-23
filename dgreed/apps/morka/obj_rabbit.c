@@ -951,7 +951,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	ObjRabbitData* d = rabbit->data;
 	memset(d, 0, sizeof(ObjRabbitData));
 	// Everything is initialized to zero, except these:
-	d->minimap_color = c->minimap_color;
 	d->rabbit_name = c->name;
 	d->speed = c->speed;
 	d->xjump = c->xjump;
