@@ -225,7 +225,7 @@ static void _gen_winter_fg(void){
 static void _gen_winter_ground(void){
 	SprHandle spr;	
 	int advance = 0;
-	static float ground_x = 0;
+	static float ground_x = 0.0f;
 
 	while(ground_x < page_width) {
 		char sym = mchains_next(ground_chain, &rnd);
@@ -467,8 +467,10 @@ void worldgen_close(void) {
 }
 
 void worldgen_update(float fg_camera_extent_max, float bg_camera_extent_max) {
-	while(fg_camera_extent_max >= fg_page_cursor)
+	while(fg_camera_extent_max >= fg_page_cursor) {
 		_gen_fg_page();
-	while(bg_camera_extent_max >= bg_page_cursor)
+	}
+	while(bg_camera_extent_max >= bg_page_cursor) {
 		_gen_bg_page();
+	}
 }
