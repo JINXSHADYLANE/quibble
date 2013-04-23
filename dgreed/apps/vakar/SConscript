@@ -1,0 +1,32 @@
+Import('env')
+
+NAME='vakar'
+ASSETS_DIR = NAME + '_assets'
+SCRIPTS_DIR = NAME + '_scripts'
+
+sources = Glob('*.c', strings=True)
+
+app = env.Program(NAME + env['DGREED_POSTFIX'], sources, LIBS=env['MALKA_LIBS']\
+	+env['DGREED_LIBS'])
+env.Install('#'+env['DGREED_BIN_DIR'], app)
+
+# Copy assets and scripts only in debug build
+if env['DGREED_POSTFIX'] == 'd':
+	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + ASSETS_DIR
+	for asset in Glob(ASSETS_DIR + '/*', strings=True):
+		if asset.endswith('.fnt'):
+			env.Command('#' + env['DGREED_BIN_DIR']+'/'+ asset.replace('.fnt', '.bft'), 
+				asset, env['DGREED_FONT_TOOL'])
+		elif asset.endswith('.oel'):
+			env.Command('#' + env['DGREED_BIN_DIR']+'/'+ asset.replace('.oel', '.btm'),
+				[asset, ASSETS_DIR + '/vakar.oep'],
+				env['DGREED_OGMO_TOOL'] + ' -p vakar_assets/')
+		elif asset.endswith('.png') or asset.endswith('.wav') or \
+			asset.endswith('.ogg') or asset.endswith('.mml') or \
+			asset.endswith('.bft'):
+			env.Install(dest_dir, asset)
+	
+	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + SCRIPTS_DIR
+	for script in Glob(SCRIPTS_DIR + '/*.lua', strings=True):
+		env.Install(dest_dir, script)
+
