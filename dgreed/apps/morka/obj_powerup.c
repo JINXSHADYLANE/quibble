@@ -4,6 +4,7 @@
 #include <mfx.h>
 
 extern ObjRabbit* player;
+static SprHandle golden_rabbit = (SprHandle)MAX_UINT32;
 
 static void obj_powerup_became_invisible(GameObject* self) {
 	// empty
@@ -208,61 +209,8 @@ static ObjFloaterParams coin_floater_params = {
 	.duration = 0.15f
 };
 
-static void obj_powerup_coin_update_pos(GameObject* self){
-	uint sprite = sprsheet_get_handle("golden_rabbit");
-	if(player->header.render->spr == sprite){
-
+static void obj_powerup_coin_destroy(GameObject* self, GameObject* other){
 		ObjPowerup* coin = (ObjPowerup*)self;	
-
-		RenderComponent* render = self->render;
-		PhysicsComponent* p = self->physics;
-		PhysicsComponent* rp = player->header.physics;
-
-		float width = render->world_dest.right - render->world_dest.left;
-		float height = render->world_dest.bottom - render->world_dest.top;
-
-		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-		pos = vec2_add(pos, vec2(width / 2.0f, height / 2.0f) );
-
-		Vector2 pos2 = vec2_add(rp->cd_obj->pos, rp->cd_obj->offset);
-		pos2.x += rp->cd_obj->size.size.x;
-		pos2.y += rp->cd_obj->size.size.y / 2.0f;
-
-		Vector2 delta = vec2_sub(pos2,pos);
-
-		float radius = 256.0f;
-
-		if( fabsf(delta.x) < radius && fabsf(delta.y) < radius ){
-
-			float r = vec2_length(delta);
-
-			float f = 100000.0f / sqrtf(r);
-
-			Vector2 force = vec2_scale(vec2_normalize(delta),f); 
-
-			if(r > coin->prev_r && coin->prev_r > 0.0f){
-				p->vel = vec2(0.0f,0.0f);
-				force = vec2_scale(force,2.0f);
-			}
-
-			coin->prev_r = r;
-
-			objects_apply_force(self,force);
-
-		}
-
-		p->vel = vec2_scale(p->vel,0.9f);
-
-		render->world_dest = rectf_centered(
-			pos, width, height
-		);
-
-	}
-
-}
-
-static void obj_powerup_coin_collide(GameObject* self, GameObject* other) {
-	if(other->type == OBJ_RABBIT_TYPE) {
 		ObjRabbit* rabbit = (ObjRabbit*)other;
 		ObjRabbitData* d = rabbit->data;
 
@@ -276,15 +224,77 @@ static void obj_powerup_coin_collide(GameObject* self, GameObject* other) {
 			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, self->physics->cd_obj->pos, NULL);
 			mfx_trigger_follow("coin_pick",&anchor->screen_pos,NULL);
 
-			// Dissapearing animation
-			Vector2 pos = rectf_center(&self->render->world_dest);
-			objects_create(
-				&obj_floater_desc, pos, 
-				(void*)&coin_floater_params
-			);
+			if(coin->prev_r == 0.0f){
+				// Dissapearing animation
+				Vector2 pos = rectf_center(&self->render->world_dest);
+				objects_create(
+					&obj_floater_desc, pos, 
+					(void*)&coin_floater_params
+				);
+			}
+
 		}
 		// Destroy powerup
 		objects_destroy(self);
+}
+
+static void obj_powerup_coin_update_pos(GameObject* self){
+
+	if(player->header.render->spr == golden_rabbit){
+
+		ObjPowerup* coin = (ObjPowerup*)self;	
+
+		RenderComponent* render = self->render;
+		PhysicsComponent* p = self->physics;
+		PhysicsComponent* rp = player->header.physics;
+
+		Vector2 size = p->cd_obj->size.size;
+
+		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+		pos = vec2_add(pos, vec2_scale(size,0.5f));
+
+		Vector2 pos2 = vec2_add(rp->cd_obj->pos, rp->cd_obj->offset);
+		pos2.x += rp->cd_obj->size.size.x;
+		pos2.y += rp->cd_obj->size.size.y / 2.0f;
+
+		Vector2 delta = vec2_sub(pos2,pos);
+
+		float radius = 256.0f;
+
+		float r = vec2_length(delta);
+
+		if(r < radius){
+
+			float f = 100000.0f / sqrtf(r);
+			Vector2 force = vec2_scale(vec2_normalize(delta),f); 
+
+			if(r > coin->prev_r && coin->prev_r > 0.0f){
+				GameObject* other = (GameObject*)player;
+				obj_powerup_coin_destroy(self,other);
+			}
+
+			coin->prev_r = r;
+
+			objects_apply_force(self,force);
+
+			float alpha = 1.0f - (radius - r);
+			byte a = lrintf(255.0f * alpha);
+			render->color = COLOR_RGBA(255, 255, 255, a);	
+		}
+
+		p->vel = vec2_scale(p->vel,0.9f);
+
+		render->world_dest = rectf_centered(
+			pos, size.x, size.y
+		);
+
+	}
+
+}
+
+static void obj_powerup_coin_collide(GameObject* self, GameObject* other) {
+	if(other->type == OBJ_RABBIT_TYPE) {
+		obj_powerup_coin_destroy(self,other);
 	}
 }
 
@@ -292,6 +302,9 @@ static void obj_powerup_coin_collide(GameObject* self, GameObject* other) {
 
 static void obj_powerup_construct(GameObject* self, Vector2 pos, void* user_data) {
 	PowerupParams* powerup = (PowerupParams*)user_data;
+
+	if(golden_rabbit == (SprHandle)MAX_UINT32)
+		golden_rabbit = sprsheet_get_handle("golden_rabbit");
 
 	// Render
 	RenderComponent* render = self->render;
