@@ -738,7 +738,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
 		float ground_top = cd_ground->pos.y;
 		float penetration_y = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
-		if(penetration_y > 0.0f && cd_rabbit->pos.y < ground_top) {
+		if(penetration_y > 0.0f && cd_rabbit->pos.y < ground_top && p->vel.y > 0.0f) {
 
 			self->physics->vel.y = 0.0f;
 			if(!d->touching_ground) {
@@ -751,7 +751,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 				cd_rabbit->offset, 
 				vec2(0.0f, -penetration_y)
 			);
-		} else if(cd_rabbit->pos.y > ground_top) {
+		} else if(cd_rabbit->pos.y > ground_top && !(d->has_powerup[TRAMPOLINE] || d->trampoline_placed) ) {
 
 			float rabbit_right = cd_rabbit->pos.x + cd_rabbit->size.size.x;
 			float ground_left = cd_ground->pos.x;;
@@ -841,6 +841,38 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 		// Trampoline
 		if(p->cd_obj->pos.y > ground_y && d->has_powerup[TRAMPOLINE] && !d->trampoline_placed && !rabbit->data->game_over){
+
+
+			// Find next ground tile
+			Vector2 start = vec2(p->cd_obj->pos.x,v_height - 10.0f);
+			Vector2 end = vec2_add(start,vec2(400.0f,0.0f));
+
+			Vector2 hitpoint;
+			CDObj* cdobj = coldet_cast_segment(
+				objects_cdworld, start, end, OBJ_GROUND_TYPE & ~collision_flag, &hitpoint
+			);
+
+			GameObject* right = NULL;
+
+			if(cdobj)
+				right = (GameObject*)cdobj->userdata;
+
+			assert(right);
+
+			end = vec2_add(start,vec2(-400.0f,0.0f));
+
+			hitpoint;
+			cdobj = coldet_cast_segment(
+				objects_cdworld, start, end, OBJ_GROUND_TYPE & ~collision_flag, &hitpoint
+			);
+
+			GameObject* left = NULL;
+
+			if(cdobj)
+				left = (GameObject*)cdobj->userdata;
+
+			assert(left);	
+
 			d->trampoline_placed = true;
 			d->has_powerup[TRAMPOLINE] = false;
 
@@ -849,11 +881,11 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			Vector2 size = sprsheet_get_size_h(sprt);
 			float width = size.x;
 
-			PhysicsComponent* gap = other->physics;
-			Vector2 gap_pos = vec2(gap->cd_obj->pos.x + (gap->cd_obj->size.size.x - width) / 2.0f,v_height + 15.0f);
+			Vector2 pos = vec2(0.0f,v_height + 15.0f);
+			pos.x = (left->physics->cd_obj->pos.x + left->physics->cd_obj->size.size.x + right->physics->cd_obj->pos.x - width) / 2.0f;		
 
 			// Create Trampoline
-			ObjTrampoline* trampoline = (ObjTrampoline*) objects_create(&obj_trampoline_desc, gap_pos, (void*)sprt);
+			ObjTrampoline* trampoline = (ObjTrampoline*) objects_create(&obj_trampoline_desc, pos, (void*)sprt);
 			trampoline->owner = self;
 		}
 
