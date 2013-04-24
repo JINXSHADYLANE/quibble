@@ -277,7 +277,7 @@ static void obj_powerup_coin_update_pos(GameObject* self){
 
 			objects_apply_force(self,force);
 
-			float alpha = 1.0f - (radius - r);
+			float alpha = 1.0f - clamp(0.0f, 1.0f, (radius - r) / 256.0f);
 			byte a = lrintf(255.0f * alpha);
 			render->color = COLOR_RGBA(255, 255, 255, a);	
 		}
@@ -321,7 +321,7 @@ static void obj_powerup_construct(GameObject* self, Vector2 pos, void* user_data
 	// Physics
 	PhysicsComponent* physics = self->physics;
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &render->world_dest, OBJ_POWERUP_TYPE, NULL);
-	float mass = 0.2f;
+	float mass = 1.0f;
 	physics->inv_mass = 1.0f / mass;
 	physics->hit_callback = powerup->hit_callback;
 
