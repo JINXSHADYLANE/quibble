@@ -10,7 +10,6 @@ static void obj_trampoline_collide(GameObject* self, GameObject* other) {
 	ObjTrampoline* trampoline = (ObjTrampoline*)self;
 	if(other->type == OBJ_RABBIT_TYPE && other == trampoline->owner) {
 			trampoline->dh -= 50.0f;
-			//trampoline->db = 5.0f;
 	}
 }
 
@@ -74,8 +73,8 @@ static void obj_trampoline_construct(GameObject* self, Vector2 pos, void* user_d
 	render->became_invisible = obj_trampoline_became_invisible;
 
 	// for rising up animation
-	physics->cd_obj->pos.y += height/2.0f - 15.0f;
-	render->world_dest.bottom += height/2.0f - 15.0f;
+	physics->cd_obj->pos.y += height/2.0f + 15.0f;
+	render->world_dest.bottom += height/2.0f + 15.0f;
 }
 
 GameObjectDesc obj_trampoline_desc = {
