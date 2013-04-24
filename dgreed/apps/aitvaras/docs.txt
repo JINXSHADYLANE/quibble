@@ -1,0 +1,35 @@
+
+Aitvaras
+
+Multiplayer input-over-http game control tech.
+
+- aitvaras.lobby_addr
+lobby server address
+
+- aitvaras.server_addr
+game server outside address
+
+- aitvaras.listening_port
+game server port
+
+- aitvaras.document_root
+http server documents dir
+
+- aitvaras.join_cb
+invoked when a new player joins, args: id
+
+- aitvaras.leave_cb
+invoked when player leaves, args: id
+
+- aitvaras.input_cb
+invoked when player sends control message, args: id, msg
+
+- aitvaras.init()
+initializes everything
+
+- aitvaras.close()
+closes everything
+
+- aitvaras.id()
+a four digit server identifier, or nil if enlisting at lobby
+was unsuccessful
