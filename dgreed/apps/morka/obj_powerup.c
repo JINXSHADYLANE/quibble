@@ -209,7 +209,56 @@ static ObjFloaterParams coin_floater_params = {
 };
 
 static void obj_powerup_coin_update_pos(GameObject* self){
-	//TODO: coins move towards golden rabbit
+	uint sprite = sprsheet_get_handle("golden_rabbit");
+	if(player->header.render->spr == sprite){
+
+		ObjPowerup* coin = (ObjPowerup*)self;	
+
+		RenderComponent* render = self->render;
+		PhysicsComponent* p = self->physics;
+		PhysicsComponent* rp = player->header.physics;
+
+		float width = render->world_dest.right - render->world_dest.left;
+		float height = render->world_dest.bottom - render->world_dest.top;
+
+		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+		pos = vec2_add(pos, vec2(width / 2.0f, height / 2.0f) );
+
+		Vector2 pos2 = vec2_add(rp->cd_obj->pos, rp->cd_obj->offset);
+		pos2.x += rp->cd_obj->size.size.x;
+		pos2.y += rp->cd_obj->size.size.y / 2.0f;
+
+		Vector2 delta = vec2_sub(pos2,pos);
+
+		float radius = 256.0f;
+
+		if( fabsf(delta.x) < radius && fabsf(delta.y) < radius ){
+
+			float r = vec2_length(delta);
+
+			float f = 100000.0f / sqrtf(r);
+
+			Vector2 force = vec2_scale(vec2_normalize(delta),f); 
+
+			if(r > coin->prev_r && coin->prev_r > 0.0f){
+				p->vel = vec2(0.0f,0.0f);
+				force = vec2_scale(force,2.0f);
+			}
+
+			coin->prev_r = r;
+
+			objects_apply_force(self,force);
+
+		}
+
+		p->vel = vec2_scale(p->vel,0.9f);
+
+		render->world_dest = rectf_centered(
+			pos, width, height
+		);
+
+	}
+
 }
 
 static void obj_powerup_coin_collide(GameObject* self, GameObject* other) {
@@ -259,10 +308,13 @@ static void obj_powerup_construct(GameObject* self, Vector2 pos, void* user_data
 	// Physics
 	PhysicsComponent* physics = self->physics;
 	physics->cd_obj = coldet_new_aabb(objects_cdworld, &render->world_dest, OBJ_POWERUP_TYPE, NULL);
-	float mass = 2.0f;
+	float mass = 0.2f;
 	physics->inv_mass = 1.0f / mass;
 	physics->hit_callback = powerup->hit_callback;
 
+	ObjPowerup* pwr = (ObjPowerup*)self;
+
+	pwr->prev_r = 0.0f;
 }
 
 GameObjectDesc obj_powerup_desc = {
