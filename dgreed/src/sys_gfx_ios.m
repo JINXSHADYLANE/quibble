@@ -780,19 +780,21 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 	}
 
     // Don't draw rect if it's not inside screen rect
-    float center_x = (real_dest.left + real_dest.right) * 0.5f;
-    float center_y = (real_dest.top + real_dest.bottom) * 0.5f;
-    float half_sqr_diag = (float)(w*w / 4 + h*h / 4);
-    float out_x = center_x;
-    float out_y = center_y;
-    if((center_x < 0.0f && out_x*out_x > half_sqr_diag)
-       || (center_y < 0.0f && out_y*out_y > half_sqr_diag))
-        return;
-    out_x = center_x - screen_widthf;
-    out_y = center_y - screen_heightf;
-    if((center_x >= screen_widthf && out_x*out_x > half_sqr_diag)
-       || (center_y >= screen_heightf && out_y*out_y > half_sqr_diag))
-        return;
+    if(transform[layer] == NULL) {
+        float center_x = (real_dest.left + real_dest.right) * 0.5f;
+        float center_y = (real_dest.top + real_dest.bottom) * 0.5f;
+        float half_sqr_diag = (float)(w*w / 4 + h*h / 4);
+        float out_x = center_x;
+        float out_y = center_y;
+        if((center_x < 0.0f && out_x*out_x > half_sqr_diag)
+           || (center_y < 0.0f && out_y*out_y > half_sqr_diag))
+            return;
+        out_x = center_x - screen_widthf;
+        out_y = center_y - screen_heightf;
+        if((center_x >= screen_widthf && out_x*out_x > half_sqr_diag)
+           || (center_y >= screen_heightf && out_y*out_y > half_sqr_diag))
+            return;
+    }
 
 	assert(is_pow2((texture_width * fixed_scale) >> 15));
 	assert(is_pow2((texture_height * fixed_scale) >> 15));

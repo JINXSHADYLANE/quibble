@@ -259,7 +259,7 @@ static void objects_render_tick(uint n_components) {
 	// Scale everything except background and UI according to camera z
 	float v_half_w = v_width * 0.5f;
 	static float m[6];
-	m[0] = inv_z; m[1] = 0.0f; m[2] = (v_half_w - v_half_w * inv_z) * 0.5f;
+	m[0] = inv_z; m[1] = 0.0f; m[2] = (v_half_w - v_half_w * inv_z);
 	m[3] = 0.0f; m[4] = inv_z; m[5] = v_height - v_height * inv_z;
 
 	for(uint l = dust_layer; l < hud_layer; ++l)
@@ -275,7 +275,7 @@ static void objects_render_tick(uint n_components) {
 	
 		assert(r->camera < N_CAMERAS);
 		RectF un_camera = objects_camera[r->camera];
-		RectF camera = _transform_rect(un_camera, z * 1.5f);
+		RectF camera = _transform_rect(un_camera, z);
 		bool is_visible = rectf_rectf_collision(&r->world_dest, &camera); 
 
 		if(is_visible) {
