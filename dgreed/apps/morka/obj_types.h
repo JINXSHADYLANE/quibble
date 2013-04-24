@@ -61,6 +61,7 @@ extern PowerupParams coin_powerup;
 
 typedef struct {
 	GameObject header;
+	float prev_r;
 } ObjPowerup;
 
 extern GameObjectDesc obj_powerup_desc;
