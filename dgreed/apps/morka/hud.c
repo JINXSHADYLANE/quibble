@@ -468,11 +468,11 @@ void hud_render_game_over_main(float t){
 			coin_start = time_s() + 0.5f;
 		}
 
-		if(coin_start > 0.0f && time_s() > coin_start){
+		if(coin_start > 0.0f && time_s() > coin_start && coins_earned < player->data->tokens ){
 
 			static float coin_time = 0.0f;
 
-			if(coins_earned < player->data->tokens && time_s() > coin_time){
+			if(time_s() > coin_time){
 
 				float delta = normalize((float)coins_earned,0.0f,(float)player->data->tokens);
 
@@ -481,6 +481,10 @@ void hud_render_game_over_main(float t){
 				coin_anim = time_s() + 0.22f;
 				coins_earned++;
 			}
+
+			if(touches_down()){
+				coins_earned = player->data->tokens;
+			}			
 
 		}
 
