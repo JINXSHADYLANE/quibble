@@ -1,6 +1,7 @@
 #include "characters.h"
 
 CharacterDefaultParams default_characters[character_count] = {
+
 	{
 	"Dash",			// Character name
 	"rabbit_icon",	// Shop icon sprite
@@ -9,7 +10,7 @@ CharacterDefaultParams default_characters[character_count] = {
 	"rabbit",		// Animation
 	"Runs faster",	// Shop description string
 	0,				// Purchase cost in coins
-	600.0f,			// Running speed
+	550.0f,			// Running speed
 	100.0f,			// Jump horizontal speed
 	400.0f,			// Jump vertical speed
 	0.0f,			// Sprite horizontal offset from hitbox
@@ -24,7 +25,7 @@ CharacterDefaultParams default_characters[character_count] = {
 	"squirrel",
 	"squirrel",
 	"Jumps higher",
-	49,	
+	200,	
 	500.0f,
 	120.0f,
 	420.0f,
@@ -40,7 +41,7 @@ CharacterDefaultParams default_characters[character_count] = {
 	"skunk",
 	"squirrel",
 	"Slows everyone",
-	149,	
+	400,	
 	510.0f,
 	110.0f,
 	410.0f,
@@ -56,7 +57,7 @@ CharacterDefaultParams default_characters[character_count] = {
 	"golden_rabbit",
 	"rabbit",
 	"Attracts coins",
-	99,	
+	800,	
 	490.0f,
 	110.0f,
 	420.0f,
