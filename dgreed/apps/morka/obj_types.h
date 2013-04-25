@@ -69,44 +69,55 @@ extern GameObjectDesc obj_powerup_desc;
 // Rabbit Data
 
 typedef struct {
-	uint combo_counter;
+	// State parameters
 	float last_keypress_t;
 	float last_keyrelease_t;
 	float jump_time;
 	float mushroom_hit_time;
-
 	bool virtual_key_up;
 	bool virtual_key_down;
 	bool virtual_key_pressed;
-
-	bool touching_ground;
-	bool jump_off_mushroom;
-	bool is_diving;
-	bool is_dead;
-	bool on_water;
 	Vector2 bounce_force;
-	bool player_control;
-	bool falling_down;
-	Vector2 land;
-	Vector2 dive;
-	GameObject* previuos_hit;
-	float rabbit_time;
-	const char* rabbit_name; 
 	bool game_over;
-	int ai_max_combo;
-	int boost;
-	Color minimap_color;
-	float speed;
-	float xjump;
-	float yjump;
-	int tokens;
+	bool is_dead;
+	bool falling_down;
 	bool force_jump;
 	bool force_dive;
 	bool input_disabled;
+	bool touching_ground;
+	bool jump_off_mushroom;
+	bool is_diving;
+	bool on_water;	
 	bool jump_out;
-	bool over_branch;
-	bool collision_update;
+	bool jumped;
+	bool dived;
+	bool spike_hit;
+	float respawn;
+	uint last_frame;
 
+	// Winter season
+	bool over_branch;
+	bool collision_update;	
+	
+	// AI
+	bool player_control;
+	int ai_max_combo;
+	Vector2 land;
+	Vector2 dive;
+	GameObject* previuos_hit;
+
+	// Stats
+	const char* rabbit_name;
+	int tokens; 
+	float rabbit_time;
+	uint combo_counter;
+	float speed;
+	float xjump;
+	float yjump;
+	int boost;
+	float sprite_offset;
+	
+	// Powerup parameters
 	bool has_powerup[POWERUP_COUNT];
 	bool trampoline_placed;
 	bool rocket_start;
@@ -114,13 +125,6 @@ typedef struct {
 	float shield_dh;
 	float shield_h;
 
-	float respawn;
-
-	bool jumped;
-	bool dived;
-	bool spike_hit;
-
-	uint last_frame;
 } ObjRabbitData;
 
 typedef void (*ControlCallback)(GameObject* self);

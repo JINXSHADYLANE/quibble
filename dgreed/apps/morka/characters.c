@@ -10,7 +10,8 @@ CharacterDefaultParams default_characters[character_count] = {
 	0,
 	550.0f,
 	100.0f,
-	400.0f
+	400.0f,
+	0.0f
 	},
 
 	{
@@ -22,7 +23,8 @@ CharacterDefaultParams default_characters[character_count] = {
 	49,	
 	490.0f,
 	120.0f,
-	420.0f	
+	420.0f,
+	-30.0f	
 	},
 
 	{
@@ -34,7 +36,8 @@ CharacterDefaultParams default_characters[character_count] = {
 	99,	
 	500.0f,
 	100.0f,
-	400.0f		
+	400.0f,
+	0.0f		
 	},
 
 	{
@@ -46,6 +49,7 @@ CharacterDefaultParams default_characters[character_count] = {
 	149,	
 	500.0f,
 	100.0f,
-	400.0f		
+	400.0f,
+	-30.0f		
 	}			
 };

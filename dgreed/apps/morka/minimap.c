@@ -158,9 +158,9 @@ void minimap_draw_distance_from(float t, ObjRabbit* rabbit){
 				Vector2 dest = {0};
 				Vector2 txt_pos = {0};
 
-				byte r,g,b,a2;
+				/*byte r,g,b,a2;
 				COLOR_DECONSTRUCT(other->data->minimap_color, r, g, b, a2);
-				Color c = COLOR_RGBA(r, g, b, a);
+				Color c = COLOR_RGBA(r, g, b, a);*/
 
 				vfont_select(FONT_NAME, 28.0f);
 				char str[32];
@@ -183,7 +183,8 @@ void minimap_draw_distance_from(float t, ObjRabbit* rabbit){
 				txt_pos = vec2(txt_x,dest.y);
 				spr_draw_cntr_h(distance_pointer, hud_layer, dest, angle, 1.0f, col);
 
-				spr_draw_cntr_h(distance_id, hud_layer, dest, 0.0f, 1.0f, c);
+				//spr_draw_cntr_h(distance_id, hud_layer, dest, 0.0f, 1.0f, c);
+				spr_draw_cntr_h(distance_id, hud_layer, dest, 0.0f, 1.0f, col);
 
 				txt_pos = vec2_sub(txt_pos, half_size);
 				vfont_draw(str, hud_layer, txt_pos, col);

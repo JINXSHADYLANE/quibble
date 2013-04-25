@@ -55,6 +55,7 @@ static void game_reset(void) {
 
 		cp->sprite = sprsheet_get_handle(default_characters[i].spr_handle);
 		cp->animation = default_characters[i].animation;
+		cp->sprite_offset = default_characters[i].sprite_offset;
 
 		if(i == selected_char){
 			// Player character

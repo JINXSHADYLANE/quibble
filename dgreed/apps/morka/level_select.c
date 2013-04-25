@@ -2,6 +2,7 @@
 #include "game.h"
 #include "levels.h"
 #include "common.h"
+#include "shop.h"
 #include "hud.h"
 #include <uidesc.h>
 #include <vfont.h>
