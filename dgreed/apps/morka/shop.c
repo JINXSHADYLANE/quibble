@@ -149,7 +149,7 @@ static void _render_powerups_buy(float t){
 				// Txt
 				vfont_select(FONT_NAME, 38.0f);
 				char str[32];
-				sprintf(str, "%uc",powerup_params[i].cost);
+				sprintf(str, "%u¢",powerup_params[i].cost);
 				Vector2	half_size = vec2_scale(vfont_size(str), 0.5f);
 				txt_pos = vec2_sub(txt_pos, half_size);
 				txt_pos.y -= size.y - 20.0f;
@@ -401,7 +401,7 @@ static bool shop_render(float t) {
 
 			vfont_select(FONT_NAME, 48.0f);
 			char cost[32];
-			sprintf(cost, "%uc",default_characters[i].cost);
+			sprintf(cost, "%u¢",default_characters[i].cost);
 			vfont_draw(cost, hud_layer, pos, col_a);
 		}
 
