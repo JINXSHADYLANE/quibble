@@ -26,7 +26,7 @@ static float shield_width = 0.0f;
 static float shield_height = 0.0f;
 
 extern bool draw_ai_debug;
-extern ObjRabbit* rabbit;
+
 
 static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
@@ -650,8 +650,11 @@ static void obj_rabbit_update_pos(GameObject* self) {
 	// Update render data
 	RenderComponent* r = self->render;
 	PhysicsComponent* p = self->physics;
+	ObjRabbit* rabbit = (ObjRabbit*)self;
+	ObjRabbitData* d = rabbit->data;	
 	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 	pos = vec2_add(pos, vec2(rabbit_hitbox_width / 2.0f, rabbit_hitbox_height / 2.0f));
+	pos = vec2_add(pos,vec2(d->sprite_offset,0.0f)); //Sprite offset from hitbox	
 	r->world_dest = rectf_centered(
 		pos, rectf_width(&r->world_dest), rectf_height(&r->world_dest)
 	);
@@ -861,7 +864,6 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 			end = vec2_add(start,vec2(-400.0f,0.0f));
 
-			hitpoint;
 			cdobj = coldet_cast_segment(
 				objects_cdworld, start, end, OBJ_GROUND_TYPE & ~collision_flag, &hitpoint
 			);
@@ -919,7 +921,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 		d->bounce_force = f;
 
-		// Slow down vertical movevment
+		// Slow down vertical movement
 		self->physics->vel.y *= 0.2f;
 
 		// Delay actual bouncing 0.1s
@@ -950,7 +952,6 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	rabbit->anim = anim_new_ex(c->animation, TIME_S);
 	rabbit->control = c->control;
-	
 	// Init physics
 	PhysicsComponent* physics = self->physics;
 	RectF rect = rectf_centered(pos, rabbit_hitbox_width, rabbit_hitbox_height);
@@ -983,6 +984,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	ObjRabbitData* d = rabbit->data;
 	memset(d, 0, sizeof(ObjRabbitData));
 	// Everything is initialized to zero, except these:
+	d->sprite_offset = c->sprite_offset;
 	d->rabbit_name = c->name;
 	d->speed = c->speed;
 	d->xjump = c->xjump;

@@ -15,6 +15,7 @@ typedef struct {
 	float speed;
 	float xjump;
 	float yjump;
+	float sprite_offset;
 } CharacterDefaultParams;
 
 typedef struct {
@@ -26,6 +27,7 @@ typedef struct {
 	float yjump;
 	ControlCallback control;
 	uint ai_max_combo;
+	float sprite_offset;
 } CharacterParams;
 
 extern CharacterDefaultParams default_characters[];
