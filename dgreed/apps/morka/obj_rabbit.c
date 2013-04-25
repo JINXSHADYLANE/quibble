@@ -42,7 +42,7 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 		result = vec2_add(result, vec2(200.0f * d->combo_counter, 0.0f) );
 
 	// Gravity
-	result = vec2_add(result, vec2(0.0f, 6000.0f) );
+	result = vec2_add(result, vec2(0.0f, 5000.0f) );
 
 	if(!gravity_only){
 		// Jumping
@@ -784,7 +784,8 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			.y = MAX(vel.y*d->yjump,-250000.0f)
 		};
 
-		d->bounce_force = f;
+		d->bounce_force = vec2_scale(f,1.2f);
+
 
 		// Slow down vertical movement
 		self->physics->vel.y *= 0.2f;
