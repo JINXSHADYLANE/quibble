@@ -2,54 +2,54 @@
 
 CharacterDefaultParams default_characters[character_count] = {
 	{
-	"Rabbit",
+	"Dash",
 	"rabbit_icon",
 	"rabbit",
 	"rabbit",
-	"Sprinter",
+	"Runs faster",
 	0,
-	550.0f,
+	600.0f,
 	100.0f,
 	400.0f,
 	0.0f
 	},
 
 	{
-	"Squirrel",
+	"Skippy",
 	"squirrel_icon",
 	"squirrel",
 	"squirrel",
-	"Jumper",
+	"Jumps higher",
 	49,	
-	490.0f,
+	500.0f,
 	120.0f,
 	420.0f,
 	-30.0f	
 	},
 
 	{
-	"Golden hare",
-	"hare_icon",
-	"golden_rabbit",
-	"rabbit",
-	"Swimmer",
-	99,	
-	500.0f,
-	100.0f,
-	400.0f,
-	0.0f		
-	},
-
-	{
-	"Skunk",
+	"Stinky",
 	"skunk_icon",
 	"skunk",
 	"squirrel",
-	"Tough",
+	"Slows everyone",
 	149,	
-	500.0f,
-	100.0f,
-	400.0f,
+	510.0f,
+	110.0f,
+	410.0f,
 	-30.0f		
+	},
+
+	{
+	"Richman",
+	"hare_icon",
+	"golden_rabbit",
+	"rabbit",
+	"Attracts coins",
+	99,	
+	490.0f,
+	110.0f,
+	420.0f,
+	0.0f		
 	}			
 };
