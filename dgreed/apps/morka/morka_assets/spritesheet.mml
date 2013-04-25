@@ -104,7 +104,18 @@
 		(tex atlas_13.png)
 		(src 676,2,1010,174)
 	)
-
+	(img cup
+		(tex atlas_0g.png)
+		(src 202,231,425,454)
+	)
+	(img refrigerator
+		(tex atlas_0g.png)
+		(src 2,2,200,338)
+	)
+	(img toaster
+		(tex atlas_0g.png)
+		(src 202,2,476,229)
+	)
 
 	#################
 	### Chapter I ###
