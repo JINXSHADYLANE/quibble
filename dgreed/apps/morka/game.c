@@ -54,8 +54,11 @@ static void game_reset(void) {
 		CharacterParams* cp = &character_params[i];
 
 		cp->sprite = sprsheet_get_handle(default_characters[i].spr_handle);
+		cp->shield_spr = sprsheet_get_handle(default_characters[i].shield_spr);
 		cp->animation = default_characters[i].animation;
 		cp->sprite_offset = default_characters[i].sprite_offset;
+		cp->shield_offset = default_characters[i].shield_offset;
+		cp->shield_scale = default_characters[i].shield_scale;
 
 		if(i == selected_char){
 			// Player character

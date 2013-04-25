@@ -114,7 +114,7 @@ typedef struct {
 	float speed;
 	float xjump;
 	float yjump;
-	int boost;
+	uint boost;
 	float sprite_offset;
 	
 	// Powerup parameters
@@ -124,6 +124,9 @@ typedef struct {
 	float rocket_time;
 	float shield_dh;
 	float shield_h;
+	SprHandle shield_spr;
+	Vector2 shield_offset;
+	Vector2 shield_scale;
 
 } ObjRabbitData;
 

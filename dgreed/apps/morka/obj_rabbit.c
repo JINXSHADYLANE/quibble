@@ -21,10 +21,6 @@ static const float rabbit_hitbox_width = 70.0f;
 static const float rabbit_hitbox_height = 62.0f;
 static float ground_y = 0;
 
-static SprHandle shield_spr;
-static float shield_width = 0.0f;
-static float shield_height = 0.0f;
-
 extern bool draw_ai_debug;
 
 
@@ -624,23 +620,28 @@ static void obj_rabbit_post_render(GameObject* self){
 		PhysicsComponent* p = self->physics;
 
 		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-		pos.x += 37.0f;
+		pos = vec2_add(pos,d->shield_offset);
 		
-		float f = 30.0f * (shield_height - d->shield_h);
+		Vector2 size = sprsheet_get_size_h(d->shield_spr);
+
+		size.x *= d->shield_scale.x;
+		size.y *= d->shield_scale.y;
+
+		float f = 30.0f * (size.y - d->shield_h);
 		d->shield_dh += f * (time_delta()/1000.0f);
 		d->shield_h += (d->shield_dh * 20.0f) * (time_delta()/1000.0f);
 		d->shield_dh *= 0.9f;
 
 		RectF rec = {
-			.left = pos.x - shield_width / 2.0f, 
-			.top = (pos.y + shield_height / 2.0f) - d->shield_h,
-			.right = pos.x + shield_width / 2.0f,
-			.bottom = pos.y + shield_height / 2.0f
+			.left = pos.x - size.x / 2.0f, 
+			.top = (pos.y + size.y / 2.0f) - d->shield_h,
+			.right = pos.x + size.x / 2.0f,
+			.bottom = pos.y + size.y / 2.0f
 		};
 		RectF result = objects_world2screen(rec,0);
 
 		RenderComponent* render = self->render;
-		spr_draw_h(shield_spr, render->layer,result,COLOR_WHITE);
+		spr_draw_h(d->shield_spr, render->layer,result,COLOR_WHITE);
 
 	}
 
@@ -985,6 +986,7 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	ObjRabbitData* d = rabbit->data;
 	memset(d, 0, sizeof(ObjRabbitData));
 	// Everything is initialized to zero, except these:
+	d->shield_spr = c->shield_spr;
 	d->sprite_offset = c->sprite_offset;
 	d->rabbit_name = c->name;
 	d->speed = c->speed;
@@ -992,7 +994,8 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->yjump = c->yjump;
 	d->ai_max_combo = c->ai_max_combo;
 	d->player_control = rabbit->control == obj_rabbit_player_control;
-
+	d->shield_offset = c->shield_offset;
+	d->shield_scale = c->shield_scale;
 	if(d->player_control){
 		render->layer = rabbit_layer;
 
@@ -1001,17 +1004,9 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 			rabbit->data->has_powerup[i] = powerups[i];
 		}
 
-	}
-	else
+	} else
 		render->layer = ai_rabbit_layer;
 
-	// Load once
-	if(shield_width == 0.0f){
-		shield_spr = sprsheet_get_handle("bubble_obj");
-		size = sprsheet_get_size_h(shield_spr);
-		shield_width = size.x;
-		shield_height = size.y;
-	}
 	if(ground_y == 0) ground_y = v_height - 128.0f;
 }
 
