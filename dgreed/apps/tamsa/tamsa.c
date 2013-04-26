@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "kdtree.h"
+#include "world.h"
 
 static Color backbuffer[scr_size] = {0};
 static TexHandle backbuffer_tex;
@@ -24,12 +25,22 @@ void tm_init(void) {
 		{4, 2, 2, 2, 13}
 	};
 
-	KdTree tree;
-	kdtree_init(&tree, segs, 8);
+	World w;
+	w.floor = 0.0f;
+	w.ceiling = 1.0f;
+	kdtree_init(&w.walls, segs, 8);
 
-	// ...
+	float x[100];
+	float y[100];
+	float nx[100];
+	float ny[100];
 
-	kdtree_free(&tree);
+	world_cast_primary(
+		&w, vec2(1.0f, 1.0f), vec2(0.3f, 1.0f), 
+		PI/2.0f, 100, x, y, nx, ny
+	);
+
+	kdtree_free(&w.walls);
 }
 
 bool tm_render(void) {
