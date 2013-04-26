@@ -38,7 +38,7 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 		result = vec2_add(result, vec2(200.0f * d->combo_counter, 0.0f) );
 
 	// Gravity
-	result = vec2_add(result, vec2(0.0f, 5000.0f) );
+	result = vec2_add(result, vec2(0.0f, 5100.0f) );
 
 	if(!gravity_only){
 		// Jumping
@@ -51,7 +51,7 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 				result = vec2_add(result, vec2(0.0f, 20000.0f) );
 			}
 			else {
-				result = vec2_add(result, vec2(0.0f, 25000.0f) );
+				result = vec2_add(result, vec2(0.0f, 30000.0f) );
 			}
 		}
 	}
@@ -444,7 +444,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					d->falling_down = false;		
 				}
 
-				if(ts - d->mushroom_hit_time < 0.2f) {
+				if(ts - d->mushroom_hit_time < 0.15f) {
 					d->jump_off_mushroom = false;
 
 					if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.2f)
@@ -782,10 +782,11 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 		Vector2 f = {
 			.x = MIN(vel.x*d->xjump, 110000.0f),
-			.y = MAX(vel.y*d->yjump,-250000.0f)
+			//.y = MAX(vel.y*d->yjump,-250000.0f)
+			.y = vel.y*vel.y
 		};
 
-		d->bounce_force = vec2_scale(f,1.2f);
+		d->bounce_force = vec2_scale(f,1.0f);
 
 
 		// Slow down vertical movement
