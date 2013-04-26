@@ -131,9 +131,9 @@ void _split(KdTree* tree, uint node, KdSeg* segs, DArray* out, uint i, uint j, i
 				.right = -1
 			};
 
-			darray_reserve(tree, node);
+			darray_reserve(tree, node+1);
 			KdNode* nodes = tree->data;
-			tree->size = MAX(tree->size, node);
+			tree->size = MAX(tree->size, node+1);
 			nodes[node] = dummy;
 
 			_split(tree, node + 1, segs, out, i, j, dir ^ 1);
@@ -197,7 +197,7 @@ split:
 			KdSeg left, right;
 			_split_seg(seg, ba, bb, bc, &left, &right);
 			out_segs[c_left++] = left;
-			out_segs[n_left + c_right++] = seg;
+			out_segs[n_left + c_right++] = right;
 		}
 	}
 
@@ -221,6 +221,10 @@ split:
 	if(n_left || n_right)
 		child_out = darray_create(sizeof(KdSeg), 0);
 
+	darray_reserve(tree, node+1);
+	KdNode* nodes = tree->data;
+	tree->size = MAX(tree->size, node+1);
+
 	// Left
 	if(n_left) {
 		_split(tree, node + 1, out_segs, &child_out, 0, c_left, dir ^ 1);
@@ -233,9 +237,6 @@ split:
 		_split(tree, new.right, out_segs, &child_out, c_left, c_left + c_right, dir ^ 1);
 	}
 
-	darray_reserve(tree, node);
-	KdNode* nodes = tree->data;
-	tree->size = MAX(tree->size, node);
 	nodes[node] = new;
 
 	if(n_left || n_right)
@@ -257,11 +258,11 @@ void kdtree_free(KdTree* tree) {
 }
 
 static void _node_plane(KdNode node, int dir, float* a, float* b, float* c) {
-	float la = (float)(dir * (node.a - node.b));
-	float lb = (float)((dir^1) * (node.a - node.b));
+	float la = (float)((dir^1) * (node.a - node.b));
+	float lb = (float)(dir * (node.a - node.b));
 
-	float x = (float)(dir * node.o + (dir^1) * node.a);
-	float y = (float)(dir * node.a + (dir^1) * node.o);
+	float x = (float)((dir^1) * node.o + dir * node.a);
+	float y = (float)((dir^1) * node.a + dir * node.o);
 
 	*a = la;
 	*b = lb;
@@ -271,18 +272,21 @@ static void _node_plane(KdNode node, int dir, float* a, float* b, float* c) {
 #define _swap(i, mn) { \
 	float tox=ox[i], toy=oy[i], tdx=dx[i], tdy=dy[i]; \
 	uint16 tid=id[i]; \
+	byte ts=surfaces[i]; \
 	ox[i] = ox[mn]; oy[i] = oy[mn]; \
-	dx[i] = dx[mn]; dx[i] = dx[mn]; \
+	dx[i] = dx[mn]; dy[i] = dy[mn]; \
 	id[i] = id[mn]; \
+	surfaces[i] = surfaces[mn]; \
 	ox[mn] = tox; oy[mn] = toy; dx[mn] = tdx; dy[mn] = tdy; \
 	id[mn] = tid; \
+	surfaces[mn] = ts; \
 }
 
 static int _second_pass(int start, int end, float a, float b, float c,
 	float* ox, float* oy, float* dx, float* dy, byte* surfaces, uint16* id
 ) {
 	int skipped = 0;
-	for(uint i = start; i < end; ++i) {
+	for(int i = start; i < end; ++i) {
 		float side_e = (ox[i] + dx[i]) * a + (oy[i] + dy[i]) * b + c;
 		if(side_e > -eps) {
 			_swap(i, end-1);
@@ -313,7 +317,7 @@ static void _trace(KdNode* nodes,
 	// First sort pass, move types 3/4 to the back
 	int l = 0, li = 0, r = 0, ri = 0;
 	int n = end;
-	for(uint i = start; i < n; ++i) {
+	for(int i = start; i < n; ++i) {
 		float side_s = ox[i] * a + oy[i] * b + c;
 		float side_e = (ox[i] + dx[i]) * a + (oy[i] + dy[i]) * b + c;
 
@@ -338,8 +342,10 @@ static void _trace(KdNode* nodes,
 	}
 
 	// Do second sorting pass for left and right sides
-	_second_pass(start, start + l + li, a, b, c, ox, oy, dx, dy, surfaces, id);
-	_second_pass(start + l + li, end, a, b, c, ox, oy, dx, dy, surfaces, id);
+	if(l && li)
+		_second_pass(start, start + l + li, a, b, c, ox, oy, dx, dy, surfaces, id);
+	if(r && ri)
+		_second_pass(start + l + li, end, a, b, c, ox, oy, dx, dy, surfaces, id);
 
 	// Intersect rays of kinds 2 and 3 with node plane
 	for(uint i = start + l; i < start + l + li + ri; ++i) {
@@ -348,7 +354,7 @@ static void _trace(KdNode* nodes,
 
 		// Ray plane equation
 		float a2 = -ldy;
-		float b2 = -ldx;
+		float b2 = ldx;
 		float c2 = -(a2 * lox + b2 * loy);
 
 		// Solve with Cramer's
@@ -362,25 +368,26 @@ static void _trace(KdNode* nodes,
 
 		// Check if intersection hits wall seg
 		float p = dir ? x : y;
-		float hits = (fa-fb)*(fa-fb) - (p-fa)*(p-fa) + (fb-p)*(fb-p); 
+		float hits = (fa-fb)*(fa-fb) - (p-fa)*(p-fa) - (fb-p)*(fb-p); 
 		
 		if(hits >= 0.0f) {
-
 			// Check if intersection is on the ray seg
-			float t_dx_dx = (x - lox) * ldx;
-			float t_dy_dy = (y - loy) * ldy;
+			float t_ndx_dx = (x - lox) * ldx;
+			float t_ndy_dy = (y - loy) * ldy;
 
-			if(t_dx_dx < ldx * ldx && t_dy_dy < ldy * ldy) {
-				dx[i] = x - lox;
-				dy[i] = y - loy;
-				surfaces[i] = node.surface;
+			if(t_ndx_dx >= 0.0f && t_ndy_dy >= 0.0f) {
+				if(t_ndx_dx < ldx * ldx && t_ndy_dy < ldy * ldy) {
+					dx[i] = x - lox;
+					dy[i] = y - loy;
+					surfaces[i] = node.surface;
+				}
 			}
 		}
 	}
 
 	// Trace left
 	int nr = 0;
-	if(node.left && l + li + ri > 0) {
+	if(node.left != MAX_UINT16 && l + li + ri > 0) {
 		_trace(nodes, node.left, dir^1, ox, oy, dx, dy, surfaces, start, start + l + li + ri, id);
 	
 		// Move all rays that might intersect with right to the back
@@ -390,7 +397,7 @@ static void _trace(KdNode* nodes,
 
 	// Trace right, including left rays that are still intersecting node.
 	// This will get tail-call optimized, hopefully
-	if(node.right && r + ri + nr > 0)
+	if(node.right != MAX_UINT16 && r + ri + nr > 0)
 		_trace(nodes, node.right, dir^1, ox, oy, dx, dy, surfaces, start + l + li - nr, end, id);
 }
 
@@ -406,5 +413,23 @@ void kdtree_trace_surface(
 	KdNode* nodes = tree->data;
 
 	_trace(nodes, 0, 0, ox, oy, dx, dy, surfaces, 0, n, id);
+
+	// Debug print rays for preview in processing
+	/*
+	for(uint i = 0; i < n; ++i) {
+		printf("line(%f, %f, %f, %f);\n",
+			ox[i]*100.0f, oy[i]*100.0f, (ox[i]+dx[i])*100.0f, (oy[i]+dy[i])*100.0f
+		);
+	}
+	*/
+
+	// Unshuffle rays
+	for(int i = 0; i < n; ++i) {
+		int dest = id[i];
+		if(dest != i) {
+			_swap(i, dest)
+			i--;
+		}
+	}
 }
 

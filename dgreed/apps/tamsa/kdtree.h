@@ -21,6 +21,12 @@ typedef DArray KdTree;
 void kdtree_init(KdTree* tree, KdSeg* segs, uint n_segs);
 void kdtree_free(KdTree* tree);
 
+// Traces a single ray, returns true if it hit something and shortens dx,dy
+// accordingly. Tracing ray packets with functions below is much more efficient!
+bool kdtree_trace_single(
+	KdTree* tree, float ox, float oy, float* dx, float* dy
+);
+
 // Traces a packet of n rays and fills up hit surface info for each ray.
 // Destroys the data, puts hit positions in ox, oy and normals in dx, dy.
 void kdtree_trace_surface(
