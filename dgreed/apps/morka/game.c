@@ -240,18 +240,24 @@ bool game_update(void) {
 		Vector2 camera = {0.0f, 0.0f};
 		Vector2 follow = vec2(camera_follow_weight,0.0f);
 
-		Vector2 pos = player->header.physics->cd_obj->pos;
-
 		camera.x = player->header.render->world_dest.left + 45.0f;
 
 		// Calculate camera z from rabbit horizontal velocity
 		float vel_x = player->header.physics->vel.x;
+		float vel_y = player->header.physics->vel.y;
 		float target_z = 1.0f + clamp(0.0f, 1.0f, (vel_x - 1000.0f) / 500.0f);
 		objects_camera_z[0] = lerp(objects_camera_z[0], target_z, 0.005f);
 
-		float c = normalize(v_height-128.0f - pos.y, 0.0f,v_height-128.0f);
-		c = MAX(0.0f,c);
-		follow.y = 0.005f * c * c;
+		float h = player->header.physics->cd_obj->pos.y;
+		float target_z_h = 1.0f + clamp(0.0f, 1.0f, -(h - 100.0f) / v_height);
+
+		float lerp_speed = clamp(0.05f,0.2f,fabsf(vel_y) / 2500.0f);
+
+		if(target_z_h > target_z)
+			objects_camera_z[0] = lerp(objects_camera_z[0], target_z_h,lerp_speed );	
+
+		//if(target_z_h > 1.0f)
+		//	printf("h: %f z: %.2f | vel.y: %.2f  lerp: %f\n",h,target_z_h,vel_y,lerp_speed);
 
 		_move_camera(camera, follow);
 
@@ -314,30 +320,30 @@ bool game_update_empty(void) {
 
 void game_render_level(void){
 	hud_click = false;
-
-	Vector2 size = sprsheet_get_size_h(levels_current_desc()->background);
-
+	Color col = COLOR_WHITE;
 	float z = 1.0f + (objects_camera_z[0] - 1.0f) / 8.0f;
 
-	size = vec2_scale(size, 1.0f / z);
-
-	// Draw scrolling background
-	float off_x = fmodf(bg_scroll, size.x);
-	float off_y = size.y - v_height;
-
-	RectF dest = rectf(-off_x, -off_y, -off_x + size.x, -off_y + size.y);
-	Color col = COLOR_WHITE;
-	spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
-	dest = rectf(size.x - off_x, -off_y, size.x - off_x + size.x, -off_y + size.y);
-	spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
-
-	if(v_width > size.x){
-		dest = rectf(size.x*2.0f - off_x, -off_y, size.x*2.0f - off_x + size.x, -off_y + size.y);
-		spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
-	}
+	Vector2 size = sprsheet_get_size_h(levels_current_desc()->background);
 	
-	objects_tick(game_paused);
+	Vector2 pos = vec2(bg_scroll,v_height-size.y);
+	Vector2 center = vec2(v_width/2.0f,v_height);
+	Vector2 res = vec2_sub(pos,center);
 
+	float c = (res.x * res.x + res.y * res.y) / (z*z);
+
+	size = vec2_scale(size, 1.0f / z);
+	pos.y = v_height - size.y;
+	pos.x = sqrtf(c - pos.y * pos.y );
+	pos.x = -fmodf(pos.x, size.x);
+
+	// Loop background until it fills the screen
+	while(pos.x < v_width){
+		RectF dest = rectf(pos.x,v_height - size.y, pos.x + size.x,v_height);
+		spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
+		pos.x += size.x;
+	}
+
+	objects_tick(game_paused);
 	minimap_draw_finish_line();
 }
 
