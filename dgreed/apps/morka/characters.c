@@ -51,7 +51,7 @@ CharacterDefaultParams default_characters[character_count] = {
 	},
 
 	{
-	"Richman",
+	"Richie",
 	"hare_icon",
 	"bubble_obj",	
 	"golden_rabbit",
