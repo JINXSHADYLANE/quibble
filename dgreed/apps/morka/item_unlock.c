@@ -15,10 +15,10 @@
 static float fade_start;
 static float fade_end;
 
-static char text1[32];
-static char text2[32];
-static char text3[32];
-static SprHandle image = (SprHandle)MAX_UINT32;
+static char text1[64];
+static char text2[64];
+static char text3[64];
+static SprHandle image = (SprHandle)MAX_UINT64;
 
 static float s = 1.0f;
 static float ds = 1.0f;
@@ -32,11 +32,11 @@ void item_unlock_set(ObjItemUnlockParams * params){
 	if(params->spr)
 		image = sprsheet_get_handle(params->spr);
 	if(params->text1)
-			sprintf(text1, params->text1);
+			strncpy(text1, params->text1, 64);
 	if(params->text2)
-			sprintf(text2, params->text2);	
+			strncpy(text2, params->text2, 64);
 	if(params->text3)
-			sprintf(text3, params->text3);
+			strncpy(text3, params->text3, 64);
 	state_num = params->state_num + 1;								 
 }
 
