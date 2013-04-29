@@ -26,7 +26,7 @@
 	)
 	(level level3
 		(season autumn)
-		(distance 120)
+		(distance 150)
 		(rabbits _
 			(max_combo 5
 				(speed 450)
@@ -53,7 +53,7 @@
 	)
 	(level level4
 		(season autumn)
-		(distance 135)
+		(distance 235)
 		(rabbits _
 			(max_combo 4
 				(speed 480)
@@ -90,7 +90,7 @@
 	)
 	(level level5
 		(season autumn)
-		(distance 120)
+		(distance 200)
 		(rabbits _
 			(max_combo 5
 				(speed 480)
@@ -132,12 +132,12 @@
 	)
 	(level level6
 		(season autumn)
-		(distance 130)
+		(distance 250)
 		(rabbits _
-			(max_combo 8
-				(speed 490)
-				(xjump 110)
-				(yjump 410)
+			(max_combo 30
+				(speed 700)
+				(xjump 250)
+				(yjump 450)
 			)
 			(max_combo 6
 				(speed 490)
@@ -174,7 +174,7 @@
 	)
 	(level level7
 		(season autumn)
-		(distance 115)
+		(distance 300)
 		(rabbits _
 			(max_combo 8
 				(speed 490)
@@ -221,7 +221,7 @@
 	)
 	(level level8
 		(season autumn)
-		(distance 130)
+		(distance 330)
 		(rabbits _
 			(max_combo 11
 				(speed 500)
@@ -268,12 +268,12 @@
 	)
 	(level level9
 		(season autumn)
-		(distance 145)
+		(distance 345)
 		(rabbits _
 			(max_combo 20
-				(speed 500)
-				(xjump 110)
-				(yjump 400)
+				(speed 900)
+				(xjump 250)
+				(yjump 450)
 			)
 			(max_combo 15
 				(speed 500)
@@ -315,7 +315,7 @@
 	)
 	(level level10
 		(season autumn)
-		(distance 185)
+		(distance 385)
 		(rabbits _
 			(max_combo 30
 				(speed 510)
@@ -359,6 +359,53 @@
 		(bg_chain bg)
 		(fg_chain level10_fg)
 		(ground_chain level10_ground)
+	)
+	(level level11
+		(season autumn)
+		(distance 300)
+		(rabbits _
+			(max_combo 30
+				(speed 510)
+				(xjump 110)
+				(yjump 410)
+			)
+			(max_combo 30
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 30
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
+		)
+		(powerups _
+			(trampoline _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 3)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level11_fg)
+		(ground_chain level11_ground)
 	)
 	(level level21
 		(season winter)
