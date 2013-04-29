@@ -10,7 +10,7 @@ CharacterDefaultParams default_characters[character_count] = {
 	"rabbit",		// Animation
 	"Runs faster",	// Shop description string
 	0,				// Purchase cost in coins
-	550.0f,			// Running speed
+	570.0f,			// Running speed
 	100.0f,			// Jump horizontal speed
 	400.0f,			// Jump vertical speed
 	0.0f,			// Sprite horizontal offset from hitbox
@@ -27,7 +27,7 @@ CharacterDefaultParams default_characters[character_count] = {
 	"Jumps higher",
 	200,	
 	500.0f,
-	120.0f,
+	160.0f,
 	420.0f,
 	-30.0f,
 	{6.0f,20.0f},
