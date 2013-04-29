@@ -22,7 +22,7 @@ static void level_select_close(void) {
 }
 
 static void level_select_preenter(void){
-	if(levels_current_desc()->season != current_season){
+	if(levels_current_desc() && levels_current_desc()->season != current_season){
 		int offset = levels_start_of_season(current_season);
 		LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,offset);		
 		levels_reset(desc->name);
@@ -176,10 +176,12 @@ static bool level_select_render(float t) {
 
 	}
 
+	/*
 	// Quit button
 	if(hud_button(button_quit, col, t)) {
 		malka_states_pop();
 	}
+	*/
 
 	return true;
 }

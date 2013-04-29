@@ -1,6 +1,7 @@
 #include "hud.h"
 #include "common.h"
 #include "game.h"
+#include "item_unlock.h"
 #include "shop.h"
 #include "minimap.h"
 #include "levels.h"
@@ -349,6 +350,24 @@ void hud_render_game_over_out(float t) {
 	}
 }
 
+bool hud_unlock_check(uint state_num){
+	int id = levels_get_next_unlocked_powerup();		
+	if(id != -1){
+		ObjItemUnlockParams p = {
+			.spr = powerup_params[id].unlocked_spr,
+			.text1 = "Unlocked:",
+			.text2 = powerup_params[id].name,
+			.text3 = powerup_params[id].description,
+			.state_num = state_num
+		};
+		levels_set_unlocked_powerup_seen(id);
+		item_unlock_set(&p);
+		malka_states_push("item_unlock");
+		return true;
+	}
+	return false;
+}
+
 void hud_render_game_over_tut(float t) {
 	UIElement* element = uidesc_get("game_over_tut");
 
@@ -375,20 +394,23 @@ void hud_render_game_over_tut(float t) {
 	// Next button
 	if(hud_button(button_next, col, t)) {
 		levels_set_next();
-		game_request_reset();
-		malka_states_pop_multi(2);
+		game_request_reset();	
+		if(!hud_unlock_check(2))	
+			malka_states_pop_multi(2);
 	}
 
 	// Restart button
 	if(hud_button(button_restart, col, t)) {
 		game_request_reset();
-		malka_states_pop_multi(2);
+		if(!hud_unlock_check(2))		
+			malka_states_pop_multi(2);
 	}
 
 	// Quit button
 	if(hud_button(button_quit, col, t)) {
-		hud_reset();	
-		malka_states_pop_multi(3);
+		hud_reset();
+		if(!hud_unlock_check(3))				
+			malka_states_pop_multi(3);
 	}
 }
 
@@ -564,19 +586,22 @@ void hud_render_game_over_win(float t) {
 	if(hud_button(button_next, col, t)) {
 		levels_set_next();
 		game_request_reset();
-		malka_states_pop_multi(2);
+		if(!hud_unlock_check(2))	
+			malka_states_pop_multi(2);
 	}
 
 	// Restart Button
 	if(hud_button(button_restart, col, t)) {
 		game_request_reset();
-		malka_states_pop_multi(2);
+		if(!hud_unlock_check(2))	
+			malka_states_pop_multi(2);
 	}
 
 	// Quit button
 	if(hud_button(button_quit, col, t)) {
-		hud_reset();		
-		malka_states_pop_multi(3);
+		hud_reset();
+		if(!hud_unlock_check(3))				
+			malka_states_pop_multi(3);
 	}
 }
 
