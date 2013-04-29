@@ -1,0 +1,473 @@
+(uidesc morka
+#	(def screen
+#		(rect 0,0,1024,768)
+#	)
+
+	(def hud_pause
+		(spr pause)
+		(add <-
+			(tr <- (get_rect screen))
+			(vec2 -40,30)
+		)
+	)
+
+	(def coin_icon
+		(spr token_tag)
+		(add <-
+			(tl <- (get_rect screen))
+			(vec2 50,50)
+		)
+	)
+	(def coin_text
+		(add <-
+			(tl <- (get_rect screen))
+			(vec2 100,30)
+		)
+	)
+	(def position_line
+		(spr position_line)
+		(add <-
+			(x vec2 (middle <- (get_rect screen)))
+			(vec2 0,20)	
+		)
+	)
+	(def game_over_tut
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+		(def next
+			(spr next)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 195,42)
+			)
+		)
+		(def restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,42)
+			)
+		)
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -195,42)
+			)
+		)
+	)	
+	(def game_over_out
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+
+		(def restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 100,42)
+			)
+		)
+		(def quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -100,42)
+			)
+		)
+	)
+	(def game_over_main
+		(def text
+			(add <-
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 0,30)
+			)
+		)
+
+		(def place_icon
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,17)
+			)
+		)
+
+		(def platform
+			(spr base_place)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,23)
+			)
+		)
+
+		(def particles1
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -50,0.0f)
+			)
+		)
+
+		(def particles2
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 50,0.0f)
+			)
+		)
+
+		(def text2
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,80)
+			)
+		)
+
+		(def coin_text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,130)
+			)
+		)	
+
+		(def coin_icon
+			(spr token_tag)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,130)
+			)
+		)				
+
+	)
+	(def game_over_win
+		(def next
+			(spr next)
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 195,-90)
+			)
+		)
+		(def restart
+			(spr restart)
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 0,-90)
+			)
+		)
+		(def quit
+			(spr quit)
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 -195,-90)
+			)
+		)
+	)
+	(def game_over_lose
+		(def restart
+			(spr restart)
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 100,-90)
+			)
+		)
+		(def quit
+			(spr quit)
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 -100,-90)
+			)
+		)
+	)	
+	(def season_select
+		(def season1
+			(spr season1)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -256,-128)
+			)
+		)
+		(def season2
+			(spr season2)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 256,-128)
+			)
+		)
+	)		
+	(def level_select
+
+		(def buttons_pos
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-80)
+			)
+		)
+
+		(def quit
+			(spr quit)
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))
+				(vec2 0,-84)	
+			)
+		)		
+
+	)
+	(def shop
+
+		(def coin_icon
+			(spr token_tag)
+			(add <-
+				(tl <- (get_rect screen))
+				(vec2 50,50)
+			)
+		)
+
+		(def coin_text
+			(add <-
+				(tl <- (get_rect screen))
+				(vec2 100,30)
+			)
+		)
+
+		(def character_icon
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -30,-120)
+			)
+		)
+
+		(def character_name
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 30,-250)
+			)
+		)
+
+		(def bar_size
+			(add <-
+				(vec2 128,14)
+			)
+		)
+
+		(def speed_txt
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 30,-165)
+			)
+		)
+
+		(def speed_bar
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 150,-165)
+			)
+		)
+
+		(def jump_txt
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 30,-115)
+			)
+		)
+
+		(def jump_bar
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 150,-115)
+			)
+		)				
+
+		(def about_txt
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 30,-60)
+			)
+		)
+
+		(def cost_txt
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 30,0)
+			)
+		)	
+
+		(def button_play
+			(spr play)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 100,142)
+			)
+		)
+
+		(def button_buy
+			(spr buy)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 100,142)
+			)
+		)		
+
+		(def button_quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -100,142)
+			)
+		)		
+
+		(def hud_powerups
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+			)
+		)
+
+	)	
+	(def in_app
+
+		(def coin_icon
+			(spr token_tag)
+			(add <-
+				(tl <- (get_rect screen))
+				(vec2 50,50)
+			)
+		)
+
+		(def coin_text
+			(add <-
+				(tl <- (get_rect screen))
+				(vec2 100,30)
+			)
+		)
+
+		(def buy_1
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-200)
+			)
+		)
+
+		(def buy_2
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+
+		(def buy_3
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,0)
+			)
+		)
+
+		(def button_quit
+			(spr quit)
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 0,-90)
+			)
+		)
+	)
+	(def item_unlock
+
+		(def text1
+			(add <-
+				(x vec2 (middle <- (get_rect screen)))
+				(vec2 0,60)
+			)
+		)
+
+		(def text2
+			(add <-
+				(x vec2 (middle <- (get_rect screen)))
+				(vec2 0,120)
+			)
+		)
+
+		(def text3
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,60)
+			)
+		)				
+
+		(def item
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+
+		(def star
+			(spr tut_star)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+
+		(def button_quit
+			(spr quit)
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 0,-150)
+			)
+		)
+	)	
+	(def pause
+		(def text
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+		(def button_play
+			(spr play)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 195,42)
+			)
+		)
+		(def button_restart
+			(spr restart)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,42)
+			)
+		)
+		(def button_quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 -195,42)
+			)
+		)
+	)
+
+	(def combo_text
+		(add <-
+			(x vec2 (middle <- (get_rect screen)))
+			(vec2 0,54)	
+		)
+	)
+
+	(def hud_powerups
+		(add <-
+			(br <- (get_rect screen))
+			(vec2 0,0)
+		)
+	)
+)
