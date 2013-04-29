@@ -226,12 +226,52 @@ bool level_is_unlocked(uint i) {
 	return i == 0 || keyval_get_bool(key_name, false);
 }
 
+void levels_unlock_powerups(uint level_num){
+	LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,level_num);
+	for(int i = 0; i < POWERUP_COUNT;i++){
+
+		char key_name[32];
+		sprintf(key_name, "ulck_pwr_%d",i);	
+
+		if(desc->powerup_num[i] > 0 && keyval_get_int(key_name,0) == 0)
+			keyval_set_int(key_name,1);
+
+	}
+}
+
+int levels_get_next_unlocked_powerup(){
+	for(int i = 0; i < POWERUP_COUNT;i++){
+
+		char key_name[32];
+		sprintf(key_name, "ulck_pwr_%d",i);	
+
+		if(keyval_get_int(key_name,0) == 1)
+			return i;
+
+	}
+	return -1;
+}
+
+void levels_set_unlocked_powerup_seen(uint id){
+	char key_name[32];
+	sprintf(key_name, "ulck_pwr_%d",id);
+	/* 
+	0 - powerup is locked
+	1 - unlocked but user not notified yet
+	2 - unlocked and user has been notified
+	*/
+	assert(keyval_get_int(key_name,0) == 1);
+	keyval_set_int(key_name,2);
+}
+
 void levels_unlock_next(){
 	if(level_num+1 <= levels_descs.size){
 		char key_name[32];
 		sprintf(key_name, "ulck_l%d",level_num+1);
 
 		keyval_set_bool(key_name,true);
+
+		levels_unlock_powerups(level_num+1);
 	}
 }
 

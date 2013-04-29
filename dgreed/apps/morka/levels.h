@@ -84,4 +84,7 @@ void levels_unlock_next();
 uint levels_get_place(uint level);
 void levels_set_place(uint place);
 
+int levels_get_next_unlocked_powerup(void);
+void levels_set_unlocked_powerup_seen(uint id);
+
 #endif

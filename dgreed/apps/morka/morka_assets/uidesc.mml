@@ -380,6 +380,53 @@
 			)
 		)
 	)
+	(def item_unlock
+
+		(def text1
+			(add <-
+				(x vec2 (middle <- (get_rect screen)))
+				(vec2 0,60)
+			)
+		)
+
+		(def text2
+			(add <-
+				(x vec2 (middle <- (get_rect screen)))
+				(vec2 0,120)
+			)
+		)
+
+		(def text3
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,60)
+			)
+		)				
+
+		(def item
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+
+		(def star
+			(spr tut_star)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+
+		(def button_quit
+			(spr quit)
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 0,-150)
+			)
+		)
+	)	
 	(def pause
 		(def text
 			(add <-

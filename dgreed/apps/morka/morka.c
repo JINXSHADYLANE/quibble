@@ -18,6 +18,7 @@
 #include "game_over.h"
 #include "shop.h"
 #include "in_app.h"
+#include "item_unlock.h"
 
 #include "mchains.h"
 #include "devmode.h"
@@ -82,16 +83,20 @@ bool dgreed_init(int argc, const char** argv) {
 	malka_states_register("season_select", &season_select_state);
 	malka_states_register("shop", &shop_state);
 	malka_states_register("in_app", &in_app_state);
+	malka_states_register("item_unlock", &item_unlock_state);	
 
 	malka_states_set_transition_len(0.5f);
 
 	malka_states_prerender_cb(game_render_level);
 
-	malka_states_push("season_select");
+	malka_states_push("level_select");
 
 	sprsheet_init(sprsheet);
 	mchains_init(ASSETS_DIR "mchains.mml");
 	uidesc_init(ASSETS_DIR "uidesc.mml", vec2((float)v_width, (float)v_height));
+
+	levels_init(ASSETS_DIR "levels.mml");
+	levels_reset("level1");
 
 	malka_states_init(SCRIPTS_DIR "main.lua");
 	malka_states_start();
@@ -102,7 +107,7 @@ bool dgreed_init(int argc, const char** argv) {
 void dgreed_close(void) {
 	malka_states_end();
 	malka_states_close();
-
+	levels_close();
 	uidesc_close();
 	mchains_close();
 	sprsheet_close();
