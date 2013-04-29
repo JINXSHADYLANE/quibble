@@ -46,8 +46,11 @@ typedef enum{
 typedef void (*PowerupCallback)(GameObject* other);
 
 typedef struct {
+	const char* name;
+	const char* description;	
 	const char* spr;
 	const char* btn;
+	const char* unlocked_spr;
 	bool passive;
 	PhysicsHitCallback hit_callback;
 	PowerupCallback powerup_callback;

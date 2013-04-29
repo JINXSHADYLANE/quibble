@@ -89,19 +89,19 @@
 	### unlocks ###
 
 	(img bomb_unlock
-		(tex atlas_13.png)
+		(tex atlas_0f.png)
 		(src 430,2,674,205)
 	)
 	(img rocket_unlock
-		(tex atlas_13.png)
+		(tex atlas_0f.png)
 		(src 218,2,428,244)
 	)
 	(img shield_unlock
-		(tex atlas_13.png)
+		(tex atlas_0f.png)
 		(src 2,2,216,246)
 	)
 	(img trampoline_unlock
-		(tex atlas_13.png)
+		(tex atlas_0f.png)
 		(src 676,2,1010,174)
 	)
 	(img cup
