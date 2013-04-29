@@ -50,8 +50,8 @@ static void obj_trampoline_construct(GameObject* self, Vector2 pos, void* user_d
 	trampoline->db = 0.0f;
 
 	RectF collider = {
-		pos.x - 100.0f, 			pos.y,
-		pos.x  + width + 100.0f, pos.y - height
+		pos.x - 50.0f, 			pos.y,
+		pos.x  + width + 50.0f, pos.y - height
 	};
 
 	// Physics
