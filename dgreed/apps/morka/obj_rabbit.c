@@ -229,10 +229,6 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 				landing.y = v_height - rabbit_hitbox_height;
 			}	
 
-			if(landing.y < rabbit_hitbox_height){
-				hit = true;
-			}
-
 		} else {
 			if(vel.y > 0.0f) jumped = true;
 		}
@@ -308,10 +304,6 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 			hit = true;
 			landing.y = v_height - rabbit_hitbox_height;
 		}			
-
-		if(landing.y < rabbit_hitbox_height){
-			hit = true;
-		}
 
 		if(++iterations > 1000) 
 			printf("D landing[%f;%f] velocity[%f;%f] \n",landing.x, landing.y,vel.x,vel.y);
@@ -548,7 +540,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				if(levels_current_desc()->season == AUTUMN){
 					// Find next ground tile
 					Vector2 start = vec2(p->cd_obj->pos.x,v_height - 10.0f);
-					Vector2 end = vec2_add(start,vec2(400.0f,0.0f));
+					Vector2 end = vec2_add(start,vec2(v_width,0.0f));
 
 					Vector2 hitpoint;
 					CDObj* cdobj = coldet_cast_segment(
@@ -851,7 +843,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 			// Find next ground tile
 			Vector2 start = vec2(p->cd_obj->pos.x,v_height - 10.0f);
-			Vector2 end = vec2_add(start,vec2(400.0f,0.0f));
+			Vector2 end = vec2_add(start,vec2(v_width,0.0f));
 
 			Vector2 hitpoint;
 			CDObj* cdobj = coldet_cast_segment(
@@ -864,8 +856,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 				right = (GameObject*)cdobj->userdata;
 
 			assert(right);
-
-			end = vec2_add(start,vec2(-400.0f,0.0f));
+			end = vec2_add(start,vec2(-800.0f,0.0f));
 
 			cdobj = coldet_cast_segment(
 				objects_cdworld, start, end, OBJ_GROUND_TYPE & ~collision_flag, &hitpoint
