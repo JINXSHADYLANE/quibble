@@ -222,6 +222,49 @@
 		#(learn "cdefijklmnklmnopcd")
 		
 	)
+	(ruleset level11_ground
+		(def a (grass_start1 0))
+		(def b (grass_start2 0))
+		(def c (grass1 0))
+		(def d (grass2 0))
+		(def e (grass3 0))
+		(def f (grass4 0))
+		(def g (grass_end1 0))
+		(def h (grass_end2 0))
+		(def i (water_start1 0))
+		(def j (water_start2 0))
+		(def k (water1 0))
+		(def l (water2 0))
+		(def m (water3 0))
+		(def n (water4 0))
+		(def o (water_end1 0))
+		(def p (water_end2 0))
+		(def q (grass3_sign 0))
+
+		(sdef z (seq "abcdef"))
+		(sdef y (seq "cdef"))
+		(sdef x (seq "cdqfgh"))
+		(sdef w (seq "abcdqfgh"))
+
+		(sdef u (seq "ijklmnop"))
+
+		(def _ (.empty 240))
+		(def = (.empty 300))
+		(def - (.empty 400))
+		(init "ab")
+
+		(learn "abyyuyx")
+		(learn "yx=zyx")
+		(learn "yx-w_zyy")
+		(learn "yyx-abyy")
+
+		#(learn "cdefgh_abcd")
+		#(learn "cdefgh=abcd")
+		#(learn "cdefgh-abcd")
+		#(learn "cdefijklmnopcd")
+		#(learn "cdefijklmnklmnopcd")
+		
+	)
 
 	###########################
 	###						###
@@ -237,7 +280,7 @@
 		(def e (mushroom_5 150))
 		(def f (mushroom_2 150))
 		
-		(def _ (.empty 400))
+		(def _ (.empty 600))
 		(def = (.empty 500))
 
 		(init "__")
@@ -252,7 +295,7 @@
 		(def e (mushroom_5 150))
 		(def f (mushroom_2 150))
 		
-		(def _ (.empty 400))
+		(def _ (.empty 600))
 
 		(init "__")
 
@@ -271,14 +314,20 @@
 		(def i (bg_mushroom_3 400))
 		(def j (bg_mushroom_2 400))
 		
-		(sdef z (seq "_f=ag=bh=ei=fj"))
+		(sdef z (seq "f=ag=bh=ei=fj"))		
+		(sdef x (seq "d=aj=bg=eg=fi"))
 
-		(def _ (.empty 350))
-		(def = (.empty 300))
+		(def _ (.empty 250))
+		(def = (.empty 250))
 
 		(init "__")
 
 		(learn "__e_a_b_d_f_e_z_a_")
+		(learn "e_x_a")
+		(learn "_e_gd_b")
+		(learn "_a_eh_d")
+		(learn "_b_ia_f")
+		(learn "_b_jf_e")
 	)
 	(ruleset level4_fg
 		(def a (mushroom_1 150))
@@ -316,14 +365,18 @@
 		(def j (bg_mushroom_2 200))
 		(def x (spikeshroom_1 150))
 
-		(sdef z (seq "_f__x_c_a_j_x_ia_x_hb_gf_x_d"))
+		(sdef z (seq "f_x_c_a_j_x_ia_x_hb_gf_x_d"))
 
-		(def _ (.empty 200))
-		(def = (.empty 400))
+		(def _ (.empty 100))
+		(def = (.empty 300))
 		
 		(init "__")
 
 		(learn "__=f=a=e=b=z=d=f")
+		(learn "f=id=e")
+		(learn "a=je=b")
+		(learn "b=fg=d")
+		(learn "z=gah=f")
 	)	
 	(ruleset level6_fg
 		(def a (mushroom_1 150))
@@ -362,13 +415,16 @@
 		(def i (bg_mushroom_3 400))
 		(def j (bg_mushroom_2 400))
 		
-		(sdef z (seq "_f_dg_bh_ei_a_j"))
+		(sdef z (seq "f_dg_bh_ei_a_j"))
 
-		(def _ (.empty 180))
+		(def _ (.empty 150))
 	
 		(init "__")
 
 		(learn "__e_z_b_d_e_z_f_ac_e")
+		(learn "e_ha_b")
+		(learn "b_fi_e")
+		(learn "d_gfh_z")
 	)
 	(ruleset level8_fg
 		(def a (mushroom_1 150))
@@ -383,14 +439,17 @@
 		(def j (bg_mushroom_2 400))
 		(def x (spikeshroom_1 150))
 
-		(sdef z (seq "x=d_b_gchdi=jac_bx=a"))
+		(sdef z (seq "x=d_b_g_chdi=f_j_a_c_bx=a"))
 
-		(def _ (.empty 250))
+		(def _ (.empty 200))
 		(def = (.empty 50))
 
 		(init "__")
 
 		(learn "__f_a_e_d_z_f_")
+		(learn "f_ia_e")
+		(learn "a_jf_d")
+		(learn "d_bgh_f")
 	)
 	(ruleset level9_fg
 		(def a (mushroom_1 150))
@@ -413,6 +472,10 @@
 		(init "__")
 
 		(learn "__f_a_e_d_z_f_")
+		(learn "f_gahbgchd_e")
+		(learn "d_ie_f")
+		(learn "a_jxc_d")
+		(learn "ah_d")
 	)
 	(ruleset level10_fg
 		(def a (mushroom_1 150))
@@ -427,7 +490,7 @@
 		(def j (bg_mushroom_2 400))
 		(def x (spikeshroom_1 150))
 
-		(sdef z (seq "x=d__b__gchidj__x=a"))
+		(sdef z (seq "x=d=b=g=c=h=i=d=j=x=a"))
 
 		(def _ (.empty 250))
 		(def = (.empty 50))
@@ -435,6 +498,48 @@
 		(init "__")
 
 		(learn "__f_a_c_e_d_z_f_")
+		(learn "f_ai_c")
+		(learn "d_bj_f")
+		(learn "a_fg_e")
+		(learn "c_ha_d")
+	)
+	(ruleset level11_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		(def x (spikeshroom_1 150))
+
+
+		(def _ (.empty 250))
+		(def = (.empty 40))
+
+		(init "__")
+
+		(learn "__f_a_e_d_f_")
+		(learn "f_gahbgchd_e")
+		(learn "d_xie_f")
+		(learn "a_xjc_d")
+		(learn "ah_d")
+	)
+	(ruleset level12_fg
+		(def a (mushroom_1 150))
+		(def b (mushroom_6 150))
+		(def c (mushroom_3 70))
+		(def d (mushroom_4 150))
+		(def e (mushroom_5 150))
+		(def f (mushroom_2 150))
+		(def g (bg_mushroom_6 250))
+		(def h (bg_mushroom_5 400))
+		(def i (bg_mushroom_3 400))
+		(def j (bg_mushroom_2 400))
+		(def x (spikeshroom_1 150))
 	)
 
 	###########################
