@@ -112,10 +112,9 @@ static bool item_unlock_render(float t) {
 
 		x = sin(x * PI/2.0f);
 		a3 = lrintf(255.0f * state_alpha * x);
-	} else if( ts > fade_start && ts > fade_end){
+	} else if( ts > fade_start && ts >= fade_end){
 		a3 = lrintf(255.0f * state_alpha);
 	}
-
 	Color txt_col = COLOR_RGBA(255, 255, 255, a3);
 
 
