@@ -137,12 +137,10 @@ void game_force_reset(void){
 }
 
 static void game_init(void) {
-	levels_init(ASSETS_DIR "levels.mml");
 	objects_init();
 	hud_init();
 	minimap_init();
 	tutorials_init();
-	levels_reset("level1");
 	placement_init();
 	game_reset();		
 }
@@ -184,7 +182,6 @@ static void game_close(void) {
 	minimap_close();
 	hud_close();
 	objects_close();
-	levels_close();
 }
 
 static float _camera_x(void) {

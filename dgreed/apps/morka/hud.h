@@ -27,6 +27,9 @@ bool hud_button_ex(SprHandle spr, Vector2 pos, float r, Color col, float ts);
 // Button with rectangle collision
 bool hud_button_rect(SprHandle spr, Vector2 pos, Vector2 size, Color col, float ts);
 
+// If there are unlockables, pushes the item_unlock state
+bool hud_unlock_check(uint state_num);
+
 extern bool hud_click;
 
 #endif

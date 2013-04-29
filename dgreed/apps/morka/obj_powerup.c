@@ -342,8 +342,11 @@ GameObjectDesc obj_powerup_desc = {
 
 PowerupParams powerup_params[] = {
 	{
+		"Trampoline",
+		"Trampoline description goes here",
 		"trampoline",
 		"btn_trampoline",
+		"trampoline_unlock",
 		true,
 		obj_powerup_trampoline_collide,
 		obj_powerup_trampoline_effect,
@@ -352,8 +355,11 @@ PowerupParams powerup_params[] = {
 	},
 
 	{
+		"Shield",
+		"Shield description goes here",
 		"shield",
 		"btn_shield",
+		"shield_unlock",
 		true,
 		obj_powerup_shield_collide,
 		obj_powerup_shield_effect,
@@ -362,8 +368,11 @@ PowerupParams powerup_params[] = {
 	},
 
 	{
+		"Bomb",
+		"Bomb description goes here",
 		"bomb",
 		"btn_bomb",
+		"bomb_unlock",
 		false,
 		obj_powerup_bomb_collide,
 		obj_powerup_bomb_effect,
@@ -372,8 +381,11 @@ PowerupParams powerup_params[] = {
 	},
 	
 	{
+		"Rocket",
+		"Rocket boosts you up",
 		"rocket",
 		"btn_rocket",
+		"rocket_unlock",
 		false,
 		obj_powerup_rocket_collide,
 		obj_powerup_rocket_effect,
@@ -385,8 +397,11 @@ PowerupParams powerup_params[] = {
 
 // Token/coin powerup stored seperately because it has no activation button
 PowerupParams coin_powerup = {
+	.name = NULL,
+	.description = NULL,
 	.spr = "token",
 	.btn = NULL,
+	.unlocked_spr = NULL,
 	.hit_callback = obj_powerup_coin_collide,
 	.powerup_callback = NULL,
 	.update_pos = obj_powerup_coin_update_pos,
