@@ -46,7 +46,6 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 			result = vec2_add(result, vec2(d->xjump*d->xjump, -d->yjump*d->yjump) );
 
 		if(d->dived){
-
 			if(d->virtual_key_down){
 				result = vec2_add(result, vec2(0.0f, 20000.0f) );
 			}
@@ -270,7 +269,7 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 
 	uint iterations = 0;
 
-	// predict landing
+	// predict diving
 	while(!hit){
 		
 		acc = vec2_add(acc, _rabbit_calculate_forces(self,false) );
@@ -436,7 +435,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					d->falling_down = false;		
 				}
 
-				if(ts - d->mushroom_hit_time < 0.15f) {
+				if(ts - d->mushroom_hit_time < 0.1f) {	// values higher than 0.1 seem to break AI
 					d->jump_off_mushroom = false;
 
 					if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.2f)

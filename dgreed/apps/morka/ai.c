@@ -129,39 +129,21 @@ static bool there_is(uint obj_type, RectF rec){
 	return false;
 }
 
-static bool release_keys(GameObject* obj){
+static void manage_keys(GameObject* obj, bool input){
 	ObjRabbit* rabbit = (ObjRabbit*)obj;
 	ObjRabbitData* d = rabbit->data;
-
-	bool release = false;
-
-	// key_down and key_up only last one frame
-	if(d->virtual_key_down) d->virtual_key_down = false;
-	else if(d->virtual_key_up){
-		d->virtual_key_up = false;
-		d->virtual_key_down = false;
-		d->virtual_key_pressed = false;
-	}	 
-	
-	// release button on contact with ground or shroom
-	if( (d->jump_off_mushroom || d->touching_ground) &&
-		d->virtual_key_pressed && !d->virtual_key_down ){
-
-		d->virtual_key_pressed = false;
+	if(input){
+		d->virtual_key_down = !d->virtual_key_down && !d->virtual_key_pressed;
+		d->virtual_key_pressed = true;
+	} else if(d->virtual_key_pressed) {
 		d->virtual_key_up = true;
-		release = true;
+		d->virtual_key_pressed = false;
+		d->virtual_key_down = false;
+	} else {
+		d->virtual_key_up = false;
+		d->virtual_key_pressed = false;
+		d->virtual_key_down = false;		
 	}
-
-	// release button when in the air
-	if(!d->touching_ground && !d->is_diving){
-		if(d->virtual_key_pressed){
-			d->virtual_key_pressed = false;
-			d->virtual_key_up = true;
-			release = true;
-		}	
-	}
-
-	return release;
 
 }
 
@@ -178,113 +160,96 @@ void ai_control_autumn(GameObject* obj){
 	ObjRabbit* rabbit = (ObjRabbit*)obj;
 	ObjRabbitData* d = rabbit->data;
 
-	bool release = release_keys(obj);
-	
 	bool input = false;
 
 	if(camera_follow && d->respawn == 0.0f)
 		use_powerups(obj);
 
-	if(!release){
-		if(d->touching_ground){
 
-			if(d->on_water && !d->has_powerup[SHIELD]){
-				input = true;
-				//printf("	water\n");
-			}
+	if(d->touching_ground){
 
-			if( there_is( OBJ_MUSHROOM_TYPE, in_front_of(obj) ) ){
-				//printf("	mushroom in front\n");
-				input = true;
-			}	
+		if(d->on_water && !d->has_powerup[SHIELD]){
+			input = true;
+			//printf("	water\n");
+		}
 
-			if( there_is( OBJ_CACTUS_TYPE, in_front_of_avoid(obj) ) ){
-				//printf("	cactus in front\n");
-				input = true;
-			}
+		if( there_is( OBJ_MUSHROOM_TYPE, in_front_of(obj) ) ){
+			//printf("	mushroom in front\n");
+			input = true;
+		}	
 
-			if( there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below(obj) ) ){
-				//printf("	gap in front\n");
-				input = true;
-			}
+		if( there_is( OBJ_CACTUS_TYPE, in_front_of_avoid(obj) ) ){
+			//printf("	cactus in front\n");
+			input = true;
+		}
 
-		} else {
+		if( there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below(obj) ) ){
+			//printf("	gap in front\n");
+			input = true;
+		}
 
-			if( there_is( OBJ_FALL_TRIGGER_TYPE, in_landing_location(obj) ) ){ 
-				input = true;
-			}
+	} else {
 
-			if( there_is( OBJ_MUSHROOM_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ){ 
-				input = true;
-				//printf("	mushroom below\n" );
-			}
+		if( there_is( OBJ_FALL_TRIGGER_TYPE, in_landing_location(obj) ) ){ 
+			//printf("gap in landing location, diving.\n");
+			input = true;
+		}
 
-			if( there_is( OBJ_FALL_TRIGGER_TYPE, below(obj) ) ){ 
-				input = false;
-				//printf("	unsafe to land, blocking input.\n");
-			}
+		if( there_is( OBJ_MUSHROOM_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ){ 
+			input = true;
+			//printf("	mushroom below\n" );
+		}
+
+		if( there_is( OBJ_FALL_TRIGGER_TYPE, below(obj) ) ){ 
+			input = false;
+			//printf("	unsafe to land, blocking input.\n");
 		}
 	}
-
-	// if ai decided to take action, press virtual keys
-	if(input){	
-		if(!d->virtual_key_down && !d->virtual_key_pressed) d->virtual_key_down = true;
-		d->virtual_key_pressed = true;
-	}
-
+	manage_keys(obj,input);
 }
 
 void ai_control_winter(GameObject* obj){
 	ObjRabbit* rabbit = (ObjRabbit*)obj;
 	ObjRabbitData* d = rabbit->data;
 
-	bool release = release_keys(obj);
-	
 	bool input = false;
 	use_powerups(obj);
-	if(!release){
-		if(d->touching_ground){
+	if(d->touching_ground){
 
-			if(d->on_water && !d->has_powerup[SHIELD]){
-				input = true;
-				//printf("	water\n");
-			}
+		if(d->on_water && !d->has_powerup[SHIELD]){
+			input = true;
+			//printf("	water\n");
+		}
 
-			if( there_is( OBJ_BRANCH_TYPE | OBJ_SPRING_BRANCH_TYPE, in_front_of(obj) ) ){
-				//printf("	branch/mushroom in front\n");
-				input = true;
-			}	
+		if( there_is( OBJ_BRANCH_TYPE | OBJ_SPRING_BRANCH_TYPE, in_front_of(obj) ) ){
+			//printf("	branch/mushroom in front\n");
+			input = true;
+		}	
 
-			if( there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below(obj)) &&
-				there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below2(obj))
-			  ){
-				//printf("	gap in front\n");
-				input = true;
-			}
+		if( there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below(obj)) &&
+			there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below2(obj))
+		  ){
+			//printf("	gap in front\n");
+			input = true;
+		}
 
-		} else {
+	} else {
 
-			if( there_is( OBJ_FALL_TRIGGER_TYPE, in_landing_location(obj) ) ){ 
-				input = true;
-			}
+		if( there_is( OBJ_FALL_TRIGGER_TYPE, in_landing_location(obj) ) ){ 
+			input = true;
+		}
 
-			if( there_is( OBJ_SPRING_BRANCH_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ){ 
-				input = true;
-				//printf("	spring branch below\n" );
-			}
+		if( there_is( OBJ_SPRING_BRANCH_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ){ 
+			input = true;
+			//printf("	spring branch below\n" );
+		}
 
-			if( there_is( OBJ_FALL_TRIGGER_TYPE, below(obj) ) ){ 
-				input = false;
-				//printf("	unsafe to land, blocking input.\n");
-			}
+		if( there_is( OBJ_FALL_TRIGGER_TYPE, below(obj) ) ){ 
+			input = false;
+			//printf("	unsafe to land, blocking input.\n");
 		}
 	}
-	// if ai decided to take action, press virtual keys
-	if(input){	
-		if(!d->virtual_key_down && !d->virtual_key_pressed) d->virtual_key_down = true;
-		d->virtual_key_pressed = true;
-	}
-
+	manage_keys(obj,input);
 }
 
 void ai_control_spring(GameObject* obj){
