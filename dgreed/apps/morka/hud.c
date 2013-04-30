@@ -670,3 +670,89 @@ void hud_render_regular_pause(float t){
 			malka_states_pop_multi(3);
 		}		
 }
+
+uint hud_scroll_get_selection(float value, float increment, uint elements){
+	uint result = 0;
+	float min = fabsf(increment * elements);
+	for(uint i = 0; i < elements;i++){
+		float t = fabsf(value - (i * increment) );
+		if(t <= min){
+			result = i;
+			min = t;
+		}
+	}
+	return result;
+}
+
+float hud_scroll(float xpos, float inc, uint elements, float t){
+	static float delta = 0.0f;
+	static float x1 = 0.0f;
+	static float x2 = 0.0f;
+	static float current_x = 0.0f;
+	static float prev_x = 0.0f;
+	static bool hold = false;
+	static bool release = false;
+	static float start = 0.0f;
+
+	Touch* touch = touches_get();
+	if(touch && touch->hit_pos.y < v_height*0.61f && t == 0.0f){
+
+		x1 = touch->hit_pos.x;
+		x2 = touch->pos.x;
+
+		if(!hold){
+			start = time_s();
+			current_x = touch->hit_pos.x;
+			prev_x = touch->pos.x;
+			hold = true;
+ 		} else {
+ 			prev_x = current_x;
+			current_x = touch->pos.x;
+		}
+		delta = clamp(-100.0f,100.0f,prev_x - current_x);	
+
+		if(delta < 0.0f){
+			if(xpos < 0){
+				//regular scroll speed within main bounds
+			} else if (xpos > 0.0f && xpos < inc/2.0f){
+				// Damping when trying to scroll outside bounds
+				delta *= 0.15f;
+			} else {
+				// Disable scroll past certain point
+				delta = 0.0f;
+			}
+		} else {
+			if(xpos > (elements-1) * -inc){
+				//regular scroll speed within main bounds
+			} else if (xpos < (elements-1) * -inc && (xpos > (elements-0.5) * -inc) ){
+				// Damping when trying to scroll outside bounds
+				delta *= 0.15f;
+			} else {
+				// Disable scroll past certain point
+				delta = 0.0f;
+			}
+		}
+
+		release = false;
+
+	} else {
+		if(!release){
+			//printf("delta: %f\n",fabsf(x1 - x2) );			
+			//printf("time: %f\n",time_s() - start);			
+			release = true;
+			if(fabsf(x1 - x2) > 1.0f && time_s() - start <= 0.2f){
+				if(x1 - x2 > 0.0f) 
+					delta = fabsf(inc / 4.0f);
+				else
+					delta = -fabsf(inc / 4.0f);
+			}
+		}
+		hold = false;
+		uint selection = hud_scroll_get_selection(xpos,-inc,elements);
+		xpos = lerp(xpos,selection * -inc,0.1f);
+		delta *= 0.8f;	
+	}
+
+	xpos -= delta;
+	return xpos;
+}
