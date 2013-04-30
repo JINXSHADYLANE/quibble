@@ -15,6 +15,8 @@
 #include <gfx_utils.h>
 #include <async.h>
 
+extern ObjRabbit* player;
+
 #define TIME_S (malka_state_time("game") + malka_state_time("game_over"))
 
 static const float rabbit_hitbox_width = 70.0f;
@@ -61,6 +63,37 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 		result = vec2_add(result, vec2(7500.0f * mult, 0.0f) );
 		result.y = 0.0f;
 	}
+
+	// Skunk slow down
+	if(rabbit != player){
+		ObjRabbitData* d = player->data;
+		if(d->skunk_gas_cd > -1.0f){
+
+			PhysicsComponent* p = self->physics;
+			PhysicsComponent* rp = player->header.physics;
+
+			Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+			Vector2 size = p->cd_obj->size.size;
+			pos = vec2_add(pos, vec2_scale(size,0.5f));
+
+			Vector2 pos2 = vec2_add(rp->cd_obj->pos, rp->cd_obj->offset);
+			Vector2 size2 = rp->cd_obj->size.size;
+			pos2 = vec2_add(pos2, vec2_scale(size2,0.5f));
+
+			Vector2 delta = vec2_sub(pos2,pos);
+
+			float radius = 256.0f;
+
+			float r = vec2_length(delta);
+
+			if(r < radius){
+
+				result = vec2_scale(result,0.5f);
+
+			}
+
+		}		
+	}		
 
 	return result;
 }
@@ -596,16 +629,13 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		else
 			d->over_branch = false;
 
-		if(d->skunk_gas_cd != -1){
+		if(d->skunk_gas_cd > -1.0f){
 			if(r->was_visible){
-				if(!d->skunk_gas_cd){
-					//mfx_trigger_ex("skunk_gas",vec2_add(screen_pos,vec2(0.0f,0.0f)),0.0f);
+				if(TIME_S > d->skunk_gas_cd){
 					ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
 					mfx_trigger_follow("skunk_gas",&anchor->screen_pos,NULL);
 
-					d->skunk_gas_cd = 10;
-				} else {
-					d->skunk_gas_cd--;
+					d->skunk_gas_cd = TIME_S + 0.1f;
 				}
 			}
 		}
