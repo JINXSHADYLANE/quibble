@@ -355,7 +355,7 @@ static void _gen_mushrooms(void){
 
 				// placing bomb powerup after cactuses
 				Vector2 p = vec2(pos.x + advance / 2.0f + 100.0f, v_height-189.0f);
-				place_powerup(&obj_powerup_desc, p, BOMB);
+				place_powerup(&obj_powerup_desc, p, ROCKET);
 				
 			} else {
 				objects_create(&obj_mushroom_desc, pos, (void*)spr);
@@ -368,7 +368,7 @@ static void _gen_mushrooms(void){
 					Vector2 p = vec2_add(pos, vec2(width/2.0f,-height - 50.0f));	
 					if(sym == 'j'){
 						// Place rocket or a coin on top of mushroom
-						if(!place_powerup(&obj_powerup_desc, p, ROCKET))
+						if(!place_powerup(&obj_powerup_desc, p, BOMB))
 							objects_create(&obj_powerup_desc, p, (void*)&coin_powerup);
 
 					} else if(sym == 'h'){
