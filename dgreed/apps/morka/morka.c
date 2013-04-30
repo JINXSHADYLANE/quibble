@@ -24,8 +24,8 @@
 #include "devmode.h"
 #include "common.h"
 
-uint v_width = 1024;
-uint v_height = 768;
+float v_width = 1024;
+float v_height = 768;
 
 void dgreed_preinit(void) {
 }
@@ -39,7 +39,7 @@ bool dgreed_init(int argc, const char** argv) {
     
     uint r = params_find("-r");
     if(r != ~0 && params_count() > r+1){
-		sscanf(params_get(r+1), "%ux%u", &v_width, &v_height);
+		sscanf(params_get(r+1), "%fx%f", &v_width, &v_height);
 
 	    if(v_width == 0) 
 	    	v_width = 1024;
@@ -52,8 +52,8 @@ bool dgreed_init(int argc, const char** argv) {
     if(v_width > 1024 || v_height > 768)
     	sprsheet = ASSETS_DIR "r_spritesheet.mml";
 
-    uint n_width = v_width;
-    uint n_height = v_height;
+	float n_width = v_width;
+	float n_height = v_height;
 
 	if(params_find("-s") != ~0) {
 		n_width /= 2;
