@@ -23,7 +23,6 @@ static float ground_y = 0;
 
 extern bool draw_ai_debug;
 
-
 static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
@@ -42,8 +41,9 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 
 	if(!gravity_only){
 		// Jumping
-		if(d->jumped)
+		if(d->jumped){
 			result = vec2_add(result, vec2(d->xjump*d->xjump, -d->yjump*d->yjump) );
+		}	
 
 		if(d->dived){
 			if(d->virtual_key_down){
@@ -596,6 +596,20 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		else
 			d->over_branch = false;
 
+		if(d->skunk_gas_cd != -1){
+			if(r->was_visible){
+				if(!d->skunk_gas_cd){
+					//mfx_trigger_ex("skunk_gas",vec2_add(screen_pos,vec2(0.0f,0.0f)),0.0f);
+					ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, pos, NULL);
+					mfx_trigger_follow("skunk_gas",&anchor->screen_pos,NULL);
+
+					d->skunk_gas_cd = 10;
+				} else {
+					d->skunk_gas_cd--;
+				}
+			}
+		}
+
 	} else {
 		self->physics->vel = vec2(0.0f,0.0f);
 	}
@@ -891,7 +905,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		if(!d->has_powerup[SHIELD]){
 			ObjSpeedTrigger* t = (ObjSpeedTrigger*)other;
 			objects_apply_force(self, 
-				vec2(-self->physics->vel.x * t->drag_coef, 0.0f)
+				vec2(-self->physics->vel.x * t->drag_coef,0.0f)
 			);
 		}
 		d->on_water = true;
@@ -987,6 +1001,10 @@ static void obj_rabbit_construct(GameObject* self, Vector2 pos, void* user_data)
 	d->player_control = rabbit->control == obj_rabbit_player_control;
 	d->shield_offset = c->shield_offset;
 	d->shield_scale = c->shield_scale;
+
+	if(c->sprite != sprsheet_get_handle("skunk"))
+		d->skunk_gas_cd = -1;
+
 	if(d->player_control){
 		render->layer = rabbit_layer;
 
