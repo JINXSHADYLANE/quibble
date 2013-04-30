@@ -81,7 +81,12 @@
 			(particles bubbles
 
 			)
-		)					
+		)
+		(e skunk_gas
+			(particles skunk_gas
+
+			)
+		)			
 	)
 )
 
