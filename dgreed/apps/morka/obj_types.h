@@ -130,6 +130,7 @@ typedef struct {
 	SprHandle shield_spr;
 	Vector2 shield_offset;
 	Vector2 shield_scale;
+	int skunk_gas_cd;
 
 } ObjRabbitData;
 
