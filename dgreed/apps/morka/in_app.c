@@ -4,6 +4,7 @@
 #include "common.h"
 #include "game.h"
 #include "hud.h"
+#include "item_unlock.h"
 #include "level_select.h"
 #include "minimap.h"
 #include "obj_types.h"
@@ -20,6 +21,31 @@
 
 extern uint coins;
 extern uint coins_original;
+
+static uint item_count = 3;
+
+StoreItemParams store_items[] = {
+	{
+	"100 coins in a cup",
+	"cup",
+	0.99f,
+	100
+	},
+
+	{
+	"300 coins in a toaster",
+	"toaster",
+	1.99f,
+	300
+	},
+
+	{
+	"1000 coins in a fridge",
+	"refrigerator",
+	2.99f,
+	1000
+	}		
+};
 
 static void in_app_init(void) {
 
@@ -48,11 +74,16 @@ static bool in_app_update(void) {
 
 static bool in_app_render(float t) {
 	if(t != 0.0f) game_update_empty();
-	
+
 	UIElement* element = uidesc_get("in_app");
 	UIElement* coin_icon = uidesc_get_child(element, "coin_icon");
 	UIElement* coin_text = uidesc_get_child(element, "coin_text");
 
+	UIElement* item_name = uidesc_get_child(element, "name");
+	UIElement* item_cost = uidesc_get_child(element, "cost");
+	UIElement* item_icon = uidesc_get_child(element, "icon");		
+
+	UIElement* button_buy = uidesc_get_child(element, "button_buy");
 	UIElement* button_quit = uidesc_get_child(element, "button_quit");
 
 	float state_alpha = 1.0f-fabsf(t);
@@ -69,43 +100,65 @@ static bool in_app_render(float t) {
 	sprintf(str, "%u",coins);
 	vfont_draw(str, hud_layer+1, coin_text->vec2, col);
 
-	vfont_select(FONT_NAME, 48.0f);
+	static float xpos = 0.0f;
+	static float inc = 600.0f;
 
-	// Buttons
-	for(int i = 1; i <= 3; i++){
-		char element_name[16];
-		sprintf(element_name, "buy_%d", i);
-		UIElement* elem = uidesc_get_child(element, element_name);
+	xpos = hud_scroll(xpos,inc,item_count,t);
 
-		char txt[32];
-		uint value;
-		switch(i){
-			case 1:
-				sprintf(txt, "Buy 100c for 0.99$");
-				value = 100;
-			break;
+	for(uint i = 0; i < item_count;i++){
 
-			case 2:
-				sprintf(txt, "Buy 300c for 1.99$");
-				value = 300;
-			break;
+		Vector2 offset = vec2(xpos + i * inc,0.0f);
+		float d = normalize(fabsf(offset.x),0.0f,inc * (item_count-1));
 
-			default:
-				sprintf(txt, "Buy 1000c for 2.99$");
-				value = 1000;
-			break;
-		}
-	
-		Vector2 half_size = vec2_scale(vfont_size(txt), 0.5f);
-		vfont_draw(txt, hud_layer, vec2_sub(elem->vec2, half_size), col);
-		Vector2 dim = vec2_scale(half_size, 2.0f);
+		float scroll_alpha = 1.0f / exp(PI*d);
+		byte a2 = lrintf(255.0f * scroll_alpha * state_alpha);
+		Color col2 = COLOR_RGBA(255, 255, 255, a2);
 
-		if(hud_button_rect(empty_spr,elem->vec2,dim,col,t)){
-			coins += value;
-			coins_original += value;
-		}
-	
+		// Character icon
+		SprHandle icon = sprsheet_get_handle(store_items[i].icon);
+		Vector2 icon_pos = item_icon->vec2;
+		icon_pos = vec2_add(icon_pos,offset);
+		spr_draw_cntr_h(icon, hud_layer,icon_pos, 0.0f, 1.0f, col2);
+
+		// Item Name
+		vfont_select(FONT_NAME, 38.0f);
+		Vector2 txt_pos = vec2_add(item_name->vec2,offset);
+		Vector2	half_size = vec2_scale(vfont_size(store_items[i].name), 0.5f);
+		vfont_draw(store_items[i].name, hud_layer, vec2_sub(txt_pos,half_size), col2);
+
+		// Cost
+		vfont_select(FONT_NAME, 48.0f);
+		char cost[32];
+		sprintf(cost, "%.2f$",store_items[i].cost);
+		Vector2 txt_pos2 = vec2_add(item_cost->vec2,offset);
+		Vector2	half_size2 = vec2_scale(vfont_size(cost), 0.5f);		
+		vfont_draw(cost, hud_layer, vec2_sub(txt_pos2,half_size2), col2);
+
 	}
+
+	uint selection = hud_scroll_get_selection(xpos,-inc,item_count);
+
+	// Buy button
+	if(hud_button(button_buy, col, t)) {
+
+		// TODO: actual purchasing
+		if(true){
+
+			coins += store_items[selection].coins; // placeholder
+
+			ObjItemUnlockParams p = {
+				.spr = store_items[selection].icon,
+				.text1 = "Purchased:",
+				.text2 = "Coins",
+				.text3 = store_items[selection].name,
+				.state_num = 0
+			};
+			item_unlock_set(&p);
+
+			malka_states_push("item_unlock");
+		}
+	}
+
 
 	// Quit button
 	if(hud_button(button_quit, col, t)) {

@@ -30,6 +30,10 @@ bool hud_button_rect(SprHandle spr, Vector2 pos, Vector2 size, Color col, float 
 // If there are unlockables, pushes the item_unlock state
 bool hud_unlock_check(uint state_num);
 
+// Scrolling selections
+float hud_scroll(float xpos, float inc, uint elements, float t);
+uint hud_scroll_get_selection(float value, float increment, uint elements);
+
 extern bool hud_click;
 
 #endif

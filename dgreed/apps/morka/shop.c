@@ -16,7 +16,6 @@ extern uint selected_char;
 
 // Character select variables
 static float xpos = 0.0f;
-static float delta = 0.0f;
 const float inc = 600.0f;
 
 uint coins = 0;
@@ -161,19 +160,7 @@ static void _render_powerups_buy(float t){
 	}
 }
 
-static float find_closest_pos(float value, float increment){
-	float result = 0.0f;
-	float min = fabsf(increment * character_count);
-	for(uint i = 0; i < character_count;i++){
-		float t = fabsf(value - (i * increment) );
-		if(t <= min){
-			selected_char = i;
-			result = i * increment;
-			min = t;
-		}
-	}
-	return result;
-}
+
 
 bool _shop_character_owned(uint i){
 	char key_name[32];
@@ -198,9 +185,6 @@ bool _shop_character_buy(uint i){
 }
 
 static bool shop_render(float t) {
-
-	vfont_select(FONT_NAME, 48.0f);
-
 	UIElement* element = uidesc_get("shop");
 	UIElement* coin_icon = uidesc_get_child(element, "coin_icon");
 	UIElement* coin_text = uidesc_get_child(element, "coin_text");	
@@ -225,79 +209,12 @@ static bool shop_render(float t) {
 
 	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
-	static float x1 = 0.0f;
-	static float x2 = 0.0f;
-
-	static float current_x = 0.0f;
-	static float prev_x = 0.0f;
-
-	static bool hold = false;
-	static bool release = false;
-
-	static float start = 0.0f;
-
 	static float anim_start = 0.0f;
 	static float anim_end = 0.0f;
 
-	Touch* touch = touches_get();
-	if(touch && touch->hit_pos.y < v_height*0.61f && t == 0.0f){
+	xpos = hud_scroll(xpos,inc,character_count,t);
 
-		x1 = touch->hit_pos.x;
-		x2 = touch->pos.x;
-
-		if(!hold){
-			start = time_s();
-			current_x = touch->hit_pos.x;
-			prev_x = touch->pos.x;
-			hold = true;
- 		} else {
- 			prev_x = current_x;
-			current_x = touch->pos.x;
-		}
-		delta = clamp(-100.0f,100.0f,prev_x - current_x);	
-
-		if(delta < 0.0f){
-			if(xpos < 0){
-				//regular scroll speed within main bounds
-			} else if (xpos > 0.0f && xpos < inc/2.0f){
-				// Damping when trying to scroll outside bounds
-				delta *= 0.15f;
-			} else {
-				// Disable scroll past certain point
-				delta = 0.0f;
-			}
-		} else {
-			if(xpos > (character_count-1) * -inc){
-				//regular scroll speed within main bounds
-			} else if (xpos < (character_count-1) * -inc && (xpos > (character_count-0.5) * -inc) ){
-				// Damping when trying to scroll outside bounds
-				delta *= 0.15f;
-			} else {
-				// Disable scroll past certain point
-				delta = 0.0f;
-			}
-		}
-
-		release = false;
-
-	} else {
-		if(!release){
-			//printf("delta: %f\n",fabsf(x1 - x2) );			
-			//printf("time: %f\n",time_s() - start);			
-			release = true;
-			if(fabsf(x1 - x2) > 1.0f && time_s() - start <= 0.2f){
-				if(x1 - x2 > 0.0f) 
-					delta = 150.0f;
-				else
-					delta = -150.0f;
-			}
-		}
-		hold = false;
-		xpos = lerp(xpos,find_closest_pos(xpos,-inc),0.1f);
-		delta *= 0.8f;	
-	}
-
-	xpos -= delta;
+	selected_char = hud_scroll_get_selection(xpos,-inc,character_count);
 
 	for(uint i = 0; i < character_count;i++){
 
