@@ -31,7 +31,9 @@ int process_manifest(const char* manifest, const char* output) {
 		}
 	}
 
-	names_strlen = align_padding(names_strlen, 8);
+	int new_names_strlen = align_padding(names_strlen, 8);
+	int names_padding = new_names_strlen - names_strlen;
+	names_strlen = new_names_strlen;
 
 	// Prep for outputting vfs blob
 	assert(sizeof(VfsHeader) == 32);
@@ -57,6 +59,12 @@ int process_manifest(const char* manifest, const char* output) {
 	fseek(f, 0, SEEK_SET);
 	while(fscanf(f, "%s\n", filename) > 0) {
 		fwrite(filename, 1, strlen(filename)+1, out);
+	}
+	
+	// Padding for names
+	while(names_padding--) {
+		uint z = 0;
+		fwrite(&z, 1, 1, out);
 	}
 
 	// Write offsets & lengths
