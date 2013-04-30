@@ -4,21 +4,36 @@
 #include "common.h"
 #include "shop.h"
 #include "hud.h"
+#include <keyval.h>
 #include <uidesc.h>
 #include <vfont.h>
 
 static SeasonType current_season = AUTUMN;
+
+static bool sound_enabled;
+static bool music_enabled;
+
+static SprHandle sound_on;
+static SprHandle sound_off;
+static SprHandle music_on;
+static SprHandle music_off;
 
 void level_select_set_season(SeasonType season){
 	current_season = season;
 }
 
 static void level_select_init(void) {
-
+	sound_on = sprsheet_get_handle("sound");
+	sound_off = sprsheet_get_handle("sound_off");
+	music_on = sprsheet_get_handle("music");
+	music_off = sprsheet_get_handle("music_off");
+	sound_enabled = keyval_get_bool("sound", false);
+	music_enabled = keyval_get_bool("music", false);
 }
 
 static void level_select_close(void) {
-
+	keyval_set_bool("sound", sound_enabled);
+	keyval_set_bool("music", music_enabled);
 }
 
 static void level_select_preenter(void){
@@ -51,10 +66,14 @@ static bool level_select_render(float t) {
 	UIElement* element = uidesc_get("level_select");
 
 	UIElement* buttons_pos = uidesc_get_child(element, "buttons_pos");
-	UIElement* button_quit = uidesc_get_child(element, "quit");
+	UIElement* button_sound = uidesc_get_child(element, "button_sound");
+	UIElement* button_music = uidesc_get_child(element, "button_music");	
+
 	SprHandle place_spr;
 	SprHandle button_spr;
-	SprHandle lock_spr;	
+	SprHandle lock_spr;
+	SprHandle sound;
+	SprHandle music;
 
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
@@ -176,12 +195,19 @@ static bool level_select_render(float t) {
 
 	}
 
-	/*
-	// Quit button
-	if(hud_button(button_quit, col, t)) {
-		malka_states_pop();
+	sound = sound_enabled ? sound_on : sound_off;
+	music = music_enabled ? music_on : music_off; 
+
+	// Sound toggle
+	if(hud_button_ex(sound,button_sound->vec2,50.0f,col,t)){
+		sound_enabled = !sound_enabled;
 	}
-	*/
+
+	// Music toggle
+	if(hud_button_ex(music,button_music->vec2,50.0f,col,t)){
+		music_enabled = !music_enabled;
+	}
+
 
 	return true;
 }

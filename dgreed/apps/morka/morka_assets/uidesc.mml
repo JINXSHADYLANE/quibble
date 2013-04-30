@@ -212,15 +212,21 @@
 			)
 		)
 
-		(def quit
-			(spr quit)
+		(def button_sound
 			(add <-
 				(bl <- (get_rect screen))
-				(x vec2 (middle <- (get_rect screen)))
-				(vec2 0,-84)	
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 100,-90)
 			)
 		)		
 
+		(def button_music
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 -100,-90)
+			)
+		)			
 	)
 	(def shop
 

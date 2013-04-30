@@ -345,7 +345,7 @@ static bool shop_render(float t) {
 
 		spr_draw_h(empty,hud_layer,rec1,col20);
 
-		float speed_n = normalize(default_characters[i].speed,0.0f,600.0f);
+		float speed_n = normalize(default_characters[i].speed,400.0f,570.0f);
 		rec1.right = pos.x + bar_size->vec2.x * speed_n,
 
 		spr_draw_h(empty,hud_layer,rec1,col2);		
@@ -367,7 +367,7 @@ static bool shop_render(float t) {
 
 		spr_draw_h(empty,hud_layer,rec2,col20);		
 
-		float jump_n = normalize(default_characters[i].yjump*default_characters[i].xjump,0.0f,50400.0f);
+		float jump_n = normalize(default_characters[i].yjump*default_characters[i].xjump,0.0f,67200.0f);
 		rec2.right = pos.x + bar_size->vec2.x * jump_n,
 
 		spr_draw_h(empty,hud_layer,rec2,col2);	

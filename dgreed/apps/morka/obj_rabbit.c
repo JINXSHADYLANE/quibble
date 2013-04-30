@@ -44,7 +44,11 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 	if(!gravity_only){
 		// Jumping
 		if(d->jumped){
-			result = vec2_add(result, vec2(d->xjump*d->xjump, -d->yjump*d->yjump) );
+			Vector2 jump_force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
+			if(d->on_water){
+				jump_force = vec2_scale(jump_force,0.75f);
+			}
+			result = vec2_add(result,jump_force);
 		}	
 
 		if(d->dived){
@@ -201,9 +205,11 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 
 	// save state
 	float rocket_time = d->rocket_time;
+	bool on_water = d->on_water;
 
 	// modify state for prediction
 	d->rocket_time = 0;
+	d->on_water = false;
 
 	uint iterations = 0;
 
@@ -272,6 +278,7 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 
 	// restore state
 	d->rocket_time = rocket_time;
+	d->on_water = on_water;
 
 	return landing;
 }
@@ -292,6 +299,7 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 	bool kd = d->virtual_key_down;
 	bool kp = d->virtual_key_pressed;
 	float rocket_time = d->rocket_time;
+	bool on_water = d->on_water;
 
 	// modify state for prediction
 	d->jumped = false;
@@ -299,6 +307,7 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 	d->virtual_key_down = false;
 	d->virtual_key_pressed = true;
 	d->rocket_time = 0;
+	d->on_water = false;
 
 	uint iterations = 0;
 
@@ -347,7 +356,8 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 	d->dived = dived;
 	d->virtual_key_down = kd;
 	d->virtual_key_pressed = kp;
-	d->rocket_time = rocket_time;	
+	d->rocket_time = rocket_time;
+	d->on_water = on_water;	
 
 	if(landing.x < p->cd_obj->pos.x) landing.x = p->cd_obj->pos.x;
 
@@ -414,10 +424,13 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					d->jump_off_mushroom = false;
 					d->jump_time = ts;
 					d->jumped = true;
-					Vector2 force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
+					Vector2 jump_force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
+					if(d->on_water){
+						jump_force = vec2_scale(jump_force,0.75f);
+					}
 					anim_play_ex(rabbit->anim, "jump", TIME_S);
 					
-					if(!d->player_control) d->land = _predict_landing(rabbit,force);
+					if(!d->player_control) d->land = _predict_landing(rabbit,jump_force);
 
 					d->combo_counter = 0;
 					
@@ -549,10 +562,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		if(!d->game_over) d->rabbit_time += time_delta() / 1000.0f;
 		
-		d->on_water = false;
-
 		objects_apply_force(self,_rabbit_calculate_forces(self,false));	
 		p->vel = _rabbit_damping(p->vel);
+
+		d->on_water = false;
 
 		if(p->vel.y > 0.0f) d->touching_ground = false;
 
