@@ -3,8 +3,8 @@
 
 #define ASSETS_DIR "morka_assets/"
 #define SCRIPTS_DIR "morka_scripts/"
-extern uint v_width;
-extern uint v_height;
+extern float v_width;
+extern float v_height;
 
 //#ifndef __APPLE__
 	#define FONT_NAME ASSETS_DIR "Chango-Regular.ttf"
