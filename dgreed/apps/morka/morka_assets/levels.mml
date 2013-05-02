@@ -188,7 +188,7 @@
 			)
 			(max_combo 12
 				(speed 520)
-				(xjump 100)
+				(xjump 120)
 				(yjump 420)
 			)
 		)
@@ -223,20 +223,20 @@
 		(season autumn)
 		(distance 330)
 		(rabbits _
-			(max_combo 11
+			(max_combo 4
 				(speed 500)
-				(xjump 110)
+				(xjump 100)
+				(yjump 450)
+			)
+			(max_combo 8
+				(speed 500)
+				(xjump 100)
 				(yjump 400)
 			)
-			(max_combo 6
-				(speed 495)
-				(xjump 105)
-				(yjump 410)
-			)
-			(max_combo 4
-				(speed 450)
-				(xjump 105)
-				(yjump 415)
+			(max_combo 12
+				(speed 520)
+				(xjump 120)
+				(yjump 420)
 			)
 		)
 		(powerups _
@@ -270,20 +270,20 @@
 		(season autumn)
 		(distance 345)
 		(rabbits _
-			(max_combo 20
-				(speed 900)
-				(xjump 250)
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
 				(yjump 450)
 			)
-			(max_combo 15
+			(max_combo 8
 				(speed 500)
 				(xjump 100)
 				(yjump 400)
 			)
-			(max_combo 10
+			(max_combo 12
 				(speed 520)
-				(xjump 105)
-				(yjump 400)
+				(xjump 120)
+				(yjump 420)
 			)
 		)
 		(powerups _
@@ -317,20 +317,20 @@
 		(season autumn)
 		(distance 385)
 		(rabbits _
-			(max_combo 30
-				(speed 510)
-				(xjump 110)
-				(yjump 410)
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
+				(yjump 450)
 			)
-			(max_combo 15
+			(max_combo 8
 				(speed 500)
 				(xjump 100)
 				(yjump 400)
 			)
-			(max_combo 7
-				(speed 500)
-				(xjump 115)
-				(yjump 415)
+			(max_combo 12
+				(speed 520)
+				(xjump 120)
+				(yjump 420)
 			)
 		)
 		(powerups _
@@ -364,20 +364,20 @@
 		(season autumn)
 		(distance 300)
 		(rabbits _
-			(max_combo 30
-				(speed 510)
-				(xjump 110)
-				(yjump 410)
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
+				(yjump 450)
 			)
-			(max_combo 30
+			(max_combo 8
 				(speed 500)
 				(xjump 100)
 				(yjump 400)
 			)
-			(max_combo 30
-				(speed 500)
-				(xjump 115)
-				(yjump 415)
+			(max_combo 12
+				(speed 520)
+				(xjump 120)
+				(yjump 420)
 			)
 		)
 		(powerups _
@@ -410,6 +410,10 @@
 	(level level12
 		(season autumn)
 		(distance 300)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level11_fg)
+		(ground_chain level11_ground)
 		(rabbits _
 			(max_combo 30
 				(speed 510)
@@ -449,100 +453,247 @@
 				(xmax 1.0)
 			)		
 		)		
-		(background background)
-		(bg_chain bg)
-		(fg_chain level11_fg)
-		(ground_chain level11_ground)
 	)
 	(level level13
 		(season autumn)
-		(distance 300)
-		(rabbits _
-			(max_combo 30
-				(speed 510)
-				(xjump 110)
-				(yjump 410)
-			)
-		)
+		(distance 100)
 		(background background)
 		(bg_chain bg)
-		(fg_chain level11_fg)
-		(ground_chain level11_ground)
+		(fg_chain level13_fg)
+		(ground_chain onlywater_ground)
+		(rabbits _
+			(max_combo 30
+				(speed 500)
+				(xjump 120)
+				(yjump 450)
+			)
+			(max_combo 30
+				(speed 600)
+				(xjump 140)
+				(yjump 430)
+			)
+			(max_combo 30
+				(speed 520)
+				(xjump 110)
+				(yjump 500)
+			)
+		)	
 	)
 	(level level14
 		(season autumn)
-		(distance 300)
+		(distance 10)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level15_fg)
+		(ground_chain level15_ground)
 		(rabbits _
 			(max_combo 30
 				(speed 510)
 				(xjump 110)
 				(yjump 410)
 			)
+			(max_combo 20
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 10
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
 		)
-		(background background)
-		(bg_chain bg)
-		(fg_chain level11_fg)
-		(ground_chain level11_ground)
+		(powerups _
+			(rocket _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)	
+	
 	)
 	(level level15
 		(season autumn)
-		(distance 300)
+		(distance 200)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level16_fg)
+		(ground_chain level16_ground)
 		(rabbits _
-			(max_combo 30
+			(max_combo 25
 				(speed 510)
 				(xjump 110)
 				(yjump 410)
 			)
+			(max_combo 15
+				(speed 600)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 10
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
 		)
-		(background background)
-		(bg_chain bg)
-		(fg_chain level11_fg)
-		(ground_chain level11_ground)
+		(powerups _
+			(trampoline _
+				(num 30)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 20)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)
 	)
 	(level level16
 		(season autumn)
-		(distance 300)
+		(distance 150)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level10_fg)
+		(ground_chain water_ground)
 		(rabbits _
 			(max_combo 30
 				(speed 510)
 				(xjump 110)
 				(yjump 410)
 			)
+			(max_combo 20
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 10
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
 		)
-		(background background)
-		(bg_chain bg)
-		(fg_chain level11_fg)
-		(ground_chain level11_ground)
+		(powerups _
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 10)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)	
 	)
 	(level level17
 		(season autumn)
 		(distance 300)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level16_fg)
+		(ground_chain level17_ground)
 		(rabbits _
-			(max_combo 30
+			(max_combo 25
 				(speed 510)
 				(xjump 110)
 				(yjump 410)
 			)
+			(max_combo 15
+				(speed 600)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 10
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
 		)
-		(background background)
-		(bg_chain bg)
-		(fg_chain level11_fg)
-		(ground_chain level11_ground)
+		(powerups _
+			(trampoline _
+				(num 10)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 10)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)
 	)
 	(level level18
 		(season autumn)
-		(distance 300)
+		(distance 700)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level18_fg)
+		(ground_chain level18_ground)
 		(rabbits _
-			(max_combo 30
+			(max_combo 25
 				(speed 510)
 				(xjump 110)
 				(yjump 410)
 			)
+			(max_combo 15
+				(speed 600)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 10
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
 		)
-		(background background)
-		(bg_chain bg)
-		(fg_chain level11_fg)
-		(ground_chain level11_ground)
+		(powerups _
+			(trampoline _
+				(num 30)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 20)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)		
 	)
 	(level level21
 		(season winter)
