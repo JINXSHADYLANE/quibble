@@ -216,7 +216,7 @@
 			(add <-
 				(bl <- (get_rect screen))
 				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 100,-90)
+				(vec2 -100,-120)
 			)
 		)		
 
@@ -224,7 +224,7 @@
 			(add <-
 				(bl <- (get_rect screen))
 				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 -100,-90)
+				(vec2 100,-120)
 			)
 		)			
 	)
@@ -355,31 +355,25 @@
 				(vec2 100,30)
 			)
 		)
-		(def name
-			(add <-
-				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 0,100)
-			)
-		)
-		(def icon
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,-70)
-			)
-		)
-		(def cost
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,120)
-			)
-		)	
 
-		(def button_buy
-			(spr buy)
+		(def buy_1
 			(add <-
-				(bl <- (get_rect screen))
-				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 100,-150)
+				(middle <- (get_rect screen))
+				(vec2 0,-200)
+			)
+		)
+
+		(def buy_2
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-100)
+			)
+		)
+
+		(def buy_3
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,0)
 			)
 		)
 
@@ -388,9 +382,9 @@
 			(add <-
 				(bl <- (get_rect screen))
 				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 -100,-150)
+				(vec2 0,-90)
 			)
-		)	
+		)
 	)
 	(def item_unlock
 
