@@ -8,8 +8,6 @@
 #include <uidesc.h>
 #include <vfont.h>
 
-static SeasonType current_season = AUTUMN;
-
 static bool sound_enabled;
 static bool music_enabled;
 
@@ -17,10 +15,6 @@ static SprHandle sound_on;
 static SprHandle sound_off;
 static SprHandle music_on;
 static SprHandle music_off;
-
-void level_select_set_season(SeasonType season){
-	current_season = season;
-}
 
 static void level_select_init(void) {
 	sound_on = sprsheet_get_handle("sound");
@@ -34,15 +28,6 @@ static void level_select_init(void) {
 static void level_select_close(void) {
 	keyval_set_bool("sound", sound_enabled);
 	keyval_set_bool("music", music_enabled);
-}
-
-static void level_select_preenter(void){
-	if(levels_current_desc() && levels_current_desc()->season != current_season){
-		int offset = levels_start_of_season(current_season);
-		LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,offset);		
-		levels_reset(desc->name);
-		game_force_reset();		
-	}	
 }
 
 static void level_select_enter(void) {
@@ -81,20 +66,10 @@ static bool level_select_render(float t) {
 
 	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
-	int level_count = levels_count(current_season);
-	int offset = levels_start_of_season(current_season);
+	int level_count = levels_count();
 
-	switch(current_season){
-		case WINTER:
-			button_spr = sprsheet_get_handle("ball_winter");
-			lock_spr = sprsheet_get_handle("lock_winter");
-		break;
-
-		default:
-			button_spr = sprsheet_get_handle("ball_autumn");
-			lock_spr = sprsheet_get_handle("lock_autumn");
-		break;
-	}
+	button_spr = sprsheet_get_handle("ball_autumn");
+	lock_spr = sprsheet_get_handle("lock_autumn");
 
 	Vector2 size = sprsheet_get_size_h(button_spr);
 	uint columns = 6;
@@ -111,17 +86,18 @@ static bool level_select_render(float t) {
 	pos.x -= ( size.x * (columns-1) +  (spacing.x * (columns-1) ) ) / 2.0f; 
 	pos.y -= ( size.y * (rows-1) +  (spacing.y * (rows-1) ) ) / 2.0f;
 
-	for(int i = offset; i < offset + level_count;i++){
+	for(int i = 0; i < level_count; i++) {
 
 		LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,i);
 
 		// Draw level icon
 		spr_draw_cntr_h(button_spr, hud_layer, pos, 0.0f, 1.0f, col);
 
-		if(!level_is_unlocked(i)){
+		if(!level_is_unlocked(i)) {
 			// Draw lock
 			spr_draw_cntr_h(lock_spr, hud_layer, pos, 0.0f, 1.0f, col);			
-		} else {
+		} 
+		else {
 
 			uint place = levels_get_place(i);
 			char place_txt[16];
@@ -157,7 +133,7 @@ static bool level_select_render(float t) {
 					place_spr = empty_spr;
 				break;						
 			}
-			if(place_spr != empty_spr){
+			if(place_spr != empty_spr) {
 
 				Vector2 ribbon_pos = vec2_add(pos,vec2(0.0f,40.0f));
 
@@ -179,7 +155,7 @@ static bool level_select_render(float t) {
 			vfont_select(FONT_NAME, 48.0f);
 			// Draw number
 			char n[4];
-			sprintf(n, "%d",i-offset+1);
+			sprintf(n, "%d",i+1);
 			Vector2 half_size = vec2_scale(vfont_size(n), 0.5f);
 			vfont_draw(n, hud_layer+1, vec2_sub(pos,half_size), col);
 		}
@@ -216,7 +192,7 @@ StateDesc level_select_state = {
 	.init = level_select_init,
 	.close = level_select_close,
 	.enter = level_select_enter,
-	.preenter = level_select_preenter,
+	.preenter = NULL,
 	.leave = level_select_leave,
 	.update = level_select_update,
 	.render = level_select_render

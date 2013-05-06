@@ -582,38 +582,32 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 			if(d->respawn > 0.0f && TIME_S > d->respawn){
 
-				if(levels_current_desc()->season == AUTUMN){
-					// Find next ground tile
-					Vector2 start = vec2(p->cd_obj->pos.x,v_height - 10.0f);
-					Vector2 end = vec2_add(start,vec2(v_width,0.0f));
+				// Find next ground tile
+				Vector2 start = vec2(p->cd_obj->pos.x,v_height - 10.0f);
+				Vector2 end = vec2_add(start,vec2(v_width,0.0f));
 
-					Vector2 hitpoint;
-					CDObj* cdobj = coldet_cast_segment(
-						objects_cdworld, start, end, OBJ_GROUND_TYPE & ~collision_flag, &hitpoint
-					);
+				Vector2 hitpoint;
+				CDObj* cdobj = coldet_cast_segment(
+					objects_cdworld, start, end, OBJ_GROUND_TYPE & ~collision_flag, &hitpoint
+				);
 
-					GameObject* obj = NULL;
+				GameObject* obj = NULL;
 
-					if(cdobj)
-						obj = (GameObject*)cdobj->userdata;
+				if(cdobj)
+					obj = (GameObject*)cdobj->userdata;
 
-					assert(obj);
+				assert(obj);
 
-					// Jump the rabbit out of the gap
-					p->cd_obj->pos.x = obj->physics->cd_obj->pos.x - rabbit_hitbox_width*2.0f;
-					p->cd_obj->pos.y = v_height;
-					p->cd_obj->dirty = true;
+				// Jump the rabbit out of the gap
+				p->cd_obj->pos.x = obj->physics->cd_obj->pos.x - rabbit_hitbox_width*2.0f;
+				p->cd_obj->pos.y = v_height;
+				p->cd_obj->dirty = true;
 
-					objects_apply_force(self, 
-						vec2(11500.0f, -200000.0f)
-					);
-					anim_play_ex(rabbit->anim, "jump", TIME_S);
-					d->jump_out = true;	
-
-				} else {
-					p->cd_obj->pos.y = 0.0f;
-					p->cd_obj->dirty = true;				
-				}
+				objects_apply_force(self, 
+					vec2(11500.0f, -200000.0f)
+				);
+				anim_play_ex(rabbit->anim, "jump", TIME_S);
+				d->jump_out = true;	
 
 			} else if(d->respawn == 0.0f) {
 				// time to spend in gap

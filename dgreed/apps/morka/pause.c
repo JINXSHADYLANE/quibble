@@ -23,10 +23,6 @@ static void pause_leave(void) {
 	shop_reset();
 }
 
-static void pause_postleave(void) {
-	level_select_set_season(levels_current_desc()->season);
-}
-
 static bool pause_update(void) {
 	return true;
 }
@@ -42,7 +38,7 @@ StateDesc pause_state = {
 	.enter = pause_enter,
 	.preenter = pause_preenter,
 	.leave = pause_leave,
-	.postleave = pause_postleave,
+	.postleave = NULL,
 	.update = pause_update,
 	.render = pause_render
 };

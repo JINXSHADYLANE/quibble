@@ -50,7 +50,7 @@ static void game_reset(void) {
 
 	uint ai_num = 0;
 
-	for(int i = 0; i < character_count; i++){
+	for(int i = 0; i < character_count; i++) {
 		CharacterParams* cp = &character_params[i];
 
 		cp->sprite = sprsheet_get_handle(default_characters[i].spr_handle);
@@ -60,7 +60,8 @@ static void game_reset(void) {
 		cp->shield_offset = default_characters[i].shield_offset;
 		cp->shield_scale = default_characters[i].shield_scale;
 
-		if(i == selected_char){
+		if(i == selected_char) {
+
 			// Player character
 			Vector2 pos = vec2(512.0f, v_height-128.0f);
 
@@ -76,22 +77,13 @@ static void game_reset(void) {
 
 			minimap_track(player);
 			tutorials_reset(player);
-		} else if(ai_num < lvl_desc->ai_rabbit_num) {
+		}
+		else if(ai_num < lvl_desc->ai_rabbit_num) {
+
 			// AI character
 			Vector2 pos = vec2(640.0f+128.0f*ai_num,v_height-128.0f);
-
 			cp->name = default_characters[i].name;
-
-			switch(lvl_desc->season){
-				case AUTUMN: cp->control = ai_control_autumn;
-				break;
-				case WINTER: cp->control = ai_control_winter;
-				break;
-				case SPRING: cp->control = ai_control_spring;
-				break;
-				case SUMMER: cp->control = ai_control_summer;
-				break;
-			}
+			cp->control = ai_control_autumn;
 			cp->ai_max_combo = lvl_desc->ai_max_combo[ai_num];
 			cp->speed = lvl_desc->ai_rabbit_speeds[ai_num];
 			cp->xjump = lvl_desc->ai_rabbit_xjumps[ai_num];

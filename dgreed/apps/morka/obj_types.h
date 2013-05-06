@@ -173,14 +173,6 @@ typedef struct {
 
 extern GameObjectDesc obj_fg_deco_desc;
 
-// Tree trunk
-
-typedef struct {
-	GameObject header;
-} ObjTrunk;
-
-extern GameObjectDesc obj_trunk_desc;
-
 // Mushroom
 
 typedef struct {
@@ -281,32 +273,5 @@ typedef struct {
 } ObjEraser;
 
 extern GameObjectDesc obj_eraser_desc;
-
-// Branch
-
-typedef struct {
-	GameObject header;
-	float oh, h, dh;
-} ObjBranch;
-
-extern GameObjectDesc obj_branch_desc;
-
-// Spike Branch
-
-typedef struct {
-	GameObject header;
-	float oh, h, dh;
-} ObjSpikeBranch;
-
-extern GameObjectDesc obj_spike_branch_desc;
-
-// Spring Branch
-
-typedef struct {
-	GameObject header;
-	float oh, h, dh;
-} ObjSpringBranch;
-
-extern GameObjectDesc obj_spring_branch_desc;
 
 #endif

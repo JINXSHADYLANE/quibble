@@ -11,7 +11,6 @@
 
 #include <time.h>
 
-#include "season_select.h"
 #include "level_select.h"
 #include "game.h"
 #include "pause.h"
@@ -80,7 +79,6 @@ bool dgreed_init(int argc, const char** argv) {
 	malka_states_register("level_select", &level_select_state);
 	malka_states_register("pause", &pause_state);
 	malka_states_register("game_over", &game_over_state);
-	malka_states_register("season_select", &season_select_state);
 	malka_states_register("shop", &shop_state);
 	malka_states_register("in_app", &in_app_state);
 	malka_states_register("item_unlock", &item_unlock_state);	

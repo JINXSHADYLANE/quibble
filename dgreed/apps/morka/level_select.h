@@ -7,6 +7,4 @@
 
 extern StateDesc level_select_state;
 
-void level_select_set_season(SeasonType season);
-
 #endif

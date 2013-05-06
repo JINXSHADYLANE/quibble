@@ -47,10 +47,6 @@ static void game_over_leave(void) {
 	shop_reset();
 }
 
-static void game_over_postleave(void) {
-	level_select_set_season(levels_current_desc()->season);
-}
-
 static bool game_over_update(void) {
 	game_update_empty();
 	minimap_update_places();	
@@ -87,7 +83,7 @@ StateDesc game_over_state = {
 	.enter = game_over_enter,
 	.preenter = game_over_preenter,
 	.leave = game_over_leave,
-	.postleave = game_over_postleave,
+	.postleave = NULL,
 	.update = game_over_update,
 	.render = game_over_render
 };
