@@ -12,24 +12,8 @@ static int level_num = 0;
 static LevelDesc* current_level = NULL;
 static MMLObject mml;
 
-uint levels_start_of_season(SeasonType type){
-	uint start = 0;
-	for(uint i = 0; i < levels_descs.size;i++){
-		LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,i);
-		if(desc->season == type) return i;	
-	}	
-	return start;
-}
-
-uint levels_count(SeasonType type){
-	uint count = 0;
-	for(uint i = 0; i < levels_descs.size;i++){
-		LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,i);
-		if(desc->season == type){
-			count++;
-		}	
-	}
-	return count;
+uint levels_count(void){
+	return levels_descs.size;
 }
 
 uint levels_get_powerup_count(void){
@@ -78,17 +62,6 @@ void levels_init(const char* filename){
 
  			if(strcmp(type, "distance") == 0) {
 				new.distance = mml_getval_int(&mml, child);
-			}
-			else if(strcmp(type, "season") == 0) {
-				const char* season = mml_getval_str(&mml, child);
-				if(strcmp(season, "autumn") == 0)
-					new.season = AUTUMN;
-				else if(strcmp(season, "winter") == 0)
-					new.season = WINTER;
-				else if(strcmp(season, "spring") == 0)
-					new.season = SPRING;
-				else if(strcmp(season, "summer") == 0)
-					new.season = SUMMER;
 			}
 			else if(strcmp(type, "rabbits") == 0) {
 

@@ -34,15 +34,7 @@
 )
 */
 
-typedef enum{
-	AUTUMN = 0,
-	WINTER,
-	SPRING,
-	SUMMER
-} SeasonType;
-
 typedef struct {
-	SeasonType season;
 	const char* name;
 	int distance;
 	SprHandle background;
@@ -74,8 +66,7 @@ bool levels_is_final(void);
 
 uint levels_get_powerup_count(void);
 
-uint levels_start_of_season(SeasonType type);
-uint levels_count(SeasonType type);
+uint levels_count(void);
 
 bool levels_next_unlocked(void);
 bool level_is_unlocked(uint i);

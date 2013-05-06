@@ -57,15 +57,3 @@ GameObjectDesc obj_fg_deco_desc = {
 	.destruct = NULL
 };
 
-GameObjectDesc obj_trunk_desc = {
-	.type = OBJ_TRUNK_TYPE,
-	.size = sizeof(ObjTrunk),
-	.has_physics = false,
-	.has_render = true,
-	.has_update = false,
-	.construct = obj_deco_construct,
-	.destruct = NULL
-};
-
-
-

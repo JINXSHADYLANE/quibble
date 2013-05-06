@@ -21,22 +21,6 @@ static RectF in_front_and_below(GameObject* obj){
 	return rec;
 }
 
-static RectF in_front_and_below2(GameObject* obj){
-	PhysicsComponent* p = obj->physics;
-
-	Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-	pos.x += 80.0f + (p->vel.x * 0.2f);
-
-	RectF rec = {
-		.left = pos.x + 70.0f,
-		.top = pos.y ,
-		.right = pos.x + 70.0f,
-		.bottom = v_height
-	};
-
-	return rec;
-}
-
 static RectF below(GameObject* obj){
 	ObjRabbit* rabbit = (ObjRabbit*)obj;
 	ObjRabbitData* d = rabbit->data;
@@ -208,54 +192,3 @@ void ai_control_autumn(GameObject* obj){
 	manage_keys(obj,input);
 }
 
-void ai_control_winter(GameObject* obj){
-	ObjRabbit* rabbit = (ObjRabbit*)obj;
-	ObjRabbitData* d = rabbit->data;
-
-	bool input = false;
-	use_powerups(obj);
-	if(d->touching_ground){
-
-		if(d->on_water && !d->has_powerup[SHIELD]){
-			input = true;
-			//printf("	water\n");
-		}
-
-		if( there_is( OBJ_BRANCH_TYPE | OBJ_SPRING_BRANCH_TYPE, in_front_of(obj) ) ){
-			//printf("	branch/mushroom in front\n");
-			input = true;
-		}	
-
-		if( there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below(obj)) &&
-			there_is( OBJ_FALL_TRIGGER_TYPE, in_front_and_below2(obj))
-		  ){
-			//printf("	gap in front\n");
-			input = true;
-		}
-
-	} else {
-
-		if( there_is( OBJ_FALL_TRIGGER_TYPE, in_landing_location(obj) ) ){ 
-			input = true;
-		}
-
-		if( there_is( OBJ_SPRING_BRANCH_TYPE, below(obj) ) && d->combo_counter < d->ai_max_combo ){ 
-			input = true;
-			//printf("	spring branch below\n" );
-		}
-
-		if( there_is( OBJ_FALL_TRIGGER_TYPE, below(obj) ) ){ 
-			input = false;
-			//printf("	unsafe to land, blocking input.\n");
-		}
-	}
-	manage_keys(obj,input);
-}
-
-void ai_control_spring(GameObject* obj){
-	// placeholder
-}
-
-void ai_control_summer(GameObject* obj){
-	// placeholder
-}

@@ -1,6 +1,5 @@
 (levels morka
 	(level level1
-		(season autumn)
 		(distance 0)
 		(background background)
 		(bg_chain bg)
@@ -8,7 +7,6 @@
 		(ground_chain grass_ground)
 	)
 	(level level2
-		(season autumn)
 		(distance 100)
 		(rabbits _
 			(max_combo 2
@@ -25,7 +23,6 @@
 		(ground_chain grass_ground)
 	)
 	(level level3
-		(season autumn)
 		(distance 150)
 		(rabbits _
 			(max_combo 5
@@ -52,7 +49,6 @@
 		(ground_chain grass_ground)
 	)
 	(level level4
-		(season autumn)
 		(distance 235)
 		(rabbits _
 			(max_combo 4
@@ -89,7 +85,6 @@
 		(ground_chain water_ground)
 	)
 	(level level5
-		(season autumn)
 		(distance 200)
 		(rabbits _
 			(max_combo 4
@@ -131,7 +126,6 @@
 		(ground_chain grass_ground)
 	)
 	(level level6
-		(season autumn)
 		(distance 250)
 		(rabbits _
 			(max_combo 4
@@ -173,7 +167,6 @@
 		(ground_chain water_ground)
 	)
 	(level level7
-		(season autumn)
 		(distance 300)
 		(rabbits _
 			(max_combo 4
@@ -220,7 +213,6 @@
 		(ground_chain level7_ground)
 	)
 	(level level8
-		(season autumn)
 		(distance 330)
 		(rabbits _
 			(max_combo 4
@@ -267,7 +259,6 @@
 		(ground_chain level8_ground)
 	)
 	(level level9
-		(season autumn)
 		(distance 345)
 		(rabbits _
 			(max_combo 4
@@ -314,7 +305,6 @@
 		(ground_chain level9_ground)
 	)
 	(level level10
-		(season autumn)
 		(distance 385)
 		(rabbits _
 			(max_combo 4
@@ -361,7 +351,6 @@
 		(ground_chain level10_ground)
 	)
 	(level level11
-		(season autumn)
 		(distance 300)
 		(rabbits _
 			(max_combo 4
@@ -408,7 +397,6 @@
 		(ground_chain level11_ground)
 	)
 	(level level12
-		(season autumn)
 		(distance 300)
 		(background background)
 		(bg_chain bg)
@@ -455,7 +443,6 @@
 		)		
 	)
 	(level level13
-		(season autumn)
 		(distance 100)
 		(background background)
 		(bg_chain bg)
@@ -480,7 +467,6 @@
 		)	
 	)
 	(level level14
-		(season autumn)
 		(distance 10)
 		(background background)
 		(bg_chain bg)
@@ -513,7 +499,6 @@
 	
 	)
 	(level level15
-		(season autumn)
 		(distance 200)
 		(background background)
 		(bg_chain bg)
@@ -560,7 +545,6 @@
 		)
 	)
 	(level level16
-		(season autumn)
 		(distance 150)
 		(background background)
 		(bg_chain bg)
@@ -602,7 +586,6 @@
 		)	
 	)
 	(level level17
-		(season autumn)
 		(distance 300)
 		(background background)
 		(bg_chain bg)
@@ -649,7 +632,6 @@
 		)
 	)
 	(level level18
-		(season autumn)
 		(distance 700)
 		(background background)
 		(bg_chain bg)
@@ -695,20 +677,4 @@
 			)		
 		)		
 	)
-	(level level21
-		(season winter)
-		(distance 85)
-		(rabbits _
-			(max_combo 2
-				(speed 459)
-				(xjump 100)
-				(yjump 450)
-			)
-		)		
-		(background background2)
-		(bg_chain bg_winter)
-		(fg_chain level21_fg)
-		(ground_chain level21_ground)
-		(tree_chain tree)
-	)	
 )
