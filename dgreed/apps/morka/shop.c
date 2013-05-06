@@ -336,7 +336,7 @@ static bool shop_render(float t) {
 		// Play button
 		if(hud_button(button_play, col, t)) {
 			game_request_reset();
-			malka_states_push("game");
+			malka_states_push("fadeout");
 		}
 	} else {
 		// Buy button

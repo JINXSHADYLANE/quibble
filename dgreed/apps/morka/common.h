@@ -24,5 +24,6 @@ extern float v_height;
 #define ground_layer 10
 #define particle_layer 11 // needs to be changed in particles.mml
 #define hud_layer 12
+#define fadeout_layer 13
 
 #endif

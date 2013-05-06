@@ -139,10 +139,12 @@ static void game_init(void) {
 
 static void game_enter(void) {
 	game_paused = tutorials_paused();
-	if(game_need_reset) game_reset();		
 }
 
 static void game_preenter(void) {
+	if(game_need_reset) {
+		game_reset();		
+	}
 }
 
 static void game_postleave(void) {

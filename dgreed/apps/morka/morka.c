@@ -18,6 +18,7 @@
 #include "shop.h"
 #include "in_app.h"
 #include "item_unlock.h"
+#include "fadeout.h"
 
 #include "mchains.h"
 #include "devmode.h"
@@ -82,6 +83,7 @@ bool dgreed_init(int argc, const char** argv) {
 	malka_states_register("shop", &shop_state);
 	malka_states_register("in_app", &in_app_state);
 	malka_states_register("item_unlock", &item_unlock_state);	
+	malka_states_register("fadeout", &fadeout_state);
 
 	malka_states_set_transition_len(0.5f);
 
