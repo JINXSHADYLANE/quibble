@@ -293,7 +293,12 @@ Vector2 mouse_vec(void) {
 static uint touch_count = 0;
 static Touch touches[max_touches];
 
+extern float screen_widthf, screen_heightf;
+extern float x_touch_factor, y_touch_factor;
+
 void _touch_down(float x, float y) {
+    x *= x_touch_factor;
+    y *= y_touch_factor;
 	if(touch_count < max_touches) {
 		uint i = touch_count;
 		touches[i].hit_time = time_ms() / 1000.0f;
@@ -306,6 +311,10 @@ void _touch_down(float x, float y) {
 void _touch_move(float old_x, float old_y, float new_x, float new_y) {
 	if(!touch_count)
 		return;
+    new_x *= x_touch_factor;
+    new_y *= y_touch_factor;
+    old_x *= x_touch_factor;
+    old_y *= y_touch_factor;
     uint count = touch_count;
 	float min_d = 10000.0f;
 	uint min_i = 0;
@@ -324,6 +333,8 @@ void _touch_move(float old_x, float old_y, float new_x, float new_y) {
 void _touch_up(float old_x, float old_y) {
 	if(!touch_count)
 		return;
+    old_x *= x_touch_factor;
+    old_y *= y_touch_factor;
 	uint count = touch_count;
 	float min_d = 10000.0f;
 	uint min_i = 0;
