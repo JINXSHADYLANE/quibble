@@ -37,6 +37,7 @@ bool dgreed_init(int argc, const char** argv) {
 
 	const char* sprsheet = ASSETS_DIR "spritesheet.mml";
     
+#if !defined(TARGET_IOS) && !defined(ANDROID)
     uint r = params_find("-r");
     if(r != ~0 && params_count() > r+1){
 		sscanf(params_get(r+1), "%fx%f", &v_width, &v_height);
@@ -48,6 +49,12 @@ bool dgreed_init(int argc, const char** argv) {
 
 	   	assert(v_width >= 480 && v_height >= 320 && v_width <= 2560 && v_height <= 1600);
     }
+#else
+	uint w, h;
+	video_get_native_resolution(&w, &h);
+	v_width = w;
+	v_height = h;
+#endif
 
     if(v_width > 1280.0f || v_height > 800.0f)
     	sprsheet = ASSETS_DIR "r_spritesheet.mml";

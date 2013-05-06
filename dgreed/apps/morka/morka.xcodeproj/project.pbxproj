@@ -153,11 +153,11 @@
 		21A6F7F216D7D860004A22D9 /* devmode.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7F016D7D860004A22D9 /* devmode.c */; };
 		21D53BA6167A23F0009E6CFC /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA4167A23F0009E6CFC /* vfont.c */; };
 		21ED799A16A54CBB002CA25B /* sys_gfx_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 21ED799916A54CBB002CA25B /* sys_gfx_ios.m */; };
+		21F440AE1737CD8400599B81 /* fadeout.c in Sources */ = {isa = PBXBuildFile; fileRef = 21F440AB1737CD8400599B81 /* fadeout.c */; };
 		AA0CF244172EAC4E00A01A42 /* item_unlock.c in Sources */ = {isa = PBXBuildFile; fileRef = AA0CF242172EAC4E00A01A42 /* item_unlock.c */; };
 		AA0E3F1416BFDFA200A47FFB /* levels.c in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3F1016BFDFA200A47FFB /* levels.c */; };
 		AA0E3F1516BFDFA200A47FFB /* minimap.c in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3F1216BFDFA200A47FFB /* minimap.c */; };
 		AA25266916D25F1B003BD743 /* obj_trampoline.c in Sources */ = {isa = PBXBuildFile; fileRef = AA25266816D25F1B003BD743 /* obj_trampoline.c */; };
-		AA30D23116FFA54E009E1AF3 /* season_select.c in Sources */ = {isa = PBXBuildFile; fileRef = AA30D22F16FFA54E009E1AF3 /* season_select.c */; };
 		AA41F55416B93462000D077C /* obj_particle_anchor.c in Sources */ = {isa = PBXBuildFile; fileRef = AA41F55316B93462000D077C /* obj_particle_anchor.c */; };
 		AA64162016D7B7E70066AEA8 /* obj_floater.c in Sources */ = {isa = PBXBuildFile; fileRef = AA64161F16D7B7E70066AEA8 /* obj_floater.c */; };
 		AA7188C81703494900687C50 /* shop.c in Sources */ = {isa = PBXBuildFile; fileRef = AA7188C61703494900687C50 /* shop.c */; };
@@ -165,13 +165,10 @@
 		AA7B4FF916DF5153003CCF1E /* obj_powerup.c in Sources */ = {isa = PBXBuildFile; fileRef = AA7B4FF816DF5153003CCF1E /* obj_powerup.c */; };
 		AA8213B4169DA89200A7EBA8 /* icon~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B3169DA89200A7EBA8 /* icon~ipad.png */; };
 		AA8213B7169DA89500A7EBA8 /* icon@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */; };
-		AA8289391700AD5F00F80966 /* obj_spike_branch.c in Sources */ = {isa = PBXBuildFile; fileRef = AA8289371700AD5F00F80966 /* obj_spike_branch.c */; };
-		AA82893A1700AD5F00F80966 /* obj_spring_branch.c in Sources */ = {isa = PBXBuildFile; fileRef = AA8289381700AD5F00F80966 /* obj_spring_branch.c */; };
 		AA8AFB401712FD260092DBF4 /* characters.c in Sources */ = {isa = PBXBuildFile; fileRef = AA8AFB3E1712FD260092DBF4 /* characters.c */; };
 		AAA8AD4B16B28C1700C6D752 /* lua_utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4A16B28C1700C6D752 /* lua_utf8.c */; };
 		AAA8AD4F16B2CBB600C6D752 /* obj_fall_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */; };
 		AAA8AD5016B2CBB600C6D752 /* obj_speed_trigger.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */; };
-		AAAC22E716FB467D00FBD316 /* obj_branch.c in Sources */ = {isa = PBXBuildFile; fileRef = AAAC22E616FB467D00FBD316 /* obj_branch.c */; };
 		AAC85EF716CE916500721CE8 /* obj_cactus.c in Sources */ = {isa = PBXBuildFile; fileRef = AAC85EF616CE916500721CE8 /* obj_cactus.c */; };
 		AAD3D88016F76E37000657F9 /* obj_bomb.c in Sources */ = {isa = PBXBuildFile; fileRef = AAD3D87E16F76E37000657F9 /* obj_bomb.c */; };
 		AAD3D88116F76E37000657F9 /* obj_eraser.c in Sources */ = {isa = PBXBuildFile; fileRef = AAD3D87F16F76E37000657F9 /* obj_eraser.c */; };
@@ -427,6 +424,8 @@
 		21A6F7F116D7D860004A22D9 /* devmode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devmode.h; sourceTree = SOURCE_ROOT; };
 		21D53BA4167A23F0009E6CFC /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../src/vfont.c; sourceTree = "<group>"; };
 		21ED799916A54CBB002CA25B /* sys_gfx_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sys_gfx_ios.m; path = ../../src/sys_gfx_ios.m; sourceTree = "<group>"; };
+		21F440AB1737CD8400599B81 /* fadeout.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fadeout.c; sourceTree = SOURCE_ROOT; };
+		21F440AC1737CD8400599B81 /* fadeout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fadeout.h; sourceTree = SOURCE_ROOT; };
 		AA0CF242172EAC4E00A01A42 /* item_unlock.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = item_unlock.c; sourceTree = SOURCE_ROOT; };
 		AA0CF243172EAC4E00A01A42 /* item_unlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = item_unlock.h; sourceTree = SOURCE_ROOT; };
 		AA0E3F1016BFDFA200A47FFB /* levels.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = levels.c; path = ../levels.c; sourceTree = "<group>"; };
@@ -434,8 +433,6 @@
 		AA0E3F1216BFDFA200A47FFB /* minimap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minimap.c; path = ../minimap.c; sourceTree = "<group>"; };
 		AA0E3F1316BFDFA200A47FFB /* minimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minimap.h; path = ../minimap.h; sourceTree = "<group>"; };
 		AA25266816D25F1B003BD743 /* obj_trampoline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_trampoline.c; path = ../obj_trampoline.c; sourceTree = "<group>"; };
-		AA30D22F16FFA54E009E1AF3 /* season_select.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = season_select.c; sourceTree = SOURCE_ROOT; };
-		AA30D23016FFA54E009E1AF3 /* season_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = season_select.h; sourceTree = SOURCE_ROOT; };
 		AA41F55316B93462000D077C /* obj_particle_anchor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_particle_anchor.c; path = ../obj_particle_anchor.c; sourceTree = "<group>"; };
 		AA64161F16D7B7E70066AEA8 /* obj_floater.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_floater.c; sourceTree = SOURCE_ROOT; };
 		AA7188C61703494900687C50 /* shop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shop.c; sourceTree = SOURCE_ROOT; };
@@ -445,14 +442,11 @@
 		AA7B4FF816DF5153003CCF1E /* obj_powerup.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_powerup.c; sourceTree = SOURCE_ROOT; };
 		AA8213B3169DA89200A7EBA8 /* icon~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon~ipad.png"; sourceTree = "<group>"; };
 		AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x~ipad.png"; sourceTree = "<group>"; };
-		AA8289371700AD5F00F80966 /* obj_spike_branch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_spike_branch.c; sourceTree = SOURCE_ROOT; };
-		AA8289381700AD5F00F80966 /* obj_spring_branch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_spring_branch.c; sourceTree = SOURCE_ROOT; };
 		AA8AFB3E1712FD260092DBF4 /* characters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = characters.c; sourceTree = SOURCE_ROOT; };
 		AA8AFB3F1712FD260092DBF4 /* characters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = characters.h; sourceTree = SOURCE_ROOT; };
 		AAA8AD4A16B28C1700C6D752 /* lua_utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lua_utf8.c; path = ../../src/malka/lua_utf8.c; sourceTree = "<group>"; };
 		AAA8AD4D16B2CBB600C6D752 /* obj_fall_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_fall_trigger.c; path = ../obj_fall_trigger.c; sourceTree = "<group>"; };
 		AAA8AD4E16B2CBB600C6D752 /* obj_speed_trigger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_speed_trigger.c; path = ../obj_speed_trigger.c; sourceTree = "<group>"; };
-		AAAC22E616FB467D00FBD316 /* obj_branch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_branch.c; sourceTree = SOURCE_ROOT; };
 		AAC85EF616CE916500721CE8 /* obj_cactus.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_cactus.c; path = ../obj_cactus.c; sourceTree = "<group>"; };
 		AAD3D87E16F76E37000657F9 /* obj_bomb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_bomb.c; sourceTree = SOURCE_ROOT; };
 		AAD3D87F16F76E37000657F9 /* obj_eraser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_eraser.c; sourceTree = SOURCE_ROOT; };
@@ -574,14 +568,13 @@
 				AAF6776316C550F400FDF975 /* level_select.h */,
 				AAF6778816C550F400FDF975 /* pause.c */,
 				AAF6778916C550F400FDF975 /* pause.h */,
+				21F440AB1737CD8400599B81 /* fadeout.c */,
+				21F440AC1737CD8400599B81 /* fadeout.h */,
 				AA0E3F1216BFDFA200A47FFB /* minimap.c */,
 				AA0E3F1316BFDFA200A47FFB /* minimap.h */,
 				219BEAED16776B3A002B614C /* objects.c */,
 				219BEAEE16776B3A002B614C /* objects.h */,
-				AA8289371700AD5F00F80966 /* obj_spike_branch.c */,
-				AA8289381700AD5F00F80966 /* obj_spring_branch.c */,
 				AA7B4FF816DF5153003CCF1E /* obj_powerup.c */,
-				AAAC22E616FB467D00FBD316 /* obj_branch.c */,
 				AAD3D87E16F76E37000657F9 /* obj_bomb.c */,
 				AAD3D87F16F76E37000657F9 /* obj_eraser.c */,
 				AA64161F16D7B7E70066AEA8 /* obj_floater.c */,
@@ -603,8 +596,6 @@
 				AA7188C71703494900687C50 /* shop.h */,
 				21445E431726DD540096B9FD /* in_app.c */,
 				21445E441726DD540096B9FD /* in_app.h */,
-				AA30D22F16FFA54E009E1AF3 /* season_select.c */,
-				AA30D23016FFA54E009E1AF3 /* season_select.h */,
 				2175DBD216F07AF900452F14 /* placement.c */,
 				2175DBD316F07AF900452F14 /* placement.h */,
 				219BE99E16776981002B614C /* Supporting Files */,
@@ -1070,14 +1061,11 @@
 				2175DBD416F07AF900452F14 /* placement.c in Sources */,
 				AAD3D88016F76E37000657F9 /* obj_bomb.c in Sources */,
 				AAD3D88116F76E37000657F9 /* obj_eraser.c in Sources */,
-				AAAC22E716FB467D00FBD316 /* obj_branch.c in Sources */,
-				AA30D23116FFA54E009E1AF3 /* season_select.c in Sources */,
-				AA8289391700AD5F00F80966 /* obj_spike_branch.c in Sources */,
-				AA82893A1700AD5F00F80966 /* obj_spring_branch.c in Sources */,
 				AA7188C81703494900687C50 /* shop.c in Sources */,
 				AA8AFB401712FD260092DBF4 /* characters.c in Sources */,
 				21445E451726DD540096B9FD /* in_app.c in Sources */,
 				AA0CF244172EAC4E00A01A42 /* item_unlock.c in Sources */,
+				21F440AE1737CD8400599B81 /* fadeout.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1165,13 +1153,14 @@
 		219BE9B216776981002B614C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "26347D49-4968-4CC8-A334-D8C5A7BFC832";
+				PROVISIONING_PROFILE = "96BC62FE-760A-420D-A928-3160B94C7D5E";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1179,13 +1168,14 @@
 		219BE9B316776981002B614C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "26347D49-4968-4CC8-A334-D8C5A7BFC832";
+				PROVISIONING_PROFILE = "96BC62FE-760A-420D-A928-3160B94C7D5E";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

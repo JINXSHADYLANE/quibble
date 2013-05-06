@@ -62,6 +62,7 @@ static DArray textures;
 static uint frame;
 float screen_widthf, screen_heightf;
 float x_size_factor, y_size_factor;
+float x_touch_factor, y_touch_factor;
 Color clear_color = 0;
 
 static uint radix_counts[256];
@@ -255,6 +256,8 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 
 	x_size_factor = (float)v_width / (float)width;
 	y_size_factor = (float)v_height / (float)height;
+    x_touch_factor = x_size_factor * [[UIScreen mainScreen] scale];
+    y_touch_factor = y_size_factor * [[UIScreen mainScreen] scale];
 
 #ifndef NO_DEVMODE
 	memset(&v_stats, 0, sizeof(v_stats));
