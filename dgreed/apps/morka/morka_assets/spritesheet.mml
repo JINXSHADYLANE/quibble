@@ -76,24 +76,24 @@
 	### Places ###
 
 	(img base_place
-		(tex r_atlas_0h.png)
-		(src 2,2,622,120)
+		(tex atlas_0h.png)
+		(src 2,2,311,61)
 	)
 	(img first_place
-		(tex r_atlas_0h.png)
-		(src 624,2,930,462)
+		(tex atlas_0h.png)
+		(src 313,2,466,231)
 	)
 	(img last_place
-		(tex r_atlas_0h.png)
-		(src 308,122,613,442)
+		(tex atlas_0h.png)
+		(src 155,63,307,224)
 	)
 	(img second_place
-		(tex r_atlas_0h.png)
-		(src 2,464,306,880)
+		(tex atlas_0h.png)
+		(src 2,233,153,440)
 	)
 	(img third_place
-		(tex r_atlas_0h.png)
-		(src 308,444,590,822)
+		(tex atlas_0h.png)
+		(src 155,226,296,415)
 	)
 
 	### Racers icons ###
