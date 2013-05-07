@@ -328,7 +328,7 @@
 		(sdef y (seq "cdef"))
 		(sdef x (seq "cdqfgh"))
 		(sdef w (seq "abcdqfgh"))
-		(sdef r	(seq "abcgh"))
+		(sdef r	(seq "abgh"))
 
 		(sdef u (seq "ijklmnop"))
 
@@ -350,6 +350,7 @@
 		(def d (grass2 0))
 		(def e (grass3 0))
 		(def f (grass4 0))
+		(def t (grass_s 0))
 		(def g (grass_end1 0))
 		(def h (grass_end2 0))
 		(def i (water_start1 0))
@@ -366,8 +367,8 @@
 		(sdef y (seq "cdef"))
 		(sdef x (seq "cdqfgh"))
 		(sdef w (seq "abcdqfgh"))
-		(sdef r	(seq "abcgh"))
-		(sdef s	(seq "ach"))
+		(sdef r	(seq "abgh"))
+		(sdef s	(seq "ath"))
 
 		(sdef u (seq "ijklmnop"))
 
