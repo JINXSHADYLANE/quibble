@@ -78,6 +78,7 @@ static const float rot_mul = 65536.0f;
 static const uint16 tex_scale_1 = 32768;
 
 // Renderer state
+float touch_scale_x, touch_scale_y;
 float screen_widthf, screen_heightf;
 Color clear_color;
 static int32 screen_width, screen_height;
@@ -86,18 +87,23 @@ static bool filter_textures = true;
 static bool drawing_lines = false;
 static bool drawing_rects = false;
 static BlendMode blend_mode = ~0;
+static float* transform = NULL;
 static Texture* active_texture = NULL;
 static int vert_shader_id;
 static int frag_shader_id;
 static int program_id;
 
 static int glsl_screen_size;
+static int glsl_tform0;
+static int glsl_tform1;
 static int glsl_texture;
 
 // Shaders
 
 const char* vert_shader_portrait = 
 "uniform vec2 screen_size;\n"
+"uniform vec3 tform_0;\n"
+"uniform vec3 tform_1;\n"
 "\n"
 "attribute vec2 pos;\n"
 "attribute vec4 color;\n"
@@ -109,12 +115,19 @@ const char* vert_shader_portrait =
 "void main() {\n"
 "	v_uv = uv / 32768.0;\n"
 "	v_tint = color;\n"
-"	vec2 p = (pos / (8.0 * screen_size)) - 1.0;\n"
+"	vec2 s = pos / 16.0;\n"
+"	vec2 p = vec2(\n"
+"		s.x * tform_0[0] + s.y * tform_0[1] + tform_0[2],\n"
+"		s.x * tform_1[0] + s.y * tform_1[1] + tform_1[2]\n"
+"	);\n"
+"	p = p / (screen_size * 0.5) - 1.0;\n"
 "	gl_Position = vec4(p.x, -p.y, 0.0, 1.0);\n"
 "}";
 
 const char* vert_shader_landscape = 
 "uniform vec2 screen_size;\n"
+"uniform vec3 tform_0;\n"
+"uniform vec3 tform_1;\n"
 "\n"
 "attribute vec2 pos;\n"
 "attribute vec4 color;\n"
@@ -208,6 +221,8 @@ static uint _link_program(uint vert, uint frag) {
 	}
 
 	glsl_screen_size = glGetUniformLocation(gl_id, "screen_size");
+	glsl_tform0 = glGetUniformLocation(gl_id, "tform_0");
+	glsl_tform1 = glGetUniformLocation(gl_id, "tform_1");
 	glsl_texture = glGetUniformLocation(gl_id, "texture");
 
 	_check_error();
@@ -263,6 +278,9 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
     screen_widthf = v_width;
     screen_heightf = v_height;
 
+	touch_scale_x = (float)v_width / (float)width;
+	touch_scale_y = (float)v_height / (float)height;
+
     LOG_INFO("Vendor     : %s", glGetString(GL_VENDOR));
     LOG_INFO("Renderer   : %s", glGetString(GL_RENDERER));
     LOG_INFO("Version    : %s", glGetString(GL_VERSION));
@@ -282,9 +300,9 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
     screen_width = v_width;
     screen_height = v_height;
 
-    if(width > height)
-        glViewport(0, 0, height, width);
-    else
+    //if(width > height)
+    //    glViewport(0, 0, height, width);
+    //else
         glViewport(0, 0, width, height);
 
 	glDisable(GL_DITHER);
@@ -303,9 +321,9 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 	filter_textures = _filter_textures;
 
 	const char* vert_shader = NULL;
-	if(width > height)
-		vert_shader = vert_shader_landscape;
-	else
+	//if(width > height)
+	//	vert_shader = vert_shader_landscape;
+	//else
 		vert_shader = vert_shader_portrait;
 
 	vert_shader_id = _compile_shader(vert_shader, GL_VERTEX_SHADER);
@@ -314,6 +332,8 @@ static void _video_init(uint width, uint height, uint v_width, uint v_height,
 
     glUseProgram(program_id);
 	glUniform2f(glsl_screen_size, (float)screen_width, (float)screen_height);
+	glUniform3f(glsl_tform0, 1.0f, 0.0f, 0.0f);
+	glUniform3f(glsl_tform1, 0.0f, 1.0f, 0.0f);
 
     _check_error();
 
@@ -522,13 +542,13 @@ void video_present(void) {
 		}
 
 		// Find layer tag
-		LayerTag* t = NULL;
 		BlendMode mode = BM_NORMAL;
+		float* tform = NULL;
 		for(uint i = 0; i < tags.size; ++i) {
 			LayerTag* tt = darray_get(&tags, i);
 			if(tt->layer == layer) {
 				mode = tt->mode;
-				t = tt;
+				tform = tt->transform;
 				break;
 			}
 		}
@@ -541,6 +561,25 @@ void video_present(void) {
 				_draw_lines(&l_ready);
 
 			_set_blend_mode(mode);
+		}
+
+		// Set up transformation matrix
+		if(transform != tform) {
+			if(r_ready)
+				_draw_rects(&r_ready);
+			if(l_ready)
+				_draw_lines(&l_ready);
+
+			if(tform) {
+				float* m = tform;
+				glUniform3f(glsl_tform0, m[0], m[1], m[2]);
+				glUniform3f(glsl_tform1, m[3], m[4], m[5]);
+			}
+			else {
+				glUniform3f(glsl_tform0, 1.0f, 0.0f, 0.0f);
+				glUniform3f(glsl_tform1, 0.0f, 1.0f, 0.0f);
+			}
+			transform = tform;
 		}
 
 		if(layer == r[r_cur].layer) {
@@ -602,23 +641,7 @@ void video_present(void) {
 						pos[v*2+1] = ((s * dx) >> 16) + ((c * dy) >> 16) + cy;
 					}
 				}
-
-				if(t && t->transform) {
-					const float* m = t->transform;
-					fix16_t mat[6]
-					for(uint i = 0; i < 6; ++i)
-						mat[i] = (int)(m[i] * 65536.0f);
-
-					for(uint i = 0; i < 4; ++i) {
-						int16* x = &pos[i*2+0];
-						int16* y = &pos[i*2+1];
-						int16 nx = (mat[0] * *x) >> 16 + (mat[1] * *y) >> 16 + mat[2];
-						int16 ny = (mat[3] * *x) >> 16 + (mat[4] * *y) >> 16 + mat[5];
-						*x = nx;
-						*y = ny;
-					}
-				}
-
+			
 				uint k = vertices.size;
 				for(uint v = 0; v < 4; ++v) {
 					vb[k+v].x = pos[v*2+0];
@@ -675,7 +698,7 @@ uint video_get_frame(void) {
 	return frame;
 }
 
-void LayerTag* _get_tag(uint layer) {
+LayerTag* _get_tag(uint layer) {
 	// Find out if layer is tagged already
 	for(uint i = 0; i < tags.size; ++i) {
 		LayerTag* tag = darray_get(&tags, i);

@@ -141,6 +141,8 @@ static bool _check_key(int* list, int* count, int key) {
 }
 
 bool key_pressed(Key key) {
+	if(key == KEY_A)
+		return mouse_pressed(MBTN_PRIMARY);
 	int k = keybindings[key];
 	return _check_key(keys_pressed, &keys_pressed_n, k);
 }
@@ -152,6 +154,8 @@ bool char_pressed(char c) {
 }
 
 bool key_down(Key key) {
+	if(key == KEY_A)
+		return mouse_down(MBTN_PRIMARY);
 	int k = keybindings[key];
 	return _check_key(keys_down, &keys_down_n, k);
 }
@@ -163,6 +167,8 @@ bool char_down(char c) {
 }
 
 bool key_up(Key key) {
+	if(key == KEY_A)
+		return mouse_up(MBTN_PRIMARY);
 	int k = keybindings[key];
 	return _check_key(keys_up, &keys_up_n, k);
 }
@@ -206,8 +212,11 @@ Vector2 mouse_vec(void) {
 #define max_touches 11
 static uint touch_count = 0;
 static Touch touches[max_touches];
+extern float touch_scale_x, touch_scale_y;
 
 static void _touch_down(float x, float y) {
+	x *= touch_scale_x;
+	y *= touch_scale_y;
 	if(touch_count < max_touches) {
 		uint i = touch_count;
 		touches[i].hit_time = time_s();
@@ -220,6 +229,10 @@ static void _touch_down(float x, float y) {
 static void _touch_move(float old_x, float old_y, float new_x, float new_y) {
 	if(!touch_count)
 		return;
+	new_x *= touch_scale_x;
+	new_y *= touch_scale_y;
+	old_x *= touch_scale_x;
+	old_y *= touch_scale_y;
     uint count = touch_count;
 	float min_d = 10000.0f;
 	uint min_i = 0;
@@ -238,6 +251,8 @@ static void _touch_move(float old_x, float old_y, float new_x, float new_y) {
 static void _touch_up(float old_x, float old_y) {
 	if(!touch_count)
 		return;
+	old_x *= touch_scale_x;
+	old_y *= touch_scale_y;
 	uint count = touch_count;
 	float min_d = 10000.0f;
 	uint min_i = 0;
@@ -371,10 +386,10 @@ extern void async_process_schedule(void);
 uint _sys_native_width = 0;
 uint _sys_native_height = 0;
 
-static Vector2 _conv_touch(uint16 x, uint16 y) {
-	uint ix = ((y * _sys_native_height) / MAX_INT16);
-	uint iy = ((x * _sys_native_width) / MAX_INT16);
-	return vec2(ix, _sys_native_width - iy);
+static Vector2 _conv_touch(float x, float y) {
+	uint ix = x * _sys_native_width;
+	uint iy = y * _sys_native_height;
+	return vec2(ix, iy);
 }
 
 #define sdl_window_event(name) \
