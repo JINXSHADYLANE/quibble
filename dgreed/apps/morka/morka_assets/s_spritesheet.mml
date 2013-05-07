@@ -1,0 +1,445 @@
+(sprsheet morka
+	(prefix "morka_assets/")
+
+	### background ###
+	
+	(img background
+		(tex s_atlas_11.png)
+		(src 0,0,512,512)
+	)
+
+	### rabbits ###
+	
+	(anim rabbit
+		(tex s_atlas_0a.png)
+		(src 0,0,64,64)
+		(offset 64,64)
+		(frames 16)
+		(grid 4,4)
+	)
+	(anim squirrel
+		(tex s_atlas_0b.png)
+		(src 0,0,82,37)
+		(offset 82,37)
+		(frames 27)
+		(grid 3,9)
+	)
+	(anim golden_rabbit
+		(tex s_atlas_0c.png)
+		(src 0,0,64,64)
+		(offset 64,64)
+		(frames 16)
+		(grid 4,4)
+	)
+	(anim skunk
+		(tex s_atlas_0d.png)
+		(src 0,0,82,37)
+		(offset 82,37)
+		(frames 27)
+		(grid 3,9)
+	)
+
+	### unlocks ###
+
+	(img bomb_unlock
+		(tex s_atlas_0f.png)
+		(src 218,2,341,105)
+	)
+	(img rocket_unlock
+		(tex s_atlas_0f.png)
+		(src 111,2,216,123)
+	)
+	(img shield_unlock
+		(tex s_atlas_0f.png)
+		(src 2,2,109,125)
+	)
+	(img trampoline_unlock
+		(tex s_atlas_0f.png)
+		(src 343,2,509,88)
+	)
+
+	### IAP ###
+
+	(img cup
+		(tex s_atlas_0g.png)
+		(src 104,118,215,229)
+	)
+	(img refrigerator
+		(tex s_atlas_0g.png)
+		(src 2,2,102,170)
+	)
+	(img toaster
+		(tex s_atlas_0g.png)
+		(src 104,2,241,116)
+	)
+
+	### Places ###
+
+	(img base_place
+		(tex s_atlas_0h.png)
+		(src 2,2,158,33)
+	)
+	(img first_place
+		(tex s_atlas_0h.png)
+		(src 160,2,236,117)
+	)
+	(img last_place
+		(tex s_atlas_0h.png)
+		(src 2,35,78,116)
+	)
+	(img second_place
+		(tex s_atlas_0h.png)
+		(src 2,119,78,224)
+	)
+	(img third_place
+		(tex s_atlas_0h.png)
+		(src 80,35,150,130)
+	)
+
+	### Racers icons ###
+
+	(img hare_icon
+		(tex s_atlas_0e.png)
+		(src 147,194,252,387)
+	)
+	(img rabbit_icon
+		(tex s_atlas_0e.png)
+		(src 147,2,254,192)
+	)
+	(img skunk_icon
+		(tex s_atlas_0e.png)
+		(src 2,197,141,393)
+	)
+	(img squirrel_icon
+		(tex s_atlas_0e.png)
+		(src 2,2,145,195)
+	)
+
+	#################
+	### Chapter I ###
+	#################
+	
+	#################
+	### atlas 1-2 ###
+	#################
+	
+	(img grass1
+		(tex s_atlas_12.png)
+		(src 3,295,129,389)
+	)
+	(img grass2
+		(tex s_atlas_12.png)
+		(src 133,269,259,363)
+	)
+	(img grass3
+		(tex s_atlas_12.png)
+		(src 133,365,259,457)
+	)
+	(img grass3_sign
+		(tex s_atlas_12.png)
+		(src 3,173,129,293)
+	)
+	(img grass4
+		(tex s_atlas_12.png)
+		(src 174,2,300,96)
+	)
+	(img grass_end1
+		(tex s_atlas_12.png)
+		(src 3,391,107,481)
+	)
+	(img grass_end2
+		(tex s_atlas_12.png)
+		(src 473,274,508,368)
+	)
+	(img grass_s
+		(tex s_atlas_12.png)
+		(src 133,173,259,267)
+	)
+	(img grass_start1
+		(tex s_atlas_12.png)
+		(src 343,372,389,464)
+	)
+	(img grass_start2
+		(tex s_atlas_12.png)
+		(src 263,98,360,192)
+	)
+	(img star
+		(tex s_atlas_12.png)
+		(src 2,2,171,171)
+	)
+	(img water1
+		(tex s_atlas_12.png)
+		(src 263,290,389,370)
+	)
+	(img water2
+		(tex s_atlas_12.png)
+		(src 364,84,490,162)
+	)
+	(img water3
+		(tex s_atlas_12.png)
+		(src 304,2,430,82)
+	)
+	(img water4
+		(tex s_atlas_12.png)
+		(src 348,194,474,272)
+	)
+	(img water_end1
+		(tex s_atlas_12.png)
+		(src 263,194,344,288)
+	)
+	(img water_end2
+		(tex s_atlas_12.png)
+		(src 393,274,469,368)
+	)
+	(img water_start1
+		(tex s_atlas_12.png)
+		(src 393,370,473,458)
+	)
+	(img water_start2
+		(tex s_atlas_12.png)
+		(src 263,372,339,456)
+	)
+
+	#################
+	### atlas 1-3 ###
+	#################
+
+	(img ball_autumn
+		(tex s_atlas_13.png)
+		(src 130,277,182,331)
+	)
+	(img ball_special
+		(tex s_atlas_13.png)
+		(src 2,277,55,332)
+	)
+	(img blocked
+		(tex s_atlas_13.png)
+		(src 223,2,254,33)
+	)
+	(img blue_knob
+		(tex s_atlas_13.png)
+		(src 248,43,254,48)
+	)
+	(img blue_shade
+		(tex s_atlas_13.png)
+		(src 249,36,253,40)
+	)
+	(img bomb
+		(tex s_atlas_13.png)
+		(src 106,394,151,433)
+	)
+	(img bomb_obj
+		(tex s_atlas_13.png)
+		(src 161,333,181,352)
+	)
+	(img btn_bomb
+		(tex s_atlas_13.png)
+		(src 54,369,104,409)
+	)
+	(img btn_rocket
+		(tex s_atlas_13.png)
+		(src 109,333,159,373)
+	)
+	(img btn_shield
+		(tex s_atlas_13.png)
+		(src 2,334,52,374)
+	)
+	(img btn_trampoline
+		(tex s_atlas_13.png)
+		(src 57,327,107,367)
+	)
+	(img bubble_obj
+		(tex s_atlas_13.png)
+		(src 2,69,80,147)
+	)
+	(img buy
+		(tex s_atlas_13.png)
+		(src 66,263,128,325)
+	)
+	(img finish_tile
+		(tex s_atlas_13.png)
+		(src 222,61,244,94)
+	)
+	(img help
+		(tex s_atlas_13.png)
+		(src 184,332,234,372)
+	)
+	(img lock_autumn
+		(tex s_atlas_13.png)
+		(src 222,35,246,59)
+	)
+	(img locked
+		(tex s_atlas_13.png)
+		(src 184,290,234,330)
+	)
+	(img music
+		(tex s_atlas_13.png)
+		(src 146,148,208,211)
+	)
+	(img music_off
+		(tex s_atlas_13.png)
+		(src 82,134,144,197)
+	)
+	(img next
+		(tex s_atlas_13.png)
+		(src 130,213,192,275)
+	)
+	(img pause
+		(tex s_atlas_13.png)
+		(src 66,149,77,160)
+	)
+	(img play
+		(tex s_atlas_13.png)
+		(src 2,213,64,275)
+	)
+	(img position_knob
+		(tex s_atlas_13.png)
+		(src 248,50,252,54)
+	)
+	(img position_line
+		(tex s_atlas_13.png)
+		(src 2,2,221,9)
+	)
+	(img quit
+		(tex s_atlas_13.png)
+		(src 66,199,128,261)
+	)
+	(img red_knob
+		(tex s_atlas_13.png)
+		(src 210,83,220,93)
+	)
+	(img restart
+		(tex s_atlas_13.png)
+		(src 2,149,64,211)
+	)
+	(img ribbon_first
+		(tex s_atlas_13.png)
+		(src 158,393,208,410)
+	)
+	(img ribbon_last
+		(tex s_atlas_13.png)
+		(src 106,375,156,392)
+	)
+	(img ribbon_second
+		(tex s_atlas_13.png)
+		(src 161,374,211,391)
+	)
+	(img ribbon_third
+		(tex s_atlas_13.png)
+		(src 2,395,52,412)
+	)
+	(img ribbon_tutorial
+		(tex s_atlas_13.png)
+		(src 2,376,52,393)
+	)
+	(img rocket
+		(tex s_atlas_13.png)
+		(src 210,96,251,142)
+	)
+	(img shield
+		(tex s_atlas_13.png)
+		(src 210,144,250,189)
+	)
+	(img sound
+		(tex s_atlas_13.png)
+		(src 146,83,208,146)
+	)
+	(img sound_off
+		(tex s_atlas_13.png)
+		(src 82,69,144,132)
+	)
+	(img token
+		(tex s_atlas_13.png)
+		(src 236,290,254,307)
+	)
+	(img token_tag
+		(tex s_atlas_13.png)
+		(src 210,191,246,224)
+	)
+	(img trampoline
+		(tex s_atlas_13.png)
+		(src 54,411,99,446)
+	)
+	(img trampoline_obj
+		(tex s_atlas_13.png)
+		(src 2,11,150,67)
+	)
+	(img tut_finger
+		(tex s_atlas_13.png)
+		(src 152,11,220,81)
+	)
+	(img tut_star
+		(tex s_atlas_13.png)
+		(src 194,226,254,288)
+	)
+
+	#################
+	### atlas 1-4 ###
+	#################
+
+	(img element_1
+		(tex s_atlas_14.png)
+		(src 0,243,256,463)
+	)
+	(img element_2
+		(tex s_atlas_14.png)
+		(src 0,681,256,881)
+	)
+	(img element_3
+		(tex s_atlas_14.png)
+		(src 0,467,256,677)
+	)
+	(img element_4
+		(tex s_atlas_14.png)
+		(src 0,1,256,239)
+	)
+
+	#################
+	### atlas 1-5 ###
+	#################
+
+	(img bg_mushroom_2
+		(tex s_atlas_15.png)
+		(src 105,204,224,350)
+	)
+	(img bg_mushroom_3
+		(tex s_atlas_15.png)
+		(src 2,2,172,202)
+	)
+	(img bg_mushroom_5
+		(tex s_atlas_15.png)
+		(src 2,204,103,366)
+	)
+	(img bg_mushroom_6
+		(tex s_atlas_15.png)
+		(src 174,2,251,137)
+	)
+	(img mushroom_1
+		(tex s_atlas_15.png)
+		(src 105,352,169,428)
+	)
+	(img mushroom_2
+		(tex s_atlas_15.png)
+		(src 2,368,53,443)
+	)
+	(img mushroom_3
+		(tex s_atlas_15.png)
+		(src 55,368,93,424)
+	)
+	(img mushroom_4
+		(tex s_atlas_15.png)
+		(src 171,422,232,485)
+	)
+	(img mushroom_5
+		(tex s_atlas_15.png)
+		(src 171,352,247,420)
+	)
+	(img mushroom_6
+		(tex s_atlas_15.png)
+		(src 174,139,242,200)
+	)
+	(img spikeshroom_1
+		(tex s_atlas_15.png)
+		(src 55,430,145,493)
+	)
+)
