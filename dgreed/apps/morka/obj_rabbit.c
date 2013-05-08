@@ -221,7 +221,6 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 
 	// predict landing
 	while(!hit || !jumped){
-		
 		acc = vec2_add(acc, _rabbit_calculate_forces(self,true) );
 
 		// physics tick
@@ -236,7 +235,7 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 		int obj_type = OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE;
 		obj_type &= ~collision_flag;
 
-		if(jumped){
+		if(jumped && iterations % 2 == 0){
 
 			RectF rec = {
 				.left = landing.x,
@@ -277,8 +276,11 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 			if(vel.y > 0.0f) jumped = true;
 		}
 
+
+		/*
 		if(++iterations > 1000) 
 			printf("D landing[%f;%f] velocity[%f;%f] \n",landing.x, landing.y,vel.x,vel.y);
+		*/
 
 	}
 
@@ -896,7 +898,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			d->force_dive = false;
 		}
 
-		d->mushroom_hit_time = TIME_S;
+		d->mushroom_hit_time = time_s();
 		anim_play_ex(rabbit->anim, "bounce", TIME_S);
 		vel.y = -vel.y;
 

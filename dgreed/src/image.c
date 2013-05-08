@@ -331,9 +331,22 @@ void* image_load(const char* filename, uint* w, uint* h, PixelFormat* format) {
 
 	void* data = NULL;
 
-	FileHandle f = file_open(filename);
+	size_t l = strlen(filename);
+	char* filename_dig = alloca(l+1);
+	strcpy(filename_dig, filename);
+	filename_dig[l-3] = 'd';
+	filename_dig[l-2] = 'i';
 
-	data = _load_dig(f, w, h, format);
+	FileHandle f;
+	if(file_exists(filename_dig)) {
+		f = file_open(filename_dig);
+		data = _load_dig(f, w, h, format);
+		file_close(f);
+	}
+	else {
+		f = file_open(filename);
+	}
+
 	if(!data) {
 		// Load png/jpeg
 #ifdef TARGET_IOS

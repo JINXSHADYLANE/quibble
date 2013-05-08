@@ -571,11 +571,13 @@ void _sys_video_init(void) {
 	_sys_native_width = mode.w;
 	_sys_native_height = mode.h;
 
+	/*
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
+	*/
 
 	SDL_Window* window = SDL_CreateWindow("dgreed", 
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
