@@ -1,5 +1,6 @@
 (sprsheet morka
 	(prefix "morka_assets/")
+	(scale 2)
 
 	### background ###
 	
