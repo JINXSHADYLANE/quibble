@@ -752,7 +752,7 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 	assert(tex < textures.size);
 	Texture* t = DARRAY_DATA_PTR(textures, Texture);
 	assert(t[tex].active);
-	uint fixed_scale = lrintf(t[tex].scale * (tex_mul+1.0f));
+	uint fixed_scale = (uint)(t[tex].scale * (tex_mul+1.0f));
 	uint texture_width = t[tex].width;
 	uint texture_height = t[tex].height;
 
@@ -762,10 +762,10 @@ void video_draw_rect_rotated(TexHandle tex, uint layer,
 	int16 real_src_b = texture_height;
 
 	if(source != NULL) {
-		real_src_l = lrintf(source->left);
-		real_src_t = lrintf(source->top);
-		real_src_r = lrintf(source->right);
-		real_src_b = lrintf(source->bottom);
+		real_src_l = (int16)(source->left);
+		real_src_t = (int16)(source->top);
+		real_src_r = (int16)(source->right);
+		real_src_b = (int16)(source->bottom);
 	}
 
 	// This is faster than comparing floats
