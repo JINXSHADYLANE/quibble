@@ -1,6 +1,11 @@
 (sprsheet morka
 	(prefix "morka_assets/")
 
+	(img empty
+		(tex atlas_13.png)
+		(src 499,195,500,196)
+	)
+
 	### background ###
 	
 	(img background

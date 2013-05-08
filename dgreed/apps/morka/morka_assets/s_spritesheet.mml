@@ -2,6 +2,11 @@
 	(prefix "morka_assets/")
 	(scale 2)
 
+	(img position_knob
+		(tex s_atlas_13.png)
+		(src 248,50,249,51)
+	)
+
 	### background ###
 	
 	(img background

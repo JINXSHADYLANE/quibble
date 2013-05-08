@@ -2,6 +2,11 @@
 	(prefix "morka_assets/")
 	(scale 0.5)
 
+	(img empty 
+		(tex r_atlas_13.png)
+		(src 1000,24,1002,26)
+	)
+
 	### backgrounds ###
 
 	(img background
