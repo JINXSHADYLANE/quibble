@@ -2,7 +2,7 @@
 	(prefix "morka_assets/")
 	(scale 2)
 
-	(img position_knob
+	(img empty 
 		(tex s_atlas_13.png)
 		(src 248,50,249,51)
 	)
@@ -11,7 +11,7 @@
 	
 	(img background
 		(tex s_atlas_11.png)
-		(src 0,0,512,512)
+		(src 0,0,256,256)
 	)
 
 	### rabbits ###

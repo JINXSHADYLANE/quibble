@@ -102,7 +102,7 @@ LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.cpp \
 	dgreed/malka/lua_utf8.c \
 	dgreed/sys_misc_android.c \
 	dgreed/sys_snd_android.c \
-	dgreed/sys_gfx_gles2.c \
+	dgreed/sys_gfx_gles11.c \
 	dgreed/stb_image.c \
 	dgreed/utils.c \
 	dgreed/darray.c \
@@ -136,6 +136,6 @@ LOCAL_SRC_FILES := $(SDL_PATH)/src/main/android/SDL_android_main.cpp \
 
 LOCAL_SHARED_LIBRARIES := SDL2
 
-LOCAL_LDLIBS := -lGLESv2 -llog
+LOCAL_LDLIBS := -lGLESv1_CM -llog
 
 include $(BUILD_SHARED_LIBRARY)

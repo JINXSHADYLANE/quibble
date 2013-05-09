@@ -10,7 +10,7 @@
 	
 	(img background
 		(tex atlas_11.png)
-		(src 0,0,1024,1024)
+		(src 0,0,512,512)
 	)
 
 	### rabbits ###
