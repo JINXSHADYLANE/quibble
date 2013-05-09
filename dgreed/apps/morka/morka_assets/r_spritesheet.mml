@@ -126,43 +126,43 @@
 
 	(img grass1
 		(tex r_atlas_12.png)
-		(src 1197,754,1709,1128)
+		(src 1198,754,1708,1128)
 	)
 	(img grass2
 		(tex r_atlas_12.png)
-		(src 683,480,1195,854)
+		(src 684,480,1194,854)
 	)
 	(img grass3
 		(tex r_atlas_12.png)
-		(src 2,683,514,1045)
+		(src 3,683,513,1045)
 	)
 	(img grass3_sign
 		(tex r_atlas_12.png)
-		(src 683,2,1195,478)
+		(src 684,2,1194,478)
 	)
 	(img grass4
 		(tex r_atlas_12.png)
-		(src 1197,378,1709,752)
+		(src 1198,378,1708,752)
 	)
 	(img grass_end1
 		(tex r_atlas_12.png)
-		(src 2,1365,424,1739)
+		(src 3,1365,423,1739)
 	)
 	(img grass_end2
 		(tex r_atlas_12.png)
-		(src 516,683,663,1057)
+		(src 517,683,662,1057)
 	)
 	(img grass_s
 		(tex r_atlas_12.png)
-		(src 1197,2,1709,376)
+		(src 1198,2,1708,376)
 	)
 	(img grass_start1
 		(tex r_atlas_12.png)
-		(src 822,1488,1015,1852)
+		(src 823,1488,1014,1852)
 	)
 	(img grass_start2
 		(tex r_atlas_12.png)
-		(src 426,1488,820,1862)
+		(src 427,1488,819,1862)
 	)
 	(img star
 		(tex r_atlas_12.png)
@@ -170,35 +170,35 @@
 	)
 	(img water1
 		(tex r_atlas_12.png)
-		(src 665,856,1177,1172)
+		(src 666,856,1176,1172)
 	)
 	(img water2
 		(tex r_atlas_12.png)
-		(src 2,1047,514,1363)
+		(src 3,1047,513,1363)
 	)
 	(img water3
 		(tex r_atlas_12.png)
-		(src 1179,1130,1691,1444)
+		(src 1180,1130,1690,1444)
 	)
 	(img water4
 		(tex r_atlas_12.png)
-		(src 516,1174,1028,1486)
+		(src 517,1174,1027,1486)
 	)
 	(img water_end1
 		(tex r_atlas_12.png)
-		(src 1711,2,2041,376)
+		(src 1712,2,2040,376)
 	)
 	(img water_end2
 		(tex r_atlas_12.png)
-		(src 1711,1070,2021,1444)
+		(src 1712,1070,2020,1444)
 	)
 	(img water_start1
 		(tex r_atlas_12.png)
-		(src 1711,378,2040,726)
+		(src 1712,378,2039,726)
 	)
 	(img water_start2
 		(tex r_atlas_12.png)
-		(src 1711,728,2022,1068)
+		(src 1712,728,2021,1068)
 	)
 
 	#################
