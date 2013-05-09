@@ -447,9 +447,9 @@ bool tutorials_render(float t){
 			td = clamp(0.0f,0.5f,td);
 		}
 
-		float alpha = sin(PI*td);
+		float alpha = sinf(PI*td);
 		alpha *= transition_alpha;
-		byte a = lrintf(255.0f * alpha);		
+		byte a = (byte)(255.0f * alpha);		
 
 		// Draw tutorial image
 		if(current_step->img) _tutorial_image(a);
@@ -467,10 +467,12 @@ bool tutorials_render(float t){
 
 				// Force input on unpause
 				if(current_step->force_input){
-					if(rabbit->data->touching_ground)
+					if(rabbit->data->touching_ground) {
 						rabbit->data->force_jump = true;
-					else
+					}
+					else {
 						rabbit->data->force_dive = true;
+					}
 				}
 				prev_step = current_step;
 				if(current_step->dismiss_on != FINAL_STEP){

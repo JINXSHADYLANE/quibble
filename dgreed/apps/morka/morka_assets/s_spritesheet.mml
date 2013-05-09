@@ -1,11 +1,17 @@
 (sprsheet morka
 	(prefix "morka_assets/")
+	(scale 2)
+
+	(img empty 
+		(tex s_atlas_13.png)
+		(src 248,50,249,51)
+	)
 
 	### background ###
 	
 	(img background
 		(tex s_atlas_11.png)
-		(src 0,0,512,512)
+		(src 0,0,256,256)
 	)
 
 	### rabbits ###

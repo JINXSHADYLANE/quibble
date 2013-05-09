@@ -112,6 +112,12 @@ void obj_rabbit_player_control(GameObject* self){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
 
+	if(d->input_disabled) {
+		d->virtual_key_up = false;
+		d->virtual_key_down = false;
+		d->virtual_key_pressed = false;
+	}
+
 	if(!d->input_disabled && !hud_click){
 		d->virtual_key_up = key_up(KEY_A);
 		d->virtual_key_down = key_down(KEY_A);
@@ -164,7 +170,7 @@ void obj_rabbit_player_control(GameObject* self){
 
 			RectF rec = {
 				.left = start.x - 20.0f,
-				.top = v_height - 268.0f,
+				.top = v_height - 268.0f - rabbit_hitbox_height,
 				.right = start.x + rabbit_hitbox_width,
 				.bottom = v_height - 268.0f + rabbit_hitbox_height
 			};
@@ -215,7 +221,6 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 
 	// predict landing
 	while(!hit || !jumped){
-		
 		acc = vec2_add(acc, _rabbit_calculate_forces(self,true) );
 
 		// physics tick
@@ -227,10 +232,10 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 		// damping
 		vel = _rabbit_damping(vel);
 
-		int obj_type = OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE | OBJ_BRANCH_TYPE | OBJ_SPRING_BRANCH_TYPE | OBJ_SPIKE_BRANCH_TYPE;
+		int obj_type = OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE;
 		obj_type &= ~collision_flag;
 
-		if(jumped){
+		if(jumped && iterations % 2 == 0){
 
 			RectF rec = {
 				.left = landing.x,
@@ -271,8 +276,11 @@ static Vector2 _predict_landing(ObjRabbit* rabbit, Vector2 force){
 			if(vel.y > 0.0f) jumped = true;
 		}
 
+
+		/*
 		if(++iterations > 1000) 
 			printf("D landing[%f;%f] velocity[%f;%f] \n",landing.x, landing.y,vel.x,vel.y);
+		*/
 
 	}
 
@@ -325,7 +333,7 @@ static Vector2 _predict_diving(ObjRabbit* rabbit){
 		// damping
 		vel = _rabbit_damping(vel);
 
-		int obj_type = OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE | OBJ_BRANCH_TYPE | OBJ_SPRING_BRANCH_TYPE | OBJ_SPIKE_BRANCH_TYPE;
+		int obj_type = OBJ_GROUND_TYPE | OBJ_MUSHROOM_TYPE;
 		obj_type &= ~collision_flag;
 
 		RectF rec = {
@@ -814,75 +822,6 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 
 	}
-	// Collision with spring branch (bounce)
-	else if(other->type == OBJ_SPRING_BRANCH_TYPE && !d->touching_ground &&
-		vel.y > 500.0f && d->bounce_force.y == 0.0f) {
-
-		d->mushroom_hit_time = time_s();
-		anim_play_ex(rabbit->anim, "bounce", TIME_S);
-		vel.y = -vel.y;
-
-		Vector2 f = {
-			.x = MIN(vel.x*d->xjump, 110000.0f),
-			//.y = MAX(vel.y*d->yjump,-250000.0f)
-			.y = vel.y*vel.y
-		};
-
-		d->bounce_force = vec2_scale(f,1.0f);
-
-
-		// Slow down vertical movement
-		self->physics->vel.y *= 0.2f;
-
-		// Delay actual bouncing 0.1s
-		async_schedule(_rabbit_delayed_bounce, 20, self);
-	}
-
-	// Collision with branches (run)
-	else if(other->type == OBJ_BRANCH_TYPE ||
-
-		(other->type == OBJ_SPIKE_BRANCH_TYPE && d->spike_hit) ||
-
-		(other->type == OBJ_SPRING_BRANCH_TYPE && d->bounce_force.y == 0.0f)
-
-		) {
-
-		d->previuos_hit = other;
-
-		if(other->type != OBJ_SPIKE_BRANCH_TYPE) d->spike_hit = false;
-
-		// Branch run
-		CDObj* cd_rabbit = self->physics->cd_obj;
-		CDObj* cd_ground = other->physics->cd_obj;
-		float rabbit_bottom = cd_rabbit->pos.y + cd_rabbit->size.size.y;
-		float ground_top = cd_ground->pos.y;
-
-		if(p->vel.y >= 0.0f){
-
-			float penetration = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
-			if(penetration > 0.0f && cd_rabbit->pos.y < ground_top && !d->over_branch  ) {
-
-				self->physics->vel.y = 0.0f;
-				d->over_branch = false;
-				if(!d->touching_ground) {
-					if(d->player_control) hud_trigger_combo(0);
-					anim_play_ex(rabbit->anim, "land", TIME_S);
-					d->shield_dh = -20.0f;
-				}
-				d->touching_ground = true;
-				cd_rabbit->offset = vec2_add(
-					cd_rabbit->offset, 
-					vec2(0.0f, -penetration)
-				);
-			}
-
-		} else {
-			d->over_branch = true;
-		}
-
-
-	}
-
 	// Collision with fall trigger
 	else if(other->type == OBJ_FALL_TRIGGER_TYPE) {
 		d->touching_ground = false;	
@@ -953,6 +892,11 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		vel.y > 500.0f && d->bounce_force.y == 0.0f) {
 
 		d->previuos_hit = other;
+
+		if(d->force_dive) {
+			d->jump_off_mushroom = true;
+			d->force_dive = false;
+		}
 
 		d->mushroom_hit_time = time_s();
 		anim_play_ex(rabbit->anim, "bounce", TIME_S);

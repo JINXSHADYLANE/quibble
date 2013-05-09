@@ -24,11 +24,6 @@ static void obj_deco_construct(GameObject* self, Vector2 pos, void* user_data) {
 			render->camera = 0;
 		break; 
 
-		case OBJ_TRUNK_TYPE:
-			render->layer = trunk_layer;
-			render->camera = 0;
-		break; 
-
 		default:
 			render->layer = bg_mushrooms_layer;
 			render->camera = 1;		

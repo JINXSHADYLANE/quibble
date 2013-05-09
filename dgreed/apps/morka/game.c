@@ -313,6 +313,7 @@ void game_render_level(void){
 	float z = 1.0f + (objects_camera_z[0] - 1.0f) / 8.0f;
 
 	Vector2 size = sprsheet_get_size_h(levels_current_desc()->background);
+	size = vec2_scale(size, 2.0f);
 	
 	Vector2 pos = vec2(bg_scroll,v_height-size.y);
 	Vector2 center = vec2(v_width/2.0f,v_height);

@@ -14,9 +14,6 @@ enum {
 	OBJ_TRAMPOLINE_TYPE 	= 0x04 | collision_flag,
 	OBJ_CACTUS_TYPE 		= 0x08 | collision_flag,
 	OBJ_FALL_TRIGGER_TYPE 	= 0x10 | collision_flag,
-	OBJ_BRANCH_TYPE 		= 0x20 | collision_flag,
-	OBJ_SPIKE_BRANCH_TYPE 	= 0x40 | collision_flag,
-	OBJ_SPRING_BRANCH_TYPE 	= 0x80 | collision_flag,
 	OBJ_RABBIT_TYPE 		= 0x100 | collision_flag,
 	OBJ_SPEED_TRIGGER_TYPE	= 0x200 | collision_flag,
 	OBJ_ERASER_TYPE			= 0x400 | collision_flag,
@@ -26,7 +23,6 @@ enum {
 enum {
 	OBJ_DECO_TYPE 				=  1 << 16,
 	OBJ_FG_DECO_TYPE 			=  2 << 16,
-	OBJ_TRUNK_TYPE				=  3 << 16,
 	OBJ_PARTICLE_ANCHOR_TYPE	=  4 << 16,
 	OBJ_BG_PARTICLE_ANCHOR_TYPE	=  5 << 16,
 	OBJ_FLOATER_TYPE			=  6 << 16,	
