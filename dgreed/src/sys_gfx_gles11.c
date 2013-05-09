@@ -5,10 +5,12 @@
 #include "image.h"
 #include "gfx_utils.h"
 
-#import <QuartzCore/QuartzCore.h>
+#ifdef TARGET_IOS
 #include <OpenGLES/ES1/gl.h>
 #include <OpenGLES/ES1/glext.h>
-#import "GLESViewController.h"
+#else
+#include <SDL_opengles.h>
+#endif
 
 /*
 -------------
@@ -62,17 +64,15 @@ static DArray textures;
 static uint frame;
 float screen_widthf, screen_heightf;
 float x_size_factor, y_size_factor;
-float x_touch_factor, y_touch_factor;
+float touch_scale_x, touch_scale_y;
 Color clear_color = 0;
 
 static uint radix_counts[256];
 static DArray rects_out;
 static DArray vertex_buffer;
 static uint16 index_buffer[max_vertices/4 * 6];
-extern uint fps_count;
 static bool video_retro_filtering = false;
 static bool has_discard_extension = false;
-static bool use_bgra = false;
 
 const float tex_mul = 32767.0f;
 
@@ -154,23 +154,18 @@ void _sort_rects(DArray rects_in) {
 
 	memcpy(r_in, r_out, rects_in.size * rects_in.item_size);
 }
+// sys_gfx.h interface implementation
+
+extern bool _sys_video_initialized;
+extern void _sys_video_init(void);
+extern void _sys_video_close(void);
+extern void _sys_set_title(const char* title);
+extern void _sys_video_get_native_resolution(uint* width, uint* height);
+extern void _sys_present(void);
+
 
 void video_get_native_resolution(uint* width, uint* height) {
-    CGRect screen_rect = [[UIScreen mainScreen] bounds];
-    *width = MAX(screen_rect.size.width, screen_rect.size.height);
-    *height = MIN(screen_rect.size.width, screen_rect.size.height);
-
-    CGFloat screen_scale;
-
-    if([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-        screen_scale = [[UIScreen mainScreen] scale];
-    }
-    else {
-        screen_scale = 1.0f;
-    }
-
-    *width *= screen_scale;
-    *height *= screen_scale;
+   	_sys_video_get_native_resolution(width, height);
 }
 
 static void _set_blendmode(BlendMode mode) {
@@ -209,16 +204,23 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	assert(width != 0 && height != 0);
 	assert(v_width != 0 && v_height != 0);
 
+	if(!_sys_video_initialized)
+		_sys_video_init();
+
+	_sys_set_title(name);
+
     screen_widthf = v_width;
     screen_heightf = v_height;
 
-    has_discard_extension = _check_extension("GL_EXT_discard_framebuffer");
+	touch_scale_x = (float)v_width / (float)width;
+	touch_scale_y = (float)v_height / (float)height;
 
-    NSString *reqSysVer = @"3.1.4";
-    NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
-    if ([currSysVer compare:reqSysVer options:NSNumericSearch] == NSOrderedAscending) {
-		use_bgra = true;
-	}
+    LOG_INFO("Vendor     : %s", glGetString(GL_VENDOR));
+    LOG_INFO("Renderer   : %s", glGetString(GL_RENDERER));
+    LOG_INFO("Version    : %s", glGetString(GL_VERSION));
+    LOG_INFO("Extensions : %s", glGetString(GL_EXTENSIONS));
+
+    has_discard_extension = _check_extension("GL_EXT_discard_framebuffer");
 
 	glEnable(GL_TEXTURE_2D);
 	glShadeModel(GL_FLAT);
@@ -236,6 +238,7 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
+#ifdef TARGET_IOS
 	if(width > height) {
         glViewport(0, 0, height, width);
         // Some tricky transformations to properly turn view sideways
@@ -245,7 +248,9 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
         glTranslatef((float)v_height/-2.0f, (float)v_width/-2.0f, 0.0f);
         glScalef((float)v_height/(float)v_width, (float)v_width/(float)v_height, 1.0f);
     }
-    else {
+    else 
+#endif
+	{
         glViewport(0, 0, width, height);
         glOrthof(0.0f, (float)v_width, (float)v_height, 0.0f, -1.0f, 1.0f);
         //glScalef((float)v_width/(float)v_height, (float)v_height/(float)v_width, 1.0f);
@@ -256,8 +261,6 @@ void video_init_ex(uint width, uint height, uint v_width, uint v_height,
 
 	x_size_factor = (float)v_width / (float)width;
 	y_size_factor = (float)v_height / (float)height;
-    x_touch_factor = x_size_factor * [[UIScreen mainScreen] scale];
-    y_touch_factor = y_size_factor * [[UIScreen mainScreen] scale];
 
 #ifndef NO_DEVMODE
 	memset(&v_stats, 0, sizeof(v_stats));
@@ -521,7 +524,7 @@ void video_present(void) {
 				vb[k].color = c;
 				k++;
 				vb[k].x = points[1].x;
-				vb[k].y = points[1].x;
+				vb[k].y = points[1].y;
 				vb[k].color = c;
 				k++;
 			}
@@ -536,7 +539,7 @@ void video_present(void) {
 			glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), &vb[0].u);
 		}
 
-	#ifndef NO_DEVOMDE
+	#ifndef NO_DEVMODE
 		v_stats.frame_rects += rect_buckets[i].size;
 		v_stats.frame_lines += line_buckets[i].size;
 	#endif
@@ -544,13 +547,14 @@ void video_present(void) {
 
     _sys_present();
 
+	/*
     if(has_discard_extension) {
         const GLenum discards[]  = {GL_COLOR_ATTACHMENT0_OES, GL_DEPTH_ATTACHMENT_OES};
         glDiscardFramebufferEXT(GL_FRAMEBUFFER_OES, 2, discards);
     }
+	*/
 
 	frame++;
-	fps_count++;
 
 	for(i = 0; i < bucket_count; ++i) {
 		rect_buckets[i].size = 0;
@@ -591,7 +595,7 @@ static uint _make_gl_texture(void* data, uint width, uint height) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
-	uint order = use_bgra ? GL_BGRA_EXT : GL_RGBA;
+	uint order = GL_RGBA;
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
 				 order, GL_UNSIGNED_BYTE, data);
@@ -635,7 +639,7 @@ TexHandle tex_create(uint width, uint height) {
 TexHandle tex_load(const char* filename) {
 	return tex_load_filter(filename, NULL);
 }
-extern void* ios_load_image(const char* filename, uint* w, uint* h, PixelFormat* format);
+
 TexHandle tex_load_filter(const char* filename, TexFilter filter) {
 	assert(filename);
 
@@ -681,7 +685,7 @@ void tex_blit(TexHandle tex, Color* data, uint x, uint y, uint w, uint h) {
 	assert(t->active);
 	assert((x + w <= t->width) && (y + h <= t->height));
 
-	uint order = use_bgra ? GL_BGRA_EXT : GL_RGBA;
+	uint order = GL_RGBA;
 
 	glBindTexture(GL_TEXTURE_2D, t->gl_id);
 
@@ -847,3 +851,4 @@ void video_draw_line(uint layer, const Vector2* start,
 		line_buckets[layer] = darray_create(sizeof(LineDesc), 32);
 	darray_append(&line_buckets[layer], &new_line);
 }
+

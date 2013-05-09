@@ -66,6 +66,7 @@ bool dgreed_init(int argc, const char** argv) {
 	if(n_width < 500.0f && n_height < 360.0f) {
 		v_width = n_width * 2.0f;
 		v_height = n_height * 2.0f;
+		sprsheet = ASSETS_DIR "s_spritesheet.mml";
 	}
 	else if(n_width < 960.0f && n_height < 640.0f) {
 		v_width = n_width * 1.5f;

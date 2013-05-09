@@ -216,6 +216,7 @@ static bool shop_render(float t) {
 
 	selected_char = hud_scroll_get_selection(xpos,-inc,character_count);
 
+	SprHandle empty = sprsheet_get_handle("empty");
 	for(uint i = 0; i < character_count;i++){
 
 		Vector2 offset = vec2(xpos + i * inc,0.0f);
@@ -241,8 +242,6 @@ static bool shop_render(float t) {
 		// Character txt
 		vfont_select(FONT_NAME, 38.0f);
 		vfont_draw(default_characters[i].name, hud_layer, vec2_add(character_name->vec2,offset), col2);	
-
-		SprHandle empty = sprsheet_get_handle("solid");
 
 		vfont_select(FONT_NAME, 30.0f);
 		const char* speed = "Speed";
