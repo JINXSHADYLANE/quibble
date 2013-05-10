@@ -6,6 +6,7 @@ sources = Glob('*.c', strings=True)
 sources += Glob('lib9-utf/*.c', strings=True)
 
 sources.remove('sys_gfx_gles2.c')
+sources.remove('sys_gfx_gles11.c')
 sources.remove('sys_snd_android.c')
 sources.remove('sys_misc_android.c')
 sources.remove('http_android.c')

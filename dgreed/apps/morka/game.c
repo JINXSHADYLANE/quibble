@@ -326,12 +326,19 @@ void game_render_level(void){
 	pos.x = sqrtf(c - pos.y * pos.y );
 	pos.x = -fmodf(pos.x, size.x);
 
+#ifdef CLIPPING
+	objects_clip(rectf(0.0f, v_height - 130.0f, v_width, v_height), ground_layer);
+#endif
+
 	// Loop background until it fills the screen
 	while(pos.x < v_width){
 		RectF dest = rectf(pos.x,v_height - size.y, pos.x + size.x,v_height);
-		spr_draw_h(levels_current_desc()->background, background_layer, dest, col);
+		objects_render_spr(levels_current_desc()->background, MAX_UINT16,
+			background_layer, dest, col
+		);
 		pos.x += size.x;
 	}
+
 
 	objects_tick(game_paused);
 	minimap_draw_finish_line();
