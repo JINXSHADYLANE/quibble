@@ -378,6 +378,7 @@ void _time_update(uint current_time) {
 		if(fps < 58)
 			force_60fps--;
 
+		LOG_INFO("fps %u", fps);
 	}
 	fps_count++;
 	last_frame_time = t;

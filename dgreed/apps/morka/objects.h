@@ -118,6 +118,14 @@ void objects_tick(bool paused);
 RectF objects_world2screen(RectF world, uint camera_id);
 Vector2 objects_world2screen_vec2(Vector2 world, uint camera_id);
 
+#ifdef CLIPPING
+// Clips all objects overlapping with r, behind layer l
+void objects_clip(RectF r, uint l);
+#endif
+
+// Render sprite not owned by objects system with all the clipping rules
+void objects_render_spr(SprHandle spr, uint16 frame, uint layer, RectF dest, Color col);
+
 // Returns first GameObject whose physics component intersects the ray segment,
 // or NULL of there is no such object
 GameObject* objects_raycast(Vector2 start, Vector2 end);

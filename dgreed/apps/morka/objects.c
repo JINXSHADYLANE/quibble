@@ -53,6 +53,20 @@ typedef struct {
 	void* user_data;
 } NewObject;
 
+// Clipping
+
+#ifdef CLIPPING
+typedef struct {
+	RectF rect;
+	uint layer;
+} Clipper;
+
+#define max_clippers 16
+
+static Clipper clippers[max_clippers];
+static uint n_clippers = 0;
+#endif
+
 void objects_init(void) {
 	memset(objects_camera, 0, sizeof(objects_camera));
 
@@ -249,6 +263,72 @@ static RectF _transform_rect(RectF in, float z) {
 	return out;
 }
 
+#ifdef CLIPPING
+static void _objects_render_clipped(TexHandle tex, uint layer,
+		RectF src, RectF dest, RectF clip_rect, Color col) {
+	RectF sd_rects[5];	
+	uint n_rects = rectf_cut(&dest, &clip_rect, sd_rects);
+
+	float mul_w = rectf_width(&src) / rectf_width(&dest);
+	float mul_h = rectf_height(&src) / rectf_height(&dest);
+
+	for(uint i = 0; i < n_rects; ++i) {
+		RectF idest = sd_rects[i];
+		RectF isrc = {
+			.left = (idest.left - dest.left) * mul_w + src.left,
+			.top = (idest.top - dest.top) * mul_h + src.top,
+			.right = (idest.right - dest.left) * mul_w + src.left,
+			.bottom = (idest.bottom - dest.top) * mul_h + src.top
+		};
+
+		video_draw_rect(tex, layer, &isrc, &idest, col);
+	}
+}
+#endif
+
+void objects_render_spr(SprHandle spr, uint16 frame, uint layer, RectF dest, Color col) {
+#ifdef CLIPPING
+	bool clip = false;
+	RectF clip_rect = {0.0f, 0.0f, 0.0f, 0.0f};
+	for(uint i = 0; i < n_clippers; ++i) {
+		Clipper c = clippers[i];
+		if(c.layer > layer) {
+			if(rectf_rectf_collision(&c.rect, &dest)) {
+				clip_rect = c.rect;
+				clip = true;
+				break;
+			}
+		}
+	}
+
+	if(clip) {
+		// Render clipped
+		TexHandle h;
+		RectF src;
+		if(unlikely(frame != MAX_UINT16)) {
+			sprsheet_get_anim_h(spr, frame, &h, &src);
+		}
+		else {
+			sprsheet_get_h(spr, &h, &src);
+		}
+
+		_objects_render_clipped(h, layer, src, dest, clip_rect, col);
+	}
+	else
+#endif
+	{
+		// Render unclipped
+		if(unlikely(frame != MAX_UINT16)) {
+			// Animation sprite
+			spr_draw_anim_h(spr, frame, layer, dest, col);
+		}
+		else {
+			// Static sprite
+			spr_draw_h(spr, layer, dest, col);
+		}
+	}
+}
+
 static void objects_render_tick(uint n_components) {
 	assert(render.size >= n_components);
 	RenderComponent* rndr = darray_get(&render, 0);
@@ -299,14 +379,7 @@ static void objects_render_tick(uint n_components) {
 				);
 
 				// Render
-				if(r->anim_frame != MAX_UINT16) {
-					// Animation sprite
-					spr_draw_anim_h(r->spr, r->anim_frame, r->layer, sd, r->color);
-				}
-				else {
-					// Static sprite
-					spr_draw_h(r->spr, r->layer, sd, r->color);
-				}
+				objects_render_spr(r->spr, r->anim_frame, r->layer, sd, r->color);
 			}
 
 			if(r->post_render)
@@ -319,6 +392,10 @@ static void objects_render_tick(uint n_components) {
 
 		r->was_visible = is_visible;
 	}
+
+#ifdef CLIPPING
+	n_clippers = 0;
+#endif
 }
 
 static void objects_destroy_internal(GameObject* obj) {
@@ -496,6 +573,18 @@ Vector2 objects_world2screen_vec2(Vector2 world, uint camera_id) {
 		world.y - camera->top
 	);
 }
+
+#ifdef CLIPPING
+void objects_clip(RectF r, uint l) {
+	Clipper new = {
+		.rect = r,
+		.layer = l
+	};
+
+	assert(n_clippers < max_clippers);
+	clippers[n_clippers++] = new;
+}
+#endif
 
 GameObject* objects_raycast(Vector2 start, Vector2 end) {
 	Vector2 hitpoint;
