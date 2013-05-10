@@ -61,7 +61,7 @@ static DArray rect_buckets[bucket_count];
 static DArray line_buckets[bucket_count];
 static DArray textures;
 
-static uint frame;
+uint frame;
 float screen_widthf, screen_heightf;
 float x_size_factor, y_size_factor;
 float touch_scale_x, touch_scale_y;

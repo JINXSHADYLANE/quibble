@@ -6,6 +6,8 @@
 #include <SDL.h>
 #include <unistd.h>
 
+#include <EGL/egl.h>
+
 #define MS_PER_FRAME (1000.0f/60.0f)
 
 // Main
@@ -354,14 +356,28 @@ uint time_ms_current(void) {
 	return SDL_GetTicks();
 }
 
+static int force_60fps = 0;
+extern int frame;
+
 void _time_update(uint current_time) {
 	int t = current_time - inactive_time;
+	if(force_60fps > 6) {
+		do {
+			t = SDL_GetTicks() - inactive_time;
+		} while(t - last_frame_time <= (frame % 3 == 0 ? 15 : 16));
+	}
+
 	t_d = (float)(t - last_frame_time) * t_scale;
 	t_ms += t_d;
 	if(last_fps_update + 1000 < current_time) {
 		fps = fps_count;
 		fps_count = 0;
 		last_fps_update = current_time;
+		if(fps > 63)
+			force_60fps++;
+		if(fps < 58)
+			force_60fps--;
+
 	}
 	fps_count++;
 	last_frame_time = t;
@@ -578,6 +594,10 @@ void _sys_video_init(void) {
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
 	*/
+	SDL_GL_SetSwapInterval(1);
+
+	EGLDisplay dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+	eglSwapInterval(dpy, 1);
 
 	SDL_Window* window = SDL_CreateWindow("dgreed", 
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
