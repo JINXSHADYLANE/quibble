@@ -20,6 +20,10 @@ Example desc:
 		(s hit.wav
 			(volume 0.3)
 		)
+
+		(s step1.wav)
+		(s step2.wav)
+		(s step3.wav)
 	)
 
 	(effects _
@@ -40,6 +44,28 @@ Example desc:
 
 		(e wind
 			(sound wind.wav)
+		)
+
+		(e step3
+			(sound step3.wav)
+		)
+
+		(e steps
+			(random ->
+				(weight 2)
+				(e sound_a
+					(sound step1.wav)
+				)
+			)
+
+			(random ->
+				(delay 0.1)
+				(e sound_b
+					(sound step2.wav)
+				)
+			)
+
+			(random step3)
 		)
 	)
 )
