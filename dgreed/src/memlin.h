@@ -22,6 +22,7 @@ void memlin_init(MemLin* lin, size_t chunk_size);
 void memlin_drain(MemLin* lin);
 
 void* memlin_alloc(MemLin* lin, size_t size);
+char* memlin_strclone(MemLin* lin, const char* str);
 void memlin_free(MemLin* lin, void* ptr, size_t size);
 
 #endif

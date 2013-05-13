@@ -64,6 +64,14 @@ void* memlin_alloc(MemLin* lin, size_t size) {
 	return ptr;
 }
 
+char* memlin_strclone(MemLin* lin, const char* str) {
+	assert(lin && str);
+	size_t l = strlen(str) + 1;
+	char* p = memlin_alloc(lin, l);
+	strcpy(p, str);
+	return p;
+}
+
 void memlin_free(MemLin* lin, void* ptr, size_t size) {
 	assert(lin && size);
 	assert(size < lin->chunk_size/2);
