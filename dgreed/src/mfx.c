@@ -5,13 +5,15 @@
 #include "darray.h"
 #include "datastruct.h"
 #include "memory.h"
+#include "memlin.h"
 #include "mml.h"
 
 static const bool preload_all = true;
 
 typedef enum {
 	SUB_SOUND,
-	SUB_PARTICLES
+	SUB_PARTICLES,
+	SUB_RANDOM
 } SubEffectType;
 
 typedef struct {
@@ -19,6 +21,7 @@ typedef struct {
 	const char* name;
 	float delay;
 	float dir_offset;
+	float weight;
 	Vector2 pos_offset;
 } SubEffect;
 
@@ -37,7 +40,8 @@ typedef struct {
 typedef size_t LiveSubEffectIdx;
 
 typedef struct {
-	uint sub_start, sub_count;
+	uint sub_start, sub_count, rnd_count;
+	float rnd_total_weight;
 } MetaEffect;
 
 typedef size_t MetaEffectIdx;
@@ -68,6 +72,7 @@ static MMLObject mfx_mml;
 static float mfx_volume;
 static const char* mfx_prefix;
 
+static MemLin str_allocator;
 static Dict meta_effect_dict;
 static DArray meta_effects;
 static DArray sub_effects;
@@ -117,6 +122,11 @@ static void _psystem_die(const void* d) {
 	assert(0 && "Can't find the right live sub effect of psystem");
 }
 
+static void _mfx_trigger(
+	const char* name, Vector2 pos, float dir,
+	const Vector2* pos_follow, const float* dir_follow
+);
+
 static void _perform_sub_effect(LiveSubEffect* sf) {
 	assert(sf);
 	assert(!sf->remove);
@@ -128,7 +138,7 @@ static void _perform_sub_effect(LiveSubEffect* sf) {
 	if(sub->type == SUB_SOUND) {
 		mfx_snd_play(sub->name);
 	}
-	else {
+	else if (sub->type == SUB_PARTICLES) {
 		Vector2 p = vec2_add(sf->pos, sub->pos_offset);
 		float dir = sf->dir + sub->dir_offset;
 
@@ -145,6 +155,10 @@ static void _perform_sub_effect(LiveSubEffect* sf) {
 			sf->psystem = NULL;
 			particles_spawn(sub->name, &p, dir);
 		}
+	}
+	else {
+		// Random
+		_mfx_trigger(sub->name, sf->pos, sf->dir, NULL, NULL);
 	}
 }
 
@@ -175,6 +189,7 @@ static void _load_sounds(NodeIdx node) {
 	for(; sound_node != 0; sound_node = mml_get_next(&mfx_mml, sound_node)) {
 		assert(strcmp("s", mml_get_name(&mfx_mml, sound_node)) == 0);
 		const char* snd_name = mml_getval_str(&mfx_mml, sound_node);
+		snd_name = memlin_strclone(&str_allocator, snd_name);
 
 		SndDef new = {
 			.type = SND_EVENT,
@@ -236,75 +251,128 @@ static void _load_sounds(NodeIdx node) {
 	}
 }
 
+static void _parse_sub(NodeIdx sub_node, MetaEffect* new, const char* parent_name);
+
+static const char* _parse_effect(NodeIdx mfx_node, const char* name_prefix) {
+	assert(strcmp("e", mml_get_name(&mfx_mml, mfx_node)) == 0);
+
+	char* new_mfx_name;
+	const char* mfx_name = mml_getval_str(&mfx_mml, mfx_node);
+	if(name_prefix) {
+		// Name with prefix, +2 is for ':' and '\0'
+		size_t l = strlen(name_prefix) + strlen(mfx_name) + 2;
+		new_mfx_name = memlin_alloc(&str_allocator, l);
+		sprintf(new_mfx_name, "%s:%s", name_prefix, mfx_name);
+	}
+	else {
+		// Name without prefix
+		new_mfx_name = memlin_strclone(&str_allocator, mfx_name);
+	}
+	mfx_name = new_mfx_name;
+
+	MetaEffect new = {
+		.sub_start = sub_effects.size,
+		.sub_count = 0,
+		.rnd_count = 0,
+		.rnd_total_weight = 0.0f
+	};
+
+	darray_append(&meta_effects, &new);
+	MetaEffectIdx idx = meta_effects.size-1;
+	MetaEffect* pnew = darray_get(&meta_effects, idx);
+
+#ifdef _DEBUG
+	assert(dict_insert(&meta_effect_dict, mfx_name, (void*)idx));
+#else
+	dict_insert(&meta_effect_dict, mfx_name, (void*)idx);
+#endif
+
+	// Sub effects
+	NodeIdx sub_node = mml_get_first_child(&mfx_mml, mfx_node);
+	for(; sub_node != 0; sub_node = mml_get_next(&mfx_mml, sub_node)) {
+		_parse_sub(sub_node, pnew, mfx_name);
+	}
+
+	return mfx_name;
+}
+
+static void _parse_sub(NodeIdx sub_node, MetaEffect* new, const char* parent_name) {
+	const char* name = mml_get_name(&mfx_mml, sub_node);
+	SubEffectType type = 0;
+
+	if(strcmp("sound", name) == 0)
+		type = SUB_SOUND;
+	else if(strcmp("particles", name) == 0)
+		type = SUB_PARTICLES;
+	else if(strcmp("random", name) == 0)
+		type = SUB_RANDOM;
+	else
+		LOG_ERROR("Uknown sub effect type");
+
+	SubEffect sub = {
+		.type = type,
+		.name = NULL,
+		.delay = 0.0f,
+		.dir_offset = 0.0f,
+		.weight = 1.0f,
+		.pos_offset = {0.0f, 0.0f}
+	};
+
+	if(type == SUB_RANDOM) {
+		new->rnd_count++;
+
+		if(strcmp("->", name) == 0) {
+			// Locally defined effect
+			NodeIdx effect = mml_get_child(&mfx_mml, sub_node, "e");
+			assert(effect && "No local effect found in 'random ->' sub");
+			sub.name = _parse_effect(effect, parent_name);
+		}
+	}
+
+	if(!sub.name) {
+		const char* name = mml_getval_str(&mfx_mml, sub_node);
+		size_t l = strlen(name) + 1;
+		char* name_clone = memlin_alloc(&str_allocator, l+1);
+		strcpy(name_clone, name);
+		sub.name = name_clone;
+	}
+
+	// Params
+	NodeIdx param = mml_get_first_child(&mfx_mml, sub_node);
+	for(; param != 0; param = mml_get_next(&mfx_mml, param)) {
+		const char* param_name = mml_get_name(&mfx_mml, param);
+
+		if(strcmp("delay", param_name) == 0) {
+			sub.delay = mml_getval_float(&mfx_mml, param);
+			assert(sub.delay >= 0.0f);
+		}
+
+		if(strcmp("dir_offset", param_name) == 0) {
+			sub.dir_offset = mml_getval_float(&mfx_mml, param);
+			sub.dir_offset *= DEG_TO_RAD;
+		}
+
+		if(strcmp("pos_offset", param_name) == 0) {
+			sub.pos_offset = mml_getval_vec2(&mfx_mml, param);
+		}
+
+		if(strcmp("weight", param_name) == 0) {
+			sub.weight = mml_getval_float(&mfx_mml, param);
+		}
+	}
+
+	darray_append(&sub_effects, &sub);
+	new->rnd_total_weight += sub.weight;
+	new->sub_count++;
+}
+
 static void _load_effects(NodeIdx node) {
 	assert(strcmp("effects", mml_get_name(&mfx_mml, node)) == 0);
 
 	// Iterate over meta effects
 	NodeIdx mfx_node = mml_get_first_child(&mfx_mml, node);
 	for(; mfx_node != 0; mfx_node = mml_get_next(&mfx_mml, mfx_node)) {
-		assert(strcmp("e", mml_get_name(&mfx_mml, mfx_node)) == 0);
-
-		const char* mfx_name = mml_getval_str(&mfx_mml, mfx_node);
-
-		MetaEffect new = {
-			.sub_start = sub_effects.size,
-			.sub_count = 0
-		};
-
-		// Sub effects
-		NodeIdx sub_node = mml_get_first_child(&mfx_mml, mfx_node);
-		for(; sub_node != 0; sub_node = mml_get_next(&mfx_mml, sub_node)) {
-
-			const char* name = mml_get_name(&mfx_mml, sub_node);
-			SubEffectType type = 0;
-
-			if(strcmp("sound", name) == 0)
-				type = SUB_SOUND;
-			else if(strcmp("particles", name) == 0)
-				type = SUB_PARTICLES;
-			else
-				LOG_ERROR("Uknown sub effect type");
-
-			SubEffect sub = {
-				.type = type,
-				.name = mml_getval_str(&mfx_mml, sub_node),
-				.delay = 0.0f,
-				.dir_offset = 0.0f,
-				.pos_offset = {0.0f, 0.0f}
-			};
-
-			// Params
-			NodeIdx param = mml_get_first_child(&mfx_mml, sub_node);
-			for(; param != 0; param = mml_get_next(&mfx_mml, param)) {
-				const char* param_name = mml_get_name(&mfx_mml, param);
-
-				if(strcmp("delay", param_name) == 0) {
-					sub.delay = mml_getval_float(&mfx_mml, param);
-					assert(sub.delay >= 0.0f);
-				}
-
-				if(strcmp("dir_offset", param_name) == 0) {
-					sub.dir_offset = mml_getval_float(&mfx_mml, param);
-					sub.dir_offset *= DEG_TO_RAD;
-				}
-
-				if(strcmp("pos_offset", param_name) == 0) {
-					sub.pos_offset = mml_getval_vec2(&mfx_mml, param);
-				}
-			}
-
-			darray_append(&sub_effects, &sub);
-			new.sub_count++;
-		}
-
-		darray_append(&meta_effects, &new);
-		MetaEffectIdx idx = meta_effects.size-1;
-
-#ifdef _DEBUG
-		assert(dict_insert(&meta_effect_dict, mfx_name, (void*)idx));
-#else
-		dict_insert(&meta_effect_dict, mfx_name, (void*)idx);
-#endif
+		_parse_effect(mfx_node, NULL);
 	}
 }
 
@@ -330,13 +398,18 @@ static void _load_desc(const char* filename) {
 		if(strcmp("effects", name) == 0)
 			_load_effects(child);
 
-		if(strcmp("prefix", name) == 0)
-			mfx_prefix = mml_getval_str(&mfx_mml, child);
+		if(strcmp("prefix", name) == 0) {
+			mfx_prefix = memlin_strclone(
+				&str_allocator, mml_getval_str(&mfx_mml, child)
+			);
+		}
 	}
 }
 
 void mfx_init(const char* desc) {
 	assert(desc);
+
+	memlin_init(&str_allocator, 1024);
 
 	dict_init(&meta_effect_dict);
 	dict_init(&snd_dict);
@@ -352,10 +425,11 @@ void mfx_init(const char* desc) {
 	mfx_volume = 1.0f;
 
 	_load_desc(desc);
+
+	mml_free(&mfx_mml);
 }
 
 void mfx_close(void) {
-	mml_free(&mfx_mml);
 
 	// Check for live sounds, stop them
 	LiveSnd* snds = DARRAY_DATA_PTR(snd_live, LiveSnd);
@@ -379,6 +453,8 @@ void mfx_close(void) {
 	heap_free(&live_sub_effects_pq);
 	dict_free(&snd_dict);
 	dict_free(&meta_effect_dict);
+
+	memlin_drain(&str_allocator);
 }
 
 static void _snd_update(void);
@@ -426,9 +502,33 @@ static void _mfx_trigger(
 	MetaEffectIdx idx = (MetaEffectIdx)dict_get(&meta_effect_dict, name);
 	MetaEffect* mfx = _get_meta_effect(idx);
 
+	// If there are random subs - choose which one to perform
+	uint random_effect = ~0;
+	if(mfx->rnd_count) {
+		float r = rand_float_range(0.0f, mfx->rnd_total_weight);
+		float weight_accum = 0.0f;
+
+		for(uint i = 0; i < mfx->sub_count; ++i) {
+			SubEffect* sub = _get_sub_effect(mfx->sub_start + i);
+			if(sub->type == SUB_RANDOM) {
+				weight_accum += sub->weight;
+				if(weight_accum >= r) {
+					random_effect = i;
+					break;
+				}
+			}
+		}
+
+		assert(random_effect < mfx->sub_count);
+	}
+
 	// Iterate over sub effects, perform them or push to delayed queue
 	for(uint i = 0; i < mfx->sub_count; ++i) {
 		SubEffect* sub = _get_sub_effect(mfx->sub_start + i);
+
+		// Skip all random effects except the one we chose to perform
+		if(sub->type == SUB_RANDOM && i != random_effect)
+			continue;
 
 		LiveSubEffect live = {
 			.remove = false,
