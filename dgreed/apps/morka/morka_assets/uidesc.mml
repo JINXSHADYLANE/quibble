@@ -15,20 +15,20 @@
 		(spr token_tag)
 		(add <-
 			(tl <- (get_rect screen))
-			(vec2 50,50)
+			(vec2 50,40)
 		)
 	)
 	(def coin_text
 		(add <-
 			(tl <- (get_rect screen))
-			(vec2 100,30)
+			(vec2 100,18)
 		)
 	)
 	(def position_line
 		(spr position_line)
 		(add <-
 			(x vec2 (middle <- (get_rect screen)))
-			(vec2 0,20)	
+			(vec2 0,24)	
 		)
 	)
 	(def game_over_tut
@@ -214,17 +214,15 @@
 
 		(def button_sound
 			(add <-
-				(bl <- (get_rect screen))
-				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 -100,-120)
+				(middle <- (get_rect screen))
+				(vec2 -100,230)
 			)
 		)		
 
 		(def button_music
 			(add <-
-				(bl <- (get_rect screen))
-				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 100,-120)
+				(middle <- (get_rect screen))
+				(vec2 100,230)
 			)
 		)			
 	)
@@ -390,29 +388,31 @@
 
 		(def text1
 			(add <-
-				(x vec2 (middle <- (get_rect screen)))
-				(vec2 0,60)
+				(middle <- (get_rect screen))
+				(vec2 0,-250)
 			)
 		)
 
 		(def text2
 			(add <-
-				(x vec2 (middle <- (get_rect screen)))
-				(vec2 0,120)
+				#(x vec2 (middle <- (get_rect screen)))
+				#(vec2 0,120)
+				(middle <- (get_rect screen))
+				(vec2 0,-190)
 			)
 		)
 
 		(def text3
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,60)
+				(vec2 0,90)
 			)
 		)				
 
 		(def item
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-100)
+				(vec2 0,-40)
 			)
 		)
 
@@ -420,16 +420,15 @@
 			(spr tut_star)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-100)
+				(vec2 0,-40)
 			)
 		)
 
 		(def button_quit
 			(spr quit)
 			(add <-
-				(bl <- (get_rect screen))
-				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 0,-150)
+				(middle <- (get_rect screen))
+				(vec2 0,220)
 			)
 		)
 	)	
@@ -466,7 +465,7 @@
 	(def combo_text
 		(add <-
 			(x vec2 (middle <- (get_rect screen)))
-			(vec2 0,54)	
+			(vec2 0,68)	
 		)
 	)
 
