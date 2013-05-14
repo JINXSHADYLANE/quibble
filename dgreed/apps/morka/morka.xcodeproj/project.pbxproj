@@ -12,8 +12,6 @@
 		219BE99816776981002B614C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BE99716776981002B614C /* UIKit.framework */; };
 		219BE99A16776981002B614C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BE99916776981002B614C /* Foundation.framework */; };
 		219BE99C16776981002B614C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BE99B16776981002B614C /* CoreGraphics.framework */; };
-		219BE9AA16776981002B614C /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 219BE9A916776981002B614C /* Default.png */; };
-		219BE9AC16776981002B614C /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 219BE9AB16776981002B614C /* Default@2x.png */; };
 		219BE9AE16776981002B614C /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 219BE9AD16776981002B614C /* Default-568h@2x.png */; };
 		219BEA0A16776A3F002B614C /* anim.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BE9B716776A3E002B614C /* anim.c */; };
 		219BEA0B16776A3F002B614C /* async.c in Sources */ = {isa = PBXBuildFile; fileRef = 219BE9B916776A3E002B614C /* async.c */; };
@@ -158,6 +156,10 @@
 		AA0E3F1416BFDFA200A47FFB /* levels.c in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3F1016BFDFA200A47FFB /* levels.c */; };
 		AA0E3F1516BFDFA200A47FFB /* minimap.c in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3F1216BFDFA200A47FFB /* minimap.c */; };
 		AA25266916D25F1B003BD743 /* obj_trampoline.c in Sources */ = {isa = PBXBuildFile; fileRef = AA25266816D25F1B003BD743 /* obj_trampoline.c */; };
+		AA32A0EA17425E910078D0EE /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA32A0E917425E910078D0EE /* Default-Landscape~ipad.png */; };
+		AA32A0EC17425E970078D0EE /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AA32A0EB17425E960078D0EE /* Default-Landscape@2x~ipad.png */; };
+		AA32A0F017425F720078D0EE /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = AA32A0EF17425F720078D0EE /* icon.png */; };
+		AA32A0F217425F940078D0EE /* icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AA32A0F117425F940078D0EE /* icon@2x.png */; };
 		AA41F55416B93462000D077C /* obj_particle_anchor.c in Sources */ = {isa = PBXBuildFile; fileRef = AA41F55316B93462000D077C /* obj_particle_anchor.c */; };
 		AA64162016D7B7E70066AEA8 /* obj_floater.c in Sources */ = {isa = PBXBuildFile; fileRef = AA64161F16D7B7E70066AEA8 /* obj_floater.c */; };
 		AA7188C81703494900687C50 /* shop.c in Sources */ = {isa = PBXBuildFile; fileRef = AA7188C61703494900687C50 /* shop.c */; };
@@ -433,6 +435,10 @@
 		AA0E3F1216BFDFA200A47FFB /* minimap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minimap.c; path = ../minimap.c; sourceTree = "<group>"; };
 		AA0E3F1316BFDFA200A47FFB /* minimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minimap.h; path = ../minimap.h; sourceTree = "<group>"; };
 		AA25266816D25F1B003BD743 /* obj_trampoline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_trampoline.c; path = ../obj_trampoline.c; sourceTree = "<group>"; };
+		AA32A0E917425E910078D0EE /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape~ipad.png"; sourceTree = "<group>"; };
+		AA32A0EB17425E960078D0EE /* Default-Landscape@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape@2x~ipad.png"; sourceTree = "<group>"; };
+		AA32A0EF17425F720078D0EE /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
+		AA32A0F117425F940078D0EE /* icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x.png"; sourceTree = "<group>"; };
 		AA41F55316B93462000D077C /* obj_particle_anchor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj_particle_anchor.c; path = ../obj_particle_anchor.c; sourceTree = "<group>"; };
 		AA64161F16D7B7E70066AEA8 /* obj_floater.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obj_floater.c; sourceTree = SOURCE_ROOT; };
 		AA7188C61703494900687C50 /* shop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shop.c; sourceTree = SOURCE_ROOT; };
@@ -495,6 +501,10 @@
 		219BE98816776981002B614C = {
 			isa = PBXGroup;
 			children = (
+				AA32A0F117425F940078D0EE /* icon@2x.png */,
+				AA32A0EF17425F720078D0EE /* icon.png */,
+				AA32A0EB17425E960078D0EE /* Default-Landscape@2x~ipad.png */,
+				AA32A0E917425E910078D0EE /* Default-Landscape~ipad.png */,
 				AA8213B6169DA89500A7EBA8 /* icon@2x~ipad.png */,
 				AA8213B3169DA89200A7EBA8 /* icon~ipad.png */,
 				219BE9B4167769CB002B614C /* dgreed */,
@@ -908,13 +918,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				219BE9AA16776981002B614C /* Default.png in Resources */,
-				219BE9AC16776981002B614C /* Default@2x.png in Resources */,
 				219BE9AE16776981002B614C /* Default-568h@2x.png in Resources */,
 				219BEAFF16776B6B002B614C /* morka_assets in Resources */,
 				219BEB0016776B6B002B614C /* morka_scripts in Resources */,
 				AA8213B4169DA89200A7EBA8 /* icon~ipad.png in Resources */,
 				AA8213B7169DA89500A7EBA8 /* icon@2x~ipad.png in Resources */,
+				AA32A0EA17425E910078D0EE /* Default-Landscape~ipad.png in Resources */,
+				AA32A0EC17425E970078D0EE /* Default-Landscape@2x~ipad.png in Resources */,
+				AA32A0F017425F720078D0EE /* icon.png in Resources */,
+				AA32A0F217425F940078D0EE /* icon@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1153,13 +1165,13 @@
 		219BE9B216776981002B614C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "E0C42A6A-71B8-4017-8DBB-9B2B6408D4FB";
+				PROVISIONING_PROFILE = "397E2D74-9E22-4FF6-89C3-8B5E87A4175E";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1168,13 +1180,13 @@
 		219BE9B316776981002B614C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "E0C42A6A-71B8-4017-8DBB-9B2B6408D4FB";
+				PROVISIONING_PROFILE = "397E2D74-9E22-4FF6-89C3-8B5E87A4175E";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
