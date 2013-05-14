@@ -362,7 +362,8 @@ static void _parse_sub(NodeIdx sub_node, MetaEffect* new, const char* parent_nam
 	}
 
 	darray_append(&sub_effects, &sub);
-	new->rnd_total_weight += sub.weight;
+	if(type == SUB_RANDOM)
+		new->rnd_total_weight += sub.weight;
 	new->sub_count++;
 }
 

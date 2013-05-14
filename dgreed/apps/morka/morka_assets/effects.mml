@@ -18,35 +18,34 @@
 			(particles jump )
 			(random ->
 				(e bounce1 
-					(sound bounce1.wav)
+					(sound e_sounds/bounce1.wav)
 				)
 			)
 			(random ->
 				(e bounce2 
-					(sound bounce2.wav)
+					(sound e_sounds/bounce2.wav)
 				)
 			)
 			(random ->
 				(e bounce3 
-					(sound bounce3.wav)
+					(sound e_sounds/bounce3.wav)
 				)
 			)
 			(random ->
 				(e bounce4 
-					(sound bounce4.wav)
+					(sound e_sounds/bounce4.wav)
 				)
 			)
 			(random ->
 				(e bounce5 
-					(sound bounce5.wav)
+					(sound e_sounds/bounce5.wav)
 				)
 			)
 			(random ->
 				(e bounce6 
-					(sound bounce6.wav)
+					(sound e_sounds/bounce6.wav)
 				)
 			)
-
 		)
 		(e water
 			(particles water)
