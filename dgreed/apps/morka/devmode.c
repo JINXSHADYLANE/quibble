@@ -76,6 +76,15 @@ static void _draw_stats(void) {
 	dprint2(" particles: %u", pstats->total_particles);
 	cur.y += 18;
 }
+
+static void _draw_fps(void) {
+    uint fps = time_fps();
+    char text[128];
+    sprintf(text, "%d", fps);
+    Vector2 pos = vec2(30.0f, 30.0f);
+
+    font_draw_ex(dev_font, text, 15, &pos, 3.5f, COLOR_BLACK);
+}
 #endif
 
 void devmode_render(void) {
@@ -91,6 +100,8 @@ void devmode_render(void) {
 
 	if(draw_stats)
 		_draw_stats();
+    
+    //_draw_fps();
 #endif
 }
 
