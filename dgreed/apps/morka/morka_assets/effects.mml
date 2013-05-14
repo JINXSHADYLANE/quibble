@@ -1,0 +1,128 @@
+(mfx _
+	(prefix "morka_assets/")
+	(sounds _
+		(s e_sounds/bounce1.wav)
+		(s e_sounds/bounce2.wav)
+		(s e_sounds/bounce3.wav)
+		(s e_sounds/bounce4.wav)
+		(s e_sounds/bounce5.wav)
+		(s e_sounds/bounce6.wav)	
+	)
+	(effects _
+		(e boost
+			(particles boost
+
+			)
+		)
+		(e jump
+			(particles jump )
+			(random ->
+				(e bounce1 
+					(sound e_sounds/bounce1.wav)
+				)
+			)
+			(random ->
+				(e bounce2 
+					(sound e_sounds/bounce2.wav)
+				)
+			)
+			(random ->
+				(e bounce3 
+					(sound e_sounds/bounce3.wav)
+				)
+			)
+			(random ->
+				(e bounce4 
+					(sound e_sounds/bounce4.wav)
+				)
+			)
+			(random ->
+				(e bounce5 
+					(sound e_sounds/bounce5.wav)
+				)
+			)
+			(random ->
+				(e bounce6 
+					(sound e_sounds/bounce6.wav)
+				)
+			)
+		)
+		(e water
+			(particles water)
+		)
+		(e water_front
+			(particles water
+				(pos_offset 70,0)
+			)
+		)
+		(e run1
+			(particles run1)
+		)
+		(e run1_front
+			(particles run1
+				(pos_offset 70,0)
+			)
+		)
+		(e dusts
+			(particles dusts
+
+			)
+		)
+		(e dusts2
+			(particles dusts2
+
+			)
+		)		
+		(e boost_explosion
+			(particles boost_explosion
+
+			)
+		)
+		(e cactus_reaction
+			(particles cactus
+
+			)
+		)
+		(e coin_pick
+			(particles coin
+
+			)
+		)
+		(e powerup_pick
+			(particles powerup_pick
+
+			)
+		)
+		(e bubble_explode
+			(particles bubble_explode
+
+			)
+		)
+		(e bomb_explode
+			(particles bomb_explode
+
+			)
+		)
+		(e rocket_ride
+			(particles rocket
+
+			)
+		)
+		(e flies
+			(particles flies
+
+			)
+		)	
+		(e bubbles
+			(particles bubbles
+
+			)
+		)
+		(e skunk_gas
+			(particles skunk_gas
+
+			)
+		)			
+	)
+)
+
