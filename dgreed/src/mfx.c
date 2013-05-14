@@ -68,12 +68,18 @@ typedef struct {
 	SndDefIdx def;
 } LiveSnd;
 
+typedef struct {
+	NodeIdx node;
+	const char* name;
+} ParseTask;
+
 static MMLObject mfx_mml;
 static float mfx_volume;
 static const char* mfx_prefix;
 
 static MemLin str_allocator;
 static Dict meta_effect_dict;
+static DArray parse_queue;
 static DArray meta_effects;
 static DArray sub_effects;
 static DArray live_sub_effects;
@@ -253,7 +259,39 @@ static void _load_sounds(NodeIdx node) {
 
 static void _parse_sub(NodeIdx sub_node, MetaEffect* new, const char* parent_name);
 
-static const char* _parse_effect(NodeIdx mfx_node, const char* name_prefix) {
+static const char* _parse_effect(NodeIdx mfx_node, const char* mfx_name) {
+	MetaEffect new = {
+		.sub_start = sub_effects.size,
+		.sub_count = 0,
+		.rnd_count = 0,
+		.rnd_total_weight = 0.0f
+	};
+
+	if(!mfx_name)
+		mfx_name = memlin_strclone(&str_allocator, mml_getval_str(&mfx_mml, mfx_node));
+
+	darray_append(&meta_effects, &new);
+	MetaEffectIdx idx = meta_effects.size-1;
+	MetaEffect* pnew = darray_get(&meta_effects, idx);
+
+#ifdef _DEBUG
+	if(!dict_insert(&meta_effect_dict, mfx_name, (void*)idx)) {
+		LOG_ERROR("Unable to register effect with name %s", mfx_name);
+	}
+#else
+	dict_insert(&meta_effect_dict, mfx_name, (void*)idx);
+#endif
+
+	// Sub effects
+	NodeIdx sub_node = mml_get_first_child(&mfx_mml, mfx_node);
+	for(; sub_node != 0; sub_node = mml_get_next(&mfx_mml, sub_node)) {
+		_parse_sub(sub_node, pnew, mfx_name);
+	}
+
+	return mfx_name;
+}
+
+static const char* _enqueue_parse_effect(NodeIdx mfx_node, const char* name_prefix) {
 	assert(strcmp("e", mml_get_name(&mfx_mml, mfx_node)) == 0);
 
 	char* new_mfx_name;
@@ -270,28 +308,12 @@ static const char* _parse_effect(NodeIdx mfx_node, const char* name_prefix) {
 	}
 	mfx_name = new_mfx_name;
 
-	MetaEffect new = {
-		.sub_start = sub_effects.size,
-		.sub_count = 0,
-		.rnd_count = 0,
-		.rnd_total_weight = 0.0f
+	ParseTask new = {
+		.node = mfx_node,
+		.name = mfx_name
 	};
 
-	darray_append(&meta_effects, &new);
-	MetaEffectIdx idx = meta_effects.size-1;
-	MetaEffect* pnew = darray_get(&meta_effects, idx);
-
-#ifdef _DEBUG
-	assert(dict_insert(&meta_effect_dict, mfx_name, (void*)idx));
-#else
-	dict_insert(&meta_effect_dict, mfx_name, (void*)idx);
-#endif
-
-	// Sub effects
-	NodeIdx sub_node = mml_get_first_child(&mfx_mml, mfx_node);
-	for(; sub_node != 0; sub_node = mml_get_next(&mfx_mml, sub_node)) {
-		_parse_sub(sub_node, pnew, mfx_name);
-	}
+	darray_append(&parse_queue, &new);
 
 	return mfx_name;
 }
@@ -321,11 +343,11 @@ static void _parse_sub(NodeIdx sub_node, MetaEffect* new, const char* parent_nam
 	if(type == SUB_RANDOM) {
 		new->rnd_count++;
 
-		if(strcmp("->", name) == 0) {
+		if(strcmp("->", mml_getval_str(&mfx_mml, sub_node)) == 0) {
 			// Locally defined effect
 			NodeIdx effect = mml_get_child(&mfx_mml, sub_node, "e");
 			assert(effect && "No local effect found in 'random ->' sub");
-			sub.name = _parse_effect(effect, parent_name);
+			sub.name = _enqueue_parse_effect(effect, parent_name);
 		}
 	}
 
@@ -407,6 +429,14 @@ static void _load_desc(const char* filename) {
 	}
 }
 
+static void _perform_queued_tasks(void) {
+	uint cursor = 0;
+	while(cursor < parse_queue.size) {
+		ParseTask* task = darray_get(&parse_queue, cursor++);
+		_parse_effect(task->node, task->name);
+	}
+}
+
 void mfx_init(const char* desc) {
 	assert(desc);
 
@@ -425,7 +455,10 @@ void mfx_init(const char* desc) {
 
 	mfx_volume = 1.0f;
 
+	parse_queue = darray_create(sizeof(ParseTask), 16);
 	_load_desc(desc);
+	_perform_queued_tasks();
+	darray_free(&parse_queue);
 
 	mml_free(&mfx_mml);
 }
