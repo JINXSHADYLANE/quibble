@@ -2,6 +2,7 @@ Import('env')
 
 NAME='morka'
 ASSETS_DIR = NAME + '_assets'
+SOUNDS_DIR = ASSETS_DIR + '/e_sounds'
 SCRIPTS_DIR = NAME + '_scripts'
 
 sources = Glob('*.c', strings=True)
@@ -22,6 +23,11 @@ if env['DGREED_POSTFIX'] == 'd':
 			asset.endswith('.ttf') or \
 			asset.endswith('.bft'):
 			env.Install(dest_dir, asset)
+
+	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + SOUNDS_DIR
+	for sound in Glob(SOUNDS_DIR + '/*', strings=True):
+		if sound.endswith('.wav') or sound.endswith('.ogg'):
+			env.Install(dest_dir, sound);
 	
 	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + SCRIPTS_DIR
 	for script in Glob(SCRIPTS_DIR + '/*.lua', strings=True):
