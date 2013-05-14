@@ -1,5 +1,13 @@
 (mfx _
 	(prefix "morka_assets/")
+	(sounds _
+		(s e_sounds/bounce1.wav)
+		(s e_sounds/bounce2.wav)
+		(s e_sounds/bounce3.wav)
+		(s e_sounds/bounce4.wav)
+		(s e_sounds/bounce5.wav)
+		(s e_sounds/bounce6.wav)	
+	)
 	(effects _
 		(e boost
 			(particles boost
@@ -7,9 +15,38 @@
 			)
 		)
 		(e jump
-			(particles jump
-
+			(particles jump )
+			(random ->
+				(e bounce1 
+					(sound bounce1.wav)
+				)
 			)
+			(random ->
+				(e bounce2 
+					(sound bounce2.wav)
+				)
+			)
+			(random ->
+				(e bounce3 
+					(sound bounce3.wav)
+				)
+			)
+			(random ->
+				(e bounce4 
+					(sound bounce4.wav)
+				)
+			)
+			(random ->
+				(e bounce5 
+					(sound bounce5.wav)
+				)
+			)
+			(random ->
+				(e bounce6 
+					(sound bounce6.wav)
+				)
+			)
+
 		)
 		(e water
 			(particles water)
