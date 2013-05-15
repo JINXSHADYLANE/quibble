@@ -342,7 +342,7 @@ static void objects_render_tick(uint n_components) {
 	m[0] = inv_z; m[1] = 0.0f; m[2] = (v_half_w - v_half_w * inv_z);
 	m[3] = 0.0f; m[4] = inv_z; m[5] = v_height - v_height * inv_z;
 
-	for(uint l = dust_layer; l < hud_layer; ++l)
+	for(uint l = dust_layer; l < hud_layer-1; ++l)
 		video_set_transform(l, m);
 
 	// This checks visibility of every object,

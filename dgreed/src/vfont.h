@@ -80,12 +80,15 @@ void vfont_select(const char* font_name, float size);
 void vfont_draw(const char* string, uint layer, Vector2 topleft, Color tint);
 void vfont_draw_ex(const char* string, uint layer, Vector2 topleft, Color tint, float scale);
 void vfont_draw_input(const char* string, uint layer, Vector2 topleft, Color tint);
+void vfont_draw_number(int number, const char* postfix, uint layer, Vector2 topleft, Color tint);
+void vfont_draw_number_ex(int number, const char* postfix, uint layer, Vector2 topleft, Color tint, float scale);
 void vfont_precache(const char* string);
 void vfont_cache_invalidate(const char* string);
 void vfont_cache_invalidate_ex(const char* string, bool strict);
 void vfont_invalidate_all(void);
 
 Vector2 vfont_size(const char* string);
+Vector2 vfont_number_size(int number);
 
 void vfont_draw_cache(uint layer, Vector2 topleft);
 

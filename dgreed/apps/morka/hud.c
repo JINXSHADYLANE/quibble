@@ -162,8 +162,6 @@ static void _hud_render_combo_internal(
 
 	// Classic sine there-and-back-again for alpha
 	float a = MAX(0.0f, sinf((t*1.4f - 0.2f) * PI));
-	char final_text[64];
-	sprintf(final_text, text, mult);
 
 	static uint old = 0;
 	uint new = hash_murmur(&mult,sizeof(mult),0);
@@ -172,12 +170,12 @@ static void _hud_render_combo_internal(
 
 	if(old != new) {
 		old = new;
-		half_size = vec2_scale(vfont_size(final_text), 0.5f);
+		half_size = vec2_scale(vfont_size(text), 0.5f);
 	}
 
 	Vector2 pos = vec2_sub(element->vec2, half_size);
 	pos.x -= x * 200.0f;
-	vfont_draw(final_text, layer, pos, COLOR_FTRANSP(a));
+	vfont_draw_number(mult, text, layer, pos, COLOR_FTRANSP(a));
 }
 
 void hud_init(void) {
@@ -206,7 +204,6 @@ void hud_render(float t) {
 
 		UIElement* coin_text = uidesc_get("coin_text");
 		vfont_select(FONT_NAME, 38.0f);
-		char str[32];
 
 		static uint coins = 0;
 		static uint prev = 0;
@@ -216,7 +213,6 @@ void hud_render(float t) {
 		prev = coins;
 		coins = player->data->tokens;
 
-		sprintf(str, "%d",coins);
 
 		if(prev != coins && coins != 0)
 			anim = time_s() + duration;
@@ -225,7 +221,7 @@ void hud_render(float t) {
 		if(anim - time_s() > 0)
 			scale += anim - time_s();
 
-		vfont_draw_ex(str, hud_layer, coin_text->vec2, col,scale);
+		vfont_draw_number_ex(coins, NULL, hud_layer, coin_text->vec2, col, scale);
 
 
 		if(!player->data->game_over) _hud_render_powerups(t);
@@ -243,11 +239,11 @@ void hud_render(float t) {
 	uint min_combo;
 
 	if(tutorial_level){
-		combo_text = "%ux";
+		combo_text = "x";
 		combo_text_size = 120.0f;
 		min_combo = 1;
 	} else {
-		combo_text = "%ux Combo";
+		combo_text = "x Combo";
 		combo_text_size = 38.0f;
 		min_combo = 3;
 	}
@@ -326,7 +322,7 @@ void hud_render_game_over_out(float t) {
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
+	spr_draw("blue_shade", hud_layer-1, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
@@ -380,7 +376,7 @@ void hud_render_game_over_tut(float t) {
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
+	spr_draw("blue_shade", hud_layer-1, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	// Text
 	vfont_select(FONT_NAME, 48.0f); 
@@ -433,7 +429,7 @@ void hud_render_game_over_main(float t){
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
+	spr_draw("blue_shade", hud_layer-1, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	uint place = minimap_get_place_of_rabbit(player);
 	char place_txt[32];
@@ -553,10 +549,8 @@ void hud_render_game_over_main(float t){
 		
 		// Coin txt
 		vfont_select(FONT_NAME, 48.0f);
-		char coins_str[32];
-		sprintf(coins_str, "%d",coins_earned);
 		static Vector2 fsize = {0};
-		Vector2 fsize2 = vfont_size(coins_str);
+		Vector2 fsize2 = vfont_number_size(coins_earned);
 		if(fsize2.x > fsize.x) fsize = fsize2;
 
 		Vector2 str_pos = vec2_sub(coin_text->vec2, vec2(fsize.x,fsize.y/2.0f));
@@ -564,7 +558,7 @@ void hud_render_game_over_main(float t){
 		float scale2 = scale1;
 		if(coin_anim > 0.0f) scale2 += coin_anim - time_s();
 
-		vfont_draw_ex(coins_str, hud_layer, str_pos, col, scale2);
+		vfont_draw_number_ex(coins_earned, NULL, hud_layer, str_pos, col, scale2);
 	}
 
 }
@@ -643,7 +637,7 @@ void hud_render_regular_pause(float t){
 		byte a = lrintf(255.0f * alpha);
 		Color col = COLOR_RGBA(255, 255, 255, a);
 
-		spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
+		spr_draw("blue_shade", hud_layer-1, rectf(0.0f, 0.0f, v_width, v_height), col); 
 		// Text
 		vfont_select(FONT_NAME, 48.0f); 
 		const char* str = "Paused";

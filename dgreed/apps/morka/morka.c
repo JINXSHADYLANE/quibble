@@ -161,6 +161,7 @@ bool dgreed_update(void) {
 bool dgreed_render(void) {
 	devmode_render();
 	particles_draw();
+	//vfont_draw_cache(15, vec2(0.0f, 0.0f));
 	return malka_states_step();
 }
 
