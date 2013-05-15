@@ -4,7 +4,7 @@
 
 	(img empty 
 		(tex s_atlas_13.png)
-		(src 248,50,249,51)
+		(src 249,51,250,52)
 	)
 
 	### background ###

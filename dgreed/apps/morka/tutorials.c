@@ -189,7 +189,7 @@ TutorialStep default_steps[] = {
 
 	{0.625f,
 	 "3",
-	 150.0f,
+	 120.0f,
 	 {0.5f,0.5f},	 
 	 NULL,
 	 NULL,
@@ -204,7 +204,7 @@ TutorialStep default_steps[] = {
 
 	{0.625f,
 	 "2",
-	 150.0f,
+	 120.0f,
 	 {0.5f,0.5f},	 	 
 	 NULL,
 	 NULL,
@@ -219,7 +219,7 @@ TutorialStep default_steps[] = {
 
 	{0.625f,
 	 "1",
-	 150.0f,
+	 120.0f,
 	 {0.5f,0.5f},	 	 
 	 NULL,
 	 NULL,
@@ -337,7 +337,18 @@ void tutorials_set_level(const char* level){
 			current_scenario = &scenarios[i];
 		i++;
 	}
-	if(!current_scenario) tutorials_set_level("default");
+	if(!current_scenario) {
+		// Hack: wipe tutorial text entries from text cache
+		// to give us some useful texture space
+		for(uint i = 0; i < ARRAY_SIZE(level1_steps); ++i) {
+			TutorialStep* step = &level1_steps[i];
+			if(step->text) {
+				vfont_select(FONT_NAME, step->font_size); 
+				vfont_cache_invalidate_ex(step->text, true);
+			}
+		}
+		tutorials_set_level("default");
+	}
 }
 
 void tutorial_event(EventType e){

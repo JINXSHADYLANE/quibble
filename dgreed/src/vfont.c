@@ -316,6 +316,33 @@ void vfont_draw_input(const char* string, uint layer, Vector2 topleft, Color tin
     vfont_draw(string, layer, topleft, tint);
 }
 
+void vfont_draw_number(
+	int number, const char* postfix, 
+	uint layer, Vector2 topleft, Color tint
+) {
+	vfont_draw_number_ex(number, postfix, layer, topleft, tint, 1.0f);
+}
+
+
+void vfont_draw_number_ex(
+	int number, const char* postfix, uint layer, 
+	Vector2 topleft, Color tint, float scale
+) {
+	char num[32];
+	sprintf(num, "%d", number);
+
+	char str[2] = {'\0', '\0'};
+	for(uint i = 0; num[i]; ++i) {
+		str[0] = num[i];
+		vfont_draw_ex(str, layer, topleft, tint, scale);
+		topleft.x += vfont_size(str).x * scale;
+	}
+
+	if(postfix) {
+		vfont_draw_ex(postfix, layer, topleft, tint, scale);
+	}
+}
+
 void vfont_precache(const char* string) {
     if(strcmp(string, "") == 0)
         return;
@@ -383,6 +410,23 @@ Vector2 vfont_size(const char* string) {
         .y = rectf_height(&bbox)
     };
     return res;
+}
+
+Vector2 vfont_number_size(int number) {
+	char num[32];
+	sprintf(num, "%d", number);
+
+	Vector2 s = {0.0f, 0.0f};
+
+	char str[2] = {'\0', '\0'};
+	for(uint i = 0; num[i]; ++i) {
+		str[0] = num[i];
+		Vector2 sz = vfont_size(str);
+		s.x += sz.x;
+		s.y = sz.y;
+	}
+
+	return s;
 }
 
 void vfont_draw_cache(uint layer, Vector2 topleft) {

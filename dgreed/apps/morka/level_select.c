@@ -23,6 +23,13 @@ static void level_select_init(void) {
 	music_off = sprsheet_get_handle("music_off");
 	sound_enabled = keyval_get_bool("sound", false);
 	music_enabled = keyval_get_bool("music", false);
+
+	vfont_select(FONT_NAME, 48.0f);
+	for(int i = 0; i <= 9; ++i) {
+		char str[2];
+		sprintf(str, "%d", i);
+		vfont_precache(str);
+	}
 }
 
 static void level_select_close(void) {
@@ -154,10 +161,8 @@ static bool level_select_render(float t) {
 
 			vfont_select(FONT_NAME, 48.0f);
 			// Draw number
-			char n[4];
-			sprintf(n, "%d",i+1);
-			Vector2 half_size = vec2_scale(vfont_size(n), 0.5f);
-			vfont_draw(n, hud_layer+1, vec2_sub(pos,half_size), col);
+			Vector2 half_size = vec2_scale(vfont_number_size(i+1), 0.5f);
+			vfont_draw_number(i+1, NULL, hud_layer+1, vec2_sub(pos,half_size), col);
 		}
 
 		// newline at end of column

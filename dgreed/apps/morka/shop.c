@@ -152,10 +152,10 @@ static void _render_powerups_buy(float t){
 				Vector2	half_size = vec2_scale(vfont_size(str), 0.5f);
 				txt_pos = vec2_sub(txt_pos, half_size);
 				txt_pos.y -= size.y - 20.0f;
-				vfont_draw(str, hud_layer, txt_pos, col_txt);
+				vfont_draw_number(
+					powerup_params[i].cost, "¢", hud_layer, txt_pos, col_txt
+				);
 			}
-
-
 		}
 	}
 }
@@ -207,7 +207,7 @@ static bool shop_render(float t) {
 	byte a = lrintf(255.0f * state_alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
 
-	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
+	spr_draw("blue_shade", hud_layer-1, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	static float anim_start = 0.0f;
 	static float anim_end = 0.0f;
@@ -306,7 +306,7 @@ static bool shop_render(float t) {
 					td = clamp(0.0f,1.0f,td);
 				}
 
-				float y_offset = sin(PI*td/2.0f) * 30.0f;
+				float y_offset = sinf(PI*td/2.0f) * 30.0f;
 
 				alpha_txt = lrintf(255.0f  * scroll_alpha * state_alpha * (1.0f - td) );
 				col_a = COLOR_RGBA(255, 255, 255, alpha_txt);		
@@ -316,20 +316,18 @@ static bool shop_render(float t) {
 			}
 
 			vfont_select(FONT_NAME, 48.0f);
-			char cost[32];
-			sprintf(cost, "%u¢",default_characters[i].cost);
-			vfont_draw(cost, hud_layer, pos, col_a);
+			vfont_draw_number(
+				default_characters[i].cost, "¢", hud_layer, pos, col_a
+			);
 		}
-
 	}
 
 	// Coin icon
 	spr_draw_cntr_h(coin_icon->spr, hud_layer+1,coin_icon->vec2, 0.0f, 1.0f, col);
 	// Coin txt
 	vfont_select(FONT_NAME, 38.0f);
-	char str[32];
-	sprintf(str, "%u",coins);
-	vfont_draw(str, hud_layer+1, coin_text->vec2, col);
+	vfont_draw_number(coins, NULL, hud_layer+1, coin_text->vec2, col);
+	Vector2 txt_size = vfont_number_size(coins);
 
 	if(_shop_character_owned(selected_char)){
 		// Play button
@@ -350,7 +348,6 @@ static bool shop_render(float t) {
 	}
 
 	Vector2 coin_size = sprsheet_get_size_h(coin_icon->spr); 
-	Vector2 txt_size = vfont_size(str);
 	Vector2 btn_pos;
 	btn_pos.x = coin_icon->vec2.x - coin_size.x / 2.0f +
 				coin_text->vec2.x + txt_size.x;
