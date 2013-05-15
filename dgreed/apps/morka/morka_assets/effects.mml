@@ -1,12 +1,73 @@
 (mfx _
 	(prefix "morka_assets/")
 	(sounds _
-		(s e_sounds/bounce1.wav)
-		(s e_sounds/bounce2.wav)
-		(s e_sounds/bounce3.wav)
-		(s e_sounds/bounce4.wav)
-		(s e_sounds/bounce5.wav)
-		(s e_sounds/bounce6.wav)	
+		(s e_sounds/bounce1.wav
+			(volume 0.2)
+		)
+		(s e_sounds/bounce2.wav
+			(volume 0.2)
+		)
+		(s e_sounds/bounce3.wav
+			(volume 0.2)
+		)
+		(s e_sounds/bounce4.wav
+			(volume 0.2)
+		)
+		(s e_sounds/bounce5.wav
+			(volume 0.2)
+		)
+		(s e_sounds/bounce6.wav
+			(volume 0.2)
+		)
+
+		(s e_sounds/trampoline1.wav
+			(volume 1.0)
+		)
+		(s e_sounds/trampoline2.wav
+			(volume 1.0)
+		)
+		(s e_sounds/trampoline3.wav
+			(volume 1.0)
+		)
+
+		(s e_sounds/run1.wav
+			(volume 0.4)
+		)
+		(s e_sounds/run2.wav
+			(volume 0.4)
+		)
+		(s e_sounds/run3.wav
+			(volume 0.4)
+		)
+
+		(s e_sounds/water1.wav
+			(volume 0.4)
+		)
+		(s e_sounds/water2.wav
+			(volume 0.4)
+		)
+		(s e_sounds/water3.wav
+			(volume 0.4)
+		)
+
+		(s e_sounds/coin_pickup1.wav
+			(volume 0.8)
+		)
+		(s e_sounds/coin_pickup2.wav
+			(volume 0.8)
+		)
+		(s e_sounds/coin_pickup3.wav
+			(volume 0.8)
+		)
+		(s e_sounds/coin_pickup4.wav
+			(volume 0.8)
+		)
+		(s e_sounds/coin_pickup5.wav
+			(volume 0.8)
+		)
+		(s e_sounds/coin_pickup6.wav
+			(volume 0.8)
+		)	
 	)
 	(effects _
 		(e boost
@@ -49,6 +110,21 @@
 		)
 		(e water
 			(particles water)
+			(random ->
+				(e water1 
+					(sound e_sounds/water1.wav)
+				)
+			)
+			(random ->
+				(e water2 
+					(sound e_sounds/water2.wav)
+				)
+			)
+			(random ->
+				(e water3 
+					(sound e_sounds/water3.wav)
+				)
+			)
 		)
 		(e water_front
 			(particles water
@@ -57,6 +133,21 @@
 		)
 		(e run1
 			(particles run1)
+			(random ->
+				(e run1 
+					(sound e_sounds/run1.wav)
+				)
+			)
+			(random ->
+				(e run2 
+					(sound e_sounds/run2.wav)
+				)
+			)
+			(random ->
+				(e run3 
+					(sound e_sounds/run3.wav)
+				)
+			)
 		)
 		(e run1_front
 			(particles run1
@@ -84,14 +175,40 @@
 			)
 		)
 		(e coin_pick
-			(particles coin
-
+			(particles coin )
+			(random ->
+				(e coin1 
+					(sound e_sounds/coin_pickup1.wav)
+				)
+			)
+			(random ->
+				(e coin2 
+					(sound e_sounds/coin_pickup2.wav)
+				)
+			)
+			(random ->
+				(e coin3 
+					(sound e_sounds/coin_pickup3.wav)
+				)
+			)
+			(random ->
+				(e coin4 
+					(sound e_sounds/coin_pickup4.wav)
+				)
+			)
+			(random ->
+				(e coin5 
+					(sound e_sounds/coin_pickup5.wav)
+				)
+			)
+			(random ->
+				(e coin6
+					(sound e_sounds/coin_pickup6.wav)
+				)
 			)
 		)
 		(e powerup_pick
-			(particles powerup_pick
-
-			)
+			(particles powerup_pick )
 		)
 		(e bubble_explode
 			(particles bubble_explode
