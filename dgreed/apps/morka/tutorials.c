@@ -472,6 +472,7 @@ bool tutorials_render(float t){
 					}
 					else {
 						rabbit->data->force_dive = true;
+						rabbit->data->jump_off_mushroom = true;
 					}
 				}
 				prev_step = current_step;
@@ -521,3 +522,4 @@ bool tutorials_render(float t){
 
 	return true;
 }
+

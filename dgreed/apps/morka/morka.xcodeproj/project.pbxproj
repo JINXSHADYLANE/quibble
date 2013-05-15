@@ -1165,13 +1165,13 @@
 		219BE9B216776981002B614C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "397E2D74-9E22-4FF6-89C3-8B5E87A4175E";
+				PROVISIONING_PROFILE = "39F176E5-BFA0-4C96-95C2-2F781DFBB6DA";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1180,13 +1180,13 @@
 		219BE9B316776981002B614C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "397E2D74-9E22-4FF6-89C3-8B5E87A4175E";
+				PROVISIONING_PROFILE = "39F176E5-BFA0-4C96-95C2-2F781DFBB6DA";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};

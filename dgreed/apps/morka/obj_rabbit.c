@@ -490,7 +490,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				}
 
 				if(ts - d->mushroom_hit_time < 0.1f) {	// values higher than 0.1 seem to break AI
-					d->jump_off_mushroom = false;
+					//d->jump_off_mushroom = false;
 
 					if(fabsf(d->mushroom_hit_time - d->last_keypress_t) < 0.2f)
 						d->jump_off_mushroom = true;
