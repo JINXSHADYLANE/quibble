@@ -344,7 +344,7 @@ void tutorials_set_level(const char* level){
 			TutorialStep* step = &level1_steps[i];
 			if(step->text) {
 				vfont_select(FONT_NAME, step->font_size); 
-				vfont_cache_invalidate_ex(step->text, true);
+				vfont_cache_invalidate_ex(step->text, false);
 			}
 		}
 		tutorials_set_level("default");

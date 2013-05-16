@@ -271,8 +271,8 @@ static const char* _parse_effect(NodeIdx mfx_node, const char* mfx_name) {
 		mfx_name = memlin_strclone(&str_allocator, mml_getval_str(&mfx_mml, mfx_node));
 
 	darray_append(&meta_effects, &new);
-	MetaEffectIdx idx = meta_effects.size-1;
-	MetaEffect* pnew = darray_get(&meta_effects, idx);
+	MetaEffectIdx idx = meta_effects.size;
+	MetaEffect* pnew = darray_get(&meta_effects, idx-1);
 
 #ifdef _DEBUG
 	if(!dict_insert(&meta_effect_dict, mfx_name, (void*)idx)) {
@@ -534,7 +534,11 @@ static void _mfx_trigger(
 	assert(name);
 
 	MetaEffectIdx idx = (MetaEffectIdx)dict_get(&meta_effect_dict, name);
-	MetaEffect* mfx = _get_meta_effect(idx);
+#ifdef _DEBUG
+	if(idx == 0)
+		LOG_ERROR("Trying to trigger non-existing metaeffect %s", name);
+#endif
+	MetaEffect* mfx = _get_meta_effect(idx-1);
 
 	// If there are random subs - choose which one to perform
 	uint random_effect = ~0;
