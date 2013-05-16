@@ -338,7 +338,6 @@
 
 	)	
 	(def in_app
-
 		(def coin_icon
 			(spr token_tag)
 			(add <-
@@ -346,32 +345,37 @@
 				(vec2 50,50)
 			)
 		)
-
 		(def coin_text
 			(add <-
 				(tl <- (get_rect screen))
 				(vec2 100,30)
 			)
 		)
-
-		(def buy_1
+		(def name
 			(add <-
-				(middle <- (get_rect screen))
-				(vec2 0,-200)
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 0,100)
 			)
 		)
-
-		(def buy_2
+		(def icon
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,-100)
+				(vec2 0,-70)
 			)
 		)
-
-		(def buy_3
+		(def cost
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,0)
+				(vec2 0,120)
+			)
+		)	
+
+		(def button_buy
+			(spr buy)
+			(add <-
+				(bl <- (get_rect screen))
+				(x vec2 (middle <- (get_rect screen)))	
+				(vec2 100,-150)
 			)
 		)
 
@@ -380,9 +384,9 @@
 			(add <-
 				(bl <- (get_rect screen))
 				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 0,-90)
+				(vec2 -100,-150)
 			)
-		)
+		)	
 	)
 	(def item_unlock
 
