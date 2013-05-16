@@ -24,6 +24,8 @@
 #include "devmode.h"
 #include "common.h"
 
+const char* flurryKey = "WD543CKD93XRJ7XV8B77";
+
 float v_width = 1024.0f;
 float v_height = 768.0f;
 

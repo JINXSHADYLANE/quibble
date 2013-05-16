@@ -262,12 +262,25 @@ bool game_update(void) {
 
 			uint place = minimap_get_place_of_rabbit(player);
 
-			if(player->data->is_dead) 
+			if(player->data->is_dead) {
 				game_over_set_screen(OUT_SCREEN);
-			else if(place <= 3)
-				game_over_set_screen(WIN_SCREEN);
-			else
-				game_over_set_screen(LOSE_SCREEN);
+			}
+			else {
+
+				char place_str[16];
+				sprintf(place_str, "%d", place);
+
+				report_event("Level - Finish",
+					"name", levels_current_desc()->name,
+					"place", place_str,
+					NULL, NULL
+				);
+
+				if(place <= 3)
+					game_over_set_screen(WIN_SCREEN);
+				else
+					game_over_set_screen(LOSE_SCREEN);
+			}
 
 			levels_set_place(place);
 			malka_states_push("game_over");

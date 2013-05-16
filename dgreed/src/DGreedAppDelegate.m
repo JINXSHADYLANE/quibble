@@ -5,6 +5,11 @@
 #include "memory.h"
 #include "system.h"
 
+#ifdef USE_FLURRY
+#import "flurry/Flurry.h"
+extern const char* flurryKey;
+#endif
+
 extern void dgreed_preinit(void);
 extern bool dgreed_init(int argc, const char** argv);
 extern void dgreed_close(void);
@@ -52,7 +57,58 @@ float resign_active_t;
 #pragma mark -
 #pragma mark Application lifecycle
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
+#ifdef USE_FLURRY
+void report_error(const char* msg) {
+    NSString* err = [NSString stringWithUTF8String:msg];
+    [Flurry logError:@"dgreed" message:err error:nil];
+}
+
+void report_event(const char* key, ...) {
+    NSString* ns_key = [NSString stringWithUTF8String:key];
+    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+
+    va_list v;
+	va_start(v, key);
+	const char* name;
+    const char* val;
+    do {
+        name = va_arg(v, const char*);
+        val = va_arg(v, const char*);
+        if(name && val) {
+            NSString* ns_name = [NSString stringWithUTF8String:name];
+            NSString* ns_val = [NSString stringWithUTF8String:val];
+            [dict setValue:ns_val forKey:ns_name];
+        }
+        else {
+            break;
+        }
+    } while(1);
+	va_end(v);
+    
+    if([dict count] > 0)
+        [Flurry logEvent:ns_key withParameters:dict];
+    else
+        [Flurry logEvent:ns_key];
+    
+    [dict release];
+}
+#else
+void report_error(const char* msg) {
+}
+void report_event(const char* key, ...) {
+}
+#endif
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+#ifdef USE_FLURRY
+    NSString* ns_key = [NSString stringWithUTF8String:flurryKey];
+    [Flurry setCrashReportingEnabled:YES];
+    [Flurry setSecureTransportEnabled:NO];
+    [Flurry setSessionReportsOnPauseEnabled:YES];
+    [Flurry setSessionReportsOnCloseEnabled:NO];
+    [Flurry startSession:ns_key];
+#endif
+    
     CGRect screen_bounds = [[UIScreen mainScreen] bounds];
 	
 	window = [[UIWindow alloc] initWithFrame:screen_bounds];

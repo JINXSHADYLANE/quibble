@@ -447,6 +447,11 @@ void log_close(void);
 // Internal logging function, don't use this
 void log_send(uint log_level, const char* format, va_list args); 
 
+// Tracks analytics events,
+// varargs is a list of key and value strings,
+// ending with two nulls.
+void report_event(const char* name, ...);
+
 /*
 ---------------------------
 --- Parameters handling ---

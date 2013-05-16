@@ -146,6 +146,7 @@
 		219BEB2616776F8E002B614C /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BEB2516776F8E002B614C /* MessageUI.framework */; };
 		219BEB2816776F94002B614C /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BEB2716776F94002B614C /* CoreData.framework */; };
 		219BEB2A16776FB4002B614C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 219BEB2916776FB4002B614C /* SystemConfiguration.framework */; };
+		219FDB501744FC9C0067D2E1 /* libFlurry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 219FDB4F1744FC9C0067D2E1 /* libFlurry.a */; };
 		21A6F7EC16D764C7004A22D9 /* memlin.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7EA16D764C7004A22D9 /* memlin.c */; };
 		21A6F7EE16D76B03004A22D9 /* vfont_stbtt.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7ED16D76B03004A22D9 /* vfont_stbtt.c */; };
 		21A6F7F216D7D860004A22D9 /* devmode.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7F016D7D860004A22D9 /* devmode.c */; };
@@ -418,6 +419,8 @@
 		219BEB2516776F8E002B614C /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		219BEB2716776F94002B614C /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		219BEB2916776FB4002B614C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		219FDB4E1744FC9C0067D2E1 /* Flurry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Flurry.h; path = ../../src/flurry/Flurry.h; sourceTree = "<group>"; };
+		219FDB4F1744FC9C0067D2E1 /* libFlurry.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry.a; path = ../../src/flurry/libFlurry.a; sourceTree = "<group>"; };
 		21A6F7EA16D764C7004A22D9 /* memlin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = memlin.c; path = ../../src/memlin.c; sourceTree = "<group>"; };
 		21A6F7EB16D764C7004A22D9 /* memlin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memlin.h; path = ../../src/memlin.h; sourceTree = "<group>"; };
 		21A6F7ED16D76B03004A22D9 /* vfont_stbtt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont_stbtt.c; path = ../../src/vfont_stbtt.c; sourceTree = "<group>"; };
@@ -492,6 +495,7 @@
 				219BE99816776981002B614C /* UIKit.framework in Frameworks */,
 				219BE99A16776981002B614C /* Foundation.framework in Frameworks */,
 				219BE99C16776981002B614C /* CoreGraphics.framework in Frameworks */,
+				219FDB501744FC9C0067D2E1 /* libFlurry.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -628,6 +632,7 @@
 		219BE9B4167769CB002B614C /* dgreed */ = {
 			isa = PBXGroup;
 			children = (
+				219FDB4D1744FC8C0067D2E1 /* flurry */,
 				219BEACC16776B02002B614C /* lib9-utf */,
 				219BEAAC16776AD7002B614C /* asi-http-request */,
 				219BE9B5167769D5002B614C /* malka */,
@@ -865,6 +870,15 @@
 				219BEAFE16776B6B002B614C /* morka_scripts */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		219FDB4D1744FC8C0067D2E1 /* flurry */ = {
+			isa = PBXGroup;
+			children = (
+				219FDB4E1744FC9C0067D2E1 /* Flurry.h */,
+				219FDB4F1744FC9C0067D2E1 /* libFlurry.a */,
+			);
+			name = flurry;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1116,6 +1130,7 @@
 					TRACK_MEMORY,
 					"DEBUG=1",
 					VFONT_STBTT,
+					USE_FLURRY,
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -1148,6 +1163,7 @@
 					MACOSX_BUNDLE,
 					TARGET_IOS,
 					VFONT_STBTT,
+					USE_FLURRY,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
@@ -1170,6 +1186,10 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../src/flurry\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "39F176E5-BFA0-4C96-95C2-2F781DFBB6DA";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1185,6 +1205,10 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "morka/morka-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../src/flurry\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "39F176E5-BFA0-4C96-95C2-2F781DFBB6DA";
 				TARGETED_DEVICE_FAMILY = "1,2";
