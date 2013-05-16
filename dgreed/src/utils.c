@@ -1070,6 +1070,10 @@ void log_close(void) {
 	log_file = stderr;
 }
 
+#ifdef TARGET_IOS
+extern void report_error(const char* msg);
+#endif
+
 /* TODO: Display time */
 void log_send(uint level, const char* format, va_list args) {
 	char msg_buffer[LOG_MSG_BUFFER_SIZE];
@@ -1092,8 +1096,18 @@ void log_send(uint level, const char* format, va_list args) {
 		msg_buffer
 	);
 #endif
+#ifdef TARGET_IOS
+	if(level == LOG_LEVEL_ERROR) {
+		report_error(msg_buffer);
+	}
+#endif
 	async_leave_cs(log_cs);
 }
+
+#ifndef TARGET_IOS
+void report_event(const char* name, ...) {
+}
+#endif
 
 /*
 ---------------------------

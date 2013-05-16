@@ -1,6 +1,7 @@
 #include "levels.h"
 #include "mchains.h"
 #include "tutorials.h"
+#include "characters.h"
 #include <keyval.h>
 #include <mempool.h>
 #include <memory.h>
@@ -11,6 +12,8 @@ static int level_num = 0;
 
 static LevelDesc* current_level = NULL;
 static MMLObject mml;
+
+extern int selected_char;
 
 uint levels_count(void){
 	return levels_descs.size;
@@ -170,6 +173,12 @@ void levels_reset(const char* level_name){
 	}
 	assert(current_level);
 	tutorials_set_level(level_name);
+
+	report_event("Level - Start",
+		"name", level_name,
+		"character", default_characters[selected_char].name,
+		NULL, NULL
+	);
 }
 
 void levels_set_next(void){
