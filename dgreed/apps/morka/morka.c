@@ -27,7 +27,8 @@
 float v_width = 1024.0f;
 float v_height = 768.0f;
 
-static SoundHandle music;
+SoundHandle music;
+SourceHandle music_source;
 
 void dgreed_preinit(void) {
 }
@@ -89,7 +90,7 @@ bool dgreed_init(int argc, const char** argv) {
 
 	// Play music
 	music = sound_load_stream(ASSETS_DIR "Radio Martini.ogg");
-	sound_play(music);
+	music_source = sound_play_ex(music, true);
 
 	keyval_init("morka.db");
 
@@ -150,7 +151,7 @@ void dgreed_close(void) {
 
 	keyval_close();
 
-	sound_stop(music);
+	sound_stop_ex(music_source);
 	sound_free(music);
 
 	sound_close();
