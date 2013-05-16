@@ -24,6 +24,7 @@ static const float rabbit_hitbox_height = 62.0f;
 static float ground_y = 0;
 
 extern bool draw_ai_debug;
+extern float camera_vert_acc;
 
 static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 	ObjRabbit* rabbit = (ObjRabbit*)self;
@@ -774,6 +775,7 @@ static void _rabbit_delayed_bounce(void* r) {
 	d->bounce_force = vec2(0.0f, 0.0f);
 }
 
+
 static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	ObjRabbit* rabbit = (ObjRabbit*)self;
 	ObjRabbitData* d = rabbit->data;
@@ -793,20 +795,21 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		float ground_top = cd_ground->pos.y;
 		float penetration_y = (rabbit_bottom + cd_rabbit->offset.y) - ground_top;
 		if(penetration_y > 0.0f && cd_rabbit->pos.y < ground_top && p->vel.y > 0.0f) {
-
-			self->physics->vel.y = 0.0f;
 			if(!d->touching_ground) {
-				if(d->player_control) hud_trigger_combo(0);
+				if(d->player_control) {
+					hud_trigger_combo(0);
+					camera_vert_acc = self->physics->vel.y * -0.02f;
+				}
 				anim_play_ex(rabbit->anim, "land", TIME_S);
 				d->shield_dh = -20.0f;
 			}
+			self->physics->vel.y = 0.0f;
 			d->touching_ground = true;
 			cd_rabbit->offset = vec2_add(
 				cd_rabbit->offset, 
 				vec2(0.0f, -penetration_y)
 			);
 		} else if(cd_rabbit->pos.y > ground_top && !(d->has_powerup[TRAMPOLINE] || d->trampoline_placed) ) {
-
 			float rabbit_right = cd_rabbit->pos.x + cd_rabbit->size.size.x;
 			float ground_left = cd_ground->pos.x;;
 			float penetration_x = (rabbit_right + cd_rabbit->offset.x) - ground_left;
@@ -817,10 +820,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 					vec2(-penetration_x, 0.0f)
 				);
 			}
-
 		}
-
-
 	}
 	// Collision with fall trigger
 	else if(other->type == OBJ_FALL_TRIGGER_TYPE) {
