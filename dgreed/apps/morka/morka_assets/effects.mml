@@ -2,22 +2,22 @@
 	(prefix "morka_assets/")
 	(sounds _
 		(s e_sounds/bounce1.wav
-			(volume 0.2)
+			(volume 0.4)
 		)
 		(s e_sounds/bounce2.wav
-			(volume 0.2)
+			(volume 0.4)
 		)
 		(s e_sounds/bounce3.wav
-			(volume 0.2)
+			(volume 0.4)
 		)
 		(s e_sounds/bounce4.wav
-			(volume 0.2)
+			(volume 0.4)
 		)
 		(s e_sounds/bounce5.wav
-			(volume 0.2)
+			(volume 0.4)
 		)
 		(s e_sounds/bounce6.wav
-			(volume 0.2)
+			(volume 0.4)
 		)
 
 		(s e_sounds/trampoline1.wav
@@ -50,33 +50,57 @@
 			(volume 0.4)
 		)
 
+		(s e_sounds/boost.wav
+			(volume 0.6)
+		)
+		(s e_sounds/cactus1.wav
+			(volume 0.6)
+		)
+		(s e_sounds/cactus2.wav
+			(volume 0.6)
+		)
+		(s e_sounds/cactus3.wav
+			(volume 0.6)
+		)
+		(s e_sounds/bubble.wav
+			(volume 1.0)
+		)
+		(s e_sounds/powerup_pickup.wav
+			(volume 1.0)
+		)
+		(s e_sounds/rocket.wav
+			(volume 1.0)	
+			(type ambient) # can be 'ambient' or 'event', default is event 
+			(decay 0.5)	   # how quickly volume decays to 0
+			(attack 1)	   # how quickly volume reaches 1 after trigger
+			(trigger 0.3)  # length of attack phase after trigger	
+		)
+
 		(s e_sounds/coin_pickup1.wav
-			(volume 0.8)
+			(volume 0.6)
 		)
 		(s e_sounds/coin_pickup2.wav
-			(volume 0.8)
+			(volume 0.6)
 		)
 		(s e_sounds/coin_pickup3.wav
-			(volume 0.8)
+			(volume 0.6)
 		)
 		(s e_sounds/coin_pickup4.wav
-			(volume 0.8)
+			(volume 0.6)
 		)
 		(s e_sounds/coin_pickup5.wav
-			(volume 0.8)
+			(volume 0.6)
 		)
 		(s e_sounds/coin_pickup6.wav
-			(volume 0.8)
+			(volume 0.6)
 		)	
 	)
 	(effects _
 		(e boost
-			(particles boost
-
-			)
+			(particles boost)
 		)
 		(e jump
-			(particles jump )
+			(particles jump)
 			(random ->
 				(e bounce1 
 					(sound e_sounds/bounce1.wav)
@@ -165,13 +189,25 @@
 			)
 		)		
 		(e boost_explosion
-			(particles boost_explosion
-
-			)
+			(particles boost_explosion)
+			(sound e_sounds/boost.wav)
 		)
 		(e cactus_reaction
-			(particles cactus
-
+			(particles cactus)
+			(random ->
+				(e cactus1
+					(sound e_sounds/cactus1.wav)
+				)
+			)
+			(random ->
+				(e cactus2
+					(sound e_sounds/cactus2.wav)
+				)
+			)
+			(random ->
+				(e cactus3
+					(sound e_sounds/cactus3.wav)
+				)
 			)
 		)
 		(e coin_pick
@@ -208,12 +244,12 @@
 			)
 		)
 		(e powerup_pick
-			(particles powerup_pick )
+			(particles powerup_pick)
+			(sound e_sounds/powerup_pickup.wav)
 		)
 		(e bubble_explode
-			(particles bubble_explode
-
-			)
+			(particles bubble_explode)
+			(sound e_sounds/bubble.wav)
 		)
 		(e bomb_explode
 			(particles bomb_explode
@@ -221,9 +257,8 @@
 			)
 		)
 		(e rocket_ride
-			(particles rocket
-
-			)
+			(particles rocket)
+			(sound e_sounds/rocket.wav)
 		)
 		(e flies
 			(particles flies
