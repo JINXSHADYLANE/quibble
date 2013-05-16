@@ -145,7 +145,7 @@ static uint _parse_ruleset(MMLObject* mml, NodeIdx rs_node, Ruleset* rs, uint* n
 #endif
 				}
 			}
-			else if(spr_name[0] == '.' && strcmp(spr_name, ".empty") != 0) {
+			else if(spr_name[0] == '.' && strcmp(spr_name, ".empty") == 0) {
 				desc.spr = 0;
 			}
 			else {

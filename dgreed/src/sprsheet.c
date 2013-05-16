@@ -89,9 +89,9 @@ static void _parse_img(NodeIdx node) {
 	darray_append(&sprsheet_descs, &new);
 
 #ifdef _DEBUG
-	assert(dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size-1)));
+	assert(dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size)));
 #else
-	dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size-1));
+	dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size));
 #endif
 }
 
@@ -151,19 +151,21 @@ static void _parse_anim(NodeIdx node) {
 	darray_append(&sprsheet_descs, &new);
 
 #ifdef _DEBUG
-	assert(dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size-1)));
+	assert(dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size)));
 #else
-	dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size-1));
+	dict_insert(&sprsheet_dict, name, (void*)(NULL+sprsheet_descs.size));
 #endif
 }
 
 static SprDesc* _sprsheet_get(const char* name) {
 	assert(name);
 
-	const void* desc = dict_get(&sprsheet_dict, name);
-	SprDesc* descs = DARRAY_DATA_PTR(sprsheet_descs, SprDesc);
-	assert((size_t)desc < sprsheet_descs.size);
-	return &descs[(size_t)desc];
+	uint idx = (uint)dict_get(&sprsheet_dict, name);
+#ifdef _DEBUG
+	if(idx == 0 || idx > sprsheet_descs.size)
+		LOG_ERROR("Trying to access non-existing sprite %s", name);
+#endif
+	return darray_get(&sprsheet_descs, idx-1);
 }
 
 static RectF _sprsheet_animframe(SprDesc* desc, uint i) {

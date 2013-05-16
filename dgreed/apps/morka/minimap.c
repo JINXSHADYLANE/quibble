@@ -6,8 +6,6 @@
 #include <vfont.h>
 
 static uint level_distance = 1;
-static SprHandle distance_pointer;
-static SprHandle distance_id;
 static SprHandle red_knob;
 static SprHandle blue_knob;
 static SprHandle finish;
@@ -20,8 +18,6 @@ static float player_x;
 
 void minimap_init(void){
 	minimap_pointers = darray_create(sizeof(ObjRabbit*), 0);
-	distance_pointer = sprsheet_get_handle("distance_pointer");
-	distance_id = sprsheet_get_handle("distance_id");
 	red_knob = sprsheet_get_handle("red_knob");
 	blue_knob = sprsheet_get_handle("blue_knob");
 	finish = sprsheet_get_handle("finish_tile");
@@ -181,11 +177,6 @@ void minimap_draw_distance_from(float t, ObjRabbit* rabbit){
 				distance_pos[i] = lerp(distance_pos[i], y, 0.01f);
 				dest = vec2(dest_x,distance_pos[i]);
 				txt_pos = vec2(txt_x,dest.y);
-				spr_draw_cntr_h(distance_pointer, hud_layer, dest, angle, 1.0f, col);
-
-				//spr_draw_cntr_h(distance_id, hud_layer, dest, 0.0f, 1.0f, c);
-				spr_draw_cntr_h(distance_id, hud_layer, dest, 0.0f, 1.0f, col);
-
 				txt_pos = vec2_sub(txt_pos, half_size);
 				vfont_draw(str, hud_layer, txt_pos, col);
 			}

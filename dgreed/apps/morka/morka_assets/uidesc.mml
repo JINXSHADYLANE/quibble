@@ -187,22 +187,6 @@
 			)
 		)
 	)	
-	(def season_select
-		(def season1
-			(spr season1)
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 -256,-128)
-			)
-		)
-		(def season2
-			(spr season2)
-			(add <-
-				(middle <- (get_rect screen))
-				(vec2 256,-128)
-			)
-		)
-	)		
 	(def level_select
 
 		(def buttons_pos
