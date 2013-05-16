@@ -26,6 +26,8 @@ float camera_follow_weight;
 bool camera_follow = false;
 float bg_scroll = 0.0f;
 float bg_y = 0.0f;
+float camera_vert_acc = 0.0f;
+float camera_vert_off = 0.0f;
 
 static bool game_need_reset = true;
 static bool game_over = false;
@@ -184,10 +186,15 @@ static float _camera_x(void) {
 }
 
 static void _move_camera(Vector2 new_pos, Vector2 follow_weight) {
-	Vector2 camera = vec2(_camera_x(),0.0f);
+	Vector2 camera = vec2(_camera_x(), camera_vert_off);
+
+	camera_vert_off += camera_vert_acc * 0.2f; 
+	camera_vert_off *= 0.8f;
+	camera_vert_acc *= 0.8f;
+
 	Vector2 new_camera;
 	new_camera.x = lerp(camera.x, new_pos.x, follow_weight.x);
-	new_camera.y = lerp(camera.y, new_pos.y, follow_weight.y);
+	new_camera.y = camera_vert_off;
 
 	Vector2 offset = vec2_sub(new_camera,camera);
 
