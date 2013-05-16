@@ -798,7 +798,8 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			if(!d->touching_ground) {
 				if(d->player_control) {
 					hud_trigger_combo(0);
-					camera_vert_acc = self->physics->vel.y * -0.02f;
+					// Camera shake on land
+					//camera_vert_acc = self->physics->vel.y * -0.02f;
 				}
 				anim_play_ex(rabbit->anim, "land", TIME_S);
 				d->shield_dh = -20.0f;
