@@ -7,6 +7,7 @@
 #include <keyval.h>
 #include <uidesc.h>
 #include <vfont.h>
+#include <mfx.h>
 
 static bool sound_enabled;
 static bool music_enabled;
@@ -16,6 +17,9 @@ static SprHandle sound_off;
 static SprHandle music_on;
 static SprHandle music_off;
 
+extern SoundHandle music;
+extern SourceHandle music_source;
+
 static void level_select_init(void) {
 	sound_on = sprsheet_get_handle("sound");
 	sound_off = sprsheet_get_handle("sound_off");
@@ -23,6 +27,12 @@ static void level_select_init(void) {
 	music_off = sprsheet_get_handle("music_off");
 	sound_enabled = keyval_get_bool("sound", false);
 	music_enabled = keyval_get_bool("music", false);
+
+	if(!sound_enabled)
+		mfx_snd_set_volume(0.0f);
+
+	if(!music_enabled)
+		sound_pause_ex(music_source);
 
 	vfont_select(FONT_NAME, 48.0f);
 	for(int i = 0; i <= 9; ++i) {
@@ -182,11 +192,20 @@ static bool level_select_render(float t) {
 	// Sound toggle
 	if(hud_button_ex(sound,button_sound->vec2,50.0f,col,t)){
 		sound_enabled = !sound_enabled;
+		keyval_set_bool("sound", sound_enabled);
+
+		mfx_snd_set_volume(sound_enabled ? 1.0f : 0.0f);
 	}
 
 	// Music toggle
 	if(hud_button_ex(music,button_music->vec2,50.0f,col,t)){
 		music_enabled = !music_enabled;
+		keyval_set_bool("music", music_enabled);
+
+		if(music_enabled) 
+			sound_resume_ex(music_source);	
+		else
+			sound_pause_ex(music_source);
 	}
 
 
