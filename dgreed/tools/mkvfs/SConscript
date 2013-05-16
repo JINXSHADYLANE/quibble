@@ -1,0 +1,8 @@
+Import('env')
+
+NAME='mkvfs'
+
+sources = Glob('*.c', strings=True)
+app = env.Program(NAME + env['DGREED_POSTFIX'], sources)
+env.Install('#'+env['DGREED_BIN_DIR'], app)
+
