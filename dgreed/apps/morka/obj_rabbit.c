@@ -46,7 +46,7 @@ static Vector2 _rabbit_calculate_forces(GameObject* self,bool gravity_only){
 		// Jumping
 		if(d->jumped){
 			Vector2 jump_force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
-			if(d->on_water){
+			if(d->on_water && !d->has_powerup[SHIELD]){
 				jump_force = vec2_scale(jump_force,0.75f);
 			}
 			result = vec2_add(result,jump_force);
