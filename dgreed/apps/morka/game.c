@@ -328,7 +328,6 @@ bool game_update_empty(void) {
 }
 
 void game_render_level(void){
-	hud_click = false;
 	Color col = COLOR_WHITE;
 	float z = 1.0f + (objects_camera_z[0] - 1.0f) / 8.0f;
 
@@ -361,6 +360,7 @@ void game_render_level(void){
 
 
 	objects_tick(game_paused);
+    hud_click = false;
 	minimap_draw_finish_line();
 }
 
