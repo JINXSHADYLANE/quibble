@@ -1,0 +1,39 @@
+Import('env')
+
+NAME='morka'
+ASSETS_DIR = NAME + '_assets'
+SOUNDS_DIR = ASSETS_DIR + '/e_sounds'
+SCRIPTS_DIR = NAME + '_scripts'
+
+sources = Glob('*.c', strings=True)
+
+app = env.Program(NAME + env['DGREED_POSTFIX'], sources, LIBS=env['MALKA_LIBS']\
+	+env['DGREED_LIBS'])
+env.Install('#'+env['DGREED_BIN_DIR'], app)
+
+# Copy assets and scripts only in debug build
+if env['DGREED_POSTFIX'] == 'd':
+	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + ASSETS_DIR
+	for asset in Glob(ASSETS_DIR + '/*', strings=True):
+		if asset.endswith('.fnt'):
+			env.Command('#' + env['DGREED_BIN_DIR']+'/'+ asset.replace('.fnt', '.bft'), 
+				asset, env['DGREED_FONT_TOOL'])
+		elif asset.endswith('.png') or asset.endswith('.wav') or \
+			asset.endswith('.ogg') or asset.endswith('.mml') or \
+			asset.endswith('.ttf') or \
+			asset.endswith('.bft'):
+			env.Install(dest_dir, asset)
+
+	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + SOUNDS_DIR
+	for sound in Glob(SOUNDS_DIR + '/*', strings=True):
+		if sound.endswith('.wav') or sound.endswith('.ogg'):
+			env.Install(dest_dir, sound);
+	
+	dest_dir = '#' + env['DGREED_BIN_DIR'] + '/' + SCRIPTS_DIR
+	for script in Glob(SCRIPTS_DIR + '/*.lua', strings=True):
+		if env['DGREED_LUA']:
+			env.Command('#' + env['DGREED_BIN_DIR']+'/' + script.replace('.lua', '.lc'),
+			script, env['DGREED_LUA'])
+		else:
+			env.Install(dest_dir, script)
+
