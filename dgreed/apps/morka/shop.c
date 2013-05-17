@@ -186,6 +186,7 @@ bool _shop_character_buy(uint i){
 
 static bool shop_render(float t) {
 	UIElement* element = uidesc_get("shop");
+	UIElement* level_text = uidesc_get_child(element, "level_text");
 	UIElement* coin_icon = uidesc_get_child(element, "coin_icon");
 	UIElement* coin_text = uidesc_get_child(element, "coin_text");	
 	UIElement* character_icon = uidesc_get_child(element, "character_icon");
@@ -204,9 +205,8 @@ static bool shop_render(float t) {
 	Vector2 pos;
 
 	float state_alpha = 1.0f-fabsf(t);
-	byte a = lrintf(255.0f * state_alpha);
-	Color col = COLOR_RGBA(255, 255, 255, a);
-
+	Color col = COLOR_FTRANSP(state_alpha);
+	
 	spr_draw("blue_shade", hud_layer-1, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	static float anim_start = 0.0f;
@@ -321,6 +321,12 @@ static bool shop_render(float t) {
 			);
 		}
 	}
+	
+	// Level text
+	vfont_select(FONT_NAME, 38.0f);
+	LevelDesc* lvl = levels_current_desc();
+	assert(lvl);
+	vfont_draw(lvl->name, hud_layer+1, level_text->vec2, col);
 
 	// Coin icon
 	spr_draw_cntr_h(coin_icon->spr, hud_layer+1,coin_icon->vec2, 0.0f, 1.0f, col);

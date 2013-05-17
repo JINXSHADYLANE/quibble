@@ -367,6 +367,7 @@ bool hud_unlock_check(uint state_num){
 void hud_render_game_over_tut(float t) {
 	UIElement* element = uidesc_get("game_over_tut");
 
+	UIElement* level_text = uidesc_get_child(element, "level_text");
 	UIElement* complete = uidesc_get_child(element, "text");
 	UIElement* button_next = uidesc_get_child(element, "next");
 	UIElement* button_restart = uidesc_get_child(element, "restart");
@@ -375,6 +376,12 @@ void hud_render_game_over_tut(float t) {
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
+
+	// Level text
+	vfont_select(FONT_NAME, 38.0f);
+	LevelDesc* lvl = levels_current_desc();
+	assert(lvl);
+	vfont_draw(lvl->name, hud_layer+1, level_text->vec2, col);
 
 	spr_draw("blue_shade", hud_layer-1, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
@@ -413,6 +420,7 @@ void hud_render_game_over_tut(float t) {
 void hud_render_game_over_main(float t){
 	UIElement* element = uidesc_get("game_over_main");
 
+	UIElement* level_text = uidesc_get_child(element, "level_text");
 	UIElement* text = uidesc_get_child(element, "text");
 	UIElement* place_icon = uidesc_get_child(element, "place_icon");
 	UIElement* platform = uidesc_get_child(element, "platform");
@@ -428,6 +436,12 @@ void hud_render_game_over_main(float t){
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
+	
+	// Level text
+	vfont_select(FONT_NAME, 38.0f);
+	LevelDesc* lvl = levels_current_desc();
+	assert(lvl);
+	vfont_draw(lvl->name, hud_layer+1, level_text->vec2, col);
 
 	spr_draw("blue_shade", hud_layer-1, rectf(0.0f, 0.0f, v_width, v_height), col); 
 

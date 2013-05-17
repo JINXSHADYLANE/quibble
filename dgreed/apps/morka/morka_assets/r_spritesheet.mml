@@ -611,24 +611,5 @@
 		(src 645,250,752,506)
 		(cntr 721,378)
 	)
-
-	#################
-	### atlas 2-4 ###
-	#################
-
-	(img element_5
-		(tex r_atlas_24.png)
-		(src 606,2,1031,1423)
-	)
-	(img element_6
-		(tex r_atlas_24.png)
-		(src 2,2,604,1538)
-	)
-	(img element_7
-		(tex r_atlas_24.png)
-		(src 1033,2,1626,1121)
-	)
-
-
 )
 
