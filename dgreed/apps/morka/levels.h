@@ -61,7 +61,7 @@ void levels_close(void);
 void levels_reset(const char* level_name);
 LevelDesc* levels_current_desc(void);
 
-void levels_set_next(void);
+bool levels_set_next(void);
 bool levels_is_final(void);
 
 uint levels_get_powerup_count(void);
