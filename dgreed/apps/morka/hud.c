@@ -23,7 +23,9 @@ extern uint coins;
 
 static uint last_combo = 0;
 static uint current_combo = 0;
+static uint broken_combo = 0;
 static float combo_flip_t = 0.0f;
+static float broken_combo_flip_t = 0.0f;
 
 static float powerup_appear[POWERUP_COUNT] = {0};
 
@@ -254,15 +256,30 @@ void hud_render(float t) {
 	// Combo rendering
 	UIElement* combo_el = uidesc_get("combo_text");
 	float ts = time_s();
-	float ct = (ts - combo_flip_t) / 0.4f;
-	if(ct < 1.0f) {
 
+	if(current_combo == 0 && last_combo >= min_combo) {
+		broken_combo = last_combo;
+		broken_combo_flip_t = ts;
+		last_combo = 0;
+	}
+	
+	float bct = (ts - broken_combo_flip_t) * 0.3f;
+	float ct = (ts - combo_flip_t) * 2.5f;
+
+	if(bct < 1.0f) {
+		// After breaking combo chain, fade out last combo slowly
+		_render_combo(broken_combo, 0.5f + bct * 0.5f);
+	}
+
+	if(ct < 1.0f) {
+		// Animate increasing combo chain normally
 		if(current_combo >= min_combo)
 			_render_combo(current_combo, ct * 0.5f);
 		if(last_combo >= min_combo)
 			_render_combo(last_combo, 0.5f + ct * 0.5f);
 	}
 	else {
+		// Show non-animating combo
 		if(current_combo >= min_combo)
 			_render_combo(current_combo, 0.5f);
 	}	
@@ -367,6 +384,7 @@ bool hud_unlock_check(uint state_num){
 void hud_render_game_over_tut(float t) {
 	UIElement* element = uidesc_get("game_over_tut");
 
+	UIElement* level_text = uidesc_get_child(element, "level_text");
 	UIElement* complete = uidesc_get_child(element, "text");
 	UIElement* button_next = uidesc_get_child(element, "next");
 	UIElement* button_restart = uidesc_get_child(element, "restart");
@@ -375,6 +393,12 @@ void hud_render_game_over_tut(float t) {
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
+
+	// Level text
+	vfont_select(FONT_NAME, 38.0f);
+	LevelDesc* lvl = levels_current_desc();
+	assert(lvl);
+	vfont_draw(lvl->name, hud_layer+1, level_text->vec2, col);
 
 	spr_draw("blue_shade", hud_layer-1, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
@@ -413,6 +437,7 @@ void hud_render_game_over_tut(float t) {
 void hud_render_game_over_main(float t){
 	UIElement* element = uidesc_get("game_over_main");
 
+	UIElement* level_text = uidesc_get_child(element, "level_text");
 	UIElement* text = uidesc_get_child(element, "text");
 	UIElement* place_icon = uidesc_get_child(element, "place_icon");
 	UIElement* platform = uidesc_get_child(element, "platform");
@@ -428,6 +453,12 @@ void hud_render_game_over_main(float t){
 	float alpha = 1.0f-fabsf(t);
 	byte a = lrintf(255.0f * alpha);
 	Color col = COLOR_RGBA(255, 255, 255, a);
+	
+	// Level text
+	vfont_select(FONT_NAME, 38.0f);
+	LevelDesc* lvl = levels_current_desc();
+	assert(lvl);
+	vfont_draw(lvl->name, hud_layer+1, level_text->vec2, col);
 
 	spr_draw("blue_shade", hud_layer-1, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
@@ -578,10 +609,14 @@ void hud_render_game_over_win(float t) {
 
 	// Next button
 	if(hud_button(button_next, col, t)) {
-		levels_set_next();
-		game_request_reset();
-		if(!hud_unlock_check(2))	
-			malka_states_pop_multi(2);
+		if(levels_set_next()) {
+			game_request_reset();
+			if(!hud_unlock_check(2))	
+				malka_states_pop_multi(2);
+		}
+		else {
+			malka_states_pop_multi(3);
+		}
 	}
 
 	// Restart Button

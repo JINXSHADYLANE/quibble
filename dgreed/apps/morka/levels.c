@@ -181,12 +181,16 @@ void levels_reset(const char* level_name){
 	);
 }
 
-void levels_set_next(void){
-	//assert(level_num+1 <= levels_descs.size);
-	if(level_num+1 >= levels_descs.size) level_num = -1;
-	current_level = (LevelDesc*) darray_get(&levels_descs,level_num+1);
-	tutorials_set_level(current_level->name);
-	level_num++;
+bool levels_set_next(void){
+	if(level_num+1 < levels_descs.size) {
+		if(level_is_unlocked(level_num+1)) {
+			level_num++;
+			current_level = (LevelDesc*)darray_get(&levels_descs,level_num);
+			tutorials_set_level(current_level->name);
+			return true;
+		}
+	}
+	return false;
 }
 
 bool levels_next_unlocked(void){
@@ -247,13 +251,30 @@ void levels_set_unlocked_powerup_seen(uint id){
 }
 
 void levels_unlock_next(){
-	if(level_num+1 <= levels_descs.size){
-		char key_name[32];
+	if(level_num+1 <= 11){
+		char key_name[16];
 		sprintf(key_name, "ulck_l%d",level_num+1);
 
 		keyval_set_bool(key_name,true);
 
 		levels_unlock_powerups(level_num+1);
+	}
+
+	// Unlock levels 13 - 18 only if 1-12 are perfected
+	bool perfect = true;
+	for(uint i = 0; i < 12; ++i) {
+		if(levels_get_place(i) != 1) {
+			perfect = false;
+			break;
+		}
+	}
+
+	if(perfect) {
+		for(uint i = 12; i < 18; ++i) {
+			char key_name[16];
+			sprintf(key_name, "ulck_l%d", i);
+			keyval_set_bool(key_name, true);
+		}
 	}
 }
 
