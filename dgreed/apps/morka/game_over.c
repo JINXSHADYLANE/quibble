@@ -9,6 +9,7 @@
 #include <keyval.h>
 #include <uidesc.h>
 #include <vfont.h>
+#include <mfx.h>
 
 extern ObjRabbit* player;
 
@@ -28,7 +29,13 @@ static void game_over_close(void) {
 }
 
 static void game_over_preenter(void) {
-	if(screen == WIN_SCREEN || screen == TUTORIAL_SCREEN ) levels_unlock_next();
+	if(screen == WIN_SCREEN || screen == TUTORIAL_SCREEN ) {
+		mfx_trigger("win");
+		levels_unlock_next();
+	}
+	else {
+		mfx_trigger("fail");
+	}
 	game_over_anim_start = time_s() + 0.6f;
 	game_over_anim_end = time_s() + 0.9f;
 	coins_earned = 0;

@@ -12,6 +12,7 @@
 #include <keyval.h>
 #include <uidesc.h>
 #include <vfont.h>
+#include <mfx.h>
 
 #ifdef TARGET_IOS
 	#include "iap.h"
@@ -144,6 +145,7 @@ static bool in_app_render(float t) {
 		// TODO: actual purchasing
 		if(true){
 
+			mfx_trigger("buy");
 			coins += store_items[selection].coins; // placeholder
 
 			ObjItemUnlockParams p = {

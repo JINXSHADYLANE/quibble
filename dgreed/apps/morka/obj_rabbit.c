@@ -741,7 +741,7 @@ static void _rabbit_delayed_bounce(void* r) {
 
 		if(render->was_visible){
 			ObjParticleAnchor* anchor = (ObjParticleAnchor*)objects_create(&obj_particle_anchor_desc, p->cd_obj->pos, NULL);
-			mfx_trigger_follow("jump",&anchor->screen_pos,NULL);
+			mfx_trigger_follow("bounce",&anchor->screen_pos,NULL);
 		}
 
 		if(d->combo_counter+1 == 3){

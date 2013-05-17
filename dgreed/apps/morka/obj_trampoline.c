@@ -1,6 +1,7 @@
 #include "obj_types.h"
 #include "common.h"
 #include <system.h>
+#include <mfx.h>
 
 static void obj_trampoline_became_invisible(GameObject* self) {
 	// empty
@@ -9,6 +10,9 @@ static void obj_trampoline_became_invisible(GameObject* self) {
 static void obj_trampoline_collide(GameObject* self, GameObject* other) {
 	ObjTrampoline* trampoline = (ObjTrampoline*)self;
 	if(other->type == OBJ_RABBIT_TYPE && other == trampoline->owner) {
+		if(trampoline->dh == 0.0f)
+			mfx_trigger("trampoline");
+
 		trampoline->dh -= 50.0f;
 	}
 }

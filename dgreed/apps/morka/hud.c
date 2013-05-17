@@ -295,6 +295,7 @@ bool hud_button_ex(SprHandle spr, Vector2 pos, float r, Color col, float ts){
 	Touch* t = touches_get();
 	if(touches_down() && t && ts == 0.0f) {		
 		if(vec2_length_sq(vec2_sub(t[0].hit_pos, pos)) < r * r){
+			mfx_trigger("click");
 			hud_click = true;
 			return true;
 		}
@@ -318,6 +319,7 @@ bool hud_button_rect(SprHandle spr, Vector2 pos, Vector2 size, Color col, float 
 		};
 
 		if(rectf_contains_point(&rec,&t[0].hit_pos)){
+			mfx_trigger("click");
 			hud_click = true;
 			return true;
 		}
@@ -508,6 +510,7 @@ void hud_render_game_over_main(float t){
 	} else {
 
 		if(!particles_spawned){
+			mfx_trigger("hit_the_floor");
 			mfx_trigger_ex("dusts2", particles2->vec2, 0.0f);
 			mfx_trigger_ex("dusts2", particles1->vec2, 180.0f);
 			particles_spawned = true;
