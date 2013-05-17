@@ -44,12 +44,9 @@ static void _hud_render_powerups(float t){
 
 	const float duration = 0.5f;
 
-	float alpha = 1.0f-fabsf(t);
-	byte a = lrintf(255.0f * alpha);
-	Color col = COLOR_RGBA(255, 255, 255, a);	
-
-	byte a2 = lrintf(76.0f * alpha);
-	Color col_30 = COLOR_RGBA(255, 255, 255, a2);		
+	float alpha = 1.0f - fabsf(t);
+	Color col = COLOR_FTRANSP(alpha);
+	Color col_30 = COLOR_FTRANSP(alpha * 0.3f);
 
 	Vector2 powerup_place = element->vec2;
 
@@ -74,14 +71,14 @@ static void _hud_render_powerups(float t){
 			Vector2 pos = vec2_add(powerup_place, vec2(x_offset, -size.y / 2.0f) );
 			spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col_30);
 
-			if(player->data->has_powerup[i]){
+			if(player->data->has_powerup[i]) {
 
 				if(powerup_appear[i] == 0.0f) powerup_appear[i] = time_s() + duration;
 
 				float td = normalize(ts,powerup_appear[i]-duration,powerup_appear[i]);
 				td = clamp(0.0f,1.0f,td);
 
-				y_offset = sin(PI*td/2.0f) * -size.y / 2.0f;
+				y_offset = sinf(PI*td/2.0f) * -size.y / 2.0f;
 
 			} else {
 
@@ -94,7 +91,7 @@ static void _hud_render_powerups(float t){
 				if(td == 1.0f)
 					powerup_appear[i] = 0.0f;
 
-				y_offset = -size.y / 2.0f + (sin(PI*td/2.0f) * size.y);
+				y_offset = -size.y / 2.0f + (sinf(PI*td/2.0f) * size.y);
 
 			}
 
@@ -104,23 +101,23 @@ static void _hud_render_powerups(float t){
 				spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col);
 
 				if(!powerup_params[i].passive && player->data->has_powerup[i]){
-
 					if(camera_follow && player->data->respawn == 0.0f){
-
 						if(hud_button_ex(empty_spr,pos,40.0f,col,t)){
+                            printf("powerup %s at %f,%f\n",
+                                powerup_params[i].name, pos.x, pos.y
+                            );
 							GameObject* r = (GameObject*) player;
 							(powerup_params[i].powerup_callback) (r);							
 						}
-
 					} else {
-						spr_draw_cntr_h(block, hud_layer, vec2_add(pos,vec2(0.0f,5.0f)), 0.0f, 1.0f, col);
+						spr_draw_cntr_h(
+							block, hud_layer, 
+							vec2_add(pos, vec2(0.0f, 5.0f)), 
+							0.0f, 1.0f, col
+						);
 					}
 				}
-
-
 			}
-
-
 		}
 	}
 }

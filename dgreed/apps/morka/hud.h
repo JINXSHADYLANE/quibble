@@ -8,6 +8,8 @@ void hud_init(void);
 void hud_close(void);
 void hud_reset(void);
 
+bool hud_touch_powerup(void);
+
 void hud_trigger_combo(uint multiplier);
 void _hud_render_ui(UIElement* element, uint layer,Color col);
 
@@ -33,6 +35,7 @@ bool hud_unlock_check(uint state_num);
 // Scrolling selections
 float hud_scroll(float xpos, float inc, uint elements, float t);
 uint hud_scroll_get_selection(float value, float increment, uint elements);
+
 
 extern bool hud_click;
 
