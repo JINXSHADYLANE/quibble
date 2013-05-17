@@ -22,6 +22,16 @@
 			(volume 1.0)
 		)
 		
+		(s e_sounds/jump1.wav
+			(volume 1.0)
+		)
+		(s e_sounds/jump2.wav
+			(volume 1.0)
+		)
+		(s e_sounds/jump3.wav
+			(volume 1.0)
+		)
+
 		(s e_sounds/fewer1.wav
 			(volume 0.03)
 		)
@@ -105,6 +115,11 @@
 		(s e_sounds/powerup_pickup.wav
 			(volume 1.0)
 		)
+
+		(s e_sounds/explode.wav
+			(volume 1.0)
+		)
+
 		(s e_sounds/rocket.wav
 			(volume 0.8)	
 			(type ambient) # can be 'ambient' or 'event', default is event 
@@ -133,6 +148,57 @@
 		)	
 	)
 	(effects _
+		(e click 
+			(random ->
+				(e click1
+					(sound e_sounds/click1.wav)
+				)
+			)
+			(random ->
+				(e click2
+					(sound e_sounds/click2.wav)
+				)
+			)
+			(random ->
+				(e click3
+					(sound e_sounds/click3.wav)
+				)
+			)
+		)
+		(e buy
+			(sound e_sounds/buy.wav)
+		)
+		(e win
+			(sound e_sounds/win.wav)
+		)
+		(e fail
+			(sound e_sounds/fail.wav)
+		)
+		(e hit_the_floor
+			(sound e_sounds/hit_the_floor.wav)
+		)
+		(e throw
+			(sound e_sounds/throw.wav)
+		)
+		(e trampoline
+			(random ->
+				(e trampoline1
+					(sound e_sounds/trampoline1.wav)
+				)
+			)
+			(random ->
+				(e trampoline2
+					(sound e_sounds/trampoline2.wav)
+				)
+			)
+			(random ->
+				(e trampoline3
+					(sound e_sounds/trampoline3.wav)
+				)
+			)
+		)
+
+
 		(e boost
 			(particles boost)
 			(random ->
@@ -151,8 +217,7 @@
 				)
 			)
 		)
-		(e jump
-			(particles jump)
+		(e bounce
 			(random ->
 				(e bounce1 
 					(sound e_sounds/bounce1.wav)
@@ -181,6 +246,24 @@
 			(random ->
 				(e bounce6 
 					(sound e_sounds/bounce6.wav)
+				)
+			)
+		)
+		(e jump
+			(particles jump)
+			(random ->
+				(e jump1 
+					(sound e_sounds/jump1.wav)
+				)
+			)
+			(random ->
+				(e jump2 
+					(sound e_sounds/jump2.wav)
+				)
+			)
+			(random ->
+				(e jump3 
+					(sound e_sounds/jump3.wav)
 				)
 			)
 		)
@@ -304,9 +387,8 @@
 			(sound e_sounds/bubble.wav)
 		)
 		(e bomb_explode
-			(particles bomb_explode
-
-			)
+			(particles bomb_explode)
+			(sound e_sounds/explode.wav)
 		)
 		(e rocket
 			(particles rocket)
