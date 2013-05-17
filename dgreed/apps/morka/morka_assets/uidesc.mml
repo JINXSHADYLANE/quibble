@@ -32,6 +32,12 @@
 		)
 	)
 	(def game_over_tut
+		(def level_text
+			(add <-
+				(tr <- (get_rect screen))
+				(vec2 -180,30)
+			)
+		)
 		(def text
 			(add <-
 				(middle <- (get_rect screen))
@@ -84,6 +90,12 @@
 		)
 	)
 	(def game_over_main
+		(def level_text
+			(add <-
+				(tr <- (get_rect screen))
+				(vec2 -180,30)
+			)
+		)
 		(def text
 			(add <-
 				(x vec2 (middle <- (get_rect screen)))	
@@ -211,6 +223,12 @@
 		)			
 	)
 	(def shop
+		(def level_text
+			(add <-
+				(tr <- (get_rect screen))
+				(vec2 -180,30)
+			)
+		)
 
 		(def coin_icon
 			(spr token_tag)
@@ -373,7 +391,6 @@
 		)	
 	)
 	(def item_unlock
-
 		(def text1
 			(add <-
 				(middle <- (get_rect screen))
@@ -405,7 +422,7 @@
 		)
 
 		(def star
-			(spr tut_star)
+			(spr star)
 			(add <-
 				(middle <- (get_rect screen))
 				(vec2 0,-40)

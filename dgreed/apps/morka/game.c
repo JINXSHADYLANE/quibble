@@ -247,13 +247,13 @@ bool game_update(void) {
 		objects_camera_z[0] = lerp(objects_camera_z[0], target_z, 0.005f);
 
 		float h = player->header.physics->cd_obj->pos.y;
-		float target_z_h = 1.0f + clamp(0.0f, 1.0f, -(h - 100.0f) / v_height);
+		float target_z_h = 1.0f + clamp(0.0f, 1.0f, -(h - 200.0f) / v_height);
 
-		float lerp_speed = clamp(0.05f,0.2f,fabsf(vel_y) / 2500.0f);
+		float lerp_speed = clamp(0.05f, 0.2f, fabsf(vel_y) / 2500.0f);
 		
 		// Zoom out based on height when character is going upwards
 		if(target_z_h > target_z && target_z_h > objects_camera_z[0] )
-			objects_camera_z[0] = lerp(objects_camera_z[0], target_z_h,lerp_speed );	
+			objects_camera_z[0] = lerp(objects_camera_z[0], target_z_h, lerp_speed );	
 
 		_move_camera(camera, follow);
 

@@ -89,28 +89,28 @@ static bool item_unlock_render(float t) {
 	byte a2 = lrintf(255.0f * state_alpha * 0.5f);
 	Color star_col = COLOR_RGBA(255, 255, 255, a2);
 
+	float dt = time_delta() / 1000.0f;
+
 	// Item image animation
 	float f = 30.0f * (1.0f - s);
-	ds += f * (time_delta()/1000.0f);
-	s += (ds * 10.0f) * (time_delta()/1000.0f);
+	ds += f * dt;
+	s += (ds * 10.0f) * dt;
 	ds *= 0.9f;
 
 	// Star animation
 	float f2 = 25.0f * (1.0f - s2);
-	ds2 += f2 * (time_delta()/1000.0f);
-	s2 += (ds2 * 8.0f) * (time_delta()/1000.0f);
+	ds2 += f2 * dt;
+	s2 += (ds2 * 8.0f) * dt;
 	ds2 *= 0.9f;	
-
 
 	float ts = time_s();
 	byte a3 = 0;
-
 
 	if(ts >= fade_start && ts < fade_end ){
 		float x = normalize(ts,fade_start,fade_end);
 		x = clamp(0.0f,1.0f,x);
 
-		x = sin(x * PI/2.0f);
+		x = sinf(x * PI/2.0f);
 		a3 = lrintf(255.0f * state_alpha * x);
 	} else if( ts > fade_start && ts >= fade_end){
 		a3 = lrintf(255.0f * state_alpha);
@@ -125,7 +125,6 @@ static bool item_unlock_render(float t) {
 
 	if(image != empty_spr)
 		spr_draw_cntr_h(image, hud_layer, item->vec2, 0.0f, s, col);
-
 
 
 	vfont_select(FONT_NAME, 32.0f);
@@ -143,7 +142,6 @@ static bool item_unlock_render(float t) {
 	Vector2 half_size2 = vec2_scale(vfont_size(text2), 0.5f);
 	vfont_draw(text2, hud_layer+1, vec2_sub(text_elem2->vec2,half_size2), txt_col);	
 
-	
 
 	// Quit button
 	if(hud_button(button_quit, col, t)) {
