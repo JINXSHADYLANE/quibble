@@ -72,6 +72,8 @@ static void obj_powerup_bomb_effect(GameObject* other){
 	objects_create(&obj_bomb_desc, p->cd_obj->pos, (void*)other);
 
 	d->has_powerup[BOMB] = false;
+
+	mfx_trigger("throw");
 }
 
 static void obj_powerup_bomb_collide(GameObject* self, GameObject* other) {

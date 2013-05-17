@@ -128,6 +128,7 @@ static void _render_powerups_buy(float t){
 					if(coins >= powerup_params[i].cost){
 						powerups[i] = true;
 						coins -= powerup_params[i].cost;
+						mfx_trigger("buy");
 					} else {
 						malka_states_push("in_app");
 					}				
@@ -171,6 +172,7 @@ bool _shop_character_owned(uint i){
 
 bool _shop_character_buy(uint i){
 	if(coins >= default_characters[i].cost){
+		mfx_trigger("buy");
 		char key_name[32];
 		sprintf(key_name, "ulck_c%u",i);
 
