@@ -121,7 +121,7 @@ static bool item_unlock_render(float t) {
 	spr_draw("blue_shade", hud_layer, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	// Spinning star
-	spr_draw_cntr_h(star->spr, hud_layer, star->vec2, 0.0f, s2*4.0f, star_col);
+	spr_draw_cntr_h(star->spr, hud_layer, star->vec2, 0.0f, s2, star_col);
 
 	if(image != empty_spr)
 		spr_draw_cntr_h(image, hud_layer, item->vec2, 0.0f, s, col);

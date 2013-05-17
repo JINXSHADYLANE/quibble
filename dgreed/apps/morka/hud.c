@@ -592,10 +592,14 @@ void hud_render_game_over_win(float t) {
 
 	// Next button
 	if(hud_button(button_next, col, t)) {
-		levels_set_next();
-		game_request_reset();
-		if(!hud_unlock_check(2))	
-			malka_states_pop_multi(2);
+		if(levels_set_next()) {
+			game_request_reset();
+			if(!hud_unlock_check(2))	
+				malka_states_pop_multi(2);
+		}
+		else {
+			malka_states_pop_multi(3);
+		}
 	}
 
 	// Restart Button
