@@ -355,8 +355,8 @@
 		)
 		(def name
 			(add <-
-				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 0,100)
+				(middle <- (get_rect screen))	
+				(vec2 0,-270)
 			)
 		)
 		(def icon
@@ -375,18 +375,17 @@
 		(def button_buy
 			(spr buy)
 			(add <-
-				(bl <- (get_rect screen))
-				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 100,-150)
+				
+				(middle <- (get_rect screen))	
+				(vec2 100,220)
 			)
 		)
 
 		(def button_quit
 			(spr quit)
 			(add <-
-				(bl <- (get_rect screen))
-				(x vec2 (middle <- (get_rect screen)))	
-				(vec2 -100,-150)
+				(middle <- (get_rect screen))
+				(vec2 -100,220)
 			)
 		)	
 	)
