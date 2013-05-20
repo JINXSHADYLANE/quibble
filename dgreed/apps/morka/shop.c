@@ -11,6 +11,7 @@
 #include <keyval.h>
 #include <uidesc.h>
 #include <vfont.h>
+#include <mfx.h>
 
 extern uint selected_char;
 
@@ -81,20 +82,27 @@ static void _render_powerups_buy(float t){
 	SprHandle spr = sprsheet_get_handle(powerup_params[0].btn);
 	Vector2 size = sprsheet_get_size_h(spr);
 
-	int count = levels_get_powerup_count() +1;
+	int count = 6;
 	float x_offset = (-count * (size.x + 27.0f)) /2.0f;
 
-	for(int i = 0; i < POWERUP_COUNT;i++){
+	for(int i = 0; i < POWERUP_COUNT+1;i++) {
+		x_offset += size.x + 27.0f;
+		Vector2 pos = vec2_add(powerup_place, vec2(x_offset, -size.y / 2.0f ) );
 
-		if(levels_current_desc()->powerup_num[i] > 0){
+		if(i == POWERUP_COUNT) {
+			spr_draw_cntr("help", hud_layer, pos, 0.0f, 1.0f, col);
+			if(hud_button_ex(empty_spr,pos,40.0f,col,t)) {
+				malka_states_push("powerup_help");
+			}
+			break;
+		}
 
+		if(levels_current_desc()->powerup_num[i] > 0) {
 			float ts = time_s();
 			float y_offset = 0.0f;
 			SprHandle spr = sprsheet_get_handle(powerup_params[i].btn);
 			Vector2 size = sprsheet_get_size_h(spr);
 			
-			x_offset += size.x + 27.0f;
-			Vector2 pos = vec2_add(powerup_place, vec2(x_offset, -size.y / 2.0f ) );
 			spr_draw_cntr_h(spr, hud_layer, pos, 0.0f, 1.0f, col_30);
 
 			if(powerups[i]){
@@ -157,6 +165,9 @@ static void _render_powerups_buy(float t){
 					powerup_params[i].cost, "¢", hud_layer, txt_pos, col_txt
 				);
 			}
+		}
+		else {
+			spr_draw_cntr("locked", hud_layer, pos, 0.0f, 1.0f, col_30);
 		}
 	}
 }

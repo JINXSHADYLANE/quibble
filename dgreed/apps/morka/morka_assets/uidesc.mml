@@ -390,6 +390,47 @@
 			)
 		)	
 	)
+	(def powerup_help
+		(def text2
+			(add <-
+				#(x vec2 (middle <- (get_rect screen)))
+				#(vec2 0,120)
+				(middle <- (get_rect screen))
+				(vec2 0,-190)
+			)
+		)
+
+		(def text3
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,90)
+			)
+		)				
+
+		(def item
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-40)
+			)
+		)
+
+		(def star
+			(spr star)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-40)
+			)
+		)
+
+		(def button_quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,220)
+			)
+		)
+	)
+
 	(def item_unlock
 		(def text1
 			(add <-

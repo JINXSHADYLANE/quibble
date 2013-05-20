@@ -345,7 +345,7 @@ GameObjectDesc obj_powerup_desc = {
 PowerupParams powerup_params[] = {
 	{
 		"Trampoline",
-		"It pulls you out from a pit",
+		"Covers a pit",
 		"trampoline",
 		"btn_trampoline",
 		"trampoline_unlock",
@@ -358,7 +358,7 @@ PowerupParams powerup_params[] = {
 
 	{
 		"Shield",
-		"It protects you from spikes and bombs",
+		"Protects from spikes and bombs",
 		"shield",
 		"btn_shield",
 		"shield_unlock",
@@ -371,7 +371,7 @@ PowerupParams powerup_params[] = {
 
 	{
 		"Bomb",
-		"It slows down racer from behind",
+		"Blows other racers back",
 		"bomb",
 		"btn_bomb",
 		"bomb_unlock",
@@ -384,7 +384,7 @@ PowerupParams powerup_params[] = {
 	
 	{
 		"Rocket",
-		"Rocket boosts you up",
+		"Takes you for a wild ride",
 		"rocket",
 		"btn_rocket",
 		"rocket_unlock",
