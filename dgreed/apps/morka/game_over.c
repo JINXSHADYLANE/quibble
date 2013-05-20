@@ -38,9 +38,8 @@ static void game_over_preenter(void) {
 	}
 	game_over_anim_start = time_s() + 0.6f;
 	game_over_anim_end = time_s() + 0.9f;
-	coins_earned = 0;
-
-	uint place = minimap_get_place_of_rabbit(player);
+    uint place = minimap_get_place_of_rabbit(player);
+	coins_earned = 10 * (4-place);
 	player->data->tokens += 10 * (4-place);
 	keyval_set_int("coins",coins + player->data->tokens);
 
