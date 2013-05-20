@@ -73,7 +73,8 @@ static void obj_powerup_bomb_effect(GameObject* other){
 
 	d->has_powerup[BOMB] = false;
 
-	mfx_trigger("throw");
+	if(rabbit->header.render->was_visible)
+		mfx_trigger("throw");
 }
 
 static void obj_powerup_bomb_collide(GameObject* self, GameObject* other) {

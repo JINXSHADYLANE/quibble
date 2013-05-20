@@ -402,15 +402,8 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 		pos.y += rabbit_hitbox_height - 20;
 	
-		RectF rec = {
-			.left = pos.x, 
-			.top = pos.y,
-			.right = 0,
-			.bottom = 0
-		};
-		RectF result = objects_world2screen(rec,0);
 		// Position for standard particles
-		Vector2 screen_pos = vec2(result.left,result.top);
+		Vector2 screen_pos = objects_world2screen_vec2(pos, 0);
 
 		RenderComponent* r = self->render;
 		r->anim_frame = anim_frame_ex(rabbit->anim, TIME_S);
@@ -436,10 +429,13 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					Vector2 jump_force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
 					if(d->on_water){
 						jump_force = vec2_scale(jump_force,0.75f);
+						mfx_trigger_ex("water", screen_pos, 0.0f);
+						mfx_trigger_ex("water_front", screen_pos, 0.0f);
 					}
 					anim_play_ex(rabbit->anim, "jump", TIME_S);
-					
-					if(!d->player_control) d->land = _predict_landing(rabbit,jump_force);
+
+					if(!d->player_control)
+						d->land = _predict_landing(rabbit,jump_force);
 
 					d->combo_counter = 0;
 					
@@ -748,16 +744,7 @@ static void _rabbit_delayed_bounce(void* r) {
 			if(d->player_control) tutorial_event(COMBO_X3);	
 
 			Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
-		
-			RectF rec = {
-				.left = pos.x, 
-				.top = pos.y,
-				.right = 0,
-				.bottom = 0
-			};
-			RectF result = objects_world2screen(rec,0);
-			Vector2 screen_pos = vec2(result.left,result.top);
-
+			Vector2 screen_pos = objects_world2screen_vec2(pos, 0);
 
 			if(render->was_visible)
 				mfx_trigger_ex("boost_explosion",screen_pos,0.0f);
@@ -886,6 +873,16 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			);
 		}
 		d->on_water = true;
+
+		if(!d->touching_ground) {
+			CDObj* trigger_cdobj = other->physics->cd_obj;
+			float y = trigger_cdobj->pos.y + trigger_cdobj->size.size.y;
+			Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+			pos.y = y;
+			Vector2 screen_pos = objects_world2screen_vec2(pos, 0);
+			mfx_trigger_ex("water", screen_pos, 0.0f);
+			mfx_trigger_ex("water_front", screen_pos, 0.0f);
+		}
 	}
 
 	// Collision with mushroom

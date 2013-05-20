@@ -103,9 +103,6 @@ static void _hud_render_powerups(float t){
 				if(!powerup_params[i].passive && player->data->has_powerup[i]){
 					if(camera_follow && player->data->respawn == 0.0f){
 						if(hud_button_ex(empty_spr,pos,40.0f,col,t)){
-                            printf("powerup %s at %f,%f\n",
-                                powerup_params[i].name, pos.x, pos.y
-                            );
 							GameObject* r = (GameObject*) player;
 							(powerup_params[i].powerup_callback) (r);							
 						}
@@ -502,13 +499,12 @@ void hud_render_game_over_main(float t){
 		float td = normalize(ts,game_over_anim_start,game_over_anim_end);
 		td = clamp(0.0f,1.0f,td);
 
-		off = sin(PI/2.0f*td + PI/2.0f) * v_height/1.8f;
+		off = sinf(PI/2.0f*td + PI/2.0f) * v_height/1.8f;
 
 		particles_spawned = false;
 		coin_start = 0.0f;	
 
 	} else {
-
 		if(!particles_spawned){
 			mfx_trigger("hit_the_floor");
 			mfx_trigger_ex("dusts2", particles2->vec2, 0.0f);
@@ -529,14 +525,13 @@ void hud_render_game_over_main(float t){
 				coin_time = time_s() + delta;
 				coin_anim = time_s() + 0.22f;
 				coins_earned++;
+				mfx_trigger("coin_earn");
 			}
 
-			if(touches_down()){
+			if(touches_down()) {
 				coins_earned = player->data->tokens;
 			}			
-
 		}
-
 	}	
 
 	// Text
@@ -591,7 +586,6 @@ void hud_render_game_over_main(float t){
 
 		vfont_draw_number_ex(coins_earned, NULL, hud_layer, str_pos, col, scale2);
 	}
-
 }
 
 void hud_render_game_over_win(float t) {
