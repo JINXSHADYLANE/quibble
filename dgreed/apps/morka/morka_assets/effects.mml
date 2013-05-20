@@ -1,0 +1,414 @@
+(mfx _
+	(prefix "morka_assets/")
+	(sounds _
+		(s e_sounds/win.wav
+			(volume 1.0)
+		)
+		(s e_sounds/fail.wav
+			(volume 1.0)
+		)
+
+		(s e_sounds/buy.wav
+			(volume 1.0)
+		)
+		
+		(s e_sounds/click1.wav
+			(volume 1.0)
+		)
+		(s e_sounds/click2.wav
+			(volume 1.0)
+		)
+		(s e_sounds/click3.wav
+			(volume 1.0)
+		)
+		
+		(s e_sounds/jump1.wav
+			(volume 1.0)
+		)
+		(s e_sounds/jump2.wav
+			(volume 1.0)
+		)
+		(s e_sounds/jump3.wav
+			(volume 1.0)
+		)
+
+		(s e_sounds/fewer1.wav
+			(volume 0.03)
+		)
+		(s e_sounds/fewer2.wav
+			(volume 0.03)
+		)
+		(s e_sounds/fewer3.wav
+			(volume 0.03)
+		)
+		(s e_sounds/hit_the_floor.wav
+			(volume 1.0)
+		)
+		(s e_sounds/throw.wav
+			(volume 1.0)
+		)
+
+		(s e_sounds/bounce1.wav
+			(volume 0.4)
+		)
+		(s e_sounds/bounce2.wav
+			(volume 0.4)
+		)
+		(s e_sounds/bounce3.wav
+			(volume 0.4)
+		)
+		(s e_sounds/bounce4.wav
+			(volume 0.4)
+		)
+		(s e_sounds/bounce5.wav
+			(volume 0.4)
+		)
+		(s e_sounds/bounce6.wav
+			(volume 0.4)
+		)
+
+		(s e_sounds/trampoline1.wav
+			(volume 1.0)
+		)
+		(s e_sounds/trampoline2.wav
+			(volume 1.0)
+		)
+		(s e_sounds/trampoline3.wav
+			(volume 1.0)
+		)
+
+		(s e_sounds/run1.wav
+			(volume 0.4)
+		)
+		(s e_sounds/run2.wav
+			(volume 0.4)
+		)
+		(s e_sounds/run3.wav
+			(volume 0.4)
+		)
+
+		(s e_sounds/water1.wav
+			(volume 0.4)
+		)
+		(s e_sounds/water2.wav
+			(volume 0.4)
+		)
+		(s e_sounds/water3.wav
+			(volume 0.4)
+		)
+
+		(s e_sounds/boost.wav
+			(volume 0.6)
+		)
+		(s e_sounds/cactus1.wav
+			(volume 0.6)
+		)
+		(s e_sounds/cactus2.wav
+			(volume 0.6)
+		)
+		(s e_sounds/cactus3.wav
+			(volume 0.6)
+		)
+		(s e_sounds/bubble.wav
+			(volume 1.0)
+		)
+		(s e_sounds/powerup_pickup.wav
+			(volume 1.0)
+		)
+
+		(s e_sounds/explode.wav
+			(volume 1.0)
+		)
+
+		(s e_sounds/rocket.wav
+			(volume 0.8)	
+			(type ambient) # can be 'ambient' or 'event', default is event 
+			(decay 0.9)	   # how quickly volume decays to 0
+			(attack 1)	   # how quickly volume reaches 1 after trigger
+			(trigger 0.1)  # length of attack phase after trigger	
+		)
+
+		(s e_sounds/coin_pickup1.wav
+			(volume 0.6)
+		)
+		(s e_sounds/coin_pickup2.wav
+			(volume 0.6)
+		)
+		(s e_sounds/coin_pickup3.wav
+			(volume 0.6)
+		)
+		(s e_sounds/coin_pickup4.wav
+			(volume 0.6)
+		)
+		(s e_sounds/coin_pickup5.wav
+			(volume 0.6)
+		)
+		(s e_sounds/coin_pickup6.wav
+			(volume 0.6)
+		)	
+	)
+	(effects _
+		(e click 
+			(random ->
+				(e click1
+					(sound e_sounds/click1.wav)
+				)
+			)
+			(random ->
+				(e click2
+					(sound e_sounds/click2.wav)
+				)
+			)
+			(random ->
+				(e click3
+					(sound e_sounds/click3.wav)
+				)
+			)
+		)
+		(e buy
+			(sound e_sounds/buy.wav)
+		)
+		(e win
+			(sound e_sounds/win.wav)
+		)
+		(e fail
+			(sound e_sounds/fail.wav)
+		)
+		(e hit_the_floor
+			(sound e_sounds/hit_the_floor.wav)
+		)
+		(e throw
+			(sound e_sounds/throw.wav)
+		)
+		(e trampoline
+			(random ->
+				(e trampoline1
+					(sound e_sounds/trampoline1.wav)
+				)
+			)
+			(random ->
+				(e trampoline2
+					(sound e_sounds/trampoline2.wav)
+				)
+			)
+			(random ->
+				(e trampoline3
+					(sound e_sounds/trampoline3.wav)
+				)
+			)
+		)
+
+
+		(e boost
+			(particles boost)
+			(random ->
+				(e fewer1
+					(sound e_sounds/fewer1.wav)
+				)
+			)
+			(random ->
+				(e fewer2
+					(sound e_sounds/fewer2.wav)
+				)
+			)
+			(random ->
+				(e fewer3
+					(sound e_sounds/fewer3.wav)
+				)
+			)
+		)
+		(e bounce
+			(random ->
+				(e bounce1 
+					(sound e_sounds/bounce1.wav)
+				)
+			)
+			(random ->
+				(e bounce2 
+					(sound e_sounds/bounce2.wav)
+				)
+			)
+			(random ->
+				(e bounce3 
+					(sound e_sounds/bounce3.wav)
+				)
+			)
+			(random ->
+				(e bounce4 
+					(sound e_sounds/bounce4.wav)
+				)
+			)
+			(random ->
+				(e bounce5 
+					(sound e_sounds/bounce5.wav)
+				)
+			)
+			(random ->
+				(e bounce6 
+					(sound e_sounds/bounce6.wav)
+				)
+			)
+		)
+		(e jump
+			(particles jump)
+			(random ->
+				(e jump1 
+					(sound e_sounds/jump1.wav)
+				)
+			)
+			(random ->
+				(e jump2 
+					(sound e_sounds/jump2.wav)
+				)
+			)
+			(random ->
+				(e jump3 
+					(sound e_sounds/jump3.wav)
+				)
+			)
+		)
+		(e water
+			(particles water)
+			(random ->
+				(e water1 
+					(sound e_sounds/water1.wav)
+				)
+			)
+			(random ->
+				(e water2 
+					(sound e_sounds/water2.wav)
+				)
+			)
+			(random ->
+				(e water3 
+					(sound e_sounds/water3.wav)
+				)
+			)
+		)
+		(e water_front
+			(particles water
+				(pos_offset 70,0)
+			)
+		)
+		(e run1
+			(particles run1)
+			(random ->
+				(e run1 
+					(sound e_sounds/run1.wav)
+				)
+			)
+			(random ->
+				(e run2 
+					(sound e_sounds/run2.wav)
+				)
+			)
+			(random ->
+				(e run3 
+					(sound e_sounds/run3.wav)
+				)
+			)
+		)
+		(e run1_front
+			(particles run1
+				(pos_offset 70,0)
+			)
+		)
+		(e dusts
+			(particles dusts
+
+			)
+		)
+		(e dusts2
+			(particles dusts2
+
+			)
+		)		
+		(e boost_explosion
+			(particles boost_explosion)
+			(sound e_sounds/boost.wav)
+		)
+		(e cactus_reaction
+			(particles cactus)
+			(random ->
+				(e cactus1
+					(sound e_sounds/cactus1.wav)
+				)
+			)
+			(random ->
+				(e cactus2
+					(sound e_sounds/cactus2.wav)
+				)
+			)
+			(random ->
+				(e cactus3
+					(sound e_sounds/cactus3.wav)
+				)
+			)
+		)
+		(e coin_pick
+			(particles coin )
+			(random ->
+				(e coin1 
+					(sound e_sounds/coin_pickup1.wav)
+				)
+			)
+			(random ->
+				(e coin2 
+					(sound e_sounds/coin_pickup2.wav)
+				)
+			)
+			(random ->
+				(e coin3 
+					(sound e_sounds/coin_pickup3.wav)
+				)
+			)
+			(random ->
+				(e coin4 
+					(sound e_sounds/coin_pickup4.wav)
+				)
+			)
+			(random ->
+				(e coin5 
+					(sound e_sounds/coin_pickup5.wav)
+				)
+			)
+			(random ->
+				(e coin6
+					(sound e_sounds/coin_pickup6.wav)
+				)
+			)
+		)
+		(e powerup_pick
+			(particles powerup_pick)
+			(sound e_sounds/powerup_pickup.wav)
+		)
+		(e bubble_explode
+			(particles bubble_explode)
+			(sound e_sounds/bubble.wav)
+		)
+		(e bomb_explode
+			(particles bomb_explode)
+			(sound e_sounds/explode.wav)
+		)
+		(e rocket
+			(particles rocket)
+			(sound e_sounds/rocket.wav)
+		)
+		(e flies
+			(particles flies
+
+			)
+		)	
+		(e bubbles
+			(particles bubbles
+
+			)
+		)
+		(e skunk_gas
+			(particles skunk_gas
+
+			)
+		)			
+	)
+)
+
