@@ -179,6 +179,7 @@
 		AAF6778A16C550F400FDF975 /* level_select.c in Sources */ = {isa = PBXBuildFile; fileRef = AAF6776216C550F400FDF975 /* level_select.c */; };
 		AAF677AB16C550F400FDF975 /* pause.c in Sources */ = {isa = PBXBuildFile; fileRef = AAF6778816C550F400FDF975 /* pause.c */; };
 		AAF677AE16C5511500FDF975 /* game_over.c in Sources */ = {isa = PBXBuildFile; fileRef = AAF677AC16C5511500FDF975 /* game_over.c */; };
+		AAF7578C174A48A600498DD8 /* powerup_help.c in Sources */ = {isa = PBXBuildFile; fileRef = AAF7578A174A48A600498DD8 /* powerup_help.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -467,6 +468,8 @@
 		AAF6778916C550F400FDF975 /* pause.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pause.h; path = ../pause.h; sourceTree = "<group>"; };
 		AAF677AC16C5511500FDF975 /* game_over.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = game_over.c; path = ../game_over.c; sourceTree = "<group>"; };
 		AAF677AD16C5511500FDF975 /* game_over.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_over.h; path = ../game_over.h; sourceTree = "<group>"; };
+		AAF7578A174A48A600498DD8 /* powerup_help.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = powerup_help.c; sourceTree = SOURCE_ROOT; };
+		AAF7578B174A48A600498DD8 /* powerup_help.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = powerup_help.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -610,6 +613,8 @@
 				AA7188C71703494900687C50 /* shop.h */,
 				21445E431726DD540096B9FD /* in_app.c */,
 				21445E441726DD540096B9FD /* in_app.h */,
+				AAF7578A174A48A600498DD8 /* powerup_help.c */,
+				AAF7578B174A48A600498DD8 /* powerup_help.h */,
 				2175DBD216F07AF900452F14 /* placement.c */,
 				2175DBD316F07AF900452F14 /* placement.h */,
 				219BE99E16776981002B614C /* Supporting Files */,
@@ -1092,6 +1097,7 @@
 				21445E451726DD540096B9FD /* in_app.c in Sources */,
 				AA0CF244172EAC4E00A01A42 /* item_unlock.c in Sources */,
 				21F440AE1737CD8400599B81 /* fadeout.c in Sources */,
+				AAF7578C174A48A600498DD8 /* powerup_help.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1181,7 +1187,7 @@
 		219BE9B216776981002B614C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
@@ -1191,7 +1197,7 @@
 					"\"$(SRCROOT)/../../src/flurry\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "39F176E5-BFA0-4C96-95C2-2F781DFBB6DA";
+				PROVISIONING_PROFILE = "397E2D74-9E22-4FF6-89C3-8B5E87A4175E";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1200,7 +1206,7 @@
 		219BE9B316776981002B614C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Andrius Mitkus (5M5FEVE7X8)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Domas Markevičius (24DCHTUGQL)";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
@@ -1210,7 +1216,7 @@
 					"\"$(SRCROOT)/../../src/flurry\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "39F176E5-BFA0-4C96-95C2-2F781DFBB6DA";
+				PROVISIONING_PROFILE = "397E2D74-9E22-4FF6-89C3-8B5E87A4175E";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
