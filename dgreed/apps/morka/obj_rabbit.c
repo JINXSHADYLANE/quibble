@@ -400,6 +400,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 
 		// Position for follower particles
 		Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
+		pos = vec2_add(pos, p->cd_obj->offset);
 		pos.y += rabbit_hitbox_height - 20;
 	
 		// Position for standard particles
@@ -540,7 +541,7 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 				//float mult = (d->rocket_time - TIME_S );
 				float t = TIME_S;
 				t = normalize(t,d->rocket_time-3.0f,d->rocket_time);
-				float delta = sin(30.0 * t) * (1.0-t) * 5.0f;
+				float delta = sinf(30.0 * t) * (1.0-t) * 5.0f;
 
 				p->cd_obj->offset.y += delta;
 			}
@@ -772,7 +773,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 	d->collision_update = true;
 
 	// Collision with ground
-	if(other->type == OBJ_GROUND_TYPE) {
+	if(other->type == OBJ_GROUND_TYPE/* && self->physics->acc.y >= 0.0f*/) {
 
 		d->spike_hit = false;
 
@@ -799,7 +800,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			);
 		} else if(cd_rabbit->pos.y > ground_top && !(d->has_powerup[TRAMPOLINE] || d->trampoline_placed) ) {
 			float rabbit_right = cd_rabbit->pos.x + cd_rabbit->size.size.x;
-			float ground_left = cd_ground->pos.x;;
+			float ground_left = cd_ground->pos.x;
 			float penetration_x = (rabbit_right + cd_rabbit->offset.x) - ground_left;
 			
 			if(penetration_x > 0.0f) {
@@ -856,6 +857,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 
 			Vector2 pos = vec2(0.0f,v_height + 15.0f);
 			pos.x = (left->physics->cd_obj->pos.x + left->physics->cd_obj->size.size.x + right->physics->cd_obj->pos.x - width) / 2.0f;		
+			pos.x = lerp(pos.x, p->cd_obj->pos.x + p->cd_obj->size.size.y * 0.5f, 0.6f);
 
 			// Create Trampoline
 			ObjTrampoline* trampoline = (ObjTrampoline*) objects_create(&obj_trampoline_desc, pos, (void*)sprt);
@@ -919,7 +921,7 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 		ObjTrampoline* trampoline = (ObjTrampoline*)other;
 
 		if(trampoline->owner == self && 
-			!d->touching_ground && 
+			!d->touching_ground &&
 			self->physics->acc.y >= 0.0f) {
 
 			anim_play_ex(rabbit->anim, "bounce", TIME_S);
