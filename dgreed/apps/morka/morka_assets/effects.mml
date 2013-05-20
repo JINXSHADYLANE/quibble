@@ -32,15 +32,6 @@
 			(volume 1.0)
 		)
 
-		(s e_sounds/fewer1.wav
-			(volume 0.03)
-		)
-		(s e_sounds/fewer2.wav
-			(volume 0.03)
-		)
-		(s e_sounds/fewer3.wav
-			(volume 0.03)
-		)
 		(s e_sounds/hit_the_floor.wav
 			(volume 1.0)
 		)
@@ -97,9 +88,6 @@
 			(volume 0.4)
 		)
 
-		(s e_sounds/boost.wav
-			(volume 0.6)
-		)
 		(s e_sounds/cactus1.wav
 			(volume 0.6)
 		)
@@ -201,21 +189,6 @@
 
 		(e boost
 			(particles boost)
-			(random ->
-				(e fewer1
-					(sound e_sounds/fewer1.wav)
-				)
-			)
-			(random ->
-				(e fewer2
-					(sound e_sounds/fewer2.wav)
-				)
-			)
-			(random ->
-				(e fewer3
-					(sound e_sounds/fewer3.wav)
-				)
-			)
 		)
 		(e bounce
 			(random ->
@@ -325,7 +298,6 @@
 		)		
 		(e boost_explosion
 			(particles boost_explosion)
-			(sound e_sounds/boost.wav)
 		)
 		(e cactus_reaction
 			(particles cactus)
