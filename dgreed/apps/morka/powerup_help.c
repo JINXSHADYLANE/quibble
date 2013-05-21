@@ -47,7 +47,7 @@ static bool powerup_help_render(float t) {
 		Color col2 = COLOR_RGBA(255, 255, 255, a2);
 
 		// Star
-		spr_draw_cntr_h(star->spr, hud_layer, vec2_add(off, star->vec2), 1.0f, 1.0f, col2);
+		spr_draw_cntr_h(star->spr, hud_layer, vec2_add(off, star->vec2), time_s()/10.0f, 1.0f, col2);
 
 		// Item
 		const char* item_img = powerup_params[i].unlocked_spr;

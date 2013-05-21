@@ -270,22 +270,24 @@ bool game_update(void) {
 				char place_str[16];
 				sprintf(place_str, "%d", place);
 
+				char time_str[32];
+				sprintf(time_str, "%.1f", player->data->rabbit_time);
+
 				report_event("Level - Finish",
 					"name", levels_current_desc()->name,
 					"place", place_str,
+					"time", time_str,
 					NULL, NULL
 				);
 
-				if(place <= 3)
-					game_over_set_screen(WIN_SCREEN);
-				else
-					game_over_set_screen(LOSE_SCREEN);
+				game_over_set_screen(
+					place <= 3 ? WIN_SCREEN : LOSE_SCREEN
+				);
 			}
 
 			levels_set_place(place);
 			malka_states_push("game_over");
 		}
-
 	}
 
 	float pos = minimap_max_x();
