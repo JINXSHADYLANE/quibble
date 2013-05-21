@@ -62,6 +62,10 @@ uint sprsheet_get_anim_frames_h(SprHandle handle);
 Vector2 sprsheet_get_size(const char* name);
 Vector2 sprsheet_get_size_h(SprHandle handle);
 
+// Free texture with this sprite (and, possibly, other sprites)
+void sprsheet_unload(const char* name);
+void sprsheet_unload_h(SprHandle handle);
+
 // Helper rendering methods:
 
 void spr_draw(const char* name, uint layer, RectF dest, Color tint);

@@ -22,7 +22,7 @@
 	)
 	(img splash_iphone5_2
 		(tex splash_atlas_2.png)
-		(src 0,640,176,1280)
+		(src 0,640,640,816)
 	)
 
 	### background ###
