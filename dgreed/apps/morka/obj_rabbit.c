@@ -430,8 +430,10 @@ static void obj_rabbit_update(GameObject* self, float ts, float dt) {
 					Vector2 jump_force = vec2(d->xjump*d->xjump, -d->yjump*d->yjump);
 					if(d->on_water){
 						jump_force = vec2_scale(jump_force,0.75f);
-						mfx_trigger_ex("water", screen_pos, 0.0f);
-						mfx_trigger_ex("water_front", screen_pos, 0.0f);
+						if(self->render->was_visible) {
+							mfx_trigger_ex("water", screen_pos, 0.0f);
+							mfx_trigger_ex("water_front", screen_pos, 0.0f);
+						}
 					}
 					anim_play_ex(rabbit->anim, "jump", TIME_S);
 
@@ -882,8 +884,12 @@ static void obj_rabbit_collide(GameObject* self, GameObject* other) {
 			Vector2 pos = vec2_add(p->cd_obj->pos, p->cd_obj->offset);
 			pos.y = y;
 			Vector2 screen_pos = objects_world2screen_vec2(pos, 0);
-			mfx_trigger_ex("water", screen_pos, 0.0f);
-			mfx_trigger_ex("water_front", screen_pos, 0.0f);
+			if(screen_pos.x >= 0.0f && screen_pos.y >= 0.0f) {
+				if(screen_pos.x < v_width && screen_pos.y < v_height) {
+					mfx_trigger_ex("water", screen_pos, 0.0f);
+					mfx_trigger_ex("water_front", screen_pos, 0.0f);
+				}
+			}
 		}
 	}
 

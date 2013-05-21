@@ -29,7 +29,7 @@ static void game_over_close(void) {
 }
 
 static void game_over_preenter(void) {
-	if(screen == WIN_SCREEN || screen == TUTORIAL_SCREEN ) {
+	if(screen == WIN_SCREEN || screen == TUTORIAL_SCREEN) {
 		mfx_trigger("win");
 		levels_unlock_next();
 	}
@@ -40,10 +40,11 @@ static void game_over_preenter(void) {
 	game_over_anim_end = time_s() + 0.9f;
     uint place = minimap_get_place_of_rabbit(player);
 	coins_earned = 10 * (4-place);
-	player->data->tokens += 10 * (4-place);
-	keyval_set_int("coins",coins + player->data->tokens);
+	player->data->tokens += coins_earned;
+	keyval_set_int("coins", coins + player->data->tokens);
 
-	if(screen == TUTORIAL_SCREEN) levels_set_place(5);	
+	if(screen == TUTORIAL_SCREEN) 
+		levels_set_place(5);	
 }
 
 static void game_over_enter(void) {	

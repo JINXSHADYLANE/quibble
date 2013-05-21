@@ -11,7 +11,8 @@ static void obj_trampoline_collide(GameObject* self, GameObject* other) {
 	ObjTrampoline* trampoline = (ObjTrampoline*)self;
 	if(other->type == OBJ_RABBIT_TYPE && other == trampoline->owner) {
 		if(trampoline->dh == 0.0f)
-			mfx_trigger("trampoline");
+			if(self->render->was_visible)
+				mfx_trigger("trampoline");
 
 		trampoline->dh -= 50.0f;
 	}
