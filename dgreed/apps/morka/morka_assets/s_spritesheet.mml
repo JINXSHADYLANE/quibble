@@ -3,8 +3,15 @@
 	(scale 2)
 
 	(img empty 
-		(tex s_atlas_13.png)
-		(src 249,51,250,52)
+		(tex empty.png)
+		(src 1,1,3,3)
+	)
+
+	### Splash screens ###
+
+	(img splash_iphone
+		(tex splash_atlas_0.png)
+		(src 0,0,480,320)
 	)
 
 	### background ###
@@ -212,11 +219,11 @@
 
 	(img ball_autumn
 		(tex s_atlas_13.png)
-		(src 130,277,182,331)
+		(src 2,316,54,370)
 	)
 	(img ball_special
 		(tex s_atlas_13.png)
-		(src 2,277,55,332)
+		(src 66,309,119,364)
 	)
 	(img blocked
 		(tex s_atlas_13.png)
@@ -224,83 +231,83 @@
 	)
 	(img blue_knob
 		(tex s_atlas_13.png)
-		(src 248,43,254,48)
+		(src 214,19,220,24)
 	)
 	(img blue_shade
 		(tex s_atlas_13.png)
-		(src 249,36,253,40)
+		(src 215,12,219,16)
 	)
 	(img bomb
 		(tex s_atlas_13.png)
-		(src 106,394,151,433)
+		(src 2,452,47,491)
 	)
 	(img bomb_obj
 		(tex s_atlas_13.png)
-		(src 161,333,181,352)
+		(src 192,11,212,30)
 	)
 	(img btn_bomb
 		(tex s_atlas_13.png)
-		(src 54,369,104,409)
+		(src 54,408,104,448)
 	)
 	(img btn_rocket
 		(tex s_atlas_13.png)
-		(src 109,333,159,373)
+		(src 108,400,158,440)
 	)
 	(img btn_shield
 		(tex s_atlas_13.png)
-		(src 2,334,52,374)
+		(src 173,389,223,429)
 	)
 	(img btn_trampoline
 		(tex s_atlas_13.png)
-		(src 57,327,107,367)
+		(src 2,372,52,412)
 	)
 	(img bubble_obj
 		(tex s_atlas_13.png)
-		(src 2,69,80,147)
+		(src 2,108,80,186)
 	)
 	(img buy
 		(tex s_atlas_13.png)
-		(src 66,263,128,325)
+		(src 130,294,192,356)
 	)
 	(img finish_tile
 		(tex s_atlas_13.png)
-		(src 222,61,244,94)
+		(src 152,111,174,144)
 	)
 	(img help
 		(tex s_atlas_13.png)
-		(src 184,332,234,372)
+		(src 56,366,106,406)
 	)
 	(img lock_autumn
 		(tex s_atlas_13.png)
-		(src 222,35,246,59)
+		(src 152,85,176,109)
 	)
 	(img locked
 		(tex s_atlas_13.png)
-		(src 184,290,234,330)
+		(src 121,358,171,398)
 	)
 	(img music
 		(tex s_atlas_13.png)
-		(src 146,148,208,211)
+		(src 82,180,144,243)
 	)
 	(img music_off
 		(tex s_atlas_13.png)
-		(src 82,134,144,197)
+		(src 152,165,214,228)
 	)
 	(img next
 		(tex s_atlas_13.png)
-		(src 130,213,192,275)
+		(src 2,252,64,314)
 	)
 	(img pause
 		(tex s_atlas_13.png)
-		(src 66,149,77,160)
+		(src 178,85,189,96)
 	)
 	(img play
 		(tex s_atlas_13.png)
-		(src 2,213,64,275)
+		(src 66,245,128,307)
 	)
 	(img position_knob
 		(tex s_atlas_13.png)
-		(src 248,50,252,54)
+		(src 214,26,218,30)
 	)
 	(img position_line
 		(tex s_atlas_13.png)
@@ -308,75 +315,79 @@
 	)
 	(img quit
 		(tex s_atlas_13.png)
-		(src 66,199,128,261)
+		(src 146,230,208,292)
 	)
 	(img red_knob
 		(tex s_atlas_13.png)
-		(src 210,83,220,93)
+		(src 178,98,188,108)
 	)
 	(img restart
 		(tex s_atlas_13.png)
-		(src 2,149,64,211)
+		(src 2,188,64,250)
 	)
 	(img ribbon_first
 		(tex s_atlas_13.png)
-		(src 158,393,208,410)
+		(src 96,450,146,467)
 	)
 	(img ribbon_last
 		(tex s_atlas_13.png)
-		(src 106,375,156,392)
+		(src 54,489,104,506)
 	)
 	(img ribbon_second
 		(tex s_atlas_13.png)
-		(src 161,374,211,391)
+		(src 2,493,52,510)
 	)
 	(img ribbon_third
 		(tex s_atlas_13.png)
-		(src 2,395,52,412)
+		(src 2,433,52,450)
 	)
 	(img ribbon_tutorial
 		(tex s_atlas_13.png)
-		(src 2,376,52,393)
+		(src 2,414,52,431)
 	)
 	(img rocket
 		(tex s_atlas_13.png)
-		(src 210,96,251,142)
+		(src 210,230,251,276)
 	)
 	(img shield
 		(tex s_atlas_13.png)
-		(src 210,144,250,189)
+		(src 210,278,250,323)
 	)
 	(img sound
 		(tex s_atlas_13.png)
-		(src 146,83,208,146)
+		(src 190,100,252,163)
 	)
 	(img sound_off
 		(tex s_atlas_13.png)
-		(src 82,69,144,132)
+		(src 192,35,254,98)
+	)
+	(img tap_to_start
+		(tex s_atlas_13.png)
+		(src 2,11,190,48)
 	)
 	(img token
 		(tex s_atlas_13.png)
-		(src 236,290,254,307)
+		(src 152,146,170,163)
 	)
 	(img token_tag
 		(tex s_atlas_13.png)
-		(src 210,191,246,224)
+		(src 152,50,188,83)
 	)
 	(img trampoline
 		(tex s_atlas_13.png)
-		(src 54,411,99,446)
+		(src 49,452,94,487)
 	)
 	(img trampoline_obj
 		(tex s_atlas_13.png)
-		(src 2,11,150,67)
+		(src 2,50,150,106)
 	)
 	(img tut_finger
 		(tex s_atlas_13.png)
-		(src 152,11,220,81)
+		(src 82,108,150,178)
 	)
 	(img tut_star
 		(tex s_atlas_13.png)
-		(src 194,226,254,288)
+		(src 194,325,254,387)
 	)
 
 	#################

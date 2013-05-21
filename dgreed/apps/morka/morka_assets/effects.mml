@@ -1,13 +1,6 @@
 (mfx _
 	(prefix "morka_assets/")
 	(sounds _
-		(s e_sounds/win.wav
-			(volume 1.0)
-		)
-		(s e_sounds/fail.wav
-			(volume 1.0)
-		)
-
 		(s e_sounds/buy.wav
 			(volume 1.0)
 		)
@@ -136,6 +129,19 @@
 		)	
 	)
 	(effects _
+		(e coin_earn
+			(random ->
+				(e coin1
+					(sound e_sounds/coin_pickup5.wav)
+				)
+				(e coin6
+					(sound e_sounds/coin_pickup6.wav)
+				)
+				(e coin4
+					(sound e_sounds/coin_pickup4.wav)
+				)
+			)
+		)
 		(e click 
 			(random ->
 				(e click1
@@ -157,10 +163,10 @@
 			(sound e_sounds/buy.wav)
 		)
 		(e win
-			(sound e_sounds/win.wav)
+			
 		)
 		(e fail
-			(sound e_sounds/fail.wav)
+			
 		)
 		(e hit_the_floor
 			(sound e_sounds/hit_the_floor.wav)

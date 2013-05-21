@@ -1,9 +1,28 @@
 (sprsheet morka
 	(prefix "morka_assets/")
 
-	(img empty
-		(tex atlas_13.png)
-		(src 499,195,500,196)
+	(img empty 
+		(tex empty.png)
+		(src 1,1,3,3)
+	)
+
+	### Splash screens ###
+
+	(img splash_ipad
+		(tex splash_atlas_3.png)
+		(src 0,0,1024,768)
+	)
+	(img splash_iphone
+		(tex splash_atlas_1.png)
+		(src 0,0,960,640)
+	)
+	(img splash_iphone5_1
+		(tex splash_atlas_2.png)
+		(src 0,0,960,640)
+	)
+	(img splash_iphone5_2
+		(tex splash_atlas_2.png)
+		(src 0,640,176,1280)
 	)
 
 	### background ###
@@ -211,11 +230,11 @@
 
 	(img ball_autumn
 		(tex atlas_13.png)
-		(src 254,542,359,651)
+		(src 394,464,499,573)
 	)
 	(img ball_special
 		(tex atlas_13.png)
-		(src 380,450,486,560)
+		(src 394,352,500,462)
 	)
 	(img blocked
 		(tex atlas_13.png)
@@ -223,83 +242,83 @@
 	)
 	(img blue_knob
 		(tex atlas_13.png)
-		(src 498,182,508,192)
+		(src 268,205,278,215)
 	)
 	(img blue_shade
 		(tex atlas_13.png)
-		(src 485,183,495,193)
+		(src 420,41,430,51)
 	)
 	(img bomb
 		(tex atlas_13.png)
-		(src 415,278,504,355)
+		(src 102,830,191,907)
 	)
 	(img bomb_obj
 		(tex atlas_13.png)
-		(src 463,630,501,667)
+		(src 379,17,417,54)
 	)
 	(img btn_bomb
 		(tex atlas_13.png)
-		(src 104,717,204,796)
+		(src 2,728,102,807)
 	)
 	(img btn_rocket
 		(tex atlas_13.png)
-		(src 227,653,327,732)
+		(src 125,713,225,792)
 	)
 	(img btn_shield
 		(tex atlas_13.png)
-		(src 361,643,461,722)
+		(src 254,685,354,764)
 	)
 	(img btn_trampoline
 		(tex atlas_13.png)
-		(src 361,562,461,641)
+		(src 356,656,456,735)
 	)
 	(img bubble_obj
 		(tex atlas_13.png)
-		(src 2,128,159,286)
+		(src 345,192,502,350)
 	)
 	(img buy
 		(tex atlas_13.png)
-		(src 128,510,252,634)
+		(src 128,587,252,711)
 	)
 	(img finish_tile
 		(tex atlas_13.png)
-		(src 463,562,506,628)
+		(src 280,213,323,279)
 	)
 	(img help
 		(tex atlas_13.png)
-		(src 2,666,102,745)
+		(src 254,604,354,683)
 	)
 	(img lock_autumn
 		(tex atlas_13.png)
-		(src 437,134,482,181)
+		(src 298,164,343,211)
 	)
 	(img locked
 		(tex atlas_13.png)
-		(src 125,636,225,715)
+		(src 381,575,481,654)
 	)
 	(img music
 		(tex atlas_13.png)
-		(src 288,288,413,414)
+		(src 2,348,127,474)
 	)
 	(img music_off
 		(tex atlas_13.png)
-		(src 161,256,286,382)
+		(src 141,333,266,459)
 	)
 	(img next
 		(tex atlas_13.png)
-		(src 254,416,378,540)
+		(src 255,478,379,602)
 	)
 	(img pause
 		(tex atlas_13.png)
-		(src 484,134,506,157)
+		(src 345,164,367,187)
 	)
 	(img play
 		(tex atlas_13.png)
-		(src 2,414,126,538)
+		(src 2,476,126,600)
 	)
 	(img position_knob
 		(tex atlas_13.png)
-		(src 499,195,505,201)
+		(src 419,54,427,62)
 	)
 	(img position_line
 		(tex atlas_13.png)
@@ -307,75 +326,79 @@
 	)
 	(img quit
 		(tex atlas_13.png)
-		(src 128,384,252,508)
+		(src 129,461,253,585)
 	)
 	(img red_knob
 		(tex atlas_13.png)
-		(src 484,159,505,180)
+		(src 419,17,440,38)
 	)
 	(img restart
 		(tex atlas_13.png)
-		(src 2,288,126,412)
+		(src 268,352,392,476)
 	)
 	(img ribbon_first
 		(tex atlas_13.png)
-		(src 306,760,404,794)
+		(src 327,774,425,808)
 	)
 	(img ribbon_last
 		(tex atlas_13.png)
-		(src 206,734,304,768)
+		(src 2,809,100,843)
 	)
 	(img ribbon_second
 		(tex atlas_13.png)
-		(src 329,724,427,758)
+		(src 104,794,202,828)
 	)
 	(img ribbon_third
 		(tex atlas_13.png)
-		(src 2,784,100,818)
+		(src 227,766,325,800)
 	)
 	(img ribbon_tutorial
 		(tex atlas_13.png)
-		(src 2,747,100,782)
+		(src 356,737,454,772)
 	)
 	(img rocket
 		(tex atlas_13.png)
-		(src 206,770,288,861)
+		(src 2,845,84,936)
 	)
 	(img shield
 		(tex atlas_13.png)
-		(src 415,357,498,448)
+		(src 427,774,510,865)
 	)
 	(img sound
 		(tex atlas_13.png)
-		(src 288,160,413,286)
+		(src 141,205,266,331)
 	)
 	(img sound_off
 		(tex atlas_13.png)
-		(src 161,128,286,254)
+		(src 379,64,504,190)
+	)
+	(img tap_to_start
+		(tex atlas_13.png)
+		(src 2,17,377,92)
 	)
 	(img token
 		(tex atlas_13.png)
-		(src 463,669,500,703)
+		(src 268,281,305,315)
 	)
 	(img token_tag
 		(tex atlas_13.png)
-		(src 437,64,509,132)
+		(src 298,94,370,162)
 	)
 	(img trampoline
 		(tex atlas_13.png)
-		(src 415,204,507,276)
+		(src 204,802,296,874)
 	)
 	(img trampoline_obj
 		(tex atlas_13.png)
-		(src 2,17,296,126)
+		(src 2,94,296,203)
 	)
 	(img tut_finger
 		(tex atlas_13.png)
-		(src 298,17,435,158)
+		(src 2,205,139,346)
 	)
 	(img tut_star
 		(tex atlas_13.png)
-		(src 2,540,123,664)
+		(src 2,602,123,726)
 	)
 
 	#################

@@ -3,8 +3,15 @@
 	(scale 0.5)
 
 	(img empty 
-		(tex r_atlas_13.png)
-		(src 1000,24,1002,26)
+		(tex empty.png)
+		(src 1,1,3,3)
+	)
+
+	### Splash screens ###
+
+	(img splash_ipad
+		(tex splash_atlas_4.png)
+		(src 0,0,2048,1536)
 	)
 
 	### backgrounds ###
@@ -212,11 +219,11 @@
 	
 	(img ball_autumn
 		(tex r_atlas_13.png)
-		(src 504,1079,713,1296)
+		(src 782,914,991,1131)
 	)
 	(img ball_special
 		(tex r_atlas_13.png)
-		(src 756,875,966,1093)
+		(src 782,694,992,912)
 	)
 	(img blocked
 		(tex r_atlas_13.png)
@@ -228,79 +235,79 @@
 	)
 	(img blue_shade
 		(tex r_atlas_13.png)
-		(src 960,353,982,375)
+		(src 684,324,706,346)
 	)
 	(img bomb
 		(tex r_atlas_13.png)
-		(src 2,1488,182,1644)
+		(src 199,1649,379,1805)
 	)
 	(img bomb_obj
 		(tex r_atlas_13.png)
-		(src 916,1229,991,1302)
+		(src 755,30,830,103)
 	)
 	(img btn_bomb
 		(tex r_atlas_13.png)
-		(src 203,1426,402,1584)
+		(src 2,1450,201,1608)
 	)
 	(img btn_rocket
 		(tex r_atlas_13.png)
-		(src 450,1298,649,1456)
+		(src 249,1419,448,1577)
 	)
 	(img btn_shield
 		(tex r_atlas_13.png)
-		(src 715,1255,914,1413)
+		(src 504,1362,703,1520)
 	)
 	(img btn_trampoline
 		(tex r_atlas_13.png)
-		(src 715,1095,914,1253)
+		(src 705,1293,904,1451)
 	)
 	(img bubble_obj
 		(tex r_atlas_13.png)
-		(src 2,250,319,566)
+		(src 683,376,1000,692)
 	)
 	(img buy
 		(tex r_atlas_13.png)
-		(src 2,568,252,820)
+		(src 530,694,780,946)
 	)
 	(img finish_tile
 		(tex r_atlas_13.png)
-		(src 916,1095,1002,1227)
+		(src 530,416,616,548)
 	)
 	(img help
 		(tex r_atlas_13.png)
-		(src 2,1328,201,1486)
+		(src 504,1202,703,1360)
 	)
 	(img lock_autumn
 		(tex r_atlas_13.png)
-		(src 868,262,957,353)
+		(src 592,323,681,414)
 	)
 	(img locked
 		(tex r_atlas_13.png)
-		(src 249,1266,448,1424)
+		(src 756,1133,955,1291)
 	)
 	(img music
 		(tex r_atlas_13.png)
-		(src 253,1012,502,1264)
+		(src 253,1165,502,1417)
 	)
 	(img music_off
 		(tex r_atlas_13.png)
-		(src 505,825,754,1077)
+		(src 505,948,754,1200)
 	)
 	(img next
 		(tex r_atlas_13.png)
-		(src 573,571,823,823)
+		(src 2,690,252,942)
 	)
 	(img pause
 		(tex r_atlas_13.png)
-		(src 959,262,1003,307)
+		(src 832,30,876,75)
 	)
 	(img play
 		(tex r_atlas_13.png)
-		(src 321,504,571,756)
+		(src 278,657,528,909)
 	)
 	(img position_knob
 		(tex r_atlas_13.png)
-		(src 1000,23,1014,37)
+		(src 999,22,1015,38)
 	)
 	(img position_line
 		(tex r_atlas_13.png)
@@ -308,75 +315,79 @@
 	)
 	(img quit
 		(tex r_atlas_13.png)
-		(src 573,317,823,569)
+		(src 278,403,528,655)
 	)
 	(img red_knob
 		(tex r_atlas_13.png)
-		(src 959,309,1000,350)
+		(src 832,77,873,118)
 	)
 	(img restart
 		(tex r_atlas_13.png)
-		(src 321,250,571,502)
+		(src 755,122,1005,374)
 	)
 	(img ribbon_first
 		(tex r_atlas_13.png)
-		(src 825,659,1020,727)
+		(src 647,1524,842,1592)
 	)
 	(img ribbon_last
 		(tex r_atlas_13.png)
-		(src 825,589,1020,657)
+		(src 2,1610,197,1678)
 	)
 	(img ribbon_second
 		(tex r_atlas_13.png)
-		(src 825,519,1020,587)
+		(src 203,1579,398,1647)
 	)
 	(img ribbon_third
 		(tex r_atlas_13.png)
-		(src 825,449,1020,517)
+		(src 450,1522,645,1590)
 	)
 	(img ribbon_tutorial
 		(tex r_atlas_13.png)
-		(src 825,378,1020,447)
+		(src 705,1453,900,1522)
 	)
 	(img rocket
 		(tex r_atlas_13.png)
-		(src 651,1415,814,1598)
+		(src 844,1524,1007,1707)
 	)
 	(img shield
 		(tex r_atlas_13.png)
-		(src 816,1415,979,1596)
+		(src 2,1680,165,1861)
 	)
 	(img sound
 		(tex r_atlas_13.png)
-		(src 2,822,251,1074)
+		(src 2,944,251,1196)
 	)
 	(img sound_off
 		(tex r_atlas_13.png)
-		(src 254,758,503,1010)
+		(src 254,911,503,1163)
+	)
+	(img tap_to_start
+		(tex r_atlas_13.png)
+		(src 2,30,753,181)
 	)
 	(img token
 		(tex r_atlas_13.png)
-		(src 916,1304,987,1372)
+		(src 530,550,601,618)
 	)
 	(img token_tag
 		(tex r_atlas_13.png)
-		(src 868,122,1015,260)
+		(src 592,183,739,321)
 	)
 	(img trampoline
 		(tex r_atlas_13.png)
-		(src 825,729,1009,873)
+		(src 400,1592,584,1736)
 	)
 	(img trampoline_obj
 		(tex r_atlas_13.png)
-		(src 2,30,590,248)
+		(src 2,183,590,401)
 	)
 	(img tut_finger
 		(tex r_atlas_13.png)
-		(src 592,30,866,315)
+		(src 2,403,276,688)
 	)
 	(img tut_star
 		(tex r_atlas_13.png)
-		(src 2,1076,247,1326)
+		(src 2,1198,247,1448)
 	)
 
 	#################
