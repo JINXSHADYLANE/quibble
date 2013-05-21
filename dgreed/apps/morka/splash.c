@@ -17,7 +17,6 @@ static void splash_init(void) {
 		splash_img2 = sprsheet_get_handle("splash_iphone5_2");
 	}
 	else {
-		printf("ipad\n");
 		splash_img = sprsheet_get_handle("splash_ipad");
 	}
 }

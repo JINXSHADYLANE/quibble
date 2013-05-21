@@ -51,6 +51,7 @@ static void game_over_enter(void) {
 
 static void game_over_leave(void) {
 	shop_reset();
+	keyval_flush();
 }
 
 static bool game_over_update(void) {
