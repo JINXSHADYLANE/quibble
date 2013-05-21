@@ -418,6 +418,22 @@ Vector2 sprsheet_get_size_h(SprHandle handle) {
 	return vec2(w, h);
 }
 
+void sprsheet_unload(const char* name) {
+	sprsheet_unload_h(sprsheet_get_handle(name));
+}
+
+void sprsheet_unload_h(SprHandle handle) {
+	SprDesc* desc = _get_desc(handle);
+
+	for(uint i = 0; i < sprsheet_descs.size; ++i) {
+		SprDesc* d = darray_get(&sprsheet_descs, i);
+		if(d->tex == desc->tex) {
+			d->loaded = false;
+			tex_free(d->tex);
+		}
+	}
+}
+
 
 // Rendering helpers
 
