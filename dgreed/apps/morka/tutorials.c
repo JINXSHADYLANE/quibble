@@ -265,7 +265,7 @@ TutorialStep default_steps[] = {
 };
 
 TutorialScenario scenarios[] = {
-	{"level1", level1_steps},
+	{"Training", level1_steps},
 	{"default", default_steps},
 	{NULL, NULL}
 };
