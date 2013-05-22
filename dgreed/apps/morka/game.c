@@ -46,7 +46,7 @@ static void game_reset(void) {
 	LevelDesc* lvl_desc = levels_current_desc();
 
 	// Check if this level is a tutorial
-	tutorial_level = !strcmp(lvl_desc->name, "level1");
+	tutorial_level = !strcmp(lvl_desc->name, "Training");
 
 	minimap_reset(lvl_desc->distance);
 

@@ -1,12 +1,12 @@
 (levels morka
-	(level level1
+	(level "Training"
 		(distance 0)
 		(background background)
 		(bg_chain bg)
 		(fg_chain level1_fg)
 		(ground_chain grass_ground)
 	)
-	(level level2
+	(level "Stage 2"
 		(distance 100)
 		(rabbits _
 			(max_combo 2
@@ -22,7 +22,7 @@
 		(fg_chain level2_fg)
 		(ground_chain grass_ground)
 	)
-	(level level3
+	(level "Stage 3"
 		(distance 150)
 		(rabbits _
 			(max_combo 5
@@ -48,7 +48,7 @@
 		(fg_chain level3_fg)
 		(ground_chain grass_ground)
 	)
-	(level level4
+	(level "Stage 4"
 		(distance 235)
 		(rabbits _
 			(max_combo 4
@@ -84,7 +84,7 @@
 		(fg_chain level4_fg)
 		(ground_chain water_ground)
 	)
-	(level level5
+	(level "Stage 5"
 		(distance 200)
 		(rabbits _
 			(max_combo 4
@@ -125,7 +125,7 @@
 		(fg_chain level5_fg)
 		(ground_chain grass_ground)
 	)
-	(level level6
+	(level "Stage 6"
 		(distance 250)
 		(rabbits _
 			(max_combo 4
@@ -166,7 +166,7 @@
 		(fg_chain level6_fg)
 		(ground_chain water_ground)
 	)
-	(level level7
+	(level "Stage 7"
 		(distance 300)
 		(rabbits _
 			(max_combo 4
@@ -212,7 +212,7 @@
 		(fg_chain level7_fg)
 		(ground_chain level7_ground)
 	)
-	(level level8
+	(level "Stage 8"
 		(distance 330)
 		(rabbits _
 			(max_combo 4
@@ -258,7 +258,7 @@
 		(fg_chain level8_fg)
 		(ground_chain level8_ground)
 	)
-	(level level9
+	(level "Stage 9"
 		(distance 345)
 		(rabbits _
 			(max_combo 4
@@ -304,7 +304,7 @@
 		(fg_chain level9_fg)
 		(ground_chain level9_ground)
 	)
-	(level level10
+	(level "Stage 10"
 		(distance 385)
 		(rabbits _
 			(max_combo 4
@@ -350,7 +350,7 @@
 		(fg_chain level10_fg)
 		(ground_chain level10_ground)
 	)
-	(level level11
+	(level "Stage 11"
 		(distance 300)
 		(rabbits _
 			(max_combo 4
@@ -396,7 +396,7 @@
 		(fg_chain level11_fg)
 		(ground_chain level11_ground)
 	)
-	(level level12
+	(level "Stage 12"
 		(distance 300)
 		(background background)
 		(bg_chain bg)
@@ -442,7 +442,7 @@
 			)		
 		)		
 	)
-	(level level13
+	(level "Stage 13"
 		(distance 100)
 		(background background)
 		(bg_chain bg)
@@ -466,7 +466,7 @@
 			)
 		)	
 	)
-	(level level14
+	(level "Stage 14"
 		(distance 10)
 		(background background)
 		(bg_chain bg)
@@ -498,7 +498,7 @@
 		)	
 	
 	)
-	(level level15
+	(level "Stage 15"
 		(distance 200)
 		(background background)
 		(bg_chain bg)
@@ -544,7 +544,7 @@
 			)		
 		)
 	)
-	(level level16
+	(level "Stage 16"
 		(distance 150)
 		(background background)
 		(bg_chain bg)
@@ -585,7 +585,7 @@
 			)		
 		)	
 	)
-	(level level17
+	(level "Stage 17"
 		(distance 300)
 		(background background)
 		(bg_chain bg)
@@ -631,7 +631,7 @@
 			)		
 		)
 	)
-	(level level18
+	(level "Stage 18"
 		(distance 700)
 		(background background)
 		(bg_chain bg)
