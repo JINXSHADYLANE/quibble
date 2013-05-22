@@ -35,7 +35,7 @@
 		(def level_text
 			(add <-
 				(tr <- (get_rect screen))
-				(vec2 -180,30)
+				(vec2 -220,30)
 			)
 		)
 		(def text
@@ -93,7 +93,7 @@
 		(def level_text
 			(add <-
 				(tr <- (get_rect screen))
-				(vec2 -180,30)
+				(vec2 -220,30)
 			)
 		)
 		(def text
@@ -226,7 +226,7 @@
 		(def level_text
 			(add <-
 				(tr <- (get_rect screen))
-				(vec2 -180,30)
+				(vec2 -220,30)
 			)
 		)
 
