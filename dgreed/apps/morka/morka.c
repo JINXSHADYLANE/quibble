@@ -129,7 +129,7 @@ bool dgreed_init(int argc, const char** argv) {
 	uidesc_init(ASSETS_DIR "uidesc.mml", vec2((float)v_width, (float)v_height));
 
 	levels_init(ASSETS_DIR "levels.mml");
-	levels_reset("level1");
+	levels_reset("Training");
 
 	malka_states_init(SCRIPTS_DIR "main.lua");
 	malka_states_start();
