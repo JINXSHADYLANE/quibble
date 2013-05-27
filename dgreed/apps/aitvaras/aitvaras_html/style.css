@@ -219,3 +219,9 @@ form {
 	user-select: none;
 	-webkit-touch-callout: none;
 }
+.mita {
+	margin-top: 150pt;
+	color: white;
+	font-size: 14pt;
+	text-align: center;
+}
