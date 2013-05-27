@@ -7,7 +7,7 @@
 		(ground_chain grass_ground)
 	)
 	(level "Stage 2"
-		(distance 100)
+		(distance 65)
 		(rabbits _
 			(max_combo 2
 				(speed 500)
@@ -23,14 +23,14 @@
 		(ground_chain grass_ground)
 	)
 	(level "Stage 3"
-		(distance 150)
+		(distance 75)
 		(rabbits _
-			(max_combo 5
+			(max_combo 4
 				(speed 500)
 				(xjump 100)
 				(yjump 400)
 			)
-			(max_combo 3
+			(max_combo 2
 				(speed 500)
 				(xjump 100)
 				(yjump 400)
@@ -49,19 +49,19 @@
 		(ground_chain grass_ground)
 	)
 	(level "Stage 4"
-		(distance 235)
+		(distance 125)
 		(rabbits _
-			(max_combo 4
+			(max_combo 2
 				(speed 520)
 				(xjump 120)
 				(yjump 450)
 			)
-			(max_combo 6
+			(max_combo 4
 				(speed 500)
 				(xjump 100)
 				(yjump 400)
 			)
-			(max_combo 10
+			(max_combo 6
 				(speed 520)
 				(xjump 120)
 				(yjump 420)
