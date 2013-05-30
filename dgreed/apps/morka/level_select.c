@@ -72,8 +72,6 @@ static bool level_select_render(float t) {
 	UIElement* button_music = uidesc_get_child(element, "button_music");	
 
 	SprHandle place_spr;
-	SprHandle button_spr;
-	SprHandle lock_spr;
 	SprHandle sound;
 	SprHandle music;
 
@@ -85,8 +83,9 @@ static bool level_select_render(float t) {
 
 	int level_count = levels_count();
 
-	button_spr = sprsheet_get_handle("ball_autumn");
-	lock_spr = sprsheet_get_handle("lock_autumn");
+	SprHandle button_spr = sprsheet_get_handle("ball_autumn");
+	SprHandle spec_button_spr = sprsheet_get_handle("ball_special");
+	SprHandle lock_spr = sprsheet_get_handle("lock_autumn");
 
 	Vector2 size = sprsheet_get_size_h(button_spr);
 	uint columns = 6;
@@ -108,19 +107,26 @@ static bool level_select_render(float t) {
 		LevelDesc* desc= (LevelDesc*) darray_get(&levels_descs,i);
 
 		// Draw level icon
-		spr_draw_cntr_h(button_spr, hud_layer, pos, 0.0f, 1.0f, col);
+		spr_draw_cntr_h(
+			i < 12 ? button_spr : spec_button_spr
+			, hud_layer, pos, 0.0f, 1.0f, col
+		);
 
 		if(!level_is_unlocked(i)) {
 			// Draw lock
 			spr_draw_cntr_h(lock_spr, hud_layer, pos, 0.0f, 1.0f, col);			
+
+			// Show help message when special level is pressed
+			if(i >= 12 && hud_button_ex(empty_spr,pos,50.0f,col,t)) {
+				malka_states_push("special_help");				
+			}
 		} 
 		else {
 
 			uint place = levels_get_place(i);
 			char place_txt[16];
 
-
-			switch(place){
+			switch(place) {
 				case 1:
 					place_spr = sprsheet_get_handle("ribbon_first");
 					sprintf(place_txt, "First");
@@ -163,7 +169,7 @@ static bool level_select_render(float t) {
 			}
 
 			// Button action
-			if(hud_button_ex(empty_spr,pos,50.0f,col,t)){
+			if(hud_button_ex(empty_spr, pos, 50.0f, col, t)){
 				levels_reset(desc->name);
 				shop_reset();
 				malka_states_push("shop");				
