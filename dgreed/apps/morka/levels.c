@@ -260,16 +260,15 @@ void levels_unlock_next(){
 		levels_unlock_powerups(level_num+1);
 	}
 
-	// Unlock levels 13 - 18 only if 1-12 are perfected
-	bool perfect = true;
+	// Unlock levels 13 - 18 only if 8 in 1-12 are perfected
+	uint perfected = 0;
 	for(uint i = 0; i < 12; ++i) {
-		if(levels_get_place(i) != 1) {
-			perfect = false;
-			break;
+		if(levels_get_place(i) == 1) {
+			perfected++;
 		}
 	}
 
-	if(perfect) {
+	if(perfected >= 8) {
 		for(uint i = 12; i < 18; ++i) {
 			char key_name[16];
 			sprintf(key_name, "ulck_l%d", i);

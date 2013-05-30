@@ -20,6 +20,7 @@
 #include "item_unlock.h"
 #include "fadeout.h"
 #include "powerup_help.h"
+#include "special_help.h"
 #include "splash.h"
 
 #include "mchains.h"
@@ -118,6 +119,7 @@ bool dgreed_init(int argc, const char** argv) {
 	malka_states_register("item_unlock", &item_unlock_state);	
 	malka_states_register("fadeout", &fadeout_state);
 	malka_states_register("powerup_help", &powerup_help_state);
+	malka_states_register("special_help", &special_help_state);
 	malka_states_register("splash", &splash_state);
 
 	malka_states_set_transition_len(0.5f);

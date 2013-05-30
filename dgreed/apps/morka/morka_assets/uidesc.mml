@@ -430,6 +430,19 @@
 		)
 	)
 
+	(def special_help
+		(def text
+			(middle <- (get_rect screen))
+		)
+		(def button_quit
+			(spr quit)
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,220)
+			)
+		)
+	)
+
 	(def item_unlock
 		(def text1
 			(add <-
