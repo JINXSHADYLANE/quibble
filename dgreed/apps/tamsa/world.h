@@ -16,4 +16,9 @@ void world_cast_primary(
 	float* out_nx, float* out_ny
 );
 
+void world_render(
+	World* world, Vector2 p, Vector2 dir,
+	float fov, uint y_res, uint x_res, Color* backbuffer
+);
+
 #endif
