@@ -7,12 +7,15 @@
 static Color backbuffer[scr_size] = {0};
 static TexHandle backbuffer_tex;
 
+static World world;
+static Vector2 pos, vel;
+static float dir, rot;
+
 void tm_init(void) {
 	backbuffer_tex = tex_create(
-		next_pow2(scr_width), 
-		next_pow2(scr_height)
+		next_pow2(scr_height), 
+		next_pow2(scr_width)
 	);
-
 
 	KdSeg segs[] = {
 		{0, 0, 6, 0, 7},
@@ -25,43 +28,55 @@ void tm_init(void) {
 		{4, 2, 2, 2, 13}
 	};
 
-	World w;
-	w.floor = 0.0f;
-	w.ceiling = 1.0f;
-	kdtree_init(&w.walls, segs, 8);
+	world.floor = 0.0f;
+	world.ceiling = 1.0f;
+	kdtree_init(&world.walls, segs, 8);
 
-	float x[100];
-	float y[100];
-	float nx[100];
-	float ny[100];
+	pos = vec2(1.0f, 1.0f);
+	vel = vec2(0.0f, 0.0f);
+	dir = 0.0f;
+	rot = 0.0f;
+}
 
-	world_cast_primary(
-		&w, vec2(1.0f, 1.0f), vec2(0.3f, 1.0f), 
-		PI/2.0f, 100, x, y, nx, ny
-	);
+void tm_update(void) {
+	if(key_pressed(KEY_LEFT))
+		rot -= 0.01f;
+	if(key_pressed(KEY_RIGHT))
+		rot += 0.01f;
+	dir += rot;
+	rot *= 0.3f;
 
-	kdtree_free(&w.walls);
+	Vector2 dir_vec = vec2_rotate(vec2(1.0f, 0.0f), dir);
+
+	if(key_pressed(KEY_UP))
+		vel = vec2_add(vel, vec2_scale(dir_vec, 0.01f));
+	if(key_pressed(KEY_DOWN))
+		vel = vec2_add(vel, vec2_scale(dir_vec, -0.01f));
+
+	pos = vec2_add(pos, vel);
+	vel = vec2_scale(vel, 0.3f);
 }
 
 bool tm_render(void) {
-	// Fill backbuffer with noise
-	for(uint y = 0; y < scr_height; ++y) {
-		for(uint x = 0; x < scr_width; ++x) {
-			backbuffer[y * scr_width + x] = (rand_uint() + rand_uint()) / 2;
-		}
-	}
+	Vector2 dir_vec = vec2_rotate(vec2(1.0f, 0.0f), dir);
+	world_render(
+		&world, pos, dir_vec,
+		PI/3.0f, scr_width, scr_height, backbuffer
+	);
 
 	// Transfer backbuffer to gpu
-	tex_blit(backbuffer_tex, backbuffer, 0, 0, scr_width, scr_height);
+	tex_blit(backbuffer_tex, backbuffer, 0, 0, scr_height, scr_width);
 
-	// Draw backbuffer
-	RectF dest = rectf_null();
-	video_draw_rect(backbuffer_tex, 1, NULL, &dest, COLOR_WHITE);
+	// Draw backbuffer, rotated 90 degrees
+	RectF src = rectf(0.0f, 0.0f, scr_height, scr_width);
+	RectF dest = rectf(60.0f, -60.0f, 0.0f, 0.0f);
+	video_draw_rect_rotated(backbuffer_tex, 1, &src, &dest, -PI/2.0f, COLOR_WHITE);
 
 	return !key_up(KEY_QUIT) && !char_up('q');
 }
 
 void tm_close(void) {
+	kdtree_free(&world.walls);
 	tex_free(backbuffer_tex);
 }
 
@@ -74,6 +89,7 @@ int dgreed_main(int argc, const char** argv) {
 	tm_init();
 
 	while(system_update()) {
+		tm_update();
 		if(!tm_render())
 			break;
 		video_present();

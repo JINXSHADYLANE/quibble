@@ -422,6 +422,7 @@ void kdtree_trace_surface(
 		);
 	}
 	*/
+	
 
 	// Unshuffle rays
 	for(int i = 0; i < n; ++i) {
