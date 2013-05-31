@@ -66,8 +66,6 @@ void world_render(
 		prim_ray_x, prim_ray_y, prim_ray_nx, prim_ray_ny
 	);
 
-	memset(backbuffer, 0, y_res * x_res * 4);
-
 	// Render wall columns now
 	const float xr = (float)x_res;
 	const float* nx = prim_ray_nx;
@@ -81,7 +79,7 @@ void world_render(
 		int ih = (int)h;
 
 		// Render column
-		int start_x = MAX(0, (x_res - ih) / 2);
+		int start_x = MAX(0, ((int)x_res - ih) / 2);
 		for(uint x = 0; (x < ih) && (start_x + x < x_res); ++x) {
 			backbuffer[i * x_res + x + start_x] = COLOR_WHITE;
 		}

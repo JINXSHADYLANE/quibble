@@ -1,6 +1,6 @@
 #include "kdtree.h"
 
-static const float eps = 0.0001f;
+float eps = 0.00001f;
 
 static int _sgn(int x) {
 	int m = x >> 31;
@@ -283,12 +283,12 @@ static void _node_plane(KdNode node, int dir, float* a, float* b, float* c) {
 }
 
 static int _second_pass(int start, int end, float a, float b, float c,
-	float* ox, float* oy, float* dx, float* dy, byte* surfaces, uint16* id
+	float* ox, float* oy, float* dx, float* dy, byte* surfaces, uint16* id, float eps
 ) {
 	int skipped = 0;
 	for(int i = start; i < end; ++i) {
 		float side_e = (ox[i] + dx[i]) * a + (oy[i] + dy[i]) * b + c;
-		if(side_e > -eps) {
+		if(side_e > eps) {
 			_swap(i, end-1);
 			end--; i--;
 		}
@@ -343,9 +343,9 @@ static void _trace(KdNode* nodes,
 
 	// Do second sorting pass for left and right sides
 	if(l && li)
-		_second_pass(start, start + l + li, a, b, c, ox, oy, dx, dy, surfaces, id);
+		_second_pass(start, start + l + li, a, b, c, ox, oy, dx, dy, surfaces, id, eps);
 	if(r && ri)
-		_second_pass(start + l + li, end, a, b, c, ox, oy, dx, dy, surfaces, id);
+		_second_pass(start + l + li, end, a, b, c, ox, oy, dx, dy, surfaces, id, -eps);
 
 	// Intersect rays of kinds 2 and 3 with node plane
 	for(uint i = start + l; i < start + l + li + ri; ++i) {
@@ -369,19 +369,28 @@ static void _trace(KdNode* nodes,
 		// Check if intersection hits wall seg
 		float p = dir ? x : y;
 		float hits = (fa-fb)*(fa-fb) - (p-fa)*(p-fa) - (fb-p)*(fb-p); 
-		
-		if(hits >= 0.0f) {
+		if(hits >= -eps) {
+			/*
 			// Check if intersection is on the ray seg
 			float t_ndx_dx = (x - lox) * ldx;
 			float t_ndy_dy = (y - loy) * ldy;
 
-			if(t_ndx_dx >= 0.0f && t_ndy_dy >= 0.0f) {
-				if(t_ndx_dx < ldx * ldx && t_ndy_dy < ldy * ldy) {
+			if(t_ndx_dx >= -eps && t_ndy_dy >= -eps) {
+				if(t_ndx_dx < ldx * ldx + eps && t_ndy_dy < ldy * ldy + eps) {
 					dx[i] = x - lox;
 					dy[i] = y - loy;
 					surfaces[i] = node.surface;
 				}
 			}
+			*/
+
+			// Screw it, kdtree guarantees ordering so don't check seg
+			dx[i] = x - lox;
+			dy[i] = y - loy;
+			surfaces[i] = node.surface;
+		}
+		else {
+
 		}
 	}
 
@@ -391,14 +400,15 @@ static void _trace(KdNode* nodes,
 		_trace(nodes, node.left, dir^1, ox, oy, dx, dy, surfaces, start, start + l + li + ri, id);
 	
 		// Move all rays that might intersect with right to the back
-		int nl = _second_pass(start, start + l + li, a, b, c, ox, oy, dx, dy, surfaces, id);
+		int nl = _second_pass(start, start + l + li, a, b, c, ox, oy, dx, dy, surfaces, id, eps);
 		nr = l + li - nl;
 	}
 
 	// Trace right, including left rays that are still intersecting node.
 	// This will get tail-call optimized, hopefully
-	if(node.right != MAX_UINT16 && r + ri + nr > 0)
+	if(node.right != MAX_UINT16 && r + ri + nr > 0) {
 		_trace(nodes, node.right, dir^1, ox, oy, dx, dy, surfaces, start + l + li - nr, end, id);
+	}
 }
 
 void kdtree_trace_surface(
@@ -416,13 +426,16 @@ void kdtree_trace_surface(
 
 	// Debug print rays for preview in processing
 	/*
-	for(uint i = 0; i < n; ++i) {
-		printf("line(%f, %f, %f, %f);\n",
-			ox[i]*100.0f, oy[i]*100.0f, (ox[i]+dx[i])*100.0f, (oy[i]+dy[i])*100.0f
-		);
-	}
+	static bool printed = false;
+	if(!printed) {
+		printed = true;
+		for(uint i = 0; i < n; ++i) {
+			printf("line(%f, %f, %f, %f);\n",
+				ox[i]*100.0f, 10.0f + oy[i]*100.0f, (ox[i]+dx[i])*100.0f, 10.0f+(oy[i]+dy[i])*100.0f
+			);
+		}
+	}	
 	*/
-	
 
 	// Unshuffle rays
 	for(int i = 0; i < n; ++i) {
