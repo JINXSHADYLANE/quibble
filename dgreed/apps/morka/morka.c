@@ -115,7 +115,8 @@ bool dgreed_init(int argc, const char** argv) {
 	malka_states_register("pause", &pause_state);
 	malka_states_register("game_over", &game_over_state);
 	malka_states_register("shop", &shop_state);
-	malka_states_register("in_app", &in_app_state);
+	// No in-app purchase screen for now
+	//malka_states_register("in_app", &in_app_state);
 	malka_states_register("item_unlock", &item_unlock_state);	
 	malka_states_register("fadeout", &fadeout_state);
 	malka_states_register("powerup_help", &powerup_help_state);

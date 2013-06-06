@@ -25,8 +25,8 @@ static void level_select_init(void) {
 	sound_off = sprsheet_get_handle("sound_off");
 	music_on = sprsheet_get_handle("music");
 	music_off = sprsheet_get_handle("music_off");
-	sound_enabled = keyval_get_bool("sound", false);
-	music_enabled = keyval_get_bool("music", false);
+	sound_enabled = keyval_get_bool("sound", true);
+	music_enabled = keyval_get_bool("music", true);
 
 	if(!sound_enabled)
 		mfx_snd_set_volume(0.0f);
