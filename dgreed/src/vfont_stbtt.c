@@ -151,6 +151,8 @@ void _vfont_render_text(const char* string, CachePage* page, RectF* dest) {
 void vfont_select(const char* font_name, float size) {
     assert(font_name && size);
 
+	size *= resolution_factor;
+
     // Look for existing font
     Font* f = DARRAY_DATA_PTR(vfont_fonts, Font);
     for(uint i = 0; i < vfont_fonts.size; ++i) {
@@ -163,7 +165,7 @@ void vfont_select(const char* font_name, float size) {
     // Make new font
     Font new = {
         .name = strclone(font_name),
-        .size = size * resolution_factor
+        .size = size
     };
 
 	FileHandle file = file_open(font_name);
