@@ -10,23 +10,16 @@
 #import <AppKit/AppKit.h>
 #endif
 
-bool vfont_retina = false;
 DArray fonts;
 static DArray render_scratchpad;
+
+extern float resolution_factor;
 
 uint vfont_selected_font = 0;
 
 void _vfont_init(void) {
 	fonts = darray_create(sizeof(Font), 0);
 	render_scratchpad = darray_create(1, 1024);
-    
-	#ifdef TARGET_IOS
-    UIScreen* main = [UIScreen mainScreen];
-    if ([main respondsToSelector:@selector(displayLinkWithTarget:selector:)]){
-        if(main.scale == 2.0f)
-            vfont_retina = true;
-    }
-	#endif
 }
 
 void _vfont_close(void) {
@@ -55,7 +48,10 @@ RectF _vfont_bbox(const char* string) {
 	NSSize size = [ns_string sizeWithAttributes:attr];
 #endif
 
-    return rectf(0.0f, 0.0f, size.width, size.height);
+    return rectf(0.0f, 0.0f,
+		size.width / resolution_factor,
+		size.height / resolution_factor
+	);
 }
 
 void _vfont_render_text(const char* string, CachePage* page, RectF* dest) {
@@ -84,13 +80,8 @@ void _vfont_render_text(const char* string, CachePage* page, RectF* dest) {
     
     CGContextSaveGState(ctx); 
 
-#ifdef TARGET_IOS
     CGContextTranslateCTM(ctx, 0, h);
-    if(vfont_retina)
-        CGContextScaleCTM(ctx, 2.0, -2.0);
-    else
-        CGContextScaleCTM(ctx, 1.0, -1.0);
-#endif
+    CGContextScaleCTM(ctx, resolution_factor, -resolution_factor);
         
     CGFloat c_rgba[] = {1.0f, 1.0f, 1.0f, 1.0f};
     CGColorRef c = CGColorCreate(color_space, c_rgba);
