@@ -71,6 +71,7 @@ bool dgreed_init(int argc, const char** argv) {
     if(v_width > 1280.0f || v_height > 800.0f) {
     	sprsheet = ASSETS_DIR "r_spritesheet.mml";
 		vfont_init_ex(2048, 1024);
+        vfont_resolution_factor(2.0f);
 	}
 	else {
 		vfont_init_ex(1024, 512);
