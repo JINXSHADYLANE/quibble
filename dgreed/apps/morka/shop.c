@@ -138,7 +138,7 @@ static void _render_powerups_buy(float t){
 						coins -= powerup_params[i].cost;
 						mfx_trigger("buy");
 					} else {
-						malka_states_push("in_app");
+						//malka_states_push("in_app");
 					}				
 				}
 
