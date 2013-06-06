@@ -195,6 +195,10 @@ bool orientation_change(DevOrient* new, float* anim_start, float* anim_len) {
     return orientation_transition_start;
 }
 
+void orientation_auto(DevOrient mask) {
+	[[AutoRotateViewController singleton] allow_rotation:mask];
+}
+
 /*
 ---------------------
 --- Running state ---

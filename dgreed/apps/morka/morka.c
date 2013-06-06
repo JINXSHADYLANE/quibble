@@ -44,6 +44,10 @@ bool dgreed_init(int argc, const char** argv) {
 	rand_init(time(NULL));
 
 	const char* sprsheet = ASSETS_DIR "spritesheet.mml";
+
+#ifdef TARGET_IOS
+	orientation_auto(ORIENT_LANDSCAPE_LEFT | ORIENT_LANDSCAPE_RIGHT);
+#endif
     
 #if !defined(TARGET_IOS) && !defined(ANDROID)
     uint r = params_find("-r");
@@ -64,8 +68,13 @@ bool dgreed_init(int argc, const char** argv) {
 	v_height = h;
 #endif
 
-    if(v_width > 1280.0f || v_height > 800.0f)
+    if(v_width > 1280.0f || v_height > 800.0f) {
     	sprsheet = ASSETS_DIR "r_spritesheet.mml";
+		vfont_init_ex(2048, 1024);
+	}
+	else {
+		vfont_init_ex(1024, 512);
+	}
 
 	float n_width = v_width;
 	float n_height = v_height;
@@ -75,18 +84,14 @@ bool dgreed_init(int argc, const char** argv) {
 		v_width = n_width * 2.0f;
 		v_height = n_height * 2.0f;
 		sprsheet = ASSETS_DIR "s_spritesheet.mml";
-		vfont_init_ex(1024, 512);
 	}
 	else if(n_width < 960.0f && n_height < 640.0f) {
 		v_width = n_width * 1.5f;
 		v_height = n_height * 1.5f;
-		vfont_init_ex(1024, 512);
 	}
 	else if(n_width > 1280.0f && n_height > 800.0f) {
 		v_width = n_width / 2.0f;
 		v_height = n_height / 2.0f;
-		vfont_resolution_factor(2.0f);
-		vfont_init_ex(2048, 1024);
 	}
 
 	if(params_find("-s") != ~0) {

@@ -21,6 +21,9 @@ DevOrient orientation_current(void);
 // new orientation, animation start time and length.
 bool orientation_change(DevOrient* _new, float* anim_start, float* anim_len);
 
+// Allows OS to automatically rotate to specified orientations
+void orientation_auto(DevOrient mask);
+
 /*
 ---------------------
 --- Running state ---
