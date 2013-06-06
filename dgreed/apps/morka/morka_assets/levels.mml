@@ -467,7 +467,7 @@
 		)	
 	)
 	(level "Stage 14"
-		(distance 10)
+		(distance 100)
 		(background background)
 		(bg_chain bg)
 		(fg_chain level15_fg)
