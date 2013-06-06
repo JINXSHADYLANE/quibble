@@ -432,13 +432,16 @@
 
 	(def special_help
 		(def text
-			(middle <- (get_rect screen))
+			(add <-
+				(middle <- (get_rect screen))
+				(vec2 0,-70)
+			)
 		)
 		(def button_quit
 			(spr quit)
 			(add <-
 				(middle <- (get_rect screen))
-				(vec2 0,220)
+				(vec2 0,70)
 			)
 		)
 	)
