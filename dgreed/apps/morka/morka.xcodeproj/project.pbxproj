@@ -149,6 +149,7 @@
 		21A6F7EC16D764C7004A22D9 /* memlin.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7EA16D764C7004A22D9 /* memlin.c */; };
 		21A6F7EE16D76B03004A22D9 /* vfont_stbtt.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7ED16D76B03004A22D9 /* vfont_stbtt.c */; };
 		21A6F7F216D7D860004A22D9 /* devmode.c in Sources */ = {isa = PBXBuildFile; fileRef = 21A6F7F016D7D860004A22D9 /* devmode.c */; };
+		21AE97FE176092A800FABB58 /* special_help.c in Sources */ = {isa = PBXBuildFile; fileRef = 21AE97FC176092A800FABB58 /* special_help.c */; };
 		21D53BA6167A23F0009E6CFC /* vfont.c in Sources */ = {isa = PBXBuildFile; fileRef = 21D53BA4167A23F0009E6CFC /* vfont.c */; };
 		21DF2CC9174B9A6F001EA17F /* splash.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DF2CC7174B9A6F001EA17F /* splash.c */; };
 		21DF2CD2174B9BF8001EA17F /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 21DF2CCC174B9BF8001EA17F /* icon.png */; };
@@ -426,6 +427,8 @@
 		21A6F7EF16D7D860004A22D9 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = SOURCE_ROOT; };
 		21A6F7F016D7D860004A22D9 /* devmode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = devmode.c; sourceTree = SOURCE_ROOT; };
 		21A6F7F116D7D860004A22D9 /* devmode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devmode.h; sourceTree = SOURCE_ROOT; };
+		21AE97FC176092A800FABB58 /* special_help.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = special_help.c; sourceTree = SOURCE_ROOT; };
+		21AE97FD176092A800FABB58 /* special_help.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = special_help.h; sourceTree = SOURCE_ROOT; };
 		21D53BA4167A23F0009E6CFC /* vfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vfont.c; path = ../../src/vfont.c; sourceTree = "<group>"; };
 		21DF2CC7174B9A6F001EA17F /* splash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = splash.c; sourceTree = SOURCE_ROOT; };
 		21DF2CC8174B9A6F001EA17F /* splash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = splash.h; sourceTree = SOURCE_ROOT; };
@@ -587,6 +590,8 @@
 				AAF6776316C550F400FDF975 /* level_select.h */,
 				AAF6778816C550F400FDF975 /* pause.c */,
 				AAF6778916C550F400FDF975 /* pause.h */,
+				21AE97FC176092A800FABB58 /* special_help.c */,
+				21AE97FD176092A800FABB58 /* special_help.h */,
 				21F440AB1737CD8400599B81 /* fadeout.c */,
 				21F440AC1737CD8400599B81 /* fadeout.h */,
 				21DF2CC7174B9A6F001EA17F /* splash.c */,
@@ -1104,6 +1109,7 @@
 				21F440AE1737CD8400599B81 /* fadeout.c in Sources */,
 				AAF7578C174A48A600498DD8 /* powerup_help.c in Sources */,
 				21DF2CC9174B9A6F001EA17F /* splash.c in Sources */,
+				21AE97FE176092A800FABB58 /* special_help.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

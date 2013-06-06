@@ -14,9 +14,10 @@ static DArray free_rects;
 static MemPool cached_text_pool;
 static MemPool key_str_pool;
 
+float resolution_factor = 1.0f;
+
 // System-specific render implementation interface
 extern uint vfont_selected_font;
-extern bool vfont_retina;
 extern void _vfont_init(void);
 extern void _vfont_close(void);
 extern RectF _vfont_bbox(const char* string);
@@ -28,8 +29,8 @@ static CachePage* _alloc_page(RectF* r) {
     assert(r->left == 0.0f && r->top == 0.0f);
     
     // Determine page size
-    uint pw = default_page_width * (vfont_retina ? 2 : 1);
-    uint ph = default_page_height;
+    uint pw = default_page_width * resolution_factor;
+    uint ph = default_page_height * resolution_factor;
     if(pw < r->right)
         pw = next_pow2((uint)r->right);
     if(ph < r->bottom)
@@ -115,16 +116,14 @@ static CachePage* _alloc_cache(RectF* r) {
 
 static const CachedText* _precache(const char* string, const char* key, bool input) {
     RectF bbox = _vfont_bbox(string);
-    if(vfont_retina) {
-        bbox.right *= 2.0f;
-        bbox.bottom *= 2.0f;
-    }
+    bbox.right *= resolution_factor;
+    bbox.bottom *= resolution_factor;
     float w = rectf_width(&bbox);
     float h = rectf_height(&bbox);
     
     // Make user inputed text very long, so that we can use cache better
     if(input) {
-        float input_w = vfont_retina ? 510.0f * 2.0f : 510.0f;
+        float input_w = 510.0f * resolution_factor;
         // Don't crash, log warning instead
 		if(w >= input_w)
         	LOG_WARNING("Input text w is longer than it should be!");
@@ -251,6 +250,10 @@ void vfont_close(void) {
 	mempool_drain(&cached_text_pool);
 }
 
+void vfont_resolution_factor(float factor) {
+	resolution_factor = factor;
+}
+
 void vfont_draw(const char* string, uint layer, Vector2 topleft, Color tint) {
     assert(string);
     
@@ -259,10 +262,8 @@ void vfont_draw(const char* string, uint layer, Vector2 topleft, Color tint) {
     
     const CachedText* text = _get_text(string, false);
     RectF dest = rectf(floorf(topleft.x), floorf(topleft.y), 0.0f, 0.0f);
-    if(vfont_retina) {
-        dest.right = dest.left + rectf_width(&text->src) / 2.0f;
-        dest.bottom = dest.top + rectf_height(&text->src) / 2.0f;
-    }
+    dest.right = dest.left + rectf_width(&text->src) / resolution_factor;
+    dest.bottom = dest.top + rectf_height(&text->src) / resolution_factor;
     video_draw_rect(text->tex, layer, &text->src, &dest, tint);
 }
 
@@ -276,10 +277,7 @@ void vfont_draw_ex(const char* string, uint layer, Vector2 topleft, Color tint, 
     const CachedText* text = _get_text(string, false);
 
     Vector2 original = vec2(rectf_width(&text->src),rectf_height(&text->src));
-
-    if(vfont_retina){
-        original = vec2_scale(original,0.5f);
-    }   
+    original = vec2_scale(original, 1.0f / resolution_factor);
 
     Vector2 scaled = vec2_scale(original,scale);
     Vector2 offset = vec2_scale( vec2_sub(original,scaled), 0.5f );
@@ -287,11 +285,11 @@ void vfont_draw_ex(const char* string, uint layer, Vector2 topleft, Color tint, 
     topleft = vec2_add(topleft,offset);
 
     RectF dest = rectf(
-                        floorf(topleft.x) ,
-                        floorf(topleft.y) ,
-                        floorf(topleft.x + scaled.x) ,
-                        floorf(topleft.y + scaled.y)
-                    );
+		floorf(topleft.x),
+		floorf(topleft.y),
+		floorf(topleft.x + scaled.x),
+		floorf(topleft.y + scaled.y)
+	);
 
     video_draw_rect(text->tex, layer, &text->src, &dest, tint);
 }
@@ -406,8 +404,8 @@ void vfont_invalidate_all(void) {
 Vector2 vfont_size(const char* string) {
     RectF bbox = _vfont_bbox(string);
     Vector2 res = {
-        .x = rectf_width(&bbox),
-        .y = rectf_height(&bbox)
+        .x = rectf_width(&bbox) / resolution_factor,
+        .y = rectf_height(&bbox) / resolution_factor
     };
     return res;
 }

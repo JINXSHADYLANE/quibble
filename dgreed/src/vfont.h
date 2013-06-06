@@ -76,6 +76,10 @@ void vfont_init(void);
 void vfont_init_ex(uint cache_w, uint cache_h);
 void vfont_close(void);
 
+// Render fonts at 'factor' times higher resolution than virtual
+// screen resolution
+void vfont_resolution_factor(float factor);
+
 void vfont_select(const char* font_name, float size);
 void vfont_draw(const char* string, uint layer, Vector2 topleft, Color tint);
 void vfont_draw_ex(const char* string, uint layer, Vector2 topleft, Color tint, float scale);
