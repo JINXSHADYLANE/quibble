@@ -219,7 +219,10 @@ static bool shop_render(float t) {
 
 	float state_alpha = 1.0f-fabsf(t);
 	Color col = COLOR_FTRANSP(state_alpha);
-	
+
+	byte a2 = lrintf(76.0f * state_alpha);
+	Color col_30 = COLOR_RGBA(255, 255, 255, a2);		
+
 	spr_draw("blue_shade", hud_layer-1, rectf(0.0f, 0.0f, v_width, v_height), col); 
 
 	static float anim_start = 0.0f;
@@ -346,37 +349,30 @@ static bool shop_render(float t) {
 	// Coin txt
 	vfont_select(FONT_NAME, 38.0f);
 	vfont_draw_number(coins, NULL, hud_layer+1, coin_text->vec2, col);
-	Vector2 txt_size = vfont_number_size(coins);
+	//Vector2 txt_size = vfont_number_size(coins);
 
-	if(_shop_character_owned(selected_char)){
+	if(_shop_character_owned(selected_char)) {
 		// Play button
 		if(hud_button(button_play, col, t)) {
 			game_request_reset();
 			malka_states_push("fadeout");
 		}
 	} else {
+		// Grey out buy button if not enough coins
+		Color buy_btn_col = col;
+		if(coins < default_characters[selected_char].cost)
+			buy_btn_col = col_30;
+		
 		// Buy button
-		if(hud_button(button_buy, col, t)) {
+		if(hud_button(button_buy, buy_btn_col, t)) {
 			if(_shop_character_buy(selected_char)){
 				anim_start = time_s();
 				anim_end = anim_start + 0.7f;
 			} else {
-				malka_states_push("in_app");
+				//malka_states_push("in_app");
 			}
 		}
 	}
-
-	Vector2 coin_size = sprsheet_get_size_h(coin_icon->spr); 
-	Vector2 btn_pos;
-	btn_pos.x = coin_icon->vec2.x - coin_size.x / 2.0f +
-				coin_text->vec2.x + txt_size.x;
-	btn_pos.x /= 2.0f;
-	btn_pos.y = coin_icon->vec2.y;
-	Vector2 dim = vec2( coin_size.x + txt_size.x + 15.0f, coin_size.y );
-
-	// in app store button
-	if(hud_button_rect(empty_spr,btn_pos,dim,col,t))
-		malka_states_push("in_app");
 
 	// Quit button
 	if(hud_button(button_quit, col, t))
@@ -396,3 +392,4 @@ StateDesc shop_state = {
 	.update = shop_update,
 	.render = shop_render
 };
+
