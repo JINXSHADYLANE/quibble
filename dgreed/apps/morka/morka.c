@@ -75,14 +75,18 @@ bool dgreed_init(int argc, const char** argv) {
 		v_width = n_width * 2.0f;
 		v_height = n_height * 2.0f;
 		sprsheet = ASSETS_DIR "s_spritesheet.mml";
+		vfont_init_ex(1024, 512);
 	}
 	else if(n_width < 960.0f && n_height < 640.0f) {
 		v_width = n_width * 1.5f;
 		v_height = n_height * 1.5f;
+		vfont_init_ex(1024, 512);
 	}
 	else if(n_width > 1280.0f && n_height > 800.0f) {
 		v_width = n_width / 2.0f;
 		v_height = n_height / 2.0f;
+		vfont_resolution_factor(2.0f);
+		vfont_init_ex(2048, 1024);
 	}
 
 	if(params_find("-s") != ~0) {

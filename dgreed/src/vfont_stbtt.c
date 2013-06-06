@@ -18,6 +18,8 @@ DArray vfont_fonts;
 bool vfont_retina = false;
 uint vfont_selected_font;
 
+extern float resolution_factor;
+
 void _vfont_init(void) {
 	vfont_fonts = darray_create(sizeof(Font), 0);
 }
@@ -161,7 +163,7 @@ void vfont_select(const char* font_name, float size) {
     // Make new font
     Font new = {
         .name = strclone(font_name),
-        .size = size,
+        .size = size * resolution_factor
     };
 
 	FileHandle file = file_open(font_name);
@@ -173,7 +175,7 @@ void vfont_select(const char* font_name, float size) {
 	if(!stbtt_InitFont(&new.font, fd, 0))
 		LOG_ERROR("Unable to use font %s", font_name);
 
-	new.scale = stbtt_ScaleForPixelHeight(&new.font, STBTT_iceil(size * 1.1f));
+	new.scale = stbtt_ScaleForPixelHeight(&new.font, STBTT_iceil(new.size * 1.1f));
 
     darray_append(&vfont_fonts, &new);
     vfont_selected_font = vfont_fonts.size - 1;
