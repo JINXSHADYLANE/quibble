@@ -175,7 +175,6 @@ static void _hud_render_combo_internal(
 }
 
 void hud_init(void) {
-	vfont_init_ex(1024, 512);
 }
 
 void hud_close(void) {
