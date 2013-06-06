@@ -55,13 +55,17 @@ static int orientations = 0;
     self.view = [[[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds] autorelease];
 }
 
-/*
+
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 }
-*/
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [self shouldAutorotate];
+}
 
 - (void)viewDidUnload
 {
@@ -70,10 +74,31 @@ static int orientations = 0;
     self.view = nil;
 }
 
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
+    return UIInterfaceOrientationLandscapeLeft;
+}
+
+- (NSUInteger)supportedInterfaceOrientations{
+    return UIInterfaceOrientationMaskLandscape;
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     // Return YES for supported orientations
     return [self is_rotation_allowed:interfaceOrientation];
+}
+
+- (BOOL)shouldAutorotate
+{
+    UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+    UIInterfaceOrientation interface_orientation = orientation;
+    if (orientation != UIDeviceOrientationPortrait && orientation != UIDeviceOrientationPortraitUpsideDown) {
+        interface_orientation = [UIApplication sharedApplication].statusBarOrientation;
+    }
+    BOOL result = [self shouldAutorotateToInterfaceOrientation:interface_orientation];
+    if(result)
+        [self willRotateToInterfaceOrientation:interface_orientation duration:0.8f];
+    return result;
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
@@ -90,15 +115,23 @@ static int orientations = 0;
              if (toInterfaceOrientation == UIInterfaceOrientationPortrait) {
                  [glview.view setTransform:CGAffineTransformMake(1, 0, 0, 1, 0, 0)];
              }
+             if (toInterfaceOrientation == UIInterfaceOrientationLandscapeLeft) {
+                 [glview.view setTransform:CGAffineTransformMake(-1, 0, 0, -1, 0, 0)];
+             }
+             if (toInterfaceOrientation == UIInterfaceOrientationLandscapeRight) {
+                 [glview.view setTransform:CGAffineTransformMake(1, 0, 0, 1, 0, 0)];
+             }
+
              //camera_pop_up();
          } completion:^(BOOL finished) {}];
     }
 }
-
+/*
 - (NSUInteger)supportedInterfaceOrientations
 {
     return UIInterfaceOrientationMaskAll;
 }
+*/
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
@@ -111,13 +144,13 @@ static int orientations = 0;
 }
 
 - (bool)is_rotation_allowed:(UIInterfaceOrientation) requested {
-    if (requested == UIInterfaceOrientationPortrait) {
+    if (requested == UIInterfaceOrientationLandscapeLeft) {
         return orientations & 1;
-    } else if (requested == UIInterfaceOrientationPortraitUpsideDown) {
-        return orientations & 2;
     } else if (requested == UIInterfaceOrientationLandscapeRight) {
+        return orientations & 2;
+    } else if (requested == UIInterfaceOrientationPortrait) {
         return orientations & 4;
-    } else if (requested == UIInterfaceOrientationLandscapeLeft) {
+    } else if (requested == UIInterfaceOrientationPortraitUpsideDown) {
         return orientations & 8;        
     }
     return false;
