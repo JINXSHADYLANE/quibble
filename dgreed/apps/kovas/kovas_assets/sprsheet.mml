@@ -1,0 +1,46 @@
+(sprsheet kovas
+	(prefix "kovas_assets/")
+	(img background
+		(tex "bg.png")
+	)
+	(anim player_walk
+		(tex "char_walk_sheet.png")
+		(frames 120)
+		(src 0,0,256,256)
+		(offset 256,256)
+		(grid 15,8)
+	)
+	(anim player_hit
+		(tex "char_hit_sheet.png")
+		(frames 80)
+		(src 0,0,256,256)
+		(offset 256,256)
+		(grid 10,8)
+	)
+	(img altar
+		(tex "atlas.png")
+		(src 688,0,860,246)
+	)
+	(anim altar_burn
+		(tex "atlas.png")
+		(frames 8)
+		(src 0,0,172,246)
+		(offset 172,246)
+		(grid 4,2)
+	)
+	(img tree
+		(tex "atlas.png")
+		(src 959,0,1024,512)
+	)
+	(img bush
+		(tex "atlas.png")
+		(src 718,246,959,468)
+	)
+	(anim eyes
+		(tex "eyes.png")
+		(src 0,0,32,16)
+		(offset 0,16)
+		(frames 8)
+		(grid 1,8)
+	)
+)

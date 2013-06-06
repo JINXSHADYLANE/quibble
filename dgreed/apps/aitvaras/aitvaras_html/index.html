@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=0.4, maximum-scale=0.4, user-scalable=no" />
+		<meta charset="utf-8" />
+		<title>aitvaras lobby</title>
+		<script type="text/javascript" charset="utf-8" src="http://code.jquery.com/jquery-1.7.2.js"></script>
+		<link href="style.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript"> 
+		function getURL(val){ 
+		   location.href = val; 
+		   return false; 
+		} 
+		</script> 
+	</head>	
+	<body>
+		<div>
+			<h1 id="magic">Enter a magic number:</h1>
+			<form method="post" action="" onsubmit="return getURL(this.id.value)">
+				<p><input id="code" type="tel" name="id" maxlength="4" /></p>
+				<p><input id="play" type="submit" value="" /></p>
+			</form>
+		</div>
+		<div>
+			<p class="mita">Projektas iš dalies finansuotas ES paramos lėšomis pagal priemonę VP2-1.3-ŪM-05-K „Inočekiai LT“.</p>
+		</div>
+	</body>
+</html>
