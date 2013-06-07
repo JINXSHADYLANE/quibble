@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>${PRODUCT_NAME}</string>
+	<string>At Last</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIcons</key>
@@ -14,11 +14,10 @@
 		<dict>
 			<key>CFBundleIconFiles</key>
 			<array>
-				<string>icon~ipad.png</string>
-				<string>icon@2x~ipad.png</string>
-				<string>icon 2.png</string>
-				<string>icon.png</string>
-				<string>icon@2x.png</string>
+				<string>Icon.png</string>
+				<string>Icon@2x.png</string>
+				<string>Icon-72.png</string>
+				<string>Icon-ipad@2x.png</string>
 			</array>
 			<key>UIPrerenderedIcon</key>
 			<true/>
@@ -58,6 +57,7 @@
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
 	</array>
 </dict>
 </plist>
