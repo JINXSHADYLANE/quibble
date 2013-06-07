@@ -4,10 +4,18 @@
 #include <utils.h>
 #include "kdtree.h"
 
+#define max_lights 16
+
+typedef struct {
+	float x, y, z, r;
+	float inv_att, em_r, em_g, em_b;
+} Light;
+
 typedef struct {
 	KdTree walls;
 	float floor;
 	float ceiling;
+	DArray lights;
 } World;
 
 void world_cast_primary(

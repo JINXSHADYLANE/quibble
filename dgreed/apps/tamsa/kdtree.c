@@ -282,6 +282,18 @@ static void _node_plane(KdNode node, int dir, float* a, float* b, float* c) {
 	surfaces[mn] = ts; \
 }
 
+#define _swap_nonorm(i, mn) { \
+	float tox=ox[i], toy=oy[i]; \
+	uint16 tid=id[i]; \
+	byte ts=surfaces[i]; \
+	ox[i] = ox[mn]; oy[i] = oy[mn]; \
+	id[i] = id[mn]; \
+	surfaces[i] = surfaces[mn]; \
+	ox[mn] = tox; oy[mn] = toy; \
+	id[mn] = tid; \
+	surfaces[mn] = ts; \
+}
+
 static int _second_pass(int start, int end, float a, float b, float c,
 	float* ox, float* oy, float* dx, float* dy, byte* surfaces, uint16* id, float eps
 ) {
@@ -388,9 +400,11 @@ static void _trace(KdNode* nodes,
 			dx[i] = x - lox;
 			dy[i] = y - loy;
 			surfaces[i] = node.surface;
-		}
-		else {
 
+			// Encode normal in last two bits of id
+			uint16 normal = (dir^1) * (fa-fb > 0.0f ? 1 : 0);
+			normal += (dir) * (fa-fb > 0.0f ? 3 : 2);
+			id[i] = normal << 14 | (id[i] & 0x3fff);
 		}
 	}
 
@@ -408,6 +422,153 @@ static void _trace(KdNode* nodes,
 	// This will get tail-call optimized, hopefully
 	if(node.right != MAX_UINT16 && r + ri + nr > 0) {
 		_trace(nodes, node.right, dir^1, ox, oy, dx, dy, surfaces, start + l + li - nr, end, id);
+	}
+}
+
+#define _swap_light(i, mn) { \
+	float tox=ox[i], toy=oy[i], tdx=dx[i], tdy=dy[i]; \
+	byte ts=lightid[i]; \
+	ox[i] = ox[mn]; oy[i] = oy[mn]; \
+	dx[i] = dx[mn]; dy[i] = dy[mn]; \
+	lightid[i] = lightid[mn]; \
+	ox[mn] = tox; oy[mn] = toy; dx[mn] = tdx; dy[mn] = tdy; \
+	lightid[mn] = ts; \
+}
+
+static int _second_pass_light(int start, int end, float a, float b, float c,
+	float* ox, float* oy, float* dx, float* dy, byte* lightid, float eps
+) {
+	int skipped = 0;
+	for(int i = start; i < end; ++i) {
+		float side_e = (ox[i] + dx[i]) * a + (oy[i] + dy[i]) * b + c;
+		if(side_e > eps) {
+			_swap_light(i, end-1);
+			end--; i--;
+		}
+		else {
+			skipped++;
+		}
+	}
+	return skipped;
+}
+
+
+static void _trace_light(KdNode* nodes,
+	int node_id, int dir, float* ox, float* oy, float* dx, float* dy,
+	byte* lightid, uint start, uint end
+) {
+	KdNode node = nodes[node_id];
+
+	float a, b, c;
+	_node_plane(node, dir, &a, &b, &c);
+
+	// Sort the data into four buckets 
+	// 1. Rays that are on the left 
+	// 2. Rays that start on the left and intersect node
+	// 3. Rays that start on the right and intersect node
+	// 4. Rays that are on the right
+	
+	// First sort pass, move types 3/4 to the back
+	int l = 0, li = 0, r = 0, ri = 0;
+	int n = end;
+	for(int i = start; i < n; ++i) {
+		float side_s = ox[i] * a + oy[i] * b + c;
+		float side_e = (ox[i] + dx[i]) * a + (oy[i] + dy[i]) * b + c;
+
+		if(side_s < eps && side_e < eps) {
+			l++;
+		}
+		else if(side_s > -eps && side_e > -eps) {
+			r++;
+			_swap_light(i, n-1);
+			n--; i--;
+		}
+		else {
+			if(side_s < eps) {
+				li++;
+			}
+			else {
+				_swap_light(i, n-1);
+				n--; i--;
+				ri++;
+			}
+		}
+	}
+
+	// Do second sorting pass for left and right sides
+	if(l && li)
+		_second_pass_light(start, start + l + li, a, b, c, ox, oy, dx, dy, lightid, eps);
+	if(r && ri)
+		_second_pass_light(start + l + li, end, a, b, c, ox, oy, dx, dy, lightid, -eps);
+
+	// Intersect rays of kinds 2 and 3 with node plane
+	for(uint i = start + l; i < start + l + li + ri; ++i) {
+		if(lightid[i] == 0xFF)
+			continue;
+
+		float lox = ox[i], loy = oy[i];
+		float ldx = dx[i], ldy = dy[i];
+
+		// Ray plane equation
+		float a2 = -ldy;
+		float b2 = ldx;
+		float c2 = -(a2 * lox + b2 * loy);
+
+		// Solve with Cramer's
+		float d = a * b2 - b * a2;
+		float inv_d = 1.0f / d;
+		float x = (-c * b2 - b * (-c2)) * inv_d;
+		float y = (a * (-c2) - (-c) * a2) * inv_d;
+		
+		float fa = node.a;
+		float fb = node.b;
+
+		// Check if intersection hits wall seg
+		float p = dir ? x : y;
+		float hits = (fa-fb)*(fa-fb) - (p-fa)*(p-fa) - (fb-p)*(fb-p); 
+		if(hits >= -eps) {
+			// Check if intersection is on the ray seg
+			float t_ndx_dx = (x - lox) * ldx;
+			float t_ndy_dy = (y - loy) * ldy;
+
+			if(t_ndx_dx >= -eps && t_ndy_dy >= -eps) {
+				if(t_ndx_dx < ldx * ldx + eps && t_ndy_dy < ldy * ldy + eps) {
+					lightid[i] = 0xFF;
+				}
+			}
+
+			/*
+			// Screw it, kdtree guarantees ordering so don't check seg
+			dx[i] = x - lox;
+			dy[i] = y - loy;
+			surfaces[i] = node.surface;
+			*/
+		}
+	}
+
+	// Trace left
+	int nr = 0;
+	if(node.left != MAX_UINT16 && l + li + ri > 0) {
+		_trace_light(
+			nodes, node.left, dir^1, ox, oy, dx, dy, 
+			lightid, start, start + l + li + ri
+		);
+	
+		// Move all rays that might intersect with right to the back
+		int nl = _second_pass_light(
+			start, start + l + li, a, b, c, 
+			ox, oy, dx, dy, lightid, eps
+		);
+		nr = l + li - nl;
+	}
+
+	// Trace right, including left rays that are still intersecting node.
+	// This will get tail-call optimized, hopefully
+	if(node.right != MAX_UINT16 && r + ri + nr > 0) {
+		_trace_light(
+			nodes, node.right, dir^1, ox, oy, dx, dy,
+			lightid, start + l + li - nr, end
+		);
 	}
 }
 
@@ -437,13 +598,38 @@ void kdtree_trace_surface(
 	}	
 	*/
 
+	// ox, oy is now hit positions
+	for(int i = 0; i < n; ++i) {
+		ox[i] = ox[i] + dx[i];
+		oy[i] = oy[i] + dy[i];
+	}
+
 	// Unshuffle rays
 	for(int i = 0; i < n; ++i) {
-		int dest = id[i];
+		int dest = id[i] & 0x3fff;
 		if(dest != i) {
-			_swap(i, dest)
+			_swap_nonorm(i, dest)
 			i--;
 		}
 	}
+
+	float nx[] = {-1.0f, 1.0f, 0.0f, 0.0f};
+	float ny[] = {0.0f, 0.0f, 1.0f, -1.0f};
+
+	// Write normals
+	for(int i = 0; i < n; ++i) {
+		int n = id[i] >> 14;
+		assert(n >= 0 && n < 4);
+		dx[i] = nx[n];
+		dy[i] = ny[n];
+	}
+}
+
+void kdtree_trace_light(
+	KdTree* tree, float* ox, float* oy, float* dx, float* dy,
+	byte* lightid, uint n
+) {
+	KdNode* nodes = tree->data;
+	_trace_light(nodes, 0, 0, ox, oy, dx, dy, lightid, 0, n);
 }
 
