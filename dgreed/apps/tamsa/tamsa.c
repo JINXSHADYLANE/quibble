@@ -32,6 +32,15 @@ void tm_init(void) {
 	world.ceiling = 1.0f;
 	kdtree_init(&world.walls, segs, 8);
 
+	world.lights = darray_create(sizeof(Light), 2);
+
+	Light lights[] = {
+		{0.5f, 2.5f, 0.85f, 0.10f, 1.0f/5.0f, 2.8f, 0.9f, 0.9f},
+		{5.5f, 2.5f, 0.85f, 0.10f, 1.0f/5.0f, 0.9f, 0.9f, 2.8f}
+	};
+
+	darray_append_multi(&world.lights, lights, 2);
+
 	pos = vec2(2.571671, 1.256600);
 	dir_vec = vec2(0.998971, -0.045358);
 	vel = vec2(0.0f, 0.0f);
@@ -80,9 +89,9 @@ bool tm_render(void) {
 	for(uint i = 0; i < scr_width * scr_height; ++i) {
 		byte r, g, b, a;
 		COLOR_DECONSTRUCT(backbuffer[i], r, g, b, a);
-		r <<= 2;
-		g <<= 2;
-		b <<= 2;
+		r >>= 2;
+		g >>= 2;
+		b >>= 2;
 		backbuffer[i] = COLOR_RGBA(r, g, b, a);
 	}
 
@@ -104,6 +113,7 @@ bool tm_render(void) {
 
 void tm_close(void) {
 	kdtree_free(&world.walls);
+	darray_free(&world.lights);
 	tex_free(backbuffer_tex);
 }
 

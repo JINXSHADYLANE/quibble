@@ -34,11 +34,11 @@ void kdtree_trace_surface(
 	byte* surfaces, uint n
 );
 
-// Traces a packet of n shadow rays, returns 0 - 1 ratio
-// of how many hit the target at (ex, ey)
-float kdtree_trace_shadow(
-	KdTree* tree, float* ox, float* oy, float ex, float ey, uint n
+// Traces packet of n light rays, doesn't preserve order,
+// sets lightid of occluded rays to 0xFF
+void kdtree_trace_light(
+	KdTree* tree, float* ox, float* oy, float* dx, float* dy,
+	byte* lightid, uint n
 );
-
 
 #endif
