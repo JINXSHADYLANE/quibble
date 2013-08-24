@@ -38,19 +38,101 @@ function room:new(desc)
 		objs = {},
 		tiles = {},
 		colour = {},
-		text = nil
+		text = nil,
+		spell = nil,
+		spell_t = 0
 	}
 	setmetatable(o, room_mt)
 	parse_tiles(o, desc)
 	return o
 end
 
+function room:ray(start_x, start_y, end_x, end_y)
+	local tiles = {}
+
+	-- simply do bresenheim's
+	local dx = end_x - start_x
+	local dy = end_y - start_y
+	local e = 0
+	local de = math.abs(dy / dx)
+	local y = start_y
+
+	local x_dir = 1
+	if dx < 0 then
+		x_dir = -1
+	end
+
+	local y_dir = 1
+	if dy < 0 then
+		y_dir = -1
+	end
+
+	for x=start_x,end_x,x_dir do
+		if self:collide(x, y, true, true, false) then
+			break
+		end
+
+		table.insert(tiles, {x, y})
+		e = e + de
+
+		while e > 0.5 do
+			e = e - 1
+			y = y + y_dir
+
+			if e > 0.5 then
+				if self:collide(x, y, true, true, false) then
+					break
+				end
+
+				table.insert(tiles, {x, y})
+			end
+
+			if y == end_y and x == end_x then
+				if e <= 0.5 then
+					table.insert(tiles, {x, y})
+				end
+				break
+			end
+		end
+	end
+	
+	return tiles
+end
+
 function room:update()
+	if self.spell then
+		return
+	end
+
 	for i,obj in ipairs(self.objs) do
 		if obj.update then
 			obj:update(self)
 		end
 	end
+end
+
+function room:collide(x, y, with_tiles, with_objs, with_player)
+	-- objs
+	for i,obj in ipairs(self.objs) do
+		if with_objs or with_player then
+			local is_player = obj.char == '@'
+			if obj.pos.x == x and obj.pos.y == y then
+				if is_player and with_player then
+					return true, obj
+				end
+				if not is_player and with_objs then
+					return true, obj
+				end
+			end
+		end
+	end
+
+	-- tiles
+	local idx = (y - self.dy) * self.width + (x - self.dx)
+	if self.tiles[idx] == '#' then
+		return true
+	end
+	return false
 end
 
 function room:player_collide(player)
@@ -69,6 +151,32 @@ function room:player_collide(player)
 		return false
 	end
 	return true
+end
+
+function room:render_circle(textmode, x, y, r, col)
+	local transp = rgba(0, 0, 0, 1)
+
+	local rr = math.ceil(r)
+
+	local w, h = textmode.size.x, textmode.size.y
+
+	textmode:push()
+	for ix=x-rr,x+rr do
+		for iy=y-rr,y+rr do
+			if ix >= 0 and ix < w and iy >= 0 and iy < h then
+				local dx = x-ix
+				-- acount for non-square tiles
+				local dy = (y-iy) -- * (24 / 28)
+				local d_sqr = math.abs(dx*dx + dy*dy - r*r) / 6
+				if d_sqr < 1 then
+					local c = lerp(col, transp, math.sqrt(d_sqr))
+					textmode.selected_bg = c
+					textmode:recolour(ix, iy, 1)
+				end
+			end
+		end
+	end
+	textmode:pop()
 end
 
 function room:render(textmode)
@@ -96,8 +204,26 @@ function room:render(textmode)
 	end
 
 	-- render objects
+	local player = nil
 	for i,o in ipairs(self.objs) do
 		o:draw(textmode)
+		if o.char == '@' then
+			player = o
+		end
+	end
+
+	-- render spell
+	local st = time.s() - self.spell_t
+	if self.spell then
+		if st < self.spell.effect_len or self.spell.effect_len == -1 then
+			local t = st / self.spell.effect_len
+			self.spell = self.spell.effect(player, self, textmode, t)
+		else
+			if self.spell.post then
+				self.spell.post(player, room)
+			end
+			self.spell = nil
+		end
 	end
 
 	-- render text

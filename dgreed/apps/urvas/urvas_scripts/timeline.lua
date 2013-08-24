@@ -35,6 +35,10 @@ function timeline.render(tm)
 	tm.selected_bg = lerp(rgba(0, 0, 0), color, frac_tiles)
 	tm:recolour(int_tiles, 17,  1)
 	tm:pop()
+
+	if timeline.text then
+		tm:write(0, 18, timeline.text)
+	end
 end
 
 return timeline
