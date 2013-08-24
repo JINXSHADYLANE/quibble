@@ -2,6 +2,8 @@ local object = {}
 local object_mt = {}
 object_mt.__index = object
 
+local timeline = require('timeline')
+
 function object:new(pos, overrides)
 	local o = {
 		update = overrides.update,
@@ -56,6 +58,10 @@ function player:update(room)
 
 	if moved and not room:player_collide(self) then
 		self.pos = old_pos
+	else
+		if moved then
+			timeline.pass(1)
+		end
 	end
 end
 

@@ -21,11 +21,23 @@ function textmode:new()
 		fg_color = {},
 		char = {},
 		selected_fg = nil,
-		selected_bg = nil
+		selected_bg = nil,
+		color_stack = {}
 	}
 
 	setmetatable(o, textmode_mt)
 	return o
+end
+
+function textmode:push()
+	table.insert(self.color_stack, self.selected_fg or rgba(1,1,1))	
+	table.insert(self.color_stack, self.selected_bg or rgba(0,0,0))	
+end
+
+function textmode:pop()
+	assert(#self.color_stack >= 2)
+	self.selected_bg = table.remove(self.color_stack)
+	self.selected_fg = table.remove(self.color_stack)
 end
 
 function textmode:clear(color)
@@ -77,6 +89,15 @@ function textmode:write(x, y, str)
 	local idx = self.size.x * y + x
 	for c in str:gmatch('.') do
 		self.char[idx] = c:byte()
+		self.fg_color[idx] = self.selected_fg
+		self.bg_color[idx] = self.selected_bg
+		idx = idx + 1
+	end
+end
+
+function textmode:recolour(x, y, n)
+	local idx = self.size.x * y + x
+	for i=1,n do
 		self.fg_color[idx] = self.selected_fg
 		self.bg_color[idx] = self.selected_bg
 		idx = idx + 1

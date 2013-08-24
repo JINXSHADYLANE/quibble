@@ -4,22 +4,10 @@ room_mt.__index = room
 
 local object = require('object')
 
-room.descs = {}
-
-room.descs[1] = {
-	'######################',
-	'#                    #',
-	'#  #  #  #  #  #  #  #',
-	'E                @   #',
-	'#  #  #  #  #  #  #  #',
-	'#                    #',
-	'######################' 
-}
-
 local function parse_tiles(room, desc)
 	room.width, room.height = desc[1]:len(), #desc
 	local dx = math.floor((40 - room.width)/2)
-	local dy = math.floor((20 - room.height)/2)
+	local dy = math.floor((17 - room.height)/2)
 	room.dx, room.dy = dx, dy
 
 	for y, line in ipairs(desc) do
