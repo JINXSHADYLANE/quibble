@@ -34,32 +34,32 @@ function player:update(room)
 	end
 
 	local old_pos = vec2(self.pos)
-	local moved = false
+	local moved = 0
 	if char.pressed('h') or key.pressed(key._left) then
 		self.pos.x = self.pos.x - 1
-		moved = true
+		moved = moved + 1
 	end
-	if char.pressed('j') or key.pressed(key._down) then
+	if (char.pressed('j') or key.pressed(key._down)) then
 		self.pos.y = self.pos.y + 1
-		moved = true
+		moved = moved + 1
 	end
 	if char.pressed('k') or key.pressed(key._up) then
 		self.pos.y = self.pos.y - 1
-		moved = true
+		moved = moved + 1
 	end
 	if char.pressed('l') or key.pressed(key._right) then
 		self.pos.x = self.pos.x + 1
-		moved = true
+		moved = moved + 1
 	end
 
-	if moved then
+	if moved == 1 then
 		last_keypress = time.s()
 	end
 
-	if moved and not room:player_collide(self) then
+	if moved > 1 or (moved == 1 and not room:player_collide(self)) then
 		self.pos = old_pos
 	else
-		if moved then
+		if moved == 1 then
 			timeline.pass(1)
 		end
 	end
@@ -72,8 +72,6 @@ local exit = {}
 exit.char = 'E'
 
 function exit:player_collide(room, player)
-	room.text = 'Rytas entered into the dark cave.'
-	room.text_start_t = time.s()
 	return false 
 end
 

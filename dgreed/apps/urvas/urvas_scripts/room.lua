@@ -10,6 +10,9 @@ local function parse_tiles(room, desc)
 	local dy = math.floor((17 - room.height)/2)
 	room.dx, room.dy = dx, dy
 
+	local stone_col1 = rgba(0.7, 0.7, 0.7)
+	local stone_col2 = rgba(0.3, 0.3, 0.35)
+
 	for y, line in ipairs(desc) do
 		local x = 0
 		for c in line:gmatch('.') do
@@ -18,6 +21,9 @@ local function parse_tiles(room, desc)
 				--
 			elseif c == '#' then
 				room.tiles[idx] = c
+				room.colour[idx] = lerp(
+					stone_col1, stone_col2, rand.float(0, 1)
+				)
 			else
 				local new_obj = object.make_obj(vec2(dx+x, dy+y-1), c)
 				table.insert(room.objs, new_obj)
@@ -31,6 +37,7 @@ function room:new(desc)
 	local o = {
 		objs = {},
 		tiles = {},
+		colour = {},
 		text = nil
 	}
 	setmetatable(o, room_mt)
@@ -73,7 +80,14 @@ function room:render(textmode)
 	for i,c in pairs(self.tiles) do
 		local x = i % self.width
 		local y = (i - x) / self.width
+		if self.colour[i] ~= nil then
+			textmode:push()
+			textmode.selected_fg = self.colour[i]
+		end
 		textmode:put(x+dx, y+dy, c)
+		if self.colour[i] ~= nil then
+			textmode:pop()
+		end
 		x = x + 1
 		if x == self.width then
 			x = 0

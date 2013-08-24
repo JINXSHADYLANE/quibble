@@ -4,7 +4,7 @@ timeline.current = 10
 timeline.display = 10
 
 function timeline.pass(n)
-	timeline.current = timeline.current - n
+	timeline.current = math.max(0, timeline.current - n)
 end
 
 function timeline.update()
@@ -21,7 +21,15 @@ function timeline.render(tm)
 	tm:push()
 	tm.selected_fg = rgba(0.9, 0.9, 0.9)
 	tm:write(0, 17, string.rep(' ', int_tiles-1))
-	tm:write_middle(17, string.format('%d seconds left', timeline.current))
+	local str 
+	if timeline.current > 1 then
+		str = string.format('%d seconds left', timeline.current)
+	elseif timeline.current == 1 then
+		str = string.format('1 second left')
+	else
+		str = 'Game over'	
+	end
+	tm:write_middle(17, str)
 	tm.selected_bg = color
 	tm:recolour(0, 17, int_tiles)
 	tm.selected_bg = lerp(rgba(0, 0, 0), color, frac_tiles)
