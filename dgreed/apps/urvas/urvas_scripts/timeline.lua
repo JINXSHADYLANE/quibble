@@ -14,7 +14,7 @@ end
 local good_color = rgba(0.2, 0.2, 0.8)
 local bad_color = rgba(0.8, 0.2, 0.2)
 
-function timeline.render(tm)
+function timeline.render(tm, hide_text)
 	local t = timeline.display / 10
 	local color = lerp(bad_color, good_color, t)
 	local int_tiles, frac_tiles = math.modf(t * 40)
@@ -36,8 +36,14 @@ function timeline.render(tm)
 	tm:recolour(int_tiles, 17,  1)
 	tm:pop()
 
-	if timeline.text then
-		tm:write(0, 18, timeline.text)
+	if not hide_text then
+		if timeline.text then
+			tm:write(0, 18, timeline.text)
+		end
+
+		if timeline.text2 then
+			tm:write(0, 19, timeline.text2)
+		end
 	end
 end
 

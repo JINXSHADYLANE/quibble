@@ -64,7 +64,7 @@ spells[2] = {
 		self.effect_len = -1
 		self.dest_x = player.pos.x
 		self.dest_y = player.pos.y
-		timeline.text = 'hjkl/arrows - target, enter - confirm' 
+		timeline.text2 = 'hjkl/arrows - target, enter - confirm' 
 	end,
 	effect = function(player, room, textmode, t)
 		textmode:push()
@@ -173,7 +173,9 @@ function spells.update(room)
 	end
 
 	if char.down('\r') then
-		spells.cast(spells.selected, room)
+		spells.delegate = function()
+			spells.cast(spells.selected, room)
+		end
 		return false
 	end
 
@@ -213,7 +215,6 @@ function spells.cast(i, room)
 			return
 		end
 
-		timeline.pass(spells[i].cost)
 		room.spell = spells[i]
 		room.spell_t = time.s()
 		if spells[i].pre then

@@ -222,7 +222,7 @@ function cavegen.make(width, height)
 					c = '@'
 				end
 				if x == stairs_pt[1] and y == stairs_pt[2] then
-					c = 'E'
+					c = '>'
 				end
 			end
 			line[x] = c

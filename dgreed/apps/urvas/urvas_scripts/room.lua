@@ -3,6 +3,7 @@ local room_mt = {}
 room_mt.__index = room
 
 local object = require('object')
+local timeline = require('timeline')
 
 local function parse_tiles(room, desc)
 	room.width, room.height = desc[1]:len(), #desc
@@ -44,11 +45,27 @@ function room:new(desc)
 	}
 	setmetatable(o, room_mt)
 	parse_tiles(o, desc)
+
+	-- place golems
+	for i=1,30 do
+		local x, y
+		repeat
+			x, y = rand.int(0, 40), rand.int(0, 17)
+		until not o:collide(x, y, true, true, true)	
+
+		table.insert(o.objs, 
+			object.make_obj(vec2(x, y), 'G')
+		)
+	end
+
 	return o
 end
 
-function room:ray(start_x, start_y, end_x, end_y)
-	local tiles = {}
+function room:ray(start_x, start_y, end_x, end_y, nopath, skipobj)
+	local tiles = nil
+	if not nopath then
+		tiles = {}
+	end
 
 	-- simply do bresenheim's
 	local dx = end_x - start_x
@@ -67,12 +84,16 @@ function room:ray(start_x, start_y, end_x, end_y)
 		y_dir = -1
 	end
 
+	local last_x
 	for x=start_x,end_x,x_dir do
-		if self:collide(x, y, true, true, false) then
+		last_x = x
+		if self:collide(x, y, true, not skipobj, false) then
 			break
 		end
 
-		table.insert(tiles, {x, y})
+		if not nopath then
+			table.insert(tiles, {x, y})
+		end
 		e = e + de
 
 		while e > 0.5 do
@@ -80,15 +101,17 @@ function room:ray(start_x, start_y, end_x, end_y)
 			y = y + y_dir
 
 			if e > 0.5 then
-				if self:collide(x, y, true, true, false) then
+				if self:collide(x, y, true, not skipobj, false) then
 					break
 				end
 
-				table.insert(tiles, {x, y})
+				if not nopath then
+					table.insert(tiles, {x, y})
+				end
 			end
 
 			if y == end_y and x == end_x then
-				if e <= 0.5 then
+				if e <= 0.5 and not nopath then
 					table.insert(tiles, {x, y})
 				end
 				break
@@ -96,7 +119,11 @@ function room:ray(start_x, start_y, end_x, end_y)
 		end
 	end
 	
-	return tiles
+	if nopath then
+		return (last_x ~= end_x or y ~= end_y)
+	else
+		return tiles
+	end
 end
 
 function room:update()
@@ -111,17 +138,19 @@ function room:update()
 	end
 end
 
-function room:collide(x, y, with_tiles, with_objs, with_player)
+function room:collide(x, y, with_tiles, with_objs, with_player, o)
 	-- objs
-	for i,obj in ipairs(self.objs) do
-		if with_objs or with_player then
-			local is_player = obj.char == '@'
-			if obj.pos.x == x and obj.pos.y == y then
-				if is_player and with_player then
-					return true, obj
-				end
-				if not is_player and with_objs then
-					return true, obj
+	if with_objs or with_player then
+		for i,obj in ipairs(self.objs) do
+			if obj ~= o then
+				local is_player = obj.char == '@'
+				if obj.pos.x == x and obj.pos.y == y then
+					if is_player and with_player then
+						return true, obj
+					end
+					if not is_player and with_objs then
+						return true, obj
+					end
 				end
 			end
 		end
@@ -151,6 +180,16 @@ function room:player_collide(player)
 		return false
 	end
 	return true
+end
+
+function room:player_moved(player)
+	timeline.pass(1)
+
+	for i,obj in ipairs(self.objs) do
+		if obj.tick then
+			obj:tick(self, player)
+		end
+	end
 end
 
 function room:render_circle(textmode, x, y, r, col)
@@ -219,6 +258,7 @@ function room:render(textmode)
 			local t = st / self.spell.effect_len
 			self.spell = self.spell.effect(player, self, textmode, t)
 		else
+			timeline.pass(self.spell.cost)
 			if self.spell.post then
 				self.spell.post(player, room)
 			end
