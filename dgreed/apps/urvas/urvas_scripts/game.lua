@@ -50,6 +50,10 @@ function game.update()
 		end
 		r:update()
 		timeline.update()
+		if spells.delegate then
+			spells.delegate()
+			spells.delegate = nil
+		end
 	end
 
 	return true
@@ -57,13 +61,13 @@ end
 
 function game.render(t)
 	r:render(tm)
-	timeline.render(tm)
+	timeline.render(tm, show_spells or show_quit)
 	if show_spells then
 		spells.render(tm)
 	elseif show_quit then
-		tm:write(0,19, 'Quit? Progress will be lost! (y/n)')
+		tm:write(0,19, 'Quit? Progress will be lost! (y/n)    ')
 	else
-		tm:write(0,19,'hjkl/arrows - move, w - wait, s - spells')
+		timeline.text2 = 'hjkl/arrows - move, w - wait, s - spells'
 	end
 	tm:present(3, t)
 	return true
