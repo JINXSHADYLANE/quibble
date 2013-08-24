@@ -39,8 +39,15 @@ function game.update()
 	end
 
 	if show_spells then
-		spells.update()
+		show_spells = spells.update(r)
 	elseif not show_quit then
+		if r.spell == nil then
+			for i=1,9 do
+				if char.down(tostring(i)) then
+					spells.cast(i, r)
+				end
+			end
+		end
 		r:update()
 		timeline.update()
 	end
