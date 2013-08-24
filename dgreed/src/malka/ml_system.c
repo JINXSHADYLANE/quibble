@@ -1166,16 +1166,14 @@ static int ml_key_up(lua_State* l) {
 static int ml_char_pressed(lua_State* l) {
 	checkargs(1, "char.pressed");
 	char c;
-	if(lua_isnumber(l, 1))
-		c = (char)lua_tointeger(l, 1);
-	else if(lua_isstring(l, 1)) {
+	if(lua_isstring(l, 1)) {
 		const char* str = lua_tostring(l, 1);
 		if(strlen(str) > 1)
 			return luaL_error(l, "bad char");
 		c = str[0];	
 	}
 	else
-		return luaL_error(l, "bad argument");
+		c = (char)lua_tointeger(l, 1);
 	lua_pushboolean(l, char_pressed(c));
 	return 1;
 }
@@ -1183,16 +1181,14 @@ static int ml_char_pressed(lua_State* l) {
 static int ml_char_down(lua_State* l) {
 	checkargs(1, "char.down");
 	char c;
-	if(lua_isnumber(l, 1))
-		c = (char)lua_tointeger(l, 1);
-	else if(lua_isstring(l, 1)) {
+	if(lua_isstring(l, 1)) {
 		const char* str = lua_tostring(l, 1);
 		if(strlen(str) > 1)
 			return luaL_error(l, "bad char");
 		c = str[0];	
 	}
 	else
-		return luaL_error(l, "bad argument");
+		c = (char)lua_tointeger(l, 1);
 	lua_pushboolean(l, char_down(c));
 	return 1;
 }
@@ -1200,16 +1196,14 @@ static int ml_char_down(lua_State* l) {
 static int ml_char_up(lua_State* l) {
 	checkargs(1, "char.up");
 	char c;
-	if(lua_isnumber(l, 1))
-		c = (char)lua_tointeger(l, 1);
-	else if(lua_isstring(l, 1)) {
+	if(lua_isstring(l, 1)) {
 		const char* str = lua_tostring(l, 1);
 		if(strlen(str) > 1)
 			return luaL_error(l, "bad char");
 		c = str[0];	
 	}
 	else
-		return luaL_error(l, "bad argument");
+		c = (char)lua_tointeger(l, 1);
 	lua_pushboolean(l, char_up(c));
 	return 1;
 }
