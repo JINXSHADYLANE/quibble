@@ -201,8 +201,10 @@ function room:player_collide(player)
 	return true
 end
 
-function room:player_moved(player)
-	timeline.pass(1)
+function room:player_moved(player, time)
+	if time then
+		timeline.pass(1)
+	end
 
 	for i,obj in ipairs(self.objs) do
 		if obj.tick then

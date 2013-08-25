@@ -93,7 +93,7 @@ function player:update(room)
 		self.pos = old_pos
 	else
 		if moved == 1 then
-			room:player_moved(self)
+			room:player_moved(self, true)
 		end
 	end
 end

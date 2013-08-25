@@ -13,6 +13,22 @@ function obj_sqr_distance(a, b)
 	return (a.pos.x-b.pos.x)^2 + (a.pos.y-b.pos.y)^2	
 end
 
+function pt_to_seg_distance(s, e, pt)
+	local l2 = length_sq(s - e)
+	if l2 == 0 then
+		return length(s - pt)
+	end
+	local t = dot(pt - s, e - s) / l2
+	if t < 0 then
+		return length(s - pt)
+	elseif t > 1 then
+		return length(e - pt)
+	else
+		local proj = s + (e - s) * t
+		return length(pt - proj)
+	end
+end
+
 function round(x)
 	if x > 0 then
 		return math.floor(x + 0.5)
