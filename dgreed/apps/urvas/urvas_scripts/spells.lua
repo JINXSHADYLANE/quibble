@@ -35,14 +35,58 @@ spells[1] = {
 	have = true,
 	effect_len = 0.3,
 
-	pre = nil,
+	-- state
+	push_objs = nil,
+	pushes_to_make = 0,
+
+	pre = function(player, room)
+		local self = spells[1]
+		local px = player.pos.x
+		local py = player.pos.y
+		local dist = function(obj)
+			return (obj.pos.x-px)^2 + (obj.pos.y-py)^2	
+		end
+
+		-- get all movable objects within 3 squares
+		local push_objs = {}
+		for i,obj in ipairs(room.objs) do
+			local d = dist(obj)
+			if obj.movable and d <= 3*3 then
+				table.insert(push_objs, obj)
+			end
+		end
+
+		-- sort from farthest to closest
+		table.sort(push_objs, function(a, b)
+			return dist(a) > dist(b)
+		end)
+
+		self.push_objs = push_objs
+		self.pushes_to_make = 3
+	end,
 	effect = function(player, room, textmode, t)
+		local self = spells[1]
 		room:render_circle(
-			textmode, player.pos.x, player.pos.y, t * 3, rgba(0, 0, 0.6*(1-t))
+			textmode, player.pos.x, player.pos.y, t * 4, rgba(0, 0, 0.7*(1-t))
 		)
+		if (3 - self.pushes_to_make) < t * 3 then
+			self.pushes_to_make = self.pushes_to_make - 1
+			for i,obj in ipairs(self.push_objs) do
+				local d = normalize(obj.pos - player.pos) 	
+				d.x = round(d.x)
+				d.y = round(d.y)
+				local old_pos = obj.pos
+				obj.pos = obj.pos + d
+
+				if room:collide(obj.pos.x, obj.pos.y, true, true, true, obj) then
+					obj.pos = old_pos
+				end
+			end
+		end
 		return spells[1]
 	end,
-	post = nil
+	post = function(player, room)
+	end
 }
 
 spells[2] = {
@@ -80,7 +124,7 @@ spells[2] = {
 			textmode:recolour(self.dest_x, self.dest_y, 1)
 
 			if sel then
-				self.path = room:ray(
+				self.path, self.target = room:ray(
 					player.pos.x, player.pos.y, self.dest_x, self.dest_y
 				)
 				self.effect_len = #self.path * 0.05
@@ -104,6 +148,13 @@ spells[2] = {
 		return self
 	end,
 	post = function(player, room)
+		local self = spells[2]
+		if self.target then
+			if self.target.die then
+				self.target:die(room, player)
+			end
+			self.target = nil
+		end
 	end
 }
 
@@ -131,7 +182,7 @@ spells[5] = {
 spells[6] = {
 	name = 'Freeze',
 	desc = 'Turn every living creature around you',
-	desc2 = 'into statues of ice.',
+	desc2 = 'into a statue of ice.',
 	cost = 6
 }
 

@@ -9,6 +9,14 @@ local textmode = require('textmode')
 local intro = require('intro')
 local game = require('game')
 
+function round(x)
+	if x > 0 then
+		return math.floor(x + 0.5)
+	else
+		return math.ceil(x - 0.5)
+	end
+end
+
 function game_init()
 	local scale = 1
 	local real_size = scr_size * scale

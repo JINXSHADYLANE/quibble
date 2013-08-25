@@ -2,9 +2,11 @@ local timeline = {}
 
 timeline.current = 10
 timeline.display = 10
+timeline.text_color = rgba(0.8, 0.8, 0.8)
+timeline.text2_color = rgba(0.6, 0.6, 0.6)
 
 function timeline.pass(n)
-	timeline.current = math.max(0, timeline.current - n)
+	timeline.current = clamp(0, 10, timeline.current - n)
 end
 
 function timeline.update()
@@ -34,17 +36,24 @@ function timeline.render(tm, hide_text)
 	tm:recolour(0, 17, int_tiles)
 	tm.selected_bg = lerp(rgba(0, 0, 0), color, frac_tiles)
 	tm:recolour(int_tiles, 17,  1)
-	tm:pop()
 
+	timeline.text_color = lerp(timeline.text_color, rgba(0.8, 0.8, 0.8), 0.08)
+	timeline.text2_color = lerp(timeline.text2_color, rgba(0.6, 0.6, 0.6), 0.08)
+
+	tm.selected_bg = rgba(0, 0, 0)
 	if not hide_text then
 		if timeline.text then
+			tm.selected_fg = timeline.text_color
 			tm:write(0, 18, timeline.text)
 		end
 
 		if timeline.text2 then
+			tm.selected_fg = timeline.text2_color
 			tm:write(0, 19, timeline.text2)
 		end
 	end
+
+	tm:pop()
 end
 
 return timeline

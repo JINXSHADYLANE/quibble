@@ -84,15 +84,16 @@ function room:ray(start_x, start_y, end_x, end_y, nopath, skipobj)
 		y_dir = -1
 	end
 
+	local obj, res
 	local last_x
 	for x=start_x,end_x,x_dir do
 		last_x = x
-		if self:collide(x, y, true, not skipobj, false) then
-			break
-		end
-
 		if not nopath then
 			table.insert(tiles, {x, y})
+		end
+		res, obj = self:collide(x, y, true, not skipobj, false)
+		if res then
+			break
 		end
 		e = e + de
 
@@ -101,12 +102,12 @@ function room:ray(start_x, start_y, end_x, end_y, nopath, skipobj)
 			y = y + y_dir
 
 			if e > 0.5 then
-				if self:collide(x, y, true, not skipobj, false) then
-					break
-				end
-
 				if not nopath then
 					table.insert(tiles, {x, y})
+				end
+				res, obj = self:collide(x, y, true, not skipobj, false)
+				if res then
+					break
 				end
 			end
 
@@ -120,9 +121,9 @@ function room:ray(start_x, start_y, end_x, end_y, nopath, skipobj)
 	end
 	
 	if nopath then
-		return (last_x ~= end_x or y ~= end_y)
+		return (last_x ~= end_x or y ~= end_y), obj
 	else
-		return tiles
+		return tiles, obj
 	end
 end
 
@@ -131,10 +132,26 @@ function room:update()
 		return
 	end
 
+	local to_remove = 0
+
 	for i,obj in ipairs(self.objs) do
 		if obj.update then
 			obj:update(self)
 		end
+
+		if obj.remove then
+			to_remove = to_remove + 1
+		end
+	end
+
+	if to_remove > 0 then
+		local new_objs = {}
+		for i,obj in ipairs(self.objs) do
+			if not obj.remove then
+				table.insert(new_objs, obj)
+			end
+		end
+		self.objs = new_objs
 	end
 end
 
@@ -260,7 +277,7 @@ function room:render(textmode)
 		else
 			timeline.pass(self.spell.cost)
 			if self.spell.post then
-				self.spell.post(player, room)
+				self.spell.post(player, self)
 			end
 			self.spell = nil
 		end
