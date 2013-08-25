@@ -29,6 +29,12 @@ function timeline.render(tm, hide_text)
 		str = string.format('%d seconds left', timeline.current)
 	elseif timeline.current == 1 then
 		str = string.format('1 second left')
+	elseif timeline.ascended then
+		if cheated then
+			str = 'You are a cheater!'
+		else
+			str = 'You win!'
+		end
 	else
 		str = 'You die...'	
 	end

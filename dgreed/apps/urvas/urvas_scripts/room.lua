@@ -11,7 +11,8 @@ local levels = {
 	[2] = {['G'] = 35, ['O'] = 15},
 	[3] = {['G'] = 25, ['O'] = 15, ['W'] = 10},
 	[4] = {['O'] = 20, ['W'] = 15},
-	[5] = {['G'] = 15, ['W'] = 20}
+	[5] = {['G'] = 15, ['W'] = 20},
+	[6] = {['G'] = 5, ['W'] = 30}
 }
 
 local function parse_tiles(room, desc)
@@ -164,12 +165,10 @@ function room:update()
 	local to_remove = 0
 
 	for i,obj in ipairs(self.objs) do
-		if obj.update then
-			obj:update(self)
-		end
-
 		if obj.remove then
 			to_remove = to_remove + 1
+		elseif obj.update then
+			obj:update(self)
 		end
 	end
 
@@ -237,7 +236,7 @@ function room:player_moved(player, time)
 	end
 
 	for i,obj in ipairs(self.objs) do
-		if obj.tick then
+		if (not obj.remove) and obj.tick then
 			obj:tick(self, player)
 		end
 	end
