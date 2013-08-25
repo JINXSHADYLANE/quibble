@@ -89,9 +89,10 @@ spells[1] = {
 		self.pushes_to_make = 3
 	end,
 	effect = function(player, room, textmode, t)
+		local f = 1-t
 		local self = spells[1]
 		room:render_circle(
-			textmode, player.pos.x, player.pos.y, t * 4, rgba(0, 0, 0.7*(1-t))
+			textmode, player.pos.x, player.pos.y, t * 4, rgba(0.5*f, 0.2*f, 0.7*f)
 		)
 		if (3 - self.pushes_to_make) < t * 3 then
 			self.pushes_to_make = self.pushes_to_make - 1
@@ -110,6 +111,7 @@ spells[1] = {
 		return spells[1]
 	end,
 	post = function(player, room)
+		room:player_moved(player)
 	end
 }
 
@@ -179,6 +181,7 @@ spells[2] = {
 			end
 			self.target = nil
 		end
+		room:player_moved(player)
 	end
 }
 
@@ -285,6 +288,7 @@ spells[3] = {
 		local self = spells[3]
 		self.targets = nil
 		self.victims = nil
+		room:player_moved(player)
 	end
 }
 
@@ -350,6 +354,9 @@ spells[4] = {
 		end
 
 		return self
+	end,
+	post = function(player, room)
+		room:player_moved(player)
 	end
 }
 
@@ -357,14 +364,100 @@ spells[5] = {
 	name = 'Teleport',
 	desc = 'Vanish and appear somewhere else.',
 	desc2 = '',
-	cost = 5
+	cost = 5,
+
+	effect_len = inf,
+	dest_x = nil,
+	dest_y = nil,
+	last_keypress = 0,
+	
+	pre = function(player, room)
+		local self = spells[5]
+		self.effect_len = -1
+		self.dest_x = player.pos.x
+		self.dest_y = player.pos.y
+		timeline.text2 = 'hjkl/arrows - target, enter - confirm'
+	end,
+	effect = function(player, room, textmode, t)
+		textmode:push()
+		local self = spells[5]
+
+		local px, py = player.pos.x, player.pos.y
+
+		if self.effect_len == -1 then
+			-- target select
+			local sel
+			local new_x, new_y
+			new_x, new_y, self.last_keypress, sel = move_cursor(
+				self.dest_x, self.dest_y, self.last_keypress
+			)
+
+			if (px-new_x)^2 + (py-new_y)^2 <= 9*9 then
+				self.dest_x = new_x
+				self.dest_y = new_y
+			end
+
+			textmode.selected_bg = rgba(0.4, 0.4, 0.4)
+			textmode:recolour(self.dest_x, self.dest_y, 1)
+
+			if sel then
+				if room:collide(self.dest_x, self.dest_y, true, true, true) then
+					timeline.text = 'Can\'t teleport here!'
+					timeline.text_color = rgba(0, 0, 1)
+				else
+					self.effect_len = 0.3
+					room.spell_t = time.s()
+					timeline.text2 = nil
+				end
+			end
+
+		else
+			-- effect
+			textmode.selected_bg = rgba(t, t, t)
+			textmode:recolour(self.dest_x, self.dest_y, 1)
+			local nt = 1 - t
+			textmode.selected_bg = rgba(nt, nt, nt)
+			textmode:recolour(player.pos.x, player.pos.y, 1)
+		end
+
+		textmode:pop()
+		return self
+	end,
+	post = function(player, room)
+		local self = spells[5]
+		player.pos.x = self.dest_x
+		player.pos.y = self.dest_y
+		room:player_moved(player)
+	end
 }
 
 spells[6] = {
 	name = 'Freeze',
 	desc = 'Turn every living creature around you',
 	desc2 = 'into a statue of ice.',
-	cost = 6
+	cost = 6,
+
+	-- state
+	effect_len = 0.4,
+	pre = nil,
+	effect = function(player, room, textmode, t)
+		local f = 1-t
+		local self = spells[6]
+		room:render_circle(
+			textmode, player.pos.x, player.pos.y, t * 5, rgba(0.1*f, 0.1*f, 0.9*f)
+		)
+
+		return self
+	end,
+	post = function(player, room)
+		for i,obj in ipairs(room.objs) do
+			if obj.tick and obj_sqr_distance(obj, player) < 5.6^2 then
+				obj.color = rgba(0, 0, 0.8)			
+				obj.tick = nil
+			end
+		end
+		room:player_moved(player)
+	end
 }
 
 spells[7] = {
