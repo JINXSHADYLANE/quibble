@@ -265,6 +265,98 @@ function golem:tick(room, player)
 	end
 end
 
+--- ogre ---
+
+local ogre = {}
+
+ogre.char = 'O'
+ogre.color = rgba(0.1, 0.8, 0.3)
+ogre.enemy = true
+ogre.movable = true
+
+function ogre:die(room, player)
+	self.remove = true
+	timeline.pass(-4)
+	timeline.text = 'Ogre dies.'
+	timeline.text_color = rgba(0, 1, 0)
+end
+
+function ogre:player_collide(room, player)
+	self:die(room, player)
+	room:player_moved(player)
+	return false
+end
+
+function ogre:tick(room, player)
+	local sx, sy = self.pos.x, self.pos.y
+	local px, py = player.pos.x, player.pos.y
+	local dd = math.abs(sx-px) + math.abs(sy-py)
+	if dd == 1 then
+		timeline.pass(2)
+		timeline.text = 'Ogre hits, you get dizzy for 2s.'
+		timeline.text_color = rgba(1, 0, 0)
+		player.color = rgba(1, 0, 0)
+	else
+		if rand.int(0, 100) < 50 then
+			self.pos = self.pos + random_move()
+		end
+	end
+
+	if room:collide(self.pos.x, self.pos.y, true, true, true, self) then
+		self.pos.x = sx
+		self.pos.y = sy
+	end
+end
+
+--- wyrm ---
+
+local wyrm = {}
+
+wyrm.char = 'W'
+wyrm.color = rgba(0.6, 0.2, 0.2)
+wyrm.enemy = true
+wyrm.movable = true
+
+function wyrm:die(room, player)
+	self.remove = true
+	timeline.pass(-5)
+	timeline.text = 'Wyrm dies.'
+	timeline.text_color = rgba(0, 1, 0)
+end
+
+function wyrm:player_collide(room, player)
+	self:die(room, player)
+	room:player_moved(player)
+	return false
+end
+
+function wyrm:tick(room, player)
+	local sx, sy = self.pos.x, self.pos.y
+	local px, py = player.pos.x, player.pos.y
+	local dd = math.abs(sx-px) + math.abs(sy-py)
+	if dd == 1 then
+		timeline.pass(6)
+		timeline.text = 'Wyrm hits, you fall down for 6s.'
+		timeline.text_color = rgba(1, 0, 0)
+		player.color = rgba(1, 0, 0)
+	else
+		local sees_player = not room:ray(
+			sx, sy, px, py, true, true
+		)
+
+		if sees_player then
+			self.pos = self.pos + move_towards(self, player)
+		else
+			self.pos = self.pos + random_move()
+		end
+	end
+
+	if room:collide(self.pos.x, self.pos.y, true, true, true, self) then
+		self.pos.x = sx
+		self.pos.y = sy
+	end
+end
+
 ---
 
 local obj_types = {
@@ -275,7 +367,7 @@ local obj_types = {
 	-- enemies
 	['G'] = golem,
 	['O'] = ogre,
-	['V'] = vulture
+	['W'] = wyrm,
 }
 
 function object.make_obj(pos, char)

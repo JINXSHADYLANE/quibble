@@ -30,7 +30,7 @@ function timeline.render(tm, hide_text)
 	elseif timeline.current == 1 then
 		str = string.format('1 second left')
 	else
-		str = 'Game over'	
+		str = 'You die...'	
 	end
 	tm:write_middle(17, str)
 	tm.selected_bg = color

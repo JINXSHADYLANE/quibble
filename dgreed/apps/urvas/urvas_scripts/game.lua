@@ -11,18 +11,21 @@ local r = nil
 
 local show_spells = false
 local show_quit = false
+local show_gameover = false
 current_level = 1
 
 function game.init()
 	tm = textmode:new()
 
 	current_level = 1
-	r = room:new(cavegen.make(40, 17), 1)
+	r = room:new(cavegen.make(40, 17), current_level)
 end
 
 function game.reset()
 	r = room:new(cavegen.make(40, 17), current_level)
 	r.fadein_t = time.s()
+	timeline.text = ''
+	timeline.text2 = ''
 end
 
 function game.update()
@@ -47,6 +50,23 @@ function game.update()
 
 	if show_spells then
 		show_spells = spells.update(r)
+	elseif show_gameover then
+		timeline.update()
+		timeline.text2 = 'Play again? (y/n)'
+		if char.down('n') then
+			return false
+		end
+		
+		if char.down('y') then
+			current_level = 1
+			game.reset()
+			for i=3,9 do
+				spells[i].have = false
+			end
+			show_gameover = false
+			timeline.current = 10
+			timeline.display = 10
+		end
 	elseif not show_quit then
 		if r.spell == nil then
 			for i=1,9 do
@@ -61,6 +81,10 @@ function game.update()
 			spells.delegate()
 			spells.delegate = nil
 		end
+	end
+
+	if timeline.current == 0 then
+		show_gameover = true
 	end
 
 	return true
