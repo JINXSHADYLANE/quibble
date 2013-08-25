@@ -11,11 +11,18 @@ local r = nil
 
 local show_spells = false
 local show_quit = false
+current_level = 1
 
 function game.init()
 	tm = textmode:new()
 
-	r = room:new(cavegen.make(40, 17))
+	current_level = 1
+	r = room:new(cavegen.make(40, 17), 1)
+end
+
+function game.reset()
+	r = room:new(cavegen.make(40, 17), current_level)
+	r.fadein_t = time.s()
 end
 
 function game.update()
@@ -60,7 +67,10 @@ function game.update()
 end
 
 function game.render(t)
-	r:render(tm)
+	if r:render(tm) then
+		game.reset()
+		return true
+	end
 	timeline.render(tm, show_spells or show_quit)
 	if show_spells then
 		spells.render(tm)

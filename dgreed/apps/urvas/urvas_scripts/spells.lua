@@ -8,7 +8,7 @@ local function move_cursor(dest_x, dest_y, last_keypress)
 		return dest_x, dest_y, last_keypress, true
 	end
 
-	if time.s() - last_keypress < 0.20 then
+	if time.s() - last_keypress < 0.10 then
 		return dest_x, dest_y, last_keypress, false
 	end
 
@@ -57,8 +57,8 @@ end
 
 spells[1] = {
 	name = 'Push',
-	desc = 'Invisible force pushes objects or',
-	desc2 = 'enemies away from you.',
+	desc = 'Push creatures away from you with',
+	desc2 = 'a powerful invisible force.',
 	cost = 1,
 	have = true,
 	effect_len = 0.3,
@@ -187,7 +187,7 @@ spells[2] = {
 
 spells[3] = {
 	name = 'Explode',
-	desc = 'Makes a living creature explode,',
+	desc = 'Make a living creature explode,',
 	desc2 = 'damaging everything nearby.',
 	cost = 3,
 
@@ -204,7 +204,7 @@ spells[3] = {
 
 		-- make list of potential targets
 		for i,obj in ipairs(room.objs) do
-			if obj.enemy and obj_sqr_distance(player, obj) < 8*8 then
+			if obj.enemy and obj_sqr_distance(player, obj) < 9*9 then
 				table.insert(targets, obj)
 			end
 		end
@@ -460,11 +460,11 @@ spells[6] = {
 	end
 }
 
-spells[7] = {
+spells[8] = {
 	name = 'Shatter',
 	desc = 'Cast a powerful ray, destroying all',
 	desc2 = 'in its path, including walls of stone.',
-	cost = 7,
+	cost = 8,
 
 	-- state
 	effect_len = inf,
@@ -483,7 +483,7 @@ spells[7] = {
 	end,
 	effect = function(player, room, textmode, t)
 		textmode:push()
-		local self = spells[7]
+		local self = spells[8]
 		if self.effect_len == -1 then
 			-- target select
 			local sel
@@ -556,17 +556,37 @@ spells[7] = {
 		return self
 	end,
 	post = function(player, room)
-		local self = spells[7]
+		local self = spells[8]
 		self.path = nil
 		room:player_moved(player)
 	end
 }
 
-spells[8] = {
-	name = 'Spell8',
-	desc = 'Description.',
-	desc2 = '',
-	cost = 8
+spells[7] = {
+	name = 'Planeshift',
+	desc = 'Rip the fabric of reality apart and',
+	desc2 = 'travel to an alternate dimension.',
+	cost = 7,
+	effect_len = 2,
+
+	pre = nil,
+	effect = function(player, room, textmode, t)
+		local self = spells[7]
+		textmode:push()
+		local tt = math.min(1, t * 1.2)
+		for y=0,17 do
+			for x=0,39 do
+				local c = tt - rand.float(0, tt)^2
+				textmode.selected_bg = rgba(c, c, c)
+				textmode:recolour(x, y, 1)
+			end
+		end
+		textmode:pop()
+		return self
+	end,
+	post = function(player, room)
+		return true
+	end
 }
 
 spells[9] = {
@@ -654,9 +674,15 @@ function spells.render(tm)
 	tm.selected_fg = rgba(0.8, 0.3, 0.2)
 	tm:write_middle(3, '======== Spells ========')
 	for i=1,9 do
-		tm:write_middle(3 + i, string.format(
-			'| %d %s%s |', i, spells[i].name, string.rep(' ', 18 - #spells[i].name)
-		))
+		if spells[i].have then
+			tm:write_middle(3 + i, string.format(
+				'| %d %s%s |', i, spells[i].name, string.rep(' ', 18 - #spells[i].name)
+			))
+		else
+			tm:write_middle(3 + i, string.format(
+				'| %s |', string.rep(' ', 20)
+			))
+		end
 		if spells.selected == i then
 			tm.selected_bg = color_selected
 			tm:recolour((40 - 24)/2, 3 + i, 24)
@@ -665,13 +691,15 @@ function spells.render(tm)
 	end
 	tm:write_middle(13, '========================')
 	tm:pop()
-	tm:write(0,18, spells[spells.selected].desc)
-	tm:write(0,19, spells[spells.selected].desc2)
+	if spells[spells.selected].have then
+		tm:write(0,18, spells[spells.selected].desc)
+		tm:write(0,19, spells[spells.selected].desc2)
+	end
 end
 
 function spells.cast(i, room)
 	assert(i >= 1 and i <= 9)
-	--if spells[i].have then
+	if spells[i].have then
 		if timeline.current <= spells[i].cost then
 			local txt
 			if spells[i].cost == 1 then
@@ -698,7 +726,7 @@ function spells.cast(i, room)
 			end
 			spells[i].pre(player, room)
 		end
-	--end
+	end
 end
 
 return spells

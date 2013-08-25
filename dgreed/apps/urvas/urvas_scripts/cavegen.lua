@@ -1,27 +1,5 @@
 local cavegen = {}
 
-local function print_map(map)
-	for i, line in ipairs(map) do
-		print(line)
-	end
-end
-
-local function print_nmap(map)
-	for i, line in ipairs(map) do
-		local str = {}
-		for j, c in ipairs(line) do
-			local t = '#'
-			if c == false then
-				t = '.'
-			elseif c ~= true then
-				t = tostring(c)
-			end
-			table.insert(str, t)
-		end
-		print(table.concat(str))
-	end
-end
-
 local empty_char = ' '
 local solid_char = '#'
 local empty_code = string.byte(empty_char)
@@ -191,10 +169,11 @@ function cavegen.make(width, height)
 		tmap[height][x] = true
 	end
 
-	-- place player and stairs
+	-- place player, stairs and spellbook
 	local n = 1
 	local player_pt = nil
 	local stairs_pt = nil
+	local book_pt = nil
 	for y=1,height do
 		for x=1,width do
 			if tmap[y][x] ~= true then
@@ -203,6 +182,9 @@ function cavegen.make(width, height)
 				end
 				if rand.int(0, n) == 0 then
 					stairs_pt = {x, y}
+				end
+				if rand.int(0, n) == 0 then
+					book_pt = {x, y}
 				end
 				n = n + 1
 			end
@@ -223,6 +205,9 @@ function cavegen.make(width, height)
 				end
 				if x == stairs_pt[1] and y == stairs_pt[2] then
 					c = '>'
+				end
+				if x == book_pt[1] and y == book_pt[2] then
+					c = '?'
 				end
 			end
 			line[x] = c

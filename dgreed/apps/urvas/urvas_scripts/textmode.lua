@@ -104,6 +104,13 @@ function textmode:recolour(x, y, n)
 	end
 end
 
+function textmode:draw_overlay(layer, alpha)
+	local dest = scr_rect
+	local src_empty = rect(1, 512-27, 22, 511)
+	local col = rgba(0, 0, 0, alpha)
+	video.draw_rect(self.texture, layer, src_empty, dest, 0, col) 
+end
+
 function textmode:present(layer, t)
 	local char_width = 24
 	local char_height = 28
@@ -130,6 +137,12 @@ function textmode:present(layer, t)
 					col.a = 1 - math.abs(t)
 				end
 
+				local m = self.multiplier
+				if m then
+					col.r = col.r * m
+					col.g = col.g * m
+					col.b = col.b * m
+				end
 
 				video.draw_rect(
 					self.texture, layer, src,
