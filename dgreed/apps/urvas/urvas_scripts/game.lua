@@ -5,6 +5,7 @@ local room = require('room')
 local cavegen = require('cavegen')
 local spells = require('spells')
 local timeline = require('timeline')
+local object = require('object')
 
 local tm = nil
 local r = nil
@@ -36,7 +37,7 @@ function game.update()
 		if char.down('n') or key.down(key.quit) then
 			show_quit = false
 		end
-	elseif key.down(key.quit) then
+	elseif not r.spell and key.down(key.quit) then
 		if show_spells then
 			show_spells = false
 		else
@@ -52,7 +53,9 @@ function game.update()
 		show_spells = spells.update(r)
 	elseif show_gameover then
 		timeline.update()
-		timeline.text2 = 'Play again? (y/n)'
+		if not timeline.ascended then
+			timeline.text2 = 'Play again? (y/n)'
+		end
 		if char.down('n') then
 			return false
 		end
@@ -64,8 +67,11 @@ function game.update()
 				spells[i].have = false
 			end
 			show_gameover = false
+			timeline.ascended = false
 			timeline.current = 10
 			timeline.display = 10
+			object.kill_count = 0
+			cheated = false
 		end
 	elseif not show_quit then
 		if r.spell == nil then
@@ -83,7 +89,18 @@ function game.update()
 		end
 	end
 
-	if timeline.current == 0 then
+	-- cheat to unlock all spells
+	if char.pressed('c') and char.pressed('a') and char.pressed('t') then
+		if not cheated then
+			timeline.text = 'You learn all spells.'
+			for i,spell in ipairs(spells) do
+				spell.have = true
+			end
+		end
+		cheated = true
+	end
+
+	if timeline.current == 0 or timeline.ascended then
 		show_gameover = true
 	end
 
@@ -100,7 +117,7 @@ function game.render(t)
 		spells.render(tm)
 	elseif show_quit then
 		tm:write(0,19, 'Quit? Progress will be lost! (y/n)    ')
-	else
+	elseif not show_gameover and not timeline.ascended and not r.spell then
 		timeline.text2 = 'hjkl/arrows - move, w - wait, s - spells'
 	end
 	tm:present(3, t)

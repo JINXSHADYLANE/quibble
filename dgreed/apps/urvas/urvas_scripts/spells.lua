@@ -8,7 +8,7 @@ local function move_cursor(dest_x, dest_y, last_keypress)
 		return dest_x, dest_y, last_keypress, true
 	end
 
-	if time.s() - last_keypress < 0.10 then
+	if time.s() - last_keypress < 0.15 then
 		return dest_x, dest_y, last_keypress, false
 	end
 
@@ -146,6 +146,10 @@ spells[2] = {
 				self.dest_x, self.dest_y, self.last_keypress
 			)
 
+			if key.down(key.quit) then
+				return nil
+			end
+
 			textmode.selected_bg = rgba(0.4, 0.4, 0.4)
 			textmode:recolour(self.dest_x, self.dest_y, 1)
 
@@ -233,6 +237,10 @@ spells[3] = {
 			self.target, self.last_keypress, sel = select_target(
 				self.target, #self.targets, self.last_keypress
 			)
+
+			if key.down(key.quit) then
+				return nil
+			end
 
 			local tg = self.targets[self.target]
 			if not tg then
@@ -397,6 +405,10 @@ spells[5] = {
 				self.dest_y = new_y
 			end
 
+			if key.down(key.quit) then
+				return nil
+			end
+
 			textmode.selected_bg = rgba(0.4, 0.4, 0.4)
 			textmode:recolour(self.dest_x, self.dest_y, 1)
 
@@ -460,6 +472,33 @@ spells[6] = {
 	end
 }
 
+spells[7] = {
+	name = 'Planeshift',
+	desc = 'Rip the fabric of reality apart and',
+	desc2 = 'travel to an alternate dimension.',
+	cost = 7,
+	effect_len = 2,
+
+	pre = nil,
+	effect = function(player, room, textmode, t)
+		local self = spells[7]
+		textmode:push()
+		local tt = math.min(1, t * 1.2)
+		for y=0,17 do
+			for x=0,39 do
+				local c = tt - rand.float(0, tt)^2
+				textmode.selected_bg = rgba(c, c, c)
+				textmode:recolour(x, y, 1)
+			end
+		end
+		textmode:pop()
+		return self
+	end,
+	post = function(player, room)
+		return true
+	end
+}
+
 spells[8] = {
 	name = 'Shatter',
 	desc = 'Cast a powerful ray, destroying all',
@@ -490,6 +529,10 @@ spells[8] = {
 			self.dest_x, self.dest_y, self.last_keypress, sel = move_cursor(
 				self.dest_x, self.dest_y, self.last_keypress
 			)
+
+			if key.down(key.quit) then
+				return nil
+			end
 
 			textmode.selected_bg = rgba(0.4, 0.4, 0.4)
 			textmode:recolour(self.dest_x, self.dest_y, 1)
@@ -562,33 +605,6 @@ spells[8] = {
 	end
 }
 
-spells[7] = {
-	name = 'Planeshift',
-	desc = 'Rip the fabric of reality apart and',
-	desc2 = 'travel to an alternate dimension.',
-	cost = 7,
-	effect_len = 2,
-
-	pre = nil,
-	effect = function(player, room, textmode, t)
-		local self = spells[7]
-		textmode:push()
-		local tt = math.min(1, t * 1.2)
-		for y=0,17 do
-			for x=0,39 do
-				local c = tt - rand.float(0, tt)^2
-				textmode.selected_bg = rgba(c, c, c)
-				textmode:recolour(x, y, 1)
-			end
-		end
-		textmode:pop()
-		return self
-	end,
-	post = function(player, room)
-		return true
-	end
-}
-
 spells[9] = {
 	name = 'Ascend',
 	desc = 'Become one with the stars, leaving your',
@@ -637,6 +653,11 @@ spells[9] = {
 	post = function(player, room)
 		player.char = ' '
 		timeline.pass(10)
+		timeline.ascended = true
+		timeline.text = string.format(
+			'You have slain %d enemies in', object.kill_count
+		)
+		timeline.text2 = 'your path to transcendence. Again? (y/n)'
 	end
 }
 

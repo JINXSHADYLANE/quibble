@@ -4,6 +4,8 @@ object_mt.__index = object
 
 local timeline = require('timeline')
 
+object.kill_count = 0
+
 local function random_move()
 	local dir = rand.int(0, 4)
 	if dir == 0 then
@@ -93,8 +95,13 @@ function player:update(room)
 		self.pos = old_pos
 	else
 		if moved == 1 then
-			room:player_moved(self, true)
+			room.req_player_moved = true
 		end
+	end
+
+	if room.req_player_moved then
+		room.req_player_moved = false
+		room:player_moved(self, true)
 	end
 end
 
@@ -210,15 +217,17 @@ function golem:die(room, player)
 	timeline.pass(-3)
 	timeline.text = 'Golem dies.'
 	timeline.text_color = rgba(0, 1, 0)
+	object.kill_count = object.kill_count + 1
 end
 
 function golem:player_collide(room, player)
 	self:die(room, player)
-	room:player_moved(player)
+	room.req_player_moved = true
 	return false
 end
 
 function golem:tick(room, player)
+	assert(not self.remove)
 	local sx, sy = self.pos.x, self.pos.y
 	local px, py = player.pos.x, player.pos.y
 	local sees_player = not room:ray(
@@ -230,10 +239,11 @@ function golem:tick(room, player)
 		local dy = py - sy
 
 		if math.abs(dx) + math.abs(dy) == 1 then
-			timeline.pass(1)
-			timeline.text = 'Golem hits, you stumble for 1s.'
+			timeline.pass(2)
+			timeline.text = 'Golem hits, you stumble for 2s.'
 			timeline.text_color = rgba(1, 0, 0)
 			player.color = rgba(1, 0, 0)
+			return
 		end
 
 		local x_first = (dx ~= 0 and rand.int(0, 2) == 0) or dy == 0
@@ -279,11 +289,12 @@ function ogre:die(room, player)
 	timeline.pass(-4)
 	timeline.text = 'Ogre dies.'
 	timeline.text_color = rgba(0, 1, 0)
+	object.kill_count = object.kill_count + 1
 end
 
 function ogre:player_collide(room, player)
 	self:die(room, player)
-	room:player_moved(player)
+	room.req_player_moved = true
 	return false
 end
 
@@ -292,8 +303,8 @@ function ogre:tick(room, player)
 	local px, py = player.pos.x, player.pos.y
 	local dd = math.abs(sx-px) + math.abs(sy-py)
 	if dd == 1 then
-		timeline.pass(2)
-		timeline.text = 'Ogre hits, you get dizzy for 2s.'
+		timeline.pass(3)
+		timeline.text = 'Ogre hits, you get dizzy for 3s.'
 		timeline.text_color = rgba(1, 0, 0)
 		player.color = rgba(1, 0, 0)
 	else
@@ -322,11 +333,12 @@ function wyrm:die(room, player)
 	timeline.pass(-5)
 	timeline.text = 'Wyrm dies.'
 	timeline.text_color = rgba(0, 1, 0)
+	object.kill_count = object.kill_count + 1
 end
 
 function wyrm:player_collide(room, player)
 	self:die(room, player)
-	room:player_moved(player)
+	room.req_player_moved = true
 	return false
 end
 
@@ -335,8 +347,8 @@ function wyrm:tick(room, player)
 	local px, py = player.pos.x, player.pos.y
 	local dd = math.abs(sx-px) + math.abs(sy-py)
 	if dd == 1 then
-		timeline.pass(6)
-		timeline.text = 'Wyrm hits, you fall down for 6s.'
+		timeline.pass(7)
+		timeline.text = 'Wyrm hits, you fall down for 7s.'
 		timeline.text_color = rgba(1, 0, 0)
 		player.color = rgba(1, 0, 0)
 	else
