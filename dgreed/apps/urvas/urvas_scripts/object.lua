@@ -17,6 +17,13 @@ local function random_move()
 	end
 end
 
+local function move_towards(obj, dest)
+	local d = normalize(dest.pos - obj.pos)
+	d.x = round(d.x)
+	d.y = round(d.y)
+	return d
+end
+
 function object:new(pos, overrides)
 	local o = {
 		update = overrides.update,
@@ -102,6 +109,79 @@ function exit:player_collide(room, player)
 	return false 
 end
 
+--- skeleton ---
+
+local skeleton = {}
+skeleton.char = 'S'
+skeleton.color = rgba(0.6, 0.6, 0.6)
+skeleton.enemy = false
+skeleton.movable = true
+
+function skeleton:die(room, player)
+	self.remove = true
+	timeline.text = 'Skeleton disappears.'
+	timeline.text_color = rgba(1, 0, 0)
+end
+
+function skeleton:player_collide(room, player)
+	return false
+end
+
+function skeleton:tick(room, player)
+	local sx, sy = self.pos.x, self.pos.y
+
+	if rand.int(0, 100) < 75 then
+		-- find closest enemy
+		local target = nil
+		local best = 100*100 
+		for i,obj in ipairs(room.objs) do
+			if obj.enemy and not obj.remove then
+				local d = obj_sqr_distance(self, obj)
+				if d < best then
+					target = obj
+					best = d
+				end
+			end
+		end
+
+		if target then
+			local tx, ty = target.pos.x, target.pos.y
+			local dd = math.abs(sx-tx) + math.abs(sy-ty)
+			assert(dd > 0)
+			if dd > 1 then
+				-- go towards
+				local can_see = not room:ray(
+					self.pos.x, self.pos.y, target.pos.x, target.pos.y,
+					true, true
+				)
+
+				if can_see then
+					self.pos = self.pos + move_towards(self, target)
+				end
+			else
+				-- attack
+				assert(dd == 1)
+				if target.die then
+					target:die(room, player)
+				end
+			end
+		end
+	else
+		if rand.int(0, 100) < 60 then
+			-- move randomly
+			self.pos = self.pos + random_move()
+		else
+			-- move towards player
+			self.pos = self.pos + move_towards(self, player)
+		end
+	end
+
+	if room:collide(self.pos.x, self.pos.y, true, true, true, self) then
+		self.pos.x = sx
+		self.pos.y = sy
+	end
+end
+
 --- golem ---
 
 local golem = {}
@@ -176,7 +256,11 @@ end
 local obj_types = {
 	['@'] = player,
 	['>'] = exit,
-	['G'] = golem
+	['S'] = skeleton,
+	-- enemies
+	['G'] = golem,
+	['O'] = ogre,
+	['V'] = vulture
 }
 
 function object.make_obj(pos, char)

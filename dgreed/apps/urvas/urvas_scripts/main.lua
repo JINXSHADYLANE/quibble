@@ -9,6 +9,10 @@ local textmode = require('textmode')
 local intro = require('intro')
 local game = require('game')
 
+function obj_sqr_distance(a, b)
+	return (a.pos.x-b.pos.x)^2 + (a.pos.y-b.pos.y)^2	
+end
+
 function round(x)
 	if x > 0 then
 		return math.floor(x + 0.5)
