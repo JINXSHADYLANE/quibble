@@ -4,6 +4,7 @@ room_mt.__index = room
 
 local object = require('object')
 local timeline = require('timeline')
+local spells = require('spells')
 
 local function parse_tiles(room, desc)
 	room.width, room.height = desc[1]:len(), #desc
@@ -47,7 +48,7 @@ function room:new(desc)
 	parse_tiles(o, desc)
 
 	-- place golems
-	for i=1,30 do
+	for i=1,40 do
 		local x, y
 		repeat
 			x, y = rand.int(0, 40), rand.int(0, 17)
@@ -59,6 +60,21 @@ function room:new(desc)
 	end
 
 	return o
+end
+
+function room:learn_spell()
+	for i,spell in ipairs(spells) do
+		if not spell.have then
+			spell.have = true
+			timeline.text = string.format('You learned %s spell!', spell.name)
+			timeline.text_color = rgba(0, 1, 0)
+			current_leve = current_level + 1
+			return
+		end
+	end
+
+	timeline.text = 'You already know this spell.'
+	timeline.text_color = rgba(0, 0, 1)
 end
 
 function room:ray(start_x, start_y, end_x, end_y, nopath, skipobj)
@@ -130,7 +146,7 @@ function room:ray(start_x, start_y, end_x, end_y, nopath, skipobj)
 end
 
 function room:update()
-	if self.spell then
+	if self.spell or self.reset then
 		return
 	end
 
@@ -273,6 +289,7 @@ function room:render(textmode)
 	end
 
 	-- render spell
+	local reset_room = false
 	local st = time.s() - self.spell_t
 	if self.spell then
 		if st < self.spell.effect_len or self.spell.effect_len == -1 then
@@ -281,7 +298,10 @@ function room:render(textmode)
 		else
 			timeline.pass(self.spell.cost)
 			if self.spell.post then
-				self.spell.post(player, self)
+				-- planeshift spell tells us to reset room here
+				if self.spell.post(player, self) then
+					reset_room = true
+				end
 			end
 			self.spell = nil
 		end
@@ -310,6 +330,30 @@ function room:render(textmode)
 			i = i + 1
 		end
 	end
+
+	local t = time.s()
+	if self.reset then
+		if not self.reset_t then
+			self.reset_t = time.s()
+			timeline.text = 'You descend deeper into the cave.'
+		end
+
+		if t - self.reset_t < 1 then
+			local tt = t - self.reset_t
+			textmode:draw_overlay(5, tt)
+		else
+			return true
+		end
+	end
+
+	if self.fadein_t then
+		if t - self.fadein_t < 1 then
+			local tt = t - self.fadein_t
+			textmode:draw_overlay(5, 1 - tt)
+		end
+	end
+
+	return reset_room
 end
 
 return room

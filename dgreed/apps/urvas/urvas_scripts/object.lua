@@ -106,7 +106,21 @@ exit.char = '>'
 exit.color = rgba(0.9, 0.7, 0.05)
 
 function exit:player_collide(room, player)
+	room.reset = true
 	return false 
+end
+
+--- spellbook ---
+
+local spellbook = {}
+
+spellbook.char = '?'
+spellbook.color = rgba(0.9, 0.1, 0.2)
+
+function spellbook:player_collide(room, player)
+	room:learn_spell()
+	self.remove = true
+	return true
 end
 
 --- skeleton ---
@@ -256,6 +270,7 @@ end
 local obj_types = {
 	['@'] = player,
 	['>'] = exit,
+	['?'] = spellbook,
 	['S'] = skeleton,
 	-- enemies
 	['G'] = golem,
