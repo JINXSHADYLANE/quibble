@@ -6,6 +6,14 @@ local object = require('object')
 local timeline = require('timeline')
 local spells = require('spells')
 
+local levels = {
+	[1] = {['G'] = 50},
+	[2] = {['G'] = 35, ['O'] = 15},
+	[3] = {['G'] = 25, ['O'] = 15, ['W'] = 10},
+	[4] = {['O'] = 20, ['W'] = 15},
+	[5] = {['G'] = 15, ['W'] = 20}
+}
+
 local function parse_tiles(room, desc)
 	room.width, room.height = desc[1]:len(), #desc
 	local dx = math.floor((40 - room.width)/2)
@@ -35,7 +43,7 @@ local function parse_tiles(room, desc)
 	end
 end
 
-function room:new(desc)
+function room:new(desc, level)
 	local o = {
 		objs = {},
 		tiles = {},
@@ -47,16 +55,19 @@ function room:new(desc)
 	setmetatable(o, room_mt)
 	parse_tiles(o, desc)
 
-	-- place golems
-	for i=1,40 do
-		local x, y
-		repeat
-			x, y = rand.int(0, 40), rand.int(0, 17)
-		until not o:collide(x, y, true, true, true)	
+	-- place enemies 
+	local counts = levels[clamp(1, #levels, level)]
+	for name,count in pairs(counts) do
+		for i=1,count do
+			local x, y
+			repeat
+				x, y = rand.int(0, 40), rand.int(0, 17)
+			until not o:collide(x, y, true, true, true)	
 
-		table.insert(o.objs, 
-			object.make_obj(vec2(x, y), 'G')
-		)
+			table.insert(o.objs, 
+				object.make_obj(vec2(x, y), name)
+			)
+		end
 	end
 
 	return o
@@ -68,7 +79,7 @@ function room:learn_spell()
 			spell.have = true
 			timeline.text = string.format('You learned %s spell!', spell.name)
 			timeline.text_color = rgba(0, 1, 0)
-			current_leve = current_level + 1
+			current_level = current_level + 1
 			return
 		end
 	end
@@ -192,6 +203,9 @@ function room:collide(x, y, with_tiles, with_objs, with_player, o)
 	end
 
 	-- tiles
+	if y < 0 or y >= self.height or x < 0 or x >= self.width then
+		return true
+	end
 	local idx = (y - self.dy) * self.width + (x - self.dx)
 	if self.tiles[idx] == '#' then
 		return true

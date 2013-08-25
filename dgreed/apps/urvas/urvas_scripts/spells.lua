@@ -467,14 +467,14 @@ spells[8] = {
 	cost = 8,
 
 	-- state
-	effect_len = inf,
+	effect_len = -1,
 	dest_x = nil,
 	dest_y = nil,
 	last_keypress = 0,
 	path = nil,
 
 	pre = function(player, room)
-		local self = spells[7]
+		local self = spells[8]
 		self.effect_len = -1
 		self.dest_x = player.pos.x
 		self.dest_y = player.pos.y
