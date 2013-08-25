@@ -4,15 +4,30 @@ object_mt.__index = object
 
 local timeline = require('timeline')
 
+local function random_move()
+	local dir = rand.int(0, 4)
+	if dir == 0 then
+		return vec2(0, -1)
+	elseif dir == 1 then
+		return vec2(1, 0)
+	elseif dir == 2 then
+		return vec2(0, 1)
+	else
+		return vec2(-1, 0)
+	end
+end
+
 function object:new(pos, overrides)
 	local o = {
 		update = overrides.update,
 		player_collide = overrides.player_collide,
 		tick = overrides.tick,
+		die = overrides.die,
 		pos = pos or vec2(0, 0),
 		char = overrides.char or '$',
 		color = overrides.color or rgba(1, 1, 1),
-		enemy = overrides.enemy
+		enemy = overrides.enemy,
+		movable = overrides.movable
 	}
 	setmetatable(o, object_mt)
 	return o
@@ -34,6 +49,8 @@ player.char = '@'
 
 local last_keypress = 0
 function player:update(room)
+	self.color = lerp(self.color, rgba(1, 1, 1), 0.1)
+
 	if time.s() - last_keypress < 0.20 then
 		return
 	end
@@ -92,9 +109,19 @@ local golem = {}
 golem.char = 'G'
 golem.color = rgba(0.7, 0.5, 0.5)
 golem.enemy = true
+golem.movable = true
+
+function golem:die(room, player)
+	self.remove = true
+	timeline.pass(-3)
+	timeline.text = 'Golem dies.'
+	timeline.text_color = rgba(0, 1, 0)
+end
 
 function golem:player_collide(room, player)
-	return true
+	self:die(room, player)
+	room:player_moved(player)
+	return false
 end
 
 function golem:tick(room, player)
@@ -104,12 +131,15 @@ function golem:tick(room, player)
 		sx, sy, px, py, true, true
 	)
 
-	if sees_player then
+	if sees_player and rand.int(0, 100) > 20 then
 		local dx = px - sx
 		local dy = py - sy
 
 		if math.abs(dx) + math.abs(dy) == 1 then
-			print('damage!')
+			timeline.pass(1)
+			timeline.text = 'Golem hits, you stumble for 1s.'
+			timeline.text_color = rgba(1, 0, 0)
+			player.color = rgba(1, 0, 0)
 		end
 
 		local x_first = (dx ~= 0 and rand.int(0, 2) == 0) or dy == 0
@@ -128,10 +158,16 @@ function golem:tick(room, player)
 			end
 		end
 
-		if room:collide(self.pos.x, self.pos.y, true, true, true, self) then
-			self.pos.x = sx
-			self.pos.y = sy
+	else
+		-- move randomly
+		if rand.int(0, 100) < 30 then
+			self.pos = self.pos + random_move()
 		end
+	end
+
+	if room:collide(self.pos.x, self.pos.y, true, true, true, self) then
+		self.pos.x = sx
+		self.pos.y = sy
 	end
 end
 
