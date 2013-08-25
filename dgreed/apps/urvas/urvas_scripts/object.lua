@@ -214,10 +214,10 @@ golem.movable = true
 
 function golem:die(room, player)
 	self.remove = true
-	timeline.pass(-3)
 	timeline.text = 'Golem dies.'
 	timeline.text_color = rgba(0, 1, 0)
 	object.kill_count = object.kill_count + 1
+	table.insert(room.souls, {self.pos, 3})
 end
 
 function golem:player_collide(room, player)
@@ -286,10 +286,10 @@ ogre.movable = true
 
 function ogre:die(room, player)
 	self.remove = true
-	timeline.pass(-4)
 	timeline.text = 'Ogre dies.'
 	timeline.text_color = rgba(0, 1, 0)
 	object.kill_count = object.kill_count + 1
+	table.insert(room.souls, {self.pos, 4})
 end
 
 function ogre:player_collide(room, player)
@@ -330,10 +330,10 @@ wyrm.movable = true
 
 function wyrm:die(room, player)
 	self.remove = true
-	timeline.pass(-5)
 	timeline.text = 'Wyrm dies.'
 	timeline.text_color = rgba(0, 1, 0)
 	object.kill_count = object.kill_count + 1
+	table.insert(room.souls, {self.pos, 5})
 end
 
 function wyrm:player_collide(room, player)

@@ -12,7 +12,9 @@ local levels = {
 	[3] = {['G'] = 25, ['O'] = 15, ['W'] = 10},
 	[4] = {['O'] = 20, ['W'] = 15},
 	[5] = {['G'] = 15, ['W'] = 20},
-	[6] = {['G'] = 5, ['W'] = 30}
+	[6] = {['G'] = 5, ['W'] = 30},
+	[7] = {['W'] = 30},
+	[8] = {['O'] = 15, ['W'] = 15}
 }
 
 local function parse_tiles(room, desc)
@@ -49,6 +51,7 @@ function room:new(desc, level)
 		objs = {},
 		tiles = {},
 		colour = {},
+		souls = {},
 		text = nil,
 		spell = nil,
 		spell_t = 0
@@ -162,6 +165,7 @@ function room:update()
 		return
 	end
 
+	-- objects
 	local to_remove = 0
 
 	for i,obj in ipairs(self.objs) do
@@ -180,6 +184,36 @@ function room:update()
 			end
 		end
 		self.objs = new_objs
+	end
+
+	-- souls
+	local player = nil
+	for i,o in ipairs(self.objs) do
+		if o.char == '@' then
+			player = o
+		end
+	end
+
+	to_remove = 0
+	for i,soul in ipairs(self.souls) do
+		local p = soul[1]
+		p = lerp(p, player.pos, 0.1)
+		if length_sq(p - player.pos) < 3 then
+			to_remove = to_remove + 1
+			soul.remove = true
+			timeline.pass(-soul[2])
+		end
+		soul[1] = p
+	end
+
+	if to_remove > 0 then
+		local new_souls = {}
+		for i,soul in ipairs(self.souls) do
+			if not soul.remove then
+				table.insert(new_souls, soul)
+			end
+		end
+		self.souls = new_souls
 	end
 end
 
@@ -300,6 +334,18 @@ function room:render(textmode)
 			player = o
 		end
 	end
+
+	-- render souls
+	textmode:push()
+	textmode.selected_bg = rgba(0.1, 0.1, 0.7)
+	for i,soul in ipairs(self.souls) do
+		local p = soul[1]
+		local dp = vec2(
+			round(p.x), round(p.y)
+		)
+		textmode:recolour(dp.x, dp.y, 1)
+	end
+	textmode:pop()
 
 	-- render spell
 	local reset_room = false
