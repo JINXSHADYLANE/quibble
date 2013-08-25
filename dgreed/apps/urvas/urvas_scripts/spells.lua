@@ -464,7 +464,102 @@ spells[7] = {
 	name = 'Shatter',
 	desc = 'Cast a powerful ray, destroying all',
 	desc2 = 'in its path, including walls of stone.',
-	cost = 7
+	cost = 7,
+
+	-- state
+	effect_len = inf,
+	dest_x = nil,
+	dest_y = nil,
+	last_keypress = 0,
+	path = nil,
+
+	pre = function(player, room)
+		local self = spells[7]
+		self.effect_len = -1
+		self.dest_x = player.pos.x
+		self.dest_y = player.pos.y
+		self.last_nn = 0
+		timeline.text2 = 'hjkl/arrows - target, enter - confirm'
+	end,
+	effect = function(player, room, textmode, t)
+		textmode:push()
+		local self = spells[7]
+		if self.effect_len == -1 then
+			-- target select
+			local sel
+			self.dest_x, self.dest_y, self.last_keypress, sel = move_cursor(
+				self.dest_x, self.dest_y, self.last_keypress
+			)
+
+			textmode.selected_bg = rgba(0.4, 0.4, 0.4)
+			textmode:recolour(self.dest_x, self.dest_y, 1)
+
+			if sel then
+				-- add every tile near the ray segment to path
+				self.path = {}
+				local s = player.pos
+				local e = vec2(self.dest_x, self.dest_y)
+				local p = vec2()
+
+				for y=1,15 do
+					p.y = y
+					for x=1,38 do
+						p.x = x
+						local d = pt_to_seg_distance(s, e, p)
+						if d <= 1.6 then
+							table.insert(self.path, vec2(p))
+						end
+					end
+				end
+
+				-- sort by distance to player
+				table.sort(self.path, function(a, b)
+					local da = length_sq(s - a)
+					local db = length_sq(s - b)
+					return da < db
+				end)
+
+				self.effect_len = #self.path * 0.004
+				room.spell_t = time.s()
+				timeline.text2 = nil
+			end
+		else
+			local n = #self.path * t
+			local inv_n = 1/n
+			local col = rgba(0.1, 0.9, 0.1)
+			for i=1,n do
+				local c = (i*inv_n)^2
+				if c > 0.08 then
+					textmode.selected_bg = col * c
+					local p = self.path[i]
+					textmode:recolour(p.x, p.y, 1)
+				end
+			end
+
+			local nn = math.floor(n)
+			while nn > self.last_nn and nn > 0 and nn <= #self.path do
+				self.last_nn = self.last_nn + 1
+				local p = self.path[self.last_nn]
+				local collide, obj = room:collide(p.x, p.y, true, true, false)
+				if obj and obj.char ~= '>' then
+					if obj.die then
+						obj:die(room, player)
+					end
+					obj.remove = true
+				end
+				local idx = (p.y - room.dy) * room.width + (p.x - room.dx)
+				room.tiles[idx] = ' '
+			end
+		end
+
+		textmode:pop()
+		return self
+	end,
+	post = function(player, room)
+		local self = spells[7]
+		self.path = nil
+		room:player_moved(player)
+	end
 }
 
 spells[8] = {
@@ -478,7 +573,51 @@ spells[9] = {
 	name = 'Ascend',
 	desc = 'Become one with the stars, leaving your',
 	desc2 = 'physical body behind.',
-	cost = 9
+	cost = 9,
+	effect_len = 3,
+	offs = {vec2(-1, 0), vec2(1, 0), vec2(0, 1), vec2(0, -1)},
+
+	pre = nil,
+	effect = function(player, room, textmode, t)
+		local self = spells[9]
+		local tt = t * 4
+		textmode:push()
+		if tt < 1 then
+			local f = 1-tt
+			room:render_circle(
+				textmode, player.pos.x, player.pos.y, t * 6, rgba(0.5*f, 0.5*f, f)
+			)
+		else
+			tt = (t - 0.25) / 0.75
+			local f = 1-tt
+			local col = rgba(0.8*f, 0.2*f, 0.1*f)
+			local col2 = rgba(0.8*tt, 0.2*tt, 0.1*tt)
+
+			textmode.selected_bg = col
+			for i,off in ipairs(self.offs) do
+				local p = player.pos + off * (tt*tt * 20)
+				local p1 = vec2(math.floor(p.x), math.floor(p.y))
+				local p2 = vec2(math.ceil(p.x), math.ceil(p.y))
+				if p1.x >= 0 and p1.x < 40 and p1.y >= 0 and p1.y < 16 then
+					textmode:recolour(p1.x, p1.y, 1)
+				end
+				if p2.x >= 0 and p2.x < 40 and p2.y >= 0 and p2.y < 16 then
+					textmode:recolour(p2.x, p2.y, 1)
+				end
+			end
+
+			textmode.selected_bg = col2
+			textmode:recolour(player.pos.x, player.pos.y, 1)
+		end
+
+		textmode:pop()
+
+		return self
+	end,
+	post = function(player, room)
+		player.char = ' '
+		timeline.pass(10)
+	end
 }
 
 spells.selected = 1
