@@ -6,10 +6,11 @@ timeline.text_color = rgba(0.8, 0.8, 0.8)
 timeline.text2_color = rgba(0.6, 0.6, 0.6)
 
 function timeline.pass(n)
-	timeline.current = clamp(0, 10, timeline.current - n)
+	timeline.current = timeline.current - n
 end
 
 function timeline.update()
+	timeline.current = clamp(0, 10, timeline.current)
 	timeline.display = lerp(timeline.display, timeline.current, 0.1)
 end
 

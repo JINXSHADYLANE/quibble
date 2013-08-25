@@ -1,6 +1,7 @@
 local spells = {}
 
 local timeline = require('timeline')
+local object = require('object')
 
 local function move_cursor(dest_x, dest_y, last_keypress)
 	if char.down('\r') then
@@ -27,6 +28,33 @@ local function move_cursor(dest_x, dest_y, last_keypress)
 	return dest_x, dest_y, last_keypress, false
 end
 
+local function select_target(current, n, last_keypress)
+	if char.down('\r') then
+		return current, last_keypress, true
+	end
+
+	if time.s() - last_keypress < 0.20 then
+		return current, last_keypress, false
+	end
+
+	if char.pressed('j') or key.pressed(key._down) then
+		local new = current+1
+		if new > n then
+			new = 1
+		end
+		return new, time.s(), false
+	end
+	if char.pressed('k') or key.pressed(key._up) then
+		local new = current-1
+		if new < 1 then
+			new = n
+		end
+		return new, time.s(), false
+	end
+
+	return current, last_keypress, false
+end
+
 spells[1] = {
 	name = 'Push',
 	desc = 'Invisible force pushes objects or',
@@ -43,14 +71,10 @@ spells[1] = {
 		local self = spells[1]
 		local px = player.pos.x
 		local py = player.pos.y
-		local dist = function(obj)
-			return (obj.pos.x-px)^2 + (obj.pos.y-py)^2	
-		end
-
-		-- get all movable objects within 3 squares
+			-- get all movable objects within 3 squares
 		local push_objs = {}
 		for i,obj in ipairs(room.objs) do
-			local d = dist(obj)
+			local d = obj_sqr_distance(obj, player)
 			if obj.movable and d <= 3*3 then
 				table.insert(push_objs, obj)
 			end
@@ -58,7 +82,7 @@ spells[1] = {
 
 		-- sort from farthest to closest
 		table.sort(push_objs, function(a, b)
-			return dist(a) > dist(b)
+			return obj_sqr_distance(a, player) > obj_sqr_distance(b, player)
 		end)
 
 		self.push_objs = push_objs
@@ -129,7 +153,7 @@ spells[2] = {
 				)
 				self.effect_len = #self.path * 0.05
 				room.spell_t = time.s()
-				timeline.text = nil
+				timeline.text2 = nil
 			end
 		else
 			local tt = t * #self.path + 1
@@ -162,14 +186,171 @@ spells[3] = {
 	name = 'Explode',
 	desc = 'Makes a living creature explode,',
 	desc2 = 'damaging everything nearby.',
-	cost = 3
+	cost = 3,
+
+	-- state
+	effect_len = inf,
+	target = 1,
+	targets = nil,
+	victims = nil,
+	last_keypress = 0,
+
+	pre = function(player, room)
+		local self = spells[3]
+		local targets = {}
+
+		-- make list of potential targets
+		for i,obj in ipairs(room.objs) do
+			if obj.enemy and obj_sqr_distance(player, obj) < 8*8 then
+				table.insert(targets, obj)
+			end
+		end
+
+		-- sort by x then y
+		table.sort(targets, function(a, b)
+			if a.pos.x ~= b.pos.x then
+				return a.pos.x < b.pos.x
+			else
+				return a.pos.y < b.pos.y
+			end
+		end)
+
+		-- prep state for selecting target
+		self.targets = targets
+		self.effect_len = -1
+		self.target = 1
+		timeline.text2 = 'jk/arrows - target, enter - confirm'
+	end,
+	effect = function(player, room, textmode, t)
+		textmode:push()
+		local self = spells[3]
+		if self.effect_len == -1 then
+			-- target select
+			local sel
+			self.target, self.last_keypress, sel = select_target(
+				self.target, #self.targets, self.last_keypress
+			)
+
+			local tg = self.targets[self.target]
+			if not tg then
+				textmode:pop()
+				timeline.text = 'No nearby enemies to explode!'
+				timeline.text_color = rgba(0, 0, 1)
+				return nil
+			end
+			textmode.selected_bg = rgba(0.4, 0.4, 0.4)
+			textmode:recolour(tg.pos.x, tg.pos.y, 1)
+
+			if sel then
+				self.effect_len = 0.4
+				room.spell_t = time.s()
+				timeline.text2 = nil
+
+				-- prep list of victims
+				local victims = {}
+				for i,obj in ipairs(room.objs) do
+					if obj.enemy and obj_sqr_distance(obj, tg) <= 2*2 then
+						table.insert(victims, obj)
+					end
+				end
+				
+				-- sort by distance
+				table.sort(victims, function(a, b)
+					return obj_sqr_distance(a, tg) < obj_sqr_distance(b, tg)
+				end)
+
+				self.victims = victims
+			end
+		else
+			local tg = self.targets[self.target]
+			room:render_circle(
+				textmode, tg.pos.x, tg.pos.y, t*2, rgba(1-t, 0, 0)
+			)
+
+			-- kill victims
+			local tt = t * #self.victims
+			for i,obj in ipairs(self.victims) do
+				if not obj.remove and tt > i-1.1 then
+					if obj.die then
+						obj:die(room, player)
+					end
+				end
+			end
+		end
+		textmode:pop()
+
+		return self
+	end,
+	post = function(player, room)
+		local self = spells[3]
+		self.targets = nil
+		self.victims = nil
+	end
 }
 
 spells[4] = {
 	name = 'Summon',
 	desc = 'Summon an army of skeletons to fight',
 	desc2 = 'for you.',
-	cost = 4
+	cost = 4,
+
+	effect_len = 1,
+
+	-- state
+	to_spawn = 10,
+	current = 0,
+	next_position = nil,
+	skip = false,
+
+	pre = function(player, room)
+		local self = spells[4]
+		self.to_spawn = 10
+		self.next_position = nil
+		self.skip = false
+		self.current = 0
+	end,
+	effect = function(player, room, textmode, t)
+		local px, py = player.pos.x, player.pos.y
+		local self = spells[4]
+		local tt = t * 10
+
+		if not self.next_position and not skip then
+			local dx, dy
+			local reps = 0
+			repeat
+				dx, dy = rand.int(-4, 5), rand.int(-4, 5)
+				reps = reps + 1
+				if reps > 100 then
+					self.skip = true
+					break
+				end
+			until dx*dx + dy*dy <= 4*4 and not room:collide(px+dx,py+dy, true, true, true)
+
+			if not skip then
+				self.next_position = vec2(px+dx, py+dy)
+			end
+		end
+
+		local int, frac = math.modf(tt)
+		if int ~= self.current then
+			if self.next_position then
+				table.insert(room.objs,
+					object.make_obj(self.next_position, 'S')
+				)
+				self.next_position = nil
+			end
+			self.current = int
+		end
+
+		if self.next_position then
+			textmode:push()
+			textmode.selected_bg = rgba(0, 0, frac)
+			textmode:recolour(self.next_position.x, self.next_position.y, 1)
+			textmode:pop()
+		end
+
+		return self
+	end
 }
 
 spells[5] = {
@@ -260,9 +441,17 @@ function spells.cast(i, room)
 	assert(i >= 1 and i <= 9)
 	--if spells[i].have then
 		if timeline.current <= spells[i].cost then
-			timeline.text = string.format('Need %s seconds to cast %s',
-				spells[i].cost, spells[i].name
-			)
+			local txt
+			if spells[i].cost == 1 then
+				txt = string.format('Need one second to cast %s', spells[i].name)
+			else
+				txt = string.format('Need %s seconds to cast %s',
+					spells[i].cost, spells[i].name
+				)
+			end
+
+			timeline.text = txt
+			timeline.text_color = rgba(0, 0, 1)
 			return
 		end
 

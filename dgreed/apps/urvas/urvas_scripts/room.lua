@@ -119,11 +119,13 @@ function room:ray(start_x, start_y, end_x, end_y, nopath, skipobj)
 			end
 		end
 	end
+
+	local reached = not (last_x ~= end_x or y ~= end_y)
 	
 	if nopath then
-		return (last_x ~= end_x or y ~= end_y), obj
+		return not reached, obj
 	else
-		return tiles, obj
+		return tiles, obj, reached
 	end
 end
 
