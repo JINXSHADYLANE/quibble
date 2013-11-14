@@ -11,16 +11,13 @@
  * REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
-
-#include <string.h>
 #include <stdarg.h>
+#include <string.h>
 #include "utf.h"
 #include "utfdef.h"
 
-// protype
-void *memccpy(void *s1, const void *s2, int c, size_t n);
-
-char* utfecpy(char *to, char *e, const char *from)
+char*
+utfecpy(char *to, char *e, const char *from)
 {
 	char *end;
 

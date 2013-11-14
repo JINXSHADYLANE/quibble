@@ -16,8 +16,6 @@
 #ifndef _UTFH_
 #define _UTFH_ 1
 
-#include <stdint.h>
-
 typedef unsigned int Rune;	/* Code-point values in Unicode 4.0 are 21 bits wide.*/
 
 enum
@@ -49,6 +47,7 @@ extern "C" {
 // UTFmax bytes starting at s and returns the number of bytes generated.
 
 int runetochar(char* s, const Rune* r);
+
 
 // chartorune copies (decodes) at most UTFmax bytes starting at s to
 // one rune, pointed to by r, and returns the number of bytes consumed.
