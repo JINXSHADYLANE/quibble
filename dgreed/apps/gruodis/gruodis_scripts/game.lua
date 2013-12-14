@@ -74,9 +74,32 @@ function game.load_sector(sector_pos, player_pos)
 end
 
 function game.update()
+	local new_objs = {}
 	for i,obj in ipairs(objs) do
-		obj:update(sector)
+		local new_obj = obj:update(sector)
+
+		if new_obj then
+			table.insert(new_objs, new_obj)
+		end
+		
+		if obj.collide then
+			-- todo, detect collisions
+		end
 	end
+
+	-- add newly spawned objects
+	for i,obj in ipairs(new_objs) do
+		table.insert(objs, obj)
+	end
+
+	-- collect garbage
+	new_objs = {}
+	for i,obj in ipairs(objs) do
+		if not obj.dead then
+			table.insert(new_objs, obj)
+		end
+	end
+	objs = new_objs
 
 	return true
 end

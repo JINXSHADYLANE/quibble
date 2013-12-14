@@ -2,6 +2,8 @@ local player = {}
 local player_mt = {}
 player_mt.__index = player
 
+local bullet = require('bullet')
+
 function player:new(obj)
 	local o = {
 		size = 8,
@@ -10,13 +12,16 @@ function player:new(obj)
 		move_acc = 0.2, 
 		dir = 0,
 		sprite = 'player_ship',
-		layer = 1
+		layer = 1,
+		last_shot = 0,
+		shoot_interval = 0.2
 	}
 	setmetatable(o, player_mt)
 	return o
 end
 
 function player:control()
+	-- move
 	if key.pressed(key._left) then
 		self.vel.x = self.vel.x - self.move_acc
 		self.dir = math.pi 
@@ -34,13 +39,22 @@ function player:control()
 		self.dir = math.pi / 2
 	end
 
+	-- move diagonally at the same speed
 	if length_sq(self.vel) > 1 then
 		self.vel = self.vel / math.sqrt(2)
+	end
+
+	-- shoot
+	if self.last_shot + self.shoot_interval < time.s() then
+		if char.pressed('z') then
+			self.last_shot = time.s()
+			return bullet:new(self)
+		end
 	end
 end
 
 function player:update(sector)
-	self:control()
+	local new = self:control()
 
 	-- heavily damp movement
 	self.vel = self.vel * 0.9
@@ -63,6 +77,8 @@ function player:update(sector)
 	bbox.b = bbox.b + dp.y
 	self.vel = dp
 	self.bbox = bbox
+	
+	return new
 end
 
 function player:render(sector)

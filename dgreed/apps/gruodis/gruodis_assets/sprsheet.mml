@@ -1,6 +1,16 @@
 (sprsheet gruodis 
 	(prefix "gruodis_assets/")
 
+	(img empty
+		(tex tiles.png)
+		(src 0,20,10,30)
+	)
+
+	(img bullet
+		(tex tiles.png)
+		(src 14,24,16,26)
+	)
+
 	(img background
 		(tex background.png)
 		(src 0,0,200,150)
