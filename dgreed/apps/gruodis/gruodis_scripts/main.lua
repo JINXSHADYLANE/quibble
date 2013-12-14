@@ -9,7 +9,7 @@ local game = require('game')
 function game_init()
 	local scale = 4
 	local real_size = scr_size * scale
-	video.init_ex(real_size.x, real_size.y, scr_size.x, scr_size.y, 'gruodis', false)
+	video.init_exr(real_size.x, real_size.y, scr_size.x, scr_size.y, 'gruodis', false)
 	sound.init()
 
 --	mfx.init(asset_dir..'effects.mml')

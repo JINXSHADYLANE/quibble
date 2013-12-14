@@ -72,14 +72,14 @@ static int ml_img_pixel(lua_State* l) {
 
 	Image* img = lua_touserdata(l, 1);
 	int x = luaL_checkinteger(l, 2);
-	int y = luaL_checkinteger(l, 2);
+	int y = luaL_checkinteger(l, 3);
 
 	if(x < 0 || x >= img->width || y < 0 || y >= img->height)
 		return luaL_error(l, "pixel coordinates out of image bounds");
 	if(img->format != PF_RGBA8888)
 		return luaL_error(l, "unsupported image pixel format");
 
-	Color* img_color = (Color*)img;
+	Color* img_color = (Color*)img->pixels;
 	Color c = img_color[y * img->width + x];
 
 	byte r, g, b, a;
