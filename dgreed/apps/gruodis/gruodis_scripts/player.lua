@@ -77,7 +77,18 @@ function player:update(sector)
 	bbox.b = bbox.b + dp.y
 	self.vel = dp
 	self.bbox = bbox
-	
+
+	-- ask game module to switch sector if we're on the screen edge
+	if bbox.l <= 1 then
+		self.change_sector = vec2(-1, 0)
+	elseif bbox.r >= scr_size.x-1 then
+		self.change_sector = vec2(1, 0)
+	elseif bbox.t <= 1 then
+		self.change_sector = vec2(0, -1)
+	elseif bbox.b >= scr_size.y-1 then
+		self.change_sector = vec2(0, 1)
+	end
+
 	return new
 end
 

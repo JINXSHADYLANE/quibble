@@ -24,6 +24,11 @@ function bullet:update(sector)
 	if tilemap.collide(sector, self.pos) then
 		self.dead = true
 	end
+
+	-- collide against screen
+	if not rect_point_collision(scr_rect, self.pos) then
+		self.dead = true
+	end
 end
 
 function bullet:render(sector)
