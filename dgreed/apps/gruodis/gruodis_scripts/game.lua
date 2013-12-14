@@ -36,7 +36,7 @@ function game.close()
 	end
 end
 
-function game.load_sector(sector_pos, player_pos)
+function game.load_sector(sector_pos, player_pos, old_player)
 	if sector then
 		tilemap.free(sector)
 	end
@@ -54,7 +54,9 @@ function game.load_sector(sector_pos, player_pos)
 		for y = 0,tiles_y-1 do
 			local pix = img.pixel(world, pix_x+x, pix_y+y)
 			if color_equal(pix, map_player) then
-				player_pos = vec2(x, y) * (tile_size + 0.5)
+				if not old_player then
+					player_pos = vec2(x, y) * (tile_size + 0.5)
+				end
 			elseif pix.a > 0.5 then
 				tilemap.set_tile(sector, x, y, 0, 0, 1)
 				tilemap.set_collision(sector, x, y, true)
@@ -66,14 +68,20 @@ function game.load_sector(sector_pos, player_pos)
 
 	-- create objects
 	local objs = {}
-	table.insert(objs,
-		player:new({pos = player_pos})
-	)
+
+	if not old_player then
+		table.insert(objs,
+			player:new({pos = player_pos})
+		)
+	else
+		table.insert(objs, old_player)
+	end
 
 	return objs
 end
 
 function game.update()
+
 	local new_objs = {}
 	for i,obj in ipairs(objs) do
 		local new_obj = obj:update(sector)
@@ -84,6 +92,20 @@ function game.update()
 		
 		if obj.collide then
 			-- todo, detect collisions
+		end
+
+		-- switch sectors if asked to
+		-- (only player obj does this)
+		if obj.change_sector then
+			sector_pos = sector_pos + obj.change_sector
+			local offset = vec2(
+				obj.change_sector.x * (scr_size.x - tile_size * 1.5),
+				obj.change_sector.y * (scr_size.y - tile_size * 1.5) 
+			)
+			obj.pos = obj.pos - offset
+			objs = game.load_sector(sector_pos, obj.pos, obj)
+			obj.change_sector = nil
+			return true
 		end
 	end
 
@@ -101,7 +123,7 @@ function game.update()
 	end
 	objs = new_objs
 
-	return true
+	return not key.pressed(key.quit) 
 end
 
 function game.render(t)
