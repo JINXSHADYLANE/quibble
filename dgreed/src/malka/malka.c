@@ -149,6 +149,7 @@ extern int malka_open_os(lua_State* l);
 extern int malka_open_iap(lua_State* l);
 extern int malka_open_localization(lua_State* l);
 extern int malka_open_anim(lua_State* l);
+extern int malka_open_img(lua_State* l);
 
 void malka_init_ex(bool use_pools) {
 	if(use_pools) {
@@ -187,6 +188,7 @@ void malka_init_ex(bool use_pools) {
 	malka_open_iap(l);
 	malka_open_localization(l);
 	malka_open_anim(l);
+	malka_open_img(l);
 
 	ml_states_init(l);
 }
