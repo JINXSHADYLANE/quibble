@@ -1,0 +1,13 @@
+(sprsheet gruodis 
+	(prefix "gruodis_assets/")
+
+	(img background
+		(tex background.png)
+		(src 0,0,200,150)
+	)
+
+	(img player_ship 
+		(tex tiles.png)
+		(src 0,10,10,20)
+	)
+)
