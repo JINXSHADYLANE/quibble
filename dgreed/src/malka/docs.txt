@@ -186,6 +186,23 @@ milliseconds between two last frames
 number of frames drawn last second
 
 
+-----
+image
+-----
+
+- img.load(filename)
+loads png/jpeg image, returns handle to it
+
+- img.size(imghandle)
+returns vector, width and height of image in pixels
+
+- img.free(imghandle)
+releases image
+
+- img.pixel(imghandle, x, y)
+returns rgba color of image pixel at specified coordinates
+
+
 -------
 texture
 -------
