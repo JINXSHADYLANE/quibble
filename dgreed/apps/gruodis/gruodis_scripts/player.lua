@@ -14,7 +14,9 @@ function player:new(pos)
 		sprite = 'player_ship',
 		layer = 1,
 		last_shot = 0,
-		shoot_interval = 0.2
+		shoot_interval = 0.2,
+		shield = false,
+		shield_energy = 1
 	}
 	setmetatable(o, player_mt)
 	return o
@@ -50,6 +52,15 @@ function player:control()
 			self.last_shot = time.s()
 			return {bullet:new(self)}
 		end
+	end
+
+	-- shield
+	if char.pressed('x') then
+		self.shield_energy = math.max(0, self.shield_energy-0.004)
+		self.shield = true
+	else
+		self.shield_energy = math.min(1, self.shield_energy+0.004)
+		self.shield = false
 	end
 end
 
@@ -98,9 +109,14 @@ function player:render(sector)
 		self.sprite, self.layer,
 		dest, self.dir, 1
 	)
+
+	if self.shield and self.shield_energy > 0 then
+		local col = rgba(1, 1, 1, self.shield_energy)
+		sprsheet.draw_centered(
+			'shield', self.layer,
+			dest, 0, 1.3, col
+		)
+	end
 end
-
-
-
 
 return player
