@@ -96,7 +96,15 @@ function game.update()
 		end
 		
 		if obj.collide then
-			-- todo, detect collisions
+			for j,other in ipairs(objs) do
+				if other.bbox and not obj.bbox then
+					if rect_point_collision(other.bbox, obj.pos) then
+						obj:collide(sector, other)
+					end
+				elseif other.bbox and obj.bbox then
+					-- todo
+				end
+			end
 		end
 
 		-- switch sectors if asked to

@@ -41,5 +41,14 @@ function bullet:render(sector)
 	sprsheet.draw_centered(self.sprite, self.layer, pos, 0, 1)
 end
 
+function bullet:collide(sector, other)
+	if not other.dead then
+		other.dead = true
+		self.dead = true
+		local screen_pos = tilemap.world2screen(sector, scr_rect, other.pos)
+		mfx.trigger('explode', screen_pos)
+	end
+end
+
 return bullet
 

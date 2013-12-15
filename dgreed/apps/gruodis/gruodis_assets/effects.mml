@@ -6,6 +6,10 @@
 		(e bullet_hit
 			(particles bullet_hit)
 		)
+		(e explode
+			(particles explode1)
+			(particles explode2)
+		)
 	)
 )
 
