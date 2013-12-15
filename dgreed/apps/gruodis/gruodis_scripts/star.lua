@@ -15,6 +15,11 @@ function star:new(pos)
 		last_shot = 0,
 		shoot_interval = 0.8
 	}
+	local hs = o.size * 0.5
+	o.bbox = rect(
+		o.pos.x - hs, o.pos.y - hs,
+		o.pos.x + hs, o.pos.y + hs
+	)
 	setmetatable(o, star_mt)
 	return o
 end
