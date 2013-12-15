@@ -32,7 +32,7 @@ function bullet:update(sector)
 end
 
 function bullet:render(sector)
-	local pos = tilemap.world2screen(sector, scr_rect, self.pos)
+	local pos = tilemap.world2screen(sector, scr_rect, snap_pos(self.pos))
 	sprsheet.draw_centered(self.sprite, self.layer, pos, 0, 1)
 end
 

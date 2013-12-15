@@ -4,10 +4,10 @@ player_mt.__index = player
 
 local bullet = require('bullet')
 
-function player:new(obj)
+function player:new(pos)
 	local o = {
 		size = 8,
-		pos = obj.pos + vec2(5, 5),
+		pos = pos + vec2(5, 5),
 		vel = vec2(0, 0),
 		move_acc = 0.2, 
 		dir = 0,
@@ -48,7 +48,7 @@ function player:control()
 	if self.last_shot + self.shoot_interval < time.s() then
 		if char.pressed('z') then
 			self.last_shot = time.s()
-			return bullet:new(self)
+			return {bullet:new(self)}
 		end
 	end
 end
@@ -93,13 +93,7 @@ function player:update(sector)
 end
 
 function player:render(sector)
-	local dest = vec2(
-		math.floor(self.pos.x),
-		math.floor(self.pos.y)
-	)
-
-	tilemap.world2screen(sector, scr_rect, dest)
-
+	local dest = tilemap.world2screen(sector, scr_rect, snap_pos(self.pos))
 	sprsheet.draw_centered(
 		self.sprite, self.layer,
 		dest, self.dir, 1
