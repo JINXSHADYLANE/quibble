@@ -85,7 +85,6 @@ function game.load_sector(sector_pos, player_pos, old_player)
 end
 
 function game.update()
-
 	local new_objs = {}
 	for i,obj in ipairs(objs) do
 		local new_obj = obj:update(sector)

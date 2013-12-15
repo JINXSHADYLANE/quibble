@@ -29,6 +29,11 @@ function bullet:update(sector)
 	if not rect_point_collision(scr_rect, self.pos) then
 		self.dead = true
 	end
+
+	if self.dead then
+		local screen_pos = tilemap.world2screen(sector, scr_rect, self.pos)
+		mfx.trigger('bullet_hit', screen_pos)
+	end
 end
 
 function bullet:render(sector)
