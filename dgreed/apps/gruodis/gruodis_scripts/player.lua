@@ -3,6 +3,7 @@ local player_mt = {}
 player_mt.__index = player
 
 local bullet = require('bullet')
+local bomb = require('bomb')
 
 function player:new(pos)
 	local o = {
@@ -15,6 +16,8 @@ function player:new(pos)
 		layer = 1,
 		last_shot = 0,
 		shoot_interval = 0.2,
+		last_bomb = 0,
+		bomb_interval = 3,
 		shield = false,
 		shield_energy = 1
 	}
@@ -61,6 +64,14 @@ function player:control()
 	else
 		self.shield_energy = math.min(1, self.shield_energy+0.004)
 		self.shield = false
+	end
+
+	-- bomb
+	if self.last_bomb + self.bomb_interval < time.s() then
+		if char.pressed('c') then
+			self.last_bomb = time.s()
+			return {bomb:new(self.pos)}
+		end
 	end
 end
 
