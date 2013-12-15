@@ -10,6 +10,9 @@
 			(particles explode1)
 			(particles explode2)
 		)
+		(e bomb
+			(particles bomb)
+		)
 	)
 )
 
