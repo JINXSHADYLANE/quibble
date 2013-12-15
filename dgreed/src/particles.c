@@ -275,7 +275,7 @@ ParticleSystem* particles_spawn_ex(const char* name, const Vector2* pos,
 	uint desc_idx = 0;
 	while(strcmp(psystem_descs[desc_idx].name, name) != 0) {
 		desc_idx++;
-		if(desc_idx == psystem_descs_count) {
+		if(desc_idx >= psystem_descs_count) {
 			LOG_ERROR(
 				"Trying to spawn non-existing psystem description '%s'", name
 			);
