@@ -20,6 +20,10 @@
 		(tex tiles.png)
 		(src 0,10,10,20)
 	)
+	(img shield
+		(tex tiles.png)
+		(src 20,20,30,30)
+	)
 	(img star
 		(tex tiles.png)
 		(src 10,10,20,20)

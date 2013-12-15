@@ -43,6 +43,13 @@ end
 
 function bullet:collide(sector, other)
 	if not other.dead and not other.invincible then
+		
+		if other.shield then
+			-- deflect from shields
+			self.vel = - self.vel
+			return
+		end
+
 		other.dead = true
 		self.dead = true
 		local screen_pos = tilemap.world2screen(sector, scr_rect, other.pos)
