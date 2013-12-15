@@ -4,6 +4,11 @@ asset_dir = 'gruodis_assets/'
 scr_size = vec2(200, 150)
 scr_rect = rect(0, 0, scr_size.x, scr_size.y)
 
+local math_floor = math.floor
+function snap_pos(p)
+	return vec2(math_floor(p.x), math_floor(p.y))	
+end
+
 local game = require('game')
 
 function game_init()
