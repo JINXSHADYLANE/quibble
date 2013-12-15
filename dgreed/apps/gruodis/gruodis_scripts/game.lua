@@ -2,11 +2,12 @@ local game = {}
 
 local player = require('player')
 local star = require('star')
+local crusher = require('crusher')
 
 local tile_size = 10
 local tiles_x = 20
 local tiles_y = 15
-local sector_pos = vec2(0, 0)
+local sector_pos = vec2(1, 2)
 
 local sector 	-- tilemap handle
 local tileset	-- texture handle
@@ -16,6 +17,7 @@ local objs		-- list
 -- world color legend:
 local map_player = rgba(1, 0, 0, 1)
 local map_star = rgba(0, 1, 0, 1)
+local map_crusher = rgba(0, 0, 1, 1)
 
 function color_equal(a, b)
 	return a.r == b.r and a.g == b.g and a.b == b.b and a.a == b.a
@@ -54,16 +56,18 @@ function game.load_sector(sector_pos, player_pos, old_player)
 
 	-- iterate over world image pixels and construct sector tilemap
 	local pix_x, pix_y = sector_pos.x * tiles_x, sector_pos.y * tiles_y
-	for x = 0,tiles_x-1 do
-		for y = 0,tiles_y-1 do
+	for y = 0,tiles_y-1 do
+		for x = 0,tiles_x-1 do
 			local pix = img.pixel(world, pix_x+x, pix_y+y)
-			local screen_pos = vec2(x, y) * (tile_size + 0.5)
+			local screen_pos = vec2(x+0.5, y+0.5) * tile_size
 			if color_equal(pix, map_player) then
 				if not old_player then
 					player_pos = screen_pos
 				end
 			elseif color_equal(pix, map_star) then
 				table.insert(objs, star:new(screen_pos))			
+			elseif color_equal(pix, map_crusher) then
+				table.insert(objs, crusher:new(screen_pos))
 			elseif pix.a > 0.5 then
 				tilemap.set_tile(sector, x, y, 0, 0, 1)
 				tilemap.set_collision(sector, x, y, true)
@@ -97,12 +101,16 @@ function game.update()
 		
 		if obj.collide then
 			for j,other in ipairs(objs) do
-				if other.bbox and not obj.bbox then
-					if rect_point_collision(other.bbox, obj.pos) then
-						obj:collide(sector, other)
+				if other ~= obj then
+					if other.bbox and not obj.bbox then
+						if rect_point_collision(other.bbox, obj.pos) then
+							obj:collide(sector, other)
+						end
+					elseif other.bbox and obj.bbox then
+						if rect_rect_collision(other.bbox, obj.bbox) then
+							obj:collide(sector, other)
+						end
 					end
-				elseif other.bbox and obj.bbox then
-					-- todo
 				end
 			end
 		end

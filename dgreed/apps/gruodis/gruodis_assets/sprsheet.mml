@@ -20,9 +20,12 @@
 		(tex tiles.png)
 		(src 0,10,10,20)
 	)
-
 	(img star
 		(tex tiles.png)
 		(src 10,10,20,20)
+	)
+	(img crusher
+		(tex tiles.png)
+		(src 20,10,30,20)
 	)
 )

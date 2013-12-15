@@ -42,7 +42,7 @@ function bullet:render(sector)
 end
 
 function bullet:collide(sector, other)
-	if not other.dead then
+	if not other.dead and not other.invincible then
 		other.dead = true
 		self.dead = true
 		local screen_pos = tilemap.world2screen(sector, scr_rect, other.pos)

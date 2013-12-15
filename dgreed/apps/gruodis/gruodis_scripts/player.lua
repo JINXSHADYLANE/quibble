@@ -7,7 +7,7 @@ local bullet = require('bullet')
 function player:new(pos)
 	local o = {
 		size = 8,
-		pos = pos + vec2(5, 5),
+		pos = pos,
 		vel = vec2(0, 0),
 		move_acc = 0.2, 
 		dir = 0,
