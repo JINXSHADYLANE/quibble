@@ -3,6 +3,8 @@ asset_dir = 'gruodis_assets/'
 
 scr_size = vec2(200, 150)
 scr_rect = rect(0, 0, scr_size.x, scr_size.y)
+fnt = asset_dir..'AlegreyaSans.ttf'
+text_color = rgba(1, 1, 1)
 
 local math_floor = math.floor
 function feql(a, b)
@@ -33,8 +35,8 @@ function game_init()
 	particles.init(asset_dir, 2)
 	mfx.init(asset_dir..'effects.mml')
 	sprsheet.init(asset_dir..'sprsheet.mml')
+	vfont.select(fnt, 10)
 --	mus = sound.load_stream(asset_dir..'aftermath.ogg')
---	fnt = font.load(asset_dir..'Georgia_60px.bft', 0.5, asset_dir)
 --	sound.play(mus, true)
 
 	states.prerender_callback(function()
@@ -51,6 +53,7 @@ end
 function game_close()
 --	font.free(fnt)
 --	sound.free(mus)
+	vfont.close()
 	sprsheet.close()
 	mfx.close()
 	particles.close()

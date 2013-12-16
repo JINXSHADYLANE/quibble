@@ -11,10 +11,7 @@
 #include <gui.h>
 #include <particles.h>
 #include <tilemap.h>
-
-#ifdef __APPLE__
 #include <vfont.h>
-#endif
 
 extern void _new_vec2(lua_State* l, double x, double y);
 extern void _new_rect(lua_State* l, double _l, double t,
@@ -807,8 +804,6 @@ static const luaL_Reg video_fun[] = {
 	{NULL, NULL}
 };
 
-#ifdef __APPLE__
-
 // vfont
 
 static int ml_vfont_init(lua_State* l) {
@@ -850,12 +845,16 @@ static int ml_vfont_draw(lua_State* l) {
 		goto error;
 	Color c = COLOR_BLACK;
 
-	if(n == 4) 
+	float scale = 1.0f;
+	if(n == 5)
+		scale = luaL_checknumber(l, 5);
+
+	if(n >= 4) 
 		if(!_check_color(l, 4, &c))
 			goto error;
 
-	if(n == 3 || n == 4) {
-		vfont_draw(string, layer, pos, c);
+	if(n >= 3 && n <= 5) {
+		vfont_draw_ex(string, layer, pos, c, scale);
 		return 0;
 	}	
 
@@ -934,8 +933,6 @@ static const luaL_Reg vfont_fun[] = {
     {"invalidate_all", ml_vfont_invalidate_all},
 	{NULL, NULL}
 };
-
-#endif
 
 // sound
 
@@ -2168,9 +2165,7 @@ int malka_open_system(lua_State* l) {
 	luaL_newmetatable(l, "_FontHandle.mt");
 	malka_register(l, "font", font_fun);
 
-#ifdef __APPLE__
 	malka_register(l, "vfont", vfont_fun);
-#endif
 
 	malka_register(l, "video", video_fun);
 
