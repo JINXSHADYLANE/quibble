@@ -252,8 +252,8 @@ closes vfont subsystem
 - vfont.select(font_name, size)
 select font and its size in points
 
-- vfont.draw(text, layer, pos, tint)
-draw a line of text using currently selected font; tint is optional
+- vfont.draw(text, layer, pos, tint, scale)
+draw a line of text using currently selected font; tint, scale is optional
 
 - vfont.draw_input(text, layer, pos, tint)
 draw a line of text with caching strategy optimized for user-input text display

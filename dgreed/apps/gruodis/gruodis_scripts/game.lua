@@ -161,6 +161,8 @@ function game.render(t)
 		obj:render(sector)
 	end
 
+	vfont.draw('It seemed good to stay up late.', 2, vec2(10, 15), text_color)
+
 	return true
 end
 
