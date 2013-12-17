@@ -116,8 +116,6 @@ static CachePage* _alloc_cache(RectF* r) {
 
 static const CachedText* _precache(const char* string, const char* key, bool input) {
     RectF bbox = _vfont_bbox(string);
-    bbox.right *= resolution_factor;
-    bbox.bottom *= resolution_factor;
     float w = rectf_width(&bbox);
     float h = rectf_height(&bbox);
     
