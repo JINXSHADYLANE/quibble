@@ -36,4 +36,9 @@
 		(tex tiles.png)
 		(src 30,20,40,30)
 	)
+
+	(img bubble
+		(tex tiles.png)
+		(src 16,31,19,34)
+	)
 )

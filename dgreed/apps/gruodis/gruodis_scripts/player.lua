@@ -13,7 +13,7 @@ function player:new(pos)
 		move_acc = 0.2, 
 		dir = 0,
 		sprite = 'player_ship',
-		layer = 1,
+		layer = 3,
 		last_shot = 0,
 		shoot_interval = 0.2,
 		last_bomb = 0,
