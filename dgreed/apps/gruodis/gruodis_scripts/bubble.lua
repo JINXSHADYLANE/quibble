@@ -78,7 +78,7 @@ function bubble:render(sector)
 			p.x - 2, p.y - 1,
 			p.x + self.text_size.x + 2, p.y + self.text_size.y + 1
 		)
-		local back_col = rgba(0.2, 0.2, 0.2, tv*tv*0.7)
+		local back_col = rgba(0.1, 0.1, 0.1, tv*tv*0.85)
 		sprsheet.draw('empty', self.text_layer-1, back_dest, back_col)
 	end
 
