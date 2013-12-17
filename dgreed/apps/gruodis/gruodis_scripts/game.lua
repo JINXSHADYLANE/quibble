@@ -3,11 +3,14 @@ local game = {}
 local player = require('player')
 local star = require('star')
 local crusher = require('crusher')
+local bubble = require('bubble')
+
+local texts = require('texts')
 
 local tile_size = 10
 local tiles_x = 20
 local tiles_y = 15
-local sector_pos = vec2(1, 2)
+local sector_pos = vec2(0, 0)
 
 local sector 	-- tilemap handle
 local tileset	-- texture handle
@@ -18,6 +21,7 @@ local objs		-- list
 local map_player = rgba(1, 0, 0, 1)
 local map_star = rgba(0, 1, 0, 1)
 local map_crusher = rgba(0, 0, 1, 1)
+local map_bubble = rgba(128/255, 128/255, 128/255, 1)
 
 function color_equal(a, b)
 	return a.r == b.r and a.g == b.g and a.b == b.b and a.a == b.a
@@ -25,9 +29,11 @@ end
 
 function game.init()
 	world = img.load(asset_dir..'world.png')
-	video.clear_color(rgba(0.5, 0.5, 0.5))
 
 	objs = game.load_sector(sector_pos)
+
+	-- additive blend for bubbles
+	video.set_blendmode(2, 'add')
 end
 
 function game.close()
@@ -45,12 +51,15 @@ function game.load_sector(sector_pos, player_pos, old_player)
 		tilemap.free(sector)
 	end
 
+	local sector_id = tostring(sector_pos)
 	player_pos = vec2(0, 0)
 
 	-- create new tilemap
 	tileset = tex.load(asset_dir..'tiles.png')
 	sector = tilemap.new(tile_size, tile_size, tiles_x, tiles_y, 1)
 	tilemap.set_tileset(sector, 0, tileset)
+
+	local text_idx = 1
 
 	local objs = {}
 
@@ -60,6 +69,7 @@ function game.load_sector(sector_pos, player_pos, old_player)
 		for x = 0,tiles_x-1 do
 			local pix = img.pixel(world, pix_x+x, pix_y+y)
 			local screen_pos = vec2(x+0.5, y+0.5) * tile_size
+			local text_pos = vec2(20.5-x, 15.5-y) * tile_size
 			if color_equal(pix, map_player) then
 				if not old_player then
 					player_pos = screen_pos
@@ -68,6 +78,14 @@ function game.load_sector(sector_pos, player_pos, old_player)
 				table.insert(objs, star:new(screen_pos))			
 			elseif color_equal(pix, map_crusher) then
 				table.insert(objs, crusher:new(screen_pos))
+			elseif color_equal(pix, map_bubble) then
+				local text = nil
+				if texts[sector_id] then
+					text = texts[sector_id][text_idx]
+				end
+				text_idx = text_idx + 1
+				if not text then text = 'TODO' end
+				table.insert(objs, bubble:new(screen_pos, text_pos, text))
 			elseif pix.a > 0.5 then
 				tilemap.set_tile(sector, x, y, 0, 0, 1)
 				tilemap.set_collision(sector, x, y, true)
@@ -161,7 +179,7 @@ function game.render(t)
 		obj:render(sector)
 	end
 
-	vfont.draw('It seemed good to stay up late.', 2, vec2(10, 15), text_color)
+	--vfont.draw('It seemed good to stay up late.', 2, vec2(10, 15), text_color)
 
 	return true
 end
