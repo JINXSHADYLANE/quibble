@@ -32,7 +32,7 @@ function game_init()
 	video.init_exr(real_size.x, real_size.y, scr_size.x, scr_size.y, 'gruodis', false)
 	sound.init()
 
-	particles.init(asset_dir, 2)
+	particles.init(asset_dir, 1)
 	mfx.init(asset_dir..'effects.mml')
 	sprsheet.init(asset_dir..'sprsheet.mml')
 	vfont.select(fnt, 10)
