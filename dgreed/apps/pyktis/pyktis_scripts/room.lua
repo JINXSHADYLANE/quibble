@@ -182,6 +182,30 @@ function room.input(id, action)
 	-- todo: pause action
 end
 
+function room.win_condition()
+	-- if all slots have bricks on them - condition is met
+	local win = true
+	for i,obj in ipairs(objects) do
+		if obj.id == 'slot' then
+			local covered = false
+			for j,obj2 in ipairs(objects) do
+				if obj2.id:sub(1, 5) == 'brick' then
+					local hit_x = feql(obj.pos.x, obj2.pos.x)
+					local hit_y = feql(obj.pos.y, obj2.pos.y)
+					if hit_x and hit_y then
+						covered = true
+					end
+				end
+			end
+			if not covered then
+				win = false
+			end
+		end
+	end
+	
+	return win
+end
+
 function room.update()
 	-- queue input
 	if #input_queue < 3 then
@@ -210,6 +234,24 @@ function room.update()
 	return not key.pressed(key.quit)
 end
 
+local fadein_d = 0.16
+local fadein_inv_d = 1 / fadein_d
+local fadein_ts = {}
+function room.fade_scale(x, y, t)
+	local idx = y * width + x
+	if fadein_ts[idx] == nil then
+		fadein_ts[idx] = rand.float(0, 1 - fadein_d)
+	end
+
+	local start_t = fadein_ts[idx]
+	local tt = (t - start_t) * fadein_inv_d
+	if tt < 0.75 then
+		return smoothstep(0, 1.2, tt * 1.3333)
+	else
+		return smoothstep(1.2, 1, (tt - 0.75) * 4)
+	end
+end
+
 function room.render(t)
 	local anim_t = nil
 	if animation then
@@ -225,12 +267,21 @@ function room.render(t)
 			end
 			pos.x = math.floor(pos.x)
 			pos.y = math.floor(pos.y)
+
+			local scale = 1
+			if t ~= 0 then
+				if t < 0 then
+					t = - t
+				end
+				scale = room.fade_scale(pos.x, pos.y, math.abs(1-t))
+			end
+
 			sprsheet.draw_centered(
-				obj.sprite, obj_layer, pos, obj.tint
+				obj.sprite, obj_layer, pos, 0, scale, obj.tint
 			)
 			if obj.glow then
 				sprsheet.draw_centered(
-					obj.glow, glow_layer, pos, obj.tint
+					obj.glow, glow_layer, pos, 0, scale, obj.tint
 				)
 			end
 		end
@@ -244,6 +295,10 @@ function room.render(t)
 			end
 		end
 		animation = false
+		if room.win_condition() then
+			room.win = true
+			states.pop()
+		end
 	end
 
 	return true

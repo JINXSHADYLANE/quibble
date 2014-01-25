@@ -34,10 +34,10 @@ function game_init()
 --		particles.draw()
 	end)
 
+	states.transition_len = 0.6
 	states.register('game', game)
 	states.register('room', room)
 	states.push('game')
-	states.transition_len = 0.5
 end
 
 function game_close()
