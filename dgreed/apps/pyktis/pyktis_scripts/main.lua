@@ -18,6 +18,7 @@ end
 
 local game = require('game')
 local room = require('room')
+local title = require('title')
 
 function game_init()
 	local scale = 1
@@ -41,7 +42,9 @@ function game_init()
 	states.transition_len = 0.6
 	states.register('game', game)
 	states.register('room', room)
-	states.push('game')
+	states.register('title', title)
+	states.push('title')
+	--states.push('game')
 end
 
 function game_close()

@@ -1,6 +1,11 @@
 (sprsheet pyktis 
 	(prefix "pyktis_assets/")
 
+	(img empty
+		(tex tiles.png)
+		(src 16,16,32,32)
+	)
+
 	(img brick
 		(tex tiles.png)
 		(src 0,0,48,48)
