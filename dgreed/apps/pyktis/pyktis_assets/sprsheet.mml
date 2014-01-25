@@ -1,3 +1,26 @@
 (sprsheet pyktis 
 	(prefix "pyktis_assets/")
+
+	(img brick
+		(tex tiles.png)
+		(src 0,0,48,48)
+	)
+	(img brick_glow
+		(tex tiles.png)
+		(src 0,48,96,144)
+	)
+
+	(img slot
+		(tex tiles.png)
+		(src 48,0,96,48)
+	)
+	(img slot_glow
+		(tex tiles.png)
+		(src 96,48,192,144)
+	)
+
+	(img player
+		(tex tiles.png)
+		(src 96,0,144,48)
+	)
 )
