@@ -6,12 +6,19 @@ rules.objects = {
 	player_a = {legend = 'a', sprite = 'player', tint = rgba(0.8, 0.2, 0.2)},
 	player_b = {legend = 'b', sprite = 'player', tint = rgba(0.2, 0.2, 0.8)},
 	brick = {legend = 'B', sprite = 'brick', glow = 'brick_glow', tint = rgba(1, 1, 1)},
-	wall = {legend = '#', sprite = 'brick', glow = 'brick_glow', tint = rgba(0.3, 0.3, 0.3)}
+	wall = {legend = '#', sprite = 'brick', glow = 'brick_glow', tint = rgba(0.3, 0.3, 0.3)},
+	slot = {legend = 'S', sprite = 'slot', glow = 'slot_glow', tint = rgba(0.9, 0.9, 0.9)}
 }
 
 rules.desc = {
-	{'player_a >', 'brick', 'player_a >', 'brick >'},
-	{'player_b >', 'brick', 'player_a >', 'brick >'},
+	-- players can push brick
+	{'>', 'player_a', 'brick', '>', '>'},
+	{'>', 'player_b', 'brick', '>', '>'},
+
+	-- players and bricks can stand on slots
+	{'>', 'brick', 'slot', '>', ''},
+	{'>', 'player_a', 'slot', '>', ''},
+	{'>', 'player_b', 'slot', '>', ''},
 }
 
 ---
