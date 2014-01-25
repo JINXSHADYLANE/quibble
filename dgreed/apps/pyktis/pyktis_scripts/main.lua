@@ -13,6 +13,7 @@ function feql(a, b)
 end
 
 local game = require('game')
+local room = require('room')
 
 function game_init()
 	local scale = 1
@@ -34,6 +35,7 @@ function game_init()
 	end)
 
 	states.register('game', game)
+	states.register('room', room)
 	states.push('game')
 	states.transition_len = 0.5
 end
