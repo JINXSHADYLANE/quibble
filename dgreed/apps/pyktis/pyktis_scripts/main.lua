@@ -3,13 +3,17 @@ asset_dir = 'pyktis_assets/'
 
 scr_size = vec2(640, 480)
 scr_rect = rect(0, 0, scr_size.x, scr_size.y)
---fnt = asset_dir..'AlegreyaSans.ttf'
+fnt = asset_dir..'AlegreyaSans.ttf'
 text_color = rgba(1, 1, 1)
 
 local math_floor = math.floor
 function feql(a, b)
 	local d = a - b
 	return d*d < 0.0000001
+end
+
+function eql_pos(a, b)
+	return feql(a.x, b.x) and feql(a.y, b.y)
 end
 
 local game = require('game')
@@ -24,7 +28,7 @@ function game_init()
 --	particles.init(asset_dir, 1)
 	mfx.init(asset_dir..'effects.mml')
 	sprsheet.init(asset_dir..'sprsheet.mml')
---	vfont.select(fnt, 10)
+	vfont.select(fnt, 40)
 --	mus = sound.load_stream(asset_dir..'aftermath.ogg')
 --	sound.play(mus, true)
 
@@ -43,7 +47,7 @@ end
 function game_close()
 --	font.free(fnt)
 --	sound.free(mus)
---	vfont.close()
+	vfont.close()
 	sprsheet.close()
 	mfx.close()
 --	particles.close()

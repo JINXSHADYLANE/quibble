@@ -7,7 +7,8 @@ rules.objects = {
 	player_b = {legend = 'b', sprite = 'player', tint = rgba(0.2, 0.2, 0.8)},
 	brick = {legend = 'B', sprite = 'brick', glow = 'brick_glow', tint = rgba(1, 1, 1)},
 	wall = {legend = '#', sprite = 'brick', glow = 'brick_glow', tint = rgba(0.3, 0.3, 0.3)},
-	slot = {legend = 'S', sprite = 'slot', glow = 'slot_glow', tint = rgba(0.9, 0.9, 0.9)}
+	slot = {legend = 'S', sprite = 'slot', glow = 'slot_glow', tint = rgba(0.9, 0.9, 0.9), layer=1},
+	story = {legend = 's', sprite = 'story', glow = 'story_glow', tint = rgba(1.0, 1.0, 1.0), layer=1}
 }
 
 rules.desc = {
@@ -19,6 +20,12 @@ rules.desc = {
 	{'>', 'brick', 'slot', '>', ''},
 	{'>', 'player_a', 'slot', '>', ''},
 	{'>', 'player_b', 'slot', '>', ''},
+
+	-- players and bricks can stand on stories
+	{'>', 'brick', 'story', '>', ''},
+	{'>', 'player_a', 'story', '>', ''},
+	{'>', 'player_b', 'story', '>', ''},
+
 }
 
 ---
@@ -47,6 +54,7 @@ function rules.parse_level(level)
 						sprite = sprsheet.get_handle(obj.sprite),
 						glow = glow,
 						tint = lerp(obj.tint, obj.tint, 1),
+						layer = obj.layer,
 						pos = vec2(x, y-1)
 					})
 				end
