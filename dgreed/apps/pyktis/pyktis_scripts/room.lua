@@ -10,10 +10,13 @@ local objects
 -- all input is queued 
 local input_queue = {}
 
+-- old world states are kept here
+local undo_buffer = {}
+
 -- room is either in animation state or not,
 -- no input is processed in animation
 local animation = false
-local animation_len = 0.2
+local animation_len = 0.083
 local animation_start = 0.0
 
 -- controls
@@ -38,9 +41,6 @@ local move_offset = {
 }
 
 local function world2screen(pos)
-	if pos == nil then
-		print(debug.traceback())
-	end
 	return vec2(
 		scr_size.x/2 + (pos.x - width/2) * 48 + 24,
 		scr_size.y/2 + (pos.y - height/2) * 48 + 24
@@ -56,6 +56,7 @@ end
 
 function room.preenter()
 	objects, width, height = rules.parse_level(room.level)
+	room.win = false
 end
 
 -- returns nil or list of objs at pos
@@ -76,27 +77,109 @@ end
 -- returns true if moved, false if blocked
 function room.move(obj, dir)
 	local target_pos = obj.pos + move_offset[dir]
-	local blockers = room.find_at_pos(target_pos)
-	if not blockers then
-		obj.next_pos = target_pos
-		return true
-	else
-		return false
-	end
-end
+	local back_pos = obj.pos - move_offset[dir]
+	local in_front = room.find_at_pos(target_pos)
+	local in_back = room.find_at_pos(back_pos)
 
-function room.input(id, action)
-	-- find right object
-	local obj = nil
-	if id ~= '' then
-		for _,iobj in ipairs(objects) do
-			if iobj.id == id then
-				room.move(iobj, action)
+	local result = true 
+
+	if in_front then
+		-- apply > rule
+		for i,fobj in ipairs(in_front) do
+			local moved = false
+			for j,r in ipairs(rules.desc) do
+				local d, a, b, dir_a, dir_b = unpack(r)
+				if d == '>' and obj.id == a and fobj.id == b then
+					if dir_b == '>' then
+						if room.move(fobj, dir) then
+							if dir_a ~= '>' then
+								result = false
+							else
+								moved = true
+							end
+						else
+							result = false
+						end
+					else
+						if dir_a == '>' then
+							moved = true
+						else
+							result = false
+						end
+					end
+				end
+			end
+			if not moved then
+				result = false
 			end
 		end
 	end
 
-	-- todo: undo and pause actions
+	if result and in_back then
+		-- apply < rule
+		for _,fobj in ipairs(in_back) do
+			for _,r in ipairs(rules.desc) do
+				local d, a, b, dir_a, dir_b = unpack(r)
+				if d == '<' and obj.id == a and fobj.id == b then
+					if dir_b == '<' then
+						local old_pos = obj.pos
+						obj.pos = target_pos
+						room.move(fobj, dir)
+						obj.pos = old_pos
+					end
+				end
+			end
+		end
+	end
+
+	if result then
+		obj.next_pos = target_pos
+	end
+
+	return result
+end
+
+function room.clone_state()
+	local objects_clone = {}
+	for i,obj in ipairs(objects) do
+		table.insert(objects_clone, {
+			pos = vec2(obj.pos)
+		})
+	end
+
+	return objects_clone
+end
+
+function room.input(id, action)
+	-- find right object
+	local moved = false
+	local obj = nil
+	local old_state = room.clone_state()
+	if id ~= '' then
+		for _,iobj in ipairs(objects) do
+			if iobj.id == id then
+				if room.move(iobj, action) then
+					moved = true
+				end
+			end
+		end
+	end
+
+	-- if moved, keep old state in undo buffer
+	if moved then
+		table.insert(undo_buffer, old_state)
+	end
+
+	if action == 'undo' and #undo_buffer > 0 then
+		local old_state = undo_buffer[#undo_buffer]
+		table.remove(undo_buffer)
+
+		for i,obj in ipairs(objects) do
+			obj.pos = old_state[i].pos
+		end
+	end
+
+	-- todo: pause action
 end
 
 function room.update()
