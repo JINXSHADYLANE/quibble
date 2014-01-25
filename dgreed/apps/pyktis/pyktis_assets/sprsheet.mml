@@ -23,4 +23,13 @@
 		(tex tiles.png)
 		(src 96,0,144,48)
 	)
+
+	(img story
+		(tex tiles.png)
+		(src 144,0,192,48)
+	)
+	(img story_glow
+		(tex tiles.png)
+		(src 192,48,288,144)
+	)
 )

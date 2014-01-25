@@ -1,8 +1,9 @@
 local room = {}
 local rules = require('rules')
 
-local obj_layer = 3
-local glow_layer = 2
+local obj_layer = 1
+local glow_layer = 3
+local text_layer = 7
 
 local width, height
 local objects
@@ -14,10 +15,17 @@ local input_queue = {}
 local undo_buffer = {}
 
 -- room is either in animation state or not,
--- no input is processed in animation
 local animation = false
 local animation_len = 0.083
 local animation_start = 0.0
+
+local story_object = nil
+local player_a_object = nil
+local player_b_object = nil
+
+-- story text state
+local text_idx = 1
+local text_vis = 0
 
 -- controls
 local controls = {
@@ -49,6 +57,7 @@ end
 
 function room.init()
 	video.set_blendmode(glow_layer, 'add')
+	video.set_blendmode(glow_layer+1, 'add')
 end
 
 function room.close()
@@ -57,6 +66,25 @@ end
 function room.preenter()
 	objects, width, height = rules.parse_level(room.level)
 	room.win = false
+
+	local text1_half_size = vfont.size(room.texts[1]) * 0.5
+	local text2_half_size = vfont.size(room.texts[2]) * 0.5
+	room.texts_pos = {
+		vec2(scr_size.x/2, 30) - text1_half_size,
+		vec2(scr_size.x/2, scr_size.y - 30) - text2_half_size
+	}
+	text_vis = 0
+
+	-- find story object
+	for i,obj in ipairs(objects) do
+		if obj.id == 'story' then
+			story_object = obj
+		elseif obj.id == 'player_a' then
+			player_a_object = obj
+		elseif obj.id == 'player_b' then
+			player_b_object = obj
+		end
+	end
 end
 
 -- returns nil or list of objs at pos
@@ -206,6 +234,20 @@ function room.win_condition()
 	return win
 end
 
+function room.update_text()
+	if eql_pos(player_a_object.pos, story_object.pos) then
+		text_vis = text_vis + 0.02
+		text_idx = 1
+	elseif eql_pos(player_b_object.pos, story_object.pos) then
+		text_vis = text_vis + 0.02
+		text_idx = 2
+	else
+		text_vis = text_vis - 0.02
+	end
+
+	text_vis = clamp(0, 1, text_vis)
+end
+
 function room.update()
 	-- queue input
 	if #input_queue < 3 then
@@ -230,6 +272,8 @@ function room.update()
 		table.remove(input_queue, 1)
 		room.input(action[1], action[2])
 	end
+
+	room.update_text()
 
 	return not key.pressed(key.quit)
 end
@@ -276,17 +320,26 @@ function room.render(t)
 				scale = room.fade_scale(pos.x, pos.y, math.abs(1-t))
 			end
 
+			local layer = obj_layer
+			if obj.layer then
+				layer = layer + obj.layer
+			end
 			sprsheet.draw_centered(
-				obj.sprite, obj_layer, pos, 0, scale, obj.tint
+				obj.sprite, layer, pos, 0, scale, obj.tint
 			)
 			if obj.glow then
+				layer = glow_layer
+				if obj.layer then
+					layer = layer + obj.layer
+				end
 				sprsheet.draw_centered(
-					obj.glow, glow_layer, pos, 0, scale, obj.tint
+					obj.glow, layer, pos, 0, scale, obj.tint
 				)
 			end
 		end
 	end
 
+	-- update objects after animation, check win condition
 	if anim_t == 1 then
 		for i,obj in ipairs(objects) do
 			if obj.next_pos then
@@ -299,6 +352,14 @@ function room.render(t)
 			room.win = true
 			states.pop()
 		end
+	end
+
+	if text_vis > 0 then
+		local col = rgba(1, 1, 1, text_vis)
+		vfont.draw(
+			room.texts[text_idx], 10, 
+			room.texts_pos[text_idx], col
+		)
 	end
 
 	return true
