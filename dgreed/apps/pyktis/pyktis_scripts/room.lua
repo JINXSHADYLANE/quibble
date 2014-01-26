@@ -235,6 +235,10 @@ function room.win_condition()
 end
 
 function room.update_text()
+	if not story_object then
+		return
+	end
+
 	if eql_pos(player_a_object.pos, story_object.pos) then
 		text_vis = text_vis + 0.02
 		text_idx = 1

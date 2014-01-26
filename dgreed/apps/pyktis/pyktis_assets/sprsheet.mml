@@ -37,4 +37,9 @@
 		(tex tiles.png)
 		(src 192,48,288,144)
 	)
+
+	(img brick_sticky
+		(tex tiles.png)
+		(src 192,0,240,48)
+	)
 )
