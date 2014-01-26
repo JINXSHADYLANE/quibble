@@ -159,43 +159,43 @@ levels.texts[4] = {
 }
 
 levels.texts[5] = {
-	'I like dressing in black.', 'I\'m not a fan of spicy food.'
+	'I like dressing in black.', 'Doesn\'t matter, I\'ll manage.'
 }
 
 levels.texts[6] = {
-	'', ''
+	'We\'re such fools.', 'Is everything okay?'
 }
 
 levels.texts[7] = {
-	'', ''
+	'I not hungry. This shop looks disguisting.', 'Why are we here?'
 }
 
 levels.texts[8] = {
-	'', ''
+	'You\'re full of enthusiasm.', 'I was really confused that time.'
 }
 
 levels.texts[9] = {
-	'', ''
+	'I will plan something next time.', 'It\'s okay, don\'t worry.'
 }
 
 levels.texts[10] = {
-	'', ''
+	'It is so cold outside.', 'I would like to be alone for a while.'
 }
 
 levels.texts[11] = {
-	'', ''
+	'I missed you.', 'Let\'s make pancakes!'
 }
 
 levels.texts[12] = {
-	'', ''
+	'Your taste in music is terrible.', 'Oh no!'
 }
 
 levels.texts[13] = {
-	'', ''
+	'Come on, don\'t be shy.', 'Sorry.'
 }
 
 levels.texts[14] = {
-	'', ''
+	'What will happen next?', 'I don\'t know.'
 }
 
 
