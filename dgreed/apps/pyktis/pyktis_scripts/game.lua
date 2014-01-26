@@ -16,11 +16,15 @@ function game.update()
 		current_level = current_level + 1
 	end
 
-	room.level = levels[current_level]
-	room.texts = levels.texts[current_level]
-	states.push('room')
+	if current_level > #levels then
+		states.replace('epilogue')
+	else
+		room.level = levels[current_level]
+		room.texts = levels.texts[current_level]
+		states.push('room')
+	end
 
-	return not key.pressed(key.quit) 
+	return true
 end
 
 function game.render(t)

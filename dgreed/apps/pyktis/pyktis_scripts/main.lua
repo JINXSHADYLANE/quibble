@@ -19,6 +19,7 @@ end
 local game = require('game')
 local room = require('room')
 local title = require('title')
+local epilogue = require('epilogue')
 
 function game_init()
 	local scale = 1
@@ -44,8 +45,8 @@ function game_init()
 	states.register('game', game)
 	states.register('room', room)
 	states.register('title', title)
-	--states.push('title')
-	states.push('game')
+	states.register('epilogue', epilogue)
+	states.push('title')
 end
 
 function game_close()
