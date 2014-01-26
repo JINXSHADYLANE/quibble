@@ -75,7 +75,7 @@ function room.preenter()
 	}
 	text_vis = 0
 
-	-- find story object
+	-- find some specific objects
 	for i,obj in ipairs(objects) do
 		if obj.id == 'story' then
 			story_object = obj
@@ -85,6 +85,8 @@ function room.preenter()
 			player_b_object = obj
 		end
 	end
+
+	undo_buffer = {}
 end
 
 -- returns nil or list of objs at pos
@@ -207,6 +209,10 @@ function room.input(id, action)
 		end
 	end
 
+	if action == 'pause' then
+		states.pop()
+	end
+
 	-- todo: pause action
 end
 
@@ -279,7 +285,7 @@ function room.update()
 
 	room.update_text()
 
-	return not key.pressed(key.quit)
+	return true
 end
 
 local fadein_d = 0.16
