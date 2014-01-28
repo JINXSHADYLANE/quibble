@@ -46,8 +46,7 @@ function game_init()
 	states.register('room', room)
 	states.register('title', title)
 	states.register('epilogue', epilogue)
-	--states.push('title')
-	states.push('epilogue')
+	states.push('title')
 end
 
 function game_close()
