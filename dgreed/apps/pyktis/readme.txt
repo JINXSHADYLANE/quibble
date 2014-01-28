@@ -1,4 +1,4 @@
-pyktis
+Pyktis
 
 
 "What may I do?" at length I cried,
