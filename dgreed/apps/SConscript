@@ -4,7 +4,7 @@ SUBS = ['empty', 'pong' , 'keymingler', 'greed', 'lietus',
 	'sausra', 'white_dove', 'aitvaras', 'bulb', 'gurbas', 'states', 'nulis', 'nulis2',
 	'plikledis', 'vakar', 'tests','aidas', 'kovas', 'vfont_test',
 	'tiltas', 'morka', 'bailys', 'gija', 'spalva', 'tamsa', 'urvas', 'gruodis',
-	'pyktis']
+	'pyktis', 'vincas']
 
 for sub in SUBS:
 	SConscript(sub+'/SConscript', exports='env')
