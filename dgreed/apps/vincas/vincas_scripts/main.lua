@@ -5,6 +5,8 @@ scr_size = vec2(320, 480)
 scr_rect = rect(0, 0, scr_size.x, scr_size.y)
 --fnt = asset_dir..'AlegreyaSans.ttf'
 
+level_size = vec2(scr_size.x, scr_size.y * 100)
+
 function feql(a, b)
 	local d = a - b
 	return d*d < 0.0000001
@@ -12,6 +14,14 @@ end
 
 function eql_pos(a, b)
 	return feql(a.x, b.x) and feql(a.y, b.y)
+end
+
+function world2screen(pos, camera)
+	return vec2(pos.x - camera.l, pos.y - camera.t)
+end
+
+function screen2world(pos, camera)
+	return vec2(pos.x + camera.l, pos.y + camera.t)
 end
 
 local game = require('game')
