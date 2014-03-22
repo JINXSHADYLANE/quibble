@@ -1,3 +1,30 @@
 (sprsheet vincas 
 	(prefix "vincas_assets/")
+	(img empty
+		(tex empty.png)
+	)
+	(img background
+		(tex background.png)
+		(src 0,0,320,568)
+	)
+	(img tile1
+		(tex tile1.png)
+		(src 0,0,8,8)
+	)
+	(img tile2
+		(tex tile2.png)
+		(src 0,0,8,8)
+	)
+	(img tile3
+		(tex tile3.png)
+		(src 0,0,8,8)
+	)
+	(img tile4
+		(tex tile4.png)
+		(src 0,0,8,8)
+	)
+	(img spaceship
+		(tex spaceship.png)
+		(src 0,0,64,64)
+	)
 )
