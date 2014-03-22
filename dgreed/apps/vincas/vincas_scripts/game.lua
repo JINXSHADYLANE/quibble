@@ -1,5 +1,7 @@
 local game = {}
 
+local objects = require('objects')
+
 function game.init()
 end
 
