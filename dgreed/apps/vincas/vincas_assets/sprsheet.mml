@@ -11,21 +11,41 @@
 		(tex vincas.png)
 		(src 0,0,512,128)
 	)
-	(img tile1
-		(tex tile1.png)
-		(src 0,0,8,8)
+	(img turret
+		(tex turret.png)
+		(src 0,0,32,64)
 	)
-	(img tile2
-		(tex tile2.png)
-		(src 0,0,8,8)
+	(img enemy1
+		(tex enemy1.png)
+		(src 0,0,64,64)
 	)
-	(img tile3
-		(tex tile3.png)
-		(src 0,0,8,8)
+	(img enemy2
+		(tex enemy2.png)
+		(src 0,0,64,64)
 	)
-	(img tile4
-		(tex tile4.png)
-		(src 0,0,8,8)
+	(img enemy3
+		(tex enemy3.png)
+		(src 0,0,64,64)
+	)
+	(img enemy4
+		(tex enemy4.png)
+		(src 0,0,64,64)
+	)
+	(img item1
+		(tex item1.png)
+		(src 0,0,32,32)
+	)
+	(img item2
+		(tex item2.png)
+		(src 0,0,32,32)
+	)
+	(img item3
+		(tex item3.png)
+		(src 0,0,32,32)
+	)
+	(img item4
+		(tex item4.png)
+		(src 0,0,32,32)
 	)
 	(img spaceship
 		(tex spaceship.png)
@@ -35,12 +55,20 @@
 		(tex bullet.png)
 		(src 0,0,16,16)
 	)
+	(img circle_bullet
+		(tex circle_bullet.png)
+		(src 0,0,16,16)
+	)
+	(img shotgun_bullet
+		(tex shotgun_bullet.png)
+		(src 0,0,16,32)
+	)
+	(img rocket_bullet
+		(tex rocket_bullet.png)
+		(src 0,0,32,32)
+	)
 	(img beam
 		(tex beam.png)
 		(src 0,0,32,2)
-	)
-	(img laser
-		(tex laser.png)
-		(src 0,0,32,32)
 	)
 )
