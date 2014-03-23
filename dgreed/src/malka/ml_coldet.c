@@ -62,7 +62,7 @@ static int ml_coldet_init(lua_State* l) {
 }
 
 static int ml_coldet_close(lua_State* l) {
-	checkargs(0, "coldet.close");
+	checkargs(1, "coldet.close");
 
 	CDWorld* cd = checkcdworld(l, 1);
 	coldet_close(cd);
@@ -318,7 +318,7 @@ static int ml_cdobj_set_pos(lua_State* l) {
 }
 
 static int ml_cdobj_move(lua_State* l) {
-	checkargs(1, "cdobj.move");
+	checkargs(2, "cdobj.move");
 
 	CDObj* obj = *checkcdobj(l, 1);
 

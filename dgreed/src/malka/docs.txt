@@ -670,7 +670,7 @@ frees tilemap
 sets texture for i-th tileset
 
 - tilemap.collision(tmaphandle, x, y), 
-  tilemap.set_collision(tmaphandle, x, y, full)
+  tilemap.set_collision(tmaphandle, x, y, obstructed)
 inspects/modifies collision layer
 
 - tilemap.tile(tmaphandle, x, y, layer), 
