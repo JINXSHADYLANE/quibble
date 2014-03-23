@@ -7,6 +7,10 @@
 		(tex background.png)
 		(src 0,0,320,568)
 	)
+	(img title
+		(tex vincas.png)
+		(src 0,0,512,128)
+	)
 	(img tile1
 		(tex tile1.png)
 		(src 0,0,8,8)
@@ -25,6 +29,18 @@
 	)
 	(img spaceship
 		(tex spaceship.png)
-		(src 0,0,64,64)
+		(src 0,0,128,128)
+	)
+	(img bullet
+		(tex bullet.png)
+		(src 0,0,16,16)
+	)
+	(img beam
+		(tex beam.png)
+		(src 0,0,32,2)
+	)
+	(img laser
+		(tex laser.png)
+		(src 0,0,32,32)
 	)
 )

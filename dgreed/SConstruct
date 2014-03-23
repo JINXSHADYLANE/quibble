@@ -74,7 +74,6 @@ elif str(Platform()) == 'darwin':
 
 	conf = Configure(env)
 	checks = [
-		('pthread', 'pthread.h')
 	]
 	for lib, header in checks:
 		if not conf.CheckLibWithHeader(lib, header, 'c'):
