@@ -23,7 +23,7 @@ functions:
 function objects.close()
 	if objects.cd then
 		for i,obj in ipairs(objects.list) do
-			coldet.remove(obj.collision)
+			coldet.remove(objects.cd, obj.collision)
 		end
 		coldet.close(objects.cd)
 	end
@@ -59,6 +59,8 @@ function objects.update()
 		if obj.update then
 			obj.update(obj, states.time())
 		end
+		local d = obj.pos - old_pos
+		cdobj.move(obj.collision, d)
 	end
 
 	-- process collisions
@@ -76,9 +78,12 @@ function objects.update()
 	end)
 
 	-- remove dead objects
-	local new_objs = {}
+	local new_objs = nil
 	for i,obj in ipairs(objects.list) do
 		if not obj.remove then
+			if not new_objs then
+				new_objs = {}
+			end
 			table.insert(new_objs, obj)
 		else
 			if obj.destroy then
@@ -86,7 +91,10 @@ function objects.update()
 			end
 		end
 	end
-	objects.list = new_objs
+
+	if new_objs and #new_objs then
+		objects.list = new_objs
+	end
 
 	-- add new objects
 	for i,obj in ipairs(objects.to_add) do
@@ -97,6 +105,7 @@ function objects.update()
 
 		table.insert(objects.list, obj)
 	end
+	objects.to_add = {}
 
 end
 

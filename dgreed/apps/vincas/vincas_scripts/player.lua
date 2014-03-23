@@ -10,7 +10,7 @@ function player.new(pos)
 		collision = nil,
 		removed = false,
 
-		speed = -20,
+		speed = -100,
 		vel = vec2(0, 0),
 	}
 	setmetatable(o, player_mt)
@@ -30,18 +30,20 @@ function player.destroy(self, cd)
 end
 
 function player.update(self, time)
-	self.vel.x = self.vel.x * 0.95	
-	self.vel.y = lerp(self.vel.y, self.speed, 0.05)
+	self.vel.x = self.vel.x * 0.8	
+	self.vel.y = lerp(self.vel.y, self.speed, 0.01)
 
 	if key.pressed(key._left) then
-		self.vel.x = self.vel.x - 0.1 
+		self.vel.x = self.vel.x - 80 
 	end
 
 	if key.pressed(key._right) then
-		self.vel.x = self.vel.x + 0.1
+		self.vel.x = self.vel.x + 80
 	end
 
-	self.pos = self.pos + self.vel * (1/60)
+	local dt = 1/60
+	self.pos.x = self.pos.x + self.vel.x * dt
+	self.pos.y = self.pos.y + self.vel.y * dt
 
 	self.pos.x = clamp(40, scr_size.x - 40, self.pos.x)
 end
