@@ -11,45 +11,57 @@
 		(tex vincas.png)
 		(src 0,0,512,128)
 	)
-	(img turret
+	(img laser_turret
 		(tex turret.png)
-		(src 0,0,32,64)
+		(src 0,0,19,34)
 	)
-	(img enemy1
-		(tex enemy1.png)
-		(src 0,0,64,64)
+	(img basic_enemy
+		(tex basic_enemy.png)
+		(src 0,0,31,41)
 	)
-	(img enemy2
-		(tex enemy2.png)
-		(src 0,0,64,64)
+	(img shotgun_enemy
+		(tex shotgun_enemy.png)
+		(src 0,0,69,43)
 	)
-	(img enemy3
-		(tex enemy3.png)
-		(src 0,0,64,64)
+	(img spiral_enemy
+		(tex spiral_enemy.png)
+		(src 0,0,49,48)
 	)
-	(img enemy4
-		(tex enemy4.png)
-		(src 0,0,64,64)
+	(img flame_enemy
+		(tex flame_enemy.png)
+		(src 0,0,47,39)
 	)
-	(img item1
-		(tex item1.png)
-		(src 0,0,32,32)
+	(img basic_gun_item
+		(tex basic_gun_item.png)
+		(src 0,0,25,25)
 	)
-	(img item2
-		(tex item2.png)
-		(src 0,0,32,32)
+	(img shotgun_gun_item
+		(tex shotgun_gun_item.png)
+		(src 0,0,25,25)
 	)
-	(img item3
-		(tex item3.png)
-		(src 0,0,32,32)
+	(img spiral_gun_item
+		(tex spiraL_gun_item.png)
+		(src 0,0,25,25)
 	)
-	(img item4
-		(tex item4.png)
-		(src 0,0,32,32)
+	(img flame_gun_item
+		(tex flame_gun_item.png)
+		(src 0,0,25,25)
 	)
 	(img spaceship
 		(tex spaceship.png)
 		(src 0,0,128,128)
+	)
+	(img spaceship_body
+		(tex spaceship_body.png)
+		(src 0,0,100,70)
+	)
+	(img spaceship_windshield
+		(tex spaceship_windshield.png)
+		(src 0,0,27,27)
+	)
+	(img spaceship_core
+		(tex spaceship_core.png)
+		(src 0,0,100,70)
 	)
 	(img bullet
 		(tex bullet.png)
