@@ -541,6 +541,11 @@ const char* path_get_file(const char* path);
 // not end with file or extension is invalid returns NULL. 
 char* path_change_ext(const char* path, const char* ext);
 
+// Directory content listing
+// returns number of entries and their names, separated by null chars.
+// Free returned buffer yourself!
+char* dir_contents(const char* dir, int* count);
+
 /*
 ------------
 --- Misc ---

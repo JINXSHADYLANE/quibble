@@ -16,6 +16,12 @@
 #include <malloc.h>
 #endif
 
+// For fstat (file_size) and opendir (dir_contents)
+#ifndef _WIN32
+#include <sys/stat.h>
+#include <dirent.h>
+#endif
+
 #ifdef MACOSX_BUNDLE
 #include <CoreFoundation/CFBundle.h>
 
@@ -96,9 +102,9 @@ char* path_to_resource(const char* _file) {
     CFRelease(resource_url);
 
 	if(file)
-            MEM_FREE(file);
-        else
-            MEM_FREE(filename);
+    	MEM_FREE(file);
+    else
+    	MEM_FREE(filename);
 	return path;	
 }
 #else
@@ -1813,6 +1819,62 @@ char* path_change_ext(const char* path, const char* ext) {
 	strncpy(&result[ext_start+2], ext, ext_len);
 	result[new_len] = '\0';
 	return result;
+}
+
+char* dir_contents(const char* _dir, int* count) {
+	assert(_dir);
+	assert(count);
+
+	*count = 0;
+	DIR* dir = NULL;
+
+	if(fs_devmode) {
+		char dev_path[256];
+		strcpy(dev_path, fs_devmode_prefix);
+		strcat(dev_path, _dir);
+		dir = opendir(dev_path);
+	}
+
+	if(!dir) {
+#ifdef MACOSX_BUNDLE
+		char* path = path_to_resource(_dir);
+    	if(path) {
+        	dir = opendir(path);
+       		MEM_FREE(path);
+   		}
+#else	
+		dir = opendir(_dir);
+#endif
+	}
+
+	if(dir) {
+		size_t cursor = 0;
+		size_t contents_size = 256;
+		char* contents = MEM_ALLOC(contents_size);
+		contents[0] = '\0';
+
+		struct dirent* ent;
+		while((ent = readdir(dir))) {
+			const char* name = ent->d_name;
+			if(strcmp(".", name) == 0 || strcmp("..", name) == 0)
+				continue;
+
+			size_t l = strlen(name);
+			if(cursor + l <= contents_size) {
+				contents_size *= 2;
+				contents = MEM_REALLOC(contents, contents_size);
+			}
+
+			strcpy(contents + cursor, name);
+			cursor += l+1;
+			*count += 1;
+		}
+
+		closedir(dir);	
+		return contents;
+	}
+	else
+		return NULL;
 }
 
 /*

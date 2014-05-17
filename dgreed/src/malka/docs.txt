@@ -168,6 +168,9 @@ reads text file contents, returns them as string
 - file.write(name, content)
 writes string to a text file
 
+- file.dir(path)
+returns table with names of files inside a dir, nil on error
+
 
 ----
 time
