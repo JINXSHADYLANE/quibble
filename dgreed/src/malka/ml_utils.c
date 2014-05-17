@@ -1612,10 +1612,36 @@ static int ml_file_write(lua_State* l) {
 	return 0;
 }
 
+static int ml_file_dir(lua_State* l) {
+	checkargs(1, "file.write");
+
+	const char* path = luaL_checkstring(l, 1);
+
+	int count = 0;
+	char* contents = dir_contents(path, &count);
+	if(contents) {
+		lua_createtable(l, count, 0);
+		int t = lua_gettop(l);
+		char* cur = contents;
+		for(int i = 0; i < count; ++i) {
+			lua_pushstring(l, cur);
+			lua_rawseti(l, t, i+1);
+			cur += strlen(cur) + 1;
+		}
+		MEM_FREE(contents);
+	}
+	else {
+		lua_pushnil(l);
+	}
+
+	return 1;
+}
+
 static const luaL_Reg file_fun[] = {
 	{"exists", ml_file_exists},
 	{"read", ml_file_read},
 	{"write", ml_file_write},
+	{"dir", ml_file_dir},
 	{NULL, NULL}
 };	
 
