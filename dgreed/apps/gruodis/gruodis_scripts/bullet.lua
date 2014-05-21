@@ -52,8 +52,6 @@ function bullet:collide(sector, other)
 
 		other.dead = true
 		self.dead = true
-		local screen_pos = tilemap.world2screen(sector, scr_rect, other.pos)
-		mfx.trigger('explode', screen_pos)
 	end
 end
 
