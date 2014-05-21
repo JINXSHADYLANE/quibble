@@ -41,4 +41,8 @@
 		(tex tiles.png)
 		(src 16,31,19,34)
 	)
+	(img spike
+		(tex tiles.png)
+		(src 0,40,10,50)
+	)
 )

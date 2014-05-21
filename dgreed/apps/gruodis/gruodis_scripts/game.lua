@@ -4,13 +4,14 @@ local player = require('player')
 local star = require('star')
 local crusher = require('crusher')
 local bubble = require('bubble')
+local spike = require('spike')
 
 local texts = require('texts')
 
 local tile_size = 10
 local tiles_x = 20
 local tiles_y = 15
-local sector_pos = vec2(0, 0)
+local sector_pos = vec2(1, 2)
 
 local sector 	-- tilemap handle
 local tileset	-- texture handle
@@ -22,6 +23,8 @@ local map_player = rgba(1, 0, 0, 1)
 local map_star = rgba(0, 1, 0, 1)
 local map_crusher = rgba(0, 0, 1, 1)
 local map_bubble = rgba(128/255, 128/255, 128/255, 1)
+local map_spike = rgba(0, 1, 1, 1)
+local map_wall = rgba(0, 0, 0, 1)
 
 function color_equal(a, b)
 	return a.r == b.r and a.g == b.g and a.b == b.b and a.a == b.a
@@ -45,6 +48,10 @@ function game.close()
 		tilemap.free(sector)
 	end
 end
+
+local cardinal_offsets = {
+	vec2(0,-1), vec2(1,0), vec2(0,1), vec2(-1, 0)
+}
 
 function game.load_sector(sector_pos, player_pos, old_player)
 	if sector then
@@ -86,6 +93,17 @@ function game.load_sector(sector_pos, player_pos, old_player)
 				text_idx = text_idx + 1
 				if not text then text = 'TODO' end
 				table.insert(objs, bubble:new(screen_pos, text_pos, text))
+			elseif color_equal(pix, map_spike) then
+				local rot = 0
+				for i,off in ipairs(cardinal_offsets) do
+					local w = img.pixel(world, pix_x+x+off.x, pix_y+y+off.y)
+					if color_equal(w, map_wall) then
+						rot = i-1
+						break
+					end
+				end
+
+				table.insert(objs, spike:new(screen_pos, rot))
 			elseif pix.a > 0.5 then
 				tilemap.set_tile(sector, x, y, 0, 0, 1)
 				tilemap.set_collision(sector, x, y, true)
@@ -109,7 +127,10 @@ end
 function game.update()
 	local new_objs = {}
 	for i,obj in ipairs(objs) do
-		local new_obj = obj:update(sector)
+		local new_obj = nil
+		if obj.update then
+			new_obj = obj:update(sector)
+		end
 
 		if new_obj then
 			for j,nobj in ipairs(new_obj) do
@@ -118,8 +139,9 @@ function game.update()
 		end
 		
 		if obj.collide then
+			local mt = getmetatable(obj)
 			for j,other in ipairs(objs) do
-				if other ~= obj then
+				if other ~= obj and mt ~= getmetatable(other) then
 					if other.bbox and not obj.bbox then
 						if rect_point_collision(other.bbox, obj.pos) then
 							obj:collide(sector, other)
@@ -156,7 +178,10 @@ function game.update()
 	-- collect garbage
 	new_objs = {}
 	for i,obj in ipairs(objs) do
-		if not obj.dead then
+		if obj.dead then
+			local screen_pos = tilemap.world2screen(sector, scr_rect, obj.pos)
+			mfx.trigger('explode', screen_pos)
+		else
 			table.insert(new_objs, obj)
 		end
 	end
@@ -178,8 +203,6 @@ function game.render(t)
 		end
 		obj:render(sector)
 	end
-
-	--vfont.draw('It seemed good to stay up late.', 2, vec2(10, 15), text_color)
 
 	return true
 end
