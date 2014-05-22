@@ -5,13 +5,14 @@ local star = require('star')
 local crusher = require('crusher')
 local bubble = require('bubble')
 local spike = require('spike')
+local brick = require('brick')
 
 local texts = require('texts')
 
 local tile_size = 10
 local tiles_x = 20
 local tiles_y = 15
-local sector_pos = vec2(1, 2)
+local sector_pos = vec2(1, 3)
 
 local sector 	-- tilemap handle
 local tileset	-- texture handle
@@ -25,6 +26,7 @@ local map_crusher = rgba(0, 0, 1, 1)
 local map_bubble = rgba(128/255, 128/255, 128/255, 1)
 local map_spike = rgba(0, 1, 1, 1)
 local map_wall = rgba(0, 0, 0, 1)
+local map_brick = rgba(64/255, 64/255, 64/255, 1)
 
 function color_equal(a, b)
 	return a.r == b.r and a.g == b.g and a.b == b.b and a.a == b.a
@@ -104,9 +106,13 @@ function game.load_sector(sector_pos, player_pos, old_player)
 				end
 
 				table.insert(objs, spike:new(screen_pos, rot))
-			elseif pix.a > 0.5 then
+			elseif color_equal(pix, map_wall) then
 				tilemap.set_tile(sector, x, y, 0, 0, 1)
 				tilemap.set_collision(sector, x, y, true)
+			elseif color_equal(pix, map_brick) then
+				tilemap.set_tile(sector, x, y, 0, 0, 2)
+				tilemap.set_collision(sector, x, y, true)
+				table.insert(objs, brick:new(screen_pos, x, y))
 			end
 		end
 	end
@@ -196,12 +202,9 @@ function game.render(t)
 	tilemap.render(sector, scr_rect)
 
 	for i,obj in ipairs(objs) do
-		if not obj.render then
-			for k,v in pairs(obj) do
-				print(k, tostring(v))
-			end
+		if obj.render then
+			obj:render(sector)
 		end
-		obj:render(sector)
 	end
 
 	return true
