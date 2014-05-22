@@ -19,6 +19,7 @@ function spike:new(pos, rot)
 		invincible = true
 	}
 
+	-- shrink according to rotation - spike takes up half of 10x10 tile
 	o.bbox = calc_bbox(o)
 	local shrink = bbox_shrink[rot]
 	if shrink.x > 0 then

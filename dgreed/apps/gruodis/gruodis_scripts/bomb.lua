@@ -57,10 +57,11 @@ function bomb:render(sector)
 end
 
 function bomb:explode_collide(sector, other)
-	if not other.dead then
+	if other.explode then
+		other:explode(sector)
+	end
+	if not other.dead and not other.invincible then
 		other.dead = true
-		local screen_pos = tilemap.world2screen(sector, scr_rect, other.pos)
-		mfx.trigger('explode', screen_pos)
 	end
 end
 
