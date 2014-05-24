@@ -12,6 +12,12 @@ function feql(a, b)
 	return d*d < 0.0000001
 end
 
+function veql(a, b)
+	local dx = a.x - b.x
+	local dy = a.y - b.y
+	return (dx*dx + dy*dy) < 0.0001
+end
+
 function snap_pos(p)
 	return vec2(math_floor(p.x), math_floor(p.y))	
 end

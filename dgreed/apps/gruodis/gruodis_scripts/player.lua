@@ -7,8 +7,9 @@ local bomb = require('bomb')
 
 function player:new(pos)
 	local o = {
+		is_player = true,
 		size = 8,
-		pos = pos,
+		pos = vec2(pos),
 		vel = vec2(0, 0),
 		move_acc = 0.2, 
 		dir = 0,
@@ -19,7 +20,10 @@ function player:new(pos)
 		last_bomb = 0,
 		bomb_interval = 3,
 		shield = false,
-		shield_energy = 1
+		shield_energy = 1,
+
+		save_sector = nil,
+		save_pos = nil
 	}
 	setmetatable(o, player_mt)
 	return o

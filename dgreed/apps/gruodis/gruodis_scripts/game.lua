@@ -6,6 +6,7 @@ local crusher = require('crusher')
 local bubble = require('bubble')
 local spike = require('spike')
 local brick = require('brick')
+local savepoint = require('savepoint')
 
 local texts = require('texts')
 
@@ -19,6 +20,8 @@ local tileset	-- texture handle
 local world		-- image handle
 local objs		-- list
 
+local player_obj
+
 -- world color legend:
 local map_player = rgba(1, 0, 0, 1)
 local map_star = rgba(0, 1, 0, 1)
@@ -27,6 +30,7 @@ local map_bubble = rgba(128/255, 128/255, 128/255, 1)
 local map_spike = rgba(0, 1, 1, 1)
 local map_wall = rgba(0, 0, 0, 1)
 local map_brick = rgba(64/255, 64/255, 64/255, 1)
+local map_savepoint = rgba(1, 128/255, 128/255, 1)
 
 function color_equal(a, b)
 	return a.r == b.r and a.g == b.g and a.b == b.b and a.a == b.a
@@ -106,6 +110,8 @@ function game.load_sector(sector_pos, player_pos, old_player)
 				end
 
 				table.insert(objs, spike:new(screen_pos, rot))
+			elseif color_equal(pix, map_savepoint) then
+				table.insert(objs, savepoint:new(screen_pos, sector_pos))
 			elseif color_equal(pix, map_wall) then
 				tilemap.set_tile(sector, x, y, 0, 0, 1)
 				tilemap.set_collision(sector, x, y, true)
@@ -120,9 +126,10 @@ function game.load_sector(sector_pos, player_pos, old_player)
 	tilemap.set_camera(sector, scr_size * 0.5, 1)
 
 	if not old_player then
-		table.insert(objs,
-			player:new(player_pos)
-		)
+		player_obj = player:new(player_pos)
+		player_obj.save_sector = sector_pos
+		player_obj.save_pos = player_pos
+		table.insert(objs, player_obj)
 	else
 		table.insert(objs, old_player)
 	end
@@ -160,25 +167,31 @@ function game.update()
 				end
 			end
 		end
-
-		-- switch sectors if asked to
-		-- (only player obj does this)
-		if obj.change_sector then
-			sector_pos = sector_pos + obj.change_sector
-			local offset = vec2(
-				obj.change_sector.x * (scr_size.x - tile_size * 1.5),
-				obj.change_sector.y * (scr_size.y - tile_size * 1.5) 
-			)
-			obj.pos = obj.pos - offset
-			objs = game.load_sector(sector_pos, obj.pos, obj)
-			obj.change_sector = nil
-			return true
-		end
 	end
+
+	-- switch sectors if asked to
+	-- (only player obj does this)
+	if player_obj.change_sector then
+		local obj = player_obj
+		sector_pos = sector_pos + obj.change_sector
+		local offset = vec2(
+			obj.change_sector.x * (scr_size.x - tile_size * 1.5),
+			obj.change_sector.y * (scr_size.y - tile_size * 1.5) 
+		)
+		obj.pos = obj.pos - offset
+		objs = game.load_sector(sector_pos, obj.pos, obj)
+		obj.change_sector = nil
+		return true
+	end
+
 
 	-- add newly spawned objects
 	for i,obj in ipairs(new_objs) do
 		table.insert(objs, obj)
+	end
+
+	-- todo: handle death
+	if player_obj.dead then
 	end
 
 	-- collect garbage
