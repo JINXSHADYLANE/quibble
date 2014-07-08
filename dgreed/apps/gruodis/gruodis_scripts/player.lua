@@ -134,8 +134,8 @@ function player:render(sector)
 	end
 	
 	-- draw debug bbox
-	--local box = tilemap.world2screen(sector, scr_rect, self.bbox)
-	--sprsheet.draw('empty', self.layer+1, box, rgba(1,1,1,0.5))
+	local box = tilemap.world2screen(sector, scr_rect, self.bbox)
+	sprsheet.draw('empty', self.layer+1, box, rgba(1,1,1,0.5))
 end
 
 return player
