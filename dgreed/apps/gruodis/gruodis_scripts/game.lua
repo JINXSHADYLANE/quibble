@@ -22,6 +22,11 @@ local objs		-- list
 
 local player_obj
 
+-- fadeout starts when player dies
+local fadeout_t = nil
+local fadein_t = nil
+local fade_len = 1.2
+
 -- world color legend:
 local map_player = rgba(1, 0, 0, 1)
 local map_star = rgba(0, 1, 0, 1)
@@ -40,6 +45,9 @@ function game.init()
 	world = img.load(asset_dir..'world.png')
 
 	objs = game.load_sector(sector_pos)
+	assert(player_obj)
+	player_obj.save_sector = sector_pos
+	player_obj.save_pos = vec2(player_obj.pos)
 
 	-- additive blend for bubbles
 	video.set_blendmode(2, 'add')
@@ -65,7 +73,7 @@ function game.load_sector(sector_pos, player_pos, old_player)
 	end
 
 	local sector_id = tostring(sector_pos)
-	player_pos = vec2(0, 0)
+	--player_pos = vec2(0, 0)
 
 	-- create new tilemap
 	tileset = tex.load(asset_dir..'tiles.png')
@@ -84,7 +92,7 @@ function game.load_sector(sector_pos, player_pos, old_player)
 			local screen_pos = vec2(x+0.5, y+0.5) * tile_size
 			local text_pos = vec2(20.5-x, 15.5-y) * tile_size
 			if color_equal(pix, map_player) then
-				if not old_player then
+				if not old_player and not player_pos then
 					player_pos = screen_pos
 				end
 			elseif color_equal(pix, map_star) then
@@ -191,7 +199,8 @@ function game.update()
 	end
 
 	-- todo: handle death
-	if player_obj.dead then
+	if player_obj.dead and fadeout_t == nil then
+		fadeout_t = states.time()
 	end
 
 	-- collect garbage
@@ -217,6 +226,31 @@ function game.render(t)
 	for i,obj in ipairs(objs) do
 		if obj.render then
 			obj:render(sector)
+		end
+	end
+
+	-- fadein and fadeout
+	assert(not (fadeout_t and fadein_t))
+	if fadeout_t or fadein_t then
+		local t
+		if fadeout_t then
+			t = (states.time() - fadeout_t) / fade_len
+		else
+			t = 1 - (states.time() - fadein_t) / fade_len
+		end
+		local col = rgba(0, 0, 0, clamp(0, 1, t))
+		sprsheet.draw('empty', 15, scr_rect, col)
+		if t >= 1 then
+			fadein_t = states.time()
+			fadeout_t = nil
+			objs = game.load_sector(
+				player_obj.save_sector,
+				player_obj.save_pos
+			)
+			sector_pos = player_obj.save_sector
+		end
+		if t < 0 then
+			fadein_t = nil
 		end
 	end
 

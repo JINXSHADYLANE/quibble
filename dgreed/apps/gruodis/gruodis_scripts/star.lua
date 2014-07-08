@@ -23,7 +23,7 @@ end
 function star:update(sector)
 	local new = nil
 	local half_pi = math.pi*0.5
-	local t = time.s()
+	local t = states.time()
 	local ls = self.last_shot
 	local dt = self.shoot_interval
 
