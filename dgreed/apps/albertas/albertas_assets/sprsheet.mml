@@ -1,6 +1,0 @@
-(sprsheet albertas 
-	(prefix "albertas_assets/")
-	(img empty
-		(tex empty.png)
-	)
-)

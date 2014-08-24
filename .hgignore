@@ -20,5 +20,6 @@ Thumbs.db
 *.db
 *.lc
 memory.txt
+*.pxm
 
 
