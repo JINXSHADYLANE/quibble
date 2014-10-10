@@ -237,8 +237,17 @@ function room.cast_light()
 			table.insert(res, vec2(p))
 			p = p + dir
 
-			-- stop at any object
 			local objs = room.find_at_pos(p, true)
+
+			-- mark when light hits an eye
+			if objs and #objs == 1 then
+				local o = objs[1]
+				if o.id == 'eye' then
+					o.lit = true
+				end
+			end
+
+			-- stop at any object
 			if objs then
 				break
 			end
@@ -247,7 +256,14 @@ function room.cast_light()
 		return res
 	end
 
-	-- for each brick
+	-- reset all eyes
+	for _,obj in ipairs(objects) do
+		if obj.id == 'eye' then
+			obj.lit = false
+		end
+	end
+
+	-- cast light from all bricks
 	for _,obj in ipairs(objects) do
 		if obj.id == 'brick' then
 			for _,off in pairs(move_offset) do
@@ -274,7 +290,14 @@ end
 
 function room.win_condition()
 	-- if all eyes have a light shining into them - condition is met
-	return false
+	for _,obj in ipairs(objects) do
+		if obj.id == 'eye' then
+			if not obj.lit then
+				return false
+			end
+		end
+	end
+	return true
 end
 
 function room.update_text()
@@ -328,10 +351,10 @@ function room.fade_alpha(x, y, t)
 end
 
 function room.render_light(light_rays, t)
-	local light_color = rgba(0.2, 0.2, 0.2)
+	local light_color = rgba(0.2, 0.2, 0.2, 1 - math.abs(t))
 	for i,ray in ipairs(light_rays) do
 		for j,pos in ipairs(ray) do
-			-- skip first light, its brick
+			-- skip first light, it is a brick
 			if j > 1 then
 				local p = world2screen(pos)
 				sprsheet.draw_centered(
