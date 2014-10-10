@@ -2,7 +2,7 @@ local game = {}
 local room = require('room')
 local levels = require('levels')
 
-local current_level = 4 
+local current_level = 6 
 
 function game.init()
 end
