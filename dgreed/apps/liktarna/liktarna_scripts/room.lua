@@ -29,14 +29,10 @@ local text_vis = 0
 
 -- controls
 local controls = {
-	{'key', '_up', 'player_a', 'up'},
-	{'key', '_down', 'player_a', 'down'},
-	{'key', '_left', 'player_a', 'left'},
-	{'key', '_right', 'player_a', 'right'},
-	{'char', 'w', 'player_b', 'up'},
-	{'char', 's', 'player_b', 'down'},
-	{'char', 'a', 'player_b', 'left'},
-	{'char', 'd', 'player_b', 'right'},
+	{'key', '_up', 'player', 'up'},
+	{'key', '_down', 'player', 'down'},
+	{'key', '_left', 'player', 'left'},
+	{'key', '_right', 'player', 'right'},
 	{'char', ' ', '', 'undo'},
 	{'key', 'quit', '', 'pause'}
 }
@@ -67,12 +63,14 @@ function room.preenter()
 	objects, width, height = rules.parse_level(room.level)
 	room.win = false
 
-	local text1_half_size = vfont.size(room.texts[1]) * 0.5
-	local text2_half_size = vfont.size(room.texts[2]) * 0.5
-	room.texts_pos = {
-		vec2(scr_size.x/2, 30) - text1_half_size,
-		vec2(scr_size.x/2, scr_size.y - 30) - text2_half_size
-	}
+	if room.texts then
+		local text1_half_size = vfont.size(room.texts[1]) * 0.5
+		local text2_half_size = vfont.size(room.texts[2]) * 0.5
+		room.texts_pos = {
+			vec2(scr_size.x/2, 30) - text1_half_size,
+			vec2(scr_size.x/2, scr_size.y - 30) - text2_half_size
+		}
+	end
 	text_vis = 0
 
 	-- find some specific objects
@@ -212,32 +210,11 @@ function room.input(id, action)
 	if action == 'pause' then
 		states.pop()
 	end
-
-	-- todo: pause action
 end
 
 function room.win_condition()
-	-- if all slots have bricks on them - condition is met
-	local win = true
-	for i,obj in ipairs(objects) do
-		if obj.id == 'slot' then
-			local covered = false
-			for j,obj2 in ipairs(objects) do
-				if obj2.id:sub(1, 5) == 'brick' then
-					local hit_x = feql(obj.pos.x, obj2.pos.x)
-					local hit_y = feql(obj.pos.y, obj2.pos.y)
-					if hit_x and hit_y then
-						covered = true
-					end
-				end
-			end
-			if not covered then
-				win = false
-			end
-		end
-	end
-	
-	return win
+	-- if all eyes have a light shining into them - condition is met
+	return false
 end
 
 function room.update_text()
@@ -285,25 +262,12 @@ function room.update()
 
 	room.update_text()
 
-	return true
+	--return true
+	return not key.down(key.quit)
 end
 
-local fadein_d = 0.16
-local fadein_inv_d = 1 / fadein_d
-local fadein_ts = {}
-function room.fade_scale(x, y, t)
-	local idx = y * width + x
-	if fadein_ts[idx] == nil then
-		fadein_ts[idx] = rand.float(0, 1 - fadein_d)
-	end
-
-	local start_t = fadein_ts[idx]
-	local tt = (t - start_t) * fadein_inv_d
-	if tt < 0.75 then
-		return smoothstep(0, 1.2, tt * 1.3333)
-	else
-		return smoothstep(1.2, 1, (tt - 0.75) * 4)
-	end
+function room.fade_alpha(x, y, t)
+	return t
 end
 
 function room.render(t)
@@ -322,20 +286,22 @@ function room.render(t)
 			pos.x = math.floor(pos.x)
 			pos.y = math.floor(pos.y)
 
-			local scale = 1
+			local alpha = 1
 			if t ~= 0 then
 				if t < 0 then
 					t = - t
 				end
-				scale = room.fade_scale(pos.x, pos.y, math.abs(1-t))
+				alpha = room.fade_alpha(pos.x, pos.y, math.abs(1-t))
 			end
 
 			local layer = obj_layer
 			if obj.layer then
 				layer = layer + obj.layer
 			end
+			local old_alpha = obj.tint.a
+			obj.tint.a = alpha
 			sprsheet.draw_centered(
-				obj.sprite, layer, pos, 0, scale, obj.tint
+				obj.sprite, layer, pos, 0, 1, obj.tint
 			)
 			if obj.glow then
 				layer = glow_layer
@@ -343,9 +309,10 @@ function room.render(t)
 					layer = layer + obj.layer
 				end
 				sprsheet.draw_centered(
-					obj.glow, layer, pos, 0, scale, obj.tint
+					obj.glow, layer, pos, 0, 1, obj.tint
 				)
 			end
+			obj.tint.a = old_alpha
 		end
 	end
 

@@ -3,60 +3,22 @@ local rules = {}
 -- puzzlescript inspired declaration language
 
 rules.objects = {
-	player_a = {legend = 'a', sprite = 'player', tint = rgba(0.8, 0.2, 0.2)},
-	player_b = {legend = 'b', sprite = 'player', tint = rgba(0.2, 0.2, 0.8)},
+	player = {legend = 'a', sprite = 'player', tint = rgba(0.8, 0.2, 0.2)},
 	brick = {legend = 'B', sprite = 'brick', glow = 'brick_glow', tint = rgba(0.9, 0.9, 0.9)},
-	brick_a = {legend = '1', sprite = 'brick', glow = 'brick_glow', tint = rgba(0.8, 0.2, 0.2)},
-	brick_b = {legend = '2', sprite = 'brick', glow = 'brick_glow', tint = rgba(0.2, 0.2, 0.8)},
-	brick_sticky = {legend = '0', sprite = 'brick_sticky', glow = 'brick_glow', tint = rgba(0.9, 0.9, 0.9)},
-	brick_sticky_a = {legend = '3', sprite = 'brick_sticky', glow = 'brick_glow', tint = rgba(0.8, 0.2, 0.2)},
-	brick_sticky_b = {legend = '4', sprite = 'brick_sticky', glow = 'brick_glow', tint = rgba(0.2, 0.2, 0.8)},
 	wall = {legend = '#', sprite = 'brick', glow = 'brick_glow', tint = rgba(0.4, 0.4, 0.4)},
-	slot = {legend = 'S', sprite = 'slot', tint = rgba(0.8, 0.8, 0.8), layer=1},
-	story = {legend = 's', sprite = 'story', glow = 'story_glow', tint = rgba(1.0, 1.0, 1.0), layer=1}
+	eye = {legend = 'e', sprite = 'brick', tint = rgba(0.5, 0.5, 0.5), layer=1}, 
 }
 
 rules.desc = {
-	-- players can push brick
-	{'>', 'player_a', 'brick', '>', '>'},
-	{'>', 'player_b', 'brick', '>', '>'},
+	-- player can push brick
+	{'>', 'player', 'brick', '>', '>'},
 
-	-- players can push their color brick
-	{'>', 'player_a', 'brick_a', '>', '>'},
-	{'>', 'player_b', 'brick_b', '>', '>'},
-
-	-- players can push and pull sticky brick
-	{'>', 'player_a', 'brick_sticky', '>', '>'},
-	{'<', 'player_a', 'brick_sticky', '<', '<'},
-	{'>', 'player_b', 'brick_sticky', '>', '>'},
-	{'<', 'player_b', 'brick_sticky', '<', '<'},
-
-	-- players can push and pull their color sticky brick
-	{'>', 'player_a', 'brick_sticky_a', '>', '>'},
-	{'<', 'player_a', 'brick_sticky_a', '<', '<'},
-	{'>', 'player_b', 'brick_sticky_b', '>', '>'},
-	{'<', 'player_b', 'brick_sticky_b', '<', '<'},
-
-	-- players and bricks can stand on slots
-	{'>', 'brick', 'slot', '>', ''},
-	{'>', 'brick_a', 'slot', '>', ''},
-	{'>', 'brick_b', 'slot', '>', ''},
-	{'>', 'brick_sticky', 'slot', '>', ''},
-	{'>', 'brick_sticky_a', 'slot', '>', ''},
-	{'>', 'brick_sticky_b', 'slot', '>', ''},
-	{'>', 'player_a', 'slot', '>', ''},
-	{'>', 'player_b', 'slot', '>', ''},
+	-- brick can push brick
+	{'>', 'brick', 'brick', '>', '>'},
 
 	-- players and bricks can stand on stories
 	{'>', 'brick', 'story', '>', ''},
-	{'>', 'brick_a', 'story', '>', ''},
-	{'>', 'brick_b', 'story', '>', ''},
-	{'>', 'brick_sticky', 'story', '>', ''},
-	{'>', 'brick_sticky_a', 'story', '>', ''},
-	{'>', 'brick_sticky_b', 'story', '>', ''},
-	{'>', 'player_a', 'story', '>', ''},
-	{'>', 'player_b', 'story', '>', ''},
-
+	{'>', 'player', 'story', '>', ''},
 }
 
 ---
