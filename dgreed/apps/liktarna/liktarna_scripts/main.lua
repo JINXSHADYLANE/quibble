@@ -1,7 +1,7 @@
 
 asset_dir = 'liktarna_assets/'
 
-scr_size = vec2(640, 480)
+scr_size = vec2(800, 600)
 scr_rect = rect(0, 0, scr_size.x, scr_size.y)
 fnt = asset_dir..'AlegreyaSans.ttf'
 text_color = rgba(1, 1, 1)

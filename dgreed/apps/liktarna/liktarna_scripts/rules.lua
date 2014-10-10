@@ -3,12 +3,12 @@ local rules = {}
 -- puzzlescript inspired declaration language
 
 rules.objects = {
-	player = {legend = 'a', sprite = 'player', tint = rgba(0.8, 0.2, 0.2)},
-	brick = {legend = 'B', sprite = 'brick', glow = 'brick_glow', tint = rgba(0.9, 0.9, 0.9)},
-	wall = {legend = '#', sprite = 'brick', glow = 'brick_glow', tint = rgba(0.4, 0.4, 0.4)},
-	eye = {legend = 'e', sprite = 'brick', tint = rgba(0.5, 0.5, 0.5), layer=1}, 
-	mirror_l = {legend = 'l', sprite = 'brick', tint = rgba(0.8, 0.3, 0.3)},
-	mirror_r = {legend = 'r', sprite = 'brick', tint = rgba(0.3, 0.3, 0.8)},
+	player = {legend = 'a', sprite = 'heart', tint = rgba(1, 1, 1)},
+	brick = {legend = 'B', sprite = 'cube', glow = 'cube', tint = rgba(1.0, 1.0, 1.0)},
+	wall = {legend = '#', sprite = 'wall', tint = rgba(1.0, 1.0, 1.0)},
+	eye = {legend = 'e', sprite = 'receiver', tint = rgba(1.0, 1.0, 1.0), layer=1}, 
+	mirror_l = {legend = 'l', sprite = 'mirror_1', tint = rgba(1.0, 1.0, 1.0)},
+	mirror_r = {legend = 'r', sprite = 'mirror_2', tint = rgba(1.0, 1.0, 1.0)},
 }
 
 rules.desc = {
@@ -62,7 +62,8 @@ function rules.parse_level(level)
 						glow = glow,
 						tint = lerp(obj.tint, obj.tint, 1),
 						layer = obj.layer,
-						pos = vec2(x, y-1)
+						pos = vec2(x, y-1),
+						rot = 0
 					})
 				end
 			end

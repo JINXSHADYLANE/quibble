@@ -49,8 +49,8 @@ local move_offset = {
 
 local function world2screen(pos)
 	return vec2(
-		scr_size.x/2 + (pos.x - width/2) * 48 + 24,
-		scr_size.y/2 + (pos.y - height/2) * 48 + 24
+		scr_size.x/2 + (pos.x - width/2) * 64 + 32,
+		scr_size.y/2 + (pos.y - height/2) * 64 + 32
 	)
 end
 
@@ -76,12 +76,25 @@ function room.preenter()
 	end
 	text_vis = 0
 
-	-- find some specific objects
 	for i,obj in ipairs(objects) do
+		-- find some specific objects
 		if obj.id == 'story' then
 			story_object = obj
 		elseif obj.id == 'player' then
 			player_object = obj
+		end
+
+		-- correctly rotate all eyes
+		if obj.id == 'eye' then
+			if obj.pos.x == 0 then
+				obj.rot = 0
+			elseif obj.pos.x == width-1 then
+				obj.rot = math.pi
+			elseif obj.pos.y == 0 then
+				obj.rot = math.pi/2
+			elseif obj.pos.y == height-1 then
+				obj.rot = math.pi/2 * 3
+			end
 		end
 	end
 
@@ -401,6 +414,12 @@ function room.render(t)
 				alpha = room.fade_alpha(pos.x, pos.y, math.abs(1-t))
 			end
 
+			-- eye active/inactive rendering hack
+			local sprite = obj.sprite
+			if obj.id == 'eye' and obj.lit == true then
+				sprite = 'receiver_active'
+			end
+
 			local layer = obj_layer
 			if obj.layer then
 				layer = layer + obj.layer
@@ -408,7 +427,7 @@ function room.render(t)
 			local old_alpha = obj.tint.a
 			obj.tint.a = alpha
 			sprsheet.draw_centered(
-				obj.sprite, layer, pos, 0, 1, obj.tint
+				sprite, layer, pos, obj.rot, 1, obj.tint
 			)
 			if obj.glow then
 				layer = glow_layer
@@ -416,7 +435,7 @@ function room.render(t)
 					layer = layer + obj.layer
 				end
 				sprsheet.draw_centered(
-					obj.glow, layer, pos, 0, 1, obj.tint
+					obj.glow, layer, pos, obj.rot, 1, obj.tint
 				)
 			end
 			obj.tint.a = old_alpha
