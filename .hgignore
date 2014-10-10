@@ -1,0 +1,25 @@
+syntax: glob
+
+*/android-project/obj/local/*
+*/android-project/libs/*
+*/android-project/gen/*
+*/android-project/bin/*
+dgreed/bin/*
+dgreed/build*
+dgreed/src/ldrb/ldrb.db
+.*
+*.pyc
+*.log
+test_data*
+Thumbs.db
+*~
+*/build/*
+*.mode1v3
+*.pbxuser
+*xcuserdata*
+*.db
+*.lc
+memory.txt
+*.pxm
+
+

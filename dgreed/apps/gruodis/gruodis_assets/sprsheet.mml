@@ -1,0 +1,48 @@
+(sprsheet gruodis 
+	(prefix "gruodis_assets/")
+
+	(img empty
+		(tex tiles.png)
+		(src 0,20,10,30)
+	)
+
+	(img bullet
+		(tex tiles.png)
+		(src 14,24,16,26)
+	)
+
+	(img background
+		(tex background.png)
+		(src 0,0,200,150)
+	)
+
+	(img player_ship 
+		(tex tiles.png)
+		(src 0,10,10,20)
+	)
+	(img shield
+		(tex tiles.png)
+		(src 20,20,30,30)
+	)
+	(img star
+		(tex tiles.png)
+		(src 10,10,20,20)
+	)
+	(img crusher
+		(tex tiles.png)
+		(src 20,10,30,20)
+	)
+	(img bomb
+		(tex tiles.png)
+		(src 30,20,40,30)
+	)
+
+	(img bubble
+		(tex tiles.png)
+		(src 16,31,19,34)
+	)
+	(img spike
+		(tex tiles.png)
+		(src 0,40,10,50)
+	)
+)
