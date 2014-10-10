@@ -3,6 +3,7 @@ local rules = require('rules')
 
 local obj_layer = 1
 local glow_layer = 3
+local light_layer = 4
 local text_layer = 7
 
 local width, height
@@ -20,12 +21,14 @@ local animation_len = 0.083
 local animation_start = 0.0
 
 local story_object = nil
-local player_a_object = nil
-local player_b_object = nil
+local player_object = nil
 
 -- story text state
 local text_idx = 1
 local text_vis = 0
+
+-- light rays (array of arrays of positions)
+local light_rays = {}
 
 -- controls
 local controls = {
@@ -53,7 +56,7 @@ end
 
 function room.init()
 	video.set_blendmode(glow_layer, 'add')
-	video.set_blendmode(glow_layer+1, 'add')
+	video.set_blendmode(light_layer, 'add')
 end
 
 function room.close()
@@ -77,21 +80,24 @@ function room.preenter()
 	for i,obj in ipairs(objects) do
 		if obj.id == 'story' then
 			story_object = obj
-		elseif obj.id == 'player_a' then
-			player_a_object = obj
-		elseif obj.id == 'player_b' then
-			player_b_object = obj
+		elseif obj.id == 'player' then
+			player_object = obj
 		end
 	end
 
 	undo_buffer = {}
+	light_rays = room.cast_light()
 end
 
 -- returns nil or list of objs at pos
-function room.find_at_pos(pos)
+function room.find_at_pos(pos, at_next)
 	local res = {}
 	for i,obj in ipairs(objects) do
-		if feql(obj.pos.x, pos.x) and feql(obj.pos.y, pos.y) then
+		local p = obj.pos
+		if at_next and obj.next_pos then
+			p = obj.next_pos
+		end
+		if feql(p.x, pos.x) and feql(p.y, pos.y) then
 			table.insert(res, obj)
 		end
 	end
@@ -193,9 +199,12 @@ function room.input(id, action)
 		end
 	end
 
+	local recalc_light = false
+
 	-- if moved, keep old state in undo buffer
 	if moved then
 		table.insert(undo_buffer, old_state)
+		recalc_light = true
 	end
 
 	if action == 'undo' and #undo_buffer > 0 then
@@ -205,11 +214,62 @@ function room.input(id, action)
 		for i,obj in ipairs(objects) do
 			obj.pos = old_state[i].pos
 		end
+		recalc_light = true
+	end
+
+	if recalc_light then
+		light_rays = room.cast_light()
 	end
 
 	if action == 'pause' then
 		states.pop()
 	end
+end
+
+function room.cast_light()
+	local light_rays = {}
+
+	local function cast_ray(pos, dir) 
+		local res = {}
+		local p = vec2(pos)
+
+		while true do
+			table.insert(res, vec2(p))
+			p = p + dir
+
+			-- stop at any object
+			local objs = room.find_at_pos(p, true)
+			if objs then
+				break
+			end
+		end
+
+		return res
+	end
+
+	-- for each brick
+	for _,obj in ipairs(objects) do
+		if obj.id == 'brick' then
+			for _,off in pairs(move_offset) do
+				local p = obj.next_pos or obj.pos
+				local ray = cast_ray(p, off)
+				if #ray > 1 then
+					table.insert(light_rays, ray)
+				end
+			end
+		end
+	end
+
+	-- todo: remove duplicate rays?
+	
+	--[[
+	for i,ray in ipairs(light_rays) do
+		print(unpack(ray))
+	end
+	print('---')
+	]]
+
+	return light_rays
 end
 
 function room.win_condition()
@@ -222,12 +282,9 @@ function room.update_text()
 		return
 	end
 
-	if eql_pos(player_a_object.pos, story_object.pos) then
+	if eql_pos(player_object.pos, story_object.pos) then
 		text_vis = text_vis + 0.02
 		text_idx = 1
-	elseif eql_pos(player_b_object.pos, story_object.pos) then
-		text_vis = text_vis + 0.02
-		text_idx = 2
 	else
 		text_vis = text_vis - 0.02
 	end
@@ -268,6 +325,21 @@ end
 
 function room.fade_alpha(x, y, t)
 	return t
+end
+
+function room.render_light(light_rays, t)
+	local light_color = rgba(0.2, 0.2, 0.2)
+	for i,ray in ipairs(light_rays) do
+		for j,pos in ipairs(ray) do
+			-- skip first light, its brick
+			if j > 1 then
+				local p = world2screen(pos)
+				sprsheet.draw_centered(
+					'brick', light_layer, p, 0, 1, light_color
+				)
+			end
+		end
+	end
 end
 
 function room.render(t)
@@ -337,6 +409,10 @@ function room.render(t)
 			room.texts[text_idx], 10, 
 			room.texts_pos[text_idx], col
 		)
+	end
+
+	if not animation then
+		room.render_light(light_rays, t)
 	end
 
 	return true
