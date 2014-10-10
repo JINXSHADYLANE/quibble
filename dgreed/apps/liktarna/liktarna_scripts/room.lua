@@ -238,17 +238,29 @@ function room.cast_light()
 			p = p + dir
 
 			local objs = room.find_at_pos(p, true)
+			local reflect = false
 
-			-- mark when light hits an eye
 			if objs and #objs == 1 then
 				local o = objs[1]
+
+				-- mark when light hits an eye
 				if o.id == 'eye' then
 					o.lit = true
+				end
+
+				-- reflect light from mirrors
+				if o.id == 'mirror_l' then
+					dir = vec2(-dir.y, -dir.x)
+					reflect = true
+				end
+				if o.id == 'mirror_r' then
+					dir = vec2(dir.y, dir.x)
+					reflect = true
 				end
 			end
 
 			-- stop at any object
-			if objs then
+			if not reflect and objs then
 				break
 			end
 		end

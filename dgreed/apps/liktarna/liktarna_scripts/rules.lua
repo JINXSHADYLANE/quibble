@@ -7,14 +7,28 @@ rules.objects = {
 	brick = {legend = 'B', sprite = 'brick', glow = 'brick_glow', tint = rgba(0.9, 0.9, 0.9)},
 	wall = {legend = '#', sprite = 'brick', glow = 'brick_glow', tint = rgba(0.4, 0.4, 0.4)},
 	eye = {legend = 'e', sprite = 'brick', tint = rgba(0.5, 0.5, 0.5), layer=1}, 
+	mirror_l = {legend = 'l', sprite = 'brick', tint = rgba(0.8, 0.3, 0.3)},
+	mirror_r = {legend = 'r', sprite = 'brick', tint = rgba(0.3, 0.3, 0.8)},
 }
 
 rules.desc = {
-	-- player can push brick
+	-- player can push brick and mirrors
 	{'>', 'player', 'brick', '>', '>'},
+	{'>', 'player', 'mirror_l', '>', '>'},
+	{'>', 'player', 'mirror_r', '>', '>'},
 
-	-- brick can push brick
+	-- brick can push brick and mirrors
 	{'>', 'brick', 'brick', '>', '>'},
+	{'>', 'brick', 'mirror_l', '>', '>'},
+	{'>', 'brick', 'mirror_r', '>', '>'},
+
+	-- mirrors can push brick and mirrors
+	{'>', 'mirror_l', 'brick', '>', '>'},
+	{'>', 'mirror_l', 'mirror_l', '>', '>'},
+	{'>', 'mirror_l', 'mirror_r', '>', '>'},
+	{'>', 'mirror_r', 'brick', '>', '>'},
+	{'>', 'mirror_r', 'mirror_l', '>', '>'},
+	{'>', 'mirror_r', 'mirror_r', '>', '>'},
 
 	-- players and bricks can stand on stories
 	{'>', 'brick', 'story', '>', ''},
