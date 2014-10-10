@@ -1,11 +1,10 @@
 (sprsheet pyktis 
-	(prefix "pyktis_assets/")
+	(prefix "liktarna_assets/")
 
 	(img empty
 		(tex tiles.png)
 		(src 16,16,32,32)
 	)
-
 	(img brick
 		(tex tiles.png)
 		(src 0,0,48,48)
@@ -14,7 +13,6 @@
 		(tex tiles.png)
 		(src 0,48,96,144)
 	)
-
 	(img slot
 		(tex tiles.png)
 		(src 48,0,96,48)
@@ -23,12 +21,10 @@
 		(tex tiles.png)
 		(src 96,48,192,144)
 	)
-
 	(img player
 		(tex tiles.png)
 		(src 96,0,144,48)
 	)
-
 	(img story
 		(tex tiles.png)
 		(src 144,0,192,48)
@@ -37,9 +33,37 @@
 		(tex tiles.png)
 		(src 192,48,288,144)
 	)
-
 	(img brick_sticky
 		(tex tiles.png)
 		(src 192,0,240,48)
+	)
+
+	(img heart
+		(tex tiles.png)
+		(src 288,160,352,224)
+	)
+	(img receiver
+		(tex tiles.png)
+		(src 96,160,160,224)
+	)
+	(img receiver_active
+		(tex tiles.png)
+		(src 96,256,160,320)
+	)
+	(img mirror_1
+		(tex tiles.png)
+		(src 0,160,64,224)
+	)
+	(img mirror_2
+		(tex tiles.png)
+		(src 0,256,64,320)
+	)
+	(img cube
+		(tex tiles.png)
+		(src 192,160,256,224)
+	)
+	(img wall
+		(tex tiles.png)
+		(src 192,256,256,320)
 	)
 )
