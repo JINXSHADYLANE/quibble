@@ -52,7 +52,7 @@ function game_init()
 end
 
 function game_close()
-	sound.free(mus)
+	--sound.free(mus)
 	vfont.close()
 	sprsheet.close()
 	mfx.close()
