@@ -98,4 +98,45 @@
 		(tex background.png)
 		(src 0,0,800,600)
 	)
+
+	(img dot
+		(tex tiles.png)
+		(src 192,348,256,355)
+	)
+	(img ray_blur_v
+		(tex tiles.png)
+		(src 314,0,360,4)
+	)
+	(img ray_blur_h
+		(tex tiles.png)
+		(src 355,5,359,52)
+	)
+	(img receiver_blur
+		(tex tiles.png)
+		(src 360,0,436,76)
+	)
+	(img receiver_active_blur
+		(tex tiles.png)
+		(src 360,152,436,228)
+	)
+	(img pulse_blur
+		(tex tiles.png)
+		(src 360,76,436,152)
+	)
+	(img wall_blur
+		(tex tiles.png)
+		(src 436,0,512,76)
+	)
+	(img box_blur
+		(tex tiles.png)
+		(src 436,76,512,152)
+	)
+	(img mirror_1_blur
+		(tex tiles.png)
+		(src 436,152,512,228)
+	)
+	(img mirror_2_blur
+		(tex tiles.png)
+		(src 436,228,512,304)
+	)
 )
