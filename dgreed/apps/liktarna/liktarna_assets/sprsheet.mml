@@ -1,0 +1,146 @@
+(sprsheet pyktis 
+	(prefix "liktarna_assets/")
+
+	(img empty
+		(tex tiles.png)
+		(src 16,16,32,32)
+	)
+	(img brick
+		(tex tiles.png)
+		(src 0,0,48,48)
+	)
+	(img brick_glow
+		(tex tiles.png)
+		(src 0,48,96,144)
+	)
+	(img slot
+		(tex tiles.png)
+		(src 48,0,96,48)
+	)
+	(img slot_glow
+		(tex tiles.png)
+		(src 96,48,192,144)
+	)
+	(img player
+		(tex tiles.png)
+		(src 96,0,144,48)
+	)
+	(img story
+		(tex tiles.png)
+		(src 144,0,192,48)
+	)
+	(img story_glow
+		(tex tiles.png)
+		(src 192,48,288,144)
+	)
+	(img brick_sticky
+		(tex tiles.png)
+		(src 192,0,240,48)
+	)
+
+	(img heart
+		(tex tiles.png)
+		(src 288,160,352,224)
+	)
+	(img pulse
+		(tex tiles.png)
+		(src 298,266,342,310)
+	)
+	(img receiver
+		(tex tiles.png)
+		(src 96,160,160,224)
+	)
+	(img receiver_active
+		(tex tiles.png)
+		(src 96,256,160,320)
+	)
+	(img mirror_1
+		(tex tiles.png)
+		(src 0,160,64,224)
+	)
+	(img mirror_1_r1
+		(tex tiles.png)
+		(src 0,352,64,416)
+	)
+	(img mirror_1_r2
+		(tex tiles.png)
+		(src 96,352,160,416)
+	)
+	(img mirror_1_r3
+		(tex tiles.png)
+		(src 192,352,256,416)
+	)
+	(img mirror_2
+		(tex tiles.png)
+		(src 0,256,64,320)
+	)
+	(img mirror_2_r1
+		(tex tiles.png)
+		(src 0,448,64,512)
+	)
+	(img mirror_2_r2
+		(tex tiles.png)
+		(src 96,448,160,512)
+	)
+	(img mirror_2_r3
+		(tex tiles.png)
+		(src 192,448,256,512)
+	)
+	(img cube
+		(tex tiles.png)
+		(src 192,160,256,224)
+	)
+	(img wall
+		(tex tiles.png)
+		(src 192,256,256,320)
+	)
+	(img background
+		(tex background.png)
+		(src 0,0,800,600)
+	)
+	(img splash
+		(tex splash.png)
+		(src 0,0,800,600)
+	)
+
+	(img dot
+		(tex tiles.png)
+		(src 192,348,256,355)
+	)
+	(img ray_blur_v
+		(tex tiles.png)
+		(src 314,0,360,4)
+	)
+	(img ray_blur_h
+		(tex tiles.png)
+		(src 355,5,359,52)
+	)
+	(img receiver_blur
+		(tex tiles.png)
+		(src 360,0,436,76)
+	)
+	(img receiver_active_blur
+		(tex tiles.png)
+		(src 360,152,436,228)
+	)
+	(img pulse_blur
+		(tex tiles.png)
+		(src 360,76,436,152)
+	)
+	(img wall_blur
+		(tex tiles.png)
+		(src 436,0,512,76)
+	)
+	(img box_blur
+		(tex tiles.png)
+		(src 436,76,512,152)
+	)
+	(img mirror_1_blur
+		(tex tiles.png)
+		(src 436,152,512,228)
+	)
+	(img mirror_2_blur
+		(tex tiles.png)
+		(src 436,228,512,304)
+	)
+)
