@@ -24,7 +24,7 @@ local epilogue = require('epilogue')
 function game_init()
 	local scale = 1
 	local real_size = scr_size * scale
-	video.init_exr(real_size.x, real_size.y, scr_size.x, scr_size.y, 'Liktarna', false)
+	video.init_ex(real_size.x, real_size.y, scr_size.x, scr_size.y, 'Liktarna', false)
 	sound.init()
 
 --	particles.init(asset_dir, 1)
