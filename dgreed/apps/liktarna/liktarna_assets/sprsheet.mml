@@ -94,4 +94,8 @@
 		(tex tiles.png)
 		(src 192,256,256,320)
 	)
+	(img background
+		(tex background.png)
+		(src 0,0,800,600)
+	)
 )
