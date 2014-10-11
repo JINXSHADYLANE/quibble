@@ -58,9 +58,33 @@
 		(tex tiles.png)
 		(src 0,160,64,224)
 	)
+	(img mirror_1_r1
+		(tex tiles.png)
+		(src 0,352,64,416)
+	)
+	(img mirror_1_r2
+		(tex tiles.png)
+		(src 96,352,160,416)
+	)
+	(img mirror_1_r3
+		(tex tiles.png)
+		(src 192,352,256,416)
+	)
 	(img mirror_2
 		(tex tiles.png)
 		(src 0,256,64,320)
+	)
+	(img mirror_2_r1
+		(tex tiles.png)
+		(src 0,448,64,512)
+	)
+	(img mirror_2_r2
+		(tex tiles.png)
+		(src 96,448,160,512)
+	)
+	(img mirror_2_r3
+		(tex tiles.png)
+		(src 192,448,256,512)
 	)
 	(img cube
 		(tex tiles.png)
