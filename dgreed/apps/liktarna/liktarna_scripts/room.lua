@@ -421,7 +421,7 @@ function room.update()
 end
 
 function room.fade_alpha(x, y, t)
-	return t
+	return math.min(t*2, 1)
 end
 
 local n_rays = 8
@@ -479,8 +479,10 @@ function room.render(t)
 
 			-- eye active/inactive rendering hack
 			local sprite = obj.sprite
+			local glow_sprite = obj.glow
 			if obj.id == 'eye' and obj.lit == true then
 				sprite = 'receiver_active'
+				glow_sprite = 'receiver_active_blur'
 			end
 
 			-- mirror hack
@@ -511,7 +513,7 @@ function room.render(t)
 					layer = layer + obj.layer
 				end
 				sprsheet.draw_centered(
-					obj.glow, layer, pos, obj.rot, 1, obj.tint
+					glow_sprite, layer, pos, obj.rot, 1, obj.tint
 				)
 			end
 
@@ -520,8 +522,12 @@ function room.render(t)
 				local t = math.fmod(time.s(), 1)
 				local scale = 1 - math.sin(((t*t))*math.pi)/5
 				sprsheet.draw_centered(
-					'pulse', obj_layer + obj.layer+1, pos, obj.rot, scale, obj.tint
+					'pulse', obj_layer + obj.layer+2, pos, obj.rot, scale, obj.tint
 				)
+				sprsheet.draw_centered(
+					'pulse_blur', obj_layer + obj.layer+1, pos, obj.rot, scale, obj.tint
+				)
+
 			end
 
 			obj.tint.a = old_alpha
@@ -552,12 +558,14 @@ function room.render(t)
 		)
 	end
 
+	--local light_t = math.max(0, math.abs(t) - 0.5)
+	local light_t = t
 	if not update_light and animation then
-		room.render_light(light_rays, t)
+		room.render_light(light_rays, light_t)
 	end
 
 	if not animation then
-		room.render_light(light_rays, t)
+		room.render_light(light_rays, light_t)
 	end
 
 	if update_light then

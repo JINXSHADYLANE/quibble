@@ -35,13 +35,14 @@ function game_init()
 --	sound.play(mus, true)
 
 	states.prerender_callback(function()
+		sprsheet.draw('background', 0, vec2(0, 0))
 		sound.update()
 		mfx.update()
 --		particles.update()
 --		particles.draw()
 	end)
 
-	states.transition_len = 0.6
+	states.transition_len = 0.3
 	states.register('game', game)
 	states.register('room', room)
 	states.register('title', title)
