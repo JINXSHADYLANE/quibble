@@ -98,6 +98,10 @@
 		(tex background.png)
 		(src 0,0,800,600)
 	)
+	(img splash
+		(tex splash.png)
+		(src 0,0,800,600)
+	)
 
 	(img dot
 		(tex tiles.png)
