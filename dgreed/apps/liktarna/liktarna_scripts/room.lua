@@ -416,8 +416,7 @@ function room.update()
 
 	room.update_text()
 
-	--return true
-	return not key.down(key.quit)
+	return true
 end
 
 function room.fade_alpha(x, y, t)
