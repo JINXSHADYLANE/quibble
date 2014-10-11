@@ -1,0 +1,21 @@
+(mfx _
+	(prefix "gruodis_assets/")
+	(sounds _
+	)
+	(effects _
+		(e bullet_hit
+			(particles bullet_hit)
+		)
+		(e explode
+			(particles explode1)
+			(particles explode2)
+		)
+		(e wall_explode
+			(particles explode_dust)
+		)
+		(e bomb
+			(particles bomb)
+		)
+	)
+)
+

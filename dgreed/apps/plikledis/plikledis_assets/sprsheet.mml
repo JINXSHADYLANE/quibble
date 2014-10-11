@@ -1,0 +1,38 @@
+(sprsheet plikledis 
+	(prefix "plikledis_assets/")
+	(img empty
+		(tex "tiles.png")
+		(src 64,0,80,16)
+	)
+	(anim walls 
+		(tex "tiles.png")
+		(frames 16)
+		(src 0,0,16,16)
+		(offset 16,16)
+		(grid 4,4)
+	)
+	(img char
+		(tex "tiles.png")
+		(src 0,64,16,80)
+	)
+	(img fiend
+		(tex "tiles.png")
+		(src 0,80,16,96)
+	)
+	(img switch
+		(tex "tiles.png")
+		(src 16,64,32,80)
+	)
+	(img crate
+		(tex "tiles.png")
+		(src 32,64,48,80)
+	)
+	(img door
+		(tex "tiles.png")
+		(src 48,64,64,80)
+	)
+	(img door_open
+		(tex "tiles.png")
+		(src 64,64,80,80)
+	)
+)
