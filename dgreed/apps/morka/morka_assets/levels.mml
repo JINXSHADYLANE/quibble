@@ -1,0 +1,680 @@
+(levels morka
+	(level "Training"
+		(distance 0)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level1_fg)
+		(ground_chain grass_ground)
+	)
+	(level "Stage 2"
+		(distance 65)
+		(rabbits _
+			(max_combo 2
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+		)
+		(powerups _
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level2_fg)
+		(ground_chain grass_ground)
+	)
+	(level "Stage 3"
+		(distance 75)
+		(rabbits _
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 2
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+		)
+		(powerups _
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level3_fg)
+		(ground_chain grass_ground)
+	)
+	(level "Stage 4"
+		(distance 125)
+		(rabbits _
+			(max_combo 2
+				(speed 520)
+				(xjump 120)
+				(yjump 450)
+			)
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 6
+				(speed 520)
+				(xjump 120)
+				(yjump 420)
+			)
+		)
+		(powerups _
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level4_fg)
+		(ground_chain water_ground)
+	)
+	(level "Stage 5"
+		(distance 200)
+		(rabbits _
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
+				(yjump 450)
+			)
+			(max_combo 8
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 12
+				(speed 520)
+				(xjump 100)
+				(yjump 420)
+			)
+		)
+		(powerups _
+			(shield _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level5_fg)
+		(ground_chain grass_ground)
+	)
+	(level "Stage 6"
+		(distance 250)
+		(rabbits _
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
+				(yjump 450)
+			)
+			(max_combo 8
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 12
+				(speed 520)
+				(xjump 100)
+				(yjump 420)
+			)
+		)
+		(powerups _
+			(shield _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level6_fg)
+		(ground_chain water_ground)
+	)
+	(level "Stage 7"
+		(distance 300)
+		(rabbits _
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
+				(yjump 450)
+			)
+			(max_combo 8
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 12
+				(speed 520)
+				(xjump 120)
+				(yjump 420)
+			)
+		)
+		(powerups _	
+			(trampoline _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level7_fg)
+		(ground_chain level7_ground)
+	)
+	(level "Stage 8"
+		(distance 330)
+		(rabbits _
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
+				(yjump 450)
+			)
+			(max_combo 8
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 12
+				(speed 520)
+				(xjump 120)
+				(yjump 420)
+			)
+		)
+		(powerups _
+			(trampoline _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 4)
+				(xmin 0.1)
+				(xmax 1.0)
+			)		
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level8_fg)
+		(ground_chain level8_ground)
+	)
+	(level "Stage 9"
+		(distance 345)
+		(rabbits _
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
+				(yjump 450)
+			)
+			(max_combo 8
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 12
+				(speed 520)
+				(xjump 120)
+				(yjump 420)
+			)
+		)
+		(powerups _
+			(trampoline _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 2)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 5)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level9_fg)
+		(ground_chain level9_ground)
+	)
+	(level "Stage 10"
+		(distance 385)
+		(rabbits _
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
+				(yjump 450)
+			)
+			(max_combo 8
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 12
+				(speed 520)
+				(xjump 120)
+				(yjump 420)
+			)
+		)
+		(powerups _
+			(trampoline _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 3)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level10_fg)
+		(ground_chain level10_ground)
+	)
+	(level "Stage 11"
+		(distance 300)
+		(rabbits _
+			(max_combo 4
+				(speed 500)
+				(xjump 100)
+				(yjump 450)
+			)
+			(max_combo 8
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 12
+				(speed 520)
+				(xjump 120)
+				(yjump 420)
+			)
+		)
+		(powerups _
+			(trampoline _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 3)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)		
+		(background background)
+		(bg_chain bg)
+		(fg_chain level11_fg)
+		(ground_chain level11_ground)
+	)
+	(level "Stage 12"
+		(distance 300)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level11_fg)
+		(ground_chain level11_ground)
+		(rabbits _
+			(max_combo 30
+				(speed 510)
+				(xjump 110)
+				(yjump 410)
+			)
+			(max_combo 30
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 30
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
+		)
+		(powerups _
+			(trampoline _
+				(num 3)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 3)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)		
+	)
+	(level "Stage 13"
+		(distance 100)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level13_fg)
+		(ground_chain onlywater_ground)
+		(rabbits _
+			(max_combo 30
+				(speed 500)
+				(xjump 120)
+				(yjump 450)
+			)
+			(max_combo 30
+				(speed 600)
+				(xjump 140)
+				(yjump 430)
+			)
+			(max_combo 30
+				(speed 520)
+				(xjump 110)
+				(yjump 500)
+			)
+		)	
+	)
+	(level "Stage 14"
+		(distance 100)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level15_fg)
+		(ground_chain level15_ground)
+		(rabbits _
+			(max_combo 30
+				(speed 510)
+				(xjump 110)
+				(yjump 410)
+			)
+			(max_combo 20
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 10
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
+		)
+		(powerups _
+			(rocket _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)	
+	
+	)
+	(level "Stage 15"
+		(distance 200)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level16_fg)
+		(ground_chain level16_ground)
+		(rabbits _
+			(max_combo 25
+				(speed 510)
+				(xjump 110)
+				(yjump 410)
+			)
+			(max_combo 15
+				(speed 600)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 10
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
+		)
+		(powerups _
+			(trampoline _
+				(num 30)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 20)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)
+	)
+	(level "Stage 16"
+		(distance 150)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level10_fg)
+		(ground_chain water_ground)
+		(rabbits _
+			(max_combo 30
+				(speed 510)
+				(xjump 110)
+				(yjump 410)
+			)
+			(max_combo 20
+				(speed 500)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 10
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
+		)
+		(powerups _
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 10)
+				(xmin 0.5)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)	
+	)
+	(level "Stage 17"
+		(distance 300)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level16_fg)
+		(ground_chain level17_ground)
+		(rabbits _
+			(max_combo 25
+				(speed 510)
+				(xjump 110)
+				(yjump 410)
+			)
+			(max_combo 15
+				(speed 600)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 10
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
+		)
+		(powerups _
+			(trampoline _
+				(num 10)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 10)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)
+	)
+	(level "Stage 18"
+		(distance 700)
+		(background background)
+		(bg_chain bg)
+		(fg_chain level18_fg)
+		(ground_chain level18_ground)
+		(rabbits _
+			(max_combo 25
+				(speed 510)
+				(xjump 110)
+				(yjump 410)
+			)
+			(max_combo 15
+				(speed 600)
+				(xjump 100)
+				(yjump 400)
+			)
+			(max_combo 10
+				(speed 500)
+				(xjump 115)
+				(yjump 415)
+			)
+		)
+		(powerups _
+			(trampoline _
+				(num 30)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(shield _
+				(num 4)
+				(xmin 0.0)
+				(xmax 1.0)
+			)
+			(rocket _
+				(num 20)
+				(xmin 0.1)
+				(xmax 1.0)
+			)
+			(bomb _
+				(num 10)
+				(xmin 0.2)
+				(xmax 1.0)
+			)		
+		)		
+	)
+)
