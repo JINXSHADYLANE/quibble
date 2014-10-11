@@ -4,11 +4,11 @@ local rules = {}
 
 rules.objects = {
 	player = {legend = 'a', sprite = 'heart', tint = rgba(1, 1, 1), layer=5},
-	brick = {legend = 'B', sprite = 'cube', glow = 'cube', tint = rgba(1.0, 1.0, 1.0)},
-	wall = {legend = '#', sprite = 'wall', tint = rgba(1.0, 1.0, 1.0)},
-	eye = {legend = 'e', sprite = 'receiver', tint = rgba(1.0, 1.0, 1.0), layer=1}, 
-	mirror_l = {legend = 'l', sprite = 'mirror_1', tint = rgba(1.0, 1.0, 1.0)},
-	mirror_r = {legend = 'r', sprite = 'mirror_2', tint = rgba(1.0, 1.0, 1.0)},
+	brick = {legend = 'B', sprite = 'cube', glow = 'box_blur', tint = rgba(1.0, 1.0, 1.0)},
+	wall = {legend = '#', sprite = 'wall', glow = 'wall_blur', tint = rgba(1.0, 1.0, 1.0)},
+	eye = {legend = 'e', sprite = 'receiver', glow = 'receiver_blur', tint = rgba(1.0, 1.0, 1.0), layer=1}, 
+	mirror_l = {legend = 'l', sprite = 'mirror_1', glow = 'mirror_1_blur', tint = rgba(1.0, 1.0, 1.0)},
+	mirror_r = {legend = 'r', sprite = 'mirror_2', glow = 'mirror_2_blur', tint = rgba(1.0, 1.0, 1.0)},
 }
 
 rules.desc = {
