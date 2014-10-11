@@ -44,7 +44,7 @@
 	)
 	(img pulse
 		(tex tiles.png)
-		(src 266,298,310,342)
+		(src 298,266,342,310)
 	)
 	(img receiver
 		(tex tiles.png)

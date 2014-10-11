@@ -29,6 +29,8 @@ local text_vis = 0
 
 -- light rays (array of arrays of positions)
 local light_rays = {}
+local old_light_rays = {}
+local update_light = false
 
 -- controls
 local controls = {
@@ -230,8 +232,15 @@ function room.input(id, action)
 		recalc_light = true
 	end
 
+	update_light = false
 	if recalc_light then
-		light_rays = room.cast_light()
+		local new_light_rays = room.cast_light()
+		local equal = room.rays_eql(new_light_rays, light_rays)
+		if not equal then
+			old_light_rays = light_rays
+			light_rays = new_light_rays
+			update_light = true
+		end
 	end
 
 	if action == 'pause' then
@@ -263,10 +272,22 @@ function room.cast_light()
 
 				-- reflect light from mirrors
 				if o.id == 'mirror_l' then
+					if dir.y > 0 or dir.x > 0 then
+						o.lit = bit.bor(o.lit, 1)
+					end
+					if dir.x < 0 or dir.y < 0 then
+						o.lit = bit.bor(o.lit, 2)
+					end
 					dir = vec2(-dir.y, -dir.x)
 					reflect = true
 				end
 				if o.id == 'mirror_r' then
+					if dir.y > 0 or dir.x < 0 then
+						o.lit = bit.bor(o.lit, 1)
+					end
+					if dir.x > 0 or dir.y < 0 then
+						o.lit = bit.bor(o.lit, 2)
+					end
 					dir = vec2(dir.y, dir.x)
 					reflect = true
 				end
@@ -291,10 +312,13 @@ function room.cast_light()
 		return res
 	end
 
-	-- reset all eyes
+	-- reset all eyes and mirrors
 	for _,obj in ipairs(objects) do
 		if obj.id == 'eye' then
 			obj.lit = false
+		end
+		if obj.id == 'mirror_r' or obj.id == 'mirror_l' then
+			obj.lit = 0
 		end
 	end
 
@@ -311,16 +335,31 @@ function room.cast_light()
 		end
 	end
 
-	-- todo: remove duplicate rays?
-	
-	--[[
-	for i,ray in ipairs(light_rays) do
-		print(unpack(ray))
-	end
-	print('---')
-	]]
-
 	return light_rays
+end
+
+function room.ray_eql(a, b)
+	if #a == #b then
+		for i=1,#a do
+			if not eql_pos(a[i], b[i]) then
+				return false
+			end
+		end
+		return true
+	end
+	return false
+end
+
+function room.rays_eql(a, b)
+	if #a == #b then
+		for i=1,#a do
+			if not room.ray_eql(a[i], b[i]) then
+				return false
+			end
+		end
+		return true
+	end
+	return false
 end
 
 function room.win_condition()
@@ -389,7 +428,7 @@ local n_rays = 8
 local ray_gap = 5
 local sqrt_2_by_2 = math.sqrt(2) / 2
 function room.render_light(light_rays, t)
-	local light_color = rgba(1, 1, 1, 1 - math.abs(t))
+	local light_color = rgba(1, 1, 1, 1 - math.abs(math.sqrt(t)))
 	for i,ray in ipairs(light_rays) do
 		local s = ray[1]
 		for j,pos in ipairs(ray) do
@@ -405,44 +444,6 @@ function room.render_light(light_rays, t)
 						off = tan * (off * ray_gap)
 						video.draw_seg(light_layer,
 							ws + off, we + off, light_color
-						)
-					end
-				else
-					-- mirror rays
-					local ws, we = world2screen(s), world2screen(e)
-					local tan1 = normalize(vec2(tan.x, 0))
-					local tan2 = normalize(vec2(0, tan.y))
-
-					if tan.x > 0 and tan.y > 0 then
-						tan1, tan2 = tan2, tan1
-					end
-					if tan.x < 0 and tan.y < 0 then
-						tan1, tan2 = tan2, tan1
-					end
-
-					local wse = world2screen(s - tan1)
-					for k=1,n_rays do
-						local t = 0.2 + (k/n_rays * 0.6)
-						local off = ((-n_rays / 2) + (k-1)) + 0.5
-						off = tan2 * (off * ray_gap)
-						local s = ws + off
-						local e = wse + off
-						e = lerp(s, e, t)
-						video.draw_seg(light_layer,
-							s, e, light_color
-						)
-					end
-
-					local wes = world2screen(e - tan2)
-					for k=1,n_rays do
-						local t = 0.15 + (k/n_rays * 0.66)
-						local off = ((-n_rays / 2) + (k-1)) + 0.5
-						off = tan1 * (off * ray_gap)
-						local s = wes + off
-						local e = we + off
-						s = lerp(s, e, 1 - t)
-						video.draw_seg(light_layer,
-							s, e, light_color
 						)
 					end
 				end
@@ -482,6 +483,19 @@ function room.render(t)
 				sprite = 'receiver_active'
 			end
 
+			-- mirror hack
+			if obj.id == 'mirror_r' then
+				if obj.lit > 0 then
+					sprite = 'mirror_2_r'..tostring(obj.lit)
+				end
+			end
+			if obj.id == 'mirror_l' then
+				if obj.lit > 0 then
+					sprite = 'mirror_1_r'..tostring(obj.lit)
+				end
+			end
+
+
 			local layer = obj_layer
 			if obj.layer then
 				layer = layer + obj.layer
@@ -500,6 +514,16 @@ function room.render(t)
 					obj.glow, layer, pos, obj.rot, 1, obj.tint
 				)
 			end
+
+			-- player heartbeat hack
+			if obj.id == 'player' then
+				local t = math.fmod(time.s(), 1)
+				local scale = 1 - math.sin(((t*t))*math.pi)/5
+				sprsheet.draw_centered(
+					'pulse', obj_layer + obj.layer+1, pos, obj.rot, scale, obj.tint
+				)
+			end
+
 			obj.tint.a = old_alpha
 		end
 	end
@@ -513,6 +537,7 @@ function room.render(t)
 			end
 		end
 		animation = false
+		update_light = false
 		if room.win_condition() then
 			room.win = true
 			states.pop()
@@ -527,8 +552,18 @@ function room.render(t)
 		)
 	end
 
+	if not update_light and animation then
+		room.render_light(light_rays, t)
+	end
+
 	if not animation then
 		room.render_light(light_rays, t)
+	end
+
+	if update_light then
+		local t = math.sqrt(math.sqrt(anim_t))
+		room.render_light(old_light_rays, t)
+		room.render_light(light_rays, 1-t)
 	end
 
 	return true
