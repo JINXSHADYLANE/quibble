@@ -3,7 +3,7 @@ local rules = {}
 -- puzzlescript inspired declaration language
 
 rules.objects = {
-	player = {legend = 'a', sprite = 'heart', tint = rgba(1, 1, 1)},
+	player = {legend = 'a', sprite = 'heart', tint = rgba(1, 1, 1), layer=5},
 	brick = {legend = 'B', sprite = 'cube', glow = 'cube', tint = rgba(1.0, 1.0, 1.0)},
 	wall = {legend = '#', sprite = 'wall', tint = rgba(1.0, 1.0, 1.0)},
 	eye = {legend = 'e', sprite = 'receiver', tint = rgba(1.0, 1.0, 1.0), layer=1}, 

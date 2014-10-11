@@ -247,7 +247,7 @@ function room.cast_light()
 		local p = vec2(pos)
 
 		while true do
-			table.insert(res, vec2(p))
+			table.insert(res, vec2(p) + dir * 0.5)
 			p = p + dir
 
 			local objs = room.find_at_pos(p, true)
@@ -270,12 +270,22 @@ function room.cast_light()
 					dir = vec2(dir.y, dir.x)
 					reflect = true
 				end
+
+				-- add one more tile if player is hit
+				if o.id == 'player' then
+					table.insert(res, p)
+				end
 			end
 
 			-- stop at any object
 			if not reflect and objs then
 				break
 			end
+		end
+
+		-- add half a tile at the end
+		if #res > 1 then
+			table.insert(res, p - dir * 0.5)
 		end
 
 		return res
@@ -375,16 +385,68 @@ function room.fade_alpha(x, y, t)
 	return t
 end
 
+local n_rays = 8
+local ray_gap = 5
+local sqrt_2_by_2 = math.sqrt(2) / 2
 function room.render_light(light_rays, t)
-	local light_color = rgba(0.2, 0.2, 0.2, 1 - math.abs(t))
+	local light_color = rgba(1, 1, 1, 1 - math.abs(t))
 	for i,ray in ipairs(light_rays) do
+		local s = ray[1]
 		for j,pos in ipairs(ray) do
 			-- skip first light, it is a brick
 			if j > 1 then
-				local p = world2screen(pos)
-				sprsheet.draw_centered(
-					'brick', light_layer, p, 0, 1, light_color
-				)
+				local e = pos
+				local tan = normalize(rotate(e - s, math.pi/2))
+				if not feql(math.abs(tan.x), sqrt_2_by_2) then
+					-- straight rays
+					local ws, we = world2screen(s), world2screen(e)
+					for k=1,n_rays do
+						local off = ((-n_rays / 2) + (k-1)) + 0.5
+						off = tan * (off * ray_gap)
+						video.draw_seg(light_layer,
+							ws + off, we + off, light_color
+						)
+					end
+				else
+					-- mirror rays
+					local ws, we = world2screen(s), world2screen(e)
+					local tan1 = normalize(vec2(tan.x, 0))
+					local tan2 = normalize(vec2(0, tan.y))
+
+					if tan.x > 0 and tan.y > 0 then
+						tan1, tan2 = tan2, tan1
+					end
+					if tan.x < 0 and tan.y < 0 then
+						tan1, tan2 = tan2, tan1
+					end
+
+					local wse = world2screen(s - tan1)
+					for k=1,n_rays do
+						local t = 0.2 + (k/n_rays * 0.6)
+						local off = ((-n_rays / 2) + (k-1)) + 0.5
+						off = tan2 * (off * ray_gap)
+						local s = ws + off
+						local e = wse + off
+						e = lerp(s, e, t)
+						video.draw_seg(light_layer,
+							s, e, light_color
+						)
+					end
+
+					local wes = world2screen(e - tan2)
+					for k=1,n_rays do
+						local t = 0.15 + (k/n_rays * 0.66)
+						local off = ((-n_rays / 2) + (k-1)) + 0.5
+						off = tan1 * (off * ray_gap)
+						local s = wes + off
+						local e = we + off
+						s = lerp(s, e, 1 - t)
+						video.draw_seg(light_layer,
+							s, e, light_color
+						)
+					end
+				end
+				s = e
 			end
 		end
 	end
