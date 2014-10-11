@@ -42,6 +42,10 @@
 		(tex tiles.png)
 		(src 288,160,352,224)
 	)
+	(img pulse
+		(tex tiles.png)
+		(src 266,298,310,342)
+	)
 	(img receiver
 		(tex tiles.png)
 		(src 96,160,160,224)
