@@ -29,7 +29,6 @@ function game_init()
 --	particles.init(asset_dir, 1)
 	mfx.init(asset_dir..'effects.mml')
 	sprsheet.init(asset_dir..'sprsheet.mml')
-	vfont.select(fnt, 40)
 	mus = sound.load_stream(asset_dir..'mushrooms.ogg')
 	sound.play(mus, true)
 
