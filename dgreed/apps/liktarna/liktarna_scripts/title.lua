@@ -1,7 +1,9 @@
 local title = {}
 
 function title.update()
-	if char.pressed(' ') then
+	if char.pressed(' ') or key.pressed(key._down)
+		or key.pressed(key._up) or key.pressed(key._left)
+		or key.pressed(key._right) then
 		states.replace('game')
 	end
 	return true
