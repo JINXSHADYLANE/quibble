@@ -1825,6 +1825,7 @@ char* dir_contents(const char* _dir, int* count) {
 	assert(_dir);
 	assert(count);
 
+#ifndef _WIN32
 	*count = 0;
 	DIR* dir = NULL;
 
@@ -1874,6 +1875,7 @@ char* dir_contents(const char* _dir, int* count) {
 		return contents;
 	}
 	else
+#endif
 		return NULL;
 }
 
