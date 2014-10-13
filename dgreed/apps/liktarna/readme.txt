@@ -7,11 +7,15 @@ the job I have won't make me stall
 for I am clever orange ball
 
 Made in 24 hours during Live Mobile Jam '14 in Vilnius.
+Music is called Mushrrooms Says, by Alexei Mikryukov 
+aka King Imagine, licensed under CC-BY-NC-SA.
+
+Source code can be found at:
+http://code.google.com/p/quibble
+
 
 Andrius Mitkus
 Domas Markevičius
 
----
-andrius.mitkus@gmail.com
-2014.10.11
+2014.10.13
 
